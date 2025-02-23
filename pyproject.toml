@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "bt-platform"
+name = "bt-backtest"
 version = "0.1.0"
 description = "backtest"
 authors = ["hengxin.liu <hengxin.liu@inceptio.ai>"]
