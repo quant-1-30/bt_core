@@ -1,3 +1,5 @@
+Fake it until you make it
+
 
 addbindings
 indicators linesiterator lineseries

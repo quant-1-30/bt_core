@@ -83,6 +83,9 @@ class AdjustedArray:
            后复权：复权后价格=复权前价格×(1+流通股份变动比例)+现金红利
            
            配股除权价=（除权登记日收盘价+配股价*每股配股比例）/(1+每股配股比例）
+
+           股权登记日下一个交易日就是除权日或除息日
+           上交所证券的红股上市日为股权除权日的下一个交易日;深交所证券的红股上市日为股权登记日后的第3个交易日
         
         Calculate the ratios to apply to equities when looking back at pricing
         history so that the price is smoothed over the ex_date, when the market
