@@ -10,6 +10,32 @@ from copy import deepcopy
 from util.wrapper import  ignore_pandas_nan_categorical_warning
 
 
+def unstack_value(result, assets, missing_value):
+    """
+    Called with a column of the result of a pipe. This needs to put
+    the data into a format that can be used in a workspace to continue
+    doing computations.
+
+    Parameters
+    ----------
+    result : pd.Series
+        A multiindexed series with (dates, assets) whose values are the
+        results of running this pipe term over the dates.
+    assets : pd.Index
+        All of the assets being requested. This allows us to correctly
+        shape the workspace value.
+
+    Returns
+    -------
+    workspace_value : array-like
+        An array like value that the engine can consume.
+    """
+    return result.unstack().fillna(missing_value).reindex(
+        columns=assets,
+        fill_value=missing_value,
+    ).values
+
+
 # def asymmetric_round_price(price, prefer_round_down, tick_size, diff=0.95):
 #     """
 #         Asymmetric rounding function for adjusting prices to the specified number

@@ -12,7 +12,7 @@ from collections import defaultdict
 from utils.input_validation import expect_types
 
 from .graph import TermGraph, ExecutionPlan
-from .hooks import DelegatingHooks
+from .hook import DelegatingHooks
 from .assets import AssetFinder
 
 
@@ -28,6 +28,31 @@ def compute_range_chunks(masks, chunksize):
         )
     )
 
+"""
+instructions:
+    防止策略冲突 当pipeline的结果与ump的结果出现重叠 --- 说明存在问题,正常情况退出策略与买入策略应该不存交集
+
+    1. engine共用一个ump ---- 解决了不同策略产生的相同标的可以同一时间退出
+    2. engine --- 不同的pipeline对应不同的ump,产生1中的问题,相同的标的不会在同一时间退出是否合理（冲突）
+
+    退出策略 --- 针对标的,与标的是如何产生的不存在直接关系;只能根据资产类别的有关 --- 1
+    如果产生冲突 --- 当天卖出标的与买入标的产生重叠 说明策略是有问题的ump --- pipelines 对立的
+    symbol ,etf 的退出策略可以相同,但是bond 属于T+0 机制不一样
+
+    建仓逻辑 --- 逐步建仓 1/2 原则 --- 1 优先发生信号先建仓 ,后发信号仓位变为剩下的1/2 提高资金利用效率
+                                    2 如果没新的信号 --- 在已经持仓的基础加仓（不管资金是否足够或者设定一个底层资金池）
+    ---- 变相限定了单次单个标的最大持仓为1/2
+    position + pipe - ledger ---  (当ledger为空 --- position也为空)
+
+    关于ump --- 只要当天不是一直在跌停价格,以全部出货为原则,涉及一个滑价问题 position的成交额 与前一周的成交额占比
+    评估滑价）,如果当天没有买入,可以适当放宽（开盘的时候卖出大部分,剩下的等等）
+    如果存在买入标的的行为则直接按照全部出货原则以open价格最大比例卖出 ,一般来讲集合竞价的代表主力卖入意愿强度）
+    ---- 侧面解决了卖出转为买入的断层问题 transfer1
+    a. 不同的pipeline --- 各自执行算法,不干涉 ,就算标的重合（但是不同时间的买入）,但是会在同一时间退出
+    b. 每个Pipeline 存在一个alternatives(确保最大限度可以成交）,默认为最大持仓个数 --- len(self.pipelines)
+        如果alternatives 太大 --- 降低标的准备行影响收益 ,如果太小 --- 到时空仓的概率变大影响收益（由于国内涨跌停制度）
+    c. 考虑需要剔除的持仓（配股持仓 或者 risk management)
+"""
 
 class GraphEngine(ABC):
     """

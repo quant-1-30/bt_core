@@ -139,3 +139,6 @@ class AssetControl(TradingControl):
 
 #     def validate(self, order_meta: OrderMeta, control_meta: ControlMeta):
 #         pass
+
+
+# fuse control
