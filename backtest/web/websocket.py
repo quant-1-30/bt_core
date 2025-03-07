@@ -263,7 +263,7 @@ class WebsocketClient(object):
         self, exception_type: type, exception_value: Exception, tb
     ):
         """
-        Print detailed exception information ； traceback
+        Print detailed exception information;traceback
         """
         text = "[{}]: Unhandled WebSocket Error:{}\n".format(
             datetime.now().isoformat(), exception_type

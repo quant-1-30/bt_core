@@ -226,7 +226,9 @@ zipline filter ---> nanpercentile / ~ / & / isin /frozenset / ().view(uint8)
 
 vnpy rpc --- select / poll / epoll (fd_set / pollfd / avl + ready_link) rpc which client has not method
 vnpy event_driven ---> event_engine (thread / queue / register) 
-vnpy gateway  
+vnpy gateway mainengine (include omsengine / logengine / emsengine which register handler to event_engine) 
+
+plugin ---> importlib.metadata ( setuptools.entrypoints ) / pluggy
 
 
 优化部分:
