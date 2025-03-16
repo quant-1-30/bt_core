@@ -25,6 +25,7 @@ from __future__ import (absolute_import, division, print_function,
 from indicators import CrossOver
 from meta.strategy import Strategy
 
+
 class MA_CrossOver(Strategy):
     '''This is a long-only strategy which operates on a moving average cross
 

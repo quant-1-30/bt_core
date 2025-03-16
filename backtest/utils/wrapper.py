@@ -648,8 +648,3 @@ def make_context():
         yield {}
     except RuntimeError as err:
         print(f"{err=}")
-
-
-# if __name__ == "__main__":
-#     # print("---------------")
-#     func('作为装饰器运行')
