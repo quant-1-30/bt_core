@@ -18,12 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 from datetime import date, datetime, timedelta
 
-from meta.dataseries import TimeFrame
-from meta.metabase import with_metaclass
-from meta import metabase
+from backtrader import TimeFrame
+from backtrader.utils.py3 import with_metaclass
+from .. import metabase
 
 
 class CalendarDays(with_metaclass(metabase.MetaParams, object)):

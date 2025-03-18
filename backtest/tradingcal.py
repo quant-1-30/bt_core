@@ -25,7 +25,6 @@ from datetime import datetime, timedelta, time
 from .metabase import MetaParams
 from utils.dateintern import UTC
 
-__all__ = ['TradingCalendarBase', 'TradingCalendar', 'PandasMarketCalendar']
 
 # Imprecission in the full time conversion to float would wrap over to next day
 # if microseconds is 999999 as defined in time.max
@@ -583,3 +582,4 @@ class Calendar (object):
         return closes, _closes
 
 
+__all__ = ['TradingCalendarBase', 'TradingCalendar', 'PandasMarketCalendar']

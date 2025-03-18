@@ -18,12 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import collections
 from datetime import datetime, timedelta
 
-from meta.feed import AbstractDataBase
-from meta.dataseries import TimeFrame
+from backtrader import AbstractDataBase, TimeFrame
 
 
 class DataFiller(AbstractDataBase):

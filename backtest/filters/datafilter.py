@@ -18,11 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
-from meta.feed import AbstractDataBase
+import backtrader as bt
 
 
-class DataFilter(AbstractDataBase):
+class DataFilter(bt.AbstractDataBase):
     '''
     This class filters out bars from a given data source. In addition to the
     standard parameters of a DataBase it takes a ``funcfilter`` parameter which

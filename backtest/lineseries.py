@@ -20,7 +20,6 @@
 ###############################################################################
 
 import sys
-import pdb
 
 from .linebuffer import LineBuffer, LineActions, NAN
 from .lineroot import LineMultiple

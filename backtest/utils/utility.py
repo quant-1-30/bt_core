@@ -5,9 +5,14 @@ Created on Tue Mar 12 15:37:47 2019
 
 @author: python
 """
-import os, inspect, numpy as np, pandas as pd, logging
+import os
+import inspect
+import numpy as np
+import pandas as pd
+import logging
 from copy import deepcopy
-from util.wrapper import  ignore_pandas_nan_categorical_warning
+from functools import partial
+from .wrapper import  ignore_pandas_nan_categorical_warning
 
 
 def unstack_value(result, assets, missing_value):
@@ -121,7 +126,7 @@ def display():
         pd.options.display.max_columns = 20
         pandas精度浮点数显示4位
         pd.options.display.precision = 4
-        numpy精度浮点数显示4位，不使用科学计数法
+        numpy精度浮点数显示4位, 不使用科学计数法
         np.set_printoptions(precision=4, suppress=True)
     """
 
@@ -218,11 +223,11 @@ def cache_dir(environ):
     try:
         return environ['EMPYRICAL_CACHE_DIR']
     except KeyError:
-        return join(
+        return os.path.join(
 
             environ.get(
                 'XDG_CACHE_HOME',
-                expanduser('~/.cache/'),
+                os.path.expanduser('~/.cache/'),
             ),
             'empyrical',
         )
@@ -319,7 +324,7 @@ g_project_log_dir = 'c_test'
 
 def init_logging(g_project_log_info):
     """
-    logging相关初始化工作，配置log级别，默认写入路径，输出格式
+    logging相关初始化工作, 配置log级别, 默认写入路径, 输出格式
     """
     if not os.path.exists(g_project_log_dir):
         # 创建log文件夹
@@ -347,8 +352,8 @@ def quantiles(data, nbins_or_partition_bounds):
     """
     Compute rowwise array quantiles on an input.
     """
-    return apply_along_axis(
-        qcut,
+    return np.apply_along_axis(
+        np.qcut,
         1,
         data,
         q=nbins_or_partition_bounds, labels=False,
@@ -948,7 +953,7 @@ def rolling_window(array, length, mutable=False):
     #三维
     new_shape = (num_windows, length) + orig_shape[1:]
     new_strides = (array.strides[0],) + array.strides
-    out = as_strided(array, new_shape, new_strides)
+    out = np.lib.stride_tricks.as_strided(array, new_shape, new_strides)
     out.setflags(write=mutable)
     return out
 

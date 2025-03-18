@@ -493,125 +493,125 @@ class Strategy(metaclass=MetaStrategy):
         '''Called right before the backtesting is about to be stopped'''
         pass
 
-    # def set_tradehistory(self, onoff=True):
-    #     self._tradehistoryon = onoff
+    def set_tradehistory(self, onoff=True):
+        self._tradehistoryon = onoff
 
-    # def clear(self):
-    #     self._orders.extend(self._orderspending)
-    #     self._orderspending = list()
-    #     self._tradespending = list()
+    def clear(self):
+        self._orders.extend(self._orderspending)
+        self._orderspending = list()
+        self._tradespending = list()
 
-    # def _addnotification(self, order, quicknotify=False):
-    #     if not order.p.simulated:
-    #         self._orderspending.append(order)
+    def _addnotification(self, order, quicknotify=False):
+        if not order.p.simulated:
+            self._orderspending.append(order)
 
-    #     if quicknotify:
-    #         qorders = [order]
-    #         qtrades = []
+        if quicknotify:
+            qorders = [order]
+            qtrades = []
 
-    #     if not order.executed.size:
-    #         if quicknotify:
-    #             self._notify(qorders=qorders, qtrades=qtrades)
-    #         return
+        if not order.executed.size:
+            if quicknotify:
+                self._notify(qorders=qorders, qtrades=qtrades)
+            return
 
-    #     tradedata = order.data._compensate
-    #     if tradedata is None:
-    #         tradedata = order.data
+        tradedata = order.data._compensate
+        if tradedata is None:
+            tradedata = order.data
 
-    #     datatrades = self._trades[tradedata][order.tradeid]
-    #     if not datatrades:
-    #         trade = Trade(data=tradedata, tradeid=order.tradeid,
-    #                       historyon=self._tradehistoryon)
-    #         datatrades.append(trade)
-    #     else:
-    #         trade = datatrades[-1]
+        datatrades = self._trades[tradedata][order.tradeid]
+        if not datatrades:
+            trade = Trade(data=tradedata, tradeid=order.tradeid,
+                          historyon=self._tradehistoryon)
+            datatrades.append(trade)
+        else:
+            trade = datatrades[-1]
 
-    #     for exbit in order.executed.iterpending():
-    #         if exbit is None:
-    #             break
+        for exbit in order.executed.iterpending():
+            if exbit is None:
+                break
 
-    #         if exbit.closed:
-    #             trade.update(order,
-    #                          exbit.closed,
-    #                          exbit.price,
-    #                          exbit.closedvalue,
-    #                          exbit.closedcomm,
-    #                          exbit.pnl,
-    #                          comminfo=order.comminfo)
+            if exbit.closed:
+                trade.update(order,
+                             exbit.closed,
+                             exbit.price,
+                             exbit.closedvalue,
+                             exbit.closedcomm,
+                             exbit.pnl,
+                             comminfo=order.comminfo)
 
-    #             if trade.isclosed:
-    #                 self._tradespending.append(copy.copy(trade))
-    #                 if quicknotify:
-    #                     qtrades.append(copy.copy(trade))
+                if trade.isclosed:
+                    self._tradespending.append(copy.copy(trade))
+                    if quicknotify:
+                        qtrades.append(copy.copy(trade))
 
-    #         # Update it if needed
-    #         if exbit.opened:
-    #             if trade.isclosed:
-    #                 trade = Trade(data=tradedata, tradeid=order.tradeid,
-    #                               historyon=self._tradehistoryon)
-    #                 datatrades.append(trade)
+            # Update it if needed
+            if exbit.opened:
+                if trade.isclosed:
+                    trade = Trade(data=tradedata, tradeid=order.tradeid,
+                                  historyon=self._tradehistoryon)
+                    datatrades.append(trade)
 
-    #             trade.update(order,
-    #                          exbit.opened,
-    #                          exbit.price,
-    #                          exbit.openedvalue,
-    #                          exbit.openedcomm,
-    #                          exbit.pnl,
-    #                          comminfo=order.comminfo)
+                trade.update(order,
+                             exbit.opened,
+                             exbit.price,
+                             exbit.openedvalue,
+                             exbit.openedcomm,
+                             exbit.pnl,
+                             comminfo=order.comminfo)
 
-    #             # This extra check covers the case in which different tradeid
-    #             # orders have put the position down to 0 and the next order
-    #             # "opens" a position but "closes" the trade
-    #             if trade.isclosed:
-    #                 self._tradespending.append(copy.copy(trade))
-    #                 if quicknotify:
-    #                     qtrades.append(copy.copy(trade))
+                # This extra check covers the case in which different tradeid
+                # orders have put the position down to 0 and the next order
+                # "opens" a position but "closes" the trade
+                if trade.isclosed:
+                    self._tradespending.append(copy.copy(trade))
+                    if quicknotify:
+                        qtrades.append(copy.copy(trade))
 
-    #         if trade.justopened:
-    #             self._tradespending.append(copy.copy(trade))
-    #             if quicknotify:
-    #                 qtrades.append(copy.copy(trade))
+            if trade.justopened:
+                self._tradespending.append(copy.copy(trade))
+                if quicknotify:
+                    qtrades.append(copy.copy(trade))
 
-    #     if quicknotify:
-    #         self._notify(qorders=qorders, qtrades=qtrades)
+        if quicknotify:
+            self._notify(qorders=qorders, qtrades=qtrades)
 
-    # def _notify(self, qorders=[], qtrades=[]):
-    #     if self.cerebro.p.quicknotify:
-    #         # need to know if quicknotify is on, to not reprocess pendingorders
-    #         # and pendingtrades, which have to exist for things like observers
-    #         # which look into it
-    #         procorders = qorders
-    #         proctrades = qtrades
-    #     else:
-    #         procorders = self._orderspending
-    #         proctrades = self._tradespending
+    def _notify(self, qorders=[], qtrades=[]):
+        if self.cerebro.p.quicknotify:
+            # need to know if quicknotify is on, to not reprocess pendingorders
+            # and pendingtrades, which have to exist for things like observers
+            # which look into it
+            procorders = qorders
+            proctrades = qtrades
+        else:
+            procorders = self._orderspending
+            proctrades = self._tradespending
 
-    #     for order in procorders:
-    #         if order.exectype != order.Historical or order.histnotify:
-    #             self.notify_order(order)
-    #         for analyzer in itertools.chain(self.analyzers,
-    #                                         self._slave_analyzers):
-    #             analyzer._notify_order(order)
+        for order in procorders:
+            if order.exectype != order.Historical or order.histnotify:
+                self.notify_order(order)
+            for analyzer in itertools.chain(self.analyzers,
+                                            self._slave_analyzers):
+                analyzer._notify_order(order)
 
-    #     for trade in proctrades:
-    #         self.notify_trade(trade)
-    #         for analyzer in itertools.chain(self.analyzers,
-    #                                         self._slave_analyzers):
-    #             analyzer._notify_trade(trade)
+        for trade in proctrades:
+            self.notify_trade(trade)
+            for analyzer in itertools.chain(self.analyzers,
+                                            self._slave_analyzers):
+                analyzer._notify_trade(trade)
 
-    #     if qorders:
-    #         return  # cash is notified on a regular basis
+        if qorders:
+            return  # cash is notified on a regular basis
 
-    #     cash = self.broker.getcash()
-    #     value = self.broker.getvalue()
-    #     fundvalue = self.broker.fundvalue
-    #     fundshares = self.broker.fundshares
+        cash = self.broker.getcash()
+        value = self.broker.getvalue()
+        fundvalue = self.broker.fundvalue
+        fundshares = self.broker.fundshares
 
-    #     self.notify_cashvalue(cash, value)
-    #     self.notify_fund(cash, value, fundvalue, fundshares)
-    #     for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-    #         analyzer._notify_cashvalue(cash, value)
-    #         analyzer._notify_fund(cash, value, fundvalue, fundshares)
+        self.notify_cashvalue(cash, value)
+        self.notify_fund(cash, value, fundvalue, fundshares)
+        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+            analyzer._notify_cashvalue(cash, value)
+            analyzer._notify_fund(cash, value, fundvalue, fundshares)
 
     def add_timer(self, when,
                   offset=datetime.timedelta(), repeat=datetime.timedelta(),
