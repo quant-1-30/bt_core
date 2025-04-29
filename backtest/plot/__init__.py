@@ -21,43 +21,23 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import backtrader as bt
-
-(
-
-    SIGNAL_NONE,
-    SIGNAL_LONGSHORT,
-    SIGNAL_LONG,
-    SIGNAL_LONG_INV,
-    SIGNAL_LONG_ANY,
-    SIGNAL_SHORT,
-    SIGNAL_SHORT_INV,
-    SIGNAL_SHORT_ANY,
-    SIGNAL_LONGEXIT,
-    SIGNAL_LONGEXIT_INV,
-    SIGNAL_LONGEXIT_ANY,
-    SIGNAL_SHORTEXIT,
-    SIGNAL_SHORTEXIT_INV,
-    SIGNAL_SHORTEXIT_ANY,
-
-) = range(14)
+import sys
 
 
-SignalTypes = [
-    SIGNAL_NONE,
-    SIGNAL_LONGSHORT,
-    SIGNAL_LONG, SIGNAL_LONG_INV, SIGNAL_LONG_ANY,
-    SIGNAL_SHORT, SIGNAL_SHORT_INV, SIGNAL_SHORT_ANY,
-    SIGNAL_LONGEXIT, SIGNAL_LONGEXIT_INV, SIGNAL_LONGEXIT_ANY,
-    SIGNAL_SHORTEXIT, SIGNAL_SHORTEXIT_INV, SIGNAL_SHORTEXIT_ANY
-]
+try:
+    import matplotlib
+except ImportError:
+    raise ImportError(
+        'Matplotlib seems to be missing. Needed for plotting support')
+else:
+    touse = 'TKAgg' if sys.platform != 'darwin' else 'MacOSX'
+    try:
+        matplotlib.use(touse)
+    except:
+        # if another backend has already been loaded, an exception will be
+        # generated and this can be skipped
+        pass
 
 
-class Signal(bt.Indicator):
-    SignalTypes = SignalTypes
-
-    lines = ('signal',)
-
-    def __init__(self):
-        self.lines.signal = self.data0.lines[0]
-        self.plotinfo.plotmaster = getattr(self.data0, '_clock', self.data0)
+from .plot import Plot, Plot_OldSync
+from .scheme import PlotScheme

@@ -95,6 +95,7 @@ class MetaBase(type):
     def dopostinit(cls, _obj, *args, **kwargs):
         return _obj, args, kwargs
 
+    # 元类创造类 , __call__ 参数为cls  / 类似于 一般类 , __call__ 参数为self (可以将__new__ / __init__ 纳入其中)
     def __call__(cls, *args, **kwargs):
         print("entering metabase __call__", args, kwargs)
         cls, args, kwargs = cls.doprenew(*args, **kwargs)

@@ -2,7 +2,7 @@
 name = "bt-backtest"
 version = "0.1.0"
 description = "backtest"
-authors = ["hengxin.liu <hengxin.liu@inceptio.ai>"]
+authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -10,7 +10,19 @@ python = "^3.9"
 pyarrow = "^19.0.1"
 ipython = "7.31.1"
 colorama = "^0.4.6"
+bt_sdk = "0.3.0"
 
+[[tool.poetry.source]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+# optional: make this your default source for all installs
+default = true
+
+[[tool.poetry.source]]
+name = "devpi"
+url = "http://localhost:3141/bt_sdk/dev/+simple/"
+# optional: make this your default source for all installs
+secondary = true
 
 [build-system]
 requires = ["poetry-core"]

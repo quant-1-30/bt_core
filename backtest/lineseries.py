@@ -414,9 +414,6 @@ class MetaLineSeries(LineMultiple.__class__):
         # _obj.plotinfo shadows the plotinfo (class) definition in the class
         _obj.plotlines = cls.plotlines()
 
-        # _obj.lines shadows the lines (class) definition in the class
-        _obj.lines = cls.lines()
-
         # add aliases for lines and for the lines class itself
         _obj.l = _obj.lines
         if _obj.lines.fullsize():
@@ -492,53 +489,17 @@ class LineSeries(with_metaclass(MetaLineSeries, LineMultiple)):
 
     def _getline(self, line, minusall=False):
         if isinstance(line, str):
+            # attribute
             lineobj = getattr(self.lines, line)
         else:
             if line == -1:  # restore original api behavior - default -> 0
                 if minusall:  # minus means ... all lines
                     return None
                 line = 0
+            # __getitem__
             lineobj = self.lines[line]
 
         return lineobj
-
-    # def __call__(self, ago=None, line=-1):
-    #     '''Returns either a delayed verison of itself in the form of a
-    #     LineDelay object or a timeframe adapting version with regards to a ago
-
-    #     Param: ago (default: None)
-
-    #       If ago is None or an instance of LineRoot (a lines object) the
-    #       returned valued is a LineCoupler instance
-
-    #       If ago is anything else, it is assumed to be an int and a LineDelay
-    #       object will be returned
-
-    #     Param: line (default: -1)
-    #       If a LinesCoupler will be returned ``-1`` means to return a
-    #       LinesCoupler which adapts all lines of the current LineMultiple
-    #       object. Else the appropriate line (referenced by name or index) will
-    #       be LineCoupled
-
-    #       If a LineDelay object will be returned, ``-1`` is the same as ``0``
-    #       (to retain compatibility with the previous default value of 0). This
-    #       behavior will change to return all existing lines in a LineDelayed
-    #       form
-
-    #       The referenced line (index or name) will be LineDelayed
-    #     '''
-    #     from .lineiterator import LinesCoupler  # avoid circular import
-
-    #     if ago is None or isinstance(ago, LineRoot):
-    #         args = [self, ago]
-    #         lineobj = self._getline(line, minusall=True)
-    #         if lineobj is not None:
-    #             args[0] = lineobj
-
-    #         return LinesCoupler(*args, _ownerskip=self)
-
-    #     # else -> assume type(ago) == int -> return LineDelay object
-    #     return LineDelay(self._getline(line), ago, _ownerskip=self)
 
     # The operations below have to be overriden to make sure subclasses can
     # reach them using "super" which will not call __getattr__ and

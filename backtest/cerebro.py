@@ -38,6 +38,7 @@ from .strategy import Strategy, SignalStrategy
 from .tradingcal import (TradingCalendarBase, TradingCalendar,
                          PandasMarketCalendar)
 from .timer import Timer
+from bt_sdk.core.client import TdApi
 
 # Defined here to make it pickable. Ideally it could be defined inside Cerebro
 
@@ -262,7 +263,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         Set to ``False`` for compatibility. May be changed to ``True``
 
     '''
-
     params = (
         ('preload', True),
         ('runonce', True),
@@ -309,7 +309,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self._dataid = itertools.count(1)
 
-        self._broker = BackBroker()
+        # self._broker = BackBroker()
         self._broker.cerebro = self
 
         self._tradingcal = None  # TradingCalendar()
@@ -333,71 +333,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             niterable.append(elem)
 
         return niterable
-
-    def set_fund_history(self, fund):
-        '''
-        Add a history of orders to be directly executed in the broker for
-        performance evaluation
-
-          - ``fund``: is an iterable (ex: list, tuple, iterator, generator)
-            in which each element will be also an iterable (with length) with
-            the following sub-elements (2 formats are possible)
-
-            ``[datetime, share_value, net asset value]``
-
-            **Note**: it must be sorted (or produce sorted elements) by
-              datetime ascending
-
-            where:
-
-              - ``datetime`` is a python ``date/datetime`` instance or a string
-                with format YYYY-MM-DD[THH:MM:SS[.us]] where the elements in
-                brackets are optional
-              - ``share_value`` is an float/integer
-              - ``net_asset_value`` is a float/integer
-        '''
-        self._fhistory = fund
-
-    def add_order_history(self, orders, notify=True):
-        '''
-        Add a history of orders to be directly executed in the broker for
-        performance evaluation
-
-          - ``orders``: is an iterable (ex: list, tuple, iterator, generator)
-            in which each element will be also an iterable (with length) with
-            the following sub-elements (2 formats are possible)
-
-            ``[datetime, size, price]`` or ``[datetime, size, price, data]``
-
-            **Note**: it must be sorted (or produce sorted elements) by
-              datetime ascending
-
-            where:
-
-              - ``datetime`` is a python ``date/datetime`` instance or a string
-                with format YYYY-MM-DD[THH:MM:SS[.us]] where the elements in
-                brackets are optional
-              - ``size`` is an integer (positive to *buy*, negative to *sell*)
-              - ``price`` is a float/integer
-              - ``data`` if present can take any of the following values
-
-                - *None* - The 1st data feed will be used as target
-                - *integer* - The data with that index (insertion order in
-                  **Cerebro**) will be used
-                - *string* - a data with that name, assigned for example with
-                  ``cerebro.addata(data, name=value)``, will be the target
-
-          - ``notify`` (default: *True*)
-
-            If ``True`` the 1st strategy inserted in the system will be
-            notified of the artificial orders created following the information
-            from each order in ``orders``
-
-        **Note**: Implicit in the description is the need to add a data feed
-          which is the target of the orders. This is for example needed by
-          analyzers which track for example the returns
-        '''
-        self._ohistory.append((orders, notify))
 
     def notify_timer(self, timer, when, *args, **kwargs):
         '''Receives a timer notification where ``timer`` is the timer which was
@@ -618,12 +553,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.sizers[None] = (sizercls, args, kwargs)
 
-    def addsizer_byidx(self, idx, sizercls, *args, **kwargs):
-        '''Adds a ``Sizer`` class by idx. This idx is a reference compatible to
-        the one returned by ``addstrategy``. Only the strategy referenced by
-        ``idx`` will receive this size
-        '''
-        self.sizers[idx] = (sizercls, args, kwargs)
+    # def addsizer_byidx(self, idx, sizercls, *args, **kwargs):
+    #     '''Adds a ``Sizer`` class by idx. This idx is a reference compatible to
+    #     the one returned by ``addstrategy``. Only the strategy referenced by
+    #     ``idx`` will receive this size
+    #     '''
+    #     self.sizers[idx] = (sizercls, args, kwargs)
 
     def addindicator(self, indcls, *args, **kwargs):
         '''
@@ -764,42 +699,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._dolive = True
 
         return data
-
-    def chaindata(self, *args, **kwargs):
-        '''
-        Chains several data feeds into one
-
-        If ``name`` is passed as named argument and is not None it will be put
-        into ``data._name`` which is meant for decoration/plotting purposes.
-
-        If ``None``, then the name of the 1st data will be used
-        '''
-        dname = kwargs.pop('name', None)
-        if dname is None:
-            dname = args[0]._dataname
-        d = feeds.Chainer(dataname=dname, *args)
-        self.adddata(d, name=dname)
-
-        return d
-
-    def rolloverdata(self, *args, **kwargs):
-        '''Chains several data feeds into one
-
-        If ``name`` is passed as named argument and is not None it will be put
-        into ``data._name`` which is meant for decoration/plotting purposes.
-
-        If ``None``, then the name of the 1st data will be used
-
-        Any other kwargs will be passed to the RollOver class
-
-        '''
-        dname = kwargs.pop('name', None)
-        if dname is None:
-            dname = args[0]._dataname
-        d = feeds.RollOver(dataname=dname, *args, **kwargs)
-        self.adddata(d, name=dname)
-
-        return d
 
     def replaydata(self, dataname, name=None, **kwargs):
         '''
@@ -1209,6 +1108,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if self._dopreload:
                     data.preload()
 
+        # setup stratcls
         for stratcls, sargs, skwargs in iterstrat:
             sargs = self.datas + list(sargs)
             try:
@@ -1366,123 +1266,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 owner = self.runningstrats[0]  # default
 
             owner._addnotification(order, quicknotify=self.p.quicknotify)
-
-    def _runnext_old(self, runstrats):
-        '''
-        Actual implementation of run in full next mode. All objects have its
-        ``next`` method invoke on each data arrival
-        '''
-        data0 = self.datas[0]
-        d0ret = True
-        while d0ret or d0ret is None:
-            lastret = False
-            # Notify anything from the store even before moving datas
-            # because datas may not move due to an error reported by the store
-            self._storenotify()
-            if self._event_stop:  # stop if requested
-                return
-            self._datanotify()
-            if self._event_stop:  # stop if requested
-                return
-
-            d0ret = data0.next()
-            if d0ret:
-                for data in self.datas[1:]:
-                    if not data.next(datamaster=data0):  # no delivery
-                        data._check(forcedata=data0)  # check forcing output
-                        data.next(datamaster=data0)  # retry
-
-            elif d0ret is None:
-                # meant for things like live feeds which may not produce a bar
-                # at the moment but need the loop to run for notifications and
-                # getting resample and others to produce timely bars
-                data0._check()
-                for data in self.datas[1:]:
-                    data._check()
-            else:
-                lastret = data0._last()
-                for data in self.datas[1:]:
-                    lastret += data._last(datamaster=data0)
-
-                if not lastret:
-                    # Only go extra round if something was changed by "lasts"
-                    break
-
-            # Datas may have generated a new notification after next
-            self._datanotify()
-            if self._event_stop:  # stop if requested
-                return
-
-            self._brokernotify()
-            if self._event_stop:  # stop if requested
-                return
-
-            if d0ret or lastret:  # bars produced by data or filters
-                for strat in runstrats:
-                    strat._next()
-                    if self._event_stop:  # stop if requested
-                        return
-
-                    self._next_writers(runstrats)
-
-        # Last notification chance before stopping
-        self._datanotify()
-        if self._event_stop:  # stop if requested
-            return
-        self._storenotify()
-        if self._event_stop:  # stop if requested
-            return
-
-    def _runonce_old(self, runstrats):
-        '''
-        Actual implementation of run in vector mode.
-        Strategies are still invoked on a pseudo-event mode in which ``next``
-        is called for each data arrival
-        '''
-        for strat in runstrats:
-            strat._once()
-
-        # The default once for strategies does nothing and therefore
-        # has not moved forward all datas/indicators/observers that
-        # were homed before calling once, Hence no "need" to do it
-        # here again, because pointers are at 0
-        data0 = self.datas[0]
-        datas = self.datas[1:]
-        for i in range(data0.buflen()):
-            data0.advance()
-            for data in datas:
-                data.advance(datamaster=data0)
-
-            self._brokernotify()
-            if self._event_stop:  # stop if requested
-                return
-
-            for strat in runstrats:
-                # data0.datetime[0] for compat. w/ new strategy's oncepost
-                strat._oncepost(data0.datetime[0])
-                if self._event_stop:  # stop if requested
-                    return
-
-                self._next_writers(runstrats)
-
-    def _next_writers(self, runstrats):
-        if not self.runwriters:
-            return
-
-        if self.writers_csv:
-            wvalues = list()
-            for data in self.datas:
-                if data.csv:
-                    wvalues.extend(data.getwritervalues())
-
-            for strat in runstrats:
-                wvalues.extend(strat.getwritervalues())
-
-            for writer in self.runwriters:
-                if writer.p.csv:
-                    writer.addvalues(wvalues)
-
-                    writer.next()
 
     def _disable_runonce(self):
         '''API for lineiterators to disable runonce (see HeikinAshi)'''

@@ -5,12 +5,15 @@ Created on Sat Feb 16 13:56:19 2019
 
 @author: python
 """
+import sys
+import weakref
 import contextlib
-import functools, logging, pdb, time
+import logging
+import pdb
+import time
 import warnings
 from functools import wraps
 from contextlib import contextmanager
-import sys, weakref
 
 
 def deprecated(msg=None, stacklevel=2):
@@ -154,7 +157,7 @@ def warnings_filter(func):
         功能:被装饰的函数上的警告不会打印,忽略
     """
 
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
         warnings.simplefilter('ignore')
         ret = func(*args, **kwargs)
@@ -171,7 +174,7 @@ def singleton(cls):
         功能:被装饰后类变成单例类
     """
     instances = {}
-    @functools.wraps(cls)
+    @wraps(cls)
     def get_instance(*args, **kw):
         if cls not in instances:
             # 不存在实例instances才进行构造
@@ -185,7 +188,7 @@ def params_to_pandas(func):
         函数装饰器:不定参数装饰器,定参数转换使用ABuScalerUtil中的装饰器arr_to_pandas(func)
         将被装饰函数中的参数中所有可以迭代的序列转换为pd.DataFrame或者pd.Series
     """
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*arg, **kwargs):
         # 把arg中的可迭代序列转换为pd.DataFrame或者pd.Series
         arg_list = [arr_to_pandas(param) for param in arg]
@@ -201,7 +204,7 @@ def params_to_numpy(func):
         函数装饰器:不定参数装饰器,定参数转换使用ABuScalerUtil中的装饰器arr_to_numpy(func)
         将被装饰函数中的参数中所有可以迭代的序列转换为np.array
     """
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*arg, **kwargs):
         # 把arg中的可迭代序列转换为np.array
         arg_list = [arr_to_numpy(param) for param in arg]
@@ -228,7 +231,7 @@ def catch_error(return_val=None, log=True):
     :param log: 是否打印错误日志
     """
     def decorate(func):
-        @functools.wraps(func)
+        @wraps(func)
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
@@ -246,7 +249,7 @@ def consume_time(func):
     作用范围:函数装饰器 (模块函数或者类函数)
     功能:简单统计被装饰函数运行时间
     """
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
@@ -263,7 +266,7 @@ def empty_wrapper(func):
     功能:空装饰器,为fix版本问题使用,或者分逻辑功能实现使用
     """
 
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
 
@@ -278,7 +281,7 @@ def empty_wrapper_with_params(*p_args, **p_kwargs):
     """
 
     def decorate(func):
-        @functools.wraps(func)
+        @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         return wrapper
@@ -292,7 +295,7 @@ def except_debug(func):
     功能:debug,调试使用,装饰在有问题函数上,发生问题打出问题后,再运行一次函数,可以用s跟踪问题了
     """
 
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -394,7 +397,7 @@ def import_module(name):
 def valid_check(func):
     """检测度量的输入是否正常,非正常显示info,正常继续执行被装饰方法"""
 
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self.valid:
             return func(self, *args, **kwargs)
@@ -407,7 +410,8 @@ def valid_check(func):
 # 单例模式
 def singleton(cls):
 
-    instance = {}
+    # instance = {}
+    instance = weakref.WeakValueDictionary()
     def _singleton(*args,**kwargs):
         if cls not in instance:
             instance[cls] = cls(*args,**kwargs)
@@ -638,8 +642,6 @@ class Context(contextlib.ContextDecorator):
 def func(message):
     print(message)
 
-
-import contextlib
 
 @contextlib.contextmanager
 def make_context():

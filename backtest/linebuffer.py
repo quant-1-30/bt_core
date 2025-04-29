@@ -524,8 +524,8 @@ class MetaLineActions(LineBuffer.__class__):
         _obj, args, kwargs = \
             super(MetaLineActions, cls).dopostinit(_obj, *args, **kwargs)
 
-        # # register with _owner to be kicked later
-        # _obj._owner.addindicator(_obj)
+        # register with _owner to be kicked later
+        _obj._owner.addindicator(_obj)
 
         return _obj, args, kwargs
 
@@ -551,8 +551,10 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
     The metaclass does the dirty job of calculating minperiods and registering
     '''
 
-    # def getindicators(self):
-    #     return []
+    _ltype = LineBuffer.IndType
+
+    def getindicators(self):
+        return []
 
     def qbuffer(self, savemem=0):
         super(LineActions, self).qbuffer(savemem=savemem)
@@ -592,43 +594,6 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         self.once(self._minperiod, self.buflen())
 
         self.oncebinding()
-
-
-# def LineNum(num):
-#     return LineDelay(PseudoArray(num))
-
-
-# def LineDelay(a, ago=0, **kwargs):
-#     assert ago <= 0, "ago must be negative"
-#     return _LineDelay(a, ago, **kwargs)
-
-
-# class _LineDelay(LineActions):
-#     '''
-#     Takes a LineBuffer (or derived) object and stores the value from
-#     "ago" periods effectively delaying the delivery of data
-#     '''
-#     def __init__(self, a, ago):
-#         super(_LineDelay, self).__init__()
-#         self.a = a
-#         self.ago = ago
-
-#         # Need to add the delay to the period. "ago" is 0 based and therefore
-#         # we need to pass and extra 1 which is the minimum defined period for
-#         # any data (which will be substracted inside addminperiod)
-#         self.addminperiod(abs(ago) + 1)
-
-#     def next(self):
-#         self[0] = self.a[self.ago]
-
-#     def once(self, start, end):
-#         # cache python dictionary lookups
-#         dst = self.array
-#         src = self.a.array
-#         ago = self.ago
-
-#         for i in range(start, end):
-#             dst[i] = src[i + ago]
 
 
 class LinesOperation(LineActions):

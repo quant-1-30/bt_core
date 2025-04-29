@@ -26,12 +26,10 @@ from collections import OrderedDict
 import datetime
 import pprint as pp
 
-import backtrader as bt
-from backtrader import TimeFrame
-from backtrader.utils.py3 import MAXINT, with_metaclass
+from metabase import with_metaclass, MetaParams, findowner
 
 
-class MetaAnalyzer(bt.MetaParams):
+class MetaAnalyzer(MetaParams):
     def donew(cls, *args, **kwargs):
         '''
         Intercept the strategy parameter
@@ -41,11 +39,11 @@ class MetaAnalyzer(bt.MetaParams):
 
         _obj._children = list()
 
-        _obj.strategy = strategy = bt.metabase.findowner(_obj, bt.Strategy)
-        _obj._parent = bt.metabase.findowner(_obj, Analyzer)
+        _obj.strategy = strategy = findowner(_obj, bt.Strategy)
+        _obj._parent = findowner(_obj, Analyzer)
 
         # Register with a master observer if created inside one
-        masterobs = bt.metabase.findowner(_obj, bt.Observer)
+        masterobs = findowner(_obj, bt.Observer)
         if masterobs is not None:
             masterobs._register_analyzer(_obj)
 
@@ -70,6 +68,7 @@ class MetaAnalyzer(bt.MetaParams):
                         setattr(_obj, 'data%d_%s' % (d, linealias), line)
                     setattr(_obj, 'data%d_%d' % (d, l), line)
 
+        # before init method is ok / between __new__ and __init__ can add random methods
         _obj.create_analysis()
 
         # Return to the normal chain

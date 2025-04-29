@@ -40,7 +40,7 @@ class FixedSize(bt.Sizer):
     params = (('stake', 1),
               ('tranches', 1))
 
-    def _getsizing(self, comminfo, cash, data, isbuy):
+    def _getsizing(self, cash, data, isbuy):
         if self.p.tranches > 1:
             return abs(int(self.p.stake / self.p.tranches))
         else:
@@ -69,7 +69,7 @@ class FixedReverser(bt.Sizer):
     '''
     params = (('stake', 1),)
 
-    def _getsizing(self, comminfo, cash, data, isbuy):
+    def _getsizing(self, cash, data, isbuy):
         position = self.strategy.getposition(data)
         size = self.p.stake * (1 + (position.size != 0))
         return size
@@ -92,7 +92,7 @@ class FixedSizeTarget(bt.Sizer):
     params = (('stake', 1),
               ('tranches', 1))
 
-    def _getsizing(self, comminfo, cash, data, isbuy):
+    def _getsizing(self, cash, data, isbuy):
         if self.p.tranches > 1:
             size = abs(int(self.p.stake / self.p.tranches))
             return min((self.strategy.position.size + size), self.p.stake)

@@ -18,9 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 
 from .metabase import MetaParams, with_metaclass
 
@@ -47,18 +44,14 @@ class Sizer(with_metaclass(MetaParams, object)):
     broker = None
 
     def getsizing(self, data, isbuy):
-        comminfo = self.broker.getcommissioninfo(data)
-        return self._getsizing(comminfo, self.broker.getcash(), data, isbuy)
+        # comminfo = self.broker.getcommissioninfo(data)
+        return self._getsizing(self.broker.getcash(), data, isbuy)
 
-    def _getsizing(self, comminfo, cash, data, isbuy):
+    def _getsizing(self, cash, data, isbuy):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 
         Params:
-          - ``comminfo``: The CommissionInfo instance that contains
-            information about the commission for the data and allows
-            calculation of position value, operation cost, commision for the
-            operation
 
           - ``cash``: current available cash in the *broker*
 

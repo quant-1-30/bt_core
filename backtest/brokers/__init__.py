@@ -21,19 +21,22 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+# The modules below should/must define __all__ with the objects wishes
+# or prepend an "_" (underscore) to private classes/variables
 
-from . import GenericCSVData
+from .bbroker import BackBroker, BrokerBack
 
+try:
+    from .ibbroker import IBBroker
+except ImportError:
+    pass  # The user may not have ibpy installed
 
-class SierraChartCSVData(GenericCSVData):
-    '''
-    Parses a `SierraChart <http://www.sierrachart.com>`_ CSV exported file.
+try:
+    from .vcbroker import VCBroker
+except ImportError:
+    pass  # The user may not have something installed
 
-    Specific parameters (or specific meaning):
-
-      - ``dataname``: The filename to parse or a file-like object
-
-      - Uses GenericCSVData and simply modifies the dateformat (dtformat) to
-    '''
-
-    params = (('dtformat', '%Y/%m/%d'),)
+try:
+    from .oandabroker import OandaBroker
+except ImportError as e:
+    pass  # The user may not have something installed
