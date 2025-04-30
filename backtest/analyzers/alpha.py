@@ -5,7 +5,8 @@ Created on Sun Feb 17 16:11:34 2019
 
 @author: python
 """
-import pandas as pd , numpy as np
+import pandas as pd 
+import numpy as np
 from scipy.stats import linregress
 from collections import OrderedDict
 from backtest.analyzers.analyzers import annual_return

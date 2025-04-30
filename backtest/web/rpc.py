@@ -5,6 +5,7 @@ Created on Sat Feb 16 14:00:14 2019
 
 @author: python
 """
+
 import socket, os, subprocess
 from subprocess import Popen, PIPE
 
@@ -137,7 +138,7 @@ for res in socket.getaddrinfo(HOST, PORT, socket.AF_UNSPEC, socket.SOCK_STREAM):
 'AF_PIPE' 是这种格式的字符串 r'\.\pipe{PipeName}' 。如果要用 Client() 连接到一个名为 ServerName 的远程命名管道,
 应该替换为使用 r'\ServerName\pipe{PipeName}' 这种格式。
 
-服务器必须执行序列socket(), bind(),listen(),accept()（可能重复accept(),以服务一个以上的客户端）,
+服务器必须执行序列socket(), bind(),listen(),accept()(可能重复accept(),以服务一个以上的客户端),
 而一个客户端只需要在序列socket(),connect()。另请注意,服务器不在sendall()/ recv()侦听的套接字上,而是/ 返回的新套接字 accept()
 
 socket.AF_UNIX
@@ -156,11 +157,11 @@ depending on the system. (Only SOCK_STREAM and SOCK_DGRAM appear
 
 
 
-socket.sendmsg（缓冲区[,ancdata [,标志[,地址] ] ] ）
+socket.sendmsg(缓冲区[,ancdata [,标志[,地址] ] ] )
 将普通数据和辅助数据发送到套接字,从一系列缓冲区中收集非辅助数据,并将其串联为一条消息。所述缓冲器参数指定为可迭代的非辅助数据 字节状物体 
-（例如bytes对象）; 操作系统可能会设置可使用的缓冲区数的限制（sysconf()值SC_IOV_MAX）。所述ancdata参数指定所述辅助数据（控制消息）,
+(例如bytes对象); 操作系统可能会设置可使用的缓冲区数的限制(sysconf()值SC_IOV_MAX)。所述ancdata参数指定所述辅助数据(控制消息),
 为迭代的零个或多个元组 ,其中cmsg_level和 cmsg_type分别指定协议级和协议特定的类型整数,且cmsg_data(cmsg_level, cmsg_type, cmsg_data)
-是保存相关数据的类似字节的对象。请注意,某些系统（特别是没有的系统CMSG_SPACE()）可能支持每个呼叫仅发送一条控制消息。该 标志参数默认为0,有用法相同
+是保存相关数据的类似字节的对象。请注意,某些系统(特别是没有的系统CMSG_SPACE())可能支持每个呼叫仅发送一条控制消息。该 标志参数默认为0,有用法相同
  send()。如果没有提供addressNone,那么它设置消息的目标地址。返回值是发送的非辅助数据的字节数。
 
 以下函数在支持该机制的系统上, 通过套接字 发送文件描述符fds的列表。另请参阅。AF_UNIXSCM_RIGHTSrecvmsg()
@@ -170,7 +171,7 @@ import socket, array
 def send_fds(sock, msg, fds):
     return sock.sendmsg([msg], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", fds))])
 
-socket.recv（bufsize [,flags ] ）
+socket.recv(bufsize [,flags ] )
 从套接字接收数据。返回值是一个字节对象,代表接收到的数据。一次要接收的最大数据量由bufsize指定,它默认为零。
 
 注意 为了与硬件和网络的实际情况达到最佳匹配,bufsize的值 应为2的相对较小的幂,例如4096。
@@ -180,10 +181,10 @@ socket.recv（bufsize [,flags ] ）
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 """
-SimpleXMLRPCServer.register_introspection_functions（）
+SimpleXMLRPCServer.register_introspection_functions()
 注册XML-RPC内省功能system.listMethods, system.methodHelp和system.methodSignature。
 
-SimpleXMLRPCServer.register_multicall_functions（）
+SimpleXMLRPCServer.register_multicall_functions()
 注册XML-RPC多重调用函数system.multicall。
 
 SimpleXMLRPCRequestHandler.rpc_paths
@@ -259,13 +260,13 @@ DocXMLRPCServer对象
 本DocXMLRPCServer类源自SimpleXMLRPCServer 并提供创建自我记录的手段,独立的XML-RPC服务器。HTTP POST请求作为XML-RPC方法调用处理。
 通过生成pydoc样式的HTML文档来处理HTTP GET请求。这允许服务器提供其自己的基于Web的文档。
 
-DocXMLRPCServer.set_server_title（server_title ）
+DocXMLRPCServer.set_server_title(server_title )
 设置在生成的HTML文档中使用的标题。该标题将在HTML“ title”元素中使用。
 
-DocXMLRPCServer.set_server_name（server_name ）
+DocXMLRPCServer.set_server_name(server_name )
 设置在生成的HTML文档中使用的名称。此名称将出现在“ h1”元素内生成的文档的顶部。
 
-DocXMLRPCServer.set_server_documentation（server_documentation ）
+DocXMLRPCServer.set_server_documentation(server_documentation )
 设置在生成的HTML文档中使用的描述。该说明将在文档中的服务器名称下方以一段显示。
 """
 

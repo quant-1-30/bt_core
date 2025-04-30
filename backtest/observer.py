@@ -63,4 +63,3 @@ class Observer(with_metaclass(MetaObserver, ObserverBase)):
 
     def start(self):
         pass
-

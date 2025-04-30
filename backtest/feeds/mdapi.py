@@ -18,12 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import pytz
 import queue
 
 import backtest as bt
 from backtest.feed import DataBase
-from backtest import TimeFrame, date2num, num2date
+from backtest import TimeFrame, date2num
 from backtest.metabase import with_metaclass
 from backtest.stores import ibstore
 from bt_sdk.core.client import MdApi
@@ -48,34 +48,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
 
     Params:
 
-      - ``sectype`` (default: ``STK``)
+      - ``sectype`` (default: ``instrument``)
 
         Default value to apply as *security type* if not provided in the
         ``dataname`` specification
-
-      - ``historical`` (default: ``False``)
-
-        If set to ``True`` the data feed will stop after doing the first
-        download of data.
-
-        The standard data feed parameters ``fromdate`` and ``todate`` will be
-        used as reference.
-
-        The data feed will make multiple requests if the requested duration is
-        larger than the one allowed by IB given the timeframe/compression
-        chosen for the data.
-
-      - ``what`` (default: ``None``)
-
-        If ``None`` the default for different assets types will be used for
-        historical data requests:
-
-          - 'BID' for CASH assets
-          - 'TRADES' for any other
-
-        Use 'ASK' for the Ask quote of cash assets
-        
-        Check the IB API docs if another value is wished
 
       - ``rtbar`` (default: ``False``)
 
@@ -99,45 +75,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         Time in seconds to wake up if no data is received to give a chance to
         resample/replay packets properly and pass notifications up the chain
 
-      - ``backfill_start`` (default: ``True``)
-
-        Perform backfilling at the start. The maximum possible historical data
-        will be fetched in a single request.
-
       - ``backfill`` (default: ``True``)
 
         Perform backfilling after a disconnection/reconnection cycle. The gap
         duration will be used to download the smallest possible amount of data
-
-      - ``backfill_from`` (default: ``None``)
-
-        An additional data source can be passed to do an initial layer of
-        backfilling. Once the data source is depleted and if requested,
-        backfilling from IB will take place. This is ideally meant to backfill
-        from already stored sources like a file on disk, but not limited to.
-
-      - ``latethrough`` (default: ``False``)
-
-        If the data source is resampled/replayed, some ticks may come in too
-        late for the already delivered resampled/replayed bar. If this is
-        ``True`` those ticks will bet let through in any case.
-
-        Check the Resampler documentation to see who to take those ticks into
-        account.
-
-        This can happen especially if ``timeoffset`` is set to ``False``  in
-        the ``IBStore`` instance and the TWS server time is not in sync with
-        that of the local computer
-
-      - ``tradename`` (default: ``None``)
-        Useful for some specific cases like ``CFD`` in which prices are offered
-        by one asset and trading happens in a different onel
-
-        - SPY-STK-SMART-USD -> SP500 ETF (will be specified as ``dataname``)
-
-        - SPY-CFD-SMART-USD -> which is the corresponding CFD which offers not
-          price tracking but in this case will be the trading asset (specified
-          as ``tradename``)
 
     The default values in the params are the to allow things like ```TICKER``,
     to which the parameter ``sectype`` (default: ``STK``) and ``exchange``
@@ -153,27 +94,20 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         the currency to be ``USD``
     '''
     params = (
-        ('sectype', 'STK'),  # usual industry value
-        ('exchange', 'SMART'),  # usual industry value
+        ('sectype', 'instrument'),  # usual industry value
+        ("tz", "Shanghai/Asia"),
         ('rtbar', False),  # use RealTime 5 seconds bars
-        ('historical', True),  # only historical download
-        ('what', None),  # historical - what to show
-        ('useRTH', False),  # historical - download only Regular Trading Hours
         ('qcheck', 0.5),  # timeout in seconds (float) to check for events
-        ('backfill_start', True),  # do backfilling at the start
         ('backfill', True),  # do backfilling when reconnecting
-        ('backfill_from', None),  # additional data source to do backfill from
-        ('latethrough', False),  # let late samples through
-        ('tradename', None),  # use a different asset as order target
     )
 
     _store = ibstore.IBStore
 
     # Minimum size supported by real-time bars
-    RTBAR_MINSIZE = (TimeFrame.Seconds, 5)
+    RTBAR_MINSIZE = (TimeFrame.Seconds, 3)
 
     # States for the Finite State Machine in _load
-    _ST_FROM, _ST_START, _ST_LIVE, _ST_HISTORBACK, _ST_OVER = range(5)
+    # _ST_FROM, _ST_START, _ST_LIVE, _ST_HISTORBACK, _ST_OVER = range(5)
 
     def _timeoffset(self):
         return self.ib.timeoffset()
@@ -182,39 +116,13 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # If no object has been provided by the user and a timezone can be
         # found via contractdtails, then try to get it from pytz, which may or
         # may not be available.
-
-        # The timezone specifications returned by TWS seem to be abbreviations
-        # understood by pytz, but the full list which TWS may return is not
-        # documented and one of the abbreviations may fail
-        tzstr = isinstance(self.p.tz, str)
-        if self.p.tz is not None and not tzstr:
-            return bt.utils.date.Localizer(self.p.tz)
-
-        if self.contractdetails is None:
-            return None  # nothing can be done
-
-        try:
-            import pytz  # keep the import very local
-        except ImportError:
-            return None  # nothing can be done
-
-        tzs = self.p.tz if tzstr else self.contractdetails.m_timeZoneId
-
-        if tzs == 'CST':  # reported by TWS, not compatible with pytz. patch it
-            tzs = 'CST6CDT'
-
-        try:
-            tz = pytz.timezone(tzs)
-        except pytz.UnknownTimeZoneError:
-            return None  # nothing can be done
-
-        # contractdetails there, import ok, timezone found, return it
-        return tz
+        tz = pytz.timezone(self.p.tz)
+        return bt.utils.date.Localizer(tz)
 
     def islive(self):
         '''Returns ``True`` to notify ``Cerebro`` that preloading and runonce
         should be deactivated'''
-        return not self.p.historical
+        return self.p.rtbar
 
     def __init__(self, **kwargs):
         self.md = MdApi(**kwargs)
@@ -229,47 +137,31 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         '''Starts the IB connecction and gets the real contract and
         contractdetails if it exists'''
         super(MdData, self).start()
-        # Kickstart store and get queue to wait on
-        self.qlive = self.ib.start(data=self)
-        self.qhist = None
+        # Kickstart store
+        self.ib.start(data=self)
 
-        self._usertvol = not self.p.rtbar
-
-        tfcomp = (self._timeframe, self._compression)
-        if tfcomp < self.RTBAR_MINSIZE:
-            # Requested timeframe/compression not supported by rtbars
-            self._usertvol = True
-
-        self.contract = None
-        self.contractdetails = None
-
-        self._statelivereconn = False  # if reconnecting in live state
+        self._rt = not self.p.rtbar
         self._subcription_valid = False  # subscription state
-        self._storedmsg = dict()  # keep pending live message (under None)
 
         if not self.ib.connected():
             return
 
         self.put_notification(self.CONNECTED)
 
-        if self._state == self._ST_START:
-            self._start_finish()  # to finish initialization
-            self._st_start()
-
     def stop(self):
         '''Stops and tells the store to stop'''
         super(MdData, self).stop()
         self.ib.stop()
 
-    def reqdata(self):
+    def reqdata(self, req):
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         if self.contract is None or self._subcription_valid:
             return
 
-        if self._usertvol:
-            self.qlive = self.md.reqMktData(self.contract, self.p.what)
+        if self._rt:
+            self.qlive = self.md.reqRealTimeBars(req)
         else:
-            self.qlive = self.md.reqRealTimeBars(self.contract)
+            self.qlive = self.md.reqMktData(req)
 
         self._subcription_valid = True
         return self.qlive
@@ -279,86 +171,78 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         if self.contract is None:
             return
 
-        if self._usertvol:
-            self.md.cancelMktData(self.qlive)
-        else:
+        if self._rt:
             self.md.cancelRealTimeBars(self.qlive)
-
-    def haslivedata(self):
-        return bool(self._storedmsg or self.qlive)
+        else:
+            self.md.cancelMktData(self.qlive)
 
     def _load(self):
         """
            msg error code -354 self.NOTSUBSCRIBED
         """
-        if self.contract is None or self._state == self._ST_OVER:
-            return False  # nothing can be done
+        _load_bar = self._load_rtbar if self._rt else self._load_bar
 
         while True:
-            if self._state == self._ST_LIVE:
-                try:
-                    msg = (self._storedmsg.pop(None, None) or
-                           self.qlive.get(timeout=self._qcheck))
-                except queue.Empty:
-                    if True:
-                        return None
+            try:
+                msg = self.qlive.get(timeout=self._qcheck)
+            except queue.Empty:
+                if True:
+                    return None
 
-                if msg is None:  # Conn broken during historical/backfilling
-                    self._subcription_valid = False
-                    self.put_notification(self.CONNBROKEN)
-                    # Try to reconnect
-                    if not self.ib.reconnect(resub=True):
-                        self.put_notification(self.DISCONNECTED)
-                        return False  # failed
+            if msg is None:  # Conn broken during historical/backfilling
+                self._subcription_valid = False
+                self.put_notification(self.CONNBROKEN)
+                # Try to reconnect
+                if not self.ib.reconnect(resub=True):
+                    self.put_notification(self.DISCONNECTED)
+                    return False  # failed
 
-                    self._statelivereconn = self.p.backfill
-                    continue
-                if msg == -354:
-                    # self._subcription_valid = False
-                    # self._statelivereconn = self.p.backfill
-                    self.put_notification(self.NOTSUBSCRIBED)
-                    return False
-                # reqHistoricalDataEx
-                #  load_rtbar or load_rtvolume
-                self._load_rtbar(msg)
+                continue
+            if msg == -354:
+                self._subcription_valid = False
+                self.put_notification(self.NOTSUBSCRIBED)
+                return False
+            #  load_rtbar or load_bar
+            _load_bar(msg)
 
-    def _load_rtbar(self, rtbar, hist=False):
-        # A complete 5 second bar made of real-time ticks is delivered and
+    def _load_bar(self, bar, hist=False):
+        # A complete 30 second bar made of real-time 3d ticks is delivered and
         # contains open/high/low/close/volume prices
         # The historical data has the same data but with 'date' instead of
         # 'time' for datetime
-        dt = date2num(rtbar.time if not hist else rtbar.date)
-        if dt < self.lines.datetime[-1] and not self.p.latethrough:
+        # dt = date2num(bar.time if not hist else bar.date)
+        dt = bar.tick
+        if dt < self.lines.tick[-1] :
             return False  # cannot deliver earlier than already delivered
 
         self.lines.datetime[0] = dt
         # Put the tick into the bar
-        self.lines.open[0] = rtbar.open
-        self.lines.high[0] = rtbar.high
-        self.lines.low[0] = rtbar.low
-        self.lines.close[0] = rtbar.close
-        self.lines.volume[0] = rtbar.volume
+        self.lines.open[0] = bar.open
+        self.lines.high[0] = bar.high
+        self.lines.low[0] = bar.low
+        self.lines.close[0] = bar.close
+        self.lines.volume[0] = bar.volume
         self.lines.openinterest[0] = 0
 
         return True
 
-    def _load_rtvolume(self, rtvol):
+    def _load_rtbar(self, rtbar):
         # A single tick is delivered and is therefore used for the entire set
         # of prices. Ideally the
         # contains open/high/low/close/volume prices
         # Datetime transformation
-        dt = date2num(rtvol.datetime)
-        if dt < self.lines.datetime[-1] and not self.p.latethrough:
+        dt = date2num(rtbar.datetime)
+        if dt < self.lines.datetime[-1]:
             return False  # cannot deliver earlier than already delivered
 
         self.lines.datetime[0] = dt
 
         # Put the tick into the bar
-        tick = rtvol.price
+        tick = rtbar.price
         self.lines.open[0] = tick
         self.lines.high[0] = tick
         self.lines.low[0] = tick
         self.lines.close[0] = tick
-        self.lines.volume[0] = rtvol.size
+        self.lines.volume[0] = rtbar.size
         self.lines.openinterest[0] = 0
         return True

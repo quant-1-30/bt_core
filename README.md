@@ -184,4 +184,22 @@ backtrader:
         pass -->
 
     # strategy._next() tirgger _next --- indicator / _next_anlayzer / _next_observer
-    
+
+    # store / data / broker 
+
+telnet 127.0.0.1 8888 测试 TCP
+
+nc -u 127.0.0.1 8888 测试 UDP（或写个客户端）
+
+tcp and udp 可以复用同一端口
+
+系统使用五元组 (协议, 源 IP, 源端口, 目标 IP, 目标端口) 来唯一标识一个网络连接或会话
+
+get_notification
+
+from backtest.utils.py3 import queue, with_metaclass
+
+cicd / react front
+ai agent intended for cv in stock
+ios and mr deploy
+

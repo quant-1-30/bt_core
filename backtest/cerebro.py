@@ -43,11 +43,11 @@ from bt_sdk.core.client import TdApi
 # Defined here to make it pickable. Ideally it could be defined inside Cerebro
 
 
-class OptReturn(object):
-    def __init__(self, params, **kwargs):
-        self.p = self.params = params
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+# class OptReturn(object):
+#     def __init__(self, params, **kwargs):
+#         self.p = self.params = params
+#         for k, v in kwargs.items():
+#             setattr(self, k, v)
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -83,34 +83,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         If True default Observers will be added: Broker (Cash and Value),
         Trades and BuySell
-
-      - ``oldbuysell`` (default: ``False``)
-
-        If ``stdstats`` is ``True`` and observers are getting automatically
-        added, this switch controls the main behavior of the ``BuySell``
-        observer
-
-        - ``False``: use the modern behavior in which the buy / sell signals
-          are plotted below / above the low / high prices respectively to avoid
-          cluttering the plot
-
-        - ``True``: use the deprecated behavior in which the buy / sell signals
-          are plotted where the average price of the order executions for the
-          given moment in time is. This will of course be on top of an OHLC bar
-          or on a Line on Cloe bar, difficulting the recognition of the plot.
-
-      - ``oldtrades`` (default: ``False``)
-
-        If ``stdstats`` is ``True`` and observers are getting automatically
-        added, this switch controls the main behavior of the ``Trades``
-        observer
-
-        - ``False``: use the modern behavior in which trades for all datas are
-          plotted with different markers
-
-        - ``True``: use the old Trades observer which plots the trades with the
-          same markers, differentiating only if they are positive or negative
-
+      
       - ``exactbars`` (default: ``False``)
 
         With the default value each and every value stored in a line is kept in
@@ -189,33 +162,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         The tests show an approximate ``20%`` speed-up moving from a sample
         execution in ``83`` seconds to ``66``
 
-      - ``optreturn`` (default: ``True``)
-
-        If ``True`` the optimization results will not be full ``Strategy``
-        objects (and all *datas*, *indicators*, *observers* ...) but and object
-        with the following attributes (same as in ``Strategy``):
-
-          - ``params`` (or ``p``) the strategy had for the execution
-          - ``analyzers`` the strategy has executed
-
-        In most occassions, only the *analyzers* and with which *params* are
-        the things needed to evaluate a the performance of a strategy. If
-        detailed analysis of the generated values for (for example)
-        *indicators* is needed, turn this off
-
-        The tests show a ``13% - 15%`` improvement in execution time. Combined
-        with ``optdatas`` the total gain increases to a total speed-up of
-        ``32%`` in an optimization run.
-
-      - ``oldsync`` (default: ``False``)
-
-        Starting with release 1.9.0.99 the synchronization of multiple datas
-        (same or different timeframes) has been changed to allow datas of
-        different lengths.
-
-        If the old behavior with data0 as the master of the system is wished,
-        set this parameter to true
-
       - ``tz`` (default: ``None``)
 
         Adds a global timezone for strategies. The argument ``tz`` can be
@@ -231,26 +177,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - ``integer``. Use, for the strategy, the same timezone as the
             corresponding ``data`` in the ``self.datas`` iterable (``0`` would
             use the timezone from ``data0``)
-
-      - ``cheat_on_open`` (default: ``False``)
-
-        The ``next_open`` method of strategies will be called. This happens
-        before ``next`` and before the broker has had a chance to evaluate
-        orders. The indicators have not yet been recalculated. This allows
-        issuing an orde which takes into account the indicators of the previous
-        day but uses the ``open`` price for stake calculations
-
-        For cheat_on_open order execution, it is also necessary to make the
-        call ``cerebro.broker.set_coo(True)`` or instantite a broker with
-        ``BackBroker(coo=True)`` (where *coo* stands for cheat-on-open) or set
-        the ``broker_coo`` parameter to ``True``. Cerebro will do it
-        automatically unless disabled below.
-
-      - ``broker_coo`` (default: ``True``)
-
-        This will automatically invoke the ``set_coo`` method of the broker
-        with ``True`` to activate ``cheat_on_open`` execution. Will only do it
-        if ``cheat_on_open`` is also ``True``
 
       - ``quicknotify`` (default: ``False``)
 
@@ -268,20 +194,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('runonce', True),
         ('maxcpus', None),
         ('stdstats', True),
-        ('oldbuysell', False),
-        ('oldtrades', False),
-        ('lookahead', 0),
         ('exactbars', False),
         ('optdatas', True),
-        ('optreturn', True),
+        # ('optreturn', True),
         ('objcache', False),
         ('live', False),
         ('writer', False),
-        ('tradehistory', False),
-        ('oldsync', False),
         ('tz', None),
-        ('cheat_on_open', False),
-        ('broker_coo', True),
         ('quicknotify', False),
     )
 
@@ -315,8 +234,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._tradingcal = None  # TradingCalendar()
 
         self._pretimers = list()
-        self._ohistory = list()
-        self._fhistory = None
 
     @staticmethod
     def iterize(iterable):
@@ -552,8 +469,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         strategy added to cerebro
         '''
         self.sizers[None] = (sizercls, args, kwargs)
-
-    # def addsizer_byidx(self, idx, sizercls, *args, **kwargs):
     #     '''Adds a ``Sizer`` class by idx. This idx is a reference compatible to
     #     the one returned by ``addstrategy``. Only the strategy referenced by
     #     ``idx`` will receive this size
@@ -780,6 +695,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         and will create an internal pseudo-iterable if possible
         '''
+        # grid
         self._dooptimize = True
         args = self.iterize(args)
         optargs = itertools.product(*args)
@@ -972,18 +888,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self.runwriters = list()
 
-        # Add the system default writer if requested
-        if self.p.writer is True:
-            wr = WriterFile()
-            self.runwriters.append(wr)
+        # # Add the system default writer if requested
+        # if self.p.writer is True:
+        #     wr = WriterFile()
+        #     self.runwriters.append(wr)
 
-        # Instantiate any other writers
-        for wrcls, wrargs, wrkwargs in self.writers:
-            wr = wrcls(*wrargs, **wrkwargs)
-            self.runwriters.append(wr)
+        # # Instantiate any other writers
+        # for wrcls, wrargs, wrkwargs in self.writers:
+        #     wr = wrcls(*wrargs, **wrkwargs)
+        #     self.runwriters.append(wr)
 
-        # Write down if any writer wants the full csv output
-        self.writers_csv = any(map(lambda x: x.p.csv, self.runwriters))
+        # # Write down if any writer wants the full csv output
+        # self.writers_csv = any(map(lambda x: x.p.csv, self.runwriters))
 
         self.runstrats = list()
 
@@ -1031,7 +947,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for data in self.datas:
                     data.reset()
                     if self._exactbars < 1:  # datas can be full length
-                        data.extend(size=self.params.lookahead)
+                        # data.extend(size=self.params.lookahead)
+                        data.extend(size=0)
                     data._start()
                     if self._dopreload:
                         data.preload()
@@ -1054,47 +971,36 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         return self.runstrats
 
-    def _init_stcount(self):
-        self.stcount = itertools.count(0)
+    # def _init_stcount(self):
+    #     self.stcount = itertools.count(0)
 
-    def _next_stid(self):
-        return next(self.stcount)
+    # def _next_stid(self):
+    #     return next(self.stcount)
 
     def runstrategies(self, iterstrat, predata=False):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
-        self._init_stcount()
+        # self._init_stcount()
 
         self.runningstrats = runstrats = list()
         for store in self.stores:
             store.start()
-
-        if self.p.cheat_on_open and self.p.broker_coo:
-            # try to activate in broker
-            if hasattr(self._broker, 'set_coo'):
-                self._broker.set_coo(True)
-
-        if self._fhistory is not None:
-            self._broker.set_fund_history(self._fhistory)
-
-        for orders, onotify in self._ohistory:
-            self._broker.add_order_history(orders, onotify)
 
         self._broker.start()
 
         for feed in self.feeds:
             feed.start()
 
-        if self.writers_csv:
-            wheaders = list()
-            for data in self.datas:
-                if data.csv:
-                    wheaders.extend(data.getwriterheaders())
+        # if self.writers_csv:
+        #     wheaders = list()
+        #     for data in self.datas:
+        #         if data.csv:
+        #             wheaders.extend(data.getwriterheaders())
 
-            for writer in self.runwriters:
-                if writer.p.csv:
-                    writer.addheaders(wheaders)
+        #     for writer in self.runwriters:
+        #         if writer.p.csv:
+        #             writer.addheaders(wheaders)
 
         # self._plotfillers = [list() for d in self.datas]
         # self._plotfillers2 = [list() for d in self.datas]
@@ -1116,10 +1022,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
             except errors.StrategySkipError:
                 continue  # do not add strategy to the mix
 
-            if self.p.oldsync:
-                strat._oldsync = True  # tell strategy to use old clock update
-            if self.p.tradehistory:
-                strat.set_tradehistory()
+            # if self.p.oldsync:
+            #     strat._oldsync = True  # tell strategy to use old clock update
+            # if self.p.tradehistory:
+            #     strat.set_tradehistory()
             runstrats.append(strat)
 
         tz = self.p.tz
@@ -1134,16 +1040,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for idx, strat in enumerate(runstrats):
                 if self.p.stdstats:
                     strat._addobserver(False, observers.Broker)
-                    if self.p.oldbuysell:
-                        strat._addobserver(True, observers.BuySell)
-                    else:
-                        strat._addobserver(True, observers.BuySell,
-                                           barplot=True)
 
-                    if self.p.oldtrades or len(self.datas) == 1:
-                        strat._addobserver(False, observers.Trades)
-                    else:
-                        strat._addobserver(False, observers.DataTrades)
+                    strat._addobserver(True, observers.BuySell, barplot=True)
+
+                    strat._addobserver(False, observers.DataTrades)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
@@ -1161,16 +1061,16 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 strat._settz(tz)
                 strat._start()
 
-                for writer in self.runwriters:
-                    if writer.p.csv:
-                        writer.addheaders(strat.getwriterheaders())
+                # for writer in self.runwriters:
+                #     if writer.p.csv:
+                #         writer.addheaders(strat.getwriterheaders())
 
             if not predata:
                 for strat in runstrats:
                     strat.qbuffer(self._exactbars, replaying=self._doreplay)
 
-            for writer in self.runwriters:
-                writer.start()
+            # for writer in self.runwriters:
+            #     writer.start()
 
             # Prepare timers
             self._timers = []
@@ -1185,15 +1085,20 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     self._timers.append(timer)
 
             if self._dopreload and self._dorunonce:
-                if self.p.oldsync:
-                    self._runonce_old(runstrats)
-                else:
-                    self._runonce(runstrats)
+                
+                self._runonce(runstrats)
+
+                # if self.p.oldsync:
+                #     self._runonce_old(runstrats)
+                # else:
+                #     self._runonce(runstrats)
             else:
-                if self.p.oldsync:
-                    self._runnext_old(runstrats)
-                else:
-                    self._runnext(runstrats)
+                self._runnext(runstrats)
+
+                # if self.p.oldsync:
+                #     self._runnext_old(runstrats)
+                # else:
+                #     self._runnext(runstrats)
 
             for strat in runstrats:
                 strat._stop()
@@ -1210,45 +1115,45 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for store in self.stores:
             store.stop()
 
-        self.stop_writers(runstrats)
+        # self.stop_writers(runstrats)
 
-        if self._dooptimize and self.p.optreturn:
-            # Results can be optimized
-            results = list()
-            for strat in runstrats:
-                for a in strat.analyzers:
-                    a.strategy = None
-                    a._parent = None
-                    for attrname in dir(a):
-                        if attrname.startswith('data'):
-                            setattr(a, attrname, None)
+        # if self._dooptimize and self.p.optreturn:
+        #     # Results can be optimized
+        #     results = list()
+        #     for strat in runstrats:
+        #         for a in strat.analyzers:
+        #             a.strategy = None
+        #             a._parent = None
+        #             for attrname in dir(a):
+        #                 if attrname.startswith('data'):
+        #                     setattr(a, attrname, None)
 
-                oreturn = OptReturn(strat.params, analyzers=strat.analyzers, strategycls=type(strat))
-                results.append(oreturn)
+        #         oreturn = OptReturn(strat.params, analyzers=strat.analyzers, strategycls=type(strat))
+        #         results.append(oreturn)
 
-            return results
+        #     return results
 
         return runstrats
 
-    def stop_writers(self, runstrats):
-        cerebroinfo = OrderedDict()
-        datainfos = OrderedDict()
+    # def stop_writers(self, runstrats):
+    #     cerebroinfo = OrderedDict()
+    #     datainfos = OrderedDict()
 
-        for i, data in enumerate(self.datas):
-            datainfos['Data%d' % i] = data.getwriterinfo()
+    #     for i, data in enumerate(self.datas):
+    #         datainfos['Data%d' % i] = data.getwriterinfo()
 
-        cerebroinfo['Datas'] = datainfos
+    #     cerebroinfo['Datas'] = datainfos
 
-        stratinfos = dict()
-        for strat in runstrats:
-            stname = strat.__class__.__name__
-            stratinfos[stname] = strat.getwriterinfo()
+    #     stratinfos = dict()
+    #     for strat in runstrats:
+    #         stname = strat.__class__.__name__
+    #         stratinfos[stname] = strat.getwriterinfo()
 
-        cerebroinfo['Strategies'] = stratinfos
+    #     cerebroinfo['Strategies'] = stratinfos
 
-        for writer in self.runwriters:
-            writer.writedict(dict(Cerebro=cerebroinfo))
-            writer.stop()
+    #     for writer in self.runwriters:
+    #         writer.writedict(dict(Cerebro=cerebroinfo))
+    #         writer.stop()
 
     def _brokernotify(self):
         '''

@@ -11,6 +11,31 @@ from threading import Lock, Thread
 from time import sleep
 import websocket
 
+"""
+    Werkzeug 用于实现 WSGI ,应用和服务之间的标准 Python 接口
+    Jinja 用于渲染页面的模板语言
+    MarkupSafe 与 Jinja 共用,在渲染页面时用于避免不可信的输入,防止注入攻击
+    ItsDangerous 保证数据完整性的安全标志数据,用于保护 Flask 的 session cookie
+    Click 是一个命令行应用的框架。用于提供 flask 命令,并允许添加自定义 管理命令
+    
+    FLASK_APP  FLASK_ENV 
+    
+    string （缺省值） 接受任何不包含斜杠的文本
+    int 接受正整数
+    float  接受正浮点数
+    path 类似 string ,但可以包含斜杠
+    uuid  接受 UUID 字符串
+    
+    http:
+    1GET将数据以未加密的形式发送到服务器,这最常用的方法。
+    2HEAD与GET相同,但没有响应主体
+    3POST用于将HTML表单数据发送到服务器。通过POST方法接收的数据不会被服务器缓存。
+    4PUT用上传的内容替换目标资源的所有当前表示。
+    5DELETE删除由URL给出的所有目标资源的所有表示
+    默认情况下,Flask路由响应GET请求。 但是,可以通过为route()装饰器提供方法参数来更改此首选项。
+    为了演示在URL路由中使用POST方法,首先创建一个HTML表单并使用POST方法将表单数据发送到URL。
+    
+"""
 
 class WebsocketClient(object):
     """
