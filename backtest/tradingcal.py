@@ -28,8 +28,8 @@ from dateutil import rrule
 from toolz import partition_all
 
 from .metabase import MetaParams
-from utils.dateintern import UTC
-from utils.wrapper import singleton
+from backtest.utils.dateintern import UTC
+from backtest.utils.wrapper import singleton
 
 
 # Imprecission in the full time conversion to float would wrap over to next day

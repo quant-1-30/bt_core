@@ -196,10 +196,26 @@ tcp and udp 可以复用同一端口
 系统使用五元组 (协议, 源 IP, 源端口, 目标 IP, 目标端口) 来唯一标识一个网络连接或会话
 
 get_notification
+key is notification mechanism
 
-from backtest.utils.py3 import queue, with_metaclass
+
+strategy store / 
+
+data and broker put_notification / get_notification integrate into store module 
+
+cerebro remove broker and 
+
 
 cicd / react front
 ai agent intended for cv in stock
 ios and mr deploy
 
+# trade
+
+# add analyzer start stop next notify_order notify_trade
+
+# strategy _addnotification / _notify / _next_analyzers / _next_observers 
+
+# test  
+1\ getthrought mdapi
+2\ strategy

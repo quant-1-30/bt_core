@@ -28,7 +28,7 @@ from itertools import islice
 
 from .metabase import with_metaclass
 from .lineroot import LineRoot, LineSingle, LineMultiple
-from utils.dateintern import num2date, time2num
+from backtest.utils.dateintern import num2date, time2num
 
 NAN = float('NaN')
 

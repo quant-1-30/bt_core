@@ -24,7 +24,7 @@ from datetime import datetime, date, timedelta
 from .dataseries import TimeFrame, _Bar
 from .metabase import with_metaclass
 from . import metabase
-from utils.dateintern import date2num, num2date
+from backtest.utils.dateintern import date2num, num2date
 
 
 # nth
@@ -497,7 +497,7 @@ class Resampler(_BaseResampler):
     def __call__(self, data, fromcheck=False, forcedata=None):
         '''Called for each set of values produced by the data source'''
         print("resamplefilter len(data)", len(data))
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         consumed = False
         onedge = False
         docheckover = True

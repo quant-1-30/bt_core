@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import pytz
+import datetime
 import queue
 
 import backtest as bt
@@ -102,6 +103,8 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
     )
 
     _store = ibstore.IBStore
+    
+    _DTEPOCH = datetime(1970, 1, 1)
 
     # Minimum size supported by real-time bars
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3)
@@ -124,8 +127,8 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         should be deactivated'''
         return self.p.rtbar
 
-    def __init__(self, **kwargs):
-        self.md = MdApi(**kwargs)
+    def __init__(self, mdapi, **kwargs):
+        self.mdapi = mdapi
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
@@ -154,14 +157,15 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         self.ib.stop()
 
     def reqdata(self, req):
+        # dtkwargs['start'] = int((dtbegin - self._DTEPOCH).total_seconds())
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         if self.contract is None or self._subcription_valid:
             return
 
         if self._rt:
-            self.qlive = self.md.reqRealTimeBars(req)
+            self.qlive = self.mdapi.reqRealTimeBars(req)
         else:
-            self.qlive = self.md.reqMktData(req)
+            self.qlive = self.mdapi.reqMktData(req)
 
         self._subcription_valid = True
         return self.qlive

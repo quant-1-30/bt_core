@@ -39,6 +39,8 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
     '''
     _OwnerCls = None
     _minperiod = 1
+ 
+    IndType, StratType, ObsType = range(3)
 
     def _operation(self, other, operation, r=False, intify=False):
         '''

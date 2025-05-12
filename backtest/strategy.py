@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import numpy as np
 import collections
 import copy
 import datetime
@@ -26,29 +26,28 @@ import inspect
 import itertools
 import operator
 
-from .cerebro import Cerebro
-from .sizer import FixedSize
+
+import backtrader as bt
 from .lineiterator import LineIterator, StrategyBase
-from .lineroot import LineRoot, LineSingle
+from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
 from .metabase import ItemCollection, findowner
-from .signal import *
-from utils.autodict import AutoOrderedDict, AutoDictList
+from .utils import OrderedDict, AutoOrderedDict, AutoDictList
 
 
 class MetaStrategy(StrategyBase.__class__):
     _indcol = dict()
 
-    # def __new__(meta, name, bases, dct):
-    #     # Hack to support original method name for notify_order
-    #     if 'notify' in dct:
-    #         # rename 'notify' to 'notify_order'
-    #         dct['notify_order'] = dct.pop('notify')
-    #     if 'notify_operation' in dct:
-    #         # rename 'notify' to 'notify_order'
-    #         dct['notify_trade'] = dct.pop('notify_operation')
+    def __new__(meta, name, bases, dct):
+        # Hack to support original method name for notify_order
+        if 'notify' in dct:
+            # rename 'notify' to 'notify_order'
+            dct['notify_order'] = dct.pop('notify')
+        if 'notify_operation' in dct:
+            # rename 'notify' to 'notify_order'
+            dct['notify_trade'] = dct.pop('notify_operation')
 
-    #     return super(MetaStrategy, meta).__new__(meta, name, bases, dct)
+        return super(MetaStrategy, meta).__new__(meta, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
         '''
@@ -65,7 +64,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = super(MetaStrategy, cls).donew(*args, **kwargs)
 
         # Find the owner and store it
-        _obj.env = _obj.cerebro = cerebro = findowner(_obj, Cerebro)
+        _obj.env = _obj.cerebro = cerebro = findowner(_obj, bt.Cerebro)
         _obj._id = cerebro._next_stid()
 
         return _obj, args, kwargs
@@ -74,10 +73,21 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
         # _obj.broker = _obj.env.broker
-        
-        _obj._sizer = FixedSize()
+        _obj.store = _obj.env.store
+        _obj._sizer = bt.sizers.FixedSize()
+        _obj._orders = list()
+        _obj._orderspending = list()
+        _obj._trades = collections.defaultdict(AutoDictList)
+        _obj._tradespending = list()
 
+        _obj.stats = _obj.observers = ItemCollection()
+        _obj.analyzers = ItemCollection()
         _obj._alnames = collections.defaultdict(itertools.count)
+        _obj.writers = list()
+
+        _obj._slave_analyzers = list()
+
+        _obj._tradehistoryon = False
 
         return _obj, args, kwargs
 
@@ -85,18 +95,20 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
 
-        _obj._sizer.set(_obj, _obj.broker)
+        # _obj._sizer.set(_obj, _obj.broker)
+        _obj._sizer.set(_obj, _obj.store)
 
         return _obj, args, kwargs
 
 
-class Strategy(metaclass=MetaStrategy):
+class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     '''
     Base class to be subclassed for user defined strategies.
     '''
 
     _ltype = LineIterator.StratType
 
+    csv = True
     _oldsync = False  # update clock using old methodology : data 0
 
     # keep the latest delivered data date in the line
@@ -134,7 +146,6 @@ class Strategy(metaclass=MetaStrategy):
 
             # Save in all object types depending on the strategy
             for itcls in self._lineiterators:
-                # itcls LineIterator.IndType
                 for it in self._lineiterators[itcls]:
                     it.qbuffer(savemem=1)
 
@@ -200,18 +211,91 @@ class Strategy(metaclass=MetaStrategy):
             [x._minperiod for x in self._lineiterators[LineIterator.IndType]]
         self._minperiod = max(minperiods or [self._minperiod])
 
-    def _addindicator(self, indcls, *indargs, **indkwargs):
-        indcls(*indargs, **indkwargs)
+    def _addwriter(self, writer):
+        '''
+        Unlike the other _addxxx functions this one receives an instance
+        because the writer works at cerebro level and is only passed to the
+        strategy to simplify the logic
+        '''
+        self.writers.append(writer)
+
+    # def _addindicator(self, indcls, *indargs, **indkwargs):
+    #     indcls(*indargs, **indkwargs)
+
+    def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
+        '''Like _addanalyzer but meant for observers (or other entities) which
+        rely on the output of an analyzer for the data. These analyzers have
+        not been added by the user and are kept separate from the main
+        analyzers
+
+        Returns the created analyzer
+        '''
+        analyzer = ancls(*anargs, **ankwargs)
+        self._slave_analyzers.append(analyzer)
+        return analyzer
+
+    def _getanalyzer_slave(self, idx):
+        return self._slave_analyzers.append[idx]
+
+    def _addanalyzer(self, ancls, *anargs, **ankwargs):
+        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
+        nsuffix = next(self._alnames[anname])
+        anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
+        analyzer = ancls(*anargs, **ankwargs)
+        self.analyzers.append(analyzer, anname)
+
+    def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
+        obsname = obskwargs.pop('obsname', '')
+        if not obsname:
+            obsname = obscls.__name__.lower()
+
+        if not multi:
+            newargs = list(itertools.chain(self.datas, obsargs))
+            # automatically observer to _ltype
+            obs = obscls(*newargs, **obskwargs)
+            self.stats.append(obs, obsname)
+            return
+
+        setattr(self.stats, obsname, list())
+        l = getattr(self.stats, obsname)
+
+        for data in self.datas:
+            obs = obscls(data, *obsargs, **obskwargs)
+            l.append(obs)
 
     def _getminperstatus(self):
         # check the min period status connected to datas
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
         return minperstatus
-    
-    def _force(self, period):
-        # force the minperiods to be the given period due to term pipeline 
-        self._minperiods = period
+
+    def _oncepost(self, dt):
+        for indicator in self._lineiterators[LineIterator.IndType]:
+            if len(indicator._clock) > len(indicator):
+                indicator.advance()
+
+        if self._oldsync:
+            # Strategy has not been reset, the line is there
+            self.advance()
+        else:
+            # strategy has been reset to beginning. advance step by step
+            self.forward()
+
+        self.lines.datetime[0] = dt
+        self._notify()
+
+        minperstatus = self._getminperstatus()
+        if minperstatus < 0:
+            self.next()
+        elif minperstatus == 0:
+            self.nextstart()  # only called for the 1st value
+        else:
+            self.prenext()
+
+        self._next_analyzers(minperstatus, once=True)
+        self._next_observers(minperstatus, once=True)
+
+        self.clear()
 
     def _clk_update(self):
         if self._oldsync:
@@ -295,7 +379,7 @@ class Strategy(metaclass=MetaStrategy):
 
         self._dlens = [len(data) for data in self.datas]
 
-        self._minperstatus = int.MaxValue  # start in prenext
+        self._minperstatus = np.MAXINT  # start in prenext
 
         self.start()
 
@@ -315,6 +399,41 @@ class Strategy(metaclass=MetaStrategy):
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
         pass
+
+    def set_tradehistory(self, onoff=True):
+        self._tradehistoryon = onoff
+
+    def clear(self):
+        self._orders.extend(self._orderspending)
+        self._orderspending = list()
+        self._tradespending = list()
+
+    def _addnotification(self, qorders=[], quicknotify=False):
+
+        for order in qorders:
+            self.notify_order(order)
+            for analyzer in itertools.chain(self.analyzers,
+                                            self._slave_analyzers):
+                analyzer._notify_order(order)
+
+        qtrades = self.broker.getpostiton()
+
+        for trade in qtrades:
+            self.notify_trade(trade)
+            for analyzer in itertools.chain(self.analyzers,
+                                            self._slave_analyzers):
+                analyzer._notify_trade(trade)
+
+        cash = self.broker.getcash()
+        value = self.broker.getvalue()
+        fundvalue = self.broker.fundvalue
+        fundshares = self.broker.fundshares
+
+        self.notify_cashvalue(cash, value)
+        self.notify_fund(cash, value, fundvalue, fundshares)
+        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+            analyzer._notify_cashvalue(cash, value)
+            analyzer._notify_fund(cash, value, fundvalue, fundshares)
 
     def add_timer(self, when,
                   offset=datetime.timedelta(), repeat=datetime.timedelta(),
@@ -427,6 +546,253 @@ class Strategy(metaclass=MetaStrategy):
         '''
         pass
 
+    def notify_cashvalue(self, cash, value):
+        '''
+        Receives the current fund value, value status of the strategy's broker
+        '''
+        pass
+
+    def notify_fund(self, cash, value, fundvalue, shares):
+        '''
+        Receives the current cash, value, fundvalue and fund shares
+        '''
+        pass
+
+    def notify_order(self, order):
+        '''
+        Receives an order whenever there has been a change in one
+        '''
+        pass
+
+    def notify_trade(self, trade):
+        '''
+        Receives a trade whenever there has been a change in one
+        '''
+        pass
+
+    def notify_store(self, msg, *args, **kwargs):
+        '''Receives a notification from a store provider'''
+        pass
+
+    def notify_data(self, data, status, *args, **kwargs):
+        '''Receives a notification from data'''
+        pass
+
+    def getdatanames(self):
+        '''
+        Returns a list of the existing data names
+        '''
+        return keys(self.env.datasbyname)
+
+    def getdatabyname(self, name):
+        '''
+        Returns a given data by name using the environment (cerebro)
+        '''
+        return self.env.datasbyname[name]
+
+    def cancel(self, order):
+        '''Cancels the order in the broker'''
+        self.broker.cancel(order)
+
+    def buy(self, size=None, price=None, plimit=None,
+            exectype=None, valid=None, oco=None,
+            trailamount=None, trailpercent=None,
+            **kwargs):
+        '''Create a buy (long) order and send it to the broker
+
+          - ``data`` (default: ``None``)
+
+            For which data the order has to be created. If ``None`` then the
+            first data in the system, ``self.datas[0] or self.data0`` (aka
+            ``self.data``) will be used
+
+          - ``size`` (default: ``None``)
+
+            Size to use (positive) of units of data to use for the order.
+
+            If ``None`` the ``sizer`` instance retrieved via ``getsizer`` will
+            be used to determine the size.
+
+          - ``price`` (default: ``None``)
+
+            Price to use (live brokers may place restrictions on the actual
+            format if it does not comply to minimum tick size requirements)
+
+            ``None`` is valid for ``Market`` and ``Close`` orders (the market
+            determines the price)
+
+            For ``Limit``, ``Stop`` and ``StopLimit`` orders this value
+            determines the trigger point (in the case of ``Limit`` the trigger
+            is obviously at which price the order should be matched)
+
+          - ``plimit`` (default: ``None``)
+
+            Only applicable to ``StopLimit`` orders. This is the price at which
+            to set the implicit *Limit* order, once the *Stop* has been
+            triggered (for which ``price`` has been used)
+
+          - ``trailamount`` (default: ``None``)
+
+            If the order type is StopTrail or StopTrailLimit, this is an
+            absolute amount which determines the distance to the price (below
+            for a Sell order and above for a buy order) to keep the trailing
+            stop
+
+          - ``trailpercent`` (default: ``None``)
+
+            If the order type is StopTrail or StopTrailLimit, this is a
+            percentage amount which determines the distance to the price (below
+            for a Sell order and above for a buy order) to keep the trailing
+            stop (if ``trailamount`` is also specified it will be used)
+
+          - ``exectype`` (default: ``None``)
+
+            Possible values:
+
+            - ``Order.Market`` or ``None``. A market order will be executed
+              with the next available price. In backtesting it will be the
+              opening price of the next bar
+
+            - ``Order.Limit``. An order which can only be executed at the given
+              ``price`` or better
+
+            - ``Order.Stop``. An order which is triggered at ``price`` and
+              executed like an ``Order.Market`` order
+
+            - ``Order.StopLimit``. An order which is triggered at ``price`` and
+              executed as an implicit *Limit* order with price given by
+              ``pricelimit``
+
+            - ``Order.Close``. An order which can only be executed with the
+              closing price of the session (usually during a closing auction)
+
+            - ``Order.StopTrail``. An order which is triggered at ``price``
+              minus ``trailamount`` (or ``trailpercent``) and which is updated
+              if the price moves away from the stop
+
+            - ``Order.StopTrailLimit``. An order which is triggered at
+              ``price`` minus ``trailamount`` (or ``trailpercent``) and which
+              is updated if the price moves away from the stop
+
+          - ``valid`` (default: ``None``)
+
+            Possible values:
+
+              - ``None``: this generates an order that will not expire (aka
+                *Good till cancel*) and remain in the market until matched or
+                canceled. In reality brokers tend to impose a temporal limit,
+                but this is usually so far away in time to consider it as not
+                expiring
+
+              - ``datetime.datetime`` or ``datetime.date`` instance: the date
+                will be used to generate an order valid until the given
+                datetime (aka *good till date*)
+
+              - ``Order.DAY`` or ``0`` or ``timedelta()``: a day valid until
+                the *End of the Session* (aka *day* order) will be generated
+
+              - ``numeric value``: This is assumed to be a value corresponding
+                to a datetime in ``matplotlib`` coding (the one used by
+                ``backtrader``) and will used to generate an order valid until
+                that time (*good till date*)
+
+          - ``oco`` (default: ``None``)
+
+            Another ``order`` instance. This order will become part of an OCO
+            (Order Cancel Others) group. The execution of one of the orders,
+            immediately cancels all others in the same group
+
+          - ``**kwargs``: additional broker implementations may support extra
+            parameters. ``backtrader`` will pass the *kwargs* down to the
+            created order objects
+
+            Example: if the 4 order execution types directly supported by
+            ``backtrader`` are not enough, in the case of for example
+            *Interactive Brokers* the following could be passed as *kwargs*::
+
+              orderType='LIT', lmtPrice=10.0, auxPrice=9.8
+
+            This would override the settings created by ``backtrader`` and
+            generate a ``LIMIT IF TOUCHED`` order with a *touched* price of 9.8
+            and a *limit* price of 10.0.
+
+        Returns:
+          - the submitted order
+
+        '''
+        if size:
+            return self.broker.buy(
+                size=abs(size), price=price, plimit=plimit,
+                exectype=exectype, valid=valid, oco=oco,
+                trailamount=trailamount, trailpercent=trailpercent,
+                **kwargs)
+
+        return None
+
+    def sell(self,
+             size=None, price=None, plimit=None,
+             exectype=None, valid=None, oco=None,
+             trailamount=None, trailpercent=None,
+             **kwargs):
+        '''
+        To create a selll (short) order and send it to the broker
+
+        See the documentation for ``buy`` for an explanation of the parameters
+
+        Returns: the submitted order
+        '''
+        if size:
+            return self.broker.sell(
+                size=abs(size), price=price, plimit=plimit,
+                exectype=exectype, valid=valid, oco=oco,
+                trailamount=trailamount, trailpercent=trailpercent,
+                **kwargs)
+
+        return None
+
+    def getpositions(self, broker=None, name=None):
+        '''
+        Returns the current position for a given data in a given broker.
+
+        If both are None, the main data and the default broker will be used
+
+        A property ``position`` is also available
+        '''
+        data = data if data is not None else self.datas[0]
+        broker = broker or self.broker
+        return broker.getposition(data)
+        # return broker.positions
+        # posbyname = collections.OrderedDict()
+        # for name, data in iteritems(self.env.datasbyname):
+        #     posbyname[name] = positions[data]
+
+    positions = property(getpositions)
+
+    def _addsizer(self, sizer, *args, **kwargs):
+        if sizer is None:
+            self.setsizer(bt.sizers.FixedSize())
+        else:
+            self.setsizer(sizer(*args, **kwargs))
+
+    def setsizer(self, sizer):
+        '''
+        Replace the default (fixed stake) sizer
+        '''
+        self._sizer = sizer
+        sizer.set(self, self.broker)
+        return sizer
+
+    def getsizer(self):
+        '''
+        Returns the sizer which is in used if automatic statke calculation is
+        used
+
+        Also available as ``sizer``
+        '''
+        return self._sizer
+
+    sizer = property(getsizer, setsizer)
+
     def getsizing(self, data=None, isbuy=True):
         '''
         Return the stake calculated by the sizer instance for the current
@@ -458,11 +824,11 @@ class MetaSigStrategy(Strategy.__class__):
         _data = _obj.p._data
         if _data is None:
             _obj._dtarget = _obj.data0
-        elif isinstance(_data, int):
+        elif isinstance(_data, integer_types):
             _obj._dtarget = _obj.datas[_data]
-        elif isinstance(_data, str):
+        elif isinstance(_data, string_types):
             _obj._dtarget = _obj.getdatabyname(_data)
-        elif isinstance(_data, LineRoot):
+        elif isinstance(_data, bt.LineRoot):
             _obj._dtarget = _data
         else:
             _obj._dtarget = _obj.data0
@@ -477,13 +843,13 @@ class MetaSigStrategy(Strategy.__class__):
             _obj._signals[sigtype].append(sigcls(*sigargs, **sigkwargs))
 
         # Record types of signals
-        _obj._longshort = bool(_obj._signals[SIGNAL_LONGSHORT])
+        _obj._longshort = bool(_obj._signals[bt.SIGNAL_LONGSHORT])
 
-        _obj._long = bool(_obj._signals[SIGNAL_LONG])
-        _obj._short = bool(_obj._signals[SIGNAL_SHORT])
+        _obj._long = bool(_obj._signals[bt.SIGNAL_LONG])
+        _obj._short = bool(_obj._signals[bt.SIGNAL_SHORT])
 
-        _obj._longexit = bool(_obj._signals[SIGNAL_LONGEXIT])
-        _obj._shortexit = bool(_obj._signals[SIGNAL_SHORTEXIT])
+        _obj._longexit = bool(_obj._signals[bt.SIGNAL_LONGEXIT])
+        _obj._shortexit = bool(_obj._signals[bt.SIGNAL_SHORTEXIT])
 
         return _obj, args, kwargs
 
@@ -607,27 +973,27 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         nosig = [[0.0]]
 
         # Calculate current status of the signals
-        ls_long = all(x[0] > 0.0 for x in sigs[SIGNAL_LONGSHORT] or nosig)
-        ls_short = all(x[0] < 0.0 for x in sigs[SIGNAL_LONGSHORT] or nosig)
+        ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+        ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
 
-        l_enter0 = all(x[0] > 0.0 for x in sigs[SIGNAL_LONG] or nosig)
-        l_enter1 = all(x[0] < 0.0 for x in sigs[SIGNAL_LONG_INV] or nosig)
-        l_enter2 = all(x[0] for x in sigs[SIGNAL_LONG_ANY] or nosig)
+        l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+        l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+        l_enter2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
         l_enter = l_enter0 or l_enter1 or l_enter2
 
-        s_enter0 = all(x[0] < 0.0 for x in sigs[SIGNAL_SHORT] or nosig)
-        s_enter1 = all(x[0] > 0.0 for x in sigs[SIGNAL_SHORT_INV] or nosig)
-        s_enter2 = all(x[0] for x in sigs[SIGNAL_SHORT_ANY] or nosig)
+        s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+        s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+        s_enter2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
         s_enter = s_enter0 or s_enter1 or s_enter2
 
-        l_ex0 = all(x[0] < 0.0 for x in sigs[SIGNAL_LONGEXIT] or nosig)
-        l_ex1 = all(x[0] > 0.0 for x in sigs[SIGNAL_LONGEXIT_INV] or nosig)
-        l_ex2 = all(x[0] for x in sigs[SIGNAL_LONGEXIT_ANY] or nosig)
+        l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
+        l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
+        l_ex2 = all(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
         l_exit = l_ex0 or l_ex1 or l_ex2
 
-        s_ex0 = all(x[0] > 0.0 for x in sigs[SIGNAL_SHORTEXIT] or nosig)
-        s_ex1 = all(x[0] < 0.0 for x in sigs[SIGNAL_SHORTEXIT_INV] or nosig)
-        s_ex2 = all(x[0] for x in sigs[SIGNAL_SHORTEXIT_ANY] or nosig)
+        s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
+        s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
+        s_ex2 = all(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
         s_exit = s_ex0 or s_ex1 or s_ex2
 
         # Use oppossite signales to start reversal (by closing)
@@ -636,14 +1002,14 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         s_rev = not self._shortexit and l_enter
 
         # Opposite of individual long and short
-        l_leav0 = all(x[0] < 0.0 for x in sigs[SIGNAL_LONG] or nosig)
-        l_leav1 = all(x[0] > 0.0 for x in sigs[SIGNAL_LONG_INV] or nosig)
-        l_leav2 = all(x[0] for x in sigs[SIGNAL_LONG_ANY] or nosig)
+        l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+        l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+        l_leav2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
         l_leave = l_leav0 or l_leav1 or l_leav2
 
-        s_leav0 = all(x[0] > 0.0 for x in sigs[SIGNAL_SHORT] or nosig)
-        s_leav1 = all(x[0] < 0.0 for x in sigs[SIGNAL_SHORT_INV] or nosig)
-        s_leav2 = all(x[0] for x in sigs[SIGNAL_SHORT_ANY] or nosig)
+        s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+        s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+        s_leav2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
         s_leave = s_leav0 or s_leav1 or s_leav2
 
         # Invalidate long leave if longexit signals are available

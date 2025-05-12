@@ -25,8 +25,8 @@ from datetime import datetime
 from collections import OrderedDict
 
 from .lineseries import LineSeries
-from utils.dateintern import date2num
-from utils.autodict import AutoOrderedDict
+from backtest.utils.dateintern import date2num
+from backtest.utils.autodict import AutoOrderedDict
 
 
 class TimeFrame(object):

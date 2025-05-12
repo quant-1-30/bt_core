@@ -28,8 +28,8 @@ import os.path
 from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass, MetaParams
 from .resamplefilter import Replayer, Resampler 
-from .tradingcal import PandasMarketCalendar
-from utils.dateintern import *
+# from .tradingcal import PandasMarketCalendar
+from backtest.utils.dateintern import *
 
 
 class MetaAbstractDataBase(OHLCDateTime.__class__):
@@ -187,10 +187,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self.sessionend = time2num(self.p.sessionend)
 
         self._calendar = cal = self.p.calendar
-        if cal is None:
-            self._calendar = self._env._tradingcal
-        elif isinstance(cal, str):
-            self._calendar = PandasMarketCalendar(calendar=cal)
+        # if cal is None:
+        #     self._calendar = self._env._tradingcal
+        # elif isinstance(cal, str):
+        #     self._calendar = PandasMarketCalendar(calendar=cal)
 
         self._started = True
 
@@ -580,7 +580,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         coll = self._barstack if not stash else self._barstash
         print("coll", coll)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         if coll:
             if forward:

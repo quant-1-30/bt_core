@@ -21,8 +21,8 @@
 
 import numpy as np
 import datetime
-from utils.dateintern import date2num
-from meta.feed import DataBase
+from backtest.utils.dateintern import date2num
+from backtest.feed import DataBase
 
 
 class PandasDirectData(DataBase):

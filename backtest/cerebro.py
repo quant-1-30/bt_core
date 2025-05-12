@@ -726,25 +726,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.strats.append([(strategy, args, kwargs)])
         return len(self.strats) - 1
 
-    def setbroker(self, broker):
-        '''
-        Sets a specific ``broker`` instance for this strategy, replacing the
-        one inherited from cerebro.
-        '''
-        self._broker = broker
-        broker.cerebro = self
-        return broker
-
-    def getbroker(self):
-        '''
-        Returns the broker instance.
-
-        This is also available as a ``property`` by the name ``broker``
-        '''
-        return self._broker
-
-    broker = property(getbroker, setbroker)
-
     def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
              width=16, height=9, dpi=300, tight=True, use=None,
              **kwargs):
@@ -987,8 +968,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for store in self.stores:
             store.start()
 
-        self._broker.start()
-
         for feed in self.feeds:
             feed.start()
 
@@ -1103,8 +1082,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for strat in runstrats:
                 strat._stop()
 
-        self._broker.stop()
-
         if not predata:
             for data in self.datas:
                 data.stop()
@@ -1161,16 +1138,22 @@ class Cerebro(with_metaclass(MetaParams, object)):
         notification to the strategy
         '''
         self._broker.next()
+        qorders = []
         while True:
             order = self._broker.get_notification()
-            if order is None:
+            if order is "eof":
                 break
+            qorders.append(order)
+        
 
-            owner = order.owner
-            if owner is None:
-                owner = self.runningstrats[0]  # default
+        # how order related to strategy
 
-            owner._addnotification(order, quicknotify=self.p.quicknotify)
+        owner = order.owner
+        if owner is None:
+            owner = self.runningstrats[0]  # default
+
+        # strategy execute order
+        owner._addnotification(qorders, quicknotify=self.p.quicknotify)
 
     def _disable_runonce(self):
         '''API for lineiterators to disable runonce (see HeikinAshi)'''
@@ -1298,13 +1281,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if self._event_stop:  # stop if requested
                 return
 
-            if d0ret or lastret:  # if any bar, check timers before broker
-                self._check_timers(runstrats, dt0, cheat=True)
-                if self.p.cheat_on_open:
-                    for strat in runstrats:
-                        strat._next_open()
-                        if self._event_stop:  # stop if requested
-                            return
+            # if d0ret or lastret:  # if any bar, check timers before broker
+            #     self._check_timers(runstrats, dt0, cheat=True)
+            #     if self.p.cheat_on_open:
+            #         for strat in runstrats:
+            #             strat._next_open()
+            #             if self._event_stop:  # stop if requested
+            #                 return
 
             self._brokernotify()
             if self._event_stop:  # stop if requested
@@ -1365,11 +1348,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             self._check_timers(runstrats, dt0, cheat=True)
 
-            if self.p.cheat_on_open:
-                for strat in runstrats:
-                    strat._oncepost_open()
-                    if self._event_stop:  # stop if requested
-                        return
+            # if self.p.cheat_on_open:
+            #     for strat in runstrats:
+            #         strat._oncepost_open()
+            #         if self._event_stop:  # stop if requested
+            #             return
 
             self._brokernotify()
             if self._event_stop:  # stop if requested
