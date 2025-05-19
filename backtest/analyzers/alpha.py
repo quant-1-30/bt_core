@@ -10,7 +10,6 @@ import numpy as np
 from scipy.stats import linregress
 from collections import OrderedDict
 from backtest.analyzers.analyzers import annual_return
-from metric.utility import _to_pandas, annualization_factor, _adjust_returns, roll
 
 
 def rsquared(x, y):

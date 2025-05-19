@@ -171,20 +171,20 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         # This should probably be also called from an override-able method
         self._tzinput = Localizer(self._gettzinput())
 
-        # Convert user input times to the output timezone (or min/max)
-        if self.p.fromdate is None:
-            self.fromdate = float('-inf')
-        else:
-            self.fromdate = self.date2num(self.p.fromdate)
+        # # Convert user input times to the output timezone (or min/max)
+        # if self.p.fromdate is None:
+        #     self.fromdate = float('-inf')
+        # else:
+        #     self.fromdate = self.date2num(self.p.fromdate)
 
-        if self.p.todate is None:
-            self.todate = float('inf')
-        else:
-            self.todate = self.date2num(self.p.todate)
+        # if self.p.todate is None:
+        #     self.todate = float('inf')
+        # else:
+        #     self.todate = self.date2num(self.p.todate)
 
-        # FIXME: These two are never used and could be removed
-        self.sessionstart = time2num(self.p.sessionstart)
-        self.sessionend = time2num(self.p.sessionend)
+        # # FIXME: These two are never used and could be removed
+        # self.sessionstart = time2num(self.p.sessionstart)
+        # self.sessionend = time2num(self.p.sessionend)
 
         self._calendar = cal = self.p.calendar
         # if cal is None:
@@ -425,7 +425,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             else:
                 if ticks:
                     self._tick_fill()
-
         else:
             if ticks:
                 self._tick_fill()
@@ -511,24 +510,24 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                 self.backwards(force=True)
                 break
 
-            # Pass through filters
-            retff = False
-            for ff, fargs, fkwargs in self._filters:
-                # previous filter may have put things onto the stack
+            # # Pass through filters
+            # retff = False
+            # for ff, fargs, fkwargs in self._filters:
+            #     # previous filter may have put things onto the stack
 
-                # ff(self, *fargs, **fkwargs) __call__
-                if self._barstack:
-                    for i in range(len(self._barstack)):
-                        self._fromstack(forward=True)
-                        retff = ff(self, *fargs, **fkwargs)
-                else:
-                    retff = ff(self, *fargs, **fkwargs)
+            #     # ff(self, *fargs, **fkwargs) __call__
+            #     if self._barstack:
+            #         for i in range(len(self._barstack)):
+            #             self._fromstack(forward=True)
+            #             retff = ff(self, *fargs, **fkwargs)
+            #     else:
+            #         retff = ff(self, *fargs, **fkwargs)
 
-                if retff:  # bar removed from systemn
-                    break  # out of the inner loop
+            #     if retff:  # bar removed from systemn
+            #         break  # out of the inner loop
 
-            if retff:  # bar removed from system - loop to get new bar
-                continue  # in the greater loop
+            # if retff:  # bar removed from system - loop to get new bar
+            #     continue  # in the greater loop
 
             # Checks let the bar through ... notify it
             return True

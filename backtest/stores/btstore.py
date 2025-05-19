@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 
 import backtest as bt
 from backtest.metabase import MetaParams, with_metaclass
-from backtest.utils import AutoDict
+# from backtest.utils import AutoDict
 from bt_sdk.core.client import MdApi, TdApi
 
 # Extend the exceptions to support extra cases

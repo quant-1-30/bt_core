@@ -229,7 +229,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
         # documented and one of the abbreviations may fail
         tzstr = isinstance(self.p.tz, string_types)
         if self.p.tz is not None and not tzstr:
-            return bt.utils.date.Localizer(self.p.tz)
+            return bt.utils.dateintern.Localizer(self.p.tz)
 
         if self.contractdetails is None:
             return None  # nothing can be done

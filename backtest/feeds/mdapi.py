@@ -19,25 +19,25 @@
 #
 ###############################################################################
 import pytz
-import datetime
-import queue
 
 import backtest as bt
 from backtest.feed import DataBase
-from backtest import TimeFrame, date2num
+from backtest.dataseries import TimeFrame
+from backtest.utils.dateintern import date2num, Localizer
 from backtest.metabase import with_metaclass
-from backtest.stores import ibstore
+from backtest.stores import btstore
 from bt_sdk.core.client import MdApi
 
 
 class MetaMdData(DataBase.__class__):
+
     def __init__(cls, name, bases, dct):
         '''Class has already been created ... register'''
         # Initialize the class
         super(MetaMdData, cls).__init__(name, bases, dct)
 
         # Register with the store
-        ibstore.BtStore.DataCls = cls
+        btstore.BtStore.DataCls = cls
 
 
 class MdData(with_metaclass(MetaMdData, DataBase)):
@@ -71,11 +71,6 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         timeframe/compression below Seconds/5, no real time bars will be used,
         because IB doesn't serve them below that level
 
-      - ``qcheck`` (default: ``0.5``)
-
-        Time in seconds to wake up if no data is received to give a chance to
-        resample/replay packets properly and pass notifications up the chain
-
       - ``backfill`` (default: ``True``)
 
         Perform backfilling after a disconnection/reconnection cycle. The gap
@@ -96,118 +91,96 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
     '''
     params = (
         ('sectype', 'instrument'),  # usual industry value
-        ("tz", "Shanghai/Asia"),
+        ("tz", "Asia/Shanghai"),
         ('rtbar', False),  # use RealTime 5 seconds bars
-        ('qcheck', 0.5),  # timeout in seconds (float) to check for events
-        ('backfill', True),  # do backfilling when reconnecting
+        ('backfill', True), \
     )
 
-    _store = ibstore.IBStore
+    # _store = ibstore.IBStore
     
-    _DTEPOCH = datetime(1970, 1, 1)
-
     # Minimum size supported by real-time bars
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3)
 
-    # States for the Finite State Machine in _load
     # _ST_FROM, _ST_START, _ST_LIVE, _ST_HISTORBACK, _ST_OVER = range(5)
 
-    def _timeoffset(self):
-        return self.ib.timeoffset()
+    def __init__(self, **kwargs):
+        addr = kwargs.get('addr', ("127.0.0.1", 8888))
+        self.mdapi = MdApi(addr)
 
     def _gettz(self):
         # If no object has been provided by the user and a timezone can be
         # found via contractdtails, then try to get it from pytz, which may or
         # may not be available.
         tz = pytz.timezone(self.p.tz)
-        return bt.utils.date.Localizer(tz)
+        return Localizer(tz)
 
     def islive(self):
         '''Returns ``True`` to notify ``Cerebro`` that preloading and runonce
         should be deactivated'''
         return self.p.rtbar
 
-    def __init__(self, mdapi, **kwargs):
-        self.mdapi = mdapi
-
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
         belongs to'''
         super(MdData, self).setenvironment(env)
-        env.addstore(self.ib)
+        # env.addstore(self.ib)
 
     def start(self):
-        '''Starts the IB connecction and gets the real contract and
+        '''Starts the mdapi connecction and gets the real contract and
         contractdetails if it exists'''
-        super(MdData, self).start()
-        # Kickstart store
-        self.ib.start(data=self)
 
-        self._rt = not self.p.rtbar
-        self._subcription_valid = False  # subscription state
-
-        if not self.ib.connected():
+        if not self.mdapi.connected():
             return
 
-        self.put_notification(self.CONNECTED)
-
+        self._subcription_valid = False  # subscription state
+        # self.put_notification(self.CONNECTED)
+ 
     def stop(self):
         '''Stops and tells the store to stop'''
-        super(MdData, self).stop()
-        self.ib.stop()
+        # super(MdData, self).stop()
+        self.mdapi.disconnected()
 
     def reqdata(self, req):
         # dtkwargs['start'] = int((dtbegin - self._DTEPOCH).total_seconds())
         '''request real-time data. checks cash vs non-cash) and param useRT'''
-        if self.contract is None or self._subcription_valid:
-            return
-
-        if self._rt:
-            self.qlive = self.mdapi.reqRealTimeBars(req)
-        else:
-            self.qlive = self.mdapi.reqMktData(req)
-
         self._subcription_valid = True
-        return self.qlive
+        self.qlive = self.mdapi.reqMktData(req)
 
     def canceldata(self):
         '''Cancels Market Data subscription, checking asset type and rtbar'''
-        if self.contract is None:
+        if self.qlive is None:
             return
 
-        if self._rt:
-            self.md.cancelRealTimeBars(self.qlive)
-        else:
-            self.md.cancelMktData(self.qlive)
+        self.mdapi.canceledData(self.qlive)
 
     def _load(self):
         """
            msg error code -354 self.NOTSUBSCRIBED
         """
-        _load_bar = self._load_rtbar if self._rt else self._load_bar
+        _load_bar = self._load_rtbar if self.p.rtbar else self._load_bar
 
         while True:
-            try:
-                msg = self.qlive.get(timeout=self._qcheck)
-            except queue.Empty:
-                if True:
-                    return None
+            msg = self.qlive.get()
+            print("msg: ", msg)
+            if msg == "eof":
+                break  # Conn broken during historical/backfilling
 
-            if msg is None:  # Conn broken during historical/backfilling
-                self._subcription_valid = False
-                self.put_notification(self.CONNBROKEN)
-                # Try to reconnect
-                if not self.ib.reconnect(resub=True):
-                    self.put_notification(self.DISCONNECTED)
-                    return False  # failed
+            # if msg == "****" :  # Conn broken during historical/backfilling
+            #     self._subcription_valid = False
+            #     self.put_notification(self.CONNBROKEN)
+            #     # Try to reconnect
+            #     if not self.ib.reconnect(resub=True):
+            #         self.put_notification(self.DISCONNECTED)
+            #         return False  # failed
 
-                continue
-            if msg == -354:
-                self._subcription_valid = False
-                self.put_notification(self.NOTSUBSCRIBED)
-                return False
+            #     continue
+            # if msg == -354:
+            #     self._subcription_valid = False
+            #     self.put_notification(self.NOTSUBSCRIBED)
+            #     return False
             #  load_rtbar or load_bar
             _load_bar(msg)
+
 
     def _load_bar(self, bar, hist=False):
         # A complete 30 second bar made of real-time 3d ticks is delivered and
@@ -215,18 +188,19 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # The historical data has the same data but with 'date' instead of
         # 'time' for datetime
         # dt = date2num(bar.time if not hist else bar.date)
-        dt = bar.tick
-        if dt < self.lines.tick[-1] :
+        dt = bar[0]
+        if dt < self.lines.datetime[-1] :
             return False  # cannot deliver earlier than already delivered
 
         self.lines.datetime[0] = dt
         # Put the tick into the bar
-        self.lines.open[0] = bar.open
-        self.lines.high[0] = bar.high
-        self.lines.low[0] = bar.low
-        self.lines.close[0] = bar.close
-        self.lines.volume[0] = bar.volume
-        self.lines.openinterest[0] = 0
+        self.lines.open[0] = bar[1]
+        self.lines.high[0] = bar[2]
+        self.lines.low[0] = bar[3]
+        self.lines.close[0] = bar[4]
+        self.lines.volume[0] = bar[5]
+        self.lines.amount[0] = bar[6]
+        # self.lines.openinterest[0] = 0
 
         return True
 
@@ -235,18 +209,19 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # of prices. Ideally the
         # contains open/high/low/close/volume prices
         # Datetime transformation
-        dt = date2num(rtbar.datetime)
+        # dt = date2num(rtbar[0])
+        dt = rtbar[0]
         if dt < self.lines.datetime[-1]:
             return False  # cannot deliver earlier than already delivered
 
         self.lines.datetime[0] = dt
 
         # Put the tick into the bar
-        tick = rtbar.price
+        tick = rtbar[1]
         self.lines.open[0] = tick
         self.lines.high[0] = tick
         self.lines.low[0] = tick
         self.lines.close[0] = tick
-        self.lines.volume[0] = rtbar.size
-        self.lines.openinterest[0] = 0
+        self.lines.volume[0] = rtbar[2]
+        self.lines.amount[0] = rtbar[3]
         return True

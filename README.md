@@ -1,5 +1,16 @@
                                         Fake it until you make it
 
+prototype
+
+1\ backtest
+
+2\ live trade
+
+3\ ai agent construct strategy and deploy to live trade / wechat timer
+
+4\ mr visual 
+
+
 framework:
 
     strategy infrastructure:
@@ -195,27 +206,15 @@ tcp and udp 可以复用同一端口
 
 系统使用五元组 (协议, 源 IP, 源端口, 目标 IP, 目标端口) 来唯一标识一个网络连接或会话
 
-get_notification
-key is notification mechanism
+get_notification key is notification mechanism
 
 
-strategy store / 
-
-data and broker put_notification / get_notification integrate into store module 
-
-cerebro remove broker and 
+# add analyzer start stop next notify_order notify_trade strategy _addnotification / _notify / _next_analyzers / _next_observers / store  
 
 
-cicd / react front
-ai agent intended for cv in stock
-ios and mr deploy
+# add cas authentic service
 
-# trade
-
-# add analyzer start stop next notify_order notify_trade
-
-# strategy _addnotification / _notify / _next_analyzers / _next_observers 
-
-# test  
-1\ getthrought mdapi
-2\ strategy
+梳理
+1  store == mdapi + tdapi
+2  notify mechanism
+3  

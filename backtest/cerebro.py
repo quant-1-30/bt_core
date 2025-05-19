@@ -24,10 +24,7 @@ import collections
 import itertools
 import multiprocessing
 
-try:  # For new Python versions
-    collectionsAbc = collections.abc  # collections.Iterable -> collections.abc.Iterable
-except AttributeError:  # For old Python versions
-    collectionsAbc = collections  # Используем collections.Iterable
+import collections
 
 from . import linebuffer
 from . import indicator
@@ -39,15 +36,6 @@ from .tradingcal import (TradingCalendarBase, TradingCalendar,
                          PandasMarketCalendar)
 from .timer import Timer
 from bt_sdk.core.client import TdApi
-
-# Defined here to make it pickable. Ideally it could be defined inside Cerebro
-
-
-# class OptReturn(object):
-#     def __init__(self, params, **kwargs):
-#         self.p = self.params = params
-#         for k, v in kwargs.items():
-#             setattr(self, k, v)
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -111,47 +99,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             - ``runonce`` will be deactivated
 
-          - ``-2``: data feeds and indicators kept as attributes of the
-            strategy will keep all points in memory.
-
-            For example: a ``RSI`` internally uses the indicator ``UpDay`` to
-            make calculations. This subindicator will not keep all data in
-            memory
-
-            If in the ``__init__`` something like
-            ``a = self.data.close - self.data.high`` is defined, then ``a``
-            will not keep all data in memory
-
-            - This allows to keep ``plotting`` and ``preloading`` active.
-
-            - ``runonce`` will be deactivated
-
-      - ``objcache`` (default: ``False``)
-
-        Experimental option to implement a cache of lines objects and reduce
-        the amount of them. Example from UltimateOscillator::
-
-          bp = self.data.close - TrueLow(self.data)
-          tr = TrueRange(self.data)  # -> creates another TrueLow(self.data)
-
-        If this is ``True`` the 2nd ``TrueLow(self.data)`` inside ``TrueRange``
-        matches the signature of the one in the ``bp`` calculation. It will be
-        reused.
-
-        Corner cases may happen in which this drives a line object off its
-        minimum period and breaks things and it is therefore disabled.
-
       - ``writer`` (default: ``False``)
 
         If set to ``True`` a default WriterFile will be created which will
         print to stdout. It will be added to the strategy (in addition to any
         other writers added by the user code)
-
-      - ``tradehistory`` (default: ``False``)
-
-        If set to ``True``, it will activate update event logging in each trade
-        for all strategies. This can also be accomplished on a per strategy
-        basis with the strategy method ``set_tradehistory``
 
       - ``optdatas`` (default: ``True``)
 
@@ -196,8 +148,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('stdstats', True),
         ('exactbars', False),
         ('optdatas', True),
-        # ('optreturn', True),
-        ('objcache', False),
         ('live', False),
         ('writer', False),
         ('tz', None),
@@ -228,9 +178,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self._dataid = itertools.count(1)
 
-        # self._broker = BackBroker()
-        self._broker.cerebro = self
-
         self._tradingcal = None  # TradingCalendar()
 
         self._pretimers = list()
@@ -244,7 +191,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for elem in iterable:
             if isinstance(elem, str):
                 elem = (elem,)
-            elif not isinstance(elem, collectionsAbc.Iterable):  # Different functions will be called for different Python versions
+            elif not isinstance(elem, collections.Iterable):  # Different functions will be called for different Python versions
                 elem = (elem,)
 
             niterable.append(elem)
@@ -433,25 +380,25 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self._tradingcal = cal
 
-    def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
-        '''Adds a signal to the system which will be later added to a
-        ``SignalStrategy``'''
-        self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
+    # def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
+    #     '''Adds a signal to the system which will be later added to a
+    #     ``SignalStrategy``'''
+    #     self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
 
-    def signal_strategy(self, stratcls, *args, **kwargs):
-        '''Adds a SignalStrategy subclass which can accept signals'''
-        self._signal_strat = (stratcls, args, kwargs)
+    # def signal_strategy(self, stratcls, *args, **kwargs):
+    #     '''Adds a SignalStrategy subclass which can accept signals'''
+    #     self._signal_strat = (stratcls, args, kwargs)
 
-    def signal_concurrent(self, onoff):
-        '''If signals are added to the system and the ``concurrent`` value is
-        set to True, concurrent orders will be allowed'''
-        self._signal_concurrent = onoff
+    # def signal_concurrent(self, onoff):
+    #     '''If signals are added to the system and the ``concurrent`` value is
+    #     set to True, concurrent orders will be allowed'''
+    #     self._signal_concurrent = onoff
 
-    def signal_accumulate(self, onoff):
-        '''If signals are added to the system and the ``accumulate`` value is
-        set to True, entering the market when already in the market, will be
-        allowed to increase a position'''
-        self._signal_accumulate = onoff
+    # def signal_accumulate(self, onoff):
+    #     '''If signals are added to the system and the ``accumulate`` value is
+    #     set to True, entering the market when already in the market, will be
+    #     allowed to increase a position'''
+    #     self._signal_accumulate = onoff
 
     def addstore(self, store):
         '''Adds an ``Store`` instance to the if not already present'''
@@ -613,7 +560,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if data.islive():
             self._dolive = True
 
-        return data
+        # return data
 
     def replaydata(self, dataname, name=None, **kwargs):
         '''
@@ -632,7 +579,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname, name=name)
         self._doreplay = True
 
-        return dataname
+        # return dataname
 
     def resampledata(self, dataname, name=None, **kwargs):
         '''
@@ -651,7 +598,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname, name=name)
         self._doreplay = True
 
-        return dataname
+        # return dataname
 
     def optcallback(self, cb):
         '''
@@ -841,12 +788,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if key in pkeys:
                 setattr(self.params, key, val)
 
-        # Manage activate/deactivate object cache
-        linebuffer.LineActions.cleancache()  # clean cache
-        indicator.Indicator.cleancache()  # clean cache
+        # # Manage activate/deactivate object cache
+        # linebuffer.LineActions.cleancache()  # clean cache
+        # indicator.Indicator.cleancache()  # clean cache
 
-        linebuffer.LineActions.usecache(self.p.objcache)
-        indicator.Indicator.usecache(self.p.objcache)
+        # linebuffer.LineActions.usecache(self.p.objcache)
+        # indicator.Indicator.usecache(self.p.objcache)
 
         self._dorunonce = self.p.runonce
         self._dopreload = self.p.preload
@@ -867,7 +814,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._dorunonce = False
             self._dopreload = False
 
-        self.runwriters = list()
+        # self.runwriters = list()
 
         # # Add the system default writer if requested
         # if self.p.writer is True:
@@ -927,9 +874,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if self.p.optdatas and self._dopreload and self._dorunonce:
                 for data in self.datas:
                     data.reset()
-                    if self._exactbars < 1:  # datas can be full length
-                        # data.extend(size=self.params.lookahead)
-                        data.extend(size=0)
+                    # if self._exactbars < 1:  # datas can be full length
+                    #     data.extend(size=self.params.lookahead)
                     data._start()
                     if self._dopreload:
                         data.preload()
@@ -987,8 +933,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if not predata:
             for data in self.datas:
                 data.reset()
-                if self._exactbars < 1:  # datas can be full length
-                    data.extend(size=self.params.lookahead)
+                # if self._exactbars < 1:  # datas can be full length
+                #     data.extend(size=self.params.lookahead)
                 data._start()
                 if self._dopreload:
                     data.preload()
@@ -1064,20 +1010,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     self._timers.append(timer)
 
             if self._dopreload and self._dorunonce:
-                
                 self._runonce(runstrats)
-
-                # if self.p.oldsync:
-                #     self._runonce_old(runstrats)
-                # else:
-                #     self._runonce(runstrats)
             else:
                 self._runnext(runstrats)
-
-                # if self.p.oldsync:
-                #     self._runnext_old(runstrats)
-                # else:
-                #     self._runnext(runstrats)
 
             for strat in runstrats:
                 strat._stop()
@@ -1093,22 +1028,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             store.stop()
 
         # self.stop_writers(runstrats)
-
-        # if self._dooptimize and self.p.optreturn:
-        #     # Results can be optimized
-        #     results = list()
-        #     for strat in runstrats:
-        #         for a in strat.analyzers:
-        #             a.strategy = None
-        #             a._parent = None
-        #             for attrname in dir(a):
-        #                 if attrname.startswith('data'):
-        #                     setattr(a, attrname, None)
-
-        #         oreturn = OptReturn(strat.params, analyzers=strat.analyzers, strategycls=type(strat))
-        #         results.append(oreturn)
-
-        #     return results
 
         return runstrats
 
@@ -1144,7 +1063,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if order is "eof":
                 break
             qorders.append(order)
-        
 
         # how order related to strategy
 
@@ -1177,19 +1095,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         onlyresample = len(datas) == len(rsonly)
         noresample = not rsonly
 
-        clonecount = sum(d._clone for d in datas)
-        ldatas = len(datas)
-        ldatas_noclones = ldatas - clonecount
-        lastqcheck = False
-        dt0 = date2num(datetime.datetime.max) - 2  # default at max
         while d0ret or d0ret is None:
-            # if any has live data in the buffer, no data will wait anything
-            newqcheck = not any(d.haslivedata() for d in datas)
-            if not newqcheck:
-                # If no data has reached the live status or all, wait for
-                # the next incoming data
-                livecount = sum(d._laststatus == d.LIVE for d in datas)
-                newqcheck = not livecount or livecount == ldatas_noclones
 
             lastret = False
             # Notify anything from the store even before moving datas
@@ -1201,16 +1107,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if self._event_stop:  # stop if requested
                 return
 
-            # record starting time and tell feeds to discount the elapsed time
-            # from the qcheck value
             drets = []
-            qstart = datetime.datetime.utcnow()
             for d in datas:
-                qlapse = datetime.datetime.utcnow() - qstart
-                d.do_qcheck(newqcheck, qlapse.total_seconds())
                 drets.append(d.next(ticks=False))
 
             d0ret = any((dret for dret in drets))
+            # True / None / not None
             if not d0ret and any((dret is None for dret in drets)):
                 d0ret = None
 
@@ -1220,17 +1122,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     dts.append(datas[i].datetime[0] if ret else None)
 
                 # Get index to minimum datetime
+                # all resample or all not resample ---> filter out resample
                 if onlyresample or noresample:
                     dt0 = min((d for d in dts if d is not None))
                 else:
                     dt0 = min((d for i, d in enumerate(dts)
                                if d is not None and i not in rsonly))
-
+                    
                 dmaster = datas[dts.index(dt0)]  # and timemaster
-                self._dtmaster = dmaster.num2date(dt0)
-                self._udtmaster = num2date(dt0)
 
-                # slen = len(runstrats[0])
                 # Try to get something for those that didn't return
                 for i, ret in enumerate(drets):
                     if ret:  # dts already contains a valid datetime for this i
@@ -1238,43 +1138,41 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                     # try to get a data by checking with a master
                     d = datas[i]
-                    d._check(forcedata=dmaster)  # check to force output
+                    # d._check(forcedata=dmaster)  # check to force output
                     if d.next(datamaster=dmaster, ticks=False):  # retry
                         dts[i] = d.datetime[0]  # good -> store
-                        # self._plotfillers2[i].append(slen)  # mark as fill
                     else:
-                        # self._plotfillers[i].append(slen)  # mark as empty
                         pass
 
                 # make sure only those at dmaster level end up delivering
                 for i, dti in enumerate(dts):
                     if dti is not None:
                         di = datas[i]
-                        rpi = False and di.replaying   # to check behavior
+                        # rpi = False and di.replaying   # to check behavior
                         if dti > dt0:
-                            if not rpi:  # must see all ticks ...
+                            # if not rpi:  # must see all ticks ...
                                 di.rewind()  # cannot deliver yet
                             # self._plotfillers[i].append(slen)
-                        elif not di.replaying:
-                            # Replay forces tick fill, else force here
-                            di._tick_fill(force=True)
+                        # elif not di.replaying:
+                        #     # Replay forces tick fill, else force here
+                        #     di._tick_fill(force=True)
 
                         # self._plotfillers2[i].append(slen)  # mark as fill
 
-            elif d0ret is None:
-                # meant for things like live feeds which may not produce a bar
-                # at the moment but need the loop to run for notifications and
-                # getting resample and others to produce timely bars
-                for data in datas:
-                    data._check()
-            else:
-                lastret = data0._last()
-                for data in datas1:
-                    lastret += data._last(datamaster=data0)
+            # elif d0ret is None:
+            #     # meant for things like live feeds which may not produce a bar
+            #     # at the moment but need the loop to run for notifications and
+            #     # getting resample and others to produce timely bars
+            #     for data in datas:
+            #         data._check()
+            # else:
+            #     lastret = data0._last()
+            #     for data in datas1:
+            #         lastret += data._last(datamaster=data0)
 
-                if not lastret:
-                    # Only go extra round if something was changed by "lasts"
-                    break
+            #     if not lastret:
+            #         # Only go extra round if something was changed by "lasts"
+            #         break
 
             # Datas may have generated a new notification after next
             self._datanotify()
@@ -1337,7 +1235,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             # Timemaster if needed be
             # dmaster = datas[dts.index(dt0)]  # and timemaster
-            slen = len(runstrats[0])
+            # slen = len(runstrats[0])
             for i, dti in enumerate(dts):
                 if dti <= dt0:
                     datas[i].advance()
@@ -1348,12 +1246,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             self._check_timers(runstrats, dt0, cheat=True)
 
-            # if self.p.cheat_on_open:
-            #     for strat in runstrats:
-            #         strat._oncepost_open()
-            #         if self._event_stop:  # stop if requested
-            #             return
-
             self._brokernotify()
             if self._event_stop:  # stop if requested
                 return
@@ -1362,10 +1254,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             for strat in runstrats:
                 strat._oncepost(dt0)
+
                 if self._event_stop:  # stop if requested
                     return
 
-                self._next_writers(runstrats)
+                # self._next_writers(runstrats)
 
     def _check_timers(self, runstrats, dt0, cheat=False):
         timers = self._timers if not cheat else self._timerscheat
