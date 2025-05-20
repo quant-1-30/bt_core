@@ -664,42 +664,42 @@ class PeriodLabel(object):
     end_of_session = end_of_bar
 
 
-def asymmetric_round_price(price, prefer_round_down, tick_size, diff=0.95):
-    """
-    Asymmetric rounding function for adjusting prices to the specified number
-    of places in a way that "improves" the price. For limit prices, this means
-    preferring to round down on buys and preferring to round up on sells.
-    For stop prices, it means the reverse.
+# def asymmetric_round_price(price, prefer_round_down, tick_size, diff=0.95):
+#     """
+#     Asymmetric rounding function for adjusting prices to the specified number
+#     of places in a way that "improves" the price. For limit prices, this means
+#     preferring to round down on buys and preferring to round up on sells.
+#     For stop prices, it means the reverse.
 
-    If prefer_round_down == True:
-        When .05 below to .95 above a specified decimal place, use it.
-    If prefer_round_down == False:
-        When .95 below to .05 above a specified decimal place, use it.
+#     If prefer_round_down == True:
+#         When .05 below to .95 above a specified decimal place, use it.
+#     If prefer_round_down == False:
+#         When .95 below to .05 above a specified decimal place, use it.
 
-    In math-speak:
-    If prefer_round_down: [<X-1>.0095, X.0195) -> round to X.01.
-    If not prefer_round_down: (<X-1>.0005, X.0105] -> round to X.01.
-    """
-    # 返回位数
-    precision = zp_math.number_of_decimal_places(tick_size)
-    multiplier = int(tick_size * (10 ** precision))
-    diff -= 0.5  # shift the difference down
-    diff *= (10 ** -precision)  # adjust diff to precision of tick size
-    diff *= multiplier  # adjust diff to value of tick_size
+#     In math-speak:
+#     If prefer_round_down: [<X-1>.0095, X.0195) -> round to X.01.
+#     If not prefer_round_down: (<X-1>.0005, X.0105] -> round to X.01.
+#     """
+#     # 返回位数
+#     precision = zp_math.number_of_decimal_places(tick_size)
+#     multiplier = int(tick_size * (10 ** precision))
+#     diff -= 0.5  # shift the difference down
+#     diff *= (10 ** -precision)  # adjust diff to precision of tick size
+#     diff *= multiplier  # adjust diff to value of tick_size
 
-    # Subtracting an epsilon from diff to enforce the open-ness of the upper
-    # bound on buys and the lower bound on sells.  Using the actual system
-    # epsilon doesn't quite get there, so use a slightly less epsilon-ey value.
-    epsilon = float_info.epsilon * 10
-    diff = diff - epsilon
+#     # Subtracting an epsilon from diff to enforce the open-ness of the upper
+#     # bound on buys and the lower bound on sells.  Using the actual system
+#     # epsilon doesn't quite get there, so use a slightly less epsilon-ey value.
+#     epsilon = float_info.epsilon * 10
+#     diff = diff - epsilon
 
-    # relies on rounding half away from zero, unlike numpy's bankers' rounding
-    rounded = tick_size * consistent_round(
-        (price - (diff if prefer_round_down else -diff)) / tick_size
-    )
-    if zp_math.tolerant_equals(rounded, 0.0):
-        return 0.0
-    return rounded
+#     # relies on rounding half away from zero, unlike numpy's bankers' rounding
+#     rounded = tick_size * consistent_round(
+#         (price - (diff if prefer_round_down else -diff)) / tick_size
+#     )
+#     if zp_math.tolerant_equals(rounded, 0.0):
+#         return 0.0
+#     return rounded
 
 
 # getter  ---- property ;  setter --- @func.setter
@@ -709,88 +709,6 @@ def asymmetric_round_price(price, prefer_round_down, tick_size, diff=0.95):
 
 # __delete__(self,instance) ,__del__(self)
 
-
-class _Sentinel(object):
-    """Base class for Sentinel objects.
-    """
-    __slots__ = ('__weakref__',)
-
-
-def is_sentinel(obj):
-    return isinstance(obj, _Sentinel)
-
-
-# 返回 目标的具体信息文件名、行号基于_getframe
-def sentinel(name, doc=None):
-    try:
-        value = sentinel._cache[name]  # memoized
-    except KeyError:
-        pass
-    else:
-        if doc == value.__doc__:
-            return value
-
-        raise ValueError(dedent(
-            """\
-            New sentinel value %r conflicts with an existing sentinel of the
-            same name.
-            Old sentinel docstring: %r
-            New sentinel docstring: %r
-
-            The old sentinel was created at: %s
-
-            Resolve this conflict by changing the name of one of the sentinels.
-            """,
-        ) % (name, value.__doc__, doc, value._created_at))
-
-    try:
-        frame = sys._getframe(1)
-    except ValueError:
-        frame = None
-
-    if frame is None:
-        created_at = '<unknown>'
-    else:
-        created_at = '%s:%s' % (frame.f_code.co_filename, frame.f_lineno)
-
-    @object.__new__   # bind a single instance to the name 'Sentinel'
-    class Sentinel(_Sentinel):
-        __doc__ = doc
-        __name__ = name
-
-        # store created_at so that we can report this in case of a duplicate
-        # name violation
-        _created_at = created_at
-
-        def __new__(cls):
-            raise TypeError('cannot create %r instances' % name)
-
-        def __repr__(self):
-            return 'sentinel(%r)' % name
-
-        def __reduce__(self):
-            return sentinel, (name, doc)
-
-        def __deepcopy__(self, _memo):
-            return self
-
-        def __copy__(self):
-            return self
-
-    cls = type(Sentinel)
-    try:
-        cls.__module__ = frame.f_globals['__name__']
-    except (AttributeError, KeyError):
-        # Couldn't get the name from the calling scope, just use None.
-        # AttributeError is when frame is None, KeyError is when f_globals
-        # doesn't hold '__name__'
-        cls.__module__ = None
-
-    sentinel._cache[name] = Sentinel  # cache result
-    return Sentinel
-
-
-sentinel._cache = {}
 
 # 字典键值对转换
 def _invert(d):

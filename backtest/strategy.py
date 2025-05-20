@@ -27,12 +27,12 @@ import itertools
 import operator
 
 
-import backtrader as bt
-from .lineiterator import LineIterator, StrategyBase
-from .lineroot import LineSingle
-from .lineseries import LineSeriesStub
-from .metabase import ItemCollection, findowner
-from .utils import OrderedDict, AutoOrderedDict, AutoDictList
+from backtest.lineiterator import LineIterator, StrategyBase
+from backtest.lineroot import LineSingle
+from backtest.lineseries import LineSeriesStub
+from backtest.metabase import with_metaclass, ItemCollection, findowner
+from backtest.utils import OrderedDict, AutoOrderedDict, AutoDictList
+from backtest.sizers import FixedSize
 
 
 class MetaStrategy(StrategyBase.__class__):
@@ -72,13 +72,15 @@ class MetaStrategy(StrategyBase.__class__):
     def dopreinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
+
         # _obj.broker = _obj.env.broker
         _obj.store = _obj.env.store
-        _obj._sizer = bt.sizers.FixedSize()
-        _obj._orders = list()
-        _obj._orderspending = list()
-        _obj._trades = collections.defaultdict(AutoDictList)
-        _obj._tradespending = list()
+        _obj._sizer = FixedSize()
+
+        # _obj._orders = list()
+        # _obj._orderspending = list()
+        # _obj._trades = collections.defaultdict(AutoDictList)
+        # _obj._tradespending = list()
 
         _obj.stats = _obj.observers = ItemCollection()
         _obj.analyzers = ItemCollection()
@@ -403,13 +405,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def set_tradehistory(self, onoff=True):
         self._tradehistoryon = onoff
 
-    def clear(self):
-        self._orders.extend(self._orderspending)
-        self._orderspending = list()
-        self._tradespending = list()
+    # def clear(self):
+    #     self._orders.extend(self._orderspending)
+    #     self._orderspending = list()
+    #     self._tradespending = list()
 
     def _addnotification(self, qorders=[], quicknotify=False):
-
         for order in qorders:
             self.notify_order(order)
             for analyzer in itertools.chain(self.analyzers,
@@ -582,7 +583,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         Returns a list of the existing data names
         '''
-        return keys(self.env.datasbyname)
+        return list(self.env.datasbyname.keys())
 
     def getdatabyname(self, name):
         '''
@@ -590,13 +591,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         return self.env.datasbyname[name]
 
-    def cancel(self, order):
+    def cancel(self, order_id):
         '''Cancels the order in the broker'''
-        self.broker.cancel(order)
+        self.env.store.cancel(order_id)
 
     def buy(self, size=None, price=None, plimit=None,
-            exectype=None, valid=None, oco=None,
-            trailamount=None, trailpercent=None,
+            exectype=None, ordertype=None,
             **kwargs):
         '''Create a buy (long) order and send it to the broker
 
@@ -721,18 +721,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         '''
         if size:
-            return self.broker.buy(
+            return self.env.store.buy(
                 size=abs(size), price=price, plimit=plimit,
-                exectype=exectype, valid=valid, oco=oco,
-                trailamount=trailamount, trailpercent=trailpercent,
+                exectype=exectype, ordertype=ordertype,
                 **kwargs)
 
-        return None
+        return None 
 
-    def sell(self,
+    def sell(self, sid,
              size=None, price=None, plimit=None,
-             exectype=None, valid=None, oco=None,
-             trailamount=None, trailpercent=None,
+             exectype=None, ordertype=None,
              **kwargs):
         '''
         To create a selll (short) order and send it to the broker
@@ -742,10 +740,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         if size:
-            return self.broker.sell(
+            return self.env.store.sell(
                 size=abs(size), price=price, plimit=plimit,
-                exectype=exectype, valid=valid, oco=oco,
-                trailamount=trailamount, trailpercent=trailpercent,
+                exectype=exectype, ordertype=ordertype,
                 **kwargs)
 
         return None
@@ -824,9 +821,9 @@ class MetaSigStrategy(Strategy.__class__):
         _data = _obj.p._data
         if _data is None:
             _obj._dtarget = _obj.data0
-        elif isinstance(_data, integer_types):
+        elif isinstance(_data, int):
             _obj._dtarget = _obj.datas[_data]
-        elif isinstance(_data, string_types):
+        elif isinstance(_data, str):
             _obj._dtarget = _obj.getdatabyname(_data)
         elif isinstance(_data, bt.LineRoot):
             _obj._dtarget = _data

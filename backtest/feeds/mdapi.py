@@ -20,13 +20,43 @@
 ###############################################################################
 import pytz
 
-import backtest as bt
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
-from backtest.utils.dateintern import date2num, Localizer
+from backtest.utils.dateintern import Localizer
 from backtest.metabase import with_metaclass
-from backtest.stores import btstore
+from backtest.stores.btstore import BTStore
 from bt_sdk.core.client import MdApi
+
+
+# class RTVolume(object):
+#     '''Parses a tickString tickType 48 (RTVolume) event from the IB API into its
+#     constituent fields
+
+#     Supports using a "price" to simulate an RTVolume from a tickPrice event
+#     '''
+#     _fields = [
+#         ('price', float),
+#         ('size', int),
+#         ('datetime', _ts2dt),
+#         ('volume', int),
+#         ('vwap', float),
+#         ('single', bool)
+#     ]
+
+#     def __init__(self, rtvol='', price=None, tmoffset=None):
+#         # Use a provided string or simulate a list of empty tokens
+#         tokens = iter(rtvol.split(';'))
+
+#         # Put the tokens as attributes using the corresponding func
+#         for name, func in self._fields:
+#             setattr(self, name, func(next(tokens)) if rtvol else func())
+
+#         # If price was provided use it
+#         if price is not None:
+#             self.price = price
+
+#         if tmoffset is not None:
+#             self.datetime += tmoffset
 
 
 class MetaMdData(DataBase.__class__):
@@ -36,8 +66,8 @@ class MetaMdData(DataBase.__class__):
         # Initialize the class
         super(MetaMdData, cls).__init__(name, bases, dct)
 
-        # Register with the store
-        btstore.BtStore.DataCls = cls
+        # auto Register with the store when type class __import__ 
+        BTStore.DataCls = cls
 
 
 class MdData(with_metaclass(MetaMdData, DataBase)):
@@ -103,9 +133,13 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
 
     # _ST_FROM, _ST_START, _ST_LIVE, _ST_HISTORBACK, _ST_OVER = range(5)
 
-    def __init__(self, **kwargs):
-        addr = kwargs.get('addr', ("127.0.0.1", 8888))
-        self.mdapi = MdApi(addr)
+    # def __init__(self, **kwargs):
+    #     addr = kwargs.get('addr', ("127.0.0.1", 8888))
+    #     self.mdapi = MdApi(addr)
+
+    def __init__(self, mdapi, **kwargs):
+        super(MdData, self).__init__(**kwargs)
+        self.mdapi = mdapi
 
     def _gettz(self):
         # If no object has been provided by the user and a timezone can be

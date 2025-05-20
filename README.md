@@ -212,9 +212,10 @@ get_notification key is notification mechanism
 # add analyzer start stop next notify_order notify_trade strategy _addnotification / _notify / _next_analyzers / _next_observers / store  
 
 
-# add cas authentic service
 
 梳理
 1  store == mdapi + tdapi
 2  notify mechanism
-3  
+3  m_execId
+3  m_execId
+3  m_execId

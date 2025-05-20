@@ -3,8 +3,8 @@
 
 import pytest
 from bt_sdk.core.client import TdApi
-from bt_sdk.core.model import *
-from bt_sdk.core.constant import *
+from bt_sdk.core.model import ReqMeta, OrderMeta, TimerMeta
+from bt_sdk.core.constant import OrderType, ExecType
 
 
 def get_data(q):

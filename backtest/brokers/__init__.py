@@ -18,44 +18,25 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
-import backtrader as bt
+# The modules below should/must define __all__ with the objects wishes
+# or prepend an "_" (underscore) to private classes/variables
 
-(
+from .bbroker import BackBroker, BrokerBack
 
-    SIGNAL_NONE,
-    SIGNAL_LONGSHORT,
-    SIGNAL_LONG,
-    SIGNAL_LONG_INV,
-    SIGNAL_LONG_ANY,
-    SIGNAL_SHORT,
-    SIGNAL_SHORT_INV,
-    SIGNAL_SHORT_ANY,
-    SIGNAL_LONGEXIT,
-    SIGNAL_LONGEXIT_INV,
-    SIGNAL_LONGEXIT_ANY,
-    SIGNAL_SHORTEXIT,
-    SIGNAL_SHORTEXIT_INV,
-    SIGNAL_SHORTEXIT_ANY,
+try:
+    from .ibbroker import IBBroker
+except ImportError:
+    pass  # The user may not have ibpy installed
 
-) = range(14)
+try:
+    from .vcbroker import VCBroker
+except ImportError:
+    pass  # The user may not have something installed
 
-
-SignalTypes = [
-    SIGNAL_NONE,
-    SIGNAL_LONGSHORT,
-    SIGNAL_LONG, SIGNAL_LONG_INV, SIGNAL_LONG_ANY,
-    SIGNAL_SHORT, SIGNAL_SHORT_INV, SIGNAL_SHORT_ANY,
-    SIGNAL_LONGEXIT, SIGNAL_LONGEXIT_INV, SIGNAL_LONGEXIT_ANY,
-    SIGNAL_SHORTEXIT, SIGNAL_SHORTEXIT_INV, SIGNAL_SHORTEXIT_ANY
-]
-
-
-class Signal(bt.Indicator):
-    SignalTypes = SignalTypes
-
-    lines = ('signal',)
-
-    def __init__(self):
-        self.lines.signal = self.data0.lines[0]
-        self.plotinfo.plotmaster = getattr(self.data0, '_clock', self.data0)
+try:
+    from .oandabroker import OandaBroker
+except ImportError as e:
+    pass  # The user may not have something installed

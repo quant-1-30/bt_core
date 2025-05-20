@@ -26,16 +26,11 @@ import multiprocessing
 
 import collections
 
-from . import linebuffer
-from . import indicator
-from .metabase import MetaParams, with_metaclass
-from . import observers
-from utils.autodict import OrderedDict, tzparse, num2date, date2num
-from .strategy import Strategy, SignalStrategy
-from .tradingcal import (TradingCalendarBase, TradingCalendar,
-                         PandasMarketCalendar)
+from backtest.metabase import MetaParams, with_metaclass
+from backtest import observers
+from backtest.utils.autodict import OrderedDict, tzparse, num2date, date2num
+from backtest.strategy import Strategy, SignalStrategy
 from .timer import Timer
-from bt_sdk.core.client import TdApi
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -559,8 +554,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if data.islive():
             self._dolive = True
-
-        # return data
 
     def replaydata(self, dataname, name=None, **kwargs):
         '''
