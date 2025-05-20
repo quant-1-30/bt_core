@@ -12,8 +12,9 @@ def get_data(q):
         ele = q.get()
         if ele == "eof":
             break
-        print('ele: ', ele)
+        print(ele)
         data.append(ele)
+    print("data: ", data)
     return data
 
 
@@ -24,30 +25,39 @@ class TestMdApi:
         return MdApi(addr=("127.0.0.1", 8888))
     
     @pytest.fixture
-    def reqmeta(self):
+    def reqMktDataMeta(self):
         return ReqMeta(
                       start_date = 1728351060,
-                      end_date = 1728361060,
+                      end_date = 1728351060,
                       sid = ['603676'])
     
     @pytest.fixture
-    def reqCalendarmeta(self):
+    def reqmeta(self):
         return ReqMeta(
                       start_date = 19900101,
                       end_date = 20241008,
-                      sid = ['603676'])
+                    #   sid = ['603676'])
+                      sid =[]) 
+    
+    def test_connect(self, md_api):
+        assert md_api.connected()
 
-    def test_reqmktdata(self, md_api, reqmeta):
-        q = md_api.reqMktData(reqmeta)
+    def test_get_calendar(self, md_api):
+        q = md_api.get_calendar()
         data = get_data(q)
         assert data is not None
 
-    # def test_reqcalendar(self, md_api, reqCalendarmeta):
-    #     q = md_api.reqCalendar(reqCalendarmeta)
-    #     data = get_data(q)
-    #     assert data is not None
+    def test_get_instrument(self, md_api, reqmeta):
+        q = md_api.get_instrument(reqmeta)
+        data = get_data(q)
+        assert data is not None
 
-    # def test_reqevents(self, md_api, reqmeta):
-    #     q = md_api.reqEvents(reqmeta)
-    #     data = get_data(q)
-    #     assert data is not None
+    def test_reqmktdata(self, md_api, reqMktDataMeta):
+        q = md_api.reqMktData(reqMktDataMeta)
+        data = get_data(q)
+        assert data is not None
+
+    def test_reqevents(self, md_api, reqmeta):
+        q = md_api.reqEvents(reqmeta)
+        data = get_data(q)
+        assert data is not None

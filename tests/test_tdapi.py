@@ -3,8 +3,8 @@
 
 import pytest
 from bt_sdk.core.client import TdApi
-from bt_sdk.core.model import ReqMeta, OrderMeta, TimerMeta
-from bt_sdk.core.constant import OrderType, ExecType
+from bt_sdk.core.model import *
+from bt_sdk.core.constant import *
 
 
 def get_data(q):
@@ -43,32 +43,37 @@ class TestTdApi:
                        start_date=1728351060, 
                        end_date=1728351060)
     
-    @pytest.fixture
-    def timermeta(self):
-        # open / close
-        return TimerMeta(timer="open", session=20241008)
-    
-    def test_trade(self, td_api, ordermeta):
-        q= td_api.on_trade(ordermeta)
-        data = q.get()
+    def test_get_account(self, td_api):
+        q = td_api.get_account()
+        data = get_data(q)
         assert data is not None
 
-    # def test_order(self, td_api, reqmeta):
+    def test_get_position(self, td_api):
+        q = td_api.get_position()
+        data = get_data(q)
+        assert data is not None
+
+    # def test_placeOrder(self, td_api, ordermeta):
+    #     q = td_api.on_trade(ordermeta)
+    #     data = get_data(q)
+    #     assert data is not None
+
+    # def test_reqOrder(self, td_api, reqmeta):
     #     q = td_api.reqOrder(reqmeta)
-    #     data = q.get()
+    #     data = get_data(q)
     #     assert data is not None
 
-    # def test_position(self, td_api, reqmeta):
+    # def test_reqPosition(self, td_api, reqmeta):
     #     q = td_api.reqPosition(reqmeta)
-    #     data = q.get()
+    #     data = get_data(q)
     #     assert data is not None
 
-    # def test_account(self, td_api, reqmeta):
+    # def test_reqAccount(self, td_api, reqmeta):
     #     q = td_api.reqAccount(reqmeta)
-    #     data = q.get()
+    #     data = get_data(q)
     #     assert data is not None
 
-    # def test_sync(self, td_api, timermeta):
-    #     q = td_api.on_sync(timermeta)
+    # def test_timer(self, td_api):
+    #     q = td_api.on_timer(20241008)
     #     data = q.get()
     #     assert data is not None

@@ -22,9 +22,10 @@ import httpx
 import queue
 
 from backtest.metabase import with_metaclass, MetaBase
-from bt_sdk.core.client import TdApi
 from backtest.stores.btstore import BTStore
-from bt_sdk.core.model import OrderType, OrderMeta
+# from bt_sdk.core.client import TdApi
+from bt_sdk.core.model import OrderMeta
+from bt_sdk.core.constant import ExecType, OrderType
 
 
 class MetaBTBroker(MetaBase):
@@ -36,7 +37,7 @@ class MetaBTBroker(MetaBase):
         BTStore.BrokerCls = cls
 
 
-class IBBroker(with_metaclass(MetaBTBroker, object)):
+class BTBroker(with_metaclass(MetaBTBroker, object)):
     '''Broker implementation for Interactive Brokers.
 
     This class maps the orders/positions from Interactive Brokers to the
@@ -62,7 +63,7 @@ class IBBroker(with_metaclass(MetaBTBroker, object)):
     params = ()
 
     def __init__(self, tdapi, **kwargs):
-        super(IBBroker, self).__init__()
+        super(BTBroker, self).__init__()
         self.tdapi = tdapi
 
     def start(self):
@@ -118,3 +119,15 @@ class IBBroker(with_metaclass(MetaBTBroker, object)):
             pass
 
         return None
+    
+    def reqOrder(self, reqmeta):
+        return self.tdapi.reqOrder(reqmeta)
+    
+    def reqPosition(self, reqmeta):
+        return self.tdapi.reqPosition(reqmeta)  
+    
+    def reqAccount(self, reqmeta):
+        return self.tdapi.reqAccount(reqmeta)
+    
+    def on_timer(self, tick):
+        return self.tdapi.on_timer(tick)

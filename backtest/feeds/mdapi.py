@@ -174,12 +174,21 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # super(MdData, self).stop()
         self.mdapi.disconnected()
 
+    def get_calendar(self):
+        return self.mdapi.get_calendar()
+    
+    def get_instrument(self, req):
+        return self.mdapi.get_instrument(req)
+    
     def reqdata(self, req):
         # dtkwargs['start'] = int((dtbegin - self._DTEPOCH).total_seconds())
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         self._subcription_valid = True
         self.qlive = self.mdapi.reqMktData(req)
-
+    
+    def reqEvents(self, req):
+        return self.mdapi.reqEvents(req)
+    
     def canceldata(self):
         '''Cancels Market Data subscription, checking asset type and rtbar'''
         if self.qlive is None:

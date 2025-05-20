@@ -85,7 +85,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     def __init__(self, user_id="", **kwargs):
         super(BTStore, self).__init__()
 
-        self.broker, self.datas = self.on_login(user_id, **kwargs)
+        self.datas, self.broker = self.on_login(user_id, **kwargs)
         # self._env = self.datas._env
 
         self.calendar = None
@@ -106,7 +106,8 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         td_addr = kwargs.get('td_addr', self.p.td_addr)
         mdapi = MdApi(md_addr, client_id=client_id)
         tdapi = TdApi(td_addr, client_id=client_id)
-        return self.DataCls(mdapi), self.BrokerCls(tdapi)
+        import pdb; pdb.set_trace()
+        return (self.DataCls(mdapi), self.BrokerCls(tdapi))
 
     @staticmethod
     def getToken(user_id):
@@ -133,7 +134,8 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         t = threading.Thread(target=self._t_cal)
         t.daemon = True
         t.start()
-        self._evt_cal.wait(self.p.account_tmout)
+        # self._evt_cal.wait(self.p.account_tmout)
+        self._evt_cal.wait()
 
     def _t_cal(self):
         while True:
@@ -159,7 +161,6 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     #             self._value = msg['value']
     #         except queue.Empty:  # tmout -> time to refresh
     #             pass
-
             msg = self.broker.get_account()
             if msg == "eof":
                 break  # end of thread
@@ -222,17 +223,17 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         return self.broker.get_position()
     
     def get_account(self):
-        return self.broker.get_account()
+        self.cash, self.value = self.broker.get_account()
     
     def get_instrument(self, req: ReqMeta):
         return self.datas.get_instrument(req)
 
-    def buy(self, sid, size, sizer_cash=0, price=None, plimit=None,
+    def buy(self, sid='', size=0, sizer_cash=0, price=None, plimit=None,
             exec_type=None, **kwargs):
         return self.broker.buy(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
             exec_type=exec_type, **kwargs)
     
-    def sell(self, sid, size, sizer_cash=0, price=None, plimit=None,
+    def sell(self, sid='', size=0, sizer_cash=0, price=None, plimit=None,
              exec_type=None, **kwargs):
         return self.broker.sell(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
             exec_type=exec_type, **kwargs)
