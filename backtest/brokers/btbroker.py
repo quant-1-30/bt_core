@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import httpx
 import queue
+import copy
 
 from backtest.metabase import with_metaclass, MetaBase
 from backtest.stores.btstore import BTStore
@@ -35,6 +35,23 @@ class MetaBTBroker(MetaBase):
         # Initialize the class
         super(MetaBTBroker, cls).__init__(name, bases, dct)
         BTStore.BrokerCls = cls
+
+    def donew(cls, *args, **kwargs):
+        _obj, args, kwargs = super(MetaBTBroker, cls).donew(*args, **kwargs)
+        _obj.get_data = cls.get_data
+        return _obj, args, kwargs
+    
+    @staticmethod
+    def get_data(q, timeout=-1):
+        data = []
+        while True:
+            print("data: ", data)
+            # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
+            msg = q.get(timeout)
+            if msg == "eof":
+                break
+            data.append(msg)
+        return data
 
 
 class BTBroker(with_metaclass(MetaBTBroker, object)):
@@ -66,7 +83,9 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
         super(BTBroker, self).__init__()
         self.tdapi = tdapi
 
-    def start(self):
+        self.notifs = queue.Queue()  # holds orders which are notified
+
+    def _start(self):
         if not self.tdapi.connected():
             raise Exception("TDAPI not connected")
 
@@ -76,58 +95,61 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
     def cancel(self, vtorder_id):
         self.tdapi.cancelOrder(vtorder_id)
     
-    def get_account(self):
-        return self.tdapi.get_account()
+    def get_account(self, timeout=-1):
+        q = self.tdapi.get_account()
+        return self.get_data(q, timeout)
 
-    def getposition(self):
-        return self.tdapi.get_position()
+    def get_position(self, timeout=-1):
+        q = self.tdapi.get_position()
+        return self.get_data(q, timeout)
 
     def submit(self, order):
         qty = self.tdapi.placeOrder(order)
         self.notify(order)
         return qty
 
-    def _makeorder(self, sid='', size=0, sizer_cash=0, price=None, plimit=None,
-                   exectype=None, order_type=None, created_at=None,
-                   **kwargs):
+    def _makeorder(self, sid, size, sizer_cash, price, pricelimit,
+                   exectype, order_type, created_at):
 
-        order = OrderMeta(sid=sid, size=size, size_cash=sizer_cash, price=price, pricelimit=plimit, 
-                          exec_type=exectype, order_type=order_type, created_at=created_at,
-                          **kwargs)
-
+        order = OrderMeta(sid=sid, size=size, sizer_cash=sizer_cash, price=price, pricelimit=pricelimit, 
+                          exec_type=exectype, order_type=order_type, created_at=created_at
+                          )
         return order
 
-    def buy(self, sid, size, sizer_cash=0, price=None, plimit=None,
-            exec_type=None, **kwargs):
+    def buy(self, sid='', size=0 , sizer_cash=0, price=None, pricelimit=None,
+            exec_type=None, created_at=None, **kwargs):
         order = self._makeorder(
-            sid, size, sizer_cash, price, plimit, exec_type, OrderType.Buy, **kwargs)
+            sid, size, sizer_cash, price, pricelimit, exec_type, OrderType.Buy, created_at)
         return self.submit(order)
 
-    def sell(self, sid, size, sizer_cash=0, price=None, plimit=None,
-             exec_type=None, **kwargs):
+    def sell(self, sid='', size=0, sizer_cash=0, price=None, pricelimit=None,
+             exec_type=None, created_at=None, **kwargs):
         order = self._makeorder(
-            sid, size, sizer_cash, price, plimit, exec_type, OrderType.Sell, **kwargs)
+            sid, size, sizer_cash, price, pricelimit, exec_type, OrderType.Sell, created_at)
         return self.submit(order)
 
     def notify(self, order):
-        self.notifs.put(order.clone())
+        self.notifs.put(copy.deepcopy(order))
 
     def get_notification(self):
         try:
             return self.notifs.get(False)
         except queue.Empty:
             pass
-
         return None
     
     def reqOrder(self, reqmeta):
-        return self.tdapi.reqOrder(reqmeta)
+        q = self.tdapi.reqOrder(reqmeta)
+        return q
     
     def reqPosition(self, reqmeta):
-        return self.tdapi.reqPosition(reqmeta)  
+        q = self.tdapi.reqPosition(reqmeta)
+        return q
     
     def reqAccount(self, reqmeta):
-        return self.tdapi.reqAccount(reqmeta)
+        q = self.tdapi.reqAccount(reqmeta)
+        return q
     
-    def on_timer(self, tick):
-        return self.tdapi.on_timer(tick)
+    def on_timer(self, tick, timeout=-1):
+        q = self.tdapi.on_timer(tick)
+        return self.get_data(q, timeout)

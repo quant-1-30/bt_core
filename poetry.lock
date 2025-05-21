@@ -34,12 +34,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-sdk"
-version = "0.3.2"
-description = ""
+version = "0.3.4"
+description = "revise coro was destroyed but is still pending"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "bt_sdk-0.3.2-py3-none-any.whl", hash = "sha256:186c56b279dd1acfc4c3a5e13dd1ebff75abc6e5d654fa95083d2bb7cab91636"},
+    {file = "bt_sdk-0.3.4-py3-none-any.whl", hash = "sha256:735724d8f4668954c3f9dfbf36e412c0c2d3fe4976f76452d0db710243147855"},
 ]
 
 [package.dependencies]
@@ -1671,4 +1671,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "bf78e0cdf7eb86b6c80a9de9ddf9e3118b920b7ee869c675d4901ae17fbd2267"
+content-hash = "c2f0b03972e11806d6ace70f824e0aa242ab63f99df1eaeb410dbb034c7aeb06"

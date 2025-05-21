@@ -25,6 +25,10 @@ class TestMdApi:
         return MdApi(addr=("127.0.0.1", 8888))
     
     @pytest.fixture
+    def session(self):
+        return 20240101
+    
+    @pytest.fixture
     def reqMktDataMeta(self):
         return ReqMeta(
                       start_date = 1728351060,
@@ -47,8 +51,13 @@ class TestMdApi:
         data = get_data(q)
         assert data is not None
 
-    def test_get_instrument(self, md_api, reqmeta):
-        q = md_api.get_instrument(reqmeta)
+    def test_get_instrument(self, md_api, session):
+        q = md_api.get_instrument(session)
+        data = get_data(q)
+        assert data is not None
+
+    def test_get_events(self, md_api, session):
+        q = md_api.get_events(session)
         data = get_data(q)
         assert data is not None
 
@@ -57,7 +66,4 @@ class TestMdApi:
         data = get_data(q)
         assert data is not None
 
-    def test_reqevents(self, md_api, reqmeta):
-        q = md_api.reqEvents(reqmeta)
-        data = get_data(q)
-        assert data is not None
+

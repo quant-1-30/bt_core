@@ -11,25 +11,43 @@ from bt_sdk.core.constant import *
 
 
 def get_data(q):
-    data_list = []
+    data = []
     while True:
-        data = q.get()
-        if data == "eof":
+        msg = q.get()
+        if msg == "eof":
             break
-        print("data: ", data)
-        data_list.append(data)
-    return data_list
+        elif msg:
+            data.append(msg)
+    return data
 
 
-class TestTdApi:
+class TestBTStore:
 
-    @pytest.fixture
+    # @pytest.fixture(scope="session")  # 整个测试会话
+    # @pytest.fixture(scope="module")   # 每个模块
+    # @pytest.fixture(scope="class")    # 每个类
+    # @pytest.fixture(scope="function") 
+
+    # @pytest.fixture(scope="session")
+    # def setup_once(self):
+    #     print("Setup running once for the entire test session")
+    #     # 设置代码
+    #     yield
+    #     # 清理代码
+    #     print("Cleanup after all tests")
+
+    @pytest.fixture(scope="session")
     def store(self):
         store = BTStore(user_id="test")
+        store.start()
         return store
     
     @pytest.fixture
-    def order(self):
+    def session(self):
+        return 20240101
+    
+    @pytest.fixture
+    def buyorder(self):
         return {"sid": "603676", 
                 "price": 97,
                 "size": 100,
@@ -42,39 +60,44 @@ class TestTdApi:
     def reqmeta(self):
         return ReqMeta(sid=["603676"], 
                        start_date=1728351060, 
-                       end_date=1728351060)
+                       end_date=1728361060)
     
-    def test_get_calendar(self, store):
-        store.start()
-        q = store.get_calendar()
-        data = get_data(q)
-        assert data is not None
+    # def test_get_calendar(self, store):
+    #     data = store.get_calendar()
+    #     print("get_calendar: ", data)
+    #     assert data is not None
 
-    # def test_get_instrument(self, store, reqmeta):
-    #     store.start()
-    #     q = store.get_instrument(reqmeta)
+    # def test_get_instrument(self, store, session):
+    #     data = store.get_instrument(session)
+    #     print("get_instrument: ", data)
+    #     assert data is not None
+
+    # def test_get_events(self, store, session):
+    #     data = store.get_events(session)
+    #     print("get_events: ", data)
+    #     assert data is not None
+
+    # def test_reqdata(self, store, reqmeta):
+    #     store.reqdata(reqmeta)
+    #     store.preload()
+    #     print("preload: ", store.datas.lines.open[0])
+    #     assert store.datas.lines.open[0] is not None
+
+    # def test_buy(self, store, buyorder):
+    #     q = store.buy(**buyorder)
     #     data = get_data(q)
+    #     print("buy: ", data)
     #     assert data is not None
     
-    # def test_get_account(self, store):
-    #     store.start()
-    #     q = store.get_account()
-    #     data = get_data(q)
-    #     assert data is not None
-
-    # def test_get_position(self, store):
-    #     q = store.get_position()
-    #     data = get_data(q)
-    #     assert data is not None
-
-    # def test_placeOrder(self, store, ordermeta):
-    #     q = store.on_trade(ordermeta)
+    # def test_sell(self, store, sellorder):
+    #     q = store.sell(order)
     #     data = get_data(q)
     #     assert data is not None
 
     # def test_reqOrder(self, store, reqmeta):
     #     q = store.reqOrder(reqmeta)
     #     data = get_data(q)
+    #     print("reqOrder: ", data)
     #     assert data is not None
 
     # def test_reqPosition(self, store, reqmeta):
@@ -85,6 +108,16 @@ class TestTdApi:
     # def test_reqAccount(self, store, reqmeta):
     #     q = store.reqAccount(reqmeta)
     #     data = get_data(q)
+    #     assert data is not None
+
+    # def test_get_position(self, store):
+    #     q = store.get_position()
+    #     data = get_data(q)
+    #     assert data is not None
+
+    # def test_get_account(self, store):
+    #     data = store.get_account()
+    #     print("get_account: ", data)
     #     assert data is not None
 
     # def test_timer(self, store):

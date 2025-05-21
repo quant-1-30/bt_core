@@ -213,9 +213,8 @@ get_notification key is notification mechanism
 
 
 
-梳理
+梳理 m_execId
 1  store == mdapi + tdapi
-2  notify mechanism
-3  m_execId
-3  m_execId
-3  m_execId
+2  strategy based on store
+3  cerebro based on store
+4  timer

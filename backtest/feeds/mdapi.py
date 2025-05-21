@@ -19,7 +19,7 @@
 #
 ###############################################################################
 import pytz
-
+import warnings
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.utils.dateintern import Localizer
@@ -68,6 +68,23 @@ class MetaMdData(DataBase.__class__):
 
         # auto Register with the store when type class __import__ 
         BTStore.DataCls = cls
+
+    def donew(cls, *args, **kwargs):
+        _obj, args, kwargs = super(MetaMdData, cls).donew(*args, **kwargs)
+        _obj.get_data = cls.get_data
+        _obj.qlive = None
+        return _obj, args, kwargs
+    
+    @staticmethod
+    def get_data(q, timeout=-1):
+        data = []
+        while True:
+            # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
+            msg = q.get(timeout)
+            if msg == "eof":
+                break
+            data.append(msg)
+        return data
 
 
 class MdData(with_metaclass(MetaMdData, DataBase)):
@@ -126,8 +143,6 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         ('backfill', True), \
     )
 
-    # _store = ibstore.IBStore
-    
     # Minimum size supported by real-time bars
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3)
 
@@ -159,7 +174,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         super(MdData, self).setenvironment(env)
         # env.addstore(self.ib)
 
-    def start(self):
+    def _start(self):
         '''Starts the mdapi connecction and gets the real contract and
         contractdetails if it exists'''
 
@@ -168,26 +183,30 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
 
         self._subcription_valid = False  # subscription state
         # self.put_notification(self.CONNECTED)
+        super(MdData, self)._start()
  
     def stop(self):
         '''Stops and tells the store to stop'''
         # super(MdData, self).stop()
         self.mdapi.disconnected()
 
-    def get_calendar(self):
-        return self.mdapi.get_calendar()
+    def get_calendar(self, timeout=-1):
+        q = self.mdapi.get_calendar()
+        return self.get_data(q, timeout)
     
-    def get_instrument(self, req):
-        return self.mdapi.get_instrument(req)
+    def get_instrument(self, session, timeout=-1):
+        q = self.mdapi.get_instrument(session)
+        return self.get_data(q, timeout)
     
-    def reqdata(self, req):
+    def get_events(self, session, timeout=-1):
+        q = self.mdapi.get_events(session)
+        return self.get_data(q, timeout)
+    
+    def reqdata(self, req, timeout=-1):
         # dtkwargs['start'] = int((dtbegin - self._DTEPOCH).total_seconds())
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         self._subcription_valid = True
         self.qlive = self.mdapi.reqMktData(req)
-    
-    def reqEvents(self, req):
-        return self.mdapi.reqEvents(req)
     
     def canceldata(self):
         '''Cancels Market Data subscription, checking asset type and rtbar'''
@@ -200,30 +219,18 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         """
            msg error code -354 self.NOTSUBSCRIBED
         """
+        if self.qlive is None:
+            warnings.warn("qlive is None, reqdata should be called first")
+            return
         _load_bar = self._load_rtbar if self.p.rtbar else self._load_bar
 
-        while True:
-            msg = self.qlive.get()
-            print("msg: ", msg)
-            if msg == "eof":
-                break  # Conn broken during historical/backfilling
-
-            # if msg == "****" :  # Conn broken during historical/backfilling
-            #     self._subcription_valid = False
-            #     self.put_notification(self.CONNBROKEN)
-            #     # Try to reconnect
-            #     if not self.ib.reconnect(resub=True):
-            #         self.put_notification(self.DISCONNECTED)
-            #         return False  # failed
-
-            #     continue
-            # if msg == -354:
-            #     self._subcription_valid = False
-            #     self.put_notification(self.NOTSUBSCRIBED)
-            #     return False
-            #  load_rtbar or load_bar
-            _load_bar(msg)
-
+        msg = self.qlive.get()
+        print("msg: ", msg)
+        if msg == "eof":
+            return False  # Conn broken during historical/backfilling
+        
+        _load_bar(msg)
+        return True
 
     def _load_bar(self, bar, hist=False):
         # A complete 30 second bar made of real-time 3d ticks is delivered and
@@ -232,6 +239,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # 'time' for datetime
         # dt = date2num(bar.time if not hist else bar.date)
         dt = bar[0]
+        # import pdb; pdb.set_trace()
         if dt < self.lines.datetime[-1] :
             return False  # cannot deliver earlier than already delivered
 
@@ -243,8 +251,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         self.lines.close[0] = bar[4]
         self.lines.volume[0] = bar[5]
         self.lines.amount[0] = bar[6]
+        print("lines: ", self.lines.datetime[0], self.lines.open[0], self.lines.high[0],
+               self.lines.low[0], self.lines.close[0], self.lines.volume[0], self.lines.amount[0])
         # self.lines.openinterest[0] = 0
-
+        # import pdb; pdb.set_trace()
         return True
 
     def _load_rtbar(self, rtbar):

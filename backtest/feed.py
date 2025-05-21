@@ -171,34 +171,33 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         # This should probably be also called from an override-able method
         self._tzinput = Localizer(self._gettzinput())
 
-        # # Convert user input times to the output timezone (or min/max)
-        # if self.p.fromdate is None:
-        #     self.fromdate = float('-inf')
-        # else:
-        #     self.fromdate = self.date2num(self.p.fromdate)
+        # Convert user input times to the output timezone (or min/max)
+        if self.p.fromdate is None:
+            self.fromdate = float('-inf')
+        else:
+            self.fromdate = self.date2num(self.p.fromdate)
 
-        # if self.p.todate is None:
-        #     self.todate = float('inf')
-        # else:
-        #     self.todate = self.date2num(self.p.todate)
+        if self.p.todate is None:
+            self.todate = float('inf')
+        else:
+            self.todate = self.date2num(self.p.todate)
 
         # # FIXME: These two are never used and could be removed
-        # self.sessionstart = time2num(self.p.sessionstart)
-        # self.sessionend = time2num(self.p.sessionend)
+        self.sessionstart = time2num(self.p.sessionstart)
+        self.sessionend = time2num(self.p.sessionend)
 
         self._calendar = cal = self.p.calendar
         # if cal is None:
         #     self._calendar = self._env._tradingcal
         # elif isinstance(cal, str):
         #     self._calendar = PandasMarketCalendar(calendar=cal)
-
         self._started = True
 
     def _start(self):
-        self.start()
+        # self.start()
 
         if not self._started:
-            # dynamic update attr
+            # dynamic update and add attributes --- _tzinput, _tz, _calendar, _started
             self._start_finish()
 
     def _timeoffset(self):

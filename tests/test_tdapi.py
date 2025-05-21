@@ -8,14 +8,13 @@ from bt_sdk.core.constant import *
 
 
 def get_data(q):
-    data_list = []
+    data = []
     while True:
-        data = q.get()
-        if data == "eof":
+        msg = q.get()
+        if msg == "eof":
             break
-        print("data: ", data)
-        data_list.append(data)
-    return data_list
+        data.append(msg)
+    return data
 
 
 class TestTdApi:
@@ -54,7 +53,7 @@ class TestTdApi:
         assert data is not None
 
     # def test_placeOrder(self, td_api, ordermeta):
-    #     q = td_api.on_trade(ordermeta)
+    #     q = td_api.placeOrder(ordermeta)
     #     data = get_data(q)
     #     assert data is not None
 

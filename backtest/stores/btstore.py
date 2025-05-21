@@ -40,7 +40,7 @@ class MetaSingleton(MetaParams):
                 super(MetaSingleton, cls).__call__(*args, **kwargs))
 
         return cls._singleton
-
+    
 
 class BTStore(with_metaclass(MetaSingleton, object)):
     '''Singleton class wrapping to control the connections to Oanda.
@@ -56,6 +56,8 @@ class BTStore(with_metaclass(MetaSingleton, object)):
       - ``account_tmout`` (default: ``10.0``): refresh period for account
         value/cash refresh
     '''
+    
+    # get_method is blocking method / req_method is non-blocking method
 
     BrokerCls = None  # broker class will autoregister
     DataCls = None  # data class will auto register
@@ -65,8 +67,8 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         ('account', ''),
         ('md_addr', ("127.0.0.1", 8888)),
         ('td_addr', ("127.0.0.1", 8888)),
-        # ('account_tmout', 10.0),  # account balance refresh timeout
-        # ('cal_tmout', 10.0),  # calendar refresh timeout
+        ('account_tmout', -1),  # account balance refresh timeout
+        ('cal_tmout', -1),  # calendar refresh timeout
     )
 
     # _DTEPOCH = datetime(1970, 1, 1)
@@ -86,17 +88,17 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         super(BTStore, self).__init__()
 
         self.datas, self.broker = self.on_login(user_id, **kwargs)
+    
         # self._env = self.datas._env
-
-        self.calendar = None
-
-        self._orders = collections.OrderedDict()  # map order.ref to oid
-        self._ordersrev = collections.OrderedDict()  # map oid to order.ref
-        self._transpend = collections.defaultdict(collections.deque)
-        self.notifs = collections.deque()  # store notifications for cerebro
-
         self._cash = 0.0
         self._value = 0.0
+        self.calendar = None
+        self.notifs = collections.deque()  # store notifications for cerebro
+
+        # self._orders = collections.OrderedDict()  # map order.ref to oid
+        # self._ordersrev = collections.OrderedDict()  # map oid to order.ref
+        # self._transpend = collections.defaultdict(collections.deque)
+
         self._evt_acct = threading.Event()
         self._evt_cal = threading.Event()
 
@@ -106,7 +108,6 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         td_addr = kwargs.get('td_addr', self.p.td_addr)
         mdapi = MdApi(md_addr, client_id=client_id)
         tdapi = TdApi(td_addr, client_id=client_id)
-        import pdb; pdb.set_trace()
         return (self.DataCls(mdapi), self.BrokerCls(tdapi))
 
     @staticmethod
@@ -119,16 +120,15 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         if data["status"] == 1:
             raise Exception(data["data"])
         return data["data"]
+    
+    def _start(self):
+        self.datas._start()
+        self.broker._start()
 
     def start(self, data=None, broker=None):
-        try:
-            self.datas.start()
-            self.broker.start()
-        except Exception as e:
-            raise Exception(e)
-        else:
-            self.data_threads()
-            self.broker_threads()
+        self._start()
+        self.data_threads()
+        self.broker_threads()
 
     def data_threads(self):
         t = threading.Thread(target=self._t_cal)
@@ -138,12 +138,9 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         self._evt_cal.wait()
 
     def _t_cal(self):
-        while True:
-            msg = self.datas.get_calendar()
-            if msg == "eof":
-                break
-            self.calendar = msg
-            self._evt_cal.set()
+        msg = self.datas.get_calendar()
+        self.calendar = msg
+        self._evt_cal.set()
 
     def broker_threads(self):
         t = threading.Thread(target=self._t_account)
@@ -152,37 +149,33 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         self._evt_acct.wait(self.p.account_tmout)
 
     def _t_account(self):
-        while True:
-    #         try:
-    #             msg = self.broker.get_account(timeout=self.p.account_tmout)
-    #             if msg == "eof":
-    #                 break  # end of thread
-    #             self._cash = msg['cash']
-    #             self._value = msg['value']
-    #         except queue.Empty:  # tmout -> time to refresh
-    #             pass
-            msg = self.broker.get_account()
-            if msg == "eof":
-                break  # end of thread
-            self._cash = msg['cash']
-            self._value = msg['value']
-
-            self._evt_acct.set()
-    
-    def get_calendar(self):
-        return self.calendar
+        msg = self.broker.get_account()
+        if msg:
+            self._cash = msg[0][0]
+            self._value = msg[0][1]
+        self._evt_acct.set()
     
     def get_cash(self):
         return self._cash
 
     def get_value(self):
         return self._value
-
-    def stop(self):
-        # signal end of thread
-        self.broker.stop()
-        self.datas.stop()
-
+    
+    def get_calendar(self):
+        return self.calendar
+    
+    def get_positions(self):
+        return self.broker.get_position()
+    
+    def get_account(self):
+        self._t_account()
+    
+    def get_instrument(self, session):
+        return self.datas.get_instrument(session)
+    
+    def get_events(self, session):
+        return self.datas.get_events(session)
+    
     def put_notification(self, msg, *args, **kwargs):
         self.notifs.append((msg, args, kwargs))
 
@@ -219,15 +212,6 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     def get_granularity(self, timeframe, compression):
         return self._GRANULARITIES.get((timeframe, compression), None)
 
-    def get_positions(self):
-        return self.broker.get_position()
-    
-    def get_account(self):
-        self.cash, self.value = self.broker.get_account()
-    
-    def get_instrument(self, req: ReqMeta):
-        return self.datas.get_instrument(req)
-
     def buy(self, sid='', size=0, sizer_cash=0, price=None, plimit=None,
             exec_type=None, **kwargs):
         return self.broker.buy(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
@@ -237,7 +221,32 @@ class BTStore(with_metaclass(MetaSingleton, object)):
              exec_type=None, **kwargs):
         return self.broker.sell(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
             exec_type=exec_type, **kwargs)
+     
+    def reqdata(self, reqmeta):
+        return self.datas.reqdata(reqmeta)
+    
+    def preload(self):
+        return self.datas.preload()
+    
+    def reqOrder(self, reqmeta):
+        return self.broker.reqOrder(reqmeta)
+    
+    def reqPosition(self, reqmeta):
+        return self.broker.reqPosition(reqmeta) 
+    
+    def reqAccount(self, reqmeta):
+        return self.broker.reqAccount(reqmeta)
     
     def cancel(self, order_id):
         return self.broker.cancel(order_id)
     
+    def cancelData(self):
+        return self.datas.cancelData()
+
+    def stop(self):
+        # signal end of thread
+        self.broker.stop()
+        self.datas.stop()
+
+    def on_timer(self, tick):
+        return self.broker.on_timer(tick)
