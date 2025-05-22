@@ -8,7 +8,8 @@ Created on Tue Mar 12 15:37:47 2019
 from scipy import optimize
 from math import pow
 from sys import float_info
-import numpy as np, pandas as pd
+import numpy as np
+import pandas as pd
 
 
 def gpd_risk_estimates(returns, var_p=0.01):

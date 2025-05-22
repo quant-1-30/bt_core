@@ -19,8 +19,8 @@
 #
 ###############################################################################
 
-from .lineiterator import LineIterator, ObserverBase, StrategyBase
-from metabase import with_metaclass
+from backtest.lineiterator import LineIterator, ObserverBase, StrategyBase
+from backtest.metabase import with_metaclass
 
 
 class MetaObserver(ObserverBase.__class__):

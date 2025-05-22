@@ -28,7 +28,7 @@ import collections
 
 from backtest.metabase import MetaParams, with_metaclass
 from backtest import observers
-from backtest.utils.autodict import OrderedDict, tzparse, num2date, date2num
+# from backtest.utils.autodict import OrderedDict, num2date, date2num
 from backtest.strategy import Strategy, SignalStrategy
 from .timer import Timer
 
@@ -361,18 +361,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         If a subclass of `TradingCalendarBase` is passed (not an instance) it
         will be instantiated
         '''
-        if isinstance(cal, str):
-            cal = PandasMarketCalendar(calendar=cal)
-        elif hasattr(cal, 'valid_days'):
-            cal = PandasMarketCalendar(calendar=cal)
-
-        else:
-            try:
-                if issubclass(cal, TradingCalendarBase):
-                    cal = cal()
-            except TypeError:  # already an instance
-                pass
-
         self._tradingcal = cal
 
     # def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
@@ -399,6 +387,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''Adds an ``Store`` instance to the if not already present'''
         if store not in self.stores:
             self.stores.append(store)
+        self.adddata(store.data)
 
     def addwriter(self, wrtcls, *args, **kwargs):
         '''Adds an ``Writer`` class to the mix. Instantiation will be done at
@@ -411,11 +400,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         strategy added to cerebro
         '''
         self.sizers[None] = (sizercls, args, kwargs)
-    #     '''Adds a ``Sizer`` class by idx. This idx is a reference compatible to
-    #     the one returned by ``addstrategy``. Only the strategy referenced by
-    #     ``idx`` will receive this size
-    #     '''
-    #     self.sizers[idx] = (sizercls, args, kwargs)
 
     def addindicator(self, indcls, *args, **kwargs):
         '''
@@ -552,8 +536,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if feed and feed not in self.feeds:
             self.feeds.append(feed)
 
-        if data.islive():
-            self._dolive = True
+        # if data.islive():
+        #     self._dolive = True
 
     def replaydata(self, dataname, name=None, **kwargs):
         '''
@@ -590,8 +574,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         dataname.resample(**kwargs)
         self.adddata(dataname, name=name)
         self._doreplay = True
-
-        # return dataname
 
     def optcallback(self, cb):
         '''
@@ -710,12 +692,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             else:
                 plotter = plot.Plot(**kwargs)
 
-        # pfillers = {self.datas[i]: self._plotfillers[i]
-        # for i, x in enumerate(self._plotfillers)}
-
-        # pfillers2 = {self.datas[i]: self._plotfillers2[i]
-        # for i, x in enumerate(self._plotfillers2)}
-
         figs = []
         for stratlist in self.runstrats:
             for si, strat in enumerate(stratlist):
@@ -796,16 +772,16 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._dorunonce = False  # something is saving memory, no runonce
             self._dopreload = self._dopreload and self._exactbars < 1
 
-        self._doreplay = self._doreplay or any(x.replaying for x in self.datas)
-        if self._doreplay:
-            # preloading is not supported with replay. full timeframe bars
-            # are constructed in realtime
-            self._dopreload = False
+        # self._doreplay = self._doreplay or any(x.replaying for x in self.datas)
+        # if self._doreplay:
+        #     # preloading is not supported with replay. full timeframe bars
+        #     # are constructed in realtime
+        #     self._dopreload = False
 
-        if self._dolive or self.p.live:
-            # in this case both preload and runonce must be off
-            self._dorunonce = False
-            self._dopreload = False
+        # if self._dolive or self.p.live:
+        #     # in this case both preload and runonce must be off
+        #     self._dorunonce = False
+        #     self._dopreload = False
 
         # self.runwriters = list()
 
@@ -824,31 +800,31 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self.runstrats = list()
 
-        if self.signals:  # allow processing of signals
-            signalst, sargs, skwargs = self._signal_strat
-            if signalst is None:
-                # Try to see if the 1st regular strategy is a signal strategy
-                try:
-                    signalst, sargs, skwargs = self.strats.pop(0)
-                except IndexError:
-                    pass  # Nothing there
-                else:
-                    if not isinstance(signalst, SignalStrategy):
-                        # no signal ... reinsert at the beginning
-                        self.strats.insert(0, (signalst, sargs, skwargs))
-                        signalst = None  # flag as not presetn
+        # if self.signals:  # allow processing of signals
+        #     signalst, sargs, skwargs = self._signal_strat
+        #     if signalst is None:
+        #         # Try to see if the 1st regular strategy is a signal strategy
+        #         try:
+        #             signalst, sargs, skwargs = self.strats.pop(0)
+        #         except IndexError:
+        #             pass  # Nothing there
+        #         else:
+        #             if not isinstance(signalst, SignalStrategy):
+        #                 # no signal ... reinsert at the beginning
+        #                 self.strats.insert(0, (signalst, sargs, skwargs))
+        #                 signalst = None  # flag as not presetn
 
-            if signalst is None:  # recheck
-                # Still None, create a default one
-                signalst, sargs, skwargs = SignalStrategy, tuple(), dict()
+        #     if signalst is None:  # recheck
+        #         # Still None, create a default one
+        #         signalst, sargs, skwargs = SignalStrategy, tuple(), dict()
 
-            # Add the signal strategy
-            self.addstrategy(signalst,
-                             _accumulate=self._signal_accumulate,
-                             _concurrent=self._signal_concurrent,
-                             signals=self.signals,
-                             *sargs,
-                             **skwargs)
+        #     # Add the signal strategy
+        #     self.addstrategy(signalst,
+        #                      _accumulate=self._signal_accumulate,
+        #                      _concurrent=self._signal_concurrent,
+        #                      signals=self.signals,
+        #                      *sargs,
+        #                      **skwargs)
 
         if not self.strats:  # Datas are present, add a strategy
             self.addstrategy(Strategy)
@@ -860,9 +836,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for iterstrat in iterstrats:
                 runstrat = self.runstrategies(iterstrat)
                 self.runstrats.append(runstrat)
-                if self._dooptimize:
-                    for cb in self.optcbs:
-                        cb(runstrat)  # callback receives finished strategy
+                # if self._dooptimize:
+                #     for cb in self.optcbs:
+                #         cb(runstrat)  # callback receives finished strategy
         else:
             if self.p.optdatas and self._dopreload and self._dorunonce:
                 for data in self.datas:
@@ -876,8 +852,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             pool = multiprocessing.Pool(self.p.maxcpus or None)
             for r in pool.imap(self, iterstrats):
                 self.runstrats.append(r)
-                for cb in self.optcbs:
-                    cb(r)  # callback receives finished strategy
+                # for cb in self.optcbs:
+                #     cb(r)  # callback receives finished strategy
 
             pool.close()
 
@@ -885,17 +861,17 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for data in self.datas:
                     data.stop()
 
-        if not self._dooptimize:
-            # avoid a list of list for regular cases
-            return self.runstrats[0]
+        # if not self._dooptimize:
+        #     # avoid a list of list for regular cases
+        #     return self.runstrats[0]
 
         return self.runstrats
 
     # def _init_stcount(self):
     #     self.stcount = itertools.count(0)
 
-    # def _next_stid(self):
-    #     return next(self.stcount)
+    def _next_stid(self):
+        return next(self.stcount)
 
     def runstrategies(self, iterstrat, predata=False):
         '''
@@ -937,7 +913,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             sargs = self.datas + list(sargs)
             try:
                 strat = stratcls(*sargs, **skwargs)
-            except errors.StrategySkipError:
+            # except errors.StrategySkipError:
+            except Exception as e:
                 continue  # do not add strategy to the mix
 
             # if self.p.oldsync:
@@ -946,61 +923,61 @@ class Cerebro(with_metaclass(MetaParams, object)):
             #     strat.set_tradehistory()
             runstrats.append(strat)
 
-        tz = self.p.tz
-        if isinstance(tz, int):
-            tz = self.datas[tz]._tz
-        else:
-            tz = tzparse(tz)
+        # tz = self.p.tz
+        # if isinstance(tz, int):
+        #     tz = self.datas[tz]._tz
+        # else:
+        #     tz = tzparse(tz)
 
         if runstrats:
             # loop separated for clarity
-            defaultsizer = self.sizers.get(None, (None, None, None))
-            for idx, strat in enumerate(runstrats):
-                if self.p.stdstats:
-                    strat._addobserver(False, observers.Broker)
+            # defaultsizer = self.sizers.get(None, (None, None, None))
+            # for idx, strat in enumerate(runstrats):
+            #     if self.p.stdstats:
+            #         strat._addobserver(False, observers.Broker)
 
-                    strat._addobserver(True, observers.BuySell, barplot=True)
+            #         strat._addobserver(True, observers.BuySell, barplot=True)
 
-                    strat._addobserver(False, observers.DataTrades)
+            #         strat._addobserver(False, observers.DataTrades)
 
-                for multi, obscls, obsargs, obskwargs in self.observers:
-                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
+            #     for multi, obscls, obsargs, obskwargs in self.observers:
+            #         strat._addobserver(multi, obscls, *obsargs, **obskwargs)
 
-                for indcls, indargs, indkwargs in self.indicators:
-                    strat._addindicator(indcls, *indargs, **indkwargs)
+            #     for indcls, indargs, indkwargs in self.indicators:
+            #         strat._addindicator(indcls, *indargs, **indkwargs)
 
-                for ancls, anargs, ankwargs in self.analyzers:
-                    strat._addanalyzer(ancls, *anargs, **ankwargs)
+            #     for ancls, anargs, ankwargs in self.analyzers:
+            #         strat._addanalyzer(ancls, *anargs, **ankwargs)
 
-                sizer, sargs, skwargs = self.sizers.get(idx, defaultsizer)
-                if sizer is not None:
-                    strat._addsizer(sizer, *sargs, **skwargs)
+            #     sizer, sargs, skwargs = self.sizers.get(idx, defaultsizer)
+            #     if sizer is not None:
+            #         strat._addsizer(sizer, *sargs, **skwargs)
 
-                strat._settz(tz)
-                strat._start()
+            #     strat._settz(tz)
+            #     strat._start()
 
-                # for writer in self.runwriters:
-                #     if writer.p.csv:
-                #         writer.addheaders(strat.getwriterheaders())
+            #     # for writer in self.runwriters:
+            #     #     if writer.p.csv:
+            #     #         writer.addheaders(strat.getwriterheaders())
 
-            if not predata:
-                for strat in runstrats:
-                    strat.qbuffer(self._exactbars, replaying=self._doreplay)
+            # if not predata:
+            #     for strat in runstrats:
+            #         strat.qbuffer(self._exactbars, replaying=self._doreplay)
 
             # for writer in self.runwriters:
             #     writer.start()
 
-            # Prepare timers
-            self._timers = []
-            self._timerscheat = []
-            for timer in self._pretimers:
-                # preprocess tzdata if needed
-                timer.start(self.datas[0])
+            # # Prepare timers
+            # self._timers = []
+            # self._timerscheat = []
+            # for timer in self._pretimers:
+            #     # preprocess tzdata if needed
+            #     timer.start(self.datas[0])
 
-                if timer.params.cheat:
-                    self._timerscheat.append(timer)
-                else:
-                    self._timers.append(timer)
+            #     # if timer.params.cheat:
+            #     #     self._timerscheat.append(timer)
+            #     # else:
+            #     #     self._timers.append(timer)
 
             if self._dopreload and self._dorunonce:
                 self._runonce(runstrats)
@@ -1237,13 +1214,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     # self._plotfillers[i].append(slen)
                     pass
 
-            self._check_timers(runstrats, dt0, cheat=True)
+            # self._check_timers(runstrats, dt0, cheat=True)
 
-            self._brokernotify()
+            # self._brokernotify()
             if self._event_stop:  # stop if requested
                 return
 
-            self._check_timers(runstrats, dt0, cheat=False)
+            # self._check_timers(runstrats, dt0, cheat=False)
 
             for strat in runstrats:
                 strat._oncepost(dt0)

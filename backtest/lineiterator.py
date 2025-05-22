@@ -23,11 +23,11 @@ import collections
 import operator
 import sys
 
-from .metabase import with_metaclass
-from .lineroot import LineRoot, LineSingle
-from .linebuffer import LineActions, LineNum
-from .lineseries import LineSeries, LineSeriesMaker
-from .dataseries import DataSeries
+from backtest.metabase import with_metaclass
+from backtest.lineroot import LineRoot, LineSingle
+from backtest.linebuffer import LineActions
+from backtest.lineseries import LineSeries, LineSeriesMaker
+from backtest.dataseries import DataSeries
 
 
 class MetaLineIterator(LineSeries.__class__):

@@ -18,19 +18,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 
 import collections
 
-import backtrader as bt
-from backtrader.utils.py3 import items, iteritems
+from .timereturn import TimeReturn
+from .positions import PositionsValue
+# from .transactions import Transactions
+from .leverage import GrossLeverage
+from backtest.analyzer import Analyzer
+from backtest.dataseries import TimeFrame
 
-from . import TimeReturn, PositionsValue, Transactions, GrossLeverage
 
-
-class PyFolio(bt.Analyzer):
+class PyFolio(Analyzer):
     '''This analyzer uses 4 children analyzers to collect data and transforms it
     in to a data set compatible with ``pyfolio``
 
@@ -79,7 +78,7 @@ class PyFolio(bt.Analyzer):
         each return as keys
     '''
     params = (
-        ('timeframe', bt.TimeFrame.Days),
+        ('timeframe', TimeFrame.Days),
         ('compression', 1)
     )
 
@@ -89,14 +88,14 @@ class PyFolio(bt.Analyzer):
 
         self._returns = TimeReturn(**dtfcomp)
         self._positions = PositionsValue(headers=True, cash=True)
-        self._transactions = Transactions(headers=True)
+        # self._transactions = Transactions(headers=True)
         self._gross_lev = GrossLeverage()
 
     def stop(self):
         super(PyFolio, self).stop()
         self.rets['returns'] = self._returns.get_analysis()
         self.rets['positions'] = self._positions.get_analysis()
-        self.rets['transactions'] = self._transactions.get_analysis()
+        # self.rets['transactions'] = self._transactions.get_analysis()
         self.rets['gross_lev'] = self._gross_lev.get_analysis()
 
     def get_pf_items(self):
@@ -119,7 +118,7 @@ class PyFolio(bt.Analyzer):
         #
         # Returns
         cols = ['index', 'return']
-        returns = DF.from_records(iteritems(self.rets['returns']),
+        returns = DF.from_records(self.rets['returns'].items(),
                                   index=cols[0], columns=cols)
         returns.index = pandas.to_datetime(returns.index)
         returns.index = returns.index.tz_localize('UTC')
@@ -127,7 +126,7 @@ class PyFolio(bt.Analyzer):
         #
         # Positions
         pss = self.rets['positions']
-        ps = [[k] + v[-2:] for k, v in iteritems(pss)]
+        ps = [[k] + v[-2:] for k, v in pss.items()]
         cols = ps.pop(0)  # headers are in the first entry
         positions = DF.from_records(ps, index=cols[0], columns=cols)
         positions.index = pandas.to_datetime(positions.index)
@@ -141,7 +140,7 @@ class PyFolio(bt.Analyzer):
         # for several assets. The dictionary has a single key and a list of
         # lists. Each sublist contains the fields of a transaction
         # Hence the double loop to undo the list indirection
-        for k, v in iteritems(txss):
+        for k, v in txss.items():
             for v2 in v:
                 txs.append([k] + v2)
 
@@ -152,7 +151,7 @@ class PyFolio(bt.Analyzer):
 
         # Gross Leverage
         cols = ['index', 'gross_lev']
-        gross_lev = DF.from_records(iteritems(self.rets['gross_lev']),
+        gross_lev = DF.from_records(self.rets['gross_lev'].items(),
                                     index=cols[0], columns=cols)
 
         gross_lev.index = pandas.to_datetime(gross_lev.index)

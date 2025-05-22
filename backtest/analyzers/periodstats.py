@@ -18,20 +18,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from backtest.analyzer import Analyzer
 
-
-import backtrader as bt
-from backtrader.utils.py3 import itervalues
-from backtrader.mathsupport import average, standarddev
-from . import TimeReturn
+from backtest.mathsupport import average, standarddev
+from backtest.analyzers import TimeReturn
+from backtest.dataseries import TimeFrame
 
 
 __all__ = ['PeriodStats']
 
 
-class PeriodStats(bt.Analyzer):
+class PeriodStats(Analyzer):
     '''Calculates basic statistics for given timeframe
 
     Params:
@@ -76,7 +73,7 @@ class PeriodStats(bt.Analyzer):
     '''
 
     params = (
-        ('timeframe', bt.TimeFrame.Years),
+        ('timeframe', TimeFrame.Years),
         ('compression', 1),
         ('zeroispos', False),
         ('fund', None),
@@ -89,7 +86,7 @@ class PeriodStats(bt.Analyzer):
     def stop(self):
         trets = self._tr.get_analysis()  # dict key = date, value = ret
         pos = nul = neg = 0
-        trets = list(itervalues(trets))
+        trets = list(trets.values())
         for tret in trets:
             if tret > 0.0:
                 pos += 1

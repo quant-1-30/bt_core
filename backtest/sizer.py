@@ -19,7 +19,7 @@
 #
 ###############################################################################
 
-from .metabase import MetaParams, with_metaclass
+from backtest.metabase import MetaParams, with_metaclass
 
 
 class Sizer(with_metaclass(MetaParams, object)):
@@ -41,11 +41,11 @@ class Sizer(with_metaclass(MetaParams, object)):
         value, ..
     '''
     strategy = None
-    broker = None
+    store = None
 
     def getsizing(self, data, isbuy):
         # comminfo = self.broker.getcommissioninfo(data)
-        return self._getsizing(self.broker.getcash(), data, isbuy)
+        return self._getsizing(self.store.get_cash(), data, isbuy)
 
     def _getsizing(self, cash, data, isbuy):
         '''This method has to be overriden by subclasses of Sizer to provide
@@ -68,9 +68,9 @@ class Sizer(with_metaclass(MetaParams, object)):
         '''
         raise NotImplementedError
 
-    def set(self, strategy, broker):
+    def set(self, strategy, store):
         self.strategy = strategy
-        self.broker = broker
+        self.store = store
 
 
 SizerBase = Sizer  # alias for old naming

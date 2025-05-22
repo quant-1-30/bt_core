@@ -18,13 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import math
 
-import backtrader as bt
-from backtrader import TimeFrameAnalyzerBase
+from backtest.analyzer import TimeFrameAnalyzerBase
+from backtest.dataseries import TimeFrame
 
 
 class Returns(TimeFrameAnalyzerBase):
@@ -95,10 +92,10 @@ class Returns(TimeFrameAnalyzerBase):
     )
 
     _TANN = {
-        bt.TimeFrame.Days: 252.0,
-        bt.TimeFrame.Weeks: 52.0,
-        bt.TimeFrame.Months: 12.0,
-        bt.TimeFrame.Years: 1.0,
+        TimeFrame.Days: 252.0,
+        TimeFrame.Weeks: 52.0,
+        TimeFrame.Months: 12.0,
+        TimeFrame.Years: 1.0,
     }
 
     def start(self):

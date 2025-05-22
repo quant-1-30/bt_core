@@ -18,15 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from backtest.sizer import Sizer
 
-import backtrader as bt
 
 __all__ = ['PercentSizer', 'AllInSizer', 'PercentSizerInt', 'AllInSizerInt']
 
 
-class PercentSizer(bt.Sizer):
+class PercentSizer(Sizer):
     '''This sizer return percents of available cash
 
     Params:

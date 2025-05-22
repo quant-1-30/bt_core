@@ -18,14 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import math
 
-from backtrader import Analyzer
-from backtrader.mathsupport import average, standarddev
-from backtrader.utils import AutoOrderedDict
+from backtest.analyzer import Analyzer
+from backtest.mathsupport import average, standarddev
+from backtest.utils import AutoOrderedDict
 
 
 class SQN(Analyzer):

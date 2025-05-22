@@ -18,19 +18,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from backtest.analyzers import TimeFrameAnalyzerBase
 
 import collections
 import math
-
-import backtrader as bt
 
 
 __all__ = ['LogReturnsRolling']
 
 
-class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
+class LogReturnsRolling(TimeFrameAnalyzerBase):
     '''This analyzer calculates rolling returns for a given timeframe and
     compression
 

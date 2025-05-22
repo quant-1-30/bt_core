@@ -128,6 +128,9 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         if iplot:
             if 'ipykernel' in sys.modules:
                 matplotlib.use('nbagg')
+                # # 在普通 Python 脚本中
+                # matplotlib.use('TkAgg')  # 使用 Tkinter 后端
+                # matplotlib.use('Qt5Agg')  # 使用 Qt 后端
 
         # this import must not happen before matplotlib.use
         import matplotlib.pyplot as mpyplot

@@ -164,11 +164,12 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     def get_calendar(self):
         return self.calendar
     
-    def get_positions(self):
+    def get_position(self):
         return self.broker.get_position()
     
     def get_account(self):
         self._t_account()
+        return (self._cash, self._value)
     
     def get_instrument(self, session):
         return self.datas.get_instrument(session)

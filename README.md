@@ -215,6 +215,5 @@ get_notification key is notification mechanism
 
 梳理 m_execId
 1  store == mdapi + tdapi
-2  strategy based on store
-3  cerebro based on store
-4  timer
+2  test cerebro and strategy
+3  store.data is the cerebro default data

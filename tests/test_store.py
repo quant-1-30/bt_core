@@ -4,6 +4,8 @@
 import pytest
 
 from backtest.stores.btstore import BTStore
+
+# to ensure metaclass __init__ automated executed
 from backtest.brokers.btbroker import BTBroker
 from backtest.feeds.mdapi import MdData
 from bt_sdk.core.model import *
@@ -16,8 +18,7 @@ def get_data(q):
         msg = q.get()
         if msg == "eof":
             break
-        elif msg:
-            data.append(msg)
+        data.append(msg)
     return data
 
 
@@ -62,21 +63,52 @@ class TestBTStore:
                        start_date=1728351060, 
                        end_date=1728361060)
     
-    # def test_get_calendar(self, store):
-    #     data = store.get_calendar()
-    #     print("get_calendar: ", data)
-    #     assert data is not None
+    def test_get_calendar(self, store):
+        data = store.get_calendar()
+        print("get_calendar: ", data)
+        assert data is not None
 
-    # def test_get_instrument(self, store, session):
-    #     data = store.get_instrument(session)
-    #     print("get_instrument: ", data)
-    #     assert data is not None
+    def test_get_instrument(self, store, session):
+        data = store.get_instrument(session)
+        print("get_instrument: ", data)
+        assert data is not None
 
-    # def test_get_events(self, store, session):
-    #     data = store.get_events(session)
-    #     print("get_events: ", data)
-    #     assert data is not None
+    def test_get_events(self, store, session):
+        data = store.get_events(session)
+        print("get_events: ", data)
+        assert data is not None
+    
+    def test_get_position(self, store):
+        data = store.get_position()
+        print("get_position: ", data)
+        assert data is not None
 
+    def test_get_account(self, store):
+        data = store.get_account()
+        print("get_account: ", data)
+        assert data is not None
+
+    def test_reqOrder(self, store, reqmeta):
+        q = store.reqOrder(reqmeta)
+        data = get_data(q)
+        print("reqOrder: ", data)
+        assert data is not None
+
+    def test_reqPosition(self, store, reqmeta):
+        q = store.reqPosition(reqmeta)
+        data = get_data(q)
+        assert data is not None
+
+    def test_reqAccount(self, store, reqmeta):
+        q = store.reqAccount(reqmeta)
+        data = get_data(q)
+        assert data is not None
+    
+    def test_timer(self, store):
+        data = store.on_timer(20241008)
+        print("timer: ", data)
+        assert data is not None
+    
     # def test_reqdata(self, store, reqmeta):
     #     store.reqdata(reqmeta)
     #     store.preload()
@@ -92,35 +124,4 @@ class TestBTStore:
     # def test_sell(self, store, sellorder):
     #     q = store.sell(order)
     #     data = get_data(q)
-    #     assert data is not None
-
-    # def test_reqOrder(self, store, reqmeta):
-    #     q = store.reqOrder(reqmeta)
-    #     data = get_data(q)
-    #     print("reqOrder: ", data)
-    #     assert data is not None
-
-    # def test_reqPosition(self, store, reqmeta):
-    #     q = store.reqPosition(reqmeta)
-    #     data = get_data(q)
-    #     assert data is not None
-
-    # def test_reqAccount(self, store, reqmeta):
-    #     q = store.reqAccount(reqmeta)
-    #     data = get_data(q)
-    #     assert data is not None
-
-    # def test_get_position(self, store):
-    #     q = store.get_position()
-    #     data = get_data(q)
-    #     assert data is not None
-
-    # def test_get_account(self, store):
-    #     data = store.get_account()
-    #     print("get_account: ", data)
-    #     assert data is not None
-
-    # def test_timer(self, store):
-    #     q = store.on_timer(20241008)
-    #     data = q.get()
     #     assert data is not None

@@ -45,7 +45,6 @@ class MetaBTBroker(MetaBase):
     def get_data(q, timeout=-1):
         data = []
         while True:
-            print("data: ", data)
             # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
             msg = q.get(timeout)
             if msg == "eof":

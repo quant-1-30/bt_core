@@ -12,22 +12,24 @@ def get_data(q):
         ele = q.get()
         if ele == "eof":
             break
-        print(ele)
         data.append(ele)
-    print("data: ", data)
     return data
 
 
 class TestMdApi:
     
     @pytest.fixture
-    def md_api(self):
-        return MdApi(addr=("127.0.0.1", 8888))
+    def client_id(self):
+        return "efe4eaee-0406-46e3-a395-91dc4502c4a3"
+    
+    @pytest.fixture
+    def md_api(self, client_id):
+        return MdApi(addr=("127.0.0.1", 8888), client_id=client_id)
     
     @pytest.fixture
     def session(self):
-        return 20240101
-    
+        return 20241008
+
     @pytest.fixture
     def reqMktDataMeta(self):
         return ReqMeta(
@@ -65,5 +67,3 @@ class TestMdApi:
         q = md_api.reqMktData(reqMktDataMeta)
         data = get_data(q)
         assert data is not None
-
-

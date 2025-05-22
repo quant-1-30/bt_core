@@ -19,7 +19,7 @@
 #
 ###############################################################################
 
-import backtrader as bt
+from backtest.indicator import Indicator
 
 (
 

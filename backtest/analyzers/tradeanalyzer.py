@@ -18,14 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+import numpy as np
 
-import sys
-
-from backtrader import Analyzer
-from backtrader.utils import AutoOrderedDict, AutoDict
-from backtrader.utils.py3 import MAXINT
+from backtest.analyzer import Analyzer
+from backtest.utils import AutoOrderedDict, AutoDict
 
 
 class TradeAnalyzer(Analyzer):
@@ -156,7 +152,7 @@ class TradeAnalyzer(Analyzer):
             ml = trades.len.max or 0
             trades.len.max = max(ml, trade.barlen)
 
-            ml = trades.len.min or MAXINT
+            ml = trades.len.min or np.MAXINT
             trades.len.min = min(ml, trade.barlen)
 
             # Length Won/Lost
@@ -170,7 +166,7 @@ class TradeAnalyzer(Analyzer):
                 m = trwl.max or 0
                 trwl.max = max(m, trade.barlen * wl)
                 if trade.barlen * wl:
-                    m = trwl.min or MAXINT
+                    m = trwl.min or np.MAXINT
                     trwl.min = min(m, trade.barlen * wl)
 
             # Length Long/Short
@@ -187,7 +183,7 @@ class TradeAnalyzer(Analyzer):
                 # max/min
                 m = trls.max or 0
                 trls.max = max(m, barlen)
-                m = trls.min or MAXINT
+                m = trls.min or np.MAXINT
                 trls.min = min(m, barlen or m)
 
                 for wlname in ['won', 'lost']:
@@ -204,5 +200,5 @@ class TradeAnalyzer(Analyzer):
                     # max/min
                     m = trls_wl.max or 0
                     trls_wl.max = max(m, barlen2)
-                    m = trls_wl.min or MAXINT
+                    m = trls_wl.min or np.MAXINT
                     trls_wl.min = min(m, barlen2 or m)

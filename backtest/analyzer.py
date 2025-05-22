@@ -26,7 +26,7 @@ from collections import OrderedDict
 import datetime
 import pprint as pp
 
-from metabase import with_metaclass, MetaParams, findowner
+from .metabase import with_metaclass, MetaParams, findowner
 
 
 class MetaAnalyzer(MetaParams):

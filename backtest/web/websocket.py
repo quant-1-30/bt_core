@@ -17,9 +17,6 @@ import websocket
     MarkupSafe 与 Jinja 共用,在渲染页面时用于避免不可信的输入,防止注入攻击
     ItsDangerous 保证数据完整性的安全标志数据,用于保护 Flask 的 session cookie
     Click 是一个命令行应用的框架。用于提供 flask 命令,并允许添加自定义 管理命令
-    
-    FLASK_APP  FLASK_ENV 
-    
     string （缺省值） 接受任何不包含斜杠的文本
     int 接受正整数
     float  接受正浮点数

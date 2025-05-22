@@ -18,13 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import backtrader as bt
+from backtest.sizer import Sizer
 
 
-class FixedSize(bt.Sizer):
+class FixedSize(Sizer):
     '''
     This sizer simply returns a fixed size for any operation.
     Size can be controlled by number of tranches that a system
@@ -56,7 +53,7 @@ class FixedSize(bt.Sizer):
 SizerFix = FixedSize
 
 
-class FixedReverser(bt.Sizer):
+class FixedReverser(Sizer):
     '''This sizer returns the needes fixed size to reverse an open position or
     the fixed size to open one
 
@@ -75,7 +72,7 @@ class FixedReverser(bt.Sizer):
         return size
 
 
-class FixedSizeTarget(bt.Sizer):
+class FixedSizeTarget(Sizer):
     '''
     This sizer simply returns a fixed target size, useful when coupled
     with Target Orders and specifically ``cerebro.target_order_size()``.

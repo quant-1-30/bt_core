@@ -18,17 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 
-import backtrader as bt
+from backtest.observer import Observer
 
 
 __all__ = ['LogReturns', 'LogReturns2']
 
 
-class LogReturns(bt.Observer):
+class LogReturns(Observer):
     '''This observer stores the *log returns* of the strategy or a
 
     Params:

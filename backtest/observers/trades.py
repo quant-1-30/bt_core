@@ -18,15 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import uuid
 
-from .. import Observer
-from ..utils.py3 import with_metaclass
+from backtest.observer import Observer
+from backtest.metabase import with_metaclass
 
-from ..trade import Trade
 
 
 class Trades(Observer):
