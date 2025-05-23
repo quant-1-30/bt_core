@@ -63,29 +63,29 @@ class TestBTStore:
                        start_date=1728351060, 
                        end_date=1728361060)
     
-    def test_get_calendar(self, store):
-        data = store.get_calendar()
-        print("get_calendar: ", data)
+    def test_getcalendar(self, store):
+        data = store.getcalendar()
+        print("getcalendar: ", data)
         assert data is not None
 
-    def test_get_instrument(self, store, session):
-        data = store.get_instrument(session)
-        print("get_instrument: ", data)
+    def test_getinstrument(self, store, session):
+        data = store.getinstrument(session)
+        print("getinstrument: ", data)
         assert data is not None
 
-    def test_get_events(self, store, session):
-        data = store.get_events(session)
-        print("get_events: ", data)
+    def test_getevents(self, store, session):
+        data = store.getevents(session)
+        print("getevents: ", data)
         assert data is not None
     
-    def test_get_position(self, store):
-        data = store.get_position()
-        print("get_position: ", data)
+    def test_getposition(self, store):
+        data = store.getposition()
+        print("getposition: ", data)
         assert data is not None
 
-    def test_get_account(self, store):
-        data = store.get_account()
-        print("get_account: ", data)
+    def test_getaccount(self, store):
+        data = store.getaccount()
+        print("getaccount: ", data)
         assert data is not None
 
     def test_reqOrder(self, store, reqmeta):

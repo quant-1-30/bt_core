@@ -190,37 +190,37 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # super(MdData, self).stop()
         self.mdapi.disconnected()
 
-    def get_calendar(self, timeout=-1):
-        q = self.mdapi.get_calendar()
+    def getCalendar(self, timeout=-1):
+        q = self.mdapi.getCalendar()
         return self.get_data(q, timeout)
     
-    def get_instrument(self, session, timeout=-1):
-        q = self.mdapi.get_instrument(session)
+    def getInstrument(self, session, timeout=-1):
+        q = self.mdapi.getInstrument(session)
         return self.get_data(q, timeout)
     
-    def get_events(self, session, timeout=-1):
-        q = self.mdapi.get_events(session)
+    def getEvents(self, session, timeout=-1):
+        q = self.mdapi.getEvents(session)
         return self.get_data(q, timeout)
     
-    def reqdata(self, req, timeout=-1):
+    def subscribe(self, req, timeout=-1):
         # dtkwargs['start'] = int((dtbegin - self._DTEPOCH).total_seconds())
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         self._subcription_valid = True
-        self.qlive = self.mdapi.reqMktData(req)
+        self.qlive = self.mdapi.subscribe(req)
     
-    def canceldata(self):
+    def cancel(self):
         '''Cancels Market Data subscription, checking asset type and rtbar'''
         if self.qlive is None:
             return
 
-        self.mdapi.canceledData(self.qlive)
+        self.mdapi.cancel()
 
     def _load(self):
         """
            msg error code -354 self.NOTSUBSCRIBED
         """
         if self.qlive is None:
-            warnings.warn("qlive is None, reqdata should be called first")
+            warnings.warn("qlive is None, must subscribe first")
             return
         _load_bar = self._load_rtbar if self.p.rtbar else self._load_bar
 

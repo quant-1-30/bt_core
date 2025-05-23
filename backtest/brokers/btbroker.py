@@ -92,14 +92,14 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
         self.tdapi.disconnected()
 
     def cancel(self, vtorder_id):
-        self.tdapi.cancelOrder(vtorder_id)
+        self.tdapi.cancel(vtorder_id)
     
-    def get_account(self, timeout=-1):
-        q = self.tdapi.get_account()
+    def getAccount(self, timeout=-1):
+        q = self.tdapi.getAccount()
         return self.get_data(q, timeout)
 
-    def get_position(self, timeout=-1):
-        q = self.tdapi.get_position()
+    def getPosition(self, timeout=-1):
+        q = self.tdapi.getPosition()
         return self.get_data(q, timeout)
 
     def submit(self, order):
@@ -137,18 +137,18 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
             pass
         return None
     
-    def reqOrder(self, reqmeta):
-        q = self.tdapi.reqOrder(reqmeta)
+    def subscribeOrder(self, reqmeta):
+        q = self.tdapi.subscribe("order", reqmeta)
         return q
     
-    def reqPosition(self, reqmeta):
-        q = self.tdapi.reqPosition(reqmeta)
+    def subscribePosition(self, reqmeta):
+        q = self.tdapi.subscribe("position", reqmeta)
         return q
     
-    def reqAccount(self, reqmeta):
-        q = self.tdapi.reqAccount(reqmeta)
+    def subscribeAccount(self, reqmeta):
+        q = self.tdapi.subscribe("account", reqmeta)
         return q
     
     def on_timer(self, tick, timeout=-1):
-        q = self.tdapi.on_timer(tick)
+        q = self.tdapi.onTimer(tick)
         return self.get_data(q, timeout)

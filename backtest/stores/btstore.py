@@ -67,8 +67,8 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         ('account', ''),
         ('md_addr', ("127.0.0.1", 8888)),
         ('td_addr', ("127.0.0.1", 8888)),
-        ('account_tmout', -1),  # account balance refresh timeout
-        ('cal_tmout', -1),  # calendar refresh timeout
+        # ('act_tmout', -1),  # account balance refresh timeout
+        # ('cal_tmout', -1),  # calendar refresh timeout
     )
 
     # _DTEPOCH = datetime(1970, 1, 1)
@@ -86,18 +86,15 @@ class BTStore(with_metaclass(MetaSingleton, object)):
 
     def __init__(self, user_id="", **kwargs):
         super(BTStore, self).__init__()
-
-        self._feed, self.broker = self.on_connect(user_id, **kwargs)
     
-        # self._env = sel._feed._env
         self._cash = 0.0
         self._value = 0.0
         self.calendar = None
         self.notifs = collections.deque()  # store notifications for cerebro
-
-        # self._orders = collections.OrderedDict()  # map order.ref to oid
-        # self._ordersrev = collections.OrderedDict()  # map oid to order.ref
-        # self._transpend = collections.defaultdict(collections.deque)
+        self.datas = []
+        # self._env = sel._feed._env
+        
+        self._feed, self.broker = self.on_connect(user_id, **kwargs)
 
         self._evt_acct = threading.Event()
         self._evt_cal = threading.Event()
@@ -125,7 +122,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         self._feed._start()
         self.broker._start()
 
-    def start(self, data=None, broker=None):
+    def start(self):
         self._start()
         self.data_threads()
         self.broker_threads()
@@ -134,11 +131,10 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         t = threading.Thread(target=self._t_cal)
         t.daemon = True
         t.start()
-        # self._evt_cal.wait(self.p.account_tmout)
         self._evt_cal.wait()
 
     def _t_cal(self):
-        msg = self._feed.get_calendar()
+        msg = self._feed.getCalendar()
         self.calendar = msg
         self._evt_cal.set()
 
@@ -146,36 +142,37 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         t = threading.Thread(target=self._t_account)
         t.daemon = True
         t.start()
-        self._evt_acct.wait(self.p.account_tmout)
+        self._evt_acct.wait()
 
     def _t_account(self):
-        msg = self.broker.get_account()
+        msg = self.broker.getAccount()
+        print('_t_account', msg)
         if msg:
             self._cash = msg[0][0]
             self._value = msg[0][1]
-        self._evt_acct.set()
+            self._evt_acct.set()
     
-    def get_cash(self):
+    def getcash(self):
         return self._cash
 
     def getvalue(self):
         return self._value
     
-    def get_calendar(self):
+    def getCalendar(self):
         return self.calendar
     
-    def get_position(self):
+    def getPosition(self):
         return self.broker.get_position()
     
-    def get_account(self):
+    def getAccount(self):
         self._t_account()
         return (self._cash, self._value)
     
-    def get_instrument(self, session):
-        return self._feed.get_instrument(session)
+    def getInstrument(self, session):
+        return self._feed.getInstrument(session)
     
-    def get_events(self, session):
-        return self._feed.get_events(session)
+    def getEvents(self, session):
+        return self._feed.getEvents(session)
     
     def put_notification(self, msg, *args, **kwargs):
         self.notifs.append((msg, args, kwargs))
@@ -223,26 +220,23 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         return self.broker.sell(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
             exec_type=exec_type, **kwargs)
      
-    def reqdata(self, reqmeta):
-        return self._feed.reqdata(reqmeta)
+    def subscribe(self, reqmeta):
+        return self._feed.subscribe(reqmeta)
     
-    def preload(self):
-        return self._feed.preload()
+    def subscribeOrder(self, reqmeta):
+        return self.broker.subscribeOrder(reqmeta)
     
-    def reqOrder(self, reqmeta):
-        return self.broker.reqOrder(reqmeta)
+    def subscribePosition(self, reqmeta):
+        return self.broker.subscribePosition(reqmeta) 
     
-    def reqPosition(self, reqmeta):
-        return self.broker.reqPosition(reqmeta) 
-    
-    def reqAccount(self, reqmeta):
-        return self.broker.reqAccount(reqmeta)
+    def subscribeAccount(self, reqmeta):
+        return self.broker.subscribeAccount(reqmeta)
     
     def cancel(self, order_id):
         return self.broker.cancel(order_id)
     
     def cancelData(self):
-        return self._feed.cancelData()
+        return self._feed.cancel()
 
     def stop(self):
         # signal end of thread
@@ -250,4 +244,4 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         self._feed.stop()
 
     def on_timer(self, tick):
-        return self.broker.on_timer(tick)
+        return self.broker.onTimer(tick)

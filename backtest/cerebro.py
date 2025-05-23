@@ -141,7 +141,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     params = (
         ('preload', True),
         ('runonce', True),
-        ('maxcpus', None),
+        ('maxcpus', 1),
         ('stdstats', True),
         ('exactbars', False),
         ('optdatas', True),
@@ -388,8 +388,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def addstore(self, store):
         '''Adds an ``Store`` instance to the if not already present'''
         if store not in self.stores:
+            store.start()
             self.stores.append(store)
-            self.adddata(store._feed)
+            self.adddata(store._feed)   
 
     def addwriter(self, wrtcls, *args, **kwargs):
         '''Adds an ``Writer`` class to the mix. Instantiation will be done at
@@ -650,25 +651,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.strats.append([(strategy, args, kwargs)])
         return len(self.strats) - 1
 
-    # def setbroker(self, broker):
-    #     '''
-    #     Sets a specific ``broker`` instance for this strategy, replacing the
-    #     one inherited from cerebro.
-    #     '''
-    #     self._broker = broker
-    #     broker.cerebro = self
-    #     return broker
-
-    # def getbroker(self):
-    #     '''
-    #     Returns the broker instance.
-
-    #     This is also available as a ``property`` by the name ``broker``
-    #     '''
-    #     return self._broker
-
-    # broker = property(getbroker, setbroker)
-
     def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
              width=16, height=9, dpi=300, tight=True, use=None,
              **kwargs):
@@ -752,7 +734,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         threads the execution will stop as soon as possible.'''
         self._event_stop = True  # signal a stop has been requested
 
-    def run(self, **kwargs):
+    def run(self, reqmeta, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was
         instantiated with.
@@ -769,7 +751,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self._event_stop = False  # Stop is requested
 
-        if not self.datas:
+        if not self.stores:
             return []  # nothing can be run
 
         # update params with run kwargs
@@ -851,11 +833,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self.addstrategy(Strategy)
 
         iterstrats = itertools.product(*self.strats)
+        import pdb; pdb.set_trace()
         if not self._dooptimize or self.p.maxcpus == 1:
             # If no optimmization is wished ... or 1 core is to be used
             # let's skip process "spawning"
             for iterstrat in iterstrats:
-                runstrat = self.runstrategies(iterstrat)
+                runstrat = self.runstrategies(reqmeta, iterstrat)
                 self.runstrats.append(runstrat)
                 # if self._dooptimize:
                 #     for cb in self.optcbs:
@@ -871,7 +854,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
                         data.preload()
 
             pool = multiprocessing.Pool(self.p.maxcpus or None)
-            for r in pool.imap(self, iterstrats):
+            # __call__
+            for r in pool.imap(self, (reqmeta, iterstrats)):
                 self.runstrats.append(r)
                 # for cb in self.optcbs:
                 #     cb(r)  # callback receives finished strategy
@@ -894,7 +878,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def _next_stid(self):
         return next(self.stcount)
 
-    def runstrategies(self, iterstrat, predata=False):
+    def runstrategies(self, reqmeta, iterstrat, predata=False):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
@@ -902,10 +886,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self.runningstrats = runstrats = list()
         for store in self.stores:
-            store.start()
+            store.subscribe(reqmeta)
 
-        for feed in self.feeds:
-            feed.start()
+        # for feed in self.feeds:
+        #     feed.start()
 
         # if self.writers_csv:
         #     wheaders = list()
@@ -922,12 +906,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if not predata:
             for data in self.datas:
-                data.reset()
-                # if self._exactbars < 1:  # datas can be full length
-                #     data.extend(size=self.params.lookahead)
-                data._start()
-                if self._dopreload:
-                    data.preload()
+                # data.reset()
+                # # if self._exactbars < 1:  # datas can be full length
+                # #     data.extend(size=self.params.lookahead)
+                # data._start()
+                # if self._dopreload:
+                #     data.preload()
+                data.preload()
 
         # setup stratcls
         for stratcls, sargs, skwargs in iterstrat:

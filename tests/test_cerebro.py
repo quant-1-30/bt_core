@@ -2,6 +2,7 @@
 from backtest.cerebro import Cerebro
 from backtest.stores.btstore import BTStore
 from backtest.strategy import Strategy
+from bt_sdk.core.model import *
 
 
 # Create a Stratey
@@ -29,12 +30,16 @@ if __name__ == '__main__':
     cerebro.addstrategy(TestStrategy)
     # add data
     store = BTStore(user_id="test")
+    # import pdb; pdb.set_trace()
     cerebro.addstore(store)
+    print("backtest calendar: ", cerebro.stores[0].getCalendar())
     # Print out the starting conditions
-    print('Starting Portfolio Value: %.2f' % cerebro.stores[0].getvalue())
+    print('Starting Portfolio Value and Cash: %.2f, %.2f' % (cerebro.stores[0].getvalue(), cerebro.stores[0].getcash()))
+
+    reqmeta = ReqMeta(sid=["603676"], start_date=1728351060, end_date=1728371060)
 
     # Run over everything
-    cerebro.run()
+    cerebro.run(reqmeta)
 
     # Print out the final result
-    print('Final Portfolio Value: %.2f' % cerebro.stores[0].getvalue())
+    print('Final Portfolio Value and Cash: %.2f, %.2f' % (cerebro.stores[0].getvalue(), cerebro.stores[0].getcash()))
