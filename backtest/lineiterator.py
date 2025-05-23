@@ -23,15 +23,18 @@ import collections
 import operator
 import sys
 
-from backtest.metabase import with_metaclass
-from backtest.lineroot import LineRoot, LineSingle
-from backtest.linebuffer import LineActions
-from backtest.lineseries import LineSeries, LineSeriesMaker
-from backtest.dataseries import DataSeries
+# from .utils.py3 import map, range, zip, with_metaclass, string_types
+# from .utils import DotDict
+
+from .lineroot import LineRoot, LineSingle
+from .linebuffer import LineActions, LineNum
+from .lineseries import LineSeries, LineSeriesMaker
+from .dataseries import DataSeries
+from .metabase import with_metaclass, MetaParams, findowner
+from backtest.utils.autodict import DotDict
 
 
 class MetaLineIterator(LineSeries.__class__):
-
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaLineIterator, cls).donew(*args, **kwargs)
@@ -52,12 +55,11 @@ class MetaLineIterator(LineSeries.__class__):
             elif not mindatas:
                 break  # found not data and must not be collected
             else:
-                # try:
-                #     _obj.datas.append(LineSeriesMaker(LineNum(arg)))
-                # except:
-                #     # Not a LineNum and is not a LineSeries - bail out
-                #     break
-                break
+                try:
+                    _obj.datas.append(LineSeriesMaker(LineNum(arg)))
+                except:
+                    # Not a LineNum and is not a LineSeries - bail out
+                    break
 
             mindatas = max(0, mindatas - 1)
             lastarg += 1
@@ -72,7 +74,7 @@ class MetaLineIterator(LineSeries.__class__):
         # Create a dictionary to be able to check for presence
         # lists in python use "==" operator when testing for presence with "in"
         # which doesn't really check for presence but for equality
-        # _obj.ddatas = {x: None for x in _obj.datas}
+        _obj.ddatas = {x: None for x in _obj.datas}
 
         # For each found data add access member -
         # for the first data 2 (data and data0)
@@ -94,9 +96,9 @@ class MetaLineIterator(LineSeries.__class__):
                         setattr(_obj, 'data%d_%s' % (d, linealias), line)
                     setattr(_obj, 'data%d_%d' % (d, l), line)
 
-        # # Parameter values have now been set before __init__
-        # _obj.dnames = DotDict([(d._name, d)
-        #                        for d in _obj.datas if getattr(d, '_name', '')])
+        # Parameter values have now been set before __init__
+        _obj.dnames = DotDict([(d._name, d)
+                               for d in _obj.datas if getattr(d, '_name', '')])
 
         return _obj, newargs, kwargs
 
@@ -119,7 +121,6 @@ class MetaLineIterator(LineSeries.__class__):
 
         # The lines carry at least the same minperiod as
         # that provided by the datas
-        # keep line period >= datas period
         for line in _obj.lines:
             line.addminperiod(_obj._minperiod)
 
@@ -132,7 +133,7 @@ class MetaLineIterator(LineSeries.__class__):
         # my minperiod is as large as the minperiod of my lines
         _obj._minperiod = max([x._minperiod for x in _obj.lines])
 
-        # # Recalc the period
+        # Recalc the period
         _obj._periodrecalc()
 
         # Register (my)self as indicator to owner once
@@ -144,6 +145,10 @@ class MetaLineIterator(LineSeries.__class__):
 
 
 class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
+    _nextforce = False  # force cerebro to run in next mode (runonce=False)
+
+    _mindatas = 1
+    _ltype = LineSeries.IndType
 
     plotinfo = dict(plot=True,
                     subplot=True,
@@ -159,20 +164,35 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
                     plothlines=[],
                     plotforce=False,
                     plotmaster=None,)
-        
-    _nextforce = False  # force cerebro to run in next mode (runonce=False)
-
-    _mindatas = 1
-    _ltype = LineSeries.IndType
 
     def _periodrecalc(self):
         # last check in case not all lineiterators were assigned to
         # lines (directly or indirectly after some operations)
         # An example is Kaufman's Adaptive Moving Average
-        indicators = self.getindicators()
+        indicators = self._lineiterators[LineIterator.IndType]
         indperiods = [ind._minperiod for ind in indicators]
         indminperiod = max(indperiods or [self._minperiod])
         self.updateminperiod(indminperiod)
+
+    def _stage2(self):
+        super(LineIterator, self)._stage2()
+
+        for data in self.datas:
+            data._stage2()
+
+        for lineiterators in self._lineiterators.values():
+            for lineiterator in lineiterators:
+                lineiterator._stage2()
+
+    def _stage1(self):
+        super(LineIterator, self)._stage1()
+
+        for data in self.datas:
+            data._stage1()
+
+        for lineiterators in self._lineiterators.values():
+            for lineiterator in lineiterators:
+                lineiterator._stage1()
 
     def getindicators(self):
         return self._lineiterators[LineIterator.IndType]
@@ -180,6 +200,9 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def getindicators_lines(self):
         return [x for x in self._lineiterators[LineIterator.IndType]
                 if hasattr(x.lines, 'getlinealiases')]
+
+    def getobservers(self):
+        return self._lineiterators[LineIterator.ObsType]
 
     def addindicator(self, indicator):
         # store in right queue
@@ -196,14 +219,46 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
                 o = o._owner  # move up the hierarchy
 
+    def bindlines(self, owner=None, own=None):
+        if not owner:
+            owner = 0
+
+        if isinstance(owner, str):
+            owner = [owner]
+        elif not isinstance(owner, collections.Iterable):
+            owner = [owner]
+
+        if not own:
+            own = range(len(owner))
+
+        if isinstance(own, str):
+            own = [own]
+        elif not isinstance(own, collections.Iterable):
+            own = [own]
+
+        for lineowner, lineown in zip(owner, own):
+            if isinstance(lineowner, str):
+                lownerref = getattr(self._owner.lines, lineowner)
+            else:
+                lownerref = self._owner.lines[lineowner]
+
+            if isinstance(lineown, str):
+                lownref = getattr(self.lines, lineown)
+            else:
+                lownref = self.lines[lineown]
+
+            lownref.addbinding(lownerref)
+
+        return self
+
+    # Alias which may be more readable
+    bind2lines = bindlines
+    bind2line = bind2lines
+
     def _next(self):
         clock_len = self._clk_update()
 
-        # indicator
         for indicator in self._lineiterators[LineIterator.IndType]:
-    #         if len(indicator._clock) > len(indicator):
-    #             indicator.advance()
-            # makeoperation
             indicator._next()
 
         self._notify()
@@ -237,14 +292,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _once(self):
         self.forward(size=self._clock.buflen())
 
-        # all indicator need to _once (execute next method)
         for indicator in self._lineiterators[LineIterator.IndType]:
             indicator._once()
 
         for observer in self._lineiterators[LineIterator.ObsType]:
             observer.forward(size=self.buflen())
 
-        # reset to idx = -1 
         for data in self.datas:
             data.home()
 
@@ -266,13 +319,22 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for line in self.lines:
             line.oncebinding()
 
+    def preonce(self, start, end):
+        pass
+
+    def oncestart(self, start, end):
+        self.once(start, end)
+
+    def once(self, start, end):
+        pass
+
     def prenext(self):
         '''
         This method will be called before the minimum period of all
         datas/indicators have been meet for the strategy to start executing
         '''
-        pass   
-    
+        pass
+
     def nextstart(self):
         '''
         This method will be called once, exactly when the minimum period for
@@ -290,13 +352,10 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         '''
         pass
 
-    def preonce(self, start, end):
+    def _addnotification(self, *args, **kwargs):
         pass
 
-    def oncestart(self, start, end):
-        self.once(start, end)
-
-    def once(self, start, end):
+    def _notify(self):
         pass
 
     def _plotinit(self):

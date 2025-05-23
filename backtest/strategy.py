@@ -33,7 +33,8 @@ from backtest.lineroot import LineSingle
 from backtest.lineseries import LineSeriesStub
 from backtest.metabase import with_metaclass, ItemCollection, findowner
 from backtest.sizers import FixedSize
-from backtest.signal import *
+import backtest as bt
+# signal 里面有 Indicator还完全实例化
 
 
 class MetaStrategy(StrategyBase.__class__):
@@ -760,13 +761,13 @@ class MetaSigStrategy(Strategy.__class__):
             _obj._signals[sigtype].append(sigcls(*sigargs, **sigkwargs))
 
         # Record types of signals
-        _obj._longshort = bool(_obj._signals[SIGNAL_LONGSHORT])
+        _obj._longshort = bool(_obj._signals[bt.SIGNAL_LONGSHORT])
 
-        _obj._long = bool(_obj._signals[SIGNAL_LONG])
-        _obj._short = bool(_obj._signals[SIGNAL_SHORT])
+        _obj._long = bool(_obj._signals[bt.SIGNAL_LONG])
+        _obj._short = bool(_obj._signals[bt.SIGNAL_SHORT])
 
-        _obj._longexit = bool(_obj._signals[SIGNAL_LONGEXIT])
-        _obj._shortexit = bool(_obj._signals[SIGNAL_SHORTEXIT])
+        _obj._longexit = bool(_obj._signals[bt.SIGNAL_LONGEXIT])
+        _obj._shortexit = bool(_obj._signals[bt.SIGNAL_SHORTEXIT])
 
         return _obj, args, kwargs
 
@@ -887,27 +888,27 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         nosig = [[0.0]]
 
         # Calculate current status of the signals
-        ls_long = all(x[0] > 0.0 for x in sigs[SIGNAL_LONGSHORT] or nosig)
-        ls_short = all(x[0] < 0.0 for x in sigs[SIGNAL_LONGSHORT] or nosig)
+        ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+        ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
 
-        l_enter0 = all(x[0] > 0.0 for x in sigs[SIGNAL_LONG] or nosig)
-        l_enter1 = all(x[0] < 0.0 for x in sigs[SIGNAL_LONG_INV] or nosig)
-        l_enter2 = all(x[0] for x in sigs[SIGNAL_LONG_ANY] or nosig)
+        l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+        l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+        l_enter2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
         l_enter = l_enter0 or l_enter1 or l_enter2
 
-        s_enter0 = all(x[0] < 0.0 for x in sigs[SIGNAL_SHORT] or nosig)
-        s_enter1 = all(x[0] > 0.0 for x in sigs[SIGNAL_SHORT_INV] or nosig)
-        s_enter2 = all(x[0] for x in sigs[SIGNAL_SHORT_ANY] or nosig)
+        s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+        s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+        s_enter2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
         s_enter = s_enter0 or s_enter1 or s_enter2
 
-        l_ex0 = all(x[0] < 0.0 for x in sigs[SIGNAL_LONGEXIT] or nosig)
-        l_ex1 = all(x[0] > 0.0 for x in sigs[SIGNAL_LONGEXIT_INV] or nosig)
-        l_ex2 = all(x[0] for x in sigs[SIGNAL_LONGEXIT_ANY] or nosig)
+        l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
+        l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
+        l_ex2 = all(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
         l_exit = l_ex0 or l_ex1 or l_ex2
 
-        s_ex0 = all(x[0] > 0.0 for x in sigs[SIGNAL_SHORTEXIT] or nosig)
-        s_ex1 = all(x[0] < 0.0 for x in sigs[SIGNAL_SHORTEXIT_INV] or nosig)
-        s_ex2 = all(x[0] for x in sigs[SIGNAL_SHORTEXIT_ANY] or nosig)
+        s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
+        s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
+        s_ex2 = all(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
         s_exit = s_ex0 or s_ex1 or s_ex2
 
         # Use oppossite signales to start reversal (by closing)
@@ -916,14 +917,14 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         s_rev = not self._shortexit and l_enter
 
         # Opposite of individual long and short
-        l_leav0 = all(x[0] < 0.0 for x in sigs[SIGNAL_LONG] or nosig)
-        l_leav1 = all(x[0] > 0.0 for x in sigs[SIGNAL_LONG_INV] or nosig)
-        l_leav2 = all(x[0] for x in sigs[SIGNAL_LONG_ANY] or nosig)
+        l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+        l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+        l_leav2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
         l_leave = l_leav0 or l_leav1 or l_leav2
 
-        s_leav0 = all(x[0] > 0.0 for x in sigs[SIGNAL_SHORT] or nosig)
-        s_leav1 = all(x[0] < 0.0 for x in sigs[SIGNAL_SHORT_INV] or nosig)
-        s_leav2 = all(x[0] for x in sigs[SIGNAL_SHORT_ANY] or nosig)
+        s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+        s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+        s_leav2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
         s_leave = s_leav0 or s_leav1 or s_leav2
 
         # Invalidate long leave if longexit signals are available

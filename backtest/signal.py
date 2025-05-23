@@ -51,7 +51,7 @@ SignalTypes = [
 ]
 
 
-class Signal(bt.Indicator):
+class Signal(Indicator):
     SignalTypes = SignalTypes
 
     lines = ('signal',)
@@ -59,3 +59,6 @@ class Signal(bt.Indicator):
     def __init__(self):
         self.lines.signal = self.data0.lines[0]
         self.plotinfo.plotmaster = getattr(self.data0, '_clock', self.data0)
+    
+    def next(self):
+        pass

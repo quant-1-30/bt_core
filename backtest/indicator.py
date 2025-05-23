@@ -24,8 +24,6 @@ from __future__ import (absolute_import, division, print_function,
 
 
 from .lineiterator import LineIterator, IndicatorBase
-from .lineseries import LineSeriesMaker, Lines
-from .metabase import AutoInfoClass
 
 
 class MetaIndicator(IndicatorBase.__class__):
@@ -67,6 +65,7 @@ class MetaIndicator(IndicatorBase.__class__):
         '''
         Class has already been created ... register subclasses
         '''
+        # 在元类的 __init__ 方法中，cls 参数代表正在创建的类对象 包含了所有类级别的属性和方法，包括实例方法
         # Initialize the class
         super(MetaIndicator, cls).__init__(name, bases, dct)
 
@@ -83,7 +82,7 @@ class MetaIndicator(IndicatorBase.__class__):
             # No -> need pointer movement to once simulation via next
             cls.once = cls.once_via_next
             cls.preonce = cls.preonce_via_prenext
-            cls.oncestart = cls.oncestart_via_nextstart
+            cls.oncestart = cls.oncestart_via_nextstart        
 
 
 class Indicator(metaclass=MetaIndicator):

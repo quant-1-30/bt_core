@@ -31,6 +31,8 @@ from backtest import observers
 # from backtest.utils.autodict import OrderedDict, num2date, date2num
 from backtest.strategy import Strategy, SignalStrategy
 from .timer import Timer
+from backtest.brokers.btbroker import BTBroker
+from backtest.feeds.mdapi import MdData
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -387,7 +389,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''Adds an ``Store`` instance to the if not already present'''
         if store not in self.stores:
             self.stores.append(store)
-        self.adddata(store.data)
+            self.adddata(store._feed)
 
     def addwriter(self, wrtcls, *args, **kwargs):
         '''Adds an ``Writer`` class to the mix. Instantiation will be done at
@@ -647,6 +649,25 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.strats.append([(strategy, args, kwargs)])
         return len(self.strats) - 1
+
+    # def setbroker(self, broker):
+    #     '''
+    #     Sets a specific ``broker`` instance for this strategy, replacing the
+    #     one inherited from cerebro.
+    #     '''
+    #     self._broker = broker
+    #     broker.cerebro = self
+    #     return broker
+
+    # def getbroker(self):
+    #     '''
+    #     Returns the broker instance.
+
+    #     This is also available as a ``property`` by the name ``broker``
+    #     '''
+    #     return self._broker
+
+    # broker = property(getbroker, setbroker)
 
     def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
              width=16, height=9, dpi=300, tight=True, use=None,

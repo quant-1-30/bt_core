@@ -87,9 +87,9 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     def __init__(self, user_id="", **kwargs):
         super(BTStore, self).__init__()
 
-        self.datas, self.broker = self.on_login(user_id, **kwargs)
+        self._feed, self.broker = self.on_connect(user_id, **kwargs)
     
-        # self._env = self.datas._env
+        # self._env = sel._feed._env
         self._cash = 0.0
         self._value = 0.0
         self.calendar = None
@@ -102,7 +102,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         self._evt_acct = threading.Event()
         self._evt_cal = threading.Event()
 
-    def on_login(self, user_id, **kwargs):
+    def on_connect(self, user_id, **kwargs):
         client_id = self.getToken(user_id)
         md_addr = kwargs.get('md_addr', self.p.md_addr)
         td_addr = kwargs.get('td_addr', self.p.td_addr)
@@ -122,7 +122,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         return data["data"]
     
     def _start(self):
-        self.datas._start()
+        self._feed._start()
         self.broker._start()
 
     def start(self, data=None, broker=None):
@@ -138,7 +138,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         self._evt_cal.wait()
 
     def _t_cal(self):
-        msg = self.datas.get_calendar()
+        msg = self._feed.get_calendar()
         self.calendar = msg
         self._evt_cal.set()
 
@@ -158,7 +158,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     def get_cash(self):
         return self._cash
 
-    def get_value(self):
+    def getvalue(self):
         return self._value
     
     def get_calendar(self):
@@ -172,10 +172,10 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         return (self._cash, self._value)
     
     def get_instrument(self, session):
-        return self.datas.get_instrument(session)
+        return self._feed.get_instrument(session)
     
     def get_events(self, session):
-        return self.datas.get_events(session)
+        return self._feed.get_events(session)
     
     def put_notification(self, msg, *args, **kwargs):
         self.notifs.append((msg, args, kwargs))
@@ -224,10 +224,10 @@ class BTStore(with_metaclass(MetaSingleton, object)):
             exec_type=exec_type, **kwargs)
      
     def reqdata(self, reqmeta):
-        return self.datas.reqdata(reqmeta)
+        return self._feed.reqdata(reqmeta)
     
     def preload(self):
-        return self.datas.preload()
+        return self._feed.preload()
     
     def reqOrder(self, reqmeta):
         return self.broker.reqOrder(reqmeta)
@@ -242,12 +242,12 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         return self.broker.cancel(order_id)
     
     def cancelData(self):
-        return self.datas.cancelData()
+        return self._feed.cancelData()
 
     def stop(self):
         # signal end of thread
         self.broker.stop()
-        self.datas.stop()
+        self._feed.stop()
 
     def on_timer(self, tick):
         return self.broker.on_timer(tick)

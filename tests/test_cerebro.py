@@ -1,7 +1,7 @@
 # Import the backtrader platform
 from backtest.cerebro import Cerebro
-from backtest.store import BTStore
-from backtest.strategies import Strategy
+from backtest.stores.btstore import BTStore
+from backtest.strategy import Strategy
 
 
 # Create a Stratey
@@ -29,13 +29,12 @@ if __name__ == '__main__':
     cerebro.addstrategy(TestStrategy)
     # add data
     store = BTStore(user_id="test")
-    # Set our desired cash start
-
+    cerebro.addstore(store)
     # Print out the starting conditions
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    print('Starting Portfolio Value: %.2f' % cerebro.stores[0].getvalue())
 
     # Run over everything
     cerebro.run()
 
     # Print out the final result
-    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    print('Final Portfolio Value: %.2f' % cerebro.stores[0].getvalue())

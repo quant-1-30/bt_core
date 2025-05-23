@@ -26,7 +26,7 @@ from itertools import islice
 
 from .feed import AbstractDataBase
 from .metabase import MetaParams, with_metaclass
-from utils.dateintern import date2num, num2date
+from backtest.utils.dateintern import date2num, num2date
 
 
 __all__ = ['SESSION_TIME', 'SESSION_START', 'SESSION_END', 'Timer']
