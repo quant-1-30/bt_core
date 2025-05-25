@@ -155,7 +155,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._dolive = False
         self._doreplay = False
         self._dooptimize = False
-        self.stores = list()
+        # self.stores = list()
+        self.store = None
         self.feeds = list()
         self.datas = list()
         self.datasbyname = collections.OrderedDict()
@@ -387,10 +388,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     def addstore(self, store):
         '''Adds an ``Store`` instance to the if not already present'''
-        if store not in self.stores:
-            store.start()
-            self.stores.append(store)
-            self.adddata(store._feed)   
+        # if store not in self.stores:
+        #     store.start()
+        #     self.stores.append(store)
+
+        store.start()
+        self.store = store 
+        self.adddata(store._feed)  
+         
 
     def addwriter(self, wrtcls, *args, **kwargs):
         '''Adds an ``Writer`` class to the mix. Instantiation will be done at
@@ -451,6 +456,23 @@ class Cerebro(with_metaclass(MetaParams, object)):
         reception and experimentation.
         '''
         self.storecbs.append(callback)
+    
+    def _brokernotify(self):
+        '''
+        Internal method which kicks the broker and delivers any broker
+        notification to the strategy
+        '''
+        # import pdb; pdb.set_trace()
+        owner = self.store.owner
+        if owner is None:
+            owner = self.runningstrats[0]  # default
+
+        while True:
+            msg = self.store.get_notification()
+            if not msg:
+                break
+            # strategy execute order
+            owner._addnotification(msg, quicknotify=self.p.quicknotify)
 
     def _notify_store(self, msg, *args, **kwargs):
         for callback in self.storecbs:
@@ -471,28 +493,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         pass
 
     def _storenotify(self):
-        for store in self.stores:
-            for notif in store.get_notifications():
+        # for store in self.stores:
+            for notif in self.store.get_notifications():
                 msg, args, kwargs = notif
 
                 self._notify_store(msg, *args, **kwargs)
                 for strat in self.runningstrats:
                     strat.notify_store(msg, *args, **kwargs)
-
-    def adddatacb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_data method
-
-        The signature of the callback must support the following:
-
-          - callback(data, status, \*args, \*\*kwargs)
-
-        The actual ``*args`` and ``**kwargs`` received are implementation
-        defined (depend entirely on the *data/broker/store*) but in general one
-        should expect them to be *printable* to allow for reception and
-        experimentation.
-        '''
-        self.datacbs.append(callback)
 
     def _datanotify(self):
         for data in self.datas:
@@ -519,6 +526,21 @@ class Cerebro(with_metaclass(MetaParams, object)):
         reception and experimentation.
         '''
         pass
+    
+    def adddatacb(self, callback):
+        '''Adds a callback to get messages which would be handled by the
+        notify_data method
+
+        The signature of the callback must support the following:
+
+          - callback(data, status, \*args, \*\*kwargs)
+
+        The actual ``*args`` and ``**kwargs`` received are implementation
+        defined (depend entirely on the *data/broker/store*) but in general one
+        should expect them to be *printable* to allow for reception and
+        experimentation.
+        '''
+        self.datacbs.append(callback)
 
     def adddata(self, data, name=None):
         '''
@@ -751,7 +773,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self._event_stop = False  # Stop is requested
 
-        if not self.stores:
+        if not self.store:
             return []  # nothing can be run
 
         # update params with run kwargs
@@ -833,7 +855,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self.addstrategy(Strategy)
 
         iterstrats = itertools.product(*self.strats)
-        import pdb; pdb.set_trace()
         if not self._dooptimize or self.p.maxcpus == 1:
             # If no optimmization is wished ... or 1 core is to be used
             # let's skip process "spawning"
@@ -872,8 +893,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         return self.runstrats
 
-    # def _init_stcount(self):
-    #     self.stcount = itertools.count(0)
+    def _init_stcount(self):
+        self.stcount = itertools.count(0)
 
     def _next_stid(self):
         return next(self.stcount)
@@ -882,11 +903,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
-        # self._init_stcount()
+        self._init_stcount()
 
         self.runningstrats = runstrats = list()
-        for store in self.stores:
-            store.subscribe(reqmeta)
+
+        self.store.subscribe(reqmeta)
 
         # for feed in self.feeds:
         #     feed.start()
@@ -917,6 +938,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # setup stratcls
         for stratcls, sargs, skwargs in iterstrat:
             sargs = self.datas + list(sargs)
+            # import pdb; pdb.set_trace()
             try:
                 strat = stratcls(*sargs, **skwargs)
             # except errors.StrategySkipError:
@@ -937,30 +959,30 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if runstrats:
             # loop separated for clarity
-            # defaultsizer = self.sizers.get(None, (None, None, None))
-            # for idx, strat in enumerate(runstrats):
-            #     if self.p.stdstats:
-            #         strat._addobserver(False, observers.Broker)
+            defaultsizer = self.sizers.get(None, (None, None, None))
+            for idx, strat in enumerate(runstrats):
+                if self.p.stdstats:
+                    strat._addobserver(False, observers.Broker)
 
-            #         strat._addobserver(True, observers.BuySell, barplot=True)
+                    strat._addobserver(True, observers.BuySell, barplot=True)
 
-            #         strat._addobserver(False, observers.DataTrades)
+                    strat._addobserver(False, observers.DataTrades)
 
-            #     for multi, obscls, obsargs, obskwargs in self.observers:
-            #         strat._addobserver(multi, obscls, *obsargs, **obskwargs)
+                for multi, obscls, obsargs, obskwargs in self.observers:
+                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
 
-            #     for indcls, indargs, indkwargs in self.indicators:
-            #         strat._addindicator(indcls, *indargs, **indkwargs)
+                for indcls, indargs, indkwargs in self.indicators:
+                    strat._addindicator(indcls, *indargs, **indkwargs)
 
-            #     for ancls, anargs, ankwargs in self.analyzers:
-            #         strat._addanalyzer(ancls, *anargs, **ankwargs)
+                for ancls, anargs, ankwargs in self.analyzers:
+                    strat._addanalyzer(ancls, *anargs, **ankwargs)
 
-            #     sizer, sargs, skwargs = self.sizers.get(idx, defaultsizer)
-            #     if sizer is not None:
-            #         strat._addsizer(sizer, *sargs, **skwargs)
+                sizer, sargs, skwargs = self.sizers.get(idx, defaultsizer)
+                if sizer is not None:
+                    strat._addsizer(sizer, *sargs, **skwargs)
 
-            #     strat._settz(tz)
-            #     strat._start()
+                # strat._settz(tz)
+                strat._start()
 
             #     # for writer in self.runwriters:
             #     #     if writer.p.csv:
@@ -984,7 +1006,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             #     #     self._timerscheat.append(timer)
             #     # else:
             #     #     self._timers.append(timer)
-
             if self._dopreload and self._dorunonce:
                 self._runonce(runstrats)
             else:
@@ -993,15 +1014,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for strat in runstrats:
                 strat._stop()
 
-        if not predata:
-            for data in self.datas:
-                data.stop()
+        # if not predata:
+        #     for data in self.datas:
+        #         data.stop()
 
-        for feed in self.feeds:
-            feed.stop()
+        # for feed in self.feeds:
+        #     feed.stop()
 
-        for store in self.stores:
-            store.stop()
+        self.store.stop()
 
         # self.stop_writers(runstrats)
 
@@ -1027,27 +1047,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     #         writer.writedict(dict(Cerebro=cerebroinfo))
     #         writer.stop()
 
-    def _brokernotify(self):
-        '''
-        Internal method which kicks the broker and delivers any broker
-        notification to the strategy
-        '''
-        self._broker.next()
-        qorders = []
-        while True:
-            order = self._broker.get_notification()
-            if order is "eof":
-                break
-            qorders.append(order)
-
-        # how order related to strategy
-
-        owner = order.owner
-        if owner is None:
-            owner = self.runningstrats[0]  # default
-
-        # strategy execute order
-        owner._addnotification(qorders, quicknotify=self.p.quicknotify)
 
     def _disable_runonce(self):
         '''API for lineiterators to disable runonce (see HeikinAshi)'''
@@ -1222,7 +1221,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             # self._check_timers(runstrats, dt0, cheat=True)
 
-            # self._brokernotify()
+            self._brokernotify()
             if self._event_stop:  # stop if requested
                 return
 

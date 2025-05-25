@@ -24,6 +24,7 @@ import datetime
 
 from backtest.observer import Observer
 from backtest.dataseries import TimeFrame
+from backtest import analyzers
 
 
 class TimeReturn(Observer):
@@ -77,7 +78,7 @@ class TimeReturn(Observer):
         ]
 
     def __init__(self):
-        self.treturn = self._owner._addanalyzer_slave(bt.analyzers.TimeReturn,
+        self.treturn = self._owner._addanalyzer_slave(analyzers.TimeReturn,
                                                       **self.p._getkwargs())
 
     def next(self):

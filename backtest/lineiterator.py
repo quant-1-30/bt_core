@@ -174,25 +174,25 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         indminperiod = max(indperiods or [self._minperiod])
         self.updateminperiod(indminperiod)
 
-    def _stage2(self):
-        super(LineIterator, self)._stage2()
+    # def _stage2(self):
+    #     super(LineIterator, self)._stage2()
 
-        for data in self.datas:
-            data._stage2()
+    #     for data in self.datas:
+    #         data._stage2()
 
-        for lineiterators in self._lineiterators.values():
-            for lineiterator in lineiterators:
-                lineiterator._stage2()
+    #     for lineiterators in self._lineiterators.values():
+    #         for lineiterator in lineiterators:
+    #             lineiterator._stage2()
 
-    def _stage1(self):
-        super(LineIterator, self)._stage1()
+    # def _stage1(self):
+    #     super(LineIterator, self)._stage1()
 
-        for data in self.datas:
-            data._stage1()
+    #     for data in self.datas:
+    #         data._stage1()
 
-        for lineiterators in self._lineiterators.values():
-            for lineiterator in lineiterators:
-                lineiterator._stage1()
+    #     for lineiterators in self._lineiterators.values():
+    #         for lineiterator in lineiterators:
+    #             lineiterator._stage1()
 
     def getindicators(self):
         return self._lineiterators[LineIterator.IndType]

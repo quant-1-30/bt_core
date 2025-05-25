@@ -25,6 +25,9 @@ import calendar
 from collections import OrderedDict
 import datetime
 import pprint as pp
+import numpy as np
+from backtest.dataseries import TimeFrame
+
 
 from .metabase import with_metaclass, MetaParams, findowner
 
@@ -150,17 +153,17 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
         self.prenext()
 
-    def _notify_cashvalue(self, cash, value):
+    # def _notify_cashvalue(self, cash, value):
+    #     for child in self._children:
+    #         child._notify_cashvalue(cash, value)
+
+    #     self.notify_cashvalue(cash, value)
+
+    def _notify_fund(self, cash, fundvalue):
         for child in self._children:
-            child._notify_cashvalue(cash, value)
+            child._notify_fund(cash, fundvalue)
 
-        self.notify_cashvalue(cash, value)
-
-    def _notify_fund(self, cash, value, fundvalue, shares):
-        for child in self._children:
-            child._notify_fund(cash, value, fundvalue, shares)
-
-        self.notify_fund(cash, value, fundvalue, shares)
+        self.notify_fund(cash, fundvalue)
 
     def _notify_trade(self, trade):
         for child in self._children:
@@ -198,11 +201,11 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
         self.stop()
 
-    def notify_cashvalue(self, cash, value):
-        '''Receives the cash/value notification before each next cycle'''
-        pass
+    # def notify_cashvalue(self, cash, value):
+    #     '''Receives the cash/value notification before each next cycle'''
+    #     pass
 
-    def notify_fund(self, cash, value, fundvalue, shares):
+    def notify_fund(self, cash, fundvalue):
         '''Receives the current cash, value, fundvalue and fund shares'''
         pass
 
@@ -344,7 +347,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
 
     def _dt_over(self):
         if self.timeframe == TimeFrame.NoTimeFrame:
-            dtcmp, dtkey = MAXINT, datetime.datetime.max
+            dtcmp, dtkey = np.iinfo(np.int_).max, datetime.datetime.max
         else:
             # With >= 1.9.x the system datetime is in the strategy
             dt = self.strategy.datetime.datetime()

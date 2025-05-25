@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import queue
+import collections
 import copy
 
 from backtest.metabase import with_metaclass, MetaBase
@@ -81,14 +82,15 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
     def __init__(self, tdapi, **kwargs):
         super(BTBroker, self).__init__()
         self.tdapi = tdapi
-
         self.notifs = queue.Queue()  # holds orders which are notified
+        # self.notifs = collections.deque()  # not thread safe
 
     def _start(self):
         if not self.tdapi.connected():
             raise Exception("TDAPI not connected")
 
     def stop(self):
+        print("stop btbroker")
         self.tdapi.disconnected()
 
     def cancel(self, vtorder_id):
@@ -102,41 +104,20 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
         q = self.tdapi.getPosition()
         return self.get_data(q, timeout)
 
-    def submit(self, order):
-        qty = self.tdapi.placeOrder(order)
-        self.notify(order)
+    def submit(self, order_meta):
+        qty = self.tdapi.placeOrder(order_meta)
+        self.notify((order_meta, qty))
         return qty
 
-    def _makeorder(self, sid, size, sizer_cash, price, pricelimit,
-                   exectype, order_type, created_at):
+    def buy(self, order_meta, **kwargs):
+        return self.submit(order_meta)
 
-        order = OrderMeta(sid=sid, size=size, sizer_cash=sizer_cash, price=price, pricelimit=pricelimit, 
-                          exec_type=exectype, order_type=order_type, created_at=created_at
-                          )
-        return order
-
-    def buy(self, sid='', size=0 , sizer_cash=0, price=None, pricelimit=None,
-            exec_type=None, created_at=None, **kwargs):
-        order = self._makeorder(
-            sid, size, sizer_cash, price, pricelimit, exec_type, OrderType.Buy, created_at)
-        return self.submit(order)
-
-    def sell(self, sid='', size=0, sizer_cash=0, price=None, pricelimit=None,
-             exec_type=None, created_at=None, **kwargs):
-        order = self._makeorder(
-            sid, size, sizer_cash, price, pricelimit, exec_type, OrderType.Sell, created_at)
-        return self.submit(order)
+    def sell(self, order_meta, **kwargs):
+        return self.submit(order_meta)
 
     def notify(self, order):
         self.notifs.put(copy.deepcopy(order))
-
-    def get_notification(self):
-        try:
-            return self.notifs.get(False)
-        except queue.Empty:
-            pass
-        return None
-    
+ 
     def subscribeOrder(self, reqmeta):
         q = self.tdapi.subscribe("order", reqmeta)
         return q

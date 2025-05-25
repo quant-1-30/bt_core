@@ -152,7 +152,7 @@ class TradeAnalyzer(Analyzer):
             ml = trades.len.max or 0
             trades.len.max = max(ml, trade.barlen)
 
-            ml = trades.len.min or np.MAXINT
+            ml = trades.len.min or np.iinfo(np.int_).max
             trades.len.min = min(ml, trade.barlen)
 
             # Length Won/Lost
@@ -166,7 +166,7 @@ class TradeAnalyzer(Analyzer):
                 m = trwl.max or 0
                 trwl.max = max(m, trade.barlen * wl)
                 if trade.barlen * wl:
-                    m = trwl.min or np.MAXINT
+                    m = trwl.min or np.iinfo(np.int_).max
                     trwl.min = min(m, trade.barlen * wl)
 
             # Length Long/Short
@@ -183,7 +183,7 @@ class TradeAnalyzer(Analyzer):
                 # max/min
                 m = trls.max or 0
                 trls.max = max(m, barlen)
-                m = trls.min or np.MAXINT
+                m = trls.min or np.iinfo(np.int_).max
                 trls.min = min(m, barlen or m)
 
                 for wlname in ['won', 'lost']:
@@ -200,5 +200,5 @@ class TradeAnalyzer(Analyzer):
                     # max/min
                     m = trls_wl.max or 0
                     trls_wl.max = max(m, barlen2)
-                    m = trls_wl.min or np.MAXINT
+                    m = trls_wl.min or np.iinfo(np.int_).max
                     trls_wl.min = min(m, barlen2 or m)

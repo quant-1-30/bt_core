@@ -21,28 +21,31 @@
 import httpx
 import collections
 import threading
+import copy
+import queue
 
-from backtest.metabase import MetaParams, with_metaclass
+# from backtest.metabase import MetaParams, with_metaclass, MetaSingleton
 from backtest.dataseries import TimeFrame
-from bt_sdk.core.model import ReqMeta
+from bt_sdk.core.model import ReqMeta, OrderMeta
 from bt_sdk.core.client import MdApi, TdApi
+from backtest.store import Store
 
+# class MetaSingleton(MetaParams):
+#     '''Metaclass to make a metaclassed class a singleton'''
+#     def __init__(cls, name, bases, dct):
+#         super(MetaSingleton, cls).__init__(name, bases, dct)
+#         cls._singleton = None
 
-class MetaSingleton(MetaParams):
-    '''Metaclass to make a metaclassed class a singleton'''
-    def __init__(cls, name, bases, dct):
-        super(MetaSingleton, cls).__init__(name, bases, dct)
-        cls._singleton = None
+#     def __call__(cls, *args, **kwargs):
+#         if cls._singleton is None:
+#             cls._singleton = (
+#                 super(MetaSingleton, cls).__call__(*args, **kwargs))
 
-    def __call__(cls, *args, **kwargs):
-        if cls._singleton is None:
-            cls._singleton = (
-                super(MetaSingleton, cls).__call__(*args, **kwargs))
-
-        return cls._singleton
+#         return cls._singleton
     
 
-class BTStore(with_metaclass(MetaSingleton, object)):
+# class BTStore(with_metaclass(MetaSingleton, object)):
+class BTStore(Store):
     '''Singleton class wrapping to control the connections to Oanda.
 
     Params:
@@ -88,7 +91,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         super(BTStore, self).__init__()
     
         self._cash = 0.0
-        self._value = 0.0
+        self._fundvalue = 0.0
         self.calendar = None
         self.notifs = collections.deque()  # store notifications for cerebro
         self.datas = []
@@ -149,14 +152,14 @@ class BTStore(with_metaclass(MetaSingleton, object)):
         print('_t_account', msg)
         if msg:
             self._cash = msg[0][0]
-            self._value = msg[0][1]
+            self._fundvalue = msg[0][1]
             self._evt_acct.set()
     
     def getcash(self):
         return self._cash
 
     def getvalue(self):
-        return self._value
+        return self._fundvalue
     
     def getCalendar(self):
         return self.calendar
@@ -166,7 +169,7 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     
     def getAccount(self):
         self._t_account()
-        return (self._cash, self._value)
+        return (self._cash, self._fundvalue)
     
     def getInstrument(self, session):
         return self._feed.getInstrument(session)
@@ -174,14 +177,25 @@ class BTStore(with_metaclass(MetaSingleton, object)):
     def getEvents(self, session):
         return self._feed.getEvents(session)
     
-    def put_notification(self, msg, *args, **kwargs):
-        self.notifs.append((msg, args, kwargs))
+    # def notify(self, order):
+    #     self.notifs.put(copy.deepcopy(order))
+    
+    # def put_notification(self, msg, *args, **kwargs):
+    #     self.notifs.append((msg, args, kwargs))
+    
+    # def get_notification(self):
+    #     try:
+    #         return self.broker.notifs.get(False)
+    #     except queue.Empty:
+    #         pass
+    #     return None
 
-    def get_notifications(self):
+    def get_notification(self):
         '''Return the pending "store" notifications'''
-        self.notifs.append(None)  # put a mark / threads could still append
+        notifs = self.broker.notifs
+        notifs.put(None)  # put a mark / threads could still append
         # None is sentinel
-        return [x for x in iter(self.notifs.popleft, None)]
+        return [x for x in iter(notifs.get, None)]
 
     # supported granularities
     _GRANULARITIES = {
@@ -212,13 +226,25 @@ class BTStore(with_metaclass(MetaSingleton, object)):
 
     def buy(self, sid='', size=0, sizer_cash=0, price=None, plimit=None,
             exec_type=None, **kwargs):
-        return self.broker.buy(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
-            exec_type=exec_type, **kwargs)
+        order_meta = OrderMeta(
+            instrument=sid,
+            size=size,
+            sizer_cash=sizer_cash,
+            price=price,
+            plimit=plimit,
+        )
+        return self.broker.buy(order_meta, **kwargs)
     
     def sell(self, sid='', size=0, sizer_cash=0, price=None, plimit=None,
              exec_type=None, **kwargs):
-        return self.broker.sell(sid, size, sizer_cash=sizer_cash, price=price, plimit=plimit,
-            exec_type=exec_type, **kwargs)
+        order_meta = OrderMeta(
+            instrument=sid,
+            size=size,
+            sizer_cash=sizer_cash,
+            price=price,
+            plimit=plimit,
+        )
+        return self.broker.sell(order_meta, **kwargs)
      
     def subscribe(self, reqmeta):
         return self._feed.subscribe(reqmeta)

@@ -26,7 +26,6 @@ import inspect
 import itertools
 import operator
 
-# from backtest.cerebro import Cerebro
 import backtest as bt
 from backtest.lineiterator import LineIterator, StrategyBase
 from backtest.lineroot import LineSingle
@@ -75,14 +74,19 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
-        _obj.store = _obj.env.store
+        store = _obj.env.store
+        store.owner = _obj
+        _obj.store = store
+        
         _obj._sizer = FixedSize()
-
+        _obj._orderspending = list()
+        _obj._tradespending = list()
+        _obj.writers = list()
+        
         _obj.stats = _obj.observers = ItemCollection()
         _obj.analyzers = ItemCollection()
-        _obj._alnames = collections.defaultdict(itertools.count)
-        _obj.writers = list()
         _obj._slave_analyzers = list()
+        _obj._alnames = collections.defaultdict(itertools.count)
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -272,7 +276,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = newdlens
 
         return len(self)
-
+    
     def _oncepost(self, dt):
         for indicator in self._lineiterators[LineIterator.IndType]:
             if len(indicator._clock) > len(indicator):
@@ -361,12 +365,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             for o in obs:
                 o._start()
 
-        # change operators to stage 2
-        self._stage2()
+        # # change operators to stage 2
+        # self._stage2()
 
         self._dlens = [len(data) for data in self.datas]
 
-        self._minperstatus = np.MAXINT  # start in prenext
+        self._minperstatus = np.iinfo(np.int_).max  # start in prenext
 
         self.start()
 
@@ -380,35 +384,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
             analyzer._stop()
 
-        # change operators back to stage 1 - allows reuse of datas
-        self._stage1()
+        # # change operators back to stage 1 - allows reuse of datas
+        # self._stage1()
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
         pass
-
-    def _addnotification(self, qorders=[], quicknotify=False):
-        for order in qorders:
-            self.notify_order(order)
-            for analyzer in itertools.chain(self.analyzers,
-                                            self._slave_analyzers):
-                analyzer._notify_order(order)
-
-        qtrades = self.getposition()
-
-        for trade in qtrades:
-            self.notify_trade(trade)
-            for analyzer in itertools.chain(self.analyzers,
-                                            self._slave_analyzers):
-                analyzer._notify_trade(trade)
-
-        cash, fundvalue = self.store.get_account()
-
-        self.notify_cashvalue(cash)
-        self.notify_fund(fundvalue)
-        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            analyzer._notify_cashvalue(cash)
-            analyzer._notify_fund(fundvalue)
 
     def add_timer(self, when,
                   offset=datetime.timedelta(), repeat=datetime.timedelta(),
@@ -510,6 +491,73 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             tzdata=tzdata, strats=False, cheat=cheat,
             *args, **kwargs)
 
+    # def _addnotification(self, qorders=[], quicknotify=False):
+    #     for order in qorders:
+    #         self.notify_order(order)
+    #         for analyzer in itertools.chain(self.analyzers,
+    #                                         self._slave_analyzers):
+    #             analyzer._notify_order(order)
+
+    #     qtrades = self.getposition()
+
+    #     for trade in qtrades:
+    #         self.notify_trade(trade)
+    #         for analyzer in itertools.chain(self.analyzers,
+    #                                         self._slave_analyzers):
+    #             analyzer._notify_trade(trade)
+
+    #     cash, fundvalue = self.store.getAccount()
+
+    #     self.notify_cashvalue(cash)
+    #     self.notify_fund(fundvalue)
+    #     for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+    #         analyzer._notify_cashvalue(cash)
+    #         analyzer._notify_fund(fundvalue)
+
+    def clear(self):
+        self._orderspending = list()
+        self._tradespending = list()
+
+    def _addnotification(self, msg, quicknotify=False):
+        """
+            msg: (order_meta, qty)
+        """
+        order_meta, qty = msg
+
+        self._orderspending.append(order_meta)
+
+        while True:
+            exbit = qty.get()
+            if exbit == "eof":
+                break
+            self._tradespending.append(copy.copy(exbit))
+
+        if quicknotify:
+            self._notify(qorder=order_meta, qtrade=exbit)
+
+    def _notify(self, qorder=None, qtrade=None):
+        # need to know if quicknotify is on, to not reprocess pendingorders
+        # and pendingtrades, which have to exist for things like observers
+        # which look into it
+        self.notify_order(qorder)
+        for analyzer in itertools.chain(self.analyzers,
+                                        self._slave_analyzers):
+            analyzer._notify_order(qorder)
+
+        self.notify_trade(qtrade)
+        for analyzer in itertools.chain(self.analyzers,
+                                        self._slave_analyzers):
+            analyzer._notify_trade(qtrade)
+
+        cash = self.store.getcash()
+        fundvalue = self.store.getvalue()
+
+        # self.notify_cashvalue(cash, fundvalue)
+        self.notify_fund(cash, fundvalue)
+        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+            # analyzer._notify_cashvalue(cash, fundvalue)
+            analyzer._notify_fund(cash, fundvalue)
+
     def notify_timer(self, timer, when, *args, **kwargs):
         '''Receives a timer notification where ``timer`` is the timer which was
         returned by ``add_timer``, and ``when`` is the calling time. ``args``
@@ -521,13 +569,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         pass
 
-    def notify_cashvalue(self, cash, value):
-        '''
-        Receives the current fund value, value status of the strategy's broker
-        '''
-        pass
+    # def notify_cashvalue(self, cash, value):
+    #     '''
+    #     Receives the current fund value, value status of the strategy's broker
+    #     '''
+    #     pass
 
-    def notify_fund(self, cash, value, fundvalue, shares):
+    def notify_fund(self, cash, fundvalue):
         '''
         Receives the current cash, value, fundvalue and fund shares
         '''
@@ -555,7 +603,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
-        self.env.store.cancel(order_id)
+        self.store.cancel(order_id)
 
     def buy(self, sid="", size=None, price=None, plimit=None,
             exectype=None, ordertype=None,
@@ -650,11 +698,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
           - the submitted order
         '''
         if size:
-            return self.env.store.buy(
+            q = self.store.buy(
                 size=abs(size), price=price, plimit=plimit,
                 exectype=exectype, ordertype=ordertype,
                 **kwargs)
-        return None 
+            # self._orderspending.append(q)
+            self.store.notify(q)
 
     def sell(self, sid,
              size=None, price=None, plimit=None,
@@ -668,11 +717,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         if size:
-            return self.env.store.sell(sid,
+
+            q = self.store.sell(sid,
                 size=abs(size), price=price, plimit=plimit,
                 exectype=exectype, ordertype=ordertype,
                 **kwargs)
-        return None
+            # self._orderspending.append(q)
+            self.store.notify(q)
 
     def getpositions(self, broker=None, name=None):
         '''
@@ -682,7 +733,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         A property ``position`` is also available
         '''
-        return self.env.store.get_position()
+        return self.store.getPosition()
 
     positions = property(getpositions)
 

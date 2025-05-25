@@ -21,12 +21,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import backtrader as bt
+from backtrader import indicators as btind
 
-from indicators import CrossOver
-from meta.strategy import Strategy
 
-
-class MA_CrossOver(Strategy):
+class MA_CrossOver(bt.Strategy):
     '''This is a long-only strategy which operates on a moving average cross
 
     Note:
@@ -60,10 +59,14 @@ class MA_CrossOver(Strategy):
     )
 
     def __init__(self):
-        sma_fast = self.p._movav(period=self.p.fast)
-        sma_slow = self.p._movav(period=self.p.slow)
+        super(MA_CrossOver, self).__init__()
+        
+        # Create the moving averages
+        self.sma_fast = self.p._movav(self.data, period=self.p.fast)
+        self.sma_slow = self.p._movav(self.data, period=self.p.slow)
 
-        self.buysig = btind.CrossOver(sma_fast, sma_slow)
+        # Create the crossover signal
+        self.buysig = btind.CrossOver(self.sma_fast, self.sma_slow)
 
     def next(self):
         if self.position.size:

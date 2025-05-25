@@ -187,7 +187,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
  
     def stop(self):
         '''Stops and tells the store to stop'''
-        # super(MdData, self).stop()
+        print("stop mdapi")
         self.mdapi.disconnected()
 
     def getCalendar(self, timeout=-1):
@@ -225,10 +225,9 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         _load_bar = self._load_rtbar if self.p.rtbar else self._load_bar
 
         msg = self.qlive.get()
-        print("msg: ", msg)
         if msg == "eof":
             return False  # Conn broken during historical/backfilling
-        
+        # print("msg: ", msg)
         _load_bar(msg)
         return True
 
@@ -251,10 +250,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         self.lines.close[0] = bar[4]
         self.lines.volume[0] = bar[5]
         self.lines.amount[0] = bar[6]
-        print("lines: ", self.lines.datetime[0], self.lines.open[0], self.lines.high[0],
-               self.lines.low[0], self.lines.close[0], self.lines.volume[0], self.lines.amount[0])
         # self.lines.openinterest[0] = 0
-        # import pdb; pdb.set_trace()
         return True
 
     def _load_rtbar(self, rtbar):

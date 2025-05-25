@@ -54,12 +54,13 @@ class GrossLeverage(Analyzer):
         else:
             self._fundmode = self.p.fund
 
-    def notify_fund(self, cash, value, fundvalue, shares):
+    def notify_fund(self, cash, fundvalue):
         self._cash = cash
-        if not self._fundmode:
-            self._value = value
-        else:
-            self._value = fundvalue
+        # if not self._fundmode:
+        #     self._value = value
+        # else:
+        #     self._value = fundvalue
+        self._value = fundvalue
 
     def next(self):
         # Updates the leverage for "dtkey" (see base class) for each cycle

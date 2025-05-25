@@ -157,11 +157,12 @@ class VWR(TimeFrameAnalyzerBase):
         vwr = rnorm100 * (1.0 - pow(sdev_p / self.p.sdev_max, self.p.tau))
         self.rets['vwr'] = vwr
 
-    def notify_fund(self, cash, value, fundvalue, shares):
-        if not self._fundmode:
-            self._pns[-1] = value  # annotate last seen pn for current period
-        else:
-            self._pns[-1] = fundvalue  # annotate last pn for current period
+    def notify_fund(self, cash, fundvalue):
+        # if not self._fundmode:
+        #     self._pns[-1] = value  # annotate last seen pn for current period
+        # else:
+        #     self._pns[-1] = fundvalue  # annotate last pn for current period
+        self._pns[-1] = fundvalue  # annotate last pn for current period
 
     def _on_dt_over(self):
         self._pis.append(self._pns[-1])  # last pn is pi in next period

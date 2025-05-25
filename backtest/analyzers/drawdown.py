@@ -63,10 +63,11 @@ class DrawDown(Analyzer):
 
     def start(self):
         super(DrawDown, self).start()
-        if self.p.fund is None:
-            self._fundmode = self.strategy.broker.fundmode
-        else:
-            self._fundmode = self.p.fund
+        # if self.p.fund is None:
+        #     self._fundmode = self.strategy.broker.fundmode
+        # else:
+        #     self._fundmode = self.p.fund
+        self._fundmode = self.p.fund
 
     def create_analysis(self):
         self.rets = AutoOrderedDict()  # dict with . notation
@@ -84,13 +85,13 @@ class DrawDown(Analyzer):
     def stop(self):
         self.rets._close()  # . notation cannot create more keys
 
-    def notify_fund(self, cash, value, fundvalue, shares):
-        if not self._fundmode:
-            self._value = value  # record current value
-            self._maxvalue = max(self._maxvalue, value)  # update peak value
-        else:
-            self._value = fundvalue  # record current value
-            self._maxvalue = max(self._maxvalue, fundvalue)  # update peak
+    def notify_fund(self, cash, fundvalue):
+        # if not self._fundmode:
+        #     self._value = value  # record current value
+        #     self._maxvalue = max(self._maxvalue, value)  # update peak value
+        # else:
+        self._value = fundvalue  # record current value
+        self._maxvalue = max(self._maxvalue, fundvalue)  # update peak
 
     def next(self):
         r = self.rets
@@ -160,10 +161,11 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
 
     def start(self):
         super(TimeDrawDown, self).start()
-        if self.p.fund is None:
-            self._fundmode = self.strategy.broker.fundmode
-        else:
-            self._fundmode = self.p.fund
+        # if self.p.fund is None:
+        #     self._fundmode = self.strategy.broker.fundmode
+        # else:
+        #     self._fundmode = self.p.fund
+        self._fundmode = self.p.fund
         self.dd = 0.0
         self.maxdd = 0.0
         self.maxddlen = 0
@@ -171,10 +173,11 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
         self.ddlen = 0
 
     def on_dt_over(self):
-        if not self._fundmode:
-            value = self.strategy.broker.getvalue()
-        else:
-            value = self.strategy.broker.fundvalue
+        # if not self._fundmode:
+        #     value = self.strategy.broker.getvalue()
+        # else:
+        #     value = self.strategy.broker.fundvalue
+        value = self.strategy.store.getvalue()
 
         # update the maximum seen peak
         if value > self.peak:

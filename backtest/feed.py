@@ -539,8 +539,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def _add2stack(self, bar, stash=False):
         '''Saves given bar (list of values) to the stack for later retrieval'''
+        # print("_add2stack", bar)
         if not stash:
-            print("_add2stack", bar)
             self._barstack.append(bar)
         else:
             self._barstash.append(bar)
@@ -577,15 +577,14 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         '''
 
         coll = self._barstack if not stash else self._barstash
-        print("coll", coll)
-        # import pdb; pdb.set_trace()
+        # print("_fromstack coll", coll)
 
         if coll:
             if forward:
                 self.forward()
 
             for line, val in zip(self.itersize(), coll.popleft()):
-                print("val", val)
+                # print("_fromstack val", val)
                 line[0] = val
 
             return True

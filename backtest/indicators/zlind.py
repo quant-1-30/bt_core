@@ -24,6 +24,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import backtrader as bt
 from backtrader.utils.py3 import MAXINT
+import numpy as np
 
 
 from . import MovingAverageBase, MovAv
@@ -74,7 +75,7 @@ class ZeroLagIndicator(MovingAverageBase):
         super(ZeroLagIndicator, self).__init__()
 
     def next(self):
-        leasterror = MAXINT  # 1000000 in original code
+        leasterror = np.iinfo(np.int_).max  # 1000000 in original code
         bestec = ema = self.ema[0]  # seed value 1st time for ec
         price = self.data[0]
         ec1 = self.lines.ec[-1]

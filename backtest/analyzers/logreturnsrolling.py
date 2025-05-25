@@ -113,11 +113,12 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
             else:
                 self._lastvalue = self.strategy.broker.fundvalue
 
-    def notify_fund(self, cash, value, fundvalue, shares):
-        if not self._fundmode:
-            self._value = value if self.p.data is None else self.p.data[0]
-        else:
-            self._value = fundvalue if self.p.data is None else self.p.data[0]
+    def notify_fund(self, cash, fundvalue):
+        # if not self._fundmode:
+        #     self._value = value if self.p.data is None else self.p.data[0]
+        # else:
+        #     self._value = fundvalue if self.p.data is None else self.p.data[0]
+        self._value = fundvalue if self.p.data is None else self.p.data[0]
 
     def _on_dt_over(self):
         # next is called in a new timeframe period

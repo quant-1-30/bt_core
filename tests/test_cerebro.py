@@ -32,9 +32,9 @@ if __name__ == '__main__':
     store = BTStore(user_id="test")
     # import pdb; pdb.set_trace()
     cerebro.addstore(store)
-    print("backtest calendar: ", cerebro.stores[0].getCalendar())
+    print("backtest calendar: ", len(cerebro.store.getCalendar()))
     # Print out the starting conditions
-    print('Starting Portfolio Value and Cash: %.2f, %.2f' % (cerebro.stores[0].getvalue(), cerebro.stores[0].getcash()))
+    print('Starting Portfolio Value and Cash: %.2f, %.2f' % (cerebro.store.getvalue(), cerebro.store.getcash()))
 
     reqmeta = ReqMeta(sid=["603676"], start_date=1728351060, end_date=1728371060)
 
@@ -42,4 +42,4 @@ if __name__ == '__main__':
     cerebro.run(reqmeta)
 
     # Print out the final result
-    print('Final Portfolio Value and Cash: %.2f, %.2f' % (cerebro.stores[0].getvalue(), cerebro.stores[0].getcash()))
+    print('Final Portfolio Value and Cash: %.2f, %.2f' % (cerebro.store.getvalue(), cerebro.store.getcash()))

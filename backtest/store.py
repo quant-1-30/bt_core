@@ -20,8 +20,8 @@
 ###############################################################################
 
 import collections
-
-from backtest.metabase import MetaParams, with_metaclass
+import backtest as bt
+from backtest.metabase import MetaParams, with_metaclass, findowner
 
 
 class MetaSingleton(MetaParams):
@@ -30,8 +30,16 @@ class MetaSingleton(MetaParams):
         super(MetaSingleton, cls).__init__(name, bases, dct)
         cls._singleton = None
 
+    def dopostinit(cls, _obj, *args, **kwargs):
+        _obj, args, kwargs = \
+            super(MetaSingleton, cls).dopostinit(_obj, *args, **kwargs)
+        _obj.owner = findowner(_obj, bt.strategy.Strategy)
+        # import pdb; pdb.set_trace()
+        return _obj, args, kwargs
+
     def __call__(cls, *args, **kwargs):
         if cls._singleton is None:
+            owner = findowner(cls, bt.strategy.Strategy)
             cls._singleton = (
                 super(MetaSingleton, cls).__call__(*args, **kwargs))
 
@@ -82,10 +90,7 @@ class Store(with_metaclass(MetaSingleton, object)):
     def stop(self):
         pass
 
-    def put_notification(self, msg, *args, **kwargs):
-        self.notifs.append((msg, args, kwargs))
-
     def get_notifications(self):
         '''Return the pending "store" notifications'''
-        self.notifs.append(None)  # put a mark / threads could still append
-        return [x for x in iter(self.notifs.popleft, None)]
+        self.broker.notifs.append(None)  # put a mark / threads could still append
+        return [x for x in iter(self.broker.notifs.popleft, None)]

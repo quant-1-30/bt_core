@@ -106,18 +106,20 @@ class TimeReturn(TimeFrameAnalyzerBase):
             else:
                 self._lastvalue = self.strategy.broker.fundvalue
 
-    def notify_fund(self, cash, value, fundvalue, shares):
-        if not self._fundmode:
-            # Record current value
-            if self.p.data is None:
-                self._value = value  # the portofolio value if tracking no data
-            else:
-                self._value = self.p.data[0]  # the data value if tracking data
-        else:
-            if self.p.data is None:
-                self._value = fundvalue  # the fund value if tracking no data
-            else:
-                self._value = self.p.data[0]  # the data value if tracking data
+    def notify_fund(self, cash, fundvalue):
+        # if not self._fundmode:
+        #     # Record current value
+        #     if self.p.data is None:
+        #         self._value = value  # the portofolio value if tracking no data
+        #     else:
+        #         self._value = self.p.data[0]  # the data value if tracking data
+        # else:
+        #     if self.p.data is None:
+        #         self._value = fundvalue  # the fund value if tracking no data
+        #     else:
+        #         self._value = self.p.data[0]  # the data value if tracking data
+        
+        self._value = fundvalue if self.p.data is None else self.p.data[0]
 
     def on_dt_over(self):
         # next is called in a new timeframe period

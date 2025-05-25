@@ -217,3 +217,18 @@ get_notification key is notification mechanism
 1  store == mdapi + tdapi
 2  test cerebro and strategy
 3  store.data is the cerebro default data
+
+np.iinfo(np.int_) 返回一个对象，包含了 np.int_ 类型（通常是 64 位整数）的信息
+这个对象有几个重要的属性：
+.max: 该类型可以表示的最大值
+.min: 该类型可以表示的最小值
+.bits: 该类型使用的位数
+.dtype: 该类型的数据类型
+
+notify:
+a.  data and broker put_notification 
+b.  store get_notification
+c.  strategy add_notification ( process data from store get_nofication)
+
+
+store datas
