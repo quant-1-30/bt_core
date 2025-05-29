@@ -6,28 +6,39 @@ import backtest.indicators as btind
 from bt_sdk.core.model import *
 
 
-class MyStrategy(bt.Strategy):
-    params = dict(period=20)
-
-    def __init__(self):
-
-        sma = btind.SimpleMovingAverage(self.datas[0], period=self.params.period)
-
-    def next(self):
-        print("sma: ", self.sma[0])
-
-
-# class MyStrategy(Strategy):
+# class MyStrategy(bt.Strategy):
 #     params = dict(period=20)
+
+#     def log(self, txt, dt=None):
+#         ''' Logging function for this strategy'''
+#         # dt = dt or self.datas[0].datetime.date(0)
+#         # print('%s, %s' % (dt.isoformat(), txt))
+#         dt = dt or self.datas[0].datetime.date(0)
+#         print('%s, %s' % (dt, txt))
 
 #     def __init__(self):
 
-#         self.movav = btind.SimpleMovingAverage(self.data, period=self.p.period)
-#         self.cmpval = self.data.close(-1) > self.sma
+#         self.sma = btind.SimpleMovingAverage(self.datas[0], period=self.params.period)
 
 #     def next(self):
-#         if self.cmpval[0]:
-#             print('Previous close is higher than the moving average')
+#         import pdb; pdb.set_trace()
+#         self.log('sma: %.2f' % self.sma[0])
+#         print("sma: ", self.sma[0])
+
+
+class MyStrategy(bt.Strategy):
+    params = dict(period=5)
+
+    def __init__(self):
+
+        self.movav = btind.SimpleMovingAverage(self.data, period=self.p.period)
+        self.cmpval = self.data.close(-1) > self.movav.lines.sma
+
+    def next(self):
+        # import pdb; pdb.set_trace()
+        print("cmpval: ", self.cmpval[0])
+        if self.cmpval[0]:
+            print('Previous close is higher than the moving average')
 
 
 # class MyStrategy(Strategy):
@@ -53,7 +64,7 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro()
 
     # Add a strategy
-    cerebro.addstrategy(MyStrategy, period=5)
+    cerebro.addstrategy(MyStrategy)
     # add data
     store = bt.BTStore(user_id="test")
     # import pdb; pdb.set_trace()

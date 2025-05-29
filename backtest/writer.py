@@ -114,7 +114,7 @@ class WriterFile(WriterBase):
             if self.p.out is None:
                 self.out = sys.stdout
                 self.close_out = False
-            elif isinstance(self.p.out, string_types):
+            elif isinstance(self.p.out, str):
                 self.out = open(self.p.out, 'w')
                 self.close_out = True
             else:
@@ -192,10 +192,10 @@ class WriterFile(WriterBase):
             if sclass:
                 kline += ' ' + val.__name__
                 self.writeline(kline)
-            elif isinstance(val, string_types):
+            elif isinstance(val, str):
                 kline += ' ' + val
                 self.writeline(kline)
-            elif isinstance(val, integer_types):
+            elif isinstance(val, int):
                 kline += ' ' + str(val)
                 self.writeline(kline)
             elif isinstance(val, float):

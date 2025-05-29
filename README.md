@@ -230,5 +230,7 @@ a.  data and broker put_notification
 b.  store get_notification
 c.  strategy add_notification ( process data from store get_nofication)
 
+datas:
+1\  store data and datas how to solve
+2\  timer start of session and end of session
 
-store datas

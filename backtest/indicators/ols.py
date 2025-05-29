@@ -18,6 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.tsa.stattools as coint
 
 import backtest as bt
 from . import PeriodN

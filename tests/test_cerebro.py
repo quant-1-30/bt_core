@@ -18,6 +18,7 @@ class TestStrategy(bt.Strategy):
         self.dataclose = self.datas[0].close
 
     def next(self):
+        import pdb; pdb.set_trace()
         # Simply log the closing price of the series from the reference
         self.log('Close, %.2f' % self.dataclose[0])
 

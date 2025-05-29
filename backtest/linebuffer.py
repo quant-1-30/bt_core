@@ -18,17 +18,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+'''
+
+.. module:: linebuffer
+
+Classes that hold the buffer for a *line* and can operate on it
+with appends, forwarding, rewinding, resetting and other
+
+.. moduleauthor:: Daniel Rodriguez
+
+'''
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import array
 import collections
 import datetime
+from itertools import islice
 import math
 
-from itertools import islice
 
-from .metabase import with_metaclass
 from .lineroot import LineRoot, LineSingle, LineMultiple
+from backtest.metabase import with_metaclass
 from backtest.utils.dateintern import num2date, time2num
+
 
 NAN = float('NaN')
 
@@ -59,7 +72,6 @@ class LineBuffer(LineSingle):
     UnBounded, QBuffer = (0, 1)
 
     def __init__(self):
-        print("LineBuffer __init__")
         self.lines = [self]
         self.mode = self.UnBounded
         self.bindings = list()
@@ -79,7 +91,7 @@ class LineBuffer(LineSingle):
         # "backwards" is used to update the previous data. Unless the position
         # 0 was moved to the previous index, it would fail
         if self.mode == self.QBuffer:
-            if force or self._idx < self.maxlen:
+            if force or self._idx < self.lenmark:
                 self._idx = idx
         else:  # default: UnBounded
             self._idx = idx
@@ -95,7 +107,7 @@ class LineBuffer(LineSingle):
             # bar The previous forward would have discarded the bar "period"
             # times ago and it will not come back. Having + 1 in the size
             # allows the forward without removing that bar
-            self.array = collections.deque(maxlen=self.maxlen)
+            self.array = collections.deque(maxlen=self.maxlen + self.extrasize)
             self.useislice = True
         else:
             self.array = array.array(str('d'))
@@ -109,7 +121,11 @@ class LineBuffer(LineSingle):
         self.mode = self.QBuffer
         self.maxlen = self._minperiod
         self.extrasize = extrasize
+        self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
+
+    def getindicators(self):
+        return []
 
     def minbuffer(self, size):
         '''The linebuffer must guarantee the minimum requested size to be
@@ -126,7 +142,11 @@ class LineBuffer(LineSingle):
             return
 
         self.maxlen = size
+        self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
+
+    def __len__(self):
+        return self.lencount
 
     def buflen(self):
         ''' Real data that can be currently held in the internal buffer
@@ -136,10 +156,7 @@ class LineBuffer(LineSingle):
         held/can be held in the buffer
         is returned
         '''
-        return len(self.array)
-    
-    def __len__(self):
-        return self.lencount
+        return len(self.array) - self.extension
 
     def __getitem__(self, ago):
         return self.array[self.idx + ago]
@@ -202,8 +219,8 @@ class LineBuffer(LineSingle):
             value (variable): value to be set
         '''
         self.array[self.idx + ago] = value
-        # for binding in self.bindings:
-        #     binding[ago] = value
+        for binding in self.bindings:
+            binding[ago] = value
 
     def set(self, value, ago=0):
         ''' Sets a value at position "ago" and executes any associated bindings
@@ -214,8 +231,8 @@ class LineBuffer(LineSingle):
             the slice
         '''
         self.array[self.idx + ago] = value
-        # for binding in self.bindings:
-        #     binding[ago] = value
+        for binding in self.bindings:
+            binding[ago] = value
 
     def home(self):
         ''' Rewinds the logical index to the beginning
@@ -275,6 +292,7 @@ class LineBuffer(LineSingle):
         The purpose is to allow for lookahead operations or to be able to
         set values in the buffer "future"
         '''
+        self.extension += size
         for i in range(size):
             self.array.append(value)
 
@@ -336,11 +354,31 @@ class LineBuffer(LineSingle):
 
     bind2line = bind2lines
 
-    def _makeoperation(self, other, operation, r=False):
-        return LinesOperation(self, other, operation, r=r)
+    # keep to ensure lines[0] 
+    def __call__(self, ago=None):
+        '''Returns either a delayed verison of itself in the form of a
+        LineDelay object or a timeframe adapting version with regards to a ago
 
-    def _makeoperationown(self, operation):
-        return LineOwnOperation(self, operation)
+        Param: ago (default: None)
+
+          If ago is None or an instance of LineRoot (a lines object) the
+          returned valued is a LineCoupler instance
+
+          If ago is anything else, it is assumed to be an int and a LineDelay
+          object will be returned
+        '''
+        from .lineiterator import LineCoupler
+        if ago is None or isinstance(ago, LineRoot):
+            return LineCoupler(self, ago)
+
+        return LineDelay(self, ago)
+
+    def _makeoperation(self, other, operation, r=False, _ownerskip=None):
+        return LinesOperation(self, other, operation, r=r,
+                              _ownerskip=_ownerskip)
+
+    def _makeoperationown(self, operation, _ownerskip=None):
+        return LineOwnOperation(self, operation, _ownerskip=_ownerskip)
 
     def _settz(self, tz):
         self._tz = tz
@@ -350,10 +388,8 @@ class LineBuffer(LineSingle):
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
-        # return num2date(self.array[self.idx + ago],
-        #                 tz=tz or self._tz, naive=naive).datetime.date()
         return num2date(self.array[self.idx + ago],
-                        tz=tz or self._tz, naive=naive).strftime("%Y-%m-%d-%H-%M")
+                        tz=tz or self._tz, naive=naive).date()
 
     def time(self, ago=0, tz=None, naive=True):
         return num2date(self.array[self.idx + ago],
@@ -590,12 +626,80 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         self.forward(size=self._clock.buflen())
         self.home()
 
-        # 0 --- minperiod ---buflen()
         self.preonce(0, self._minperiod - 1)
         self.oncestart(self._minperiod - 1, self._minperiod)
         self.once(self._minperiod, self.buflen())
 
         self.oncebinding()
+
+
+def LineDelay(a, ago=0, **kwargs):
+    if ago <= 0:
+        return _LineDelay(a, ago, **kwargs)
+
+    return _LineForward(a, ago, **kwargs)
+
+
+def LineNum(num):
+    return LineDelay(PseudoArray(num))
+
+
+class _LineDelay(LineActions):
+    '''
+    Takes a LineBuffer (or derived) object and stores the value from
+    "ago" periods effectively delaying the delivery of data
+    '''
+    def __init__(self, a, ago):
+        super(_LineDelay, self).__init__()
+        self.a = a
+        self.ago = ago
+
+        # Need to add the delay to the period. "ago" is 0 based and therefore
+        # we need to pass and extra 1 which is the minimum defined period for
+        # any data (which will be substracted inside addminperiod)
+        self.addminperiod(abs(ago) + 1)
+
+    def next(self):
+        self[0] = self.a[self.ago]
+
+    def once(self, start, end):
+        # cache python dictionary lookups
+        dst = self.array
+        src = self.a.array
+        ago = self.ago
+
+        for i in range(start, end):
+            dst[i] = src[i + ago]
+
+
+class _LineForward(LineActions):
+    '''
+    Takes a LineBuffer (or derived) object and stores the value from
+    "ago" periods from the future
+    '''
+    def __init__(self, a, ago):
+        super(_LineForward, self).__init__()
+        self.a = a
+        self.ago = ago
+
+        # Need to add the delay to the period. "ago" is 0 based and therefore
+        # we need to pass and extra 1 which is the minimum defined period for
+        # any data (which will be substracted inside addminperiod)
+        # self.addminperiod(abs(ago) + 1)
+        if ago > self.a._minperiod:
+            self.addminperiod(ago - self.a._minperiod + 1)
+
+    def next(self):
+        self[-self.ago] = self.a[0]
+
+    def once(self, start, end):
+        # cache python dictionary lookups
+        dst = self.array
+        src = self.a.array
+        ago = self.ago
+
+        for i in range(start, end):
+            dst[i - ago] = src[i]
 
 
 class LinesOperation(LineActions):
@@ -723,72 +827,3 @@ class LineOwnOperation(LineActions):
 
         for i in range(start, end):
             dst[i] = op(srca[i])
-
-
-def LineDelay(a, ago=0, **kwargs):
-    if ago <= 0:
-        return _LineDelay(a, ago, **kwargs)
-
-    return _LineForward(a, ago, **kwargs)
-
-
-def LineNum(num):
-    return LineDelay(PseudoArray(num))
-
-
-class _LineDelay(LineActions):
-    '''
-    Takes a LineBuffer (or derived) object and stores the value from
-    "ago" periods effectively delaying the delivery of data
-    '''
-    def __init__(self, a, ago):
-        super(_LineDelay, self).__init__()
-        self.a = a
-        self.ago = ago
-
-        # Need to add the delay to the period. "ago" is 0 based and therefore
-        # we need to pass and extra 1 which is the minimum defined period for
-        # any data (which will be substracted inside addminperiod)
-        self.addminperiod(abs(ago) + 1)
-
-    def next(self):
-        self[0] = self.a[self.ago]
-
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        src = self.a.array
-        ago = self.ago
-
-        for i in range(start, end):
-            dst[i] = src[i + ago]
-
-class _LineForward(LineActions):
-    '''
-    Takes a LineBuffer (or derived) object and stores the value from
-    "ago" periods from the future
-    '''
-    def __init__(self, a, ago):
-        super(_LineForward, self).__init__()
-        self.a = a
-        self.ago = ago
-
-        # Need to add the delay to the period. "ago" is 0 based and therefore
-        # we need to pass and extra 1 which is the minimum defined period for
-        # any data (which will be substracted inside addminperiod)
-        # self.addminperiod(abs(ago) + 1)
-        if ago > self.a._minperiod:
-            self.addminperiod(ago - self.a._minperiod + 1)
-
-    def next(self):
-        self[-self.ago] = self.a[0]
-
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        src = self.a.array
-        ago = self.ago
-
-        for i in range(start, end):
-            dst[i - ago] = src[i]
-                    

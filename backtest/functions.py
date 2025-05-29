@@ -121,7 +121,7 @@ class Cmp(Logic):
         self.b = self.args[1]
 
     def next(self):
-        self[0] = cmp(self.a[0], self.b[0])
+        self[0] = self.a[0] < self.b[0]
 
     def once(self, start, end):
         # cache python dictionary lookups
@@ -130,7 +130,7 @@ class Cmp(Logic):
         srcb = self.b.array
 
         for i in range(start, end):
-            dst[i] = cmp(srca[i], srcb[i])
+            dst[i] = srca[i] < srcb[i]
 
 
 class CmpEx(Logic):
@@ -143,7 +143,7 @@ class CmpEx(Logic):
         self.r3 = self.args[4]
 
     def next(self):
-        self[0] = cmp(self.a[0], self.b[0])
+        self[0] = self.a[0] < self.b[0]
 
     def once(self, start, end):
         # cache python dictionary lookups
