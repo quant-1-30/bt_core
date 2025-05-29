@@ -18,12 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-
-import backtrader as bt
-from backtrader.utils.py3 import range
+import backtest as bt
+from backtest.functions import Max, Min
 
 
 __all__ = ['HeikinAshi']

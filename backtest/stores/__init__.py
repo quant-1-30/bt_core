@@ -33,7 +33,7 @@
 #     pass  # The user may not have a module installed
 
 try:
-    from .btstore import MdApiStore
+    from .btstore import BTStore
 except ImportError:
     pass  # The user may not have a module installed
 

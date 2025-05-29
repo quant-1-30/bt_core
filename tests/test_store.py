@@ -3,7 +3,7 @@
 
 import pytest
 
-from backtest.stores.btstore import BTStore
+import backtest as bt
 
 # to ensure metaclass __init__ automated executed
 from backtest.brokers.btbroker import BTBroker
@@ -39,7 +39,7 @@ class TestBTStore:
 
     @pytest.fixture(scope="session")
     def store(self):
-        store = BTStore(user_id="test")
+        store = bt.BTStore(user_id="test")
         store.start()
         return store
     

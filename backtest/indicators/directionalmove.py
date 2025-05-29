@@ -18,10 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-from . import Indicator, And, If, MovAv, ATR
+from backtest.indicator import Indicator
+from backtest.functions import And, If
+from . import MovAv, ATR
+# from .atr import ATR
 
 
 class UpMove(Indicator):

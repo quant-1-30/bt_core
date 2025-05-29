@@ -18,17 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 from datetime import datetime, timedelta
 
-from backtrader import TimeFrame
-from backtrader.utils.py3 import with_metaclass
-from .. import metabase
+from backtest import TimeFrame
+from backtest.metabase import with_metaclass, MetaParams
 
 
-class SessionFiller(with_metaclass(metabase.MetaParams, object)):
+class SessionFiller(with_metaclass(MetaParams, object)):
     '''
     Bar Filler for a Data Source inside the declared session start/end times.
 
@@ -184,7 +181,7 @@ class SessionFiller(with_metaclass(metabase.MetaParams, object)):
         return True
 
 
-class SessionFilterSimple(with_metaclass(metabase.MetaParams, object)):
+class SessionFilterSimple(with_metaclass(MetaParams, object)):
     '''
     This class can be applied to a data source as a filter and will filter out
     intraday bars which fall outside of the regular session times (ie: pre/post
@@ -213,7 +210,7 @@ class SessionFilterSimple(with_metaclass(metabase.MetaParams, object)):
             data.p.sessionstart <= data.datetime.time(0) <= data.p.sessionend)
 
 
-class SessionFilter(with_metaclass(metabase.MetaParams, object)):
+class SessionFilter(with_metaclass(MetaParams, object)):
     '''
     This class can be applied to a data source as a filter and will filter out
     intraday bars which fall outside of the regular session times (ie: pre/post

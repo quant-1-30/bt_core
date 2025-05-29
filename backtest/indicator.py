@@ -18,13 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-
 
 from .lineiterator import LineIterator, IndicatorBase
-
+from .metabase import with_metaclass
 
 class MetaIndicator(IndicatorBase.__class__):
     _refname = '_indcol'
@@ -85,7 +81,8 @@ class MetaIndicator(IndicatorBase.__class__):
             cls.oncestart = cls.oncestart_via_nextstart        
 
 
-class Indicator(metaclass=MetaIndicator):
+# class Indicator(metaclass=MetaIndicator):
+class Indicator(with_metaclass(MetaIndicator, IndicatorBase)):
     _ltype = LineIterator.IndType
 
     csv = False

@@ -27,7 +27,7 @@ import os.path
 
 from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass, MetaParams
-from .resamplefilter import Replayer, Resampler 
+from .resamplerfilter import Replayer, Resampler 
 # from .tradingcal import PandasMarketCalendar
 from backtest.utils.dateintern import *
 

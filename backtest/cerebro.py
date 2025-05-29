@@ -33,6 +33,7 @@ from backtest.strategy import Strategy, SignalStrategy
 from .timer import Timer
 from backtest.brokers.btbroker import BTBroker
 from backtest.feeds.mdapi import MdData
+from backtest.indicator import Indicator
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -462,44 +463,16 @@ class Cerebro(with_metaclass(MetaParams, object)):
         Internal method which kicks the broker and delivers any broker
         notification to the strategy
         '''
-        # import pdb; pdb.set_trace()
         owner = self.store.owner
         if owner is None:
             owner = self.runningstrats[0]  # default
 
         while True:
-            msg = self.store.get_notification()
+            msg = self.store.get_broker_notification()
             if not msg:
                 break
             # strategy execute order
             owner._addnotification(msg, quicknotify=self.p.quicknotify)
-
-    def _notify_store(self, msg, *args, **kwargs):
-        for callback in self.storecbs:
-            callback(msg, *args, **kwargs)
-
-        self.notify_store(msg, *args, **kwargs)
-
-    def notify_store(self, msg, *args, **kwargs):
-        '''Receive store notifications in cerebro
-
-        This method can be overridden in ``Cerebro`` subclasses
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        pass
-
-    def _storenotify(self):
-        # for store in self.stores:
-            for notif in self.store.get_notifications():
-                msg, args, kwargs = notif
-
-                self._notify_store(msg, *args, **kwargs)
-                for strat in self.runningstrats:
-                    strat.notify_store(msg, *args, **kwargs)
 
     def _datanotify(self):
         for data in self.datas:
@@ -521,6 +494,33 @@ class Cerebro(with_metaclass(MetaParams, object)):
         This method can be overridden in ``Cerebro`` subclasses
 
         The actual ``*args`` and ``**kwargs`` received are
+        implementation defined (depend entirely on the *data/broker/store*) but
+        in general one should expect them to be *printable* to allow for
+        reception and experimentation.
+        '''
+        pass
+    
+    def _notify_store(self, msg, *args, **kwargs):
+        for callback in self.storecbs:
+            callback(msg, *args, **kwargs)
+
+        self.notify_store(msg, *args, **kwargs)
+
+    def _storenotify(self):
+        # for store in self.stores:
+            for notif in self.store.get_notifications():
+                msg, args, kwargs = notif
+
+                self._notify_store(msg, *args, **kwargs)
+                for strat in self.runningstrats:
+                    strat.notify_store(msg, *args, **kwargs)
+    
+    def notify_store(self, msg, *args, **kwargs):
+        '''Receive store notifications in cerebro
+
+        This method can be overridden in ``Cerebro`` subclasses
+
+        The actual ``msg``, ``*args`` and ``**kwargs`` received are
         implementation defined (depend entirely on the *data/broker/store*) but
         in general one should expect them to be *printable* to allow for
         reception and experimentation.
@@ -580,7 +580,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         dataname.replay(**kwargs)
         self.adddata(dataname, name=name)
         self._doreplay = True
-
         # return dataname
 
     def resampledata(self, dataname, name=None, **kwargs):
@@ -1167,7 +1166,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 return
 
             if d0ret or lastret:  # bars produced by data or filters
-                self._check_timers(runstrats, dt0, cheat=False)
+                # self._check_timers(runstrats, dt0, cheat=False)
                 for strat in runstrats:
                     strat._next()
                     if self._event_stop:  # stop if requested
@@ -1235,9 +1234,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                 # self._next_writers(runstrats)
 
-    def _check_timers(self, runstrats, dt0, cheat=False):
-        timers = self._timers if not cheat else self._timerscheat
-        for t in timers:
+    def _check_timers(self, runstrats, dt0):
+        # timers = self._timers if not cheat else self._timerscheat
+        for t in self._timers:
             if not t.check(dt0):
                 continue
 

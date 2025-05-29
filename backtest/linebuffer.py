@@ -350,8 +350,10 @@ class LineBuffer(LineSingle):
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
+        # return num2date(self.array[self.idx + ago],
+        #                 tz=tz or self._tz, naive=naive).datetime.date()
         return num2date(self.array[self.idx + ago],
-                        tz=tz or self._tz, naive=naive).date()
+                        tz=tz or self._tz, naive=naive).strftime("%Y-%m-%d-%H-%M")
 
     def time(self, ago=0, tz=None, naive=True):
         return num2date(self.array[self.idx + ago],

@@ -18,16 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-# from __future__ import (absolute_import, division, print_function,
-#                         unicode_literals)
+# 它允许你在 Python 2 中使用 Python 3 的一些特性 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
-
-from .. import Filter
-
-from .datafilter import *
-from .session import *
-from .calendardays import *
-from .daysteps import *
-from .bsplitter import *
-from .heikinashi import *
-from .renko import *

@@ -18,19 +18,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import functools
 import math
 import operator
 
-from ..utils.py3 import map, range
 
-from . import Indicator
+import backtest.indicator as btind
 
 
-class PeriodN(Indicator):
+class PeriodN(btind.Indicator):
     '''
     Base class for indicators which take a period (__init__ has to be called
     either via super or explicitly)
@@ -300,7 +297,7 @@ class FindLastIndexLowest(FindLastIndex):
     params = (('_evalfunc', min),)
 
 
-class Accum(Indicator):
+class Accum(btind.Indicator):
     '''
     Cummulative sum of the data values
 

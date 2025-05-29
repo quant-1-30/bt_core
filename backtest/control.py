@@ -11,7 +11,6 @@ import logging
 import operator
 from functools import reduce
 from abc import ABC, abstractmethod
-from meta import ControlMeta
 
 
 class TradingControlViolation(Exception):
@@ -115,7 +114,7 @@ class AssetControl(TradingControl):
         self.__fail_args = "remove new ipo assets \ delist assets \ suspend assets"
 
     @abstractmethod
-    def validate(self, control_meta: ControlMeta):
+    def validate(self, control_meta):
         """
         On each call to handle data by TradingAlgorithm, this method should be
         called *exactly once* on each registered AccountControl object.
@@ -259,11 +258,11 @@ class UnionRestricted:
         else:
             raise ValueError("Invalid type for restriction")
 
-    def is_restricted(self, assets, dt):
-        if isinstance(assets, Asset):
-            return assets if len(set(r.is_restricted(assets, dt)
-                                     for r in self.restrictions)) == 1 else None
-        return reduce(
-            operator.and_,
-            (r.is_restricted(assets, dt) for r in self.restrictions)
-        )
+    # def is_restricted(self, assets, dt):
+    #     if isinstance(assets, Asset):
+    #         return assets if len(set(r.is_restricted(assets, dt)
+    #                                  for r in self.restrictions)) == 1 else None
+    #     return reduce(
+    #         operator.and_,
+    #         (r.is_restricted(assets, dt) for r in self.restrictions)
+    #     )

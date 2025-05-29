@@ -27,12 +27,11 @@ import itertools
 import operator
 
 import backtest as bt
-from backtest.lineiterator import LineIterator, StrategyBase
-from backtest.lineroot import LineSingle
-from backtest.lineseries import LineSeriesStub
-from backtest.metabase import with_metaclass, ItemCollection, findowner
-from backtest.sizers import FixedSize
-import backtest as bt
+from .lineiterator import LineIterator, StrategyBase
+from .lineroot import LineSingle
+from .lineseries import LineSeriesStub
+from .metabase import with_metaclass, ItemCollection, findowner
+from .sizers import FixedSize
 # signal 里面有 Indicator还完全实例化
 
 

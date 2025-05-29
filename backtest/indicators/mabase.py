@@ -18,12 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-from ..utils.py3 import with_metaclass
+from backtest.metabase import with_metaclass
 
-from . import Indicator
+import backtest.indicator as btind
 
 
 class MovingAverage(object):
@@ -72,7 +70,7 @@ class MovAv(MovingAverage):
     pass  # alias
 
 
-class MetaMovAvBase(Indicator.__class__):
+class MetaMovAvBase(btind.Indicator.__class__):
     # Register any MovingAverage with the placeholder to allow the automatic
     # creation of envelopes and oscillators
 
@@ -86,6 +84,6 @@ class MetaMovAvBase(Indicator.__class__):
         return cls
 
 
-class MovingAverageBase(with_metaclass(MetaMovAvBase, Indicator)):
+class MovingAverageBase(with_metaclass(MetaMovAvBase, btind.Indicator)):
     params = (('period', 30),)
     plotinfo = dict(subplot=False)

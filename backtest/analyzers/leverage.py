@@ -49,11 +49,12 @@ class GrossLeverage(Analyzer):
     )
 
     def start(self):
-        if self.p.fund is None:
-            self._fundmode = self.strategy.broker.fundmode
-        else:
-            self._fundmode = self.p.fund
-
+        # if self.p.fund is None:
+        #     self._fundmode = self.strategy.broker.fundmode
+        # else:
+        #     self._fundmode = self.p.fund
+        self._fundmode = self.p.fund
+        
     def notify_fund(self, cash, fundvalue):
         self._cash = cash
         # if not self._fundmode:

@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import queue
 import collections
 import backtest as bt
 from backtest.metabase import MetaParams, with_metaclass, findowner
@@ -90,7 +90,20 @@ class Store(with_metaclass(MetaSingleton, object)):
     def stop(self):
         pass
 
+    def get_broker_notification(self):
+        notifs = self.broker.notifs
+        notifs.put(None) # put a mark
+        try:
+            # return self.notifs.popleft()
+            return notifs.get(False)
+        except queue.Empty:
+            pass
+        return None
+
+    def put_notification(self, msg, *args, **kwargs):
+        self.notifs.append((msg, args, kwargs))
+
     def get_notifications(self):
         '''Return the pending "store" notifications'''
-        self.broker.notifs.append(None)  # put a mark / threads could still append
-        return [x for x in iter(self.broker.notifs.popleft, None)]
+        self.notifs.append(None)  # put a mark / threads could still append
+        return [x for x in iter(self.notifs.popleft, None)]

@@ -29,9 +29,9 @@ try:  # For new Python versions
 except AttributeError:  # For old Python versions
     collectionsAbc = collections  # Используем collections.Iterable
 
-import backtrader as bt
-from backtrader.utils.py3 import (map, with_metaclass, string_types,
-                                  integer_types)
+import backtest as bt
+from backtest.metabase import with_metaclass
+
 
 
 class WriterBase(with_metaclass(bt.MetaParams, object)):

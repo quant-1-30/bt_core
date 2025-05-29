@@ -341,7 +341,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         all datas/indicators have been meet. The default behavior is to call
         next
         '''
-
         # Called once for 1st full calculation - defaults to regular next
         self.next()
 

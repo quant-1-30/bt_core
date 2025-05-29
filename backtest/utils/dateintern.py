@@ -210,17 +210,15 @@ def num2date(x, tz=None, naive=True):
 
     dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('UTC'))
     if tz is not None:
-        dt = dt.astimezone(tz=pytz.timezone(tz)) if isinstance(tz, str) else dt.replace(tzinfo=tz)
+        tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
+        dt = dt.astimezone(tz=tzinfo)
     return dt
-
 
 def num2dt(num, tz=None, naive=True):
     return num2date(num, tz=tz, naive=naive).date()
 
-
 def num2time(num, tz=None, naive=True):
     return num2date(num, tz=tz, naive=naive).time()
-
 
 def date2num(dt, tz=None):
     """

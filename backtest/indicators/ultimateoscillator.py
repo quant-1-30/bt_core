@@ -18,12 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 
-import backtrader as bt
-from backtrader.indicators import SumN, TrueLow, TrueRange
+import backtest as bt
+from backtest.indicators import SumN, TrueLow, TrueRange
 
 
 class UltimateOscillator(bt.Indicator):

@@ -18,10 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-from . import Indicator, Max, Min, MovAv
+from . import MovAv
+from backtest.functions import Max, Min
+from backtest.indicator import Indicator
 
 
 class TrueHigh(Indicator):

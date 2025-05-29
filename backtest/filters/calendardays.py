@@ -21,12 +21,11 @@
 
 from datetime import date, datetime, timedelta
 
-from backtrader import TimeFrame
-from backtrader.utils.py3 import with_metaclass
-from .. import metabase
+from backtest import TimeFrame
+from backtest.metabase import with_metaclass, MetaParams
 
 
-class CalendarDays(with_metaclass(metabase.MetaParams, object)):
+class CalendarDays(with_metaclass(MetaParams, object)):
     '''
     Bar Filler to add missing calendar days to trading days
 
