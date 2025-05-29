@@ -33,7 +33,6 @@ from backtest.strategy import Strategy, SignalStrategy
 from .timer import Timer
 from backtest.brokers.btbroker import BTBroker
 from backtest.feeds.mdapi import MdData
-from backtest.indicator import Indicator
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -711,10 +710,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if not plotter:
             from . import plot
-            if self.p.oldsync:
-                plotter = plot.Plot_OldSync(**kwargs)
-            else:
-                plotter = plot.Plot(**kwargs)
+            # if self.p.oldsync:
+            #     plotter = plot.Plot_OldSync(**kwargs)
+            # else:
+            #     plotter = plot.Plot(**kwargs)
+            plotter = plot.Plot(**kwargs)
 
         figs = []
         for stratlist in self.runstrats:

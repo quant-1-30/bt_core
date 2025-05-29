@@ -36,11 +36,14 @@ from matplotlib.dates import AutoDateFormatter as ADFormatter
 from matplotlib.dates import (HOURS_PER_DAY, MIN_PER_HOUR, SEC_PER_MIN,
                               MONTHS_PER_YEAR, DAYS_PER_WEEK,
                               SEC_PER_HOUR, SEC_PER_DAY,
-                              num2date, rrulewrapper, YearLocator,
+                            #   num2date, rrulewrapper, YearLocator,
+                              rrulewrapper, YearLocator,
                               MicrosecondLocator)
 
 from dateutil.relativedelta import relativedelta
 import numpy as np
+
+from backtest.utils.dateintern import num2date
 
 
 def _idx2dt(idx, dates, tz):
@@ -54,7 +57,7 @@ def _idx2dt(idx, dates, tz):
         idx = ldates - 1
     if idx < 0:
         idx = 0
-
+    # import pdb; pdb.set_trace()
     return num2date(dates[idx], tz)
 
 

@@ -85,7 +85,7 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         if isinstance(other, LineMultiple):
             other = other.lines[0]
 
-        return self._makeoperation(other, operation, r, self)
+        return self._makeoperation(other, operation, r=r, _ownerskip=self)
     
     def _operation_stage2(self, other, operation, r=False):
         '''
@@ -206,7 +206,6 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         return self._roperation(other, operator.__add__)
 
     def __sub__(self, other):
-        import pdb; pdb.set_trace()
         return self._operation(other, operator.__sub__)
 
     def __rsub__(self, other):
@@ -300,11 +299,11 @@ class LineMultiple(LineRoot):
         for line in self.lines:
             line.incminperiod(minperiod)
 
-    def _makeoperation(self, other, operation, r=False):
-        return self.lines[0]._makeoperation(other, operation, r)
+    def _makeoperation(self, other, operation, r=False, _ownerskip=None):
+        return self.lines[0]._makeoperation(other, operation, r=r, _ownerskip=_ownerskip)
 
-    def _makeoperationown(self, operation):
-        return self.lines[0]._makeoperationown(operation)
+    def _makeoperationown(self, operation, _ownerskip=None):
+        return self.lines[0]._makeoperationown(operation, _ownerskip=_ownerskip)
 
     def qbuffer(self, savemem=0):
         for line in self.lines:

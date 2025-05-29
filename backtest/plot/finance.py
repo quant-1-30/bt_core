@@ -21,7 +21,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from ..utils.py3 import range, zip
 
 import matplotlib.collections as mcol
 import matplotlib.colors as mcolors

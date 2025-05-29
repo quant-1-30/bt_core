@@ -38,6 +38,7 @@ from .signal import *
 from .cerebro import *
 from .timer import *
 from .flt import *
+from .functions import *
 
 from . import utils as utils
 
@@ -55,6 +56,7 @@ from . import sizers as sizers
 from . import stores as stores
 from . import brokers as brokers
 from . import timer as timer
+
 
 # from . import studies as studies
 # from . import commissions as commissions
