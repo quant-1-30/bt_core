@@ -18,13 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-
-import matplotlib.collections as mcol
 import matplotlib.colors as mcolors
+# sizes / colors / offsets --- scatter / line / poly
+import matplotlib.collections as mcol
+# ax / handles / labels / loc / frameon / fancybox
 import matplotlib.legend as mlegend
+# line property and method -- linestyle / linewidth / color / alpha
 import matplotlib.lines as mlines
 
 from .utils import shade_color

@@ -18,8 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 from colorsys import rgb_to_hls as rgb2hls, hls_to_rgb as hls2rgb
 
@@ -53,6 +51,7 @@ def tag_box_style(x0, y0, width, height, mutation_size, mutation_aspect=1):
           (x0-pad, (y0+y1)/2.), (x0, y0),
           (x0, y0)]
 
+    # 移动到起点，画线，闭合路径
     com = [mplpath.Path.MOVETO,
            mplpath.Path.LINETO, mplpath.Path.LINETO, mplpath.Path.LINETO,
            mplpath.Path.LINETO, mplpath.Path.LINETO,
@@ -81,6 +80,7 @@ def shade_color(color, percent):
 
     rgb = mplcolors.colorConverter.to_rgb(color)
 
+    # hue (色相) / lightness (亮度) / saturation (饱和度)
     h, l, s = rgb2hls(*rgb)
 
     l *= 1 + float(percent)/100

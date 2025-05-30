@@ -714,7 +714,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             #     plotter = plot.Plot_OldSync(**kwargs)
             # else:
             #     plotter = plot.Plot(**kwargs)
-            plotter = plot.Plot(**kwargs)
+            # plotter = plot.Plot(**kwargs)
+            plotter = plot.Plot_OldSync(**kwargs)
 
         figs = []
         for stratlist in self.runstrats:

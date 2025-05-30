@@ -102,9 +102,9 @@ class DataFiller(bt.AbstractDataBase):
 
     # Minimum delta unit in between bars
     _tdeltas = {
-        TimeFrame.Minutes: timedelta(seconds=60),
-        TimeFrame.Seconds: timedelta(seconds=1),
-        TimeFrame.MicroSeconds: timedelta(microseconds=1),
+        bt.TimeFrame.Minutes: timedelta(seconds=60),
+        bt.TimeFrame.Seconds: timedelta(seconds=1),
+        bt.TimeFrame.MicroSeconds: timedelta(microseconds=1),
     }
 
     def _load(self):
