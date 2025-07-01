@@ -19,17 +19,14 @@
 #
 ###############################################################################
 import queue
-import collections
 import copy
 
-from backtest.metabase import with_metaclass, MetaBase
+from backtest.metabase import with_metaclass, MetaParams
 from backtest.stores.btstore import BTStore
-# from bt_sdk.core.client import TdApi
-from bt_sdk.core.model import OrderMeta
-from bt_sdk.core.constant import ExecType, OrderType
+from bt_sdk.core.model import OrderMeta, ReqMeta
 
 
-class MetaBTBroker(MetaBase):
+class MetaBTBroker(MetaParams):
 
     def __init__(cls, name, bases, dct):
         '''Class has already been created ... register'''
@@ -47,7 +44,7 @@ class MetaBTBroker(MetaBase):
         data = []
         while True:
             # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
-            msg = q.get(timeout)
+            msg = q.get()
             if msg == "eof":
                 break
             data.append(msg)
@@ -77,7 +74,9 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
         loss would also be calculated locally), but could be considered to be
         defeating the purpose of working with a live broker
     '''
-    params = ()
+    params = (
+        ("timeout", -1),
+        )
 
     def __init__(self, tdapi, **kwargs):
         super(BTBroker, self).__init__()
@@ -96,40 +95,26 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
     def cancel(self, vtorder_id):
         self.tdapi.cancel(vtorder_id)
     
-    def getAccount(self, timeout=-1):
+    def getAccount(self):
         q = self.tdapi.getAccount()
-        return self.get_data(q, timeout)
+        return self.get_data(q, self.p.timeout)
 
-    def getPosition(self, timeout=-1):
+    def getPosition(self):
         q = self.tdapi.getPosition()
-        return self.get_data(q, timeout)
+        return self.get_data(q, self.p.timeout)
 
-    def submit(self, order_meta):
-        qty = self.tdapi.placeOrder(order_meta)
-        self.notify((order_meta, qty))
+    def submit(self, order_meta: OrderMeta):
+        qty = self.tdapi.trade(order_meta)
+        # self.notify((order_meta, qty)) # pydantic contain _thread.lock
         return qty
 
-    def buy(self, order_meta, **kwargs):
-        return self.submit(order_meta)
-
-    def sell(self, order_meta, **kwargs):
-        return self.submit(order_meta)
+    def subscribe(self, topic:str, reqmeta: ReqMeta):
+        q = self.tdapi.subscribe(topic, reqmeta)
+        return q
+    
+    def on_timer(self, reqmeta):
+        q = self.tdapi.pesudo_timer(reqmeta)
+        return self.get_data(q, self.p.timeout)
 
     def notify(self, order):
         self.notifs.put(copy.deepcopy(order))
- 
-    def subscribeOrder(self, reqmeta):
-        q = self.tdapi.subscribe("order", reqmeta)
-        return q
-    
-    def subscribePosition(self, reqmeta):
-        q = self.tdapi.subscribe("position", reqmeta)
-        return q
-    
-    def subscribeAccount(self, reqmeta):
-        q = self.tdapi.subscribe("account", reqmeta)
-        return q
-    
-    def on_timer(self, tick, timeout=-1):
-        q = self.tdapi.onTimer(tick)
-        return self.get_data(q, timeout)

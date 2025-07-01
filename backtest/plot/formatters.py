@@ -18,8 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
 import matplotlib.dates as mdates
 import matplotlib.ticker as mplticker
@@ -107,6 +105,7 @@ def patch_formatter(formatter, xdates):
         dt = num2date(x, self.tz)
         return self.strftime(dt, self.fmt)
 
+    # __get__ descriptor / self args
     bound_call = newcall.__get__(formatter, formatter.__class__)
     formatter.__call__ = bound_call
 

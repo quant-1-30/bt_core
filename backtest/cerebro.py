@@ -1154,14 +1154,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if self._event_stop:  # stop if requested
                 return
 
-            # if d0ret or lastret:  # if any bar, check timers before broker
-            #     self._check_timers(runstrats, dt0, cheat=True)
-            #     if self.p.cheat_on_open:
-            #         for strat in runstrats:
-            #             strat._next_open()
-            #             if self._event_stop:  # stop if requested
-            #                 return
-
             self._brokernotify()
             if self._event_stop:  # stop if requested
                 return

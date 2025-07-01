@@ -34,7 +34,6 @@ class MetaSingleton(MetaParams):
         _obj, args, kwargs = \
             super(MetaSingleton, cls).dopostinit(_obj, *args, **kwargs)
         _obj.owner = findowner(_obj, bt.strategy.Strategy)
-        # import pdb; pdb.set_trace()
         return _obj, args, kwargs
 
     def __call__(cls, *args, **kwargs):
@@ -42,7 +41,6 @@ class MetaSingleton(MetaParams):
             owner = findowner(cls, bt.strategy.Strategy)
             cls._singleton = (
                 super(MetaSingleton, cls).__call__(*args, **kwargs))
-
         return cls._singleton
 
 

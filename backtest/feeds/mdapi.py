@@ -28,45 +28,11 @@ from backtest.stores.btstore import BTStore
 from bt_sdk.core.client import MdApi
 
 
-# class RTVolume(object):
-#     '''Parses a tickString tickType 48 (RTVolume) event from the IB API into its
-#     constituent fields
-
-#     Supports using a "price" to simulate an RTVolume from a tickPrice event
-#     '''
-#     _fields = [
-#         ('price', float),
-#         ('size', int),
-#         ('datetime', _ts2dt),
-#         ('volume', int),
-#         ('vwap', float),
-#         ('single', bool)
-#     ]
-
-#     def __init__(self, rtvol='', price=None, tmoffset=None):
-#         # Use a provided string or simulate a list of empty tokens
-#         tokens = iter(rtvol.split(';'))
-
-#         # Put the tokens as attributes using the corresponding func
-#         for name, func in self._fields:
-#             setattr(self, name, func(next(tokens)) if rtvol else func())
-
-#         # If price was provided use it
-#         if price is not None:
-#             self.price = price
-
-#         if tmoffset is not None:
-#             self.datetime += tmoffset
-
-
 class MetaMdData(DataBase.__class__):
 
     def __init__(cls, name, bases, dct):
-        '''Class has already been created ... register'''
-        # Initialize the class
+        """auto Register with the store when type class __import__"""
         super(MetaMdData, cls).__init__(name, bases, dct)
-
-        # auto Register with the store when type class __import__ 
         BTStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
@@ -140,7 +106,8 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         ('sectype', 'instrument'),  # usual industry value
         ("tz", "Asia/Shanghai"),
         ('rtbar', False),  # use RealTime 5 seconds bars
-        ('backfill', True), \
+        ('backfill', True),
+        ('timeout', -1)
     )
 
     # Minimum size supported by real-time bars
@@ -190,19 +157,19 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         print("stop mdapi")
         self.mdapi.disconnected()
 
-    def getCalendar(self, timeout=-1):
+    def getCalendar(self):
         q = self.mdapi.getCalendar()
-        return self.get_data(q, timeout)
+        return self.get_data(q, self.p.timeout)
     
-    def getInstrument(self, session, timeout=-1):
+    def getInstrument(self, session):
         q = self.mdapi.getInstrument(session)
-        return self.get_data(q, timeout)
+        return self.get_data(q, self.p.timeout)
     
-    def getEvents(self, session, timeout=-1):
-        q = self.mdapi.getEvents(session)
-        return self.get_data(q, timeout)
+    def getEvent(self, session, event_type):
+        q = self.mdapi.getEvent(session, event_type)
+        return self.get_data(q, self.p.timeout)
     
-    def subscribe(self, req, timeout=-1):
+    def subscribe(self, req):
         # dtkwargs['start'] = int((dtbegin - self._DTEPOCH).total_seconds())
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         self._subcription_valid = True
@@ -223,33 +190,32 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
             warnings.warn("qlive is None, must subscribe first")
             return
         _load_bar = self._load_rtbar if self.p.rtbar else self._load_bar
-
         msg = self.qlive.get()
+        print("msg ", msg)
         if msg == "eof":
             return False  # Conn broken during historical/backfilling
-        # print("msg: ", msg)
         _load_bar(msg)
         return True
 
-    def _load_bar(self, bar, hist=False):
+    def _load_bar(self, msg, hist=False):
         # A complete 30 second bar made of real-time 3d ticks is delivered and
         # contains open/high/low/close/volume prices
         # The historical data has the same data but with 'date' instead of
         # 'time' for datetime
         # dt = date2num(bar.time if not hist else bar.date)
-        dt = bar[0]
-        # import pdb; pdb.set_trace()
+        line = msg["msg"]["line"][0]
+        dt = line[0]
         if dt < self.lines.datetime[-1] :
             return False  # cannot deliver earlier than already delivered
 
         self.lines.datetime[0] = dt
         # Put the tick into the bar
-        self.lines.open[0] = bar[1]
-        self.lines.high[0] = bar[2]
-        self.lines.low[0] = bar[3]
-        self.lines.close[0] = bar[4]
-        self.lines.volume[0] = bar[5]
-        self.lines.amount[0] = bar[6]
+        self.lines.open[0] = line[1]
+        self.lines.high[0] = line[2]
+        self.lines.low[0] = line[3]
+        self.lines.close[0] = line[4]
+        self.lines.volume[0] = line[5]
+        self.lines.amount[0] = line[6]
         # self.lines.openinterest[0] = 0
         return True
 

@@ -309,3 +309,88 @@ class WebsocketClient(object):
         Record last received text for debug purpose.
         """
         self._last_received_text = text[:1000]
+
+
+# asyncio websocket from fastapi
+
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+from typing import Optional, Union
+
+from fastapi import WebSocket, WebSocketDisconnect
+
+from utils import logger
+
+
+class WSConnectionManager:
+    def __init__(self, timeout: int = 300):
+        self.active_connections = {}
+        self.timeout = timeout
+
+    async def connect(self, websocket: WebSocket, session_id: Optional[str] = None):
+        await websocket.accept()
+        if session_id:
+            self.active_connections[session_id] = websocket
+        else:
+            self.active_connections[id(websocket)] = websocket
+
+    def disconnect(self, websocket: WebSocket, session_id: Optional[str] = None):
+        if session_id:
+            self.active_connections.pop(session_id)
+        else:
+            self.active_connections.pop(id(websocket))
+
+    @staticmethod
+    async def send_personal_message(message: Union[str, dict], websocket: WebSocket):
+        if isinstance(message, dict):
+            await websocket.send_json(message)
+        else:
+            await websocket.send_text(message)
+
+    async def broadcast(self, message: Union[str, dict]):
+        for connection in self.active_connections.values():
+            if isinstance(message, dict):
+                await connection.send_json(message)
+            else:
+                await connection.send_text(message)
+
+    async def handle(self, handler, websocket: WebSocket, *args):
+        try:
+            await self.connect(websocket)
+            loop = asyncio.get_running_loop()
+            while True:
+                try:
+                    data_json = await asyncio.wait_for(websocket.receive_json(), timeout=self.timeout)
+                    if data_json.get("prompt").upper() == "PING":
+                        await self.send_personal_message("PONG", websocket)
+                        continue
+                    await self.send_personal_message("__START__", websocket)
+                    logger.info(f"receive data: {data_json}")
+                    with ThreadPoolExecutor() as pool:
+                        out = await loop.run_in_executor(pool, handler, data_json, *args)
+                        logger.info(f"send data: {out}")
+                        await self.send_personal_message(out, websocket)
+
+                except asyncio.TimeoutError:
+                    await self.send_personal_message("__ERROR__", websocket)
+                    await self.send_personal_message("客户端长时间未响应，服务器将关闭连接，如需使用请刷新", websocket)
+                    break
+                except WebSocketDisconnect as e:
+                    await self.send_personal_message("__ERROR__", websocket)
+                    logger.error(f"websocket disconnect: {e}")
+                    await self.send_personal_message(str(e), websocket)
+                    break
+                except Exception as e:
+                    await self.send_personal_message("__ERROR__", websocket)
+                    logger.error(f"websocket error: {e}")
+                    await self.send_personal_message(str(e), websocket)
+                    break
+                finally:
+                    await self.send_personal_message("__END__", websocket)
+
+        except Exception as e:
+            logger.error(f"websocket error: {e}")
+            self.disconnect(websocket)
+
+# from fastapi import APIRouter, StreamingResponse 
+# # sse

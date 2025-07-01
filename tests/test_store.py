@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*- 
 
 import pytest
+from datetime import datetime
 
 import backtest as bt
-
 # to ensure metaclass __init__ automated executed
 from backtest.brokers.btbroker import BTBroker
 from backtest.feeds.mdapi import MdData
@@ -48,80 +48,104 @@ class TestBTStore:
         return 20240101
     
     @pytest.fixture
-    def buyorder(self):
-        return {"sid": "603676", 
-                "price": 97,
-                "size": 100,
-                "sizer_cash": 10000,
-                "pricelimit": 102,
-                "created_at": 1728351060, 
-                "exec_type": ExecType.Open}
+    def event_type(self):
+        return "adjustment"
     
-    @pytest.fixture 
+    @pytest.fixture
+    def order(self):
+        return OrderMeta(sid="603676", 
+                price=97,
+                size=100,
+                sizer_cash=10000,
+                pricelimit=102,
+                created_at=1728351060, 
+                exec_type=ExecType.Open,
+                order_type=OrderType.Buy)
+    
+    @pytest.fixture
     def reqmeta(self):
-        return ReqMeta(sid=["603676"], 
-                       start_date=1728351060, 
-                       end_date=1728361060)
+        start_date = "20210101"
+        end_date = "20230101"
+        start_time = datetime.strptime(start_date, '%Y%m%d')
+        end_time = datetime.strptime(end_date, '%Y%m%d')
+        sid = ['603676']
+        return ReqMeta(
+                      start_date = start_time.timestamp(),
+                      end_date = end_time.timestamp(),
+                      sid = sid)
+    
+    @pytest.fixture
+    def subMeta(self):
+        start_date = "20210101"
+        end_date = "20210301"
+        start_time = datetime.strptime(start_date, '%Y%m%d')
+        end_time = datetime.strptime(end_date, '%Y%m%d')
+        sid = ['600000']
+        return ReqMeta(
+                      start_date = start_time.timestamp(),
+                      end_date = end_time.timestamp(),
+                      sid = sid)
+    
+    @pytest.fixture
+    def timer_msg(self):
+        return {"timer": "end", "session": 20201206}
     
     def test_getcalendar(self, store):
-        data = store.getcalendar()
+        data = store.getCalendar()
         print("getcalendar: ", data)
         assert data is not None
 
     def test_getinstrument(self, store, session):
-        data = store.getinstrument(session)
+        data = store.getInstrument(session)
         print("getinstrument: ", data)
         assert data is not None
 
-    def test_getevents(self, store, session):
-        data = store.getevents(session)
+    def test_getevent(self, store, session, event_type):
+        data = store.getEvent(session, event_type)
         print("getevents: ", data)
         assert data is not None
     
     def test_getposition(self, store):
-        data = store.getposition()
+        data = store.getPosition()
         print("getposition: ", data)
         assert data is not None
 
     def test_getaccount(self, store):
-        data = store.getaccount()
+        data = store.getAccount()
         print("getaccount: ", data)
         assert data is not None
 
     def test_reqOrder(self, store, reqmeta):
-        q = store.reqOrder(reqmeta)
+        q = store.on_request("order", reqmeta)
         data = get_data(q)
         print("reqOrder: ", data)
         assert data is not None
 
     def test_reqPosition(self, store, reqmeta):
-        q = store.reqPosition(reqmeta)
+        q = store.on_request("position", reqmeta)
         data = get_data(q)
+        print("reqPosition: ", data)
         assert data is not None
 
     def test_reqAccount(self, store, reqmeta):
-        q = store.reqAccount(reqmeta)
+        q = store.on_request("account", reqmeta)
         data = get_data(q)
+        print("reqAccount: ", data)
         assert data is not None
     
-    def test_timer(self, store):
-        data = store.on_timer(20241008)
+    def test_submit(self, store, order):
+        q = store.submit(order)
+        data = get_data(q)
+        print("submit: ", data)
+        assert data is not None
+    
+    def test_subscribe(self, store, subMeta):
+        store.subscribe(subMeta)
+        store._feed.preload()
+        print("preload: ", store._feed.lines.buflen())
+        assert store._feed.lines.buflen() > 0
+    
+    def test_timer(self, store, timer_msg):
+        data = store.on_timer(timer_msg)
         print("timer: ", data)
         assert data is not None
-    
-    # def test_reqdata(self, store, reqmeta):
-    #     store.reqdata(reqmeta)
-    #     store.preload()
-    #     print("preload: ", store.datas.lines.open[0])
-    #     assert store.datas.lines.open[0] is not None
-
-    # def test_buy(self, store, buyorder):
-    #     q = store.buy(**buyorder)
-    #     data = get_data(q)
-    #     print("buy: ", data)
-    #     assert data is not None
-    
-    # def test_sell(self, store, sellorder):
-    #     q = store.sell(order)
-    #     data = get_data(q)
-    #     assert data is not None
