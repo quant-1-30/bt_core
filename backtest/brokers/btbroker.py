@@ -20,10 +20,45 @@
 ###############################################################################
 import queue
 import copy
+import threading
 
 from backtest.metabase import with_metaclass, MetaParams
 from backtest.stores.btstore import BTStore
 from bt_sdk.core.model import OrderMeta, ReqMeta
+
+class AcctDescriptor(object):
+
+    def __init__(self):
+        self._evt_acct = threading.Event()
+        self._cash = 0.0
+        self.portfolio_value = 0.0
+
+    def broker_threads(self, inst):
+        t = threading.Thread(target=self._t_account, args=(inst,))
+        t.daemon = True
+        t.start()
+        self._evt_acct.wait() # wait for account data to be set
+
+    def _t_account(self, inst):
+        data = inst.getAccount()
+        print('_t_account', data)
+        if data:
+            msg = data[0]["msg"]
+            self._cash = msg["cash"]
+            self.portfolio_value = msg["portfolio_value"]
+        else:
+            self._cash = 0.0
+            self.portfolio_value = 0.0
+        self._evt_acct.set()
+
+    def __set__(self, instance, value):
+        raise AttributeError("can't set attribute")
+    
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        self.broker_threads(instance)
+        return (self._cash, self.portfolio_value)
 
 
 class MetaBTBroker(MetaParams):
@@ -49,7 +84,7 @@ class MetaBTBroker(MetaParams):
                 break
             data.append(msg)
         return data
-
+    
 
 class BTBroker(with_metaclass(MetaBTBroker, object)):
     '''Broker implementation for Interactive Brokers.
@@ -77,23 +112,26 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
     params = (
         ("timeout", -1),
         )
+    
+    acct = AcctDescriptor()
 
     def __init__(self, tdapi, **kwargs):
         super(BTBroker, self).__init__()
         self.tdapi = tdapi
-        self.notifs = queue.Queue()  # holds orders which are notified
-        # self.notifs = collections.deque()  # not thread safe
+        self.notifs = queue.Queue()  # holds orders which are notified thread safe
 
     def _start(self):
         if not self.tdapi.connected():
             raise Exception("TDAPI not connected")
 
-    def stop(self):
-        print("stop btbroker")
-        self.tdapi.disconnected()
+    def set_cash(self, session,cash):
+        self.tdapi.set_cash(session, cash)
 
-    def cancel(self, vtorder_id):
-        self.tdapi.cancel(vtorder_id)
+    def get_cash(self):
+        return self.acct[0]
+
+    def get_portfolio(self):
+        return self.acct[1]
     
     def getAccount(self):
         q = self.tdapi.getAccount()
@@ -118,3 +156,10 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
 
     def notify(self, order):
         self.notifs.put(copy.deepcopy(order))
+    
+    def cancel(self, vtorder_id):
+        self.tdapi.cancel(vtorder_id)
+
+    def stop(self):
+        print("stop btbroker")
+        self.tdapi.disconnected()

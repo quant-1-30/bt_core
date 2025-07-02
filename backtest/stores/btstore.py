@@ -21,7 +21,7 @@
 import httpx
 import collections
 import threading
-
+import queue
 from backtest.dataseries import TimeFrame
 from bt_sdk.core.model import ReqMeta, OrderMeta
 from bt_sdk.core.client import MdApi, TdApi
@@ -55,6 +55,17 @@ class BTStore(Store):
         ('td_addr', ("127.0.0.1", 8888)),
     )
 
+    def __init__(self, user_id="", **kwargs):
+        super(BTStore, self).__init__()
+    
+        self.notifs = collections.deque()  # store notifications for cerebro
+        self.datas = []
+        
+        self._feed, self.broker = self.on_connect(user_id, **kwargs)
+
+        self._evt_acct = threading.Event()
+        self._evt_cal = threading.Event()
+
     # supported granularities
     _GRANULARITIES = {
         (TimeFrame.Seconds, 5): 'S5',
@@ -82,34 +93,15 @@ class BTStore(Store):
     def get_granularity(self, timeframe, compression):
         return self._GRANULARITIES.get((timeframe, compression), None)
 
-# -------------------------------------------------get components-----------------------------------------------------
+# -------------------------------------------------initialize-----------------------------------------------------
 
-    @classmethod
-    def getdata(cls, *args, **kwargs):
-        '''Returns ``DataCls`` with args, kwargs'''
-        return cls.DataCls(*args, **kwargs)
+    def _start(self):
+        self._feed._start()
+        self.broker._start()
 
-    @classmethod
-    def getbroker(cls, *args, **kwargs):
-        '''Returns broker with *args, **kwargs from registered ``BrokerCls``'''
-        return cls.BrokerCls(*args, **kwargs)
+    def start(self):
+        self._start()
     
-# -------------------------------------------------public api-----------------------------------------------------
-
-    def __init__(self, user_id="", **kwargs):
-        super(BTStore, self).__init__()
-    
-        self._cash = 0.0
-        self._fundvalue = 0.0
-        self.calendar = None
-        self.notifs = collections.deque()  # store notifications for cerebro
-        self.datas = []
-        
-        self._feed, self.broker = self.on_connect(user_id, **kwargs)
-
-        self._evt_acct = threading.Event()
-        self._evt_cal = threading.Event()
-
     def on_connect(self, user_id, **kwargs):
         client_id = self.getToken(user_id)
         print("client_id ", client_id)
@@ -130,77 +122,34 @@ class BTStore(Store):
             raise Exception(data["data"])
         return data["data"]
     
-    def get_notification(self):
-        '''Return the pending "store" notifications'''
-        notifs = self.broker.notifs
-        notifs.put(None)  # put a mark / threads could still append
-        # None is sentinel
-        return [x for x in iter(notifs.get, None)]
-    
-    # def notify(self, order):
-    #     self.notifs.put(copy.deepcopy(order))
-    
-    # def put_notification(self, msg, *args, **kwargs):
-    #     self.notifs.append((msg, args, kwargs))
-    
-    # def get_notification(self):
-    #     try:
-    #         return self.broker.notifs.get(False)
-    #     except queue.Empty:
-    #         pass
-    #     return None
-    
-# -------------------------------------------------initialize-----------------------------------------------------
+    @classmethod
+    def getdata(cls, *args, **kwargs):
+        '''Returns ``DataCls`` with args, kwargs'''
+        return cls.DataCls(*args, **kwargs)
 
-    def _start(self):
-        self._feed._start()
-        self.broker._start()
-
-    def start(self):
-        self._start()
-        self.data_threads()
-        self.broker_threads()
-
-    def data_threads(self):
-        t = threading.Thread(target=self._t_cal)
-        t.daemon = True
-        t.start()
-        self._evt_cal.wait()
-
-    def _t_cal(self):
-        msg = self._feed.getCalendar()
-        self.calendar = msg
-        self._evt_cal.set()
-
-    def broker_threads(self):
-        t = threading.Thread(target=self._t_account)
-        t.daemon = True
-        t.start()
-        self._evt_acct.wait() # wait for account data to be set
-
-    def _t_account(self):
-        data = self.broker.getAccount()
-        print('_t_account', data)
-        if data:
-            msg = data[0]["msg"]
-            self._cash = msg["cash"]
-            self._fundvalue = msg["fundvalue"]
-            self._evt_acct.set()
+    @classmethod
+    def getbroker(cls, *args, **kwargs):
+        '''Returns broker with *args, **kwargs from registered ``BrokerCls``'''
+        return cls.BrokerCls(*args, **kwargs)
 
 # -------------------------------------------------broker api-----------------------------------------------------
+
+    def set_cash(self, session, cash):
+        self.broker.set_cash(session, cash)
+        # self.broker_threads()
     
     def getcash(self):
-        return self.broker._cash
+        return self.broker.get_cash()
 
     def getvalue(self):
-        return self.broker._fundvalue
+        return self.broker.get_portfolio()
     
     def getPosition(self):
         return self.broker.getPosition()
     
     def getAccount(self):
         self._t_account()
-        return (self._cash, self._fundvalue)
+        return (self._cash, self.portfolio_value)
     
     def on_request(self, topic, reqmeta):
         return self.broker.subscribe(topic, reqmeta)
@@ -214,10 +163,10 @@ class BTStore(Store):
     def on_timer(self, timermeta):
         return self.broker.on_timer(timermeta)
 
-# -------------------------------------------------order api-----------------------------------------------------
+# -------------------------------------------------mdapi-----------------------------------------------------
     
     def getCalendar(self):
-        return self.calendar
+        return self._feed.calendar
     
     def getInstrument(self, session):
         return self._feed.getInstrument(session)
@@ -227,6 +176,18 @@ class BTStore(Store):
      
     def subscribe(self, reqmeta):
         return self._feed.subscribe(reqmeta)
+    
+# -------------------------------------------------notification-----------------------------------------------------
+
+    def put_notification(self, msg, *args, **kwargs):
+        self.notifs.put((msg, args, kwargs))
+    
+    def get_notification(self):
+        try:
+            return self.broker.notifs.get(False)
+        except queue.Empty:
+            pass
+        return None
     
     def cancelData(self):
         return self._feed.cancel()

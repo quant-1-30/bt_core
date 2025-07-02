@@ -20,12 +20,34 @@
 ###############################################################################
 import pytz
 import warnings
+import threading
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.utils.dateintern import Localizer
 from backtest.metabase import with_metaclass
 from backtest.stores.btstore import BTStore
-from bt_sdk.core.client import MdApi
+
+
+class CalendarDescriptor(object):
+
+    def __init__(self):
+        self.calendar = None
+        self._evt_cal = threading.Event()
+
+    def data_threads(self, inst):
+        t = threading.Thread(target=self._t_cal, args=(inst,))
+        t.daemon = True
+        t.start()
+        self._evt_cal.wait()
+
+    def _t_cal(self, inst):
+        msg = inst.getCalendar()
+        self.calendar = msg
+        self._evt_cal.set()
+    
+    def __get__(self, instance, owner):
+        self.data_threads(instance)
+        return self.calendar
 
 
 class MetaMdData(DataBase.__class__):
@@ -51,7 +73,7 @@ class MetaMdData(DataBase.__class__):
                 break
             data.append(msg)
         return data
-
+    
 
 class MdData(with_metaclass(MetaMdData, DataBase)):
     '''Interactive Brokers Data Feed.
@@ -110,14 +132,11 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         ('timeout', -1)
     )
 
-    # Minimum size supported by real-time bars
-    RTBAR_MINSIZE = (TimeFrame.Seconds, 3)
+    calendar = CalendarDescriptor()
+
+    RTBAR_MINSIZE = (TimeFrame.Seconds, 3) # Minimum size supported by real-time bars
 
     # _ST_FROM, _ST_START, _ST_LIVE, _ST_HISTORBACK, _ST_OVER = range(5)
-
-    # def __init__(self, **kwargs):
-    #     addr = kwargs.get('addr', ("127.0.0.1", 8888))
-    #     self.mdapi = MdApi(addr)
 
     def __init__(self, mdapi, **kwargs):
         super(MdData, self).__init__(**kwargs)
@@ -149,17 +168,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
             return
 
         self._subcription_valid = False  # subscription state
-        # self.put_notification(self.CONNECTED)
-        super(MdData, self)._start()
- 
-    def stop(self):
-        '''Stops and tells the store to stop'''
-        print("stop mdapi")
-        self.mdapi.disconnected()
+        super(MdData, self)._start() # self.put_notification(self.CONNECTED)
 
-    def getCalendar(self):
-        q = self.mdapi.getCalendar()
-        return self.get_data(q, self.p.timeout)
+    def calendar(self):
+        return self.calendar
     
     def getInstrument(self, session):
         q = self.mdapi.getInstrument(session)
@@ -240,3 +252,8 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         self.lines.volume[0] = rtbar[2]
         self.lines.amount[0] = rtbar[3]
         return True
+
+    def stop(self):
+        '''Stops and tells the store to stop'''
+        print("stop mdapi")
+        self.mdapi.disconnected()

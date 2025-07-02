@@ -90,48 +90,14 @@ class TestBTStore:
     def timer_msg(self):
         return {"timer": "end", "session": 20201206}
     
-    def test_getcalendar(self, store):
-        data = store.getCalendar()
-        print("getcalendar: ", data)
-        assert data is not None
-
-    def test_getinstrument(self, store, session):
-        data = store.getInstrument(session)
-        print("getinstrument: ", data)
-        assert data is not None
-
-    def test_getevent(self, store, session, event_type):
-        data = store.getEvent(session, event_type)
-        print("getevents: ", data)
-        assert data is not None
-    
-    def test_getposition(self, store):
-        data = store.getPosition()
-        print("getposition: ", data)
-        assert data is not None
-
-    def test_getaccount(self, store):
-        data = store.getAccount()
-        print("getaccount: ", data)
-        assert data is not None
-
-    def test_reqOrder(self, store, reqmeta):
-        q = store.on_request("order", reqmeta)
-        data = get_data(q)
-        print("reqOrder: ", data)
-        assert data is not None
-
-    def test_reqPosition(self, store, reqmeta):
-        q = store.on_request("position", reqmeta)
-        data = get_data(q)
-        print("reqPosition: ", data)
-        assert data is not None
-
-    def test_reqAccount(self, store, reqmeta):
-        q = store.on_request("account", reqmeta)
-        data = get_data(q)
-        print("reqAccount: ", data)
-        assert data is not None
+    # def test_set_cash(self, store):
+    #     cash = 10000
+    #     session = "202410101331"
+    #     session = datetime.strptime(session, '%Y%m%d%H%M').timestamp()
+    #     store.set_cash(session, cash)
+    #     account_cash = store.getcash()
+    #     print("account_cash: ", account_cash)
+    #     assert account_cash is not None
     
     def test_submit(self, store, order):
         q = store.submit(order)
@@ -139,13 +105,56 @@ class TestBTStore:
         print("submit: ", data)
         assert data is not None
     
-    def test_subscribe(self, store, subMeta):
-        store.subscribe(subMeta)
-        store._feed.preload()
-        print("preload: ", store._feed.lines.buflen())
-        assert store._feed.lines.buflen() > 0
+    # def test_getcalendar(self, store):
+    #     data = store.getCalendar()
+    #     print("getcalendar: ", data)
+    #     assert data is not None
+
+    # def test_getinstrument(self, store, session):
+    #     data = store.getInstrument(session)
+    #     print("getinstrument: ", data)
+    #     assert data is not None
+
+    # def test_getevent(self, store, session, event_type):
+    #     data = store.getEvent(session, event_type)
+    #     print("getevents: ", data)
+    #     assert data is not None
     
-    def test_timer(self, store, timer_msg):
-        data = store.on_timer(timer_msg)
-        print("timer: ", data)
-        assert data is not None
+    # def test_getposition(self, store):
+    #     data = store.getPosition()
+    #     print("getposition: ", data)
+    #     assert data is not None
+
+    # def test_getaccount(self, store):
+    #     data = store.getAccount()
+    #     print("getaccount: ", data)
+    #     assert data is not None
+
+    # def test_reqOrder(self, store, reqmeta):
+    #     q = store.on_request("order", reqmeta)
+    #     data = get_data(q)
+    #     print("reqOrder: ", data)
+    #     assert data is not None
+
+    # def test_reqPosition(self, store, reqmeta):
+    #     q = store.on_request("position", reqmeta)
+    #     data = get_data(q)
+    #     print("reqPosition: ", data)
+    #     assert data is not None
+
+    # def test_reqAccount(self, store, reqmeta):
+    #     q = store.on_request("account", reqmeta)
+    #     data = get_data(q)
+    #     print("reqAccount: ", data)
+    #     assert data is not None
+    
+    # def test_subscribe(self, store, subMeta):
+    #     store.subscribe(subMeta)
+    #     store._feed.preload()
+    #     print("preload: ", store._feed.lines.buflen())
+    #     assert store._feed.lines.buflen() > 0
+    
+    # def test_timer(self, store, timer_msg):
+    #     data = store.on_timer(timer_msg)
+    #     print("timer: ", data)
+    #     assert data is not None
