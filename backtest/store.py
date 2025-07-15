@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import queue
+import httpx
 import collections
 import backtest as bt
 from backtest.metabase import MetaParams, with_metaclass, findowner
@@ -49,13 +50,25 @@ class Store(with_metaclass(MetaSingleton, object)):
 
     _started = False
 
-    params = ()
+    params = (
+        ("cas", "http://localhost:10000/auth/login"),
+    )
 
     def getdata(self, *args, **kwargs):
         '''Returns ``DataCls`` with args, kwargs'''
         data = self.DataCls(*args, **kwargs)
         data._store = self
         return data
+    
+    def getToken(self, user_id):
+        headers = {
+            "Authorization": f"Bearer test"
+        }
+        response = httpx.post(self.p.cas, json={"user_id": user_id}, headers=headers)
+        data = response.json()
+        if data["status"] == 1:
+            raise Exception(data["data"])
+        return data["data"]
 
     @classmethod
     def getbroker(cls, *args, **kwargs):

@@ -22,7 +22,6 @@ import numpy as np
 import collections
 import copy
 import datetime
-import inspect
 import itertools
 import operator
 
@@ -32,7 +31,6 @@ from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, ItemCollection, findowner
 from .sizers import FixedSize
-# signal 里面有 Indicator还完全实例化
 
 
 class MetaStrategy(StrategyBase.__class__):
@@ -74,13 +72,11 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
         store = _obj.env.store
-        store.owner = _obj
         _obj.store = store
         
-        _obj._sizer = FixedSize()
+        _obj._sizer = FixedSize() # default
         _obj._orderspending = list()
         _obj._tradespending = list()
-        _obj.writers = list()
         
         _obj.stats = _obj.observers = ItemCollection()
         _obj.analyzers = ItemCollection()
@@ -91,7 +87,7 @@ class MetaStrategy(StrategyBase.__class__):
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
-        _obj._sizer.set(_obj, _obj.store)
+        _obj._sizer.set(_obj.store)
         return _obj, args, kwargs
 
 
@@ -102,9 +98,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     _ltype = LineIterator.StratType
 
-    _oldsync = False  # update clock using old methodology : data 0
-
-    # keep the latest delivered data date in the line
     lines = ('datetime',)
 
     def qbuffer(self, savemem=0, replaying=False):
@@ -125,14 +118,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         if savemem < 0:
             # Get any attribute which labels itself as Indicator
             for ind in self._lineiterators[self.IndType]:
-                subsave = isinstance(ind, (LineSingle,))
-                if not subsave and savemem < -1:
-                    subsave = not ind.plotinfo.plot
-                ind.qbuffer(savemem=subsave)
-
+                if isinstance(ind, (LineSingle,)) and not ind.plotinfo.plot:
+                    ind.qbuffer(savemem=1)
+                else:
+                    ind.qbuffer(savemem=0)
         elif savemem > 0:
             for data in self.datas:
-                data.qbuffer(replaying=replaying)
+                data.qbuffer(savemem=savemem, replaying=replaying)
 
             for line in self.lines:
                 line.qbuffer(savemem=1)
@@ -143,115 +135,49 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                     it.qbuffer(savemem=1)
 
     def _periodset(self):
-        dataids = [id(data) for data in self.datas]
-
-        _dminperiods = collections.defaultdict(list)
-        for lineiter in self._lineiterators[LineIterator.IndType]:
-            # if multiple datas are used and multiple timeframes the larger
-            # timeframe may place larger time constraints in calling next.
-            clk = getattr(lineiter, '_clock', None)
-            if clk is None:
-                clk = getattr(lineiter._owner, '_clock', None)
-                if clk is None:
-                    continue
-
-            while True:
-                if id(clk) in dataids:
-                    break  # already top-level clock (data feed)
-
-                # See if the current clock has higher level clocks
-                clk2 = getattr(clk, '_clock', None)
-                if clk2 is None:
-                    clk2 = getattr(clk._owner, '_clock', None)
-
-                if clk2 is None:
-                    break  # if no clock found, bail out
-
-                clk = clk2  # keep the ref and try to go up the hierarchy
-
-            if clk is None:
-                continue  # no clock found, go to next
-
-            # LineSeriesStup wraps a line and the clock is the wrapped line and
-            # no the wrapper itself.
-            if isinstance(clk, LineSeriesStub):
-                clk = clk.lines[0]
-
-            _dminperiods[clk].append(lineiter._minperiod)
-
-        self._minperiods = list()
+        """设置策略和数据源的最小周期"""
+        data_lookup = {id(data): data for data in self.datas}
+        
+        clock_periods = []
+        for indicator in self._lineiterators[LineIterator.IndType]:
+            clock = self._find_clock(indicator, data_lookup) # indicator 默认 data[0]
+            if clock:
+                clock_periods.append((clock, indicator._minperiod))
+        
+        self._minperiods = []
         for data in self.datas:
+            periods = [data._minperiod]
+            periods.extend(period for clock, period in clock_periods 
+                          if clock == data or clock in data.lines)
+            
+            self._minperiods.append(max(periods))
+        
+        # 设置策略的全局最小周期
+        ind_periods = [ind._minperiod for ind in self._lineiterators[LineIterator.IndType]]
+        ind_periods.append(self._minperiod)
+        self._minperiod = max(ind_periods)
 
-            # Do not only consider the data as clock but also its lines which
-            # may have been individually passed as clock references and
-            # discovered as clocks above
-
-            # Initialize with data min period if any
-            dlminperiods = _dminperiods[data]
-
-            for l in data.lines:  # search each line for min periods
-                if l in _dminperiods:
-                    dlminperiods += _dminperiods[l]  # found, add it
-
-            # keep the reference to the line if any was found
-            _dminperiods[data] = [max(dlminperiods)] if dlminperiods else []
-
-            dminperiod = max(_dminperiods[data] or [data._minperiod])
-            self._minperiods.append(dminperiod)
-
-        # Set the minperiod
-        minperiods = \
-            [x._minperiod for x in self._lineiterators[LineIterator.IndType]]
-        self._minperiod = max(minperiods or [self._minperiod])
-
-    # def _addwriter(self, writer):
-    #     '''
-    #     Unlike the other _addxxx functions this one receives an instance
-    #     because the writer works at cerebro level and is only passed to the
-    #     strategy to simplify the logic
-    #     '''
-    #     self.writers.append(writer)
-
-    def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
-        '''Like _addanalyzer but meant for observers (or other entities) which
-        rely on the output of an analyzer for the data. These analyzers have
-        not been added by the user and are kept separate from the main
-        analyzers
-
-        Returns the created analyzer
-        '''
-        analyzer = ancls(*anargs, **ankwargs)
-        self._slave_analyzers.append(analyzer)
-        return analyzer
-
-    # def _getanalyzer_slave(self, idx):
-    #     return self._slave_analyzers.append[idx]
-
-    def _addanalyzer(self, ancls, *anargs, **ankwargs):
-        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
-        nsuffix = next(self._alnames[anname])
-        anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
-        analyzer = ancls(*anargs, **ankwargs)
-        self.analyzers.append(analyzer, anname)
-
-    def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
-        obsname = obskwargs.pop('obsname', '')
-        if not obsname:
-            obsname = obscls.__name__.lower()
-
-        if not multi:
-            newargs = list(itertools.chain(self.datas, obsargs))
-            # automatically observer to _ltype
-            obs = obscls(*newargs, **obskwargs)
-            self.stats.append(obs, obsname)
-            return
-
-        setattr(self.stats, obsname, list())
-        l = getattr(self.stats, obsname)
-
-        for data in self.datas:
-            obs = obscls(data, *obsargs, **obskwargs)
-            l.append(obs)
+    @staticmethod
+    def _find_clock(obj, data_lookup):
+        """查找对象的顶层时钟"""
+        clock = getattr(obj, '_clock', None) or getattr(obj._owner, '_clock', None)
+        
+        if not clock:
+            return None
+        
+        # 向上遍历时钟层次结构
+        while True:
+            if id(clock) in data_lookup:
+                break  # 找到数据源，成功退出
+            # 查找上级时钟
+            next_clock = (getattr(clock, '_clock', None) or 
+                         getattr(clock._owner, '_clock', None))
+            if not next_clock:
+                return None  # 找不到上级时钟，失败退出
+            clock = next_clock
+        if isinstance(clock, LineSeriesStub):
+            clock = clock.lines[0]
+        return clock
 
     def _getminperstatus(self):
         # check the min period status connected to datas
@@ -260,12 +186,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return minperstatus
     
     def _clk_update(self):
-        if self._oldsync:
-            clk_len = super(Strategy, self)._clk_update()
-            self.lines.datetime[0] = max(d.datetime[0]
-                                         for d in self.datas if len(d))
-            return clk_len
-
+        # 移除 _oldsync 判断，统一使用新的时钟更新机制
         newdlens = [len(d) for d in self.datas]
         if any(nl > l for l, nl in zip(self._dlens, newdlens)):
             self.forward()
@@ -276,17 +197,38 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return len(self)
     
+    def _start(self):
+        self._periodset()
+
+        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+            analyzer._start()
+
+        for obs in self.observers:
+            if not isinstance(obs, list):
+                obs = [obs]  # support of multi-data observers
+
+            for o in obs:
+                o._start()
+
+        # # change operators to stage 2
+        # self._stage2()
+
+        self._dlens = [len(data) for data in self.datas]
+
+        self._minperstatus = np.iinfo(np.int_).max  # start in prenext
+
+        self.start()
+
+    def start(self):
+        '''Called right before the backtesting is about to be started.'''
+        pass
+    
     def _oncepost(self, dt):
         for indicator in self._lineiterators[LineIterator.IndType]:
             if len(indicator._clock) > len(indicator):
                 indicator.advance()
 
-        if self._oldsync:
-            # Strategy has not been reset, the line is there
-            self.advance()
-        else:
-            # strategy has been reset to beginning. advance step by step
-            self.forward()
+        self.forward() # strategy forward
 
         self.lines.datetime[0] = dt
         self._notify()
@@ -325,11 +267,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
             if once:
                 if len(self) > len(observer):
-                    if self._oldsync:
-                        observer.advance()
-                    else:
-                        observer.forward()
-
+                    # 移除 _oldsync 判断，统一使用 forward()
+                    observer.forward()
                 if minperstatus < 0:
                     observer.next()
                 elif minperstatus == 0:
@@ -351,32 +290,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
 
-    def _start(self):
-        self._periodset()
-
-        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            analyzer._start()
-
-        for obs in self.observers:
-            if not isinstance(obs, list):
-                obs = [obs]  # support of multi-data observers
-
-            for o in obs:
-                o._start()
-
-        # # change operators to stage 2
-        # self._stage2()
-
-        self._dlens = [len(data) for data in self.datas]
-
-        self._minperstatus = np.iinfo(np.int_).max  # start in prenext
-
-        self.start()
-
-    def start(self):
-        '''Called right before the backtesting is about to be started.'''
-        pass
-
     def _stop(self):
         self.stop()
 
@@ -397,91 +310,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                   allow=None,
                   tzdata=None, cheat=False,
                   *args, **kwargs):
-        '''
-        **Note**: can be called during ``__init__`` or ``start``
-
-        Schedules a timer to invoke either a specified callback or the
-        ``notify_timer`` of one or more strategies.
-
-        Arguments:
-
-          - ``when``: can be
-
-            - ``datetime.time`` instance (see below ``tzdata``)
-            - ``bt.timer.SESSION_START`` to reference a session start
-            - ``bt.timer.SESSION_END`` to reference a session end
-
-         - ``offset`` which must be a ``datetime.timedelta`` instance
-
-           Used to offset the value ``when``. It has a meaningful use in
-           combination with ``SESSION_START`` and ``SESSION_END``, to indicated
-           things like a timer being called ``15 minutes`` after the session
-           start.
-
-          - ``repeat`` which must be a ``datetime.timedelta`` instance
-
-            Indicates if after a 1st call, further calls will be scheduled
-            within the same session at the scheduled ``repeat`` delta
-
-            Once the timer goes over the end of the session it is reset to the
-            original value for ``when``
-
-          - ``weekdays``: a **sorted** iterable with integers indicating on
-            which days (iso codes, Monday is 1, Sunday is 7) the timers can
-            be actually invoked
-
-            If not specified, the timer will be active on all days
-
-          - ``weekcarry`` (default: ``False``). If ``True`` and the weekday was
-            not seen (ex: trading holiday), the timer will be executed on the
-            next day (even if in a new week)
-
-          - ``monthdays``: a **sorted** iterable with integers indicating on
-            which days of the month a timer has to be executed. For example
-            always on day *15* of the month
-
-            If not specified, the timer will be active on all days
-
-          - ``monthcarry`` (default: ``True``). If the day was not seen
-            (weekend, trading holiday), the timer will be executed on the next
-            available day.
-
-          - ``allow`` (default: ``None``). A callback which receives a
-            `datetime.date`` instance and returns ``True`` if the date is
-            allowed for timers or else returns ``False``
-
-          - ``tzdata`` which can be either ``None`` (default), a ``pytz``
-            instance or a ``data feed`` instance.
-
-            ``None``: ``when`` is interpreted at face value (which translates
-            to handling it as if it where UTC even if it's not)
-
-            ``pytz`` instance: ``when`` will be interpreted as being specified
-            in the local time specified by the timezone instance.
-
-            ``data feed`` instance: ``when`` will be interpreted as being
-            specified in the local time specified by the ``tz`` parameter of
-            the data feed instance.
-
-            **Note**: If ``when`` is either ``SESSION_START`` or
-              ``SESSION_END`` and ``tzdata`` is ``None``, the 1st *data feed*
-              in the system (aka ``self.data0``) will be used as the reference
-              to find out the session times.
-
-          - ``cheat`` (default ``False``) if ``True`` the timer will be called
-            before the broker has a chance to evaluate the orders. This opens
-            the chance to issue orders based on opening price for example right
-            before the session starts
-
-          - ``*args``: any extra args will be passed to ``notify_timer``
-
-          - ``**kwargs``: any extra kwargs will be passed to ``notify_timer``
-
-        Return Value:
-
-          - The created timer
-
-        '''
         return self.cerebro._add_timer(
             owner=self, when=when, offset=offset, repeat=repeat,
             weekdays=weekdays, weekcarry=weekcarry,
@@ -489,6 +317,43 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             allow=allow,
             tzdata=tzdata, strats=False, cheat=cheat,
             *args, **kwargs)
+    
+    def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
+        '''Like _addanalyzer but meant for observers (or other entities) which
+        rely on the output of an analyzer for the data. These analyzers have
+        not been added by the user and are kept separate from the main
+        analyzers
+
+        Returns the created analyzer
+        '''
+        analyzer = ancls(*anargs, **ankwargs)
+        self._slave_analyzers.append(analyzer)
+
+    def _addanalyzer(self, ancls, *anargs, **ankwargs):
+        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
+        nsuffix = next(self._alnames[anname])
+        anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
+        analyzer = ancls(*anargs, **ankwargs)
+        self.analyzers.append(analyzer, anname)
+
+    def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
+        obsname = obskwargs.pop('obsname', '')
+        if not obsname:
+            obsname = obscls.__name__.lower()
+
+        if not multi:
+            newargs = list(itertools.chain(self.datas, obsargs))
+            # automatically observer to _ltype
+            obs = obscls(*newargs, **obskwargs)
+            self.stats.append(obs, obsname)
+            return
+
+        setattr(self.stats, obsname, list())
+        l = getattr(self.stats, obsname)
+
+        for data in self.datas:
+            obs = obscls(data, *obsargs, **obskwargs)
+            l.append(obs)
 
     # def _addnotification(self, qorders=[], quicknotify=False):
     #     for order in qorders:
@@ -609,37 +474,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             **kwargs):
         '''Create a buy (long) order and send it to the broker
 
-          - ``data`` (default: ``None``)
-
-            For which data the order has to be created. If ``None`` then the
-            first data in the system, ``self.datas[0] or self.data0`` (aka
-            ``self.data``) will be used
-
-          - ``size`` (default: ``None``)
-
-            Size to use (positive) of units of data to use for the order.
-
-            If ``None`` the ``sizer`` instance retrieved via ``getsizer`` will
-            be used to determine the size.
-
-          - ``price`` (default: ``None``)
-
-            Price to use (live brokers may place restrictions on the actual
-            format if it does not comply to minimum tick size requirements)
-
-            ``None`` is valid for ``Market`` and ``Close`` orders (the market
-            determines the price)
-
-            For ``Limit``, ``Stop`` and ``StopLimit`` orders this value
-            determines the trigger point (in the case of ``Limit`` the trigger
-            is obviously at which price the order should be matched)
-
-          - ``plimit`` (default: ``None``)
-
-            Only applicable to ``StopLimit`` orders. This is the price at which
-            to set the implicit *Limit* order, once the *Stop* has been
-            triggered (for which ``price`` has been used)
-
           - ``exectype`` (default: ``None``)
 
             Possible values:
@@ -657,47 +491,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             - ``Order.Close``. An order which can only be executed with the
               closing price of the session (usually during a closing auction)
 
-          - ``valid`` (default: ``None``)
-
-            Possible values:
-
-              - ``None``: this generates an order that will not expire (aka
-                *Good till cancel*) and remain in the market until matched or
-                canceled. In reality brokers tend to impose a temporal limit,
-                but this is usually so far away in time to consider it as not
-                expiring
-
-              - ``datetime.datetime`` or ``datetime.date`` instance: the date
-                will be used to generate an order valid until the given
-                datetime (aka *good till date*)
-
-              - ``Order.DAY`` or ``0`` or ``timedelta()``: a day valid until
-                the *End of the Session* (aka *day* order) will be generated
-
-              - ``numeric value``: This is assumed to be a value corresponding
-                to a datetime in ``matplotlib`` coding (the one used by
-                ``backtrader``) and will used to generate an order valid until
-                that time (*good till date*)
-
           - ``**kwargs``: additional broker implementations may support extra
             parameters. ``backtrader`` will pass the *kwargs* down to the
             created order objects
-
-            Example: if the 4 order execution types directly supported by
-            ``backtrader`` are not enough, in the case of for example
-            *Interactive Brokers* the following could be passed as *kwargs*::
-
-              orderType='LIT', lmtPrice=10.0, auxPrice=9.8
-
-            This would override the settings created by ``backtrader`` and
-            generate a ``LIMIT IF TOUCHED`` order with a *touched* price of 9.8
-            and a *limit* price of 10.0.
 
         Returns:
           - the submitted order
         '''
         if size:
-            q = self.store.buy(
+            q = self.store.buy(sid,
                 size=abs(size), price=price, plimit=plimit,
                 exectype=exectype, ordertype=ordertype,
                 **kwargs)
@@ -724,21 +526,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             # self._orderspending.append(q)
             self.store.notify(q)
 
-    def getpositions(self, broker=None, name=None):
-        '''
-        Returns the current position for a given data in a given broker.
-
-        If both are None, the main data and the default broker will be used
-
-        A property ``position`` is also available
-        '''
-        return self.store.getPosition()
-
-    positions = property(getpositions)
-
     def _addsizer(self, sizer, *args, **kwargs):
         if sizer is None:
-            self.setsizer(FixedSize())
+            self.setsizer(bt.sizers.FixedSize())
         else:
             self.setsizer(sizer(*args, **kwargs))
 

@@ -46,7 +46,8 @@ class CalendarDescriptor(object):
         self._evt_cal.set()
     
     def __get__(self, instance, owner):
-        self.data_threads(instance)
+        if self.calendar is None:
+            self.data_threads(instance)
         return self.calendar
 
 
@@ -132,7 +133,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         ('timeout', -1)
     )
 
-    calendar = CalendarDescriptor()
+    cal = CalendarDescriptor()
 
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3) # Minimum size supported by real-time bars
 
@@ -170,8 +171,9 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         self._subcription_valid = False  # subscription state
         super(MdData, self)._start() # self.put_notification(self.CONNECTED)
 
-    def calendar(self):
-        return self.calendar
+    def getCalendar(self):
+        q = self.mdapi.getCalendar()
+        return self.get_data(q, self.p.timeout)
     
     def getInstrument(self, session):
         q = self.mdapi.getInstrument(session)

@@ -22,9 +22,17 @@
 #
 ###############################################################################
 
+import sys
+import importlib
 from collections import OrderedDict
 import itertools
-import sys
+
+
+__all__ = ['findbases', 'findowner', 'MetaBase', 'AutoInfoClass', 'MetaParams',
+           'ParamsBase', 'with_metaclass']
+
+
+NAN = float('NaN')
 
 
 def findbases(kls, topclass):
@@ -232,10 +240,10 @@ class MetaParams(MetaBase):
         fnewpackages = tuple(dct.pop(fpacks, ()))  # remove before creation
 
         # Create the new class - this pulls predefined "params"
-        cls = super(MetaParams, meta).__new__(meta, name, bases, dct)
+        cls = super(MetaParams, meta).__new__(meta, name, bases, dct) 
 
         # Pulls the param class out of it - default is the empty class
-        params = getattr(cls, 'params', AutoInfoClass)
+        params = getattr(cls, 'params', AutoInfoClass) # mro first
 
         # Pulls the packages class out of it - default is the empty class
         packages = tuple(getattr(cls, packs, ()))
@@ -268,16 +276,18 @@ class MetaParams(MetaBase):
             else:
                 palias = p
 
-            pmod = __import__(p)
+            # Use importlib instead of __import__
+            pmod = importlib.import_module(p)
 
             plevels = p.split('.')
             if p == palias and len(plevels) > 1:  # 'os.path' not aliased
-                setattr(clsmod, pmod.__name__, pmod)  # set 'os' in module
+                # For dotted packages like 'os.path', set the top-level module 'os'
+                # so users can access via os.path
+                top_module = sys.modules[plevels[0]]
+                setattr(clsmod, plevels[0], top_module)
 
             else:  # aliased and/or dots
-                for plevel in plevels[1:]:  # recurse down the mod
-                    pmod = getattr(pmod, plevel)
-
+                # Set the actual imported module (could be aliased)
                 setattr(clsmod, palias, pmod)
 
         # import from specified packages - the 2nd part is a string or iterable
@@ -291,8 +301,8 @@ class MetaParams(MetaBase):
                 else:
                     fp, falias = fp, fp  # assumed is string
 
-                # complain "not string" without fp (unicode vs bytes)
-                pmod = __import__(p, fromlist=[str(fp)])
+                # Use importlib instead of __import__ with fromlist
+                pmod = importlib.import_module(p)
                 pattr = getattr(pmod, fp)
                 setattr(clsmod, falias, pattr)
                 for basecls in cls.__bases__:

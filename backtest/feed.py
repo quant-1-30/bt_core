@@ -85,19 +85,19 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
             # remove 9 to avoid precision rounding errors
             _obj.p.sessionend = datetime.time(23, 59, 59, 999990)
 
-        if isinstance(_obj.p.fromdate, datetime.date):
-            # push it to the end of the day, or else intraday
-            # values before the end of the day would be gone
-            if not hasattr(_obj.p.fromdate, 'hour'):
-                _obj.p.fromdate = datetime.datetime.combine(
-                    _obj.p.fromdate, _obj.p.sessionstart)
+        # if isinstance(_obj.p.fromdate, datetime.date):
+        #     # push it to the end of the day, or else intraday
+        #     # values before the end of the day would be gone
+        #     if not hasattr(_obj.p.fromdate, 'hour'):
+        #         _obj.p.fromdate = datetime.datetime.combine(
+        #             _obj.p.fromdate, _obj.p.sessionstart)
 
-        if isinstance(_obj.p.todate, datetime.date):
-            # push it to the end of the day, or else intraday
-            # values before the end of the day would be gone
-            if not hasattr(_obj.p.todate, 'hour'):
-                _obj.p.todate = datetime.datetime.combine(
-                    _obj.p.todate, _obj.p.sessionend)
+        # if isinstance(_obj.p.todate, datetime.date):
+        #     # push it to the end of the day, or else intraday
+        #     # values before the end of the day would be gone
+        #     if not hasattr(_obj.p.todate, 'hour'):
+        #         _obj.p.todate = datetime.datetime.combine(
+        #             _obj.p.todate, _obj.p.sessionend)
 
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
@@ -122,8 +122,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('name', ''),
         ('compression', 1),
         ('timeframe', TimeFrame.Days),
-        ('fromdate', None),
-        ('todate', None),
+        # ('fromdate', None),
+        # ('todate', None),
         ('sessionstart', None),
         ('sessionend', None),
         ('filters', []),
@@ -171,16 +171,16 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         # This should probably be also called from an override-able method
         self._tzinput = Localizer(self._gettzinput())
 
-        # Convert user input times to the output timezone (or min/max)
-        if self.p.fromdate is None:
-            self.fromdate = float('-inf')
-        else:
-            self.fromdate = self.date2num(self.p.fromdate)
+        # # Convert user input times to the output timezone (or min/max)
+        # if self.p.fromdate is None:
+        #     self.fromdate = float('-inf')
+        # else:
+        #     self.fromdate = self.date2num(self.p.fromdate)
 
-        if self.p.todate is None:
-            self.todate = float('inf')
-        else:
-            self.todate = self.date2num(self.p.todate)
+        # if self.p.todate is None:
+        #     self.todate = float('inf')
+        # else:
+        #     self.todate = self.date2num(self.p.todate)
 
         # # FIXME: These two are never used and could be removed
         self.sessionstart = time2num(self.p.sessionstart)
@@ -195,7 +195,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def _start(self):
         # self.start()
-
         if not self._started:
             # dynamic update and add attributes --- _tzinput, _tz, _calendar, _started
             self._start_finish()
@@ -222,7 +221,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                 nexteos += datetime.timedelta(days=1)  # already utc-like
 
             nextdteos = date2num(nexteos)  # -> utc-like
-
         else:
             # returns times in utc
             _, nexteos = self._calendar.schedule(dtime, self._tz)
@@ -252,21 +250,21 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return num2date(dt, tz or self._tz, naive)
 
-    def haslivedata(self):
-        return False  # must be overriden for those that can
+    # def haslivedata(self):
+    #     return False  # must be overriden for those that can
 
-    def do_qcheck(self, onoff, qlapse):
-        # if onoff is True the data will wait p.qcheck for incoming live data
-        # on its queue.
-        qwait = self.p.qcheck if onoff else 0.0
-        qwait = max(0.0, qwait - qlapse)
-        self._qcheck = qwait
+    # def do_qcheck(self, onoff, qlapse):
+    #     # if onoff is True the data will wait p.qcheck for incoming live data
+    #     # on its queue.
+    #     qwait = self.p.qcheck if onoff else 0.0
+    #     qwait = max(0.0, qwait - qlapse)
+    #     self._qcheck = qwait
 
-    def islive(self):
-        '''If this returns True, ``Cerebro`` will deactivate ``preload`` and
-        ``runonce`` because a live data source must be fetched tick by tick (or
-        bar by bar)'''
-        return False
+    # def islive(self):
+    #     '''If this returns True, ``Cerebro`` will deactivate ``preload`` and
+    #     ``runonce`` because a live data source must be fetched tick by tick (or
+    #     bar by bar)'''
+    #     return False
 
     def put_notification(self, status, *args, **kwargs):
         '''Add arguments to notification queue'''
@@ -365,7 +363,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def advance_peek(self):
         if len(self) < self.buflen():
-            return self.lines.datetime[1]  # return the future
+            # return self.lines.datetime[1]  # return the future
+            return self.lines.datetime[0]  # return the future
 
         return float('inf')  # max date else
 

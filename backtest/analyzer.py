@@ -151,6 +151,59 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
         self.prenext()
 
+    def _nextstart(self):
+        for child in self._children:
+            child._nextstart()
+
+        self.nextstart()
+
+    def _next(self):
+        for child in self._children:
+            child._next()
+
+        self.next()
+
+    def _start(self):
+        for child in self._children:
+            child._start()
+
+        self.start()
+
+    def _stop(self):
+        for child in self._children:
+            child._stop()
+
+        self.stop()
+    
+    def prenext(self):
+        '''Invoked for each prenext invocation of the strategy, until the minimum
+        period of the strategy has been reached
+
+        The default behavior for an analyzer is to invoke ``next``
+        '''
+        self.next()
+
+    def nextstart(self):
+        '''Invoked exactly once for the nextstart invocation of the strategy,
+        when the minimum period has been first reached
+        '''
+        self.next()
+    
+    def next(self):
+        '''Invoked for each next invocation of the strategy, once the minum
+        preiod of the strategy has been reached'''
+        pass
+
+    def start(self):
+        '''Invoked to indicate the start of operations, giving the analyzer
+        time to setup up needed things'''
+        pass
+
+    def stop(self):
+        '''Invoked to indicate the end of operations, giving the analyzer
+        time to shut down needed things'''
+        pass
+
     # def _notify_cashvalue(self, cash, value):
     #     for child in self._children:
     #         child._notify_cashvalue(cash, value)
@@ -175,30 +228,6 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
         self.notify_order(order)
 
-    def _nextstart(self):
-        for child in self._children:
-            child._nextstart()
-
-        self.nextstart()
-
-    def _next(self):
-        for child in self._children:
-            child._next()
-
-        self.next()
-
-    def _start(self):
-        for child in self._children:
-            child._start()
-
-        self.start()
-
-    def _stop(self):
-        for child in self._children:
-            child._stop()
-
-        self.stop()
-
     # def notify_cashvalue(self, cash, value):
     #     '''Receives the cash/value notification before each next cycle'''
     #     pass
@@ -213,35 +242,6 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
     def notify_trade(self, trade):
         '''Receives trade notifications before each next cycle'''
-        pass
-
-    def next(self):
-        '''Invoked for each next invocation of the strategy, once the minum
-        preiod of the strategy has been reached'''
-        pass
-
-    def prenext(self):
-        '''Invoked for each prenext invocation of the strategy, until the minimum
-        period of the strategy has been reached
-
-        The default behavior for an analyzer is to invoke ``next``
-        '''
-        self.next()
-
-    def nextstart(self):
-        '''Invoked exactly once for the nextstart invocation of the strategy,
-        when the minimum period has been first reached
-        '''
-        self.next()
-
-    def start(self):
-        '''Invoked to indicate the start of operations, giving the analyzer
-        time to setup up needed things'''
-        pass
-
-    def stop(self):
-        '''Invoked to indicate the end of operations, giving the analyzer
-        time to shut down needed things'''
         pass
 
     def create_analysis(self):

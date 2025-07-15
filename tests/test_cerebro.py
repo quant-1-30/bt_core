@@ -113,6 +113,7 @@ if __name__ == '__main__':
     # data = btfeeds.MyFeed(...)
     # cerebro.adddata(data)
     print("backtest calendar: ", len(cerebro.store.getCalendar()))
+    # import pdb; pdb.set_trace()
     # Print out the starting conditions
     print('Starting Portfolio Value and Cash: %.2f, %.2f' % (cerebro.store.getvalue(), cerebro.store.getcash()))
     reqmeta = ReqMeta(sid=["603676"], start_date=1728351060, end_date=1728384000)

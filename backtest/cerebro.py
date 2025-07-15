@@ -191,21 +191,31 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 elem = (elem,)
             elif not isinstance(elem, collections.Iterable):  # Different functions will be called for different Python versions
                 elem = (elem,)
-
             niterable.append(elem)
-
         return niterable
-
-    def notify_timer(self, timer, when, *args, **kwargs):
-        '''Receives a timer notification where ``timer`` is the timer which was
-        returned by ``add_timer``, and ``when`` is the calling time. ``args``
-        and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-        The actual ``when`` time can be later, but the system may have not be
-        able to call the timer before. This value is the timer value and no the
-        system time.
+    
+    def addtz(self, tz):
         '''
-        pass
+        This can also be done with the parameter ``tz``
+
+        Adds a global timezone for strategies. The argument ``tz`` can be
+
+          - ``None``: in this case the datetime displayed by strategies will be
+            in UTC, which has been always the standard behavior
+
+          - ``pytz`` instance. It will be used as such to convert UTC times to
+            the chosen timezone
+
+          - ``string``. Instantiating a ``pytz`` instance will be attempted.
+
+          - ``integer``. Use, for the strategy, the same timezone as the
+            corresponding ``data`` in the ``self.datas`` iterable (``0`` would
+            use the timezone from ``data0``)
+
+        '''
+        self.p.tz = tz
+
+# -------------------------------------------------timer-----------------------------------------------------
 
     def _add_timer(self, owner, when,
                    offset=datetime.timedelta(), repeat=datetime.timedelta(),
@@ -237,7 +247,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                   weekdays=[], weekcarry=False,
                   monthdays=[], monthcarry=True,
                   allow=None,
-                  tzdata=None, strats=False, cheat=False,
+                  tzdata=None,
                   *args, **kwargs):
         '''
         Schedules a timer to invoke ``notify_timer``
@@ -307,13 +317,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
               in the system (aka ``self.data0``) will be used as the reference
               to find out the session times.
 
-          - ``strats`` (default: ``False``) call also the ``notify_timer`` of
-            strategies
-
-          - ``cheat`` (default ``False``) if ``True`` the timer will be called
-            before the broker has a chance to evaluate the orders. This opens
-            the chance to issue orders based on opening price for example right
-            before the session starts
           - ``*args``: any extra args will be passed to ``notify_timer``
 
           - ``**kwargs``: any extra kwargs will be passed to ``notify_timer``
@@ -328,43 +331,23 @@ class Cerebro(with_metaclass(MetaParams, object)):
             weekdays=weekdays, weekcarry=weekcarry,
             monthdays=monthdays, monthcarry=monthcarry,
             allow=allow,
-            tzdata=tzdata, strats=strats, cheat=cheat,
+            tzdata=tzdata,
             *args, **kwargs)
+    
+    def _check_timers(self, runstrats, dt0):
+        # timers = self._timers if not cheat else self._timerscheat
+        for t in self._timers:
+            if not t.check(dt0):
+                continue
 
-    def addtz(self, tz):
-        '''
-        This can also be done with the parameter ``tz``
+            t.params.owner.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
 
-        Adds a global timezone for strategies. The argument ``tz`` can be
+            if t.params.strats:
+                for strat in runstrats:
+                    strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
 
-          - ``None``: in this case the datetime displayed by strategies will be
-            in UTC, which has been always the standard behavior
+# -------------------------------------------------component-----------------------------------------------------
 
-          - ``pytz`` instance. It will be used as such to convert UTC times to
-            the chosen timezone
-
-          - ``string``. Instantiating a ``pytz`` instance will be attempted.
-
-          - ``integer``. Use, for the strategy, the same timezone as the
-            corresponding ``data`` in the ``self.datas`` iterable (``0`` would
-            use the timezone from ``data0``)
-
-        '''
-        self.p.tz = tz
-
-    def addcalendar(self, cal):
-        '''Adds a global trading calendar to the system. Individual data feeds
-        may have separate calendars which override the global one
-
-        ``cal`` can be an instance of ``TradingCalendar`` a string or an
-        instance of ``pandas_market_calendars``. A string will be will be
-        instantiated as a ``PandasMarketCalendar`` (which needs the module
-        ``pandas_market_calendar`` installed in the system.
-
-        If a subclass of `TradingCalendarBase` is passed (not an instance) it
-        will be instantiated
-        '''
-        self._tradingcal = cal
 
     # def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
     #     '''Adds a signal to the system which will be later added to a
@@ -388,20 +371,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     def addstore(self, store):
         '''Adds an ``Store`` instance to the if not already present'''
-        # if store not in self.stores:
-        #     store.start()
-        #     self.stores.append(store)
-
         store.start()
         self.store = store 
         self.adddata(store._feed)  
-         
-
-    def addwriter(self, wrtcls, *args, **kwargs):
-        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
-        ``run`` time in cerebro
-        '''
-        self.writers.append((wrtcls, args, kwargs))
 
     def addsizer(self, sizercls, *args, **kwargs):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
@@ -415,6 +387,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ``run`` time in the passed strategies
         '''
         self.indicators.append((indcls, args, kwargs))
+    
+    def addwriter(self, wrtcls, *args, **kwargs):
+        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
+        ``run`` time in cerebro
+        '''
+        self.writers.append((wrtcls, args, kwargs))
+
+# -------------------------------------------------analyzer-----------------------------------------------------
 
     def addanalyzer(self, ancls, *args, **kwargs):
         '''
@@ -441,22 +421,20 @@ class Cerebro(with_metaclass(MetaParams, object)):
         A counter-example is the CashValue, which observes system-wide values
         '''
         self.observers.append((True, obscls, args, kwargs))
-
-    def addstorecb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_store method
-
-        The signature of the callback must support the following:
-
-          - callback(msg, \*args, \*\*kwargs)
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        self.storecbs.append(callback)
     
+# -------------------------------------------------notify-----------------------------------------------------
+    
+    def notify_timer(self, timer, when, *args, **kwargs):
+        '''Receives a timer notification where ``timer`` is the timer which was
+        returned by ``add_timer``, and ``when`` is the calling time. ``args``
+        and ``kwargs`` are any additional arguments passed to ``add_timer``
+
+        The actual ``when`` time can be later, but the system may have not be
+        able to call the timer before. This value is the timer value and no the
+        system time.
+        '''
+        pass
+
     def _brokernotify(self):
         '''
         Internal method which kicks the broker and delivers any broker
@@ -525,6 +503,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         reception and experimentation.
         '''
         pass
+
+# -------------------------------------------------callback-----------------------------------------------------
     
     def adddatacb(self, callback):
         '''Adds a callback to get messages which would be handled by the
@@ -540,6 +520,32 @@ class Cerebro(with_metaclass(MetaParams, object)):
         experimentation.
         '''
         self.datacbs.append(callback)
+    
+    def addstorecb(self, callback):
+        '''Adds a callback to get messages which would be handled by the
+        notify_store method
+
+        The signature of the callback must support the following:
+
+          - callback(msg, \*args, \*\*kwargs)
+
+        The actual ``msg``, ``*args`` and ``**kwargs`` received are
+        implementation defined (depend entirely on the *data/broker/store*) but
+        in general one should expect them to be *printable* to allow for
+        reception and experimentation.
+        '''
+        self.storecbs.append(callback)
+    
+    def optcallback(self, cb):
+        '''
+        Adds a *callback* to the list of callbacks that will be called with the
+        optimizations when each of the strategies has been run
+
+        The signature: cb(strategy)
+        '''
+        self.optcbs.append(cb)
+
+# -------------------------------------------------data-----------------------------------------------------
 
     def adddata(self, data, name=None):
         '''
@@ -598,14 +604,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname, name=name)
         self._doreplay = True
 
-    def optcallback(self, cb):
-        '''
-        Adds a *callback* to the list of callbacks that will be called with the
-        optimizations when each of the strategies has been run
-
-        The signature: cb(strategy)
-        '''
-        self.optcbs.append(cb)
+# -------------------------------------------------optimization-----------------------------------------------------
 
     def optstrategy(self, strategy, *args, **kwargs):
         '''
@@ -657,6 +656,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         it = itertools.product([strategy], optargs, optkwargs)
         self.strats.append(it)
 
+# -------------------------------------------------strategy-----------------------------------------------------
+
     def addstrategy(self, strategy, *args, **kwargs):
         '''
         Adds a ``Strategy`` class to the mix for a single pass run.
@@ -671,65 +672,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.strats.append([(strategy, args, kwargs)])
         return len(self.strats) - 1
 
-    def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
-             width=16, height=9, dpi=300, tight=True, use=None,
-             **kwargs):
-        '''
-        Plots the strategies inside cerebro
-
-        If ``plotter`` is None a default ``Plot`` instance is created and
-        ``kwargs`` are passed to it during instantiation.
-
-        ``numfigs`` split the plot in the indicated number of charts reducing
-        chart density if wished
-
-        ``iplot``: if ``True`` and running in a ``notebook`` the charts will be
-        displayed inline
-
-        ``use``: set it to the name of the desired matplotlib backend. It will
-        take precedence over ``iplot``
-
-        ``start``: An index to the datetime line array of the strategy or a
-        ``datetime.date``, ``datetime.datetime`` instance indicating the start
-        of the plot
-
-        ``end``: An index to the datetime line array of the strategy or a
-        ``datetime.date``, ``datetime.datetime`` instance indicating the end
-        of the plot
-
-        ``width``: in inches of the saved figure
-
-        ``height``: in inches of the saved figure
-
-        ``dpi``: quality in dots per inches of the saved figure
-
-        ``tight``: only save actual content and not the frame of the figure
-        '''
-        if self._exactbars > 0:
-            return
-
-        if not plotter:
-            from . import plot
-            # if self.p.oldsync:
-            #     plotter = plot.Plot_OldSync(**kwargs)
-            # else:
-            #     plotter = plot.Plot(**kwargs)
-            # plotter = plot.Plot(**kwargs)
-            plotter = plot.Plot_OldSync(**kwargs)
-
-        figs = []
-        for stratlist in self.runstrats:
-            for si, strat in enumerate(stratlist):
-                rfig = plotter.plot(strat, figid=si * 100,
-                                    numfigs=numfigs, iplot=iplot,
-                                    start=start, end=end, use=use)
-                # pfillers=pfillers2)
-
-                figs.append(rfig)
-
-            plotter.show()
-
-        return figs
 
     def __call__(self, iterstrat):
         '''
@@ -940,7 +882,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             sargs = self.datas + list(sargs)
             # import pdb; pdb.set_trace()
             try:
-                strat = stratcls(*sargs, **skwargs)
+                strat = stratcls(*sargs, **skwargs) # initialize strategy 
             # except errors.StrategySkipError:
             except Exception as e:
                 continue  # do not add strategy to the mix
@@ -1196,6 +1138,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         while True:
             # Check next incoming date in the datas
             dts = [d.advance_peek() for d in datas]
+            dts
             dt0 = min(dts)
             if dt0 == float('inf'):
                 break  # no data delivers anything
@@ -1227,14 +1170,64 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                 # self._next_writers(runstrats)
 
-    def _check_timers(self, runstrats, dt0):
-        # timers = self._timers if not cheat else self._timerscheat
-        for t in self._timers:
-            if not t.check(dt0):
-                continue
+# -------------------------------------------------plot-----------------------------------------------------
+    
+    def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
+             width=16, height=9, dpi=300, tight=True, use=None,
+             **kwargs):
+        '''
+        Plots the strategies inside cerebro
 
-            t.params.owner.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
+        If ``plotter`` is None a default ``Plot`` instance is created and
+        ``kwargs`` are passed to it during instantiation.
 
-            if t.params.strats:
-                for strat in runstrats:
-                    strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
+        ``numfigs`` split the plot in the indicated number of charts reducing
+        chart density if wished
+
+        ``iplot``: if ``True`` and running in a ``notebook`` the charts will be
+        displayed inline
+
+        ``use``: set it to the name of the desired matplotlib backend. It will
+        take precedence over ``iplot``
+
+        ``start``: An index to the datetime line array of the strategy or a
+        ``datetime.date``, ``datetime.datetime`` instance indicating the start
+        of the plot
+
+        ``end``: An index to the datetime line array of the strategy or a
+        ``datetime.date``, ``datetime.datetime`` instance indicating the end
+        of the plot
+
+        ``width``: in inches of the saved figure
+
+        ``height``: in inches of the saved figure
+
+        ``dpi``: quality in dots per inches of the saved figure
+
+        ``tight``: only save actual content and not the frame of the figure
+        '''
+        if self._exactbars > 0:
+            return
+
+        if not plotter:
+            from . import plot
+            # if self.p.oldsync:
+            #     plotter = plot.Plot_OldSync(**kwargs)
+            # else:
+            #     plotter = plot.Plot(**kwargs)
+            # plotter = plot.Plot(**kwargs)
+            plotter = plot.Plot_OldSync(**kwargs)
+
+        figs = []
+        for stratlist in self.runstrats:
+            for si, strat in enumerate(stratlist):
+                rfig = plotter.plot(strat, figid=si * 100,
+                                    numfigs=numfigs, iplot=iplot,
+                                    start=start, end=end, use=use)
+                # pfillers=pfillers2)
+
+                figs.append(rfig)
+
+            plotter.show()
+
+        return figs

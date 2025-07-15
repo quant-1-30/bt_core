@@ -107,7 +107,7 @@ class LineBuffer(LineSingle):
             # bar The previous forward would have discarded the bar "period"
             # times ago and it will not come back. Having + 1 in the size
             # allows the forward without removing that bar
-            self.array = collections.deque(maxlen=self.maxlen + self.extrasize)
+            self.array = collections.deque(maxlen=self.maxlen + self.extrasize) # ensure latest data
             self.useislice = True
         else:
             self.array = array.array(str('d'))
@@ -118,8 +118,12 @@ class LineBuffer(LineSingle):
         self.extension = 0
 
     def qbuffer(self, savemem=0, extrasize=0):
-        self.mode = self.QBuffer
-        self.maxlen = self._minperiod
+        if savemem:
+            self.mode = self.QBuffer
+            self.maxlen = self._minperiod
+        else:
+            self.mode = self.UnBounded
+
         self.extrasize = extrasize
         self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
@@ -156,7 +160,8 @@ class LineBuffer(LineSingle):
         held/can be held in the buffer
         is returned
         '''
-        return len(self.array) - self.extension
+        # return len(self.array) - self.extension
+        return len(self.array)
 
     def __getitem__(self, ago):
         return self.array[self.idx + ago]
@@ -282,31 +287,20 @@ class LineBuffer(LineSingle):
         self.idx += size
         self.lencount += size
 
-    def extend(self, value=NAN, size=0):
-        ''' Extends the underlying array with positions that the index will not reach
+    # def extend(self, value=NAN, size=0):
+    #     ''' Extends the underlying array with positions that the index will not reach
 
-        Keyword Args:
-            value (variable): value to be set in new positins
-            size (int): How many extra positions to enlarge the buffer
+    #     Keyword Args:
+    #         value (variable): value to be set in new positins
+    #         size (int): How many extra positions to enlarge the buffer
 
-        The purpose is to allow for lookahead operations or to be able to
-        set values in the buffer "future"
-        '''
-        self.extension += size
-        for i in range(size):
-            self.array.append(value)
+    #     The purpose is to allow for lookahead operations or to be able to
+    #     set values in the buffer "future"
+    #     '''
+    #     self.extension += size
+    #     for i in range(size):
+    #         self.array.append(value)
 
-    def addbinding(self, binding):
-        ''' Adds another line binding
-
-        Keyword Args:
-            binding (LineBuffer): another line that must be set when this line
-            becomes a value
-        '''
-        self.bindings.append(binding)
-        # record in the binding when the period is starting (never sooner
-        # than self)
-        binding.updateminperiod(self._minperiod)
 
     def plot(self, idx=0, size=None):
         ''' Returns a slice of the array relative to the real zero of the buffer
@@ -338,6 +332,18 @@ class LineBuffer(LineSingle):
         blen = self.buflen()
         for binding in self.bindings:
             binding.array[0:blen] = larray[0:blen]
+
+    def addbinding(self, binding):
+        ''' Adds another line binding
+
+        Keyword Args:
+            binding (LineBuffer): another line that must be set when this line
+            becomes a value
+        '''
+        self.bindings.append(binding)
+        # record in the binding when the period is starting (never sooner
+        # than self)
+        binding.updateminperiod(self._minperiod)
 
     def bind2lines(self, binding=0):
         '''

@@ -37,6 +37,91 @@ TIME_MAX = datetime.max
 
 
 class Timer(with_metaclass(MetaParams, object)):
+    '''
+        **Note**: can be called during ``__init__`` or ``start``
+
+        Schedules a timer to invoke either a specified callback or the
+        ``notify_timer`` of one or more strategies.
+
+        Arguments:
+
+          - ``when``: can be
+
+            - ``datetime.time`` instance (see below ``tzdata``)
+            - ``bt.timer.SESSION_START`` to reference a session start
+            - ``bt.timer.SESSION_END`` to reference a session end
+
+         - ``offset`` which must be a ``datetime.timedelta`` instance
+
+           Used to offset the value ``when``. It has a meaningful use in
+           combination with ``SESSION_START`` and ``SESSION_END``, to indicated
+           things like a timer being called ``15 minutes`` after the session
+           start.
+
+          - ``repeat`` which must be a ``datetime.timedelta`` instance
+
+            Indicates if after a 1st call, further calls will be scheduled
+            within the same session at the scheduled ``repeat`` delta
+
+            Once the timer goes over the end of the session it is reset to the
+            original value for ``when``
+
+          - ``weekdays``: a **sorted** iterable with integers indicating on
+            which days (iso codes, Monday is 1, Sunday is 7) the timers can
+            be actually invoked
+
+            If not specified, the timer will be active on all days
+
+          - ``weekcarry`` (default: ``False``). If ``True`` and the weekday was
+            not seen (ex: trading holiday), the timer will be executed on the
+            next day (even if in a new week)
+
+          - ``monthdays``: a **sorted** iterable with integers indicating on
+            which days of the month a timer has to be executed. For example
+            always on day *15* of the month
+
+            If not specified, the timer will be active on all days
+
+          - ``monthcarry`` (default: ``True``). If the day was not seen
+            (weekend, trading holiday), the timer will be executed on the next
+            available day.
+
+          - ``allow`` (default: ``None``). A callback which receives a
+            `datetime.date`` instance and returns ``True`` if the date is
+            allowed for timers or else returns ``False``
+
+          - ``tzdata`` which can be either ``None`` (default), a ``pytz``
+            instance or a ``data feed`` instance.
+
+            ``None``: ``when`` is interpreted at face value (which translates
+            to handling it as if it where UTC even if it's not)
+
+            ``pytz`` instance: ``when`` will be interpreted as being specified
+            in the local time specified by the timezone instance.
+
+            ``data feed`` instance: ``when`` will be interpreted as being
+            specified in the local time specified by the ``tz`` parameter of
+            the data feed instance.
+
+            **Note**: If ``when`` is either ``SESSION_START`` or
+              ``SESSION_END`` and ``tzdata`` is ``None``, the 1st *data feed*
+              in the system (aka ``self.data0``) will be used as the reference
+              to find out the session times.
+
+          - ``cheat`` (default ``False``) if ``True`` the timer will be called
+            before the broker has a chance to evaluate the orders. This opens
+            the chance to issue orders based on opening price for example right
+            before the session starts
+
+          - ``*args``: any extra args will be passed to ``notify_timer``
+
+          - ``**kwargs``: any extra kwargs will be passed to ``notify_timer``
+
+        Return Value:
+
+          - The created timer
+
+    '''
     params = (
         ('tid', None),
         ('owner', None),
@@ -50,7 +135,6 @@ class Timer(with_metaclass(MetaParams, object)):
         ('monthcarry', True),
         ('allow', None),  # callable that allows a timer to take place
         ('tzdata', None),
-        ('cheat', False),
     )
 
     SESSION_TIME, SESSION_START, SESSION_END = range(3)

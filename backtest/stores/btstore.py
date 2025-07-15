@@ -18,10 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import httpx
+import datetime
 import collections
 import threading
 import queue
+from typing import List
 from backtest.dataseries import TimeFrame
 from bt_sdk.core.model import ReqMeta, OrderMeta
 from bt_sdk.core.client import MdApi, TdApi
@@ -43,8 +44,6 @@ class BTStore(Store):
         value/cash refresh
     '''
     
-    # get_method is blocking method / req_method is non-blocking method
-
     BrokerCls = None  # broker class will autoregister
     DataCls = None  # data class will auto register
 
@@ -102,26 +101,13 @@ class BTStore(Store):
     def start(self):
         self._start()
     
-    def on_connect(self, user_id, **kwargs):
+    def on_connect(self, user_id):
         client_id = self.getToken(user_id)
         print("client_id ", client_id)
-        md_addr = kwargs.get('md_addr', self.p.md_addr)
-        td_addr = kwargs.get('td_addr', self.p.td_addr)
-        mdapi = MdApi(md_addr, client_id=client_id)
-        tdapi = TdApi(td_addr, client_id=client_id)
+        mdapi = MdApi(self.p.md_addr, client_id=client_id)
+        tdapi = TdApi(self.p.td_addr, client_id=client_id)
         return (self.DataCls(mdapi), self.BrokerCls(tdapi))
 
-    @staticmethod
-    def getToken(user_id):
-        headers = {
-            "Authorization": f"Bearer test"
-        }
-        response = httpx.post("http://localhost:10000/auth/login", json={"user_id": user_id}, headers=headers)
-        data = response.json()
-        if data["status"] == 1:
-            raise Exception(data["data"])
-        return data["data"]
-    
     @classmethod
     def getdata(cls, *args, **kwargs):
         '''Returns ``DataCls`` with args, kwargs'''
@@ -166,7 +152,7 @@ class BTStore(Store):
 # -------------------------------------------------mdapi-----------------------------------------------------
     
     def getCalendar(self):
-        return self._feed.calendar
+        return self._feed.getCalendar()
     
     def getInstrument(self, session):
         return self._feed.getInstrument(session)
@@ -176,6 +162,15 @@ class BTStore(Store):
      
     def subscribe(self, reqmeta):
         return self._feed.subscribe(reqmeta)
+    
+    def loopbacks(self, interval: int, sids: List[str]):
+        end_date = datetime.now()
+        start_date = end_date - datetime.timedelta(days=interval)
+        req_meta =ReqMeta(
+                      start_date = start_date.timestamp(),
+                      end_date = end_date.timestamp(),
+                      sid = sids)
+        return self.subscribe(req_meta)
     
 # -------------------------------------------------notification-----------------------------------------------------
 

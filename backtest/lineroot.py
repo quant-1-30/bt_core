@@ -43,39 +43,19 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
  
     IndType, StratType, ObsType = range(3)
 
-    # def _operation(self, other, operation, r=False, intify=False):
-    #     '''
-    #     Two operands' operation. Scanning of other happens to understand
-    #     if other must be directly an operand or rather a subitem thereof
-        
-    #     Rich Comparison operators. Scans other and returns either an
-    #     operation with other directly or a subitem from other
-    #     '''
-    #     import pdb; pdb.set_trace()
-    #     if isinstance(other, LineMultiple):
-    #         other = other.line[0]
-    #         return self._makeoperation(other, operation, r)
-        
-    #     if isinstance(other, LineRoot):
-    #         return operation(other, self[0]) if r else operation(self[0], other)
-
-    #     raise TypeError("other must be a subclass of LineRoot")
-    
-    # def _operationown(self, operation):
-    #     '''
-    #     Operation with single operand which is "self"
-    #     '''
-    #     if isinstance(self, LineMultiple):
-    #         return self.lines[0]._makeoperationown(operation)
-
-    #     return operation(self[0])
-    
     def _operation(self, other, operation, r=False, intify=False):
         if self._opstage == 1:
             return self._operation_stage1(
                 other, operation, r=r, intify=intify)
 
         return self._operation_stage2(other, operation, r=r)
+
+    def _roperation(self, other, operation, intify=False):
+        '''
+        Relies on self._operation to and passes "r" True to define a
+        reverse operation
+        '''
+        return self._operation(other, operation, r=True, intify=intify)
 
     def _operation_stage1(self, other, operation, r=False, intify=False):
         '''
@@ -122,13 +102,6 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
 
     def _makeoperationown(self, operation, _ownerskip=None):
         raise NotImplementedError
-
-    def _roperation(self, other, operation, intify=False):
-        '''
-        Relies on self._operation to and passes "r" True to define a
-        reverse operation
-        '''
-        return self._operation(other, operation, r=True, intify=intify)
 
     def qbuffer(self, savemem=0):
         '''Change the lines to implement a minimum size qbuffer scheme'''

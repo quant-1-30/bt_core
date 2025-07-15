@@ -105,7 +105,7 @@ class DataSeries(LineSeries):
 
 class OHLC(DataSeries):
     # lines = ('close', 'low', 'high', 'open', 'volume', 'openinterest',)
-    lines = ('close', 'low', 'high', 'open', 'volume', 'amount', 'openinterest',)
+    lines = ('open', 'high', 'low', 'close', 'volume', 'amount')
 
 
 class OHLCDateTime(OHLC):

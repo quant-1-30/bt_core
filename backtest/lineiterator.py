@@ -64,7 +64,7 @@ class MetaLineIterator(LineSeries.__class__):
             mindatas = max(0, mindatas - 1)
             lastarg += 1
 
-        newargs = args[lastarg:]
+        newargs = args[lastarg:] # 元类拦截 --- 过滤参数 
 
         # If no datas have been passed to an indicator ... use the
         # main datas of the owner, easing up adding "self.data" ...
@@ -130,17 +130,14 @@ class MetaLineIterator(LineSeries.__class__):
         _obj, args, kwargs = \
             super(MetaLineIterator, cls).dopostinit(_obj, *args, **kwargs)
 
-        # my minperiod is as large as the minperiod of my lines
-        _obj._minperiod = max([x._minperiod for x in _obj.lines])
+        _obj._minperiod = max([x._minperiod for x in _obj.lines]) # _minperiod has been calculated
 
         # Recalc the period
         _obj._periodrecalc()
 
         # Register (my)self as indicator to owner once
-        # _minperiod has been calculated
-        if _obj._owner is not None:
+        if _obj._owner is not None: # Strategy继承自 LineIterator → LineSeries → LineRoot → LineMultiple
             _obj._owner.addindicator(_obj)
-
         return _obj, args, kwargs
 
 
@@ -399,6 +396,8 @@ class ObserverBase(DataAccessor):
 class StrategyBase(DataAccessor):
     pass
 
+
+# ----------------------------------------------------coupler--------------------------------------
 
 # Utility class to couple lines/lineiterators which may have different lengths
 # Will only work when runonce=False is passed to Cerebro

@@ -133,7 +133,7 @@ class Lines(object):
                 classmethod(lambda cls: clsextralines))
 
         l2start = len(cls._getlines()) if not linesoverride else 0
-        l2add = enumerate(lines2add, start=l2start)
+        l2add = enumerate(clslines[l2start:], start=l2start)
         l2alias = {} if lalias is None else lalias._getkwargsdefault()
         for line, linealias in l2add:
             if not isinstance(linealias, str):
@@ -252,12 +252,12 @@ class Lines(object):
         for line in self.lines:
             line.rewind(size)
 
-    def extend(self, value=NAN, size=0):
-        '''
-        Proxy line operation
-        '''
-        for line in self.lines:
-            line.extend(value, size)
+    # def extend(self, value=NAN, size=0):
+    #     '''
+    #     Proxy line operation
+    #     '''
+    #     for line in self.lines:
+    #         line.extend(value, size)
 
     def reset(self):
         '''
@@ -339,10 +339,11 @@ class MetaLineSeries(LineMultiple.__class__):
         # Check the line aliases before creating the lines
         lalias = getattr(cls, 'linealias', AutoInfoClass)
         oblalias = [x.linealias for x in bases[1:] if hasattr(x, 'linealias')]
-        cls.linealias = la = lalias._derive('la_' + name, newlalias, oblalias)
+        # params _getpairsbase / _getpairs / _getrecurse
+        cls.linealias = la = lalias._derive('la_' + name, newlalias, oblalias) 
 
         # Get the actual lines or a default
-        lines = getattr(cls, 'lines', Lines)
+        lines = getattr(cls, 'lines', Lines) # mro
         print("MetaSeriesLines lines", lines)
         # Create a subclass of the lines class with our name and newlines
         # and put it in the class
@@ -354,7 +355,7 @@ class MetaLineSeries(LineMultiple.__class__):
         
         # Get a copy from base class plotinfo/plotlines (created with the
         # class or set a default)
-        plotinfo = getattr(cls, 'plotinfo', AutoInfoClass)
+        plotinfo = getattr(cls, 'plotinfo', AutoInfoClass) # mro
         plotlines = getattr(cls, 'plotlines', AutoInfoClass)
 
         # Create a plotinfo/plotlines subclass and set it in the class
@@ -566,9 +567,9 @@ class LineSeriesStub(LineSeries):
         if not self.slave:
             super(LineSeriesStub, self).rewind(size)
 
-    def extend(self, value=NAN, size=0):
-        if not self.slave:
-            super(LineSeriesStub, self).extend(value, size)
+    # def extend(self, value=NAN, size=0):
+    #     if not self.slave:
+    #         super(LineSeriesStub, self).extend(value, size)
 
     def reset(self):
         if not self.slave:

@@ -63,7 +63,7 @@ class MetaIndicator(IndicatorBase.__class__):
         '''
         # 在元类的 __init__ 方法中，cls 参数代表正在创建的类对象 包含了所有类级别的属性和方法，包括实例方法
         # Initialize the class
-        super(MetaIndicator, cls).__init__(name, bases, dct)
+        super(MetaIndicator, cls).__init__(name, bases, dct) 
 
         if not cls.aliased and \
            name != 'Indicator' and not name.startswith('_'):

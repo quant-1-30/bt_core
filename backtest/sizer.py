@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+from toolz import valmap
 from backtest.metabase import MetaParams, with_metaclass
 
 
@@ -40,14 +40,25 @@ class Sizer(with_metaclass(MetaParams, object)):
         Gives access to information some complex sizers may need like portfolio
         value, ..
     '''
-    strategy = None
+    params = (
+        ('loopback', 7),  # calc volatility over last n days
+        ('stage', False), # sell on stage
+        ('stage_reserve', 0)
+    )
+
     store = None
+    
+    def set(self, store):
+        self.store = store
 
-    def getsizing(self, data, isbuy):
-        # comminfo = self.broker.getcommissioninfo(data)
-        return self._getsizing(self.store.get_cash(), data, isbuy)
+    def getsizing(self, sids, isbuy=True):
+        cash = self.store.get_cash()
+        positions = self.store.get_positions()
+        datas = self.store.loopbacks(self.p.loopback, sids)
+        meta = {"cash": cash, "positions": positions, "datas": datas}
+        return self._getsizing(meta, sids, isbuy)
 
-    def _getsizing(self, cash, data, isbuy):
+    def _getsizing(self, meta, sids, isbuy):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 
@@ -67,9 +78,12 @@ class Sizer(with_metaclass(MetaParams, object)):
 
         '''
         raise NotImplementedError
-
-    def set(self, strategy, store):
-        self.strategy = strategy
+    
+    def _sellout_sizing(self, positions):
+        _sizer = valmap(lambda x: -1 * x, positions) if not self.p.stage else valmap(lambda x: -x * (1 - self.p.stage_reserve), positions)
+        return _sizer
+    
+    def set(self, store):
         self.store = store
 
 
