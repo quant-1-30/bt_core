@@ -30,19 +30,21 @@ class FixedSize(Sizer):
     Size can be controlled by number of tranches that a system
     wishes to use to scale into trades by specifying the ``tranches``
     parameter.
-
     '''
-
     params = (('reserve', 0.1),)
 
-    def _getsizing(self, meta, sids, isbuy):
-        if isbuy:
-            size_cash = meta["cash"] * (1 - self.p.reserve)
-            _cash = np.tile(size_cash/len(sids), len(sids))
-            _sizer = dict(zip(sids, _cash))
-        else:
-            _sizer = self._sellout_sizing(meta["positions"])
-        return _sizer
+    def _call_sizing(self, strat_metrics):
+        sizer = (1 - self.p.reserve) / len(strat_metrics)
+        return {strat: sizer for strat in strat_metrics}
+    
+    def _put_sizing(self, strat_metrics):
+        return {strat: -1  for strat in strat_metrics}
 
 
 SizerFix = FixedSize
+
+
+class NoSizer(Sizer):
+
+    def _getsizing(self, meta, sids, isbuy):
+        return {}

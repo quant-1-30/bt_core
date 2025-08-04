@@ -23,7 +23,7 @@ import math
 
 from backtest.analyzer import TimeFrameAnalyzerBase
 from .returns import Returns
-from backtest.mathsupport import standarddev
+from backtest.utils.mathsupport import standarddev
 from backtest.dataseries import TimeFrame
 
 

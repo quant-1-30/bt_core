@@ -19,7 +19,6 @@
 #
 ###############################################################################
 
-
 import backtest as bt
 from backtest.indicators import SumN, TrueLow, TrueRange
 

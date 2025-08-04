@@ -23,7 +23,6 @@ from collections import OrderedDict
 from backtest.analyzer import Analyzer
 
 
-
 class AnnualReturn(Analyzer):
     '''
     This analyzer calculates the AnnualReturns by looking at the beginning

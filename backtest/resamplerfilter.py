@@ -27,21 +27,7 @@ from . import metabase
 from backtest.utils.dateintern import date2num, num2date
 
 
-# nth
-
 class DTFaker(object):
-    # This will only be used for data sources which at some point in time
-    # return None from _load to indicate that a check of the resampler and/or
-    # notification queue is needed
-    # This is meant (at least initially) for real-time feeds, because those are
-    # the ones in need of events like the ones described above.
-    # These data sources should also be producing ``utc`` time directly because
-    # the real-time feed is (more often than not)  timestamped and utc provides
-    # a universal reference
-    # That's why below the timestamp is chosen in UTC and passed directly to
-    # date2num to avoid a localization. But it is extracted from data.num2date
-    # to ensure the returned datetime object is localized according to the
-    # expected output by the user (local timezone or any specified)
 
     def __init__(self, data, forcedata=None):
         self.data = data
@@ -51,9 +37,11 @@ class DTFaker(object):
         self.p = self
 
         if forcedata is None:
-            _dtime = datetime.utcnow() + data._timeoffset()
-            self._dt = dt = date2num(_dtime)  # utc-like time
-            self._dtime = data.num2date(dt)  # localized time
+            # _dtime = datetime.utcnow() + data._timeoffset()
+            # self._dt = dt = date2num(_dtime)  # utc-like time
+            # self._dtime = data.num2date(dt)  # localized time
+            self._dt = dt = data.datetime[0]
+            self._dtime = data.num2date(dt)
         else:
             self._dt = forcedata.datetime[0]  # utc-like time
             self._dtime = forcedata.datetime.datetime()  # localized time
@@ -88,8 +76,12 @@ class DTFaker(object):
     def date2num(self, *args, **kwargs):
         return self.data.date2num(*args, **kwargs)
 
-    def _getnexteos(self):
-        return self.data._getnexteos()
+    # def _getnexteos(self):
+    #     return self.data._getnexteos()
+    
+    def _geteos(self):
+        '''Returns the next end of session date and time in utc-like format'''
+        return self._geteos()
 
 
 class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
@@ -98,13 +90,10 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
         ('adjbartime', True),
         ('rightedge', True),
         ('boundoff', 0),
-
         ('timeframe', TimeFrame.Days),
         ('compression', 1),
-
-        ('takelate', True),
-
-        ('sessionend', True),
+        # ('sessionend', True),
+        # ('takelate', True),
     )
 
     def __init__(self, data):
@@ -129,14 +118,6 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
         data._compression = self.p.compression
 
         self.data = data
-
-    def _latedata(self, data):
-        # new data at position 0, still untouched from stream
-        if not self.subdays:
-            return False
-
-        # Time already delivered
-        return len(data) > 1 and data.datetime[0] <= data.datetime[-1]
 
     def _checkbarover(self, data, fromcheck=False, forcedata=None):
         chkdata = DTFaker(data, forcedata) if fromcheck else data
@@ -179,7 +160,8 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
     def _eosset(self):
         if self._nexteos is None:
-            self._nexteos, self._nextdteos = self.data._getnexteos()
+            # self._nexteos, self._nextdteos = self.data._getnexteos()
+            self._nexteos, self._nextdteos = self.data._geteos()
             return
 
     def _eoscheck(self, data, seteos=True, exact=False):
@@ -296,19 +278,6 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
         return ret
 
-    def check(self, data, _forcedata=None):
-        '''Called to check if the current stored bar has to be delivered in
-        spite of the data not having moved forward. If no ticks from a live
-        feed come in, a 5 second resampled bar could be delivered 20 seconds
-        later. When this method is called the wall clock (incl data time
-        offset) is called to check if the time has gone so far as to have to
-        deliver the already stored data
-        '''
-        if not self.bar.isopen():
-            return
-
-        return self(data, fromcheck=True, forcedata=_forcedata)
-
     def _dataonedge(self, data):
         if not self.subweeks:
             if data._calendar is None:
@@ -330,7 +299,6 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
                 docheckover = False
                 self.compcount += 1
                 ret = not (self.compcount % self.p.compression)
-                print("_dataonedge", ret)
             else:
                 docheckover = True
 
@@ -417,7 +385,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
         dtnum = self.data.date2num(dt)
         return dtnum
 
-    def _adjusttime(self, greater=False, forcedata=None):
+    def _adjusttime(self, greater=False):
         '''
         Adjusts the time of calculated bar (from underlying data source) by
         using the timeframe to the appropriate boundary, with compression taken
@@ -432,6 +400,19 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
         self.bar.datetime = dtnum
         return True
+
+    def check(self, data, _forcedata=None):
+        '''Called to check if the current stored bar has to be delivered in
+        spite of the data not having moved forward. If no ticks from a live
+        feed come in, a 5 second resampled bar could be delivered 20 seconds
+        later. When this method is called the wall clock (incl data time
+        offset) is called to check if the time has gone so far as to have to
+        deliver the already stored data
+        '''
+        if not self.bar.isopen():
+            return
+
+        return self(data, fromcheck=True, forcedata=_forcedata)
 
 
 class Resampler(_BaseResampler):
@@ -477,234 +458,58 @@ class Resampler(_BaseResampler):
 
     replaying = False
 
-    def last(self, data):
-        '''Called when the data is no longer producing bars
+    # def last(self, data):
+    #     '''Called when the data is no longer producing bars
 
-        Can be called multiple times. It has the chance to (for example)
-        produce extra bars which may still be accumulated and have to be
-        delivered
-        '''
-        if self.bar.isopen():
-            if self.doadjusttime:
-                self._adjusttime()
+    #     Can be called multiple times. It has the chance to (for example)
+    #     produce extra bars which may still be accumulated and have to be
+    #     delivered
+    #     '''
+    #     if self.bar.isopen():
+    #         if self.doadjusttime:
+    #             self._adjusttime()
 
-            data._add2stack(self.bar.lvalues())
-            self.bar.bstart(maxdate=True)  # close the bar to avoid dups
-            return True
-
-        return False
+    #         data._add2stack(self.bar.lvalues())
+    #         self.bar.bstart(maxdate=True)  # close the bar to avoid dups
+    #         return True
+    #     return False
 
     def __call__(self, data, fromcheck=False, forcedata=None):
         '''Called for each set of values produced by the data source'''
-        print("resamplefilter len(data)", len(data))
-        # import pdb; pdb.set_trace()
         consumed = False
         onedge = False
         docheckover = True
         if not fromcheck:
-            if self._latedata(data):
-                if not self.p.takelate:
-                    data.backwards()
-                    return True  # get a new bar
-
-                self.bar.bupdate(data)  # update new or existing bar
-                # push time beyond reference
-                self.bar.datetime = data.datetime[-1] + 0.000001
-                data.backwards()  # remove used bar
-                return True
-
             if self.componly:  # only if not subdays
-                # Get a session ref before rewinding
-                _, self._lastdteos = self.data._getnexteos()
+                # _, self._lastdteos = self.data._getnexteos()
+                _, self._lastdteos = self.data._geteos()
                 consumed = True
-
             else:
                 onedge, docheckover = self._dataonedge(data)  # for subdays
-                print("onedge", onedge)
-                print("docheckover", docheckover)
                 consumed = onedge
 
         if consumed:
             self.bar.bupdate(data)  # update new or existing bar
             data.backwards()  # remove used bar
 
-        # if self.bar.isopen and (onedge or (docheckover and checkbarover))
         cond = self.bar.isopen()
-        print("cond", cond)
         if cond:  # original is and, the 2nd term must also be true
             if not onedge:  # onedge true is sufficient
                 if docheckover:
-                    cond = self._checkbarover(data, fromcheck=fromcheck,
-                                              forcedata=forcedata)
-                    print("_checkbarover", cond)
+                    cond = self._checkbarover(data, fromcheck=fromcheck, forcedata=forcedata)
         if cond:
-            dodeliver = False
-            if forcedata is not None:
-                # check our delivery time is not larger than that of forcedata
-                tframe = self.p.timeframe
-                if tframe == TimeFrame.Ticks:  # Ticks is already the lowest
-                    dodeliver = True
-                elif tframe == TimeFrame.Minutes:
-                    dtnum = self._calcadjtime(greater=True)
-                    dodeliver = dtnum <= forcedata.datetime[0]
-                elif tframe == TimeFrame.Days:
-                    dtnum = self._calcadjtime(greater=True)
-                    dodeliver = dtnum <= forcedata.datetime[0]
-            else:
-                dodeliver = True
-
+            dodeliver = True
             if dodeliver:
                 if not onedge and self.doadjusttime:
-                    self._adjusttime(greater=True, forcedata=forcedata)
+                    self._adjusttime(greater=True)
                 data._add2stack(self.bar.lvalues())
-                self.bar.bstart(maxdate=True)  # bar delivered -> restart
+                self.bar.bstart(maxdate=True)  # reset bar
 
-        if not fromcheck:
+        if not fromcheck: # uupdate bar incase bar not be consumed
             if not consumed:
-                self.bar.bupdate(data)  # update new or existing bar
-                data.backwards()  # remove used bar
-
+                self.bar.bupdate(data)  
+                data.backwards() 
         return True
-
-
-class Replayer(_BaseResampler):
-    '''This class replays data of a given timeframe to a larger timeframe.
-
-    It simulates the action of the market by slowly building up (for ex.) a
-    daily bar from tick/seconds/minutes data
-
-    Only when the bar is complete will the "length" of the data be changed
-    effectively delivering a closed bar
-
-    Params
-
-      - bar2edge (default: True)
-
-        replays using time boundaries as the target of the closed bar. For
-        example with a "ticks -> 5 seconds" the resulting 5 seconds bars will
-        be aligned to xx:00, xx:05, xx:10 ...
-
-      - adjbartime (default: False)
-
-        Use the time at the boundary to adjust the time of the delivered
-        resampled bar instead of the last seen timestamp. If resampling to "5
-        seconds" the time of the bar will be adjusted for example to hh:mm:05
-        even if the last seen timestamp was hh:mm:04.33
-
-        .. note::
-
-           Time will only be adjusted if "bar2edge" is True. It wouldn't make
-           sense to adjust the time if the bar has not been aligned to a
-           boundary
-
-        .. note:: if this parameter is True an extra tick with the *adjusted*
-                  time will be introduced at the end of the *replayed* bar
-
-      - rightedge (default: True)
-
-        Use the right edge of the time boundaries to set the time.
-
-        If False and compressing to 5 seconds the time of a resampled bar for
-        seconds between hh:mm:00 and hh:mm:04 will be hh:mm:00 (the starting
-        boundary
-
-        If True the used boundary for the time will be hh:mm:05 (the ending
-        boundary)
-    '''
-    params = (
-        ('bar2edge', True),
-        ('adjbartime', False),
-        ('rightedge', True),
-    )
-
-    replaying = True
-
-    def __call__(self, data, fromcheck=False, forcedata=None):
-        consumed = False
-        onedge = False
-        takinglate = False
-        docheckover = True
-
-        if not fromcheck:
-            if self._latedata(data):
-                if not self.p.takelate:
-                    data.backwards(force=True)
-                    return True  # get a new bar
-
-                consumed = True
-                takinglate = True
-
-            elif self.componly:  # only if not subdays
-                consumed = True
-
-            else:
-                onedge, docheckover = self._dataonedge(data)  # for subdays
-                consumed = onedge
-
-            data._tick_fill(force=True)  # update
-
-        if consumed:
-            self.bar.bupdate(data)
-            if takinglate:
-                self.bar.datetime = data.datetime[-1] + 0.000001
-
-        # if onedge or (checkbarover and self._checkbarover)
-        cond = onedge
-        if not cond:  # original is or, if true it would suffice
-            if docheckover:
-                cond = self._checkbarover(data, fromcheck=fromcheck)
-        if cond:
-            if not onedge and self.doadjusttime:  # insert tick with adjtime
-                adjusted = self._adjusttime(greater=True)
-                if adjusted:
-                    ago = 0 if (consumed or fromcheck) else -1
-                    # Update to the point right before the new data
-                    data._updatebar(self.bar.lvalues(), forward=False, ago=ago)
-
-                if not fromcheck:
-                    if not consumed:
-                        # Reopen bar with real new data and save data to queue
-                        self.bar.bupdate(data, reopen=True)
-                        # erase is True, but the tick will not be seen below
-                        # and therefore no need to mark as 1st
-                        data._save2stack(erase=True, force=True)
-                    else:
-                        self.bar.bstart(maxdate=True)
-                        self._firstbar = True  # next is first
-                else:  # from check
-                    # fromcheck or consumed have  forced delivery, reopen
-                    self.bar.bstart(maxdate=True)
-                    self._firstbar = True  # next is first
-                    if adjusted:
-                        # after adjusting need to redeliver if this was a check
-                        data._save2stack(erase=True, force=True)
-
-            elif not fromcheck:
-                if not consumed:
-                    # Data already "forwarded" and we replay to new bar
-                    # No need to go backwards. simply reopen internal cache
-                    self.bar.bupdate(data, reopen=True)
-                else:
-                    # compression only, used data to update bar, hence remove
-                    # from stream, update existing data, reopen bar
-                    if not self._firstbar:  # only discard data if not firstbar
-                        data.backwards(force=True)
-                    data._updatebar(self.bar.lvalues(), forward=False, ago=0)
-                    self.bar.bstart(maxdate=True)
-                    self._firstbar = True  # make sure next tick moves forward
-
-        elif not fromcheck:
-            # not over, update, remove new entry, deliver
-            if not consumed:
-                self.bar.bupdate(data)
-
-            if not self._firstbar:  # only discard data if not firstbar
-                data.backwards(force=True)
-
-            data._updatebar(self.bar.lvalues(), forward=False, ago=0)
-            self._firstbar = False
-
-        return False  # the existing bar can be processed by the system
 
 
 class ResamplerTicks(Resampler):
@@ -733,27 +538,3 @@ class ResamplerMonthly(Resampler):
 
 class ResamplerYearly(Resampler):
     params = (('timeframe', TimeFrame.Years),)
-
-
-class ReplayerTicks(Replayer):
-    params = (('timeframe', TimeFrame.Ticks),)
-
-
-class ReplayerSeconds(Replayer):
-    params = (('timeframe', TimeFrame.Seconds),)
-
-
-class ReplayerMinutes(Replayer):
-    params = (('timeframe', TimeFrame.Minutes),)
-
-
-class ReplayerDaily(Replayer):
-    params = (('timeframe', TimeFrame.Days),)
-
-
-class ReplayerWeekly(Replayer):
-    params = (('timeframe', TimeFrame.Weeks),)
-
-
-class ReplayerMonthly(Replayer):
-    params = (('timeframe', TimeFrame.Months),)

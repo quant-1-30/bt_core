@@ -151,26 +151,26 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         '''
         pass
 
-    def oncestart(self, start, end):
-        '''
-        It will be called when the minperiod phase is over for the 1st
-        post-minperiod value
+    # def oncestart(self, start, end):
+    #     '''
+    #     It will be called when the minperiod phase is over for the 1st
+    #     post-minperiod value
 
-        Only called once and defaults to automatically calling once
-        '''
-        self.once(start, end)
+    #     Only called once and defaults to automatically calling once
+    #     '''
+    #     self.once(start, end)
 
-    def once(self, start, end):
-        '''
-        Called to calculate values at "once" when the minperiod is over
-        '''
-        pass
+    # def once(self, start, end):
+    #     '''
+    #     Called to calculate values at "once" when the minperiod is over
+    #     '''
+    #     pass
 
-    def preonce(self, start, end):
-        '''
-        It will be called during the "minperiod" phase of a "once" iteration
-        '''
-        pass
+    # def preonce(self, start, end):
+    #     '''
+    #     It will be called during the "minperiod" phase of a "once" iteration
+    #     '''
+    #     pass
 
     def __add__(self, other):
         return self._operation(other, operator.__add__)
@@ -280,7 +280,7 @@ class LineMultiple(LineRoot):
 
     def qbuffer(self, savemem=0):
         for line in self.lines:
-            line.qbuffer(savemem=1)
+            line.qbuffer(savemem)
 
     def minbuffer(self, size):
         for line in self.lines:

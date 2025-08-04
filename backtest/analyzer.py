@@ -18,15 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import backtest as bt
 import calendar
-from collections import OrderedDict
 import datetime
 import pprint as pp
 import numpy as np
+from collections import OrderedDict
+
+import backtest as bt
 from backtest.dataseries import TimeFrame
-
-
 from .metabase import with_metaclass, MetaParams, findowner
 
 
@@ -69,10 +68,8 @@ class MetaAnalyzer(MetaParams):
                         setattr(_obj, 'data%d_%s' % (d, linealias), line)
                     setattr(_obj, 'data%d_%d' % (d, l), line)
 
-        # before init method is ok / between __new__ and __init__ can add random methods
         _obj.create_analysis()
 
-        # Return to the normal chain
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -80,7 +77,7 @@ class MetaAnalyzer(MetaParams):
             super(MetaAnalyzer, cls).dopostinit(_obj, *args, **kwargs)
 
         if _obj._parent is not None:
-            _obj._parent._register(_obj)
+            _obj._parent._register(_obj) # analyzer with analyzer
 
         # Return to the normal chain
         return _obj, args, kwargs
@@ -194,15 +191,15 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         preiod of the strategy has been reached'''
         pass
 
-    def start(self):
-        '''Invoked to indicate the start of operations, giving the analyzer
-        time to setup up needed things'''
-        pass
+    # def start(self):
+    #     '''Invoked to indicate the start of operations, giving the analyzer
+    #     time to setup up needed things'''
+    #     pass
 
-    def stop(self):
-        '''Invoked to indicate the end of operations, giving the analyzer
-        time to shut down needed things'''
-        pass
+    # def stop(self):
+    #     '''Invoked to indicate the end of operations, giving the analyzer
+    #     time to shut down needed things'''
+    #     pass
 
     # def _notify_cashvalue(self, cash, value):
     #     for child in self._children:
@@ -232,17 +229,17 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
     #     '''Receives the cash/value notification before each next cycle'''
     #     pass
 
-    def notify_fund(self, cash, fundvalue):
-        '''Receives the current cash, value, fundvalue and fund shares'''
-        pass
+    # def notify_fund(self, cash, fundvalue):
+    #     '''Receives the current cash, value, fundvalue and fund shares'''
+    #     pass
 
-    def notify_order(self, order):
-        '''Receives order notifications before each next cycle'''
-        pass
+    # def notify_order(self, order):
+    #     '''Receives order notifications before each next cycle'''
+    #     pass
 
-    def notify_trade(self, trade):
-        '''Receives trade notifications before each next cycle'''
-        pass
+    # def notify_trade(self, trade):
+    #     '''Receives trade notifications before each next cycle'''
+    #     pass
 
     def create_analysis(self):
         '''Meant to be overriden by subclasses. Gives a chance to create the
@@ -309,7 +306,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         self.timeframe = self.p.timeframe or self.data._timeframe
         self.compression = self.p.compression or self.data._compression
 
-        self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min)
+        self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min) # dtkey is boundary
         super(TimeFrameAnalyzerBase, self)._start()
 
     def _prenext(self):
@@ -340,7 +337,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
 
         self.next()
 
-    def on_dt_over(self):
+    def on_dt_over(self): # hook
         pass
 
     def _dt_over(self):
@@ -375,7 +372,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
             isoyear, isoweek, isoweekday = dt.isocalendar()
             dtcmp = isoyear * 100 + isoweek
             sunday = dt + datetime.timedelta(days=7 - isoweekday)
-            dtkey = datetime.datetime(sunday.year, sunday.month, sunday.day)
+            dtkey = datetime.datetime(sunday.year, sunday.month, sunday.day) # last day of the week
 
         elif self.timeframe == TimeFrame.Days:
             dtcmp = dt.year * 10000 + dt.month * 100 + dt.day

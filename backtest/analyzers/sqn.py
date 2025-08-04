@@ -21,7 +21,7 @@
 import math
 
 from backtest.analyzer import Analyzer
-from backtest.mathsupport import average, standarddev
+from backtest.utils.mathsupport import average, standarddev
 from backtest.utils import AutoOrderedDict
 
 

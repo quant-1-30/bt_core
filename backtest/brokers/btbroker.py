@@ -26,7 +26,8 @@ from backtest.metabase import with_metaclass, MetaParams
 from backtest.stores.btstore import BTStore
 from bt_sdk.core.model import OrderMeta, ReqMeta
 
-class AcctDescriptor(object):
+
+class AcctDescr(object):
 
     def __init__(self):
         self._evt_acct = threading.Event()
@@ -41,7 +42,6 @@ class AcctDescriptor(object):
 
     def _t_account(self, inst):
         data = inst.getAccount()
-        print('_t_account', data)
         if data:
             msg = data[0]["msg"]
             self._cash = msg["cash"]
@@ -71,19 +71,7 @@ class MetaBTBroker(MetaParams):
 
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaBTBroker, cls).donew(*args, **kwargs)
-        _obj.get_data = cls.get_data
         return _obj, args, kwargs
-    
-    @staticmethod
-    def get_data(q, timeout=-1):
-        data = []
-        while True:
-            # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
-            msg = q.get()
-            if msg == "eof":
-                break
-            data.append(msg)
-        return data
     
 
 class BTBroker(with_metaclass(MetaBTBroker, object)):
@@ -113,12 +101,12 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
         ("timeout", -1),
         )
     
-    acct = AcctDescriptor()
+    acct = AcctDescr()
 
     def __init__(self, tdapi, **kwargs):
         super(BTBroker, self).__init__()
         self.tdapi = tdapi
-        self.notifs = queue.Queue()  # holds orders which are notified thread safe
+        # self.notifs = queue.Queue()  # holds orders which are notified thread safe
 
     def _start(self):
         if not self.tdapi.connected():
@@ -133,29 +121,25 @@ class BTBroker(with_metaclass(MetaBTBroker, object)):
     def get_portfolio(self):
         return self.acct[1]
     
-    def getAccount(self):
-        q = self.tdapi.getAccount()
-        return self.get_data(q, self.p.timeout)
-
-    def getPosition(self):
-        q = self.tdapi.getPosition()
-        return self.get_data(q, self.p.timeout)
+    def get_position(self):
+        pos = self.tdapi.get_position()
+        return pos
 
     def submit(self, order_meta: OrderMeta):
-        qty = self.tdapi.trade(order_meta)
+        trades = self.tdapi.trade(order_meta)
         # self.notify((order_meta, qty)) # pydantic contain _thread.lock
-        return qty
+        return trades
 
     def subscribe(self, topic:str, reqmeta: ReqMeta):
         q = self.tdapi.subscribe(topic, reqmeta)
         return q
     
-    def on_timer(self, reqmeta):
-        q = self.tdapi.pesudo_timer(reqmeta)
-        return self.get_data(q, self.p.timeout)
+    def check(self, session):
+        status = self.tdapi.check(session)
+        return status
 
-    def notify(self, order):
-        self.notifs.put(copy.deepcopy(order))
+    # def notify(self, order):
+    #     self.notifs.put(copy.deepcopy(order))
     
     def cancel(self, vtorder_id):
         self.tdapi.cancel(vtorder_id)

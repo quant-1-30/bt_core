@@ -1,7 +1,8 @@
                                         Fake it until you make it
 
 backtrader:
-    metaclass __new__ ---> __call__ 
+    metaclass __new__ ---> __call__
+
     __new__ dct meaning class attributes(property, method) / __call__ **kwargs meaning instance 
 
     dataflow cerebro runnext ---> data[0] 变化 ---> strategy ---> indicator
@@ -38,7 +39,6 @@ backtrader:
 
     _owner / addindicator is key to implement indicator _once / _next method (from base to compound)
 
-    plot also based on line object
 
     data _check /_last method
 
@@ -89,3 +89,6 @@ backtrader:
     # strategy._next() tirgger _next --- indicator / _next_anlayzer / _next_observer
 
 
+    # sizer ---> intended to multistrategy binding to strategy not sid
+    # cerebro ---> executor singelton
+    # GPE 帕累托优化

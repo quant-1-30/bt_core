@@ -43,7 +43,7 @@ class MetaObserver(ObserverBase.__class__):
 class Observer(with_metaclass(MetaObserver, ObserverBase)):
     _stclock = False
 
-    _OwnerCls = StrategyBase
+    _OwnerCls = StrategyBase # super ---> findowner
     _ltype = LineIterator.ObsType
 
     csv = True

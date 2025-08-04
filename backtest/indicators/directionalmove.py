@@ -22,7 +22,6 @@
 from backtest.indicator import Indicator
 from backtest.functions import And, If
 from . import MovAv, ATR
-# from .atr import ATR
 
 
 class UpMove(Indicator):

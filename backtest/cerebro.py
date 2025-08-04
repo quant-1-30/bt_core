@@ -20,45 +20,20 @@
 ###############################################################################
 
 import datetime
-import collections
+
 import itertools
 import multiprocessing
-
-import collections
+from pytz import tzparse
 
 from backtest.metabase import MetaParams, with_metaclass
 from backtest import observers
-# from backtest.utils.autodict import OrderedDict, num2date, date2num
 from backtest.strategy import Strategy, SignalStrategy
+from backtest.sizers import NoSizer
 from .timer import Timer
-from backtest.brokers.btbroker import BTBroker
-from backtest.feeds.mdapi import MdData
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
     '''Params:
-
-      - ``preload`` (default: ``True``)
-
-        Whether to preload the different ``data feeds`` passed to cerebro for
-        the Strategies
-
-      - ``runonce`` (default: ``True``)
-
-        Run ``Indicators`` in vectorized mode to speed up the entire system.
-        Strategies and Observers will always be run on an event based basis
-
-      - ``live`` (default: ``False``)
-
-        If no data has reported itself as *live* (via the data's ``islive``
-        method but the end user still want to run in ``live`` mode, this
-        parameter can be set to true
-
-        This will simultaneously deactivate ``preload`` and ``runonce``. It
-        will have no effect on memory saving schemes.
-
-        Run ``Indicators`` in vectorized mode to speed up the entire system.
-        Strategies and Observers will always be run on an event based basis
 
       - ``maxcpus`` (default: None -> all available cores)
 
@@ -69,47 +44,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         If True default Observers will be added: Broker (Cash and Value),
         Trades and BuySell
       
-      - ``exactbars`` (default: ``False``)
-
-        With the default value each and every value stored in a line is kept in
-        memory
-
-        Possible values:
-          - ``True`` or ``1``: all "lines" objects reduce memory usage to the
-            automatically calculated minimum period.
-
-            If a Simple Moving Average has a period of 30, the underlying data
-            will have always a running buffer of 30 bars to allow the
-            calculation of the Simple Moving Average
-
-            - This setting will deactivate ``preload`` and ``runonce``
-            - Using this setting also deactivates **plotting**
-
-          - ``-1``: datafreeds and indicators/operations at strategy level will
-            keep all data in memory.
-
-            For example: a ``RSI`` internally uses the indicator ``UpDay`` to
-            make calculations. This subindicator will not keep all data in
-            memory
-
-            - This allows to keep ``plotting`` and ``preloading`` active.
-
-            - ``runonce`` will be deactivated
-
       - ``writer`` (default: ``False``)
 
         If set to ``True`` a default WriterFile will be created which will
         print to stdout. It will be added to the strategy (in addition to any
         other writers added by the user code)
-
-      - ``optdatas`` (default: ``True``)
-
-        If ``True`` and optimizing (and the system can ``preload`` and use
-        ``runonce``, data preloading will be done only once in the main process
-        to save time and resources.
-
-        The tests show an approximate ``20%`` speed-up moving from a sample
-        execution in ``83`` seconds to ``66``
 
       - ``tz`` (default: ``None``)
 
@@ -139,60 +78,87 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     '''
     params = (
-        ('preload', True),
-        ('runonce', True),
         ('maxcpus', 1),
         ('stdstats', True),
-        ('exactbars', False),
-        ('optdatas', True),
-        ('live', False),
         ('writer', False),
         ('tz', None),
         ('quicknotify', False),
     )
 
     def __init__(self):
-        self._dolive = False
-        self._doreplay = False
-        self._dooptimize = False
-        # self.stores = list()
+
         self.store = None
-        self.feeds = list()
         self.datas = list()
-        self.datasbyname = collections.OrderedDict()
         self.strats = list()
-        self.optcbs = list()  # holds a list of callbacks for opt strategies
+        
         self.observers = list()
         self.analyzers = list()
         self.indicators = list()
-        self.sizers = dict()
+        self.sizer = NoSizer() # default sizer
         self.writers = list()
-        self.storecbs = list()
-        self.datacbs = list()
-        self.signals = list()
-        self._signal_strat = (None, None, None)
-        self._signal_concurrent = False
-        self._signal_accumulate = False
 
-        self._dataid = itertools.count(1)
-
-        self._tradingcal = None  # TradingCalendar()
-
+        self._dooptimize = False
         self._pretimers = list()
+        self.storecbs = list()
 
-    @staticmethod
-    def iterize(iterable):
-        '''Handy function which turns things into things that can be iterated upon
-        including iterables
+    def adddata(self, data, init=False):
         '''
-        niterable = list()
-        for elem in iterable:
-            if isinstance(elem, str):
-                elem = (elem,)
-            elif not isinstance(elem, collections.Iterable):  # Different functions will be called for different Python versions
-                elem = (elem,)
-            niterable.append(elem)
-        return niterable
+        Adds a ``Data Feed`` instance to the mix.
+
+        If ``name`` is not None it will be put into ``data._name`` which is
+        meant for decoration/plotting purposes.
+        '''
+        # data._id = next(self._dataid)
+        if init:
+            self.datas.insert(0, data)
+        else:
+            self.datas.append(data)
+
+    def resampledata(self, dataname, name=None, **kwargs):
+        '''
+        Adds a ``Data Feed`` to be resample by the system
+
+        If ``name`` is not None it will be put into ``data._name`` which is
+        meant for decoration/plotting purposes.
+
+        Any other kwargs like ``timeframe``, ``compression``, ``todate`` which
+        are supported by the resample filter will be passed transparently
+        '''
+        if any(dataname is x for x in self.datas):
+            dataname = dataname.clone()
+
+        dataname.resample(**kwargs)
+        self.adddata(dataname, name=name)
+        self._doreplay = True
+
+    def addstore(self, store):
+        '''Adds an ``Store`` instance to the if not already present'''
+        store.start()
+        self.store = store 
+        self.adddata(store._feed, init=True) 
+ 
+    def addstorecb(self, callback):
+        '''Adds a callback to get messages which would be handled by the
+        notify_store method
+
+        The signature of the callback must support the following:
+
+          - callback(msg, \*args, \*\*kwargs)
+
+        The actual ``msg``, ``*args`` and ``**kwargs`` received are
+        implementation defined (depend entirely on the *data/broker/store*) but
+        in general one should expect them to be *printable* to allow for
+        reception and experimentation.
+        '''
+        self.storecbs.append(callback)
+
+    def addwriter(self, wrtcls, *args, **kwargs):
+        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
+        ``run`` time in cerebro
+        '''
+        self.writers.append((wrtcls, args, kwargs))
+
+# -------------------------------------------------timer-----------------------------------------------------
     
     def addtz(self, tz):
         '''
@@ -211,11 +177,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - ``integer``. Use, for the strategy, the same timezone as the
             corresponding ``data`` in the ``self.datas`` iterable (``0`` would
             use the timezone from ``data0``)
-
         '''
-        self.p.tz = tz
-
-# -------------------------------------------------timer-----------------------------------------------------
+        tz = self.p.tz
+        if isinstance(tz, int):
+            tz = self.datas[tz]._tz
+        else:
+            tz = tzparse(tz)
 
     def _add_timer(self, owner, when,
                    offset=datetime.timedelta(), repeat=datetime.timedelta(),
@@ -346,54 +313,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for strat in runstrats:
                     strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
 
-# -------------------------------------------------component-----------------------------------------------------
-
-
-    # def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
-    #     '''Adds a signal to the system which will be later added to a
-    #     ``SignalStrategy``'''
-    #     self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
-
-    # def signal_strategy(self, stratcls, *args, **kwargs):
-    #     '''Adds a SignalStrategy subclass which can accept signals'''
-    #     self._signal_strat = (stratcls, args, kwargs)
-
-    # def signal_concurrent(self, onoff):
-    #     '''If signals are added to the system and the ``concurrent`` value is
-    #     set to True, concurrent orders will be allowed'''
-    #     self._signal_concurrent = onoff
-
-    # def signal_accumulate(self, onoff):
-    #     '''If signals are added to the system and the ``accumulate`` value is
-    #     set to True, entering the market when already in the market, will be
-    #     allowed to increase a position'''
-    #     self._signal_accumulate = onoff
-
-    def addstore(self, store):
-        '''Adds an ``Store`` instance to the if not already present'''
-        store.start()
-        self.store = store 
-        self.adddata(store._feed)  
-
-    def addsizer(self, sizercls, *args, **kwargs):
-        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
-        strategy added to cerebro
-        '''
-        self.sizers[None] = (sizercls, args, kwargs)
-
-    def addindicator(self, indcls, *args, **kwargs):
-        '''
-        Adds an ``Indicator`` class to the mix. Instantiation will be done at
-        ``run`` time in the passed strategies
-        '''
-        self.indicators.append((indcls, args, kwargs))
-    
-    def addwriter(self, wrtcls, *args, **kwargs):
-        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
-        ``run`` time in cerebro
-        '''
-        self.writers.append((wrtcls, args, kwargs))
-
 # -------------------------------------------------analyzer-----------------------------------------------------
 
     def addanalyzer(self, ancls, *args, **kwargs):
@@ -435,228 +354,20 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         pass
 
-    def _brokernotify(self):
-        '''
-        Internal method which kicks the broker and delivers any broker
-        notification to the strategy
-        '''
-        owner = self.store.owner
-        if owner is None:
-            owner = self.runningstrats[0]  # default
-
-        while True:
-            msg = self.store.get_broker_notification()
-            if not msg:
-                break
-            # strategy execute order
-            owner._addnotification(msg, quicknotify=self.p.quicknotify)
-
-    def _datanotify(self):
-        for data in self.datas:
-            for notif in data.get_notifications():
-                status, args, kwargs = notif
-                self._notify_data(data, status, *args, **kwargs)
-                for strat in self.runningstrats:
-                    strat.notify_data(data, status, *args, **kwargs)
-
-    def _notify_data(self, data, status, *args, **kwargs):
-        for callback in self.datacbs:
-            callback(data, status, *args, **kwargs)
-
-        self.notify_data(data, status, *args, **kwargs)
-
-    def notify_data(self, data, status, *args, **kwargs):
-        '''Receive data notifications in cerebro
-
-        This method can be overridden in ``Cerebro`` subclasses
-
-        The actual ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        pass
-    
-    def _notify_store(self, msg, *args, **kwargs):
-        for callback in self.storecbs:
-            callback(msg, *args, **kwargs)
-
-        self.notify_store(msg, *args, **kwargs)
-
-    def _storenotify(self):
-        # for store in self.stores:
-            for notif in self.store.get_notifications():
-                msg, args, kwargs = notif
-
-                self._notify_store(msg, *args, **kwargs)
-                for strat in self.runningstrats:
-                    strat.notify_store(msg, *args, **kwargs)
-    
-    def notify_store(self, msg, *args, **kwargs):
-        '''Receive store notifications in cerebro
-
-        This method can be overridden in ``Cerebro`` subclasses
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        pass
-
-# -------------------------------------------------callback-----------------------------------------------------
-    
-    def adddatacb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_data method
-
-        The signature of the callback must support the following:
-
-          - callback(data, status, \*args, \*\*kwargs)
-
-        The actual ``*args`` and ``**kwargs`` received are implementation
-        defined (depend entirely on the *data/broker/store*) but in general one
-        should expect them to be *printable* to allow for reception and
-        experimentation.
-        '''
-        self.datacbs.append(callback)
-    
-    def addstorecb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_store method
-
-        The signature of the callback must support the following:
-
-          - callback(msg, \*args, \*\*kwargs)
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        self.storecbs.append(callback)
-    
-    def optcallback(self, cb):
-        '''
-        Adds a *callback* to the list of callbacks that will be called with the
-        optimizations when each of the strategies has been run
-
-        The signature: cb(strategy)
-        '''
-        self.optcbs.append(cb)
-
-# -------------------------------------------------data-----------------------------------------------------
-
-    def adddata(self, data, name=None):
-        '''
-        Adds a ``Data Feed`` instance to the mix.
-
-        If ``name`` is not None it will be put into ``data._name`` which is
-        meant for decoration/plotting purposes.
-        '''
-        if name is not None:
-            data._name = name
-
-        data._id = next(self._dataid)
-        data.setenvironment(self)
-
-        self.datas.append(data)
-        self.datasbyname[data._name] = data
-        feed = data.getfeed()
-        if feed and feed not in self.feeds:
-            self.feeds.append(feed)
-
-        # if data.islive():
-        #     self._dolive = True
-
-    def replaydata(self, dataname, name=None, **kwargs):
-        '''
-        Adds a ``Data Feed`` to be replayed by the system
-
-        If ``name`` is not None it will be put into ``data._name`` which is
-        meant for decoration/plotting purposes.
-
-        Any other kwargs like ``timeframe``, ``compression``, ``todate`` which
-        are supported by the replay filter will be passed transparently
-        '''
-        if any(dataname is x for x in self.datas):
-            dataname = dataname.clone()
-
-        dataname.replay(**kwargs)
-        self.adddata(dataname, name=name)
-        self._doreplay = True
-        # return dataname
-
-    def resampledata(self, dataname, name=None, **kwargs):
-        '''
-        Adds a ``Data Feed`` to be resample by the system
-
-        If ``name`` is not None it will be put into ``data._name`` which is
-        meant for decoration/plotting purposes.
-
-        Any other kwargs like ``timeframe``, ``compression``, ``todate`` which
-        are supported by the resample filter will be passed transparently
-        '''
-        if any(dataname is x for x in self.datas):
-            dataname = dataname.clone()
-
-        dataname.resample(**kwargs)
-        self.adddata(dataname, name=name)
-        self._doreplay = True
-
-# -------------------------------------------------optimization-----------------------------------------------------
-
-    def optstrategy(self, strategy, *args, **kwargs):
-        '''
-        Adds a ``Strategy`` class to the mix for optimization. Instantiation
-        will happen during ``run`` time.
-
-        args and kwargs MUST BE iterables which hold the values to check.
-
-        Example: if a Strategy accepts a parameter ``period``, for optimization
-        purposes the call to ``optstrategy`` looks like:
-
-          - cerebro.optstrategy(MyStrategy, period=(15, 25))
-
-        This will execute an optimization for values 15 and 25. Whereas
-
-          - cerebro.optstrategy(MyStrategy, period=range(15, 25))
-
-        will execute MyStrategy with ``period`` values 15 -> 25 (25 not
-        included, because ranges are semi-open in Python)
-
-        If a parameter is passed but shall not be optimized the call looks
-        like:
-
-          - cerebro.optstrategy(MyStrategy, period=(15,))
-
-        Notice that ``period`` is still passed as an iterable ... of just 1
-        element
-
-        ``backtrader`` will anyhow try to identify situations like:
-
-          - cerebro.optstrategy(MyStrategy, period=15)
-
-        and will create an internal pseudo-iterable if possible
-        '''
-        # grid
-        self._dooptimize = True
-        args = self.iterize(args)
-        optargs = itertools.product(*args)
-
-        optkeys = list(kwargs)
-
-        vals = self.iterize(kwargs.values())
-        optvals = itertools.product(*vals)
-
-        okwargs1 = map(zip, itertools.repeat(optkeys), optvals)
-
-        optkwargs = map(dict, okwargs1)
-
-        it = itertools.product([strategy], optargs, optkwargs)
-        self.strats.append(it)
-
 # -------------------------------------------------strategy-----------------------------------------------------
+    
+    def addsizer(self, sizercls, *args, **kwargs):
+        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
+        strategy added to cerebro
+        '''
+        self.sizer = (sizercls, args, kwargs)
+
+    def addindicator(self, indcls, *args, **kwargs): # signal is indicator
+        '''
+        Adds an ``Indicator`` class to the mix. Instantiation will be done at
+        ``run`` time in the passed strategies
+        '''
+        self.indicators.append((indcls, args, kwargs))
 
     def addstrategy(self, strategy, *args, **kwargs):
         '''
@@ -665,40 +376,17 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         args and kwargs will be passed to the strategy as they are during
         instantiation.
-
-        Returns the index with which addition of other objects (like sizers)
-        can be referenced
         '''
         self.strats.append([(strategy, args, kwargs)])
-        return len(self.strats) - 1
-
 
     def __call__(self, iterstrat):
         '''
         Used during optimization to pass the cerebro over the multiprocesing
         module without complains
         '''
+        return self.runstrategies(iterstrat)
 
-        predata = self.p.optdatas and self._dopreload and self._dorunonce
-        return self.runstrategies(iterstrat, predata=predata)
-
-    def __getstate__(self):
-        '''
-        Used during optimization to prevent optimization result `runstrats`
-        from being pickled to subprocesses
-        '''
-
-        rv = vars(self).copy()
-        if 'runstrats' in rv:
-            del(rv['runstrats'])
-        return rv
-
-    def runstop(self):
-        '''If invoked from inside a strategy or anywhere else, including other
-        threads the execution will stop as soon as possible.'''
-        self._event_stop = True  # signal a stop has been requested
-
-    def run(self, reqmeta, **kwargs):
+    def run(self, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was
         instantiated with.
@@ -713,6 +401,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
+        self.runstrats = list()
         self._event_stop = False  # Stop is requested
 
         if not self.store:
@@ -724,451 +413,143 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if key in pkeys:
                 setattr(self.params, key, val)
 
-        # # Manage activate/deactivate object cache
-        # linebuffer.LineActions.cleancache()  # clean cache
-        # indicator.Indicator.cleancache()  # clean cache
-
-        # linebuffer.LineActions.usecache(self.p.objcache)
-        # indicator.Indicator.usecache(self.p.objcache)
-
-        self._dorunonce = self.p.runonce
-        self._dopreload = self.p.preload
-        self._exactbars = int(self.p.exactbars)
-
-        if self._exactbars:
-            self._dorunonce = False  # something is saving memory, no runonce
-            self._dopreload = self._dopreload and self._exactbars < 1
-
-        # self._doreplay = self._doreplay or any(x.replaying for x in self.datas)
-        # if self._doreplay:
-        #     # preloading is not supported with replay. full timeframe bars
-        #     # are constructed in realtime
-        #     self._dopreload = False
-
-        # if self._dolive or self.p.live:
-        #     # in this case both preload and runonce must be off
-        #     self._dorunonce = False
-        #     self._dopreload = False
-
-        # self.runwriters = list()
-
-        # # Add the system default writer if requested
-        # if self.p.writer is True:
-        #     wr = WriterFile()
-        #     self.runwriters.append(wr)
-
-        # # Instantiate any other writers
-        # for wrcls, wrargs, wrkwargs in self.writers:
-        #     wr = wrcls(*wrargs, **wrkwargs)
-        #     self.runwriters.append(wr)
-
-        # # Write down if any writer wants the full csv output
-        # self.writers_csv = any(map(lambda x: x.p.csv, self.runwriters))
-
-        self.runstrats = list()
-
-        # if self.signals:  # allow processing of signals
-        #     signalst, sargs, skwargs = self._signal_strat
-        #     if signalst is None:
-        #         # Try to see if the 1st regular strategy is a signal strategy
-        #         try:
-        #             signalst, sargs, skwargs = self.strats.pop(0)
-        #         except IndexError:
-        #             pass  # Nothing there
-        #         else:
-        #             if not isinstance(signalst, SignalStrategy):
-        #                 # no signal ... reinsert at the beginning
-        #                 self.strats.insert(0, (signalst, sargs, skwargs))
-        #                 signalst = None  # flag as not presetn
-
-        #     if signalst is None:  # recheck
-        #         # Still None, create a default one
-        #         signalst, sargs, skwargs = SignalStrategy, tuple(), dict()
-
-        #     # Add the signal strategy
-        #     self.addstrategy(signalst,
-        #                      _accumulate=self._signal_accumulate,
-        #                      _concurrent=self._signal_concurrent,
-        #                      signals=self.signals,
-        #                      *sargs,
-        #                      **skwargs)
-
-        if not self.strats:  # Datas are present, add a strategy
-            self.addstrategy(Strategy)
-
-        iterstrats = itertools.product(*self.strats)
-        if not self._dooptimize or self.p.maxcpus == 1:
-            # If no optimmization is wished ... or 1 core is to be used
-            # let's skip process "spawning"
-            for iterstrat in iterstrats:
-                runstrat = self.runstrategies(reqmeta, iterstrat)
+        if self.p.maxcpus == 1:
+            # If no optimmization is wished ... or 1 core is to be used / skipping spawn
+            for iterstrat in self.strats:
+                runstrat = self.runstrategies(iterstrat)
                 self.runstrats.append(runstrat)
-                # if self._dooptimize:
-                #     for cb in self.optcbs:
-                #         cb(runstrat)  # callback receives finished strategy
         else:
-            if self.p.optdatas and self._dopreload and self._dorunonce:
-                for data in self.datas:
-                    data.reset()
-                    # if self._exactbars < 1:  # datas can be full length
-                    #     data.extend(size=self.params.lookahead)
-                    data._start()
-                    if self._dopreload:
-                        data.preload()
-
             pool = multiprocessing.Pool(self.p.maxcpus or None)
-            # __call__
-            for r in pool.imap(self, (reqmeta, iterstrats)):
+            for r in pool.imap(self, self.strats): # __call__
                 self.runstrats.append(r)
-                # for cb in self.optcbs:
-                #     cb(r)  # callback receives finished strategy
 
             pool.close()
 
             if self.p.optdatas and self._dopreload and self._dorunonce:
                 for data in self.datas:
                     data.stop()
-
-        # if not self._dooptimize:
-        #     # avoid a list of list for regular cases
-        #     return self.runstrats[0]
-
         return self.runstrats
-
-    def _init_stcount(self):
-        self.stcount = itertools.count(0)
-
-    def _next_stid(self):
-        return next(self.stcount)
-
-    def runstrategies(self, reqmeta, iterstrat, predata=False):
+    
+    def runstrategies(self, iterstrat):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
-        self._init_stcount()
-
         self.runningstrats = runstrats = list()
 
-        self.store.subscribe(reqmeta)
+        for data in self.datas:
+            data.reset()
+            data._start()
 
-        # for feed in self.feeds:
-        #     feed.start()
+        # initialize strategy
+        stratcls, sargs, skwargs = iterstrat
+        sargs = self.datas + list(sargs)
+        strat = stratcls(*sargs, **skwargs)
 
-        # if self.writers_csv:
-        #     wheaders = list()
-        #     for data in self.datas:
-        #         if data.csv:
-        #             wheaders.extend(data.getwriterheaders())
+        for indcls, indargs, indkwargs in self.indicators:
+            strat._addindicator(indcls, *indargs, **indkwargs)
 
-        #     for writer in self.runwriters:
-        #         if writer.p.csv:
-        #             writer.addheaders(wheaders)
+        for multi, obscls, obsargs, obskwargs in self.observers:
+            strat._addobserver(multi, obscls, *obsargs, **obskwargs)
 
-        # self._plotfillers = [list() for d in self.datas]
-        # self._plotfillers2 = [list() for d in self.datas]
+        for ancls, anargs, ankwargs in self.analyzers:
+            strat._addanalyzer(ancls, *anargs, **ankwargs)
+        
+        if self.p.stdstats:
+            strat._addobserver(False, observers.Broker)
+            strat._addobserver(True, observers.BuySell, barplot=True)
+            strat._addobserver(False, observers.DataTrades)
 
-        if not predata:
-            for data in self.datas:
-                # data.reset()
-                # # if self._exactbars < 1:  # datas can be full length
-                # #     data.extend(size=self.params.lookahead)
-                # data._start()
-                # if self._dopreload:
-                #     data.preload()
-                data.preload()
+        strat._start() # start strategy
 
-        # setup stratcls
-        for stratcls, sargs, skwargs in iterstrat:
-            sargs = self.datas + list(sargs)
-            # import pdb; pdb.set_trace()
-            try:
-                strat = stratcls(*sargs, **skwargs) # initialize strategy 
-            # except errors.StrategySkipError:
-            except Exception as e:
-                continue  # do not add strategy to the mix
+        # Prepare timers
+        for timer in self._pretimers:
+            # preprocess tzdata if needed
+            timer.start(self.datas[0])
+            self._timers.append(timer)
 
-            # if self.p.oldsync:
-            #     strat._oldsync = True  # tell strategy to use old clock update
-            # if self.p.tradehistory:
-            #     strat.set_tradehistory()
-            runstrats.append(strat)
+        self._runnext(runstrats)
 
-        # tz = self.p.tz
-        # if isinstance(tz, int):
-        #     tz = self.datas[tz]._tz
-        # else:
-        #     tz = tzparse(tz)
+        for strat in runstrats:
+            strat._stop()
 
-        if runstrats:
-            # loop separated for clarity
-            defaultsizer = self.sizers.get(None, (None, None, None))
-            for idx, strat in enumerate(runstrats):
-                if self.p.stdstats:
-                    strat._addobserver(False, observers.Broker)
-
-                    strat._addobserver(True, observers.BuySell, barplot=True)
-
-                    strat._addobserver(False, observers.DataTrades)
-
-                for multi, obscls, obsargs, obskwargs in self.observers:
-                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
-
-                for indcls, indargs, indkwargs in self.indicators:
-                    strat._addindicator(indcls, *indargs, **indkwargs)
-
-                for ancls, anargs, ankwargs in self.analyzers:
-                    strat._addanalyzer(ancls, *anargs, **ankwargs)
-
-                sizer, sargs, skwargs = self.sizers.get(idx, defaultsizer)
-                if sizer is not None:
-                    strat._addsizer(sizer, *sargs, **skwargs)
-
-                # strat._settz(tz)
-                strat._start()
-
-            #     # for writer in self.runwriters:
-            #     #     if writer.p.csv:
-            #     #         writer.addheaders(strat.getwriterheaders())
-
-            # if not predata:
-            #     for strat in runstrats:
-            #         strat.qbuffer(self._exactbars, replaying=self._doreplay)
-
-            # for writer in self.runwriters:
-            #     writer.start()
-
-            # # Prepare timers
-            # self._timers = []
-            # self._timerscheat = []
-            # for timer in self._pretimers:
-            #     # preprocess tzdata if needed
-            #     timer.start(self.datas[0])
-
-            #     # if timer.params.cheat:
-            #     #     self._timerscheat.append(timer)
-            #     # else:
-            #     #     self._timers.append(timer)
-            if self._dopreload and self._dorunonce:
-                self._runonce(runstrats)
-            else:
-                self._runnext(runstrats)
-
-            for strat in runstrats:
-                strat._stop()
-
-        # if not predata:
-        #     for data in self.datas:
-        #         data.stop()
-
-        # for feed in self.feeds:
-        #     feed.stop()
+        for data in self.datas:
+            data.stop()
 
         self.store.stop()
-
-        # self.stop_writers(runstrats)
-
         return runstrats
-
-    # def stop_writers(self, runstrats):
-    #     cerebroinfo = OrderedDict()
-    #     datainfos = OrderedDict()
-
-    #     for i, data in enumerate(self.datas):
-    #         datainfos['Data%d' % i] = data.getwriterinfo()
-
-    #     cerebroinfo['Datas'] = datainfos
-
-    #     stratinfos = dict()
-    #     for strat in runstrats:
-    #         stname = strat.__class__.__name__
-    #         stratinfos[stname] = strat.getwriterinfo()
-
-    #     cerebroinfo['Strategies'] = stratinfos
-
-    #     for writer in self.runwriters:
-    #         writer.writedict(dict(Cerebro=cerebroinfo))
-    #         writer.stop()
-
-
-    def _disable_runonce(self):
-        '''API for lineiterators to disable runonce (see HeikinAshi)'''
-        self._dorunonce = False
 
     def _runnext(self, runstrats):
         '''
         Actual implementation of run in full next mode. All objects have its
         ``next`` method invoke on each data arrival
         '''
+        d0ret = True
         datas = sorted(self.datas,
                        key=lambda x: (x._timeframe, x._compression))
-        datas1 = datas[1:]
-        data0 = datas[0]
-        d0ret = True
 
-        rs = [i for i, x in enumerate(datas) if x.resampling]
-        rp = [i for i, x in enumerate(datas) if x.replaying]
-        rsonly = [i for i, x in enumerate(datas)
-                  if x.resampling and not x.replaying]
+        rsonly = [i for i, x in enumerate(datas) if x.resampling]
         onlyresample = len(datas) == len(rsonly)
         noresample = not rsonly
 
-        while d0ret or d0ret is None:
-
-            lastret = False
-            # Notify anything from the store even before moving datas
-            # because datas may not move due to an error reported by the store
-            self._storenotify()
-            if self._event_stop:  # stop if requested
-                return
-            self._datanotify()
+        while d0ret:
             if self._event_stop:  # stop if requested
                 return
 
             drets = []
             for d in datas:
-                drets.append(d.next(ticks=False))
+                drets.append(d.next())
 
             d0ret = any((dret for dret in drets))
-            # True / None / not None
-            if not d0ret and any((dret is None for dret in drets)):
-                d0ret = None
 
             if d0ret:
                 dts = []
                 for i, ret in enumerate(drets):
                     dts.append(datas[i].datetime[0] if ret else None)
 
-                # Get index to minimum datetime
-                # all resample or all not resample ---> filter out resample
                 if onlyresample or noresample:
                     dt0 = min((d for d in dts if d is not None))
                 else:
                     dt0 = min((d for i, d in enumerate(dts)
                                if d is not None and i not in rsonly))
-                    
-                dmaster = datas[dts.index(dt0)]  # and timemaster
+                dmaster = datas[dts.index(dt0)]
 
-                # Try to get something for those that didn't return
+                # retry to get a bar if not returned
                 for i, ret in enumerate(drets):
-                    if ret:  # dts already contains a valid datetime for this i
+                    if ret:
                         continue
-
-                    # try to get a data by checking with a master
                     d = datas[i]
-                    # d._check(forcedata=dmaster)  # check to force output
-                    if d.next(datamaster=dmaster, ticks=False):  # retry
-                        dts[i] = d.datetime[0]  # good -> store
+                    if d.next(datamaster=dmaster):
+                        dts[i] = d.datetime[0]
                     else:
                         pass
 
-                # make sure only those at dmaster level end up delivering
                 for i, dti in enumerate(dts):
                     if dti is not None:
                         di = datas[i]
-                        # rpi = False and di.replaying   # to check behavior
                         if dti > dt0:
-                            # if not rpi:  # must see all ticks ...
-                                di.rewind()  # cannot deliver yet
-                            # self._plotfillers[i].append(slen)
-                        # elif not di.replaying:
-                        #     # Replay forces tick fill, else force here
-                        #     di._tick_fill(force=True)
+                            di.rewind()  # cannot deliver yet
 
-                        # self._plotfillers2[i].append(slen)  # mark as fill
 
-            # elif d0ret is None:
-            #     # meant for things like live feeds which may not produce a bar
-            #     # at the moment but need the loop to run for notifications and
-            #     # getting resample and others to produce timely bars
-            #     for data in datas:
-            #         data._check()
-            # else:
-            #     lastret = data0._last()
-            #     for data in datas1:
-            #         lastret += data._last(datamaster=data0)
-
-            #     if not lastret:
-            #         # Only go extra round if something was changed by "lasts"
-            #         break
-
-            # Datas may have generated a new notification after next
-            self._datanotify()
             if self._event_stop:  # stop if requested
                 return
 
-            self._brokernotify()
-            if self._event_stop:  # stop if requested
-                return
-
-            if d0ret or lastret:  # bars produced by data or filters
-                # self._check_timers(runstrats, dt0, cheat=False)
+            if d0ret:  # bars produced by data or filters
+                self._check_timers(runstrats, dt0) # notify_timer to control next
                 for strat in runstrats:
                     strat._next()
+
                     if self._event_stop:  # stop if requested
                         return
 
                     self._next_writers(runstrats)
 
-        # Last notification chance before stopping
-        self._datanotify()
         if self._event_stop:  # stop if requested
             return
-        self._storenotify()
-        if self._event_stop:  # stop if requested
-            return
-
-    def _runonce(self, runstrats):
-        '''
-        Actual implementation of run in vector mode.
-
-        Strategies are still invoked on a pseudo-event mode in which ``next``
-        is called for each data arrival
-        '''
-        for strat in runstrats:
-            strat._once()
-            strat.reset()  # strat called next by next - reset lines
-
-        # The default once for strategies does nothing and therefore
-        # has not moved forward all datas/indicators/observers that
-        # were homed before calling once, Hence no "need" to do it
-        # here again, because pointers are at 0
-        datas = sorted(self.datas,
-                       key=lambda x: (x._timeframe, x._compression))
-
-        while True:
-            # Check next incoming date in the datas
-            dts = [d.advance_peek() for d in datas]
-            dts
-            dt0 = min(dts)
-            if dt0 == float('inf'):
-                break  # no data delivers anything
-
-            # Timemaster if needed be
-            # dmaster = datas[dts.index(dt0)]  # and timemaster
-            # slen = len(runstrats[0])
-            for i, dti in enumerate(dts):
-                if dti <= dt0:
-                    datas[i].advance()
-                    # self._plotfillers2[i].append(slen)  # mark as fill
-                else:
-                    # self._plotfillers[i].append(slen)
-                    pass
-
-            # self._check_timers(runstrats, dt0, cheat=True)
-
-            self._brokernotify()
-            if self._event_stop:  # stop if requested
-                return
-
-            # self._check_timers(runstrats, dt0, cheat=False)
-
-            for strat in runstrats:
-                strat._oncepost(dt0)
-
-                if self._event_stop:  # stop if requested
-                    return
-
-                # self._next_writers(runstrats)
+        
+    def runstop(self):
+        '''If invoked from inside a strategy or anywhere else, including other
+        threads the execution will stop as soon as possible.'''
+        self._event_stop = True  # signal a stop has been requested
 
 # -------------------------------------------------plot-----------------------------------------------------
     

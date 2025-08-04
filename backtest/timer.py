@@ -123,9 +123,8 @@ class Timer(with_metaclass(MetaParams, object)):
 
     '''
     params = (
-        ('tid', None),
-        ('owner', None),
-        ('strats', False),
+        # ('tid', None),
+        # ('owner', None),
         ('when', None),
         ('offset', timedelta()),
         ('repeat', timedelta()),
@@ -159,7 +158,6 @@ class Timer(with_metaclass(MetaParams, object)):
         self._isdata = isinstance(self._tzdata, AbstractDataBase)
         self._reset_when()
 
-        # (1,1,1,0,0) / (1,1,1)
         self._nexteos = datetime.min
         self._curdate = date.min
 
@@ -182,8 +180,7 @@ class Timer(with_metaclass(MetaParams, object)):
         mask = self._monthmask
         daycarry = False
         dmonth = ddate.month
-        # reset mechanism
-        if dmonth != self._curmonth:
+        if dmonth != self._curmonth: # reset
             self._curmonth = dmonth  # write down new month
             daycarry = self.p.monthcarry and bool(mask)
             self._monthmask = mask = collections.deque(self.p.monthdays)
@@ -241,7 +238,8 @@ class Timer(with_metaclass(MetaParams, object)):
 
         if d > self._nexteos:
             if self._isdata:  # eos provided by data
-                nexteos, _ = self._tzdata._getnexteos()
+                # nexteos, _ = self._tzdata._getnexteos()
+                nexteos, _ = self._tzdata._geteos()
             else:  # generic eos
                 # TIME_MAX 23:59:59.999999 means end of day
                 nexteos = datetime.combine(ddate, TIME_MAX)
@@ -283,12 +281,13 @@ class Timer(with_metaclass(MetaParams, object)):
 
         self.lastwhen = dwhen  # record when the last timer "when" happened
 
-        if not self.p.repeat:  # cannot repeat
+        if not self.p.repeat: 
             self._reset_when(ddate)  # reset and mark as called on ddate
         else:
             if d > self._nexteos:
                 if self._isdata:  # eos provided by data
-                    nexteos, _ = self._tzdata._getnexteos()
+                    # nexteos, _ = self._tzdata._getnexteos()
+                    nexteos, _ = self._tzdata._geteos()
                 else:  # generic eos
                     nexteos = datetime.combine(ddate, TIME_MAX)
 
@@ -298,18 +297,17 @@ class Timer(with_metaclass(MetaParams, object)):
 
             while True:
                 dwhen += self.p.repeat
-                if dwhen > nexteos:  # new schedule is beyone session
+                if dwhen > nexteos:
                     self._reset_when(ddate)  # reset to original point
                     break
 
-                if dwhen > d:  # gone over current datetime
+                if dwhen > d:  # _rstwhen is activte / many times trigger
                     self._dtwhen = dtwhen = date2num(dwhen)  # float timestamp
                     # Get the localized expected next time
                     if self._isdata:
                         self._dwhen = self._tzdata.num2date(dtwhen)
                     else:  # assume pytz compatible or None
                         self._dwhen = num2date(dtwhen, tz=self._tzdata)
-
                     break
 
         return True  # timer target was met

@@ -114,9 +114,9 @@ class AverageTrueRange(Indicator):
 
     def _plotlabel(self):
         plabels = [self.p.period]
-        plabels += [self.p.movav] * self.p.notdefault('movav')
+        plabels += [self.p.movav] * self.p.notdefault('movav') # notdefault is set by user
         return plabels
 
     def __init__(self):
-        self.lines.atr = self.p.movav(TR(self.data), period=self.p.period)
+        self.lines.atr = self.p.movav(TR(self.data), period=self.p.period) # TrueRange / alisa ---> new object
         super(AverageTrueRange, self).__init__()

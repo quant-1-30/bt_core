@@ -114,7 +114,7 @@ class Lines(object):
 
         clslines = baselines + lines
         clsextralines = baseextralines + extralines
-        lines2add = obaseslines + lines
+        # lines2add = obaseslines + lines
 
         # str for Python 2/3 compatibility
         basecls = cls if not linesoverride else Lines
@@ -514,8 +514,8 @@ class LineSeries(with_metaclass(MetaLineSeries, LineMultiple)):
     def rewind(self, size=1):
         self.lines.rewind(size)
 
-    def extend(self, value=NAN, size=0):
-        self.lines.extend(value, size)
+    # def extend(self, value=NAN, size=0):
+    #     self.lines.extend(value, size)
 
     def reset(self):
         self.lines.reset()

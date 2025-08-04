@@ -208,7 +208,7 @@ def num2date(x, tz=None, naive=True):
     be returned.
     """
 
-    dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('UTC'))
+    dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
     if tz is not None:
         tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
         dt = dt.astimezone(tz=tzinfo)

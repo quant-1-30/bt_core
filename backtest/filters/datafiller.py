@@ -26,7 +26,6 @@ from datetime import datetime, timedelta
 # from backtest import AbstractDataBase, TimeFrame
 
 
-
 class DataFiller(bt.AbstractDataBase):
     '''This class will fill gaps in the source data using the following
     information bits from the underlying data source

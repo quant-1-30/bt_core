@@ -72,13 +72,13 @@ class MetaIndicator(IndicatorBase.__class__):
 
         # Check if next and once have both been overridden
         next_over = cls.next != IndicatorBase.next
-        once_over = cls.once != IndicatorBase.once
+        # once_over = cls.once != IndicatorBase.once
 
-        if next_over and not once_over:
-            # No -> need pointer movement to once simulation via next
-            cls.once = cls.once_via_next
-            cls.preonce = cls.preonce_via_prenext
-            cls.oncestart = cls.oncestart_via_nextstart        
+        # if next_over and not once_over:
+        #     # No -> need pointer movement to once simulation via next
+        #     cls.once = cls.once_via_next
+        #     cls.preonce = cls.preonce_via_prenext
+        #     cls.oncestart = cls.oncestart_via_nextstart        
 
 
 # class Indicator(metaclass=MetaIndicator):
@@ -93,39 +93,39 @@ class Indicator(with_metaclass(MetaIndicator, IndicatorBase)):
         if len(self) < len(self._clock):
             self.lines.advance(size=size)
 
-    def preonce_via_prenext(self, start, end):
-        # generic implementation if prenext is overridden but preonce is not
-        for i in range(start, end):
-            for data in self.datas:
-                data.advance()
+    # def preonce_via_prenext(self, start, end):
+    #     # generic implementation if prenext is overridden but preonce is not
+    #     for i in range(start, end):
+    #         for data in self.datas:
+    #             data.advance()
 
-            for indicator in self._lineiterators[LineIterator.IndType]:
-                indicator.advance()
+    #         for indicator in self._lineiterators[LineIterator.IndType]:
+    #             indicator.advance()
 
-            self.advance()
-            self.prenext()
+    #         self.advance()
+    #         self.prenext()
 
-    def oncestart_via_nextstart(self, start, end):
-        # nextstart has been overriden, but oncestart has not and the code is
-        # here. call the overriden nextstart
-        for i in range(start, end):
-            for data in self.datas:
-                data.advance()
+    # def oncestart_via_nextstart(self, start, end):
+    #     # nextstart has been overriden, but oncestart has not and the code is
+    #     # here. call the overriden nextstart
+    #     for i in range(start, end):
+    #         for data in self.datas:
+    #             data.advance()
 
-            for indicator in self._lineiterators[LineIterator.IndType]:
-                indicator.advance()
+    #         for indicator in self._lineiterators[LineIterator.IndType]:
+    #             indicator.advance()
 
-            self.advance()
-            self.nextstart()
+    #         self.advance()
+    #         self.nextstart()
 
-    def once_via_next(self, start, end):
-        # Not overridden, next must be there ...
-        for i in range(start, end):
-            for data in self.datas:
-                data.advance()
+    # def once_via_next(self, start, end):
+    #     # Not overridden, next must be there ...
+    #     for i in range(start, end):
+    #         for data in self.datas:
+    #             data.advance()
 
-            for indicator in self._lineiterators[LineIterator.IndType]:
-                indicator.advance()
+    #         for indicator in self._lineiterators[LineIterator.IndType]:
+    #             indicator.advance()
 
-            self.advance()
-            self.next()
+    #         self.advance()
+    #         self.next()

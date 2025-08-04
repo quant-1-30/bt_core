@@ -19,7 +19,6 @@
 #
 ###############################################################################
 
-
 from . import MovingAverageBase, MovAv, ZeroLagIndicator
 
 

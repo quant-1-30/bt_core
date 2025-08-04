@@ -53,7 +53,7 @@ class DrawDown(Observer):
 
     def __init__(self):
         kwargs = self.p._getkwargs()
-        self._dd = self._owner._addanalyzer_slave(bt.analyzers.DrawDown,
+        self._dd = self._owner._addanalyzer_slave(DrawDown,
                                                   **kwargs)
 
     def next(self):
@@ -76,7 +76,7 @@ class DrawDownLength(Observer):
     plotlines = dict(maxlength=dict(_plotskip=True,))
 
     def __init__(self):
-        self._dd = self._owner._addanalyzer_slave(bt.analyzers.DrawDown)
+        self._dd = self._owner._addanalyzer_slave(DrawDown)
 
     def next(self):
         self.lines.len[0] = self._dd.rets.len  # update drawdown length

@@ -28,9 +28,6 @@ with appends, forwarding, rewinding, resetting and other
 .. moduleauthor:: Daniel Rodriguez
 
 '''
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import array
 import collections
 import datetime
@@ -301,7 +298,6 @@ class LineBuffer(LineSingle):
     #     for i in range(size):
     #         self.array.append(value)
 
-
     def plot(self, idx=0, size=None):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
@@ -324,14 +320,14 @@ class LineBuffer(LineSingle):
 
         return self.array[start:end]
 
-    def oncebinding(self):
-        '''
-        Executes the bindings when running in "once" mode
-        '''
-        larray = self.array
-        blen = self.buflen()
-        for binding in self.bindings:
-            binding.array[0:blen] = larray[0:blen]
+    # def oncebinding(self):
+    #     '''
+    #     Executes the bindings when running in "once" mode
+    #     '''
+    #     larray = self.array
+    #     blen = self.buflen()
+    #     for binding in self.bindings:
+    #         binding.array[0:blen] = larray[0:blen]
 
     def addbinding(self, binding):
         ''' Adds another line binding
@@ -628,15 +624,15 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         else:
             self.prenext()
 
-    def _once(self):
-        self.forward(size=self._clock.buflen())
-        self.home()
+    # def _once(self):
+    #     self.forward(size=self._clock.buflen())
+    #     self.home()
 
-        self.preonce(0, self._minperiod - 1)
-        self.oncestart(self._minperiod - 1, self._minperiod)
-        self.once(self._minperiod, self.buflen())
+    #     self.preonce(0, self._minperiod - 1)
+    #     self.oncestart(self._minperiod - 1, self._minperiod)
+    #     self.once(self._minperiod, self.buflen())
 
-        self.oncebinding()
+    #     self.oncebinding()
 
 
 def LineDelay(a, ago=0, **kwargs):
@@ -668,14 +664,14 @@ class _LineDelay(LineActions):
     def next(self):
         self[0] = self.a[self.ago]
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        src = self.a.array
-        ago = self.ago
+    # def once(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     src = self.a.array
+    #     ago = self.ago
 
-        for i in range(start, end):
-            dst[i] = src[i + ago]
+    #     for i in range(start, end):
+    #         dst[i] = src[i + ago]
 
 
 class _LineForward(LineActions):
@@ -698,14 +694,14 @@ class _LineForward(LineActions):
     def next(self):
         self[-self.ago] = self.a[0]
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        src = self.a.array
-        ago = self.ago
+    # def once(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     src = self.a.array
+    #     ago = self.ago
 
-        for i in range(start, end):
-            dst[i - ago] = src[i]
+    #     for i in range(start, end):
+    #         dst[i - ago] = src[i]
 
 
 class LinesOperation(LineActions):
@@ -756,57 +752,57 @@ class LinesOperation(LineActions):
         else:
             self[0] = self.operation(self.a, self.b[0])
 
-    def once(self, start, end):
-        if self.bline:
-            self._once_op(start, end)
-        elif not self.r:
-            if not self.btime:
-                self._once_val_op(start, end)
-            else:
-                self._once_time_op(start, end)
-        else:
-            self._once_val_op_r(start, end)
+    # def once(self, start, end):
+    #     if self.bline:
+    #         self._once_op(start, end)
+    #     elif not self.r:
+    #         if not self.btime:
+    #             self._once_val_op(start, end)
+    #         else:
+    #             self._once_time_op(start, end)
+    #     else:
+    #         self._once_val_op_r(start, end)
 
-    def _once_op(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b.array
-        op = self.operation
+    # def _once_op(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     srca = self.a.array
+    #     srcb = self.b.array
+    #     op = self.operation
 
-        for i in range(start, end):
-            dst[i] = op(srca[i], srcb[i])
+    #     for i in range(start, end):
+    #         dst[i] = op(srca[i], srcb[i])
 
-    def _once_time_op(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b
-        op = self.operation
-        tz = self._tz
+    # def _once_time_op(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     srca = self.a.array
+    #     srcb = self.b
+    #     op = self.operation
+    #     tz = self._tz
 
-        for i in range(start, end):
-            dst[i] = op(num2date(srca[i], tz=tz).time(), srcb)
+    #     for i in range(start, end):
+    #         dst[i] = op(num2date(srca[i], tz=tz).time(), srcb)
 
-    def _once_val_op(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b
-        op = self.operation
+    # def _once_val_op(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     srca = self.a.array
+    #     srcb = self.b
+    #     op = self.operation
 
-        for i in range(start, end):
-            dst[i] = op(srca[i], srcb)
+    #     for i in range(start, end):
+    #         dst[i] = op(srca[i], srcb)
 
-    def _once_val_op_r(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a
-        srcb = self.b.array
-        op = self.operation
+    # def _once_val_op_r(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     srca = self.a
+    #     srcb = self.b.array
+    #     op = self.operation
 
-        for i in range(start, end):
-            dst[i] = op(srca, srcb[i])
+    #     for i in range(start, end):
+    #         dst[i] = op(srca, srcb[i])
 
 
 class LineOwnOperation(LineActions):
@@ -825,11 +821,11 @@ class LineOwnOperation(LineActions):
     def next(self):
         self[0] = self.operation(self.a[0])
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        op = self.operation
+    # def once(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     srca = self.a.array
+    #     op = self.operation
 
-        for i in range(start, end):
-            dst[i] = op(srca[i])
+    #     for i in range(start, end):
+    #         dst[i] = op(srca[i])

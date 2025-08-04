@@ -264,8 +264,10 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             # supporting datas with different lengths
             minperstatus = self._getminperstatus()
             if minperstatus < 0:
+                self.check() #check if event
                 self.next()
             elif minperstatus == 0:
+                self.check() # check if event
                 self.nextstart()  # only called for the 1st value
             else:
                 self.prenext()
@@ -286,44 +288,44 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
         return clock_len
 
-    def _once(self):
-        self.forward(size=self._clock.buflen())
+    # def _once(self):
+    #     self.forward(size=self._clock.buflen())
 
-        for indicator in self._lineiterators[LineIterator.IndType]:
-            indicator._once()
+    #     for indicator in self._lineiterators[LineIterator.IndType]:
+    #         indicator._once()
 
-        for observer in self._lineiterators[LineIterator.ObsType]:
-            observer.forward(size=self.buflen())
+    #     for observer in self._lineiterators[LineIterator.ObsType]:
+    #         observer.forward(size=self.buflen())
 
-        for data in self.datas:
-            data.home()
+    #     for data in self.datas:
+    #         data.home()
 
-        for indicator in self._lineiterators[LineIterator.IndType]:
-            indicator.home()
+    #     for indicator in self._lineiterators[LineIterator.IndType]:
+    #         indicator.home()
 
-        for observer in self._lineiterators[LineIterator.ObsType]:
-            observer.home()
+    #     for observer in self._lineiterators[LineIterator.ObsType]:
+    #         observer.home()
 
-        self.home()
+    #     self.home()
 
-        # These 3 remain empty for a strategy and therefore play no role
-        # because a strategy will always be executed on a next basis
-        # indicators are each called with its min period
-        self.preonce(0, self._minperiod - 1)
-        self.oncestart(self._minperiod - 1, self._minperiod)
-        self.once(self._minperiod, self.buflen())
+    #     # These 3 remain empty for a strategy and therefore play no role
+    #     # because a strategy will always be executed on a next basis
+    #     # indicators are each called with its min period
+    #     self.preonce(0, self._minperiod - 1)
+    #     self.oncestart(self._minperiod - 1, self._minperiod)
+    #     self.once(self._minperiod, self.buflen())
 
-        for line in self.lines:
-            line.oncebinding()
+    #     for line in self.lines:
+    #         line.oncebinding()
 
-    def preonce(self, start, end):
-        pass
+    # def preonce(self, start, end):
+    #     pass
 
-    def oncestart(self, start, end):
-        self.once(start, end)
+    # def oncestart(self, start, end):
+    #     self.once(start, end)
 
-    def once(self, start, end):
-        pass
+    # def once(self, start, end):
+    #     pass
 
     def prenext(self):
         '''
@@ -332,14 +334,14 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         '''
         pass
 
-    def nextstart(self):
-        '''
-        This method will be called once, exactly when the minimum period for
-        all datas/indicators have been meet. The default behavior is to call
-        next
-        '''
-        # Called once for 1st full calculation - defaults to regular next
-        self.next()
+    # def nextstart(self):
+    #     '''
+    #     This method will be called once, exactly when the minimum period for
+    #     all datas/indicators have been meet. The default behavior is to call
+    #     next
+    #     '''
+    #     # Called once for 1st full calculation - defaults to regular next
+    #     self.next()
 
     def next(self):
         '''

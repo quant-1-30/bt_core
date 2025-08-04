@@ -60,6 +60,17 @@ class Store(with_metaclass(MetaSingleton, object)):
         data._store = self
         return data
     
+    @staticmethod
+    def get_data(q, timeout=-1):
+        data = []
+        while True:
+            # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
+            msg = q.get(timeout)
+            if msg == "eof":
+                break
+            data.append(msg)
+        return data
+    
     def getToken(self, user_id):
         headers = {
             "Authorization": f"Bearer test"
@@ -101,20 +112,20 @@ class Store(with_metaclass(MetaSingleton, object)):
     def stop(self):
         pass
 
-    def get_broker_notification(self):
-        notifs = self.broker.notifs
-        notifs.put(None) # put a mark
-        try:
-            # return self.notifs.popleft()
-            return notifs.get(False)
-        except queue.Empty:
-            pass
-        return None
+    # def get_broker_notification(self):
+    #     notifs = self.broker.notifs
+    #     notifs.put(None) # put a mark
+    #     try:
+    #         # return self.notifs.popleft()
+    #         return notifs.get(False)
+    #     except queue.Empty:
+    #         pass
+    #     return None
 
-    def put_notification(self, msg, *args, **kwargs):
-        self.notifs.append((msg, args, kwargs))
+    # def put_notification(self, msg, *args, **kwargs):
+    #     self.notifs.append((msg, args, kwargs))
 
-    def get_notifications(self):
-        '''Return the pending "store" notifications'''
-        self.notifs.append(None)  # put a mark / threads could still append
-        return [x for x in iter(self.notifs.popleft, None)]
+    # def get_notifications(self):
+    #     '''Return the pending "store" notifications'''
+    #     self.notifs.append(None)  # put a mark / threads could still append
+    #     return [x for x in iter(self.notifs.popleft, None)]

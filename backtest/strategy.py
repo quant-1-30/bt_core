@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import numpy as np
+import warnings
 import collections
 import copy
 import datetime
@@ -30,7 +31,6 @@ from .lineiterator import LineIterator, StrategyBase
 from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, ItemCollection, findowner
-from .sizers import FixedSize
 
 
 class MetaStrategy(StrategyBase.__class__):
@@ -71,12 +71,14 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
-        store = _obj.env.store
+        store = _obj.env.store # add store to strategy
         _obj.store = store
+
+        _obj.sizer = 1.0 # default sizer cash
+        _obj.name = _obj.__class__.__name__ if _obj.p.name is None else _obj.p.name
         
-        _obj._sizer = FixedSize() # default
-        _obj._orderspending = list()
-        _obj._tradespending = list()
+        # _obj._orderspending = list()
+        # _obj._tradespending = list()
         
         _obj.stats = _obj.observers = ItemCollection()
         _obj.analyzers = ItemCollection()
@@ -87,7 +89,6 @@ class MetaStrategy(StrategyBase.__class__):
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
-        _obj._sizer.set(_obj.store)
         return _obj, args, kwargs
 
 
@@ -210,44 +211,28 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             for o in obs:
                 o._start()
 
-        # # change operators to stage 2
         # self._stage2()
-
         self._dlens = [len(data) for data in self.datas]
-
         self._minperstatus = np.iinfo(np.int_).max  # start in prenext
-
         self.start()
 
     def start(self):
         '''Called right before the backtesting is about to be started.'''
         pass
+
+    def check(self):
+        """
+        Check if the strategy is ready to process the event data
+        """
+        session = self.lines.datetime[0]
+        status = self.store.check(session)
+        if status != 0:
+            warnings.warn(f"Strategy {self.name} check failed with status {status} at session {session}.")
+            raise RuntimeError("check event_data error")
+        # determine if the strategy finish process the event data
     
-    def _oncepost(self, dt):
-        for indicator in self._lineiterators[LineIterator.IndType]:
-            if len(indicator._clock) > len(indicator):
-                indicator.advance()
-
-        self.forward() # strategy forward
-
-        self.lines.datetime[0] = dt
-        self._notify()
-
-        minperstatus = self._getminperstatus()
-        if minperstatus < 0:
-            self.next()
-        elif minperstatus == 0:
-            self.nextstart()  # only called for the 1st value
-        else:
-            self.prenext()
-
-        self._next_analyzers(minperstatus, once=True)
-        self._next_observers(minperstatus, once=True)
-
-        self.clear()
-
     def _next(self):
-        super(Strategy, self)._next()
+        super(Strategy, self)._next() # lineiterator _next
 
         minperstatus = self._getminperstatus()
         self._next_analyzers(minperstatus)
@@ -255,7 +240,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self.clear()
 
-    def _next_observers(self, minperstatus, once=False):
+    def _next_observers(self, minperstatus):
         for observer in self._lineiterators[LineIterator.ObsType]:
             for analyzer in observer._analyzers:
                 if minperstatus < 0:
@@ -264,21 +249,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                     analyzer._nextstart()  # only called for the 1st value
                 else:
                     analyzer._prenext()
+            observer._next()
 
-            if once:
-                if len(self) > len(observer):
-                    # 移除 _oldsync 判断，统一使用 forward()
-                    observer.forward()
-                if minperstatus < 0:
-                    observer.next()
-                elif minperstatus == 0:
-                    observer.nextstart()  # only called for the 1st value
-                elif len(observer):
-                    observer.prenext()
-            else:
-                observer._next()
-
-    def _next_analyzers(self, minperstatus, once=False):
+    def _next_analyzers(self, minperstatus):
         for analyzer in self.analyzers:
             if minperstatus < 0:
                 analyzer._next()
@@ -298,10 +271,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         # # change operators back to stage 1 - allows reuse of datas
         # self._stage1()
-
-    def stop(self):
-        '''Called right before the backtesting is about to be stopped'''
-        pass
 
     def add_timer(self, when,
                   offset=datetime.timedelta(), repeat=datetime.timedelta(),
@@ -328,6 +297,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         analyzer = ancls(*anargs, **ankwargs)
         self._slave_analyzers.append(analyzer)
+        return analyzer
 
     def _addanalyzer(self, ancls, *anargs, **ankwargs):
         anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
@@ -355,72 +325,27 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             obs = obscls(data, *obsargs, **obskwargs)
             l.append(obs)
 
-    # def _addnotification(self, qorders=[], quicknotify=False):
-    #     for order in qorders:
-    #         self.notify_order(order)
-    #         for analyzer in itertools.chain(self.analyzers,
-    #                                         self._slave_analyzers):
-    #             analyzer._notify_order(order)
+    def _notify(self, procorders=[], proctrades=[]):
 
-    #     qtrades = self.getposition()
+        for order in procorders:
+            if order.exectype != order.Historical or order.histnotify:
+                self.notify_order(order)
+            for analyzer in itertools.chain(self.analyzers,
+                                            self._slave_analyzers):
+                analyzer._notify_order(order)
 
-    #     for trade in qtrades:
-    #         self.notify_trade(trade)
-    #         for analyzer in itertools.chain(self.analyzers,
-    #                                         self._slave_analyzers):
-    #             analyzer._notify_trade(trade)
+        for trade in proctrades:
+            self.notify_trade(trade)
+            for analyzer in itertools.chain(self.analyzers,
+                                            self._slave_analyzers):
+                analyzer._notify_trade(trade)
 
-    #     cash, fundvalue = self.store.getAccount()
+        cash = self.store.get_cash()
+        fundvalue = self.store.get_portfolio_value()
 
-    #     self.notify_cashvalue(cash)
-    #     self.notify_fund(fundvalue)
-    #     for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-    #         analyzer._notify_cashvalue(cash)
-    #         analyzer._notify_fund(fundvalue)
-
-    def clear(self):
-        self._orderspending = list()
-        self._tradespending = list()
-
-    def _addnotification(self, msg, quicknotify=False):
-        """
-            msg: (order_meta, qty)
-        """
-        order_meta, qty = msg
-
-        self._orderspending.append(order_meta)
-
-        while True:
-            exbit = qty.get()
-            if exbit == "eof":
-                break
-            self._tradespending.append(copy.copy(exbit))
-
-        if quicknotify:
-            self._notify(qorder=order_meta, qtrade=exbit)
-
-    def _notify(self, qorder=None, qtrade=None):
-        # need to know if quicknotify is on, to not reprocess pendingorders
-        # and pendingtrades, which have to exist for things like observers
-        # which look into it
-        self.notify_order(qorder)
-        for analyzer in itertools.chain(self.analyzers,
-                                        self._slave_analyzers):
-            analyzer._notify_order(qorder)
-
-        self.notify_trade(qtrade)
-        for analyzer in itertools.chain(self.analyzers,
-                                        self._slave_analyzers):
-            analyzer._notify_trade(qtrade)
-
-        cash = self.store.getcash()
-        fundvalue = self.store.getvalue()
-
-        # self.notify_cashvalue(cash, fundvalue)
-        self.notify_fund(cash, fundvalue)
+        self.notify_cashvalue(cash, fundvalue)
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            # analyzer._notify_cashvalue(cash, fundvalue)
-            analyzer._notify_fund(cash, fundvalue)
+            analyzer._notify_cashvalue(cash, fundvalue)
 
     def notify_timer(self, timer, when, *args, **kwargs):
         '''Receives a timer notification where ``timer`` is the timer which was
@@ -433,15 +358,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         pass
 
-    # def notify_cashvalue(self, cash, value):
-    #     '''
-    #     Receives the current fund value, value status of the strategy's broker
-    #     '''
-    #     pass
-
-    def notify_fund(self, cash, fundvalue):
+    def notify_cashvalue(self, cash, value):
         '''
-        Receives the current cash, value, fundvalue and fund shares
+        Receives the current fund value, value status of the strategy's broker
         '''
         pass
 
@@ -457,19 +376,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         pass
 
-    def notify_store(self, msg, *args, **kwargs):
-        '''Receives a notification from a store provider'''
-        pass
-
-    def notify_data(self, data, status, *args, **kwargs):
-        '''Receives a notification from data'''
-        pass
-
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
         self.store.cancel(order_id)
 
-    def buy(self, sid="", size=None, price=None, plimit=None,
+    # def clear(self):
+    #     self._orderspending = list()
+    #     self._tradespending = list()
+
+    def buy(self, sid="", sizer=None, price=None, plimit=None,
             exectype=None, ordertype=None,
             **kwargs):
         '''Create a buy (long) order and send it to the broker
@@ -498,13 +413,14 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        if size:
-            q = self.store.buy(sid,
-                size=abs(size), price=price, plimit=plimit,
-                exectype=exectype, ordertype=ordertype,
-                **kwargs)
-            # self._orderspending.append(q)
-            self.store.notify(q)
+        sizer = sizer if sizer else self.sizer
+        sizer_cash = sizer * self.store.getcash()
+        
+        _trades = self.store.buy(sid, 
+            sizer_cash=sizer_cash, price=price, plimit=plimit,
+            exectype=exectype, ordertype=ordertype,
+            **kwargs)
+        self._notify([], _trades)
 
     def sell(self, sid,
              size=None, price=None, plimit=None,
@@ -518,46 +434,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         if size:
-
-            q = self.store.sell(sid,
+            trades = self.store.sell(sid,
                 size=abs(size), price=price, plimit=plimit,
                 exectype=exectype, ordertype=ordertype,
                 **kwargs)
-            # self._orderspending.append(q)
-            self.store.notify(q)
+            self._notify([], trades)
 
-    def _addsizer(self, sizer, *args, **kwargs):
-        if sizer is None:
-            self.setsizer(bt.sizers.FixedSize())
-        else:
-            self.setsizer(sizer(*args, **kwargs))
-
-    def setsizer(self, sizer):
-        '''
-        Replace the default (fixed stake) sizer
-        '''
-        self._sizer = sizer
-        sizer.set(self, self.store)
-        return sizer
-
-    def getsizer(self):
-        '''
-        Returns the sizer which is in used if automatic statke calculation is
-        used
-
-        Also available as ``sizer``
-        '''
-        return self._sizer
-
-    sizer = property(getsizer, setsizer)
-
-    def getsizing(self, data=None, isbuy=True):
-        '''
-        Return the stake calculated by the sizer instance for the current
-        situation
-        '''
-        data = data if data is not None else self.datas[0]
-        return self._sizer.getsizing(data, isbuy=isbuy)
+    def stop(self):
+        '''Called right before the backtesting is about to be stopped'''
+        super(Strategy, self).stop()
+        self.store.amend(self.line.datetime[0]) # amend if asset delist on dt
 
 
 class MetaSigStrategy(Strategy.__class__):
@@ -601,14 +487,9 @@ class MetaSigStrategy(Strategy.__class__):
             _obj._signals[sigtype].append(sigcls(*sigargs, **sigkwargs))
 
         # Record types of signals
-        _obj._longshort = bool(_obj._signals[bt.SIGNAL_LONGSHORT])
-
+        _obj._longshort = bool(_obj._signals[bt.SIGNAL_LONG])
         _obj._long = bool(_obj._signals[bt.SIGNAL_LONG])
-        _obj._short = bool(_obj._signals[bt.SIGNAL_SHORT])
-
         _obj._longexit = bool(_obj._signals[bt.SIGNAL_LONGEXIT])
-        _obj._shortexit = bool(_obj._signals[bt.SIGNAL_SHORTEXIT])
-
         return _obj, args, kwargs
 
 
@@ -622,48 +503,20 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
 
       - ``< 0`` is a ``short`` indication
 
-    There are 5 types of *Signals*, broken in 2 groups.
+    There are 5 types of *Signals*, broken in 2 groups, short is not suppored
 
     **Main Group**:
 
-      - ``LONGSHORT``: both ``long`` and ``short`` indications from this signal
-        are taken
-
       - ``LONG``:
         - ``long`` indications are taken to go long
-        - ``short`` indications are taken to *close* the long position. But:
 
           - If a ``LONGEXIT`` (see below) signal is in the system it will be
             used to exit the long
 
-          - If a ``SHORT`` signal is available and no ``LONGEXIT`` is available
-            , it will be used to close a ``long`` before opening a ``short``
-
-      - ``SHORT``:
-        - ``short`` indications are taken to go short
-        - ``long`` indications are taken to *close* the short position. But:
-
-          - If a ``SHORTEXIT`` (see below) signal is in the system it will be
-            used to exit the short
-
-          - If a ``LONG`` signal is available and no ``SHORTEXIT`` is available
-            , it will be used to close a ``short`` before opening a ``long``
-
     **Exit Group**:
-
-      This 2 signals are meant to override others and provide criteria for
-      exitins a ``long``/``short`` position
 
       - ``LONGEXIT``: ``short`` indications are taken to exit ``long``
         positions
-
-      - ``SHORTEXIT``: ``long`` indications are taken to exit ``short``
-        positions
-
-    **Order Issuing**
-
-      Orders execution type is ``Market`` and validity is ``None`` (*Good until
-      Canceled*)
 
     Params:
 
@@ -715,7 +568,7 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
 
         super(SignalStrategy, self)._notify(qorders=qorders, qtrades=qtrades)
 
-    def _next_catch(self):
+    def _next_catch(self): # next
         self._next_signal()
         if hasattr(self, '_next_custom'):
             self._next_custom()
@@ -728,79 +581,42 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         nosig = [[0.0]]
 
         # Calculate current status of the signals
-        ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
-        ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+        ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
 
         l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
         l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
         l_enter2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
         l_enter = l_enter0 or l_enter1 or l_enter2
 
-        s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
-        s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
-        s_enter2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
-        s_enter = s_enter0 or s_enter1 or s_enter2
-
+        # aim to sell long position
         l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
         l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
         l_ex2 = all(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
         l_exit = l_ex0 or l_ex1 or l_ex2
 
-        s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
-        s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
-        s_ex2 = all(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
-        s_exit = s_ex0 or s_ex1 or s_ex2
 
-        # Use oppossite signales to start reversal (by closing)
-        # but only if no "xxxExit" exists
-        l_rev = not self._longexit and s_enter
-        s_rev = not self._shortexit and l_enter
-
-        # Opposite of individual long and short
+        # Opposite of individual long  underlies to sell long position
         l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
         l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
         l_leav2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
         l_leave = l_leav0 or l_leav1 or l_leav2
 
-        s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
-        s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
-        s_leav2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
-        s_leave = s_leav0 or s_leav1 or s_leav2
-
         # Invalidate long leave if longexit signals are available
         l_leave = not self._longexit and l_leave
-        # Invalidate short leave if shortexit signals are available
-        s_leave = not self._shortexit and s_leave
 
         # Take size and start logic
         size = self.getposition(self._dtarget).size
         if not size:
             if ls_long or l_enter:
                 self._sentinel = self.buy(self._dtarget)
-
-            elif ls_short or s_enter:
-                self._sentinel = self.sell(self._dtarget)
-
         elif size > 0:  # current long position
-            if ls_short or l_exit or l_rev or l_leave:
+            if l_exit or l_leave:
                 # closing position - not relevant for concurrency
                 self.close(self._dtarget)
-
-            if ls_short or l_rev:
-                self._sentinel = self.sell(self._dtarget)
 
             if ls_long or l_enter:
                 if self.p._accumulate:
                     self._sentinel = self.buy(self._dtarget)
 
         elif size < 0:  # current short position
-            if ls_long or s_exit or s_rev or s_leave:
-                # closing position - not relevant for concurrency
-                self.close(self._dtarget)
-
-            if ls_long or s_rev:
-                self._sentinel = self.buy(self._dtarget)
-
-            if ls_short or s_enter:
-                if self.p._accumulate:
-                    self._sentinel = self.sell(self._dtarget)
+            raise NotImplementedError("short is not supported")

@@ -20,7 +20,7 @@
 ###############################################################################
 from backtest.analyzer import Analyzer
 
-from backtest.mathsupport import average, standarddev
+from backtest.utils.mathsupport import average, standarddev
 from backtest.analyzers import TimeReturn
 from backtest.dataseries import TimeFrame
 
