@@ -12,9 +12,8 @@ def get_data(q):
     data = []
     while True:
         msg = q.get()
-        print(f"[get_data] {msg}")
         if msg == "eof":
-            q.reset()
+            q.recycle()
             break
         data.append(msg)
     return data
@@ -23,12 +22,8 @@ def get_data(q):
 class TestMdApi:
     
     @pytest.fixture
-    def client_id(self):
-        return "efe4eaee-0406-46e3-a395-91dc4502c4a3"
-    
-    @pytest.fixture
-    def md_api(self, client_id):
-        return MdApi(addr=("127.0.0.1", 8888), client_id=client_id)
+    def md_api(self):
+        return MdApi(addr=("127.0.0.1", 8888))
     
     @pytest.fixture
     def session(self):
@@ -40,38 +35,46 @@ class TestMdApi:
         return "rightment"
 
     @pytest.fixture
-    def subMeta(self):
-        start_date = "20210101"
-        end_date = "20210301"
-        start_time = datetime.strptime(start_date, '%Y%m%d')
-        end_time = datetime.strptime(end_date, '%Y%m%d')
-        sid = ['600000']
-        return ReqMeta(
-                      start_date = start_time.timestamp(),
-                      end_date = end_time.timestamp(),
-                      sid = sid)
+    def reqMeta(self):
+        start_date = "20210101 9:30:00"
+        end_date = "20250815 15:00:00"
+        start_time = datetime.strptime(start_date, '%Y%m%d %H:%M:%S').timestamp()
+        end_time = datetime.strptime(end_date, '%Y%m%d %H:%M:%S').timestamp()
+        sid = ['002750']
+        return ReqMeta(start_date = start_time ,end_date = end_time, sid = sid)
     
-    def test_connect(self, md_api):
-        assert md_api.connected()
+    def test_getCalendar(self, md_api):
+        data = md_api.get_calendar()
+        print("test_getCalendar: ", data)
+        assert data is not None
 
-    # def test_getCalendar(self, md_api):
-    #     q = md_api.getCalendar()
-    #     data = get_data(q)
-    #     # print("test_getCalendar: ", data)
-    #     assert data is not None
-
-    # def test_getInstrument(self, md_api, session):
-    #     q = md_api.getInstrument(session)
-    #     data = get_data(q)
+    # def test_getInstrument(self, md_api):
+    #     data = md_api.get_instrument()
     #     print("test_getInstrument: ", data)
     #     assert data is not None
-
-    # def test_getEvent(self, md_api, session, event_type):
-    #     q = md_api.getEvent(session, event_type)
+    
+    # def test_subscribe(self, md_api, reqMeta):
+    #     q = md_api.subscribe(reqMeta)
     #     data = get_data(q)
+    #     print("subscribe data: ",data)
+    #     assert data is not None
+    
+    # def test_get_close(self, md_api, reqMeta):
+    #     data = md_api.get_close(reqMeta)
+    #     print("test_getClose: ", data)
     #     assert data is not None
 
-    def test_subscribe(self, md_api, subMeta):
-        q = md_api.subscribe(subMeta)
-        data = get_data(q)
-        assert data is not None
+    # def test_adjust_event(self, md_api, reqMeta):
+    #     data = md_api.get_event("adjustment", reqMeta)
+    #     print("test_getEvent: ", data)
+    #     assert data is not None
+    
+    # def test_right_event(self, md_api, reqMeta):
+    #     data = md_api.get_event("rightment", reqMeta)
+    #     print("test_getEvent: ", data)
+    #     assert data is not None
+
+    # def test_factor(self, md_api, reqMeta):
+    #     data = md_api.factor(reqMeta)
+    #     print("test_getClose: ", data)
+    #     assert data is not None

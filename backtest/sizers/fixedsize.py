@@ -21,7 +21,7 @@
 import numpy as np
 from backtest.sizer import Sizer
 
-__all__ = ['FixedSize']
+__all__ = ['SizerFix', 'NoSizer']
 
 
 class FixedSize(Sizer):

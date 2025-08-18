@@ -18,109 +18,58 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import queue
-import httpx
-import collections
 import backtest as bt
 from backtest.metabase import MetaParams, with_metaclass, findowner
 
 
-class MetaSingleton(MetaParams):
+class MetaStore(MetaParams):
     '''Metaclass to make a metaclassed class a singleton'''
     def __init__(cls, name, bases, dct):
-        super(MetaSingleton, cls).__init__(name, bases, dct)
+        super(MetaStore, cls).__init__(name, bases, dct)
         cls._singleton = None
 
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
-            super(MetaSingleton, cls).dopostinit(_obj, *args, **kwargs)
+            super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
         _obj.owner = findowner(_obj, bt.strategy.Strategy)
+        _obj._start(_obj.p.client_id, *args, **kwargs) # broker
         return _obj, args, kwargs
 
     def __call__(cls, *args, **kwargs):
         if cls._singleton is None:
             owner = findowner(cls, bt.strategy.Strategy)
             cls._singleton = (
-                super(MetaSingleton, cls).__call__(*args, **kwargs))
+                super(MetaStore, cls).__call__(*args, **kwargs))
         return cls._singleton
 
 
-class Store(with_metaclass(MetaSingleton, object)):
+class Store(with_metaclass(MetaStore, object)):
     '''Base class for all Stores'''
 
-    _started = False
-
-    params = (
-        ("cas", "http://localhost:10000/auth/login"),
-    )
-
-    def getdata(self, *args, **kwargs):
-        '''Returns ``DataCls`` with args, kwargs'''
-        data = self.DataCls(*args, **kwargs)
-        data._store = self
-        return data
+    _singleton = None
     
-    @staticmethod
-    def get_data(q, timeout=-1):
-        data = []
-        while True:
-            # msg = q.get(self.p.cal_tmout) // queue.Empty:  # tmout -> time to refresh 
-            msg = q.get(timeout)
-            if msg == "eof":
-                break
-            data.append(msg)
-        return data
-    
-    def getToken(self, user_id):
-        headers = {
-            "Authorization": f"Bearer test"
-        }
-        response = httpx.post(self.p.cas, json={"user_id": user_id}, headers=headers)
-        data = response.json()
-        if data["status"] == 1:
-            raise Exception(data["data"])
-        return data["data"]
-
-    @classmethod
-    def getbroker(cls, *args, **kwargs):
-        '''Returns broker with *args, **kwargs from registered ``BrokerCls``'''
-        broker = cls.BrokerCls(*args, **kwargs)
-        broker._store = cls
-        return broker
-
     BrokerCls = None  # broker class will autoregister
     DataCls = None  # data class will auto register
 
-    def start(self, data=None, broker=None):
-        if not self._started:
-            self._started = True
-            self.notifs = collections.deque()
-            self.datas = list()
-            self.broker = None
-
-        if data is not None:
-            self._cerebro = self._env = data._env
-            self.datas.append(data)
-
-            if self.broker is not None:
-                if hasattr(self.broker, 'data_started'):
-                    self.broker.data_started(data)
-
-        elif broker is not None:
-            self.broker = broker
+    params = (
+        ("client_id", ""),
+        ("timeout", -1),
+        ("checksum", "eof")
+    )
+    
+    @staticmethod
+    def iter_data(self, q): # queue.Empty
+        data = []
+        while True:
+            msg = q.get(self.p.timeout)
+            if msg == self.p.checksum:  # EOF
+                q.recycle()
+                break
+            data.append(msg)
+        return data
 
     def stop(self):
         pass
-
-    # def get_broker_notification(self):
-    #     notifs = self.broker.notifs
-    #     notifs.put(None) # put a mark
-    #     try:
-    #         # return self.notifs.popleft()
-    #         return notifs.get(False)
-    #     except queue.Empty:
-    #         pass
-    #     return None
 
     # def put_notification(self, msg, *args, **kwargs):
     #     self.notifs.append((msg, args, kwargs))

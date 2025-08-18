@@ -18,55 +18,50 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import datetime
-import collections
 import threading
-import queue
-from typing import List
-from backtest.dataseries import TimeFrame
-from bt_sdk.core.model import ReqMeta, OrderMeta
 from bt_sdk.core.client import MdApi, TdApi
 from backtest.store import Store
+from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
 
 
-class Descriptor(object):
+class MD(object):
     '''Descriptor for calendar and instrument data'''
     def __init__(self):
-        self.cal = None
-        self.assets = None
+        self.calendar = ()
+        self.assets = ()
 
-        self._evt_asset = threading.Event()
         self._evt_cal = threading.Event()
+        self._evt_asset = threading.Event()
 
-    def data_threads(self, api):
+    def data_thd(self, api):
         t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
         t_ = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
         t.start()
+        self._evt_cal.wait() # api async run in same thread and event loop
+
         t_.start()
-        self._evt_cal.wait()
         self._evt_asset.wait()
 
     def _t_cal(self, api):
-        msg = api.getCalendar()
-        self.cal = msg
+        msg = api.get_calendar()
+        print("calendar msg: ", msg)
+        self.calendar = msg
         self._evt_cal.set()
 
     def _t_asset(self, api):
-        msg = api.getInstrument()
-        if msg:
-            self.assets = msg[0]["msg"]["assets"]
-        else:
-            self.assets = []
+        msg = api.get_instrument()
+        print("asset msg ", msg)
+        self.assets = msg
         self._evt_asset.set()
 
     def __set__(self, instance, value):
         raise AttributeError("can't set attribute")
     
     def __get__(self, instance, owner):
-        if self.cal is None or self.assets is None:
-            self.data_threads(instance._mdapi)
-        return self.cal, self.assets
-
+        if len(self.calendar) ==0 or len(self.assets) ==0:
+            self.data_thd(instance._mdapi)
+        return self.calendar, self.assets
+    
 
 class BTStore(Store):
     '''Singleton class wrapping to control the connections.
@@ -86,82 +81,82 @@ class BTStore(Store):
     BrokerCls = None  # broker class will autoregister
     DataCls = None  # data class will auto register
 
-    descriptor = Descriptor()
+    md = MD()
 
     params = (
         ('md_addr', ("127.0.0.1", 8888)),
         ('td_addr', ("127.0.0.1", 8888)),
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         super(BTStore, self).__init__()
-        self.notifs = collections.deque()  # store notifications for cerebro
         self._mdapi = None
 
-    def _start(self, client_id):
-        self._mdapi = MdApi(self.p.md_addr)
-
-        tdapi = TdApi(self.p.td_addr, client_id=client_id)
+    def _start(self, client_id, *args, **kwargs):
+        self._mdapi = MdApi(addr=self.p.md_addr)
+        tdapi = TdApi(addr=self.p.td_addr, client_id=client_id)
         self.broker = self.BrokerCls(tdapi)
-
-    def get_feed(self, sid, start_date, end_date):
-        '''Returns a feed with the given parameters'''
-        chan =self._mdapi.subscribe(sid, start_date, end_date)
-        feed = self.DataCls(fromdate=start_date,
-                            todate=end_date, 
-                            name=sid,
-                            chan=chan)
-        return feed
+        self.data = self.DataCls(*args, **kwargs)
     
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
         belongs to'''
         super(BTStore, self).setenvironment(env)
 
-# -------------------------------------------------core api-----------------------------------------------------
-
-    def set_cash(self, session, cash):
-        self.broker.set_cash(session, cash)
+# ----------------------------------------------------------- data api -----------------------------------------------------
 
     def get_calendar(self):
         '''Returns the calendar data'''
-        return self.descriptor[0]
+        return self.md[0]
     
     def get_instrument(self):
         '''Returns the assets data'''
-        return self.descriptor[1]
+        return self.md[1]
     
-    def check(self, session): # check if adj / rght occurred
-        return self.broker.check(session)
+    def get_feed(self, sid, start_date, end_date):
+        '''Returns a feed with the given parameters'''
+        buffer =self._mdapi.subscribe(sid, start_date, end_date)
+        feed = self.DataCls(
+            dataname=sid,
+            fromdate=start_date,
+            todate=end_date,
+            buffer=buffer) 
+        return feed
+    
+    def set_cash(self, session, cash):
+        cashmeta = CashMeta(session=session, cash=cash)
+        status = self.broker.set_cash(cashmeta)
+        return status
     
     def get_cash(self):
-        return self.broker.get_cash()
+        return self.broker.acct[0]
+
+    def get_portfolio(self):
+        return self.broker.acct[1]
     
     def get_position(self):
-        return self.broker.getPosition()
-
-    def get_portfolio_value(self):
-        return self.broker.get_portfolio()
+        return self.broker.fetch("position")
     
-    def submit(self, meta: OrderMeta):
-        return self.broker.submit(meta)
+    def subscribe(self, topic, sdate, edate, sid=[]):
+        req = ReqMeta(start_date=sdate, end_date=edate, sid=sid)
+        return self.broker.subscribe(topic, req)
     
-    def trade_history(self, topic, reqmeta):
-        return self.broker.subscribe(topic, reqmeta)
+    def submit(self, sid="", size=0, price=0.0, sizer_cash=0, 
+               pricelimit=0, exec_type=0, order_type=0, created_at=0):
+        order_meta = OrderMeta(sid=sid,
+                                size=abs(size), 
+                                price=price,
+                                sizer_cash=sizer_cash, 
+                                pricelimit=pricelimit,
+                                exec_type=exec_type, 
+                                order_type=order_type,
+                                created_at=created_at)
+        
+        return self.broker.submit(order_meta)
     
-    def amend(self, session):
-        '''Amends the session, e.g. to update the cash value'''
-        self.broker.amend(session)
-    
-    def put_notification(self, msg, *args, **kwargs):
-        self.notifs.put((msg, args, kwargs))
-    
-    def get_notification(self):
-        try:
-            return self.broker.notifs.get(False)
-        except queue.Empty:
-            pass
-        return None
+    def check(self, sdate, edate): # check if adj / rght occurred
+        req = ReqMeta(start_date=sdate, end_date=edate, sid=[])
+        return self.broker.check(req)
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")

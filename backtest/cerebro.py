@@ -23,7 +23,7 @@ import datetime
 
 import itertools
 import multiprocessing
-from pytz import tzparse
+from pytz import timezone
 
 from backtest.metabase import MetaParams, with_metaclass
 from backtest import observers
@@ -182,7 +182,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if isinstance(tz, int):
             tz = self.datas[tz]._tz
         else:
-            tz = tzparse(tz)
+            tz = timezone(tz)
 
     def _add_timer(self, owner, when,
                    offset=datetime.timedelta(), repeat=datetime.timedelta(),
@@ -511,6 +511,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 else:
                     dt0 = min((d for i, d in enumerate(dts)
                                if d is not None and i not in rsonly))
+
                 dmaster = datas[dts.index(dt0)]
 
                 # retry to get a bar if not returned

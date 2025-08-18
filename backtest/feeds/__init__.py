@@ -21,6 +21,8 @@
 
 
 from .pandafeed import *
+from .mdapi import *
+
 # from .csvgeneric import *
 # from .btcsv import *
 # from .vchartcsv import *

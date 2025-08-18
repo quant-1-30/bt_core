@@ -27,7 +27,7 @@ import os.path
 
 from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass
-from .resamplerfilter import Replayer, Resampler 
+from .resamplerfilter import Resampler 
 from backtest.utils.dateintern import *
 
 
@@ -72,29 +72,30 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
 
-        if isinstance(_obj.p.sessionstart, str):
-            _obj.p.sessionstart = datetime.datetime.strptime(_obj.p.sessionstart, "%H:%M").time()
-        elif _obj.p.sessionstart is None:
-            _obj.p.sessionstart = datetime.time.min
+        # import pdb; pdb.set_trace()
+        # if isinstance(_obj.p.sessionstart, str):
+        #     _obj.p.sessionstart = datetime.datetime.strptime(_obj.p.sessionstart, "%H:%M").time()
+        # elif _obj.p.sessionstart is None:
+        #     _obj.p.sessionstart = datetime.time.min
 
-        if isinstance(_obj.p.sessionend, str):
-            _obj.p.sessionstart = datetime.datetime.strptime(_obj.p.sessionstart, "%H:%M").time()
-        elif _obj.p.sessionend is None:
-            _obj.p.sessionend = datetime.time(23, 59, 59, 999990) # remove 9 to avoid precision rounding errors
+        # if isinstance(_obj.p.sessionend, str):
+        #     _obj.p.sessionstart = datetime.datetime.strptime(_obj.p.sessionstart, "%H:%M").time()
+        # elif _obj.p.sessionend is None:
+        #     _obj.p.sessionend = datetime.time(23, 59, 59, 999990) # remove 9 to avoid precision rounding errors
 
-        if isinstance(_obj.p.fromdate, datetime.date):
-            # push it to the end of the day, or else intraday
-            # values before the end of the day would be gone
-            if not hasattr(_obj.p.fromdate, 'hour'):
-                _obj.p.fromdate = datetime.datetime.combine(
-                    _obj.p.fromdate, _obj.p.sessionstart)
+        # if isinstance(_obj.p.fromdate, datetime.date):
+        #     # push it to the end of the day, or else intraday
+        #     # values before the end of the day would be gone
+        #     if not hasattr(_obj.p.fromdate, 'hour'):
+        #         _obj.p.fromdate = datetime.datetime.combine(
+        #             _obj.p.fromdate, _obj.p.sessionstart)
 
-        if isinstance(_obj.p.todate, datetime.date):
-            # push it to the end of the day, or else intraday
-            # values before the end of the day would be gone
-            if not hasattr(_obj.p.todate, 'hour'):
-                _obj.p.todate = datetime.datetime.combine(
-                    _obj.p.todate, _obj.p.sessionend)
+        # if isinstance(_obj.p.todate, datetime.date):
+        #     # push it to the end of the day, or else intraday
+        #     # values before the end of the day would be gone
+        #     if not hasattr(_obj.p.todate, 'hour'):
+        #         _obj.p.todate = datetime.datetime.combine(
+        #             _obj.p.todate, _obj.p.sessionend)
 
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
@@ -109,14 +110,18 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 
             _obj._filters.append((fp, [], {}))
 
+        # factor
+        _factors = 1.0 if not _obj.p.factors else _obj.p.factors
+        _obj.factors = _factors
+
         return _obj, args, kwargs
 
 
 class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     params = (
-        ('dataname', None),
-        ('name', ''), # sid
+        ('dataname', None), # sid
+        ('name', None),
         ('compression', 1),
         ('timeframe', TimeFrame.Days),
         ('fromdate', None),
@@ -126,6 +131,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('filters', []),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
+        ('buffer', None), # buffer for data
+        ('factors', None)
     )
 
     (CONNECTED, DISCONNECTED, CONNBROKEN, DELAYED,
@@ -283,6 +290,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         if len(self) >= self.buflen(): # consume > buffer size 
             ret = self.load()
+            # add factor
+
             if not ret:
                 return ret
             if datamaster is None:
@@ -296,13 +305,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                 return False
         return True
 
-    def preload(self):
-        while self.load():
-            pass
-       
-        self._last()
-        self.home()
-    
     def _load(self):
         return False
 
@@ -358,24 +360,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             return True
         return False
     
-    def addfilter(self, p, *args, **kwargs):
-            if inspect.isclass(p):
-                pobj = p(self, *args, **kwargs)
-                self._filters.append((pobj, [], {}))
-
-                if hasattr(pobj, 'last'):
-                    self._ffilters.append((pobj, [], {}))
-            else:
-                self._filters.append((p, args, kwargs))
-
-# --------------------------------------------resample / replay  ---------------------------------------------
-
-    def resample(self, **kwargs):
-        self.addfilter(Resampler, **kwargs)
-
-    def replay(self, **kwargs):
-        self.addfilter(Replayer, **kwargs)
-
     def _add2stack(self, bar, stash=False):
         '''Saves given bar (list of values) to the stack for later retrieval'''
         if not stash:
@@ -419,6 +403,24 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return bool(ret)
     
+# --------------------------------------------resample / replay  ---------------------------------------------
+
+    def resample(self, **kwargs):
+        self.addfilter(Resampler, **kwargs)
+
+    # def replay(self, **kwargs):
+    #     self.addfilter(Replayer, **kwargs)
+
+    def addfilter(self, p, *args, **kwargs):
+            if inspect.isclass(p):
+                pobj = p(self, *args, **kwargs)
+                self._filters.append((pobj, [], {}))
+
+                if hasattr(pobj, 'last'):
+                    self._ffilters.append((pobj, [], {}))
+            else:
+                self._filters.append((p, args, kwargs))
+
 # ---------------------------------------------------------clone------------------------------------------------------------------------------------------------
 
     def clone(self, **kwargs):

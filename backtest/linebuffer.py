@@ -31,9 +31,10 @@ with appends, forwarding, rewinding, resetting and other
 import array
 import collections
 import datetime
-from itertools import islice
 import math
 
+from itertools import islice
+from typing import Union
 
 from .lineroot import LineRoot, LineSingle, LineMultiple
 from backtest.metabase import with_metaclass
@@ -297,6 +298,11 @@ class LineBuffer(LineSingle):
     #     self.extension += size
     #     for i in range(size):
     #         self.array.append(value)
+
+    def factor(self, factors: Union[float, array.array]):
+        # self.array apply factors
+        array = self.array
+        self.arry = array * factors
 
     def plot(self, idx=0, size=None):
         ''' Returns a slice of the array relative to the real zero of the buffer

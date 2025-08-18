@@ -92,3 +92,5 @@ backtrader:
     # sizer ---> intended to multistrategy binding to strategy not sid
     # cerebro ---> executor singelton
     # GPE 帕累托优化
+
+    # poetry lock --no-update / poetry update

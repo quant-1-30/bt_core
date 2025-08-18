@@ -25,6 +25,9 @@ from backtest.metabase import with_metaclass
 from backtest.stores.btstore import BTStore
 
 
+__all__ = ["MdData"]
+
+
 class MetaMdData(DataBase.__class__):
 
     def __init__(cls, name, bases, dct):
@@ -37,7 +40,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
     
     params = (
         ('rtbar', False),  # use RealTime 5 seconds bars
-        ("chan", None)
+        ("buffer", None)
     )
 
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3) # Minimum size supported by real-time bars
@@ -75,13 +78,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         return True
 
     def _load(self):
-        """
-           msg error code -354 self.NOTSUBSCRIBED
-        """
-        if self.p.chan is None:
+        if self.p.buffer is None:
             warnings.warn("qlive is None, must subscribe first")
             return
-        msg = self.p.chan.get()
+        msg = self.p.buffer.get()
         if msg == "eof":
             return False  # Conn broken during historical/backfilling
         if self.p.rtbar:
@@ -89,3 +89,4 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         else:
             self._load_bar(msg)
         return True
+

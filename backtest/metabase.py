@@ -312,7 +312,7 @@ class MetaParams(MetaBase):
         params = cls.params()
         for pname, pdef in cls.params._getitems():
             # kwargs 覆盖 params默认值
-            setattr(params, pname, kwargs.pop(pname, pdef))
+            setattr(params, pname, kwargs.pop(pname, pdef)) # pop ---> kwargs in-place
 
         # Create the object and set the params in place
         _obj, args, kwargs = super(MetaParams, cls).donew(*args, **kwargs)
