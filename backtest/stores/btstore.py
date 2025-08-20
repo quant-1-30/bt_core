@@ -18,50 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import threading
 from bt_sdk.core.client import MdApi, TdApi
 from backtest.store import Store
 from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
 
-
-class MD(object):
-    '''Descriptor for calendar and instrument data'''
-    def __init__(self):
-        self.calendar = ()
-        self.assets = ()
-
-        self._evt_cal = threading.Event()
-        self._evt_asset = threading.Event()
-
-    def data_thd(self, api):
-        t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
-        t_ = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
-        t.start()
-        self._evt_cal.wait() # api async run in same thread and event loop
-
-        t_.start()
-        self._evt_asset.wait()
-
-    def _t_cal(self, api):
-        msg = api.get_calendar()
-        print("calendar msg: ", msg)
-        self.calendar = msg
-        self._evt_cal.set()
-
-    def _t_asset(self, api):
-        msg = api.get_instrument()
-        print("asset msg ", msg)
-        self.assets = msg
-        self._evt_asset.set()
-
-    def __set__(self, instance, value):
-        raise AttributeError("can't set attribute")
-    
-    def __get__(self, instance, owner):
-        if len(self.calendar) ==0 or len(self.assets) ==0:
-            self.data_thd(instance._mdapi)
-        return self.calendar, self.assets
-    
 
 class BTStore(Store):
     '''Singleton class wrapping to control the connections.
@@ -81,22 +41,16 @@ class BTStore(Store):
     BrokerCls = None  # broker class will autoregister
     DataCls = None  # data class will auto register
 
-    md = MD()
-
     params = (
         ('md_addr', ("127.0.0.1", 8888)),
         ('td_addr', ("127.0.0.1", 8888)),
     )
 
-    def __init__(self):
-        super(BTStore, self).__init__()
-        self._mdapi = None
-
-    def _start(self, client_id, *args, **kwargs):
-        self._mdapi = MdApi(addr=self.p.md_addr)
-        tdapi = TdApi(addr=self.p.td_addr, client_id=client_id)
-        self.broker = self.BrokerCls(tdapi)
+    def _start(self, *args, **kwargs):
+        kwargs["tdapi"] = TdApi(addr=self.p.td_addr, client_id=self.p.client_id)
+        kwargs["mdapi"] = MdApi(addr=self.p.md_addr)
         self.data = self.DataCls(*args, **kwargs)
+        self.broker = self.BrokerCls(*args, **kwargs)
     
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
@@ -107,21 +61,15 @@ class BTStore(Store):
 
     def get_calendar(self):
         '''Returns the calendar data'''
-        return self.md[0]
+        return self.data.descr[0]
     
     def get_instrument(self):
         '''Returns the assets data'''
-        return self.md[1]
+        return self.data.descr[1]
     
-    def get_feed(self, sid, start_date, end_date):
+    def get_feed(self):
         '''Returns a feed with the given parameters'''
-        buffer =self._mdapi.subscribe(sid, start_date, end_date)
-        feed = self.DataCls(
-            dataname=sid,
-            fromdate=start_date,
-            todate=end_date,
-            buffer=buffer) 
-        return feed
+        return self.data
     
     def set_cash(self, session, cash):
         cashmeta = CashMeta(session=session, cash=cash)
@@ -164,5 +112,5 @@ class BTStore(Store):
     def stop(self):
         '''Stops and tells the store to stop'''
         print("stop mdapi")
-        self.mdapi.disconnected()
-        self.broker.disconnected()
+        self.data.stop()
+        self.broker.stop()

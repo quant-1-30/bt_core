@@ -75,7 +75,6 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.store = store
 
         _obj.sizer = 1.0 # default sizer cash
-        _obj.name = _obj.__class__.__name__ if _obj.p.name is None else _obj.p.name
         
         # _obj._orderspending = list()
         # _obj._tradespending = list()
@@ -136,49 +135,66 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                     it.qbuffer(savemem=1)
 
     def _periodset(self):
-        """设置策略和数据源的最小周期"""
-        data_lookup = {id(data): data for data in self.datas}
-        
-        clock_periods = []
-        for indicator in self._lineiterators[LineIterator.IndType]:
-            clock = self._find_clock(indicator, data_lookup) # indicator 默认 data[0]
-            if clock:
-                clock_periods.append((clock, indicator._minperiod))
-        
-        self._minperiods = []
-        for data in self.datas:
-            periods = [data._minperiod]
-            periods.extend(period for clock, period in clock_periods 
-                          if clock == data or clock in data.lines)
-            
-            self._minperiods.append(max(periods))
-        
-        # 设置策略的全局最小周期
-        ind_periods = [ind._minperiod for ind in self._lineiterators[LineIterator.IndType]]
-        ind_periods.append(self._minperiod)
-        self._minperiod = max(ind_periods)
+        dataids = [id(data) for data in self.datas]
 
-    @staticmethod
-    def _find_clock(obj, data_lookup):
-        """查找对象的顶层时钟"""
-        clock = getattr(obj, '_clock', None) or getattr(obj._owner, '_clock', None)
-        
-        if not clock:
-            return None
-        
-        # 向上遍历时钟层次结构
-        while True:
-            if id(clock) in data_lookup:
-                break  # 找到数据源，成功退出
-            # 查找上级时钟
-            next_clock = (getattr(clock, '_clock', None) or 
-                         getattr(clock._owner, '_clock', None))
-            if not next_clock:
-                return None  # 找不到上级时钟，失败退出
-            clock = next_clock
-        if isinstance(clock, LineSeriesStub):
-            clock = clock.lines[0]
-        return clock
+        _dminperiods = collections.defaultdict(list)
+        for lineiter in self._lineiterators[LineIterator.IndType]:
+            # if multiple datas are used and multiple timeframes the larger
+            # timeframe may place larger time constraints in calling next.
+            clk = getattr(lineiter, '_clock', None)
+            if clk is None:
+                clk = getattr(lineiter._owner, '_clock', None)
+                if clk is None:
+                    continue
+
+            while True:
+                if id(clk) in dataids:
+                    break  # already top-level clock (data feed)
+
+                # See if the current clock has higher level clocks
+                clk2 = getattr(clk, '_clock', None)
+                if clk2 is None:
+                    clk2 = getattr(clk._owner, '_clock', None)
+
+                if clk2 is None:
+                    break  # if no clock found, bail out
+
+                clk = clk2  # keep the ref and try to go up the hierarchy
+
+            if clk is None:
+                continue  # no clock found, go to next
+
+            # LineSeriesStup wraps a line and the clock is the wrapped line and
+            # no the wrapper itself.
+            if isinstance(clk, LineSeriesStub):
+                clk = clk.lines[0]
+
+            _dminperiods[clk].append(lineiter._minperiod)
+
+        self._minperiods = list()
+        for data in self.datas:
+
+            # Do not only consider the data as clock but also its lines which
+            # may have been individually passed as clock references and
+            # discovered as clocks above
+
+            # Initialize with data min period if any
+            dlminperiods = _dminperiods[data]
+
+            for l in data.lines:  # search each line for min periods
+                if l in _dminperiods:
+                    dlminperiods += _dminperiods[l]  # found, add it
+
+            # keep the reference to the line if any was found
+            _dminperiods[data] = [max(dlminperiods)] if dlminperiods else []
+
+            dminperiod = max(_dminperiods[data] or [data._minperiod])
+            self._minperiods.append(dminperiod)
+
+        # Set the minperiod
+        minperiods = \
+            [x._minperiod for x in self._lineiterators[LineIterator.IndType]]
+        self._minperiod = max(minperiods or [self._minperiod])
 
     def _getminperstatus(self):
         # check the min period status connected to datas
@@ -224,10 +240,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         """
         Check if the strategy is ready to process the event data
         """
-        session = self.lines.datetime[0]
-        status = self.store.check(session)
+        edate = self.lines.datetime[0]
+        sdate = self.lines.datetime[-1]
+        status = self.store.check(sdate, edate)
         if status != 0:
-            warnings.warn(f"Strategy {self.name} check failed with status {status} at session {session}.")
+            warnings.warn(f"Strategy check failed between {sdate} and {edate}.")
             raise RuntimeError("check event_data error")
         # determine if the strategy finish process the event data
     
@@ -341,7 +358,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 analyzer._notify_trade(trade)
 
         cash = self.store.get_cash()
-        fundvalue = self.store.get_portfolio_value()
+        fundvalue = self.store.get_portfolio()
 
         self.notify_cashvalue(cash, fundvalue)
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
@@ -380,9 +397,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Cancels the order in the broker'''
         self.store.cancel(order_id)
 
-    # def clear(self):
-    #     self._orderspending = list()
-    #     self._tradespending = list()
+    def clear(self):
+        self._orderspending = list()
+        self._tradespending = list()
 
     def buy(self, sid="", sizer=None, price=None, plimit=None,
             exectype=None, ordertype=None,

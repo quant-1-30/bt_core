@@ -32,7 +32,7 @@ class MetaStore(MetaParams):
         _obj, args, kwargs = \
             super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
         _obj.owner = findowner(_obj, bt.strategy.Strategy)
-        _obj._start(_obj.p.client_id, *args, **kwargs) # broker
+        _obj._start(*args, **kwargs) # broker
         return _obj, args, kwargs
 
     def __call__(cls, *args, **kwargs):

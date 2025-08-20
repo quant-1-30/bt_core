@@ -145,6 +145,14 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         '''
         pass
 
+    def nextstart(self):
+        '''
+        It will be called when the minperiod phase is over for the 1st
+        post-minperiod value. Only called once and defaults to automatically
+        calling next
+        '''
+        self.next()
+
     def next(self):
         '''
         Called to calculate values when the minperiod is over

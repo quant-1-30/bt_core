@@ -264,10 +264,10 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             # supporting datas with different lengths
             minperstatus = self._getminperstatus()
             if minperstatus < 0:
-                self.check() #check if event
+                # self.check() #check if event
                 self.next()
             elif minperstatus == 0:
-                self.check() # check if event
+                # self.check() # check if event
                 self.nextstart()  # only called for the 1st value
             else:
                 self.prenext()

@@ -5,40 +5,10 @@ from collections import OrderedDict, Sequence
 from itertools import compress
 from weakref import WeakKeyDictionary, ref
 
-from six.moves._thread import allocate_lock as Lock
+from threading import Lock
 from toolz.sandbox import unzip
-from trading_calendars.utils.memoize import lazyval
 
-from zipline.utils.compat import wraps
-
-
-class classlazyval(lazyval):
-    """ Decorator that marks that an attribute of a class should not be
-    computed until needed, and that the value should be memoized.
-
-    Example
-    -------
-
-    >>> from zipline.utils.memoize import classlazyval
-    >>> class C(object):
-    ...     count = 0
-    ...     @classlazyval
-    ...     def val(cls):
-    ...         cls.count += 1
-    ...         return "val"
-    ...
-    >>> C.count
-    0
-    >>> C.val, C.count
-    ('val', 1)
-    >>> C.val, C.count
-    ('val', 1)
-    """
-    # We don't reassign the name on the class to implement the caching because
-    # then we would need to use a metaclass to track the name of the
-    # descriptor.
-    def __get__(self, instance, owner):
-        return super(classlazyval, self).__get__(owner, owner)
+from functools import wraps
 
 
 def _weak_lru_cache(maxsize=100):

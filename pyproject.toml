@@ -20,6 +20,7 @@ certifi = "^2025.6.15"
 scipy = "^1.16.1"
 patsy = "^1.0.1"
 httpx = "^0.28.1"
+matplotlib = "^3.10.5"
 
 [[tool.poetry.source]]
 name = "tuna"

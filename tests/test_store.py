@@ -40,24 +40,25 @@ class TestBTStore:
     
     @pytest.fixture
     def ordermeta(self):
-        return {"sid":"603676", 
+        created_str = "2025-04-22 09:40:30"
+        created_dt = datetime.strptime(created_str, '%Y-%m-%d %H:%M:%S')
+        return {"sid":"002750", 
                 "price":97,
                 "size":100,
                 "sizer_cash":10000,
                 "pricelimit":102,
-                "created_at":1728351060, 
+                "created_at":created_dt.timestamp(), 
                 "exec_type":ExecType.Open,
                 "order_type":OrderType.Buy}
     
     @pytest.fixture
     def reqmeta(self):
         topic = "position"
-        start_date = "20210101"
-        end_date = "20210901"
+        start_date = "20240423"
+        end_date = "20250801"
         start_time = int(datetime.strptime(start_date, '%Y%m%d').timestamp())
         end_time = int(datetime.strptime(end_date, '%Y%m%d').timestamp())
-        sid = ['600000']
-        # sid = ['603676']
+        sid = ['002750']
         return (topic, start_time, end_time, sid)
 
     # def test_getcalendar(self, store):
@@ -69,17 +70,22 @@ class TestBTStore:
     #     data = store.get_instrument()
     #     print("getinstrument: ", data)
     #     assert data is not None 
-    
+
     # def test_set_cash(self, store):
-    #     cash = 100000
-    #     session = "20240101"
-    #     data = store.set_cash(cash, session)
-    #     print("account_cash: ", data)
-    #     assert data is not None
+    #         cash = 100000
+    #         session = "20240101"
+    #         data = store.set_cash(session=session, cash=cash)
+    #         print("account_cash: ", data)
+    #         assert data is not None
 
     # def test_getcash(self, store):
     #     data = store.get_cash()
     #     print("getcash: ", data)
+    #     assert data is not None
+
+    # def test_submit(self, store, ordermeta):
+    #     data = store.submit(**ordermeta)
+    #     print("submit: ", data)
     #     assert data is not None
 
     # def test_getportfolio(self, store):
@@ -96,13 +102,9 @@ class TestBTStore:
     #     buffer = store.subscribe(*reqmeta)
     #     data = get_data(buffer)
     #     print("subscribe: ",  data)
-
-    # def test_submit(self, store, ordermeta):
-    #     data = store.submit(**ordermeta)
-    #     print("submit: ", data)
-    #     assert data is not None
     
-    def test_check(self, store, reqmeta):
-        data = store.check(*reqmeta[1:3])
-        print("test_check: ", data)
-        assert data is not None
+    # def test_check(self, store, reqmeta):
+    #     data = store.check(*reqmeta[1:3])
+    #     print("test_check: ", data)
+    #     assert data is not None
+

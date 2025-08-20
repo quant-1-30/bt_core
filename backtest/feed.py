@@ -72,31 +72,6 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
 
-        # import pdb; pdb.set_trace()
-        # if isinstance(_obj.p.sessionstart, str):
-        #     _obj.p.sessionstart = datetime.datetime.strptime(_obj.p.sessionstart, "%H:%M").time()
-        # elif _obj.p.sessionstart is None:
-        #     _obj.p.sessionstart = datetime.time.min
-
-        # if isinstance(_obj.p.sessionend, str):
-        #     _obj.p.sessionstart = datetime.datetime.strptime(_obj.p.sessionstart, "%H:%M").time()
-        # elif _obj.p.sessionend is None:
-        #     _obj.p.sessionend = datetime.time(23, 59, 59, 999990) # remove 9 to avoid precision rounding errors
-
-        # if isinstance(_obj.p.fromdate, datetime.date):
-        #     # push it to the end of the day, or else intraday
-        #     # values before the end of the day would be gone
-        #     if not hasattr(_obj.p.fromdate, 'hour'):
-        #         _obj.p.fromdate = datetime.datetime.combine(
-        #             _obj.p.fromdate, _obj.p.sessionstart)
-
-        # if isinstance(_obj.p.todate, datetime.date):
-        #     # push it to the end of the day, or else intraday
-        #     # values before the end of the day would be gone
-        #     if not hasattr(_obj.p.todate, 'hour'):
-        #         _obj.p.todate = datetime.datetime.combine(
-        #             _obj.p.todate, _obj.p.sessionend)
-
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
 
@@ -258,7 +233,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self._tzinput = Localizer(self._gettzinput())
         self._started = True
 
-    def _start(self, preload=False):
+    def _start(self, **kwargs):
         self.start()
         if not self._started:
             self._start_finish() # dynamic update and add attributes _tzinput, _tz, _calendar, _started
@@ -287,11 +262,9 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                 self.lines.rewind()
 
     def next(self, datamaster=None):
-
+        # import pdb; pdb.set_trace()
         if len(self) >= self.buflen(): # consume > buffer size 
             ret = self.load()
-            # add factor
-
             if not ret:
                 return ret
             if datamaster is None:

@@ -29,7 +29,8 @@ from backtest.metabase import MetaParams, with_metaclass
 from backtest import observers
 from backtest.strategy import Strategy, SignalStrategy
 from backtest.sizers import NoSizer
-from .timer import Timer
+from backtest.timer import Timer
+from backtest.errors import *
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -79,7 +80,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ('maxcpus', 1),
-        ('stdstats', True),
+        ('stdstats', False),
         ('writer', False),
         ('tz', None),
         ('quicknotify', False),
@@ -133,9 +134,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     def addstore(self, store):
         '''Adds an ``Store`` instance to the if not already present'''
-        store.start()
-        self.store = store 
-        self.adddata(store._feed, init=True) 
+        self.store = store
+        _feed = store.get_feed()
+        self.datas.append(_feed)
  
     def addstorecb(self, callback):
         '''Adds a callback to get messages which would be handled by the
@@ -303,7 +304,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     
     def _check_timers(self, runstrats, dt0):
         # timers = self._timers if not cheat else self._timerscheat
-        for t in self._timers:
+        for t in self._pretimers:
             if not t.check(dt0):
                 continue
 
@@ -401,6 +402,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
+        for data in self.datas:
+            data.reset()
+            data._start(**kwargs)
+
         self.runstrats = list()
         self._event_stop = False  # Stop is requested
 
@@ -425,57 +430,83 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             pool.close()
 
-            if self.p.optdatas and self._dopreload and self._dorunonce:
-                for data in self.datas:
-                    data.stop()
+            # if self.p.optdatas and self._dopreload and self._dorunonce:
+            #     for data in self.datas:
+            #         data.stop()
+    
         return self.runstrats
+    
+    def _init_stcount(self):
+        self.stcount = itertools.count(0)
+
+    def _next_stid(self):
+        return next(self.stcount)
     
     def runstrategies(self, iterstrat):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
+        self._init_stcount()
+
         self.runningstrats = runstrats = list()
 
-        for data in self.datas:
-            data.reset()
-            data._start()
+        for stratcls, sargs, skwargs in iterstrat:
+            sargs = self.datas + list(sargs)
+            try:
+                strat = stratcls(*sargs, **skwargs)
+                strat._start()
+            except StrategySkipError:
+                continue  # do not add strategy to the mix
+            runstrats.append(strat)
 
-        # initialize strategy
-        stratcls, sargs, skwargs = iterstrat
-        sargs = self.datas + list(sargs)
-        strat = stratcls(*sargs, **skwargs)
+        if runstrats:
+            # defaultsizer = self.sizers.get(None, (None, None, None))
+            for idx, strat in enumerate(runstrats):
+                if self.p.stdstats:
+                    strat._addobserver(False, observers.Broker)
+                    
+                    strat._addobserver(True, observers.BuySell,
+                                        barplot=True)
 
-        for indcls, indargs, indkwargs in self.indicators:
-            strat._addindicator(indcls, *indargs, **indkwargs)
+                    strat._addobserver(False, observers.DataTrades)
 
-        for multi, obscls, obsargs, obskwargs in self.observers:
-            strat._addobserver(multi, obscls, *obsargs, **obskwargs)
+                for multi, obscls, obsargs, obskwargs in self.observers:
+                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
 
-        for ancls, anargs, ankwargs in self.analyzers:
-            strat._addanalyzer(ancls, *anargs, **ankwargs)
-        
-        if self.p.stdstats:
-            strat._addobserver(False, observers.Broker)
-            strat._addobserver(True, observers.BuySell, barplot=True)
-            strat._addobserver(False, observers.DataTrades)
+                for indcls, indargs, indkwargs in self.indicators:
+                    strat._addindicator(indcls, *indargs, **indkwargs)
 
-        strat._start() # start strategy
+                for ancls, anargs, ankwargs in self.analyzers:
+                    strat._addanalyzer(ancls, *anargs, **ankwargs)
 
-        # Prepare timers
-        for timer in self._pretimers:
-            # preprocess tzdata if needed
-            timer.start(self.datas[0])
-            self._timers.append(timer)
+            for writer in self.writers:
+                writer.start()
 
-        self._runnext(runstrats)
+            # Prepare timers
+            self._timers = []
+            self._timerscheat = []
+            for timer in self._pretimers:
+                # preprocess tzdata if needed
+                timer.start(self.datas[0])
 
-        for strat in runstrats:
-            strat._stop()
+                if timer.params.cheat:
+                    self._timerscheat.append(timer)
+                else:
+                    self._timers.append(timer) 
+
+            self._runnext(runstrats)
+
+            for strat in runstrats:
+                    strat._stop()
 
         for data in self.datas:
             data.stop()
 
-        self.store.stop()
+        for store in self.stores:
+            store.stop()
+
+        # self.stop_writers(runstrats)       
+
         return runstrats
 
     def _runnext(self, runstrats):
@@ -497,6 +528,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             drets = []
             for d in datas:
+                # import pdb; pdb.set_trace()
                 drets.append(d.next())
 
             d0ret = any((dret for dret in drets))
@@ -530,19 +562,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
                         if dti > dt0:
                             di.rewind()  # cannot deliver yet
 
-
             if self._event_stop:  # stop if requested
                 return
 
             if d0ret:  # bars produced by data or filters
-                self._check_timers(runstrats, dt0) # notify_timer to control next
+                # self._check_timers(runstrats, dt0) # notify_timer to control next
                 for strat in runstrats:
                     strat._next()
 
                     if self._event_stop:  # stop if requested
                         return
 
-                    self._next_writers(runstrats)
+                    # self._next_writers(runstrats)
 
         if self._event_stop:  # stop if requested
             return
@@ -551,6 +582,45 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''If invoked from inside a strategy or anywhere else, including other
         threads the execution will stop as soon as possible.'''
         self._event_stop = True  # signal a stop has been requested
+
+    # def _next_writers(self, runstrats):
+    #     if not self.runwriters:
+    #         return
+
+    #     if self.writers_csv:
+    #         wvalues = list()
+    #         for data in self.datas:
+    #             if data.csv:
+    #                 wvalues.extend(data.getwritervalues())
+
+    #         for strat in runstrats:
+    #             wvalues.extend(strat.getwritervalues())
+
+    #         for writer in self.runwriters:
+    #             if writer.p.csv:
+    #                 writer.addvalues(wvalues)
+
+    #                 writer.next()
+
+    # def stop_writers(self, runstrats):
+    #     cerebroinfo = OrderedDict()
+    #     datainfos = OrderedDict()
+
+    #     for i, data in enumerate(self.datas):
+    #         datainfos['Data%d' % i] = data.getwriterinfo()
+
+    #     cerebroinfo['Datas'] = datainfos
+
+    #     stratinfos = dict()
+    #     for strat in runstrats:
+    #         stname = strat.__class__.__name__
+    #         stratinfos[stname] = strat.getwriterinfo()
+
+    #     cerebroinfo['Strategies'] = stratinfos
+
+    #     for writer in self.runwriters:
+    #         writer.writedict(dict(Cerebro=cerebroinfo))
+    #         writer.stop()
 
 # -------------------------------------------------plot-----------------------------------------------------
     
@@ -588,8 +658,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        if self._exactbars > 0:
-            return
+        # if self._exactbars > 0:
+        #     return
 
         if not plotter:
             from . import plot

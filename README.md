@@ -94,3 +94,6 @@ backtrader:
     # GPE 帕累托优化
 
     # poetry lock --no-update / poetry update
+
+# **kwargs ---> key=value pack dict  / 解包 传入字典
+# three level a. construct  / b.base api class / instance

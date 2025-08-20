@@ -18,50 +18,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import threading
 
-from backtest.broker import BrokerBase
+from backtest.metabase import with_metaclass, MetaParams
 from backtest.stores.btstore import BTStore
-from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
 
 __all__ = ["BTBroker"]
 
 
-class Acct(object):
-
-    def __init__(self):
-        self._evt_acct = threading.Event()
-        self._cash = 0.0
-        self.portfolio_value = 0.0
-
-    def __set__(self, instance, value):
-        raise AttributeError("can't set attribute")
+class MetaBroker(MetaParams):
     
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        self.acct_thd(instance.tdapi)
-        return (self._cash, self.portfolio_value)
+    def __init__(cls, name, bases, dct):
+        '''Class has already been created ... register'''
+        # Initialize the class
+        super(MetaBroker, cls).__init__(name, bases, dct)
+        BTStore.BrokerCls = cls
     
-    def acct_thd(self, api):
-        t = threading.Thread(target=self._t_account, args=(api,))
-        t.daemon = True
-        t.start()
-        self._evt_acct.wait() # wait for account data to be set
+    def donew(cls, *args, **kwargs):
+        _obj, args, kwargs = super(MetaBroker, cls).donew(*args, **kwargs) 
+        _obj.tdapi = _obj.p.tdapi
+        return _obj, args, kwargs
     
-    def _t_account(self, api):
-        act = api.fetch("account")
-        if act:
-            msg = act[0]["msg"]
-            self._cash = msg["cash"]
-            self.portfolio_value = msg["portfolio_value"]
-        else:
-            self._cash = 0.0
-            self.portfolio_value = 0.0
-        self._evt_acct.set()
 
-
-class BTBroker(BrokerBase):
+class BrokerBase(with_metaclass(MetaBroker, object)):
     '''Broker implementation for Interactive Brokers.
 
     This class maps the orders/positions from Interactive Brokers to the
@@ -85,36 +63,16 @@ class BTBroker(BrokerBase):
         defeating the purpose of working with a live broker
     '''
     params = (
-        ("tdapi", None),
+        ("timeout", -1),
     )
     
-    acct = Acct()
+    def _start(self):
+        if not self.tdapi.connected():
+            raise Exception("TDAPI not connected")
 
-    def __init__(self, **kwargs): # kwargs - params left keys
-        pass
-
-    def set_cash(self, cashmeta: CashMeta):
-        status = self.tdapi.set_cash(cashmeta)
-        return status
-
-    def fetch(self, topic):
-        # position / account 
-        data = self.tdapi.fetch(topic)
-        return data
-    
-    def subscribe(self, topic:str, req: ReqMeta):
-        q = self.tdapi.subscribe(topic, req)
-        return q
-
-    def submit(self, order_meta:OrderMeta):
-        trades = self.tdapi.trade(order_meta.model_dump()) # pydantic contain _thread.lock
-        return trades
-
-    def check(self, req: ReqMeta):
-        status = self.tdapi.check(req)
-        return status
+    def cancel(self, vtorder_id):
+        self.tdapi.cancel(vtorder_id)
 
     def stop(self):
-        super().stop()
-        self.tdapi.disconnected()
-    
+        print("stop broker")
+        pass
