@@ -207,11 +207,12 @@ def num2date(x, tz=None, naive=True):
     If *x* is a sequence, a sequence of :class:`datetime` objects will
     be returned.
     """
-
+    print("num2date------------------------------------------------------------------------------------------------------- ", x)
     dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
     if tz is not None:
         tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
         dt = dt.astimezone(tz=tzinfo)
+    print("finish numdate :", dt)
     return dt
 
 def num2dt(num, tz=None, naive=True):

@@ -83,35 +83,35 @@ class DrawDownLength(Observer):
         self.lines.maxlen[0] = self._dd.rets.max.len  # update max length
 
 
-class DrawDown_Old(Observer):
-    '''This observer keeps track of the current drawdown level (plotted) and
-    the maxdrawdown (not plotted) levels
+# class DrawDown_Old(Observer):
+#     '''This observer keeps track of the current drawdown level (plotted) and
+#     the maxdrawdown (not plotted) levels
 
-    Params: None
-    '''
-    _stclock = True
+#     Params: None
+#     '''
+#     _stclock = True
 
-    lines = ('drawdown', 'maxdrawdown',)
+#     lines = ('drawdown', 'maxdrawdown',)
 
-    plotinfo = dict(plot=True, subplot=True)
+#     plotinfo = dict(plot=True, subplot=True)
 
-    plotlines = dict(maxdrawdown=dict(_plotskip='True',))
+#     plotlines = dict(maxdrawdown=dict(_plotskip='True',))
 
-    def __init__(self):
-        super(DrawDown_Old, self).__init__()
+#     def __init__(self):
+#         super(DrawDown_Old, self).__init__()
 
-        self.maxdd = 0.0
-        self.peak = float('-inf')
+#         self.maxdd = 0.0
+#         self.peak = float('-inf')
 
-    def next(self):
-        value = self._owner.broker.getvalue()
+#     def next(self):
+#         value = self._owner.broker.getvalue()
 
-        # update the maximum seen peak
-        if value > self.peak:
-            self.peak = value
+#         # update the maximum seen peak
+#         if value > self.peak:
+#             self.peak = value
 
-        # calculate the current drawdown
-        self.lines.drawdown[0] = dd = 100.0 * (self.peak - value) / self.peak
+#         # calculate the current drawdown
+#         self.lines.drawdown[0] = dd = 100.0 * (self.peak - value) / self.peak
 
-        # update the maxdrawdown if needed
-        self.lines.maxdrawdown[0] = self.maxdd = max(self.maxdd, dd)
+#         # update the maxdrawdown if needed
+#         self.lines.maxdrawdown[0] = self.maxdd = max(self.maxdd, dd)

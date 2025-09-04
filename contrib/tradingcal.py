@@ -27,7 +27,7 @@ from datetime import datetime, timedelta, time
 from dateutil import rrule
 from toolz import partition_all
 
-from .metabase import MetaParams
+from ..backtest.metabase import MetaParams
 from backtest.utils.dateintern import UTC
 from backtest.utils.wrapper import singleton
 

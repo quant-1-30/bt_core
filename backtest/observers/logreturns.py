@@ -73,7 +73,7 @@ class LogReturns(Observer):
 
     def __init__(self):
         self.logret1 = self._owner._addanalyzer_slave(
-            bt.analyzers.LogReturnsRolling,
+            analyzers.LogReturnsRolling,
             data=self.data0, **self.p._getkwargs())
 
     def next(self):
@@ -88,7 +88,7 @@ class LogReturns2(LogReturns):
         super(LogReturns2, self).__init__()
 
         self.logret2 = self._owner._addanalyzer_slave(
-            bt.analyzers.LogReturnsRolling,
+            analyzers.LogReturnsRolling,
             data=self.data1, **self.p._getkwargs())
 
     def next(self):

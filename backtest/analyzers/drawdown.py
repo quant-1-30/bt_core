@@ -32,15 +32,6 @@ class DrawDown(Analyzer):
 
     Params:
 
-      - ``fund`` (default: ``None``)
-
-        If ``None`` the actual mode of the broker (fundmode - True/False) will
-        be autodetected to decide if the returns are based on the total net
-        asset value or on the fund value. See ``set_fundmode`` in the broker
-        documentation
-
-        Set it to ``True`` or ``False`` for a specific behavior
-
     Methods:
 
       - ``get_analysis``
@@ -58,17 +49,12 @@ class DrawDown(Analyzer):
     '''
 
     params = (
-        ('fund', None),
+        # ('fund', None),
     )
 
     def start(self):
         super(DrawDown, self).start()
-        # if self.p.fund is None:
-        #     self._fundmode = self.strategy.broker.fundmode
-        # else:
-        #     self._fundmode = self.p.fund
-        self._fundmode = self.p.fund
-
+        
     def create_analysis(self):
         self.rets = AutoOrderedDict()  # dict with . notation
 
@@ -86,10 +72,7 @@ class DrawDown(Analyzer):
         self.rets._close()  # . notation cannot create more keys
 
     def notify_fund(self, cash, fundvalue):
-        # if not self._fundmode:
-        #     self._value = value  # record current value
-        #     self._maxvalue = max(self._maxvalue, value)  # update peak value
-        # else:
+        
         self._value = fundvalue  # record current value
         self._maxvalue = max(self._maxvalue, fundvalue)  # update peak
 
@@ -129,15 +112,6 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
         used
       - *None*
 
-      - ``fund`` (default: ``None``)
-
-        If ``None`` the actual mode of the broker (fundmode - True/False) will
-        be autodetected to decide if the returns are based on the total net
-        asset value or on the fund value. See ``set_fundmode`` in the broker
-        documentation
-
-        Set it to ``True`` or ``False`` for a specific behavior
-
     Methods:
 
       - ``get_analysis``
@@ -155,17 +129,11 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
         - ``maxddlen``
     '''
 
-    params = (
-        ('fund', None),
-    )
+    params = ()
 
     def start(self):
         super(TimeDrawDown, self).start()
-        # if self.p.fund is None:
-        #     self._fundmode = self.strategy.broker.fundmode
-        # else:
-        #     self._fundmode = self.p.fund
-        self._fundmode = self.p.fund
+        
         self.dd = 0.0
         self.maxdd = 0.0
         self.maxddlen = 0
@@ -173,10 +141,7 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
         self.ddlen = 0
 
     def on_dt_over(self):
-        # if not self._fundmode:
-        #     value = self.strategy.broker.getvalue()
-        # else:
-        #     value = self.strategy.broker.fundvalue
+        
         value = self.strategy.store.getvalue()
 
         # update the maximum seen peak

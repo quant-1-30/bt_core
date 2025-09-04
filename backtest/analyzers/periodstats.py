@@ -48,16 +48,6 @@ class PeriodStats(Analyzer):
         If ``None`` then the compression of the 1st data of the system will be
         used
 
-      - ``fund`` (default: ``None``)
-
-        If ``None`` the actual mode of the broker (fundmode - True/False) will
-        be autodetected to decide if the returns are based on the total net
-        asset value or on the fund value. See ``set_fundmode`` in the broker
-        documentation
-
-        Set it to ``True`` or ``False`` for a specific behavior
-
-
     ``get_analysis`` returns a dictionary containing the keys:
 
       - ``average``
@@ -76,12 +66,14 @@ class PeriodStats(Analyzer):
         ('timeframe', TimeFrame.Years),
         ('compression', 1),
         ('zeroispos', False),
-        ('fund', None),
+        # ('fund', None),
     )
 
     def __init__(self):
         self._tr = TimeReturn(timeframe=self.p.timeframe,
-                              compression=self.p.compression, fund=self.p.fund)
+                              compression=self.p.compression, 
+                              # fund=self.p.fund)
+        )
 
     def stop(self):
         trets = self._tr.get_analysis()  # dict key = date, value = ret

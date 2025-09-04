@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import math
+
 from backtest.analyzer import Analyzer
 from backtest.dataseries import TimeFrame
 from backtest.utils.mathsupport import average, standarddev
@@ -115,7 +117,7 @@ class SharpeRatio(Analyzer):
         # old behavior
         ('daysfactor', None),
         ('legacyannual', False),
-        ('fund', None),
+        # ('fund', None),
     )
 
     RATEFACTORS = {
@@ -132,7 +134,8 @@ class SharpeRatio(Analyzer):
             self.timereturn = TimeReturn(
                 timeframe=self.p.timeframe,
                 compression=self.p.compression,
-                fund=self.p.fund)
+                # fund=self.p.fund
+                )
 
     def stop(self):
         super(SharpeRatio, self).stop()

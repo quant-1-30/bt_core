@@ -61,15 +61,15 @@ class TestBTStore:
         sid = ['002750']
         return (topic, start_time, end_time, sid)
 
-    # def test_getcalendar(self, store):
-    #     data = store.get_calendar()
-    #     print("getcalendar: ", data)
-    #     assert data is not None
+    def test_getCalendar(self, store):
+        data = store.get_calendar()
+        print("getcalendar: ", data)
+        assert data is not None
 
-    # def test_getinstrument(self, store):
-    #     data = store.get_instrument()
-    #     print("getinstrument: ", data)
-    #     assert data is not None 
+    def test_getInstrument(self, store):
+        data = store.get_instrument()
+        print("getinstrument: ", data)
+        assert data is not None 
 
     # def test_set_cash(self, store):
     #         cash = 100000
@@ -78,30 +78,25 @@ class TestBTStore:
     #         print("account_cash: ", data)
     #         assert data is not None
 
-    # def test_getcash(self, store):
-    #     data = store.get_cash()
-    #     print("getcash: ", data)
-    #     assert data is not None
-
     # def test_submit(self, store, ordermeta):
     #     data = store.submit(**ordermeta)
     #     print("submit: ", data)
     #     assert data is not None
 
-    # def test_getportfolio(self, store):
-    #     data = store.get_portfolio()
-    #     print("get_portfolio: ", data)
-    #     assert data is not None
+    def test_getAcct(self, store):
+        data = store.get_acct()
+        print("get_acct: ", data)
+        assert data is not None
 
-    # def test_getposition(self, store):
-    #     data = store.get_position()
-    #     print("get_position: ", data)
-    #     assert data is not None
+    def test_getPosition(self, store):
+        data = store.get_position()
+        print("get_position: ", data)
+        assert data is not None
     
-    # def test_subscribe(self, store, reqmeta):
-    #     buffer = store.subscribe(*reqmeta)
-    #     data = get_data(buffer)
-    #     print("subscribe: ",  data)
+    def test_subscribe(self, store, reqmeta):
+        ctx = store.subscribe(*reqmeta)
+        data = get_data(ctx.__enter__())
+        print("subscribe: ",  data)
     
     # def test_check(self, store, reqmeta):
     #     data = store.check(*reqmeta[1:3])

@@ -19,6 +19,7 @@
 #
 ###############################################################################
 from backtest.analyzers import Analyzer
+from backtest.dataseries import TimeFrame
 
 
 class PositionsValue(Analyzer):
@@ -68,7 +69,7 @@ class PositionsValue(Analyzer):
             self.rets['Datetime'] = headers + ['cash'] * self.p.cash
 
         tf = min(d._timeframe for d in self.datas)
-        self._usedate = tf >= bt.TimeFrame.Days
+        self._usedate = tf >= TimeFrame.Days
 
     def next(self):
         pvals = [self.strategy.broker.get_value([d]) for d in self.datas]

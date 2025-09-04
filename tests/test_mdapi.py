@@ -12,8 +12,8 @@ def get_data(q):
     data = []
     while True:
         msg = q.get()
+        print("get_data msg :", msg)
         if msg == "eof":
-            q.recycle()
             break
         data.append(msg)
     return data
@@ -23,7 +23,7 @@ class TestMdApi:
     
     @pytest.fixture
     def md_api(self):
-        return MdApi(addr=("127.0.0.1", 8888))
+        return MdApi(addr="tcp://127.0.0.1:9000")
     
     @pytest.fixture
     def session(self):
@@ -36,11 +36,11 @@ class TestMdApi:
 
     @pytest.fixture
     def reqMeta(self):
-        start_date = "20250625 9:30:00"
-        end_date = "20250627 15:00:00"
+        start_date = "20221017 9:30:00"
+        end_date = "20250503 15:00:00"
         start_time = datetime.strptime(start_date, '%Y%m%d %H:%M:%S').timestamp()
         end_time = datetime.strptime(end_date, '%Y%m%d %H:%M:%S').timestamp()
-        sid = ['002750']
+        sid = ['603676']
         return ReqMeta(start_date = start_time ,end_date = end_time, sid = sid)
     
     # def test_getCalendar(self, md_api):
@@ -54,15 +54,15 @@ class TestMdApi:
     #     assert data is not None
     
     # def test_subscribe(self, md_api, reqMeta):
-    #     q = md_api.subscribe(reqMeta)
-    #     data = get_data(q)
-    #     print("subscribe data: ",data)
+    #     with md_api.subscribe(reqMeta) as q:
+    #         data = get_data(q)
+    #     # print("subscribe data: ",data)
     #     assert data is not None
     
-    def test_get_close(self, md_api, reqMeta):
-        data = md_api.get_close(reqMeta)
-        print("test_getClose: ", data)
-        assert data is not None
+    # def test_get_close(self, md_api, reqMeta):
+    #     data = md_api.get_close(reqMeta)
+    #     print("test_getClose: ", data)
+    #     assert data is not None
 
     # def test_adjust_event(self, md_api, reqMeta):
     #     data = md_api.get_event("adjustment", reqMeta)
@@ -74,7 +74,7 @@ class TestMdApi:
     #     print("test_getEvent: ", data)
     #     assert data is not None
 
-    # def test_factor(self, md_api, reqMeta):
-    #     data = md_api.factor(reqMeta)
-    #     print("test_getClose: ", data)
-    #     assert data is not None
+    def test_factor(self, md_api, reqMeta):
+        data = md_api.factor(reqMeta)
+        print("test_getClose: ", data)
+        assert data is not None

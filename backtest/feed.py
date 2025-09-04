@@ -85,6 +85,8 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 
             _obj._filters.append((fp, [], {}))
 
+        # context
+        _obj.context = None
         # factor
         _factors = 1.0 if not _obj.p.factors else _obj.p.factors
         _obj.factors = _factors
@@ -261,21 +263,32 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             if self.lines.datetime[0] > datamaster.lines.datetime[0]:
                 self.lines.rewind()
 
+    def post_factors(self):
+        """
+            ohlc factors
+        """
+        adj_factors = self.adj_factors
+        # datetime 
+        for line_name in ["open", "high", "close", "low"]:
+            self.getattr(line_name).post_factor(adj_factors)
+
     def next(self, datamaster=None):
         # import pdb; pdb.set_trace()
         if len(self) >= self.buflen(): # consume > buffer size 
+            import pdb;pdb.set_trace()
             ret = self.load()
+            self.post_factor() # dynamic factor
             if not ret:
                 return ret
-            if datamaster is None:
-                return ret
+            # if datamaster is None:
+            #     return ret
         else:
             self.advance()
 
-        if datamaster is not None:
-            if self.lines.datetime[0] > datamaster.lines.datetime[0]:
-                self.rewind()
-                return False
+        # if datamaster is not None:
+        #     if self.lines.datetime[0] > datamaster.lines.datetime[0]:
+        #         self.rewind()
+        #         return False
         return True
 
     def _load(self):
@@ -284,38 +297,41 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def load(self):
         while True:
             self.forward()
-            if self._fromstack():  # bar is available
-                return True
+            # if self._fromstack():  # bar is available
+            #     return True
 
-            if not self._fromstack(stash=True):
-                _loadret = self._load()
-                if not _loadret:  # no bar use force to make sure in exactbars
-                    self.backwards(force=True)  # undo data pointer
-                    return _loadret
+            # if not self._fromstack(stash=True):
+            #     _loadret = self._load()
+            #     if not _loadret:  # no bar use force to make sure in exactbars
+            #         self.backwards(force=True)  # undo data pointer
+            #         return _loadret
 
-            dt = self.lines.datetime[0]
+            _loadret = self._load()
+            if not _loadret:
+                return False
 
-            if self._tzinput:
-                dtime = num2date(dt)  # get it in a naive datetime
-                dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
-                self.lines.datetime[0] = dt = date2num(dtime) 
+            # dt = self.lines.datetime[0]
 
-           # Pass through filters
-            retff = False
-            for ff, fargs, fkwargs in self._filters:
-                if self._barstack: # previous filter may have put things onto the stack 
-                    for i in range(len(self._barstack)):
-                        self._fromstack(forward=True)
-                        retff = ff(self, *fargs, **fkwargs) # check
-                else:
-                    retff = ff(self, *fargs, **fkwargs)
+            # if self._tzinput:
+            #     dtime = num2date(dt)  # get it in a naive datetime
+            #     dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
+            #     self.lines.datetime[0] = dt = date2num(dtime) 
 
-                if retff:  # bar removed from systemn
-                    break  # out of the inner loop
+        #    # Pass through filters
+        #     retff = False
+        #     for ff, fargs, fkwargs in self._filters:
+        #         if self._barstack: # previous filter may have put things onto the stack 
+        #             for i in range(len(self._barstack)):
+        #                 self._fromstack(forward=True)
+        #                 retff = ff(self, *fargs, **fkwargs) # check
+        #         else:
+        #             retff = ff(self, *fargs, **fkwargs)
 
-            if retff:  # bar removed from system - loop to get new bar
-                continue  # in the greater loop
+        #         if retff:  # bar removed from systemn
+        #             break  # out of the inner loop
 
+        #     if retff:  # bar removed from system - loop to get new bar
+        #         continue  # in the greater loop
             return True
     
     def _fromstack(self, forward=False, stash=False):
@@ -376,7 +392,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return bool(ret)
     
-# --------------------------------------------resample / replay  ---------------------------------------------
+# --------------------------------------------------------------------- resample ---------------------------------------------------------------
 
     def resample(self, **kwargs):
         self.addfilter(Resampler, **kwargs)

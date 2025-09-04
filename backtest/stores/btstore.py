@@ -42,7 +42,7 @@ class BTStore(Store):
     DataCls = None  # data class will auto register
 
     params = (
-        ('md_addr', ("127.0.0.1", 8888)),
+        ('md_addr', "tcp://127.0.0.1:9000"),
         ('td_addr', ("127.0.0.1", 8888)),
     )
 
@@ -76,11 +76,9 @@ class BTStore(Store):
         status = self.broker.set_cash(cashmeta)
         return status
     
-    def get_cash(self):
-        return self.broker.acct[0]
-
-    def get_portfolio(self):
-        return self.broker.acct[1]
+    def get_acct(self):
+        # acct [cash, portfolio]
+        return self.broker.acct
     
     def get_position(self):
         return self.broker.fetch("position")
@@ -99,8 +97,9 @@ class BTStore(Store):
                                 exec_type=exec_type, 
                                 order_type=order_type,
                                 created_at=created_at)
-        
-        return self.broker.submit(order_meta)
+
+        trade_meta = self.broker.submit(order_meta)
+        return order_meta, trade_meta
     
     def check(self, sdate, edate): # check if adj / rght occurred
         req = ReqMeta(start_date=sdate, end_date=edate, sid=[])

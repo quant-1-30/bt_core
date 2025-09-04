@@ -29,9 +29,9 @@ with appends, forwarding, rewinding, resetting and other
 
 '''
 import array
-import collections
 import datetime
 import math
+import numpy as np
 
 from itertools import islice
 from typing import Union
@@ -39,7 +39,6 @@ from typing import Union
 from .lineroot import LineRoot, LineSingle, LineMultiple
 from backtest.metabase import with_metaclass
 from backtest.utils.dateintern import num2date, time2num
-
 
 NAN = float('NaN')
 
@@ -66,7 +65,6 @@ class LineBuffer(LineSingle):
     is set in this class
     it will also be set in the binding.
     '''
-
     UnBounded, QBuffer = (0, 1)
 
     def __init__(self):
@@ -84,50 +82,37 @@ class LineBuffer(LineSingle):
         # it (unless force) as index 0. This allows resampling
         #  - forward adds a position, but the 1st one is discarded, the 0 is
         #  invariant
-        # force supports replaying, which needs the extra bar to float
         # forward/backwards, because the last input is read, and after a
         # "backwards" is used to update the previous data. Unless the position
         # 0 was moved to the previous index, it would fail
         if self.mode == self.QBuffer:
-            if force or self._idx < self.lenmark:
-                self._idx = idx
+            # if force or self._idx < self.lenmark:
+            #     self._idx = idx
+            self._idx = idx % (self.maxlen)
         else:  # default: UnBounded
             self._idx = idx
+            # self._idx = idx % (np.iinfo(np.int32).max)
 
     idx = property(get_idx, set_idx)
 
     def reset(self):
         ''' Resets the internal buffer structure and the indices
         '''
-        if self.mode == self.QBuffer:
-            # add extrasize to ensure resample/replay work because they will
-            # use backwards to erase the last bar/tick before delivering a new
-            # bar The previous forward would have discarded the bar "period"
-            # times ago and it will not come back. Having + 1 in the size
-            # allows the forward without removing that bar
-            self.array = collections.deque(maxlen=self.maxlen + self.extrasize) # ensure latest data
-            self.useislice = True
-        else:
-            self.array = array.array(str('d'))
-            self.useislice = False
+        # extrasize to ensure resample / replay
+        self.array = array.array(str('d'))
 
         self.lencount = 0
         self.idx = -1
         self.extension = 0
 
-    def qbuffer(self, savemem=0, extrasize=0):
-        if savemem:
-            self.mode = self.QBuffer
-            self.maxlen = self._minperiod
-        else:
-            self.mode = self.UnBounded
+    def qbuffer(self, extrasize=0):
+
+        self.mode = self.QBuffer
+        self.maxlen = self._minperiod
 
         self.extrasize = extrasize
         self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
-
-    def getindicators(self):
-        return []
 
     def minbuffer(self, size):
         '''The linebuffer must guarantee the minimum requested size to be
@@ -158,11 +143,23 @@ class LineBuffer(LineSingle):
         held/can be held in the buffer
         is returned
         '''
-        # return len(self.array) - self.extension
-        return len(self.array)
+        return len(self.array) - self.extension
 
     def __getitem__(self, ago):
         return self.array[self.idx + ago]
+    
+    def getzeroval(self, idx=0):
+        ''' Returns a single value of the array relative to the real zero
+        of the buffer
+
+        Keyword Args:
+            idx (int): Where to start relative to the real start of the buffer
+            size(int): size of the slice to return
+
+        Returns:
+            A slice of the underlying buffer
+        '''
+        return self.array[idx]
 
     def get(self, ago=0, size=1):
         ''' Returns a slice of the array relative to *ago*
@@ -178,25 +175,9 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        if self.useislice:
-            start = self.idx + ago - size + 1
-            end = self.idx + ago + 1
-            return list(islice(self.array, start, end))
-
-        return self.array[self.idx + ago - size + 1:self.idx + ago + 1]
-
-    def getzeroval(self, idx=0):
-        ''' Returns a single value of the array relative to the real zero
-        of the buffer
-
-        Keyword Args:
-            idx (int): Where to start relative to the real start of the buffer
-            size(int): size of the slice to return
-
-        Returns:
-            A slice of the underlying buffer
-        '''
-        return self.array[idx]
+        start = self.idx + ago - size + 1
+        end = self.idx + ago + 1
+        return self.array[start:end]
 
     def getzero(self, idx=0, size=1):
         ''' Returns a slice of the array relative to the real zero of the buffer
@@ -221,18 +202,7 @@ class LineBuffer(LineSingle):
             the slice
             value (variable): value to be set
         '''
-        self.array[self.idx + ago] = value
-        for binding in self.bindings:
-            binding[ago] = value
-
-    def set(self, value, ago=0):
-        ''' Sets a value at position "ago" and executes any associated bindings
-
-        Keyword Args:
-            value (variable): value to be set
-            ago (int): Point of the array to which size will be added to return
-            the slice
-        '''
+        # print("idx and array ", self.idx, len(self.array))
         self.array[self.idx + ago] = value
         for binding in self.bindings:
             binding[ago] = value
@@ -284,25 +254,9 @@ class LineBuffer(LineSingle):
         '''
         self.idx += size
         self.lencount += size
-
-    # def extend(self, value=NAN, size=0):
-    #     ''' Extends the underlying array with positions that the index will not reach
-
-    #     Keyword Args:
-    #         value (variable): value to be set in new positins
-    #         size (int): How many extra positions to enlarge the buffer
-
-    #     The purpose is to allow for lookahead operations or to be able to
-    #     set values in the buffer "future"
-    #     '''
-    #     self.extension += size
-    #     for i in range(size):
-    #         self.array.append(value)
-
-    def factor(self, factors: Union[float, array.array]):
-        # self.array apply factors
-        array = self.array
-        self.arry = array * factors
+    
+    def getindicators(self):
+        return []
 
     def plot(self, idx=0, size=None):
         ''' Returns a slice of the array relative to the real zero of the buffer
@@ -326,15 +280,6 @@ class LineBuffer(LineSingle):
 
         return self.array[start:end]
 
-    # def oncebinding(self):
-    #     '''
-    #     Executes the bindings when running in "once" mode
-    #     '''
-    #     larray = self.array
-    #     blen = self.buflen()
-    #     for binding in self.bindings:
-    #         binding.array[0:blen] = larray[0:blen]
-
     def addbinding(self, binding):
         ''' Adds another line binding
 
@@ -357,7 +302,6 @@ class LineBuffer(LineSingle):
             line = self._owner.lines[binding]
 
         self.addbinding(line)
-
         return self
 
     bind2line = bind2lines
@@ -396,8 +340,12 @@ class LineBuffer(LineSingle):
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
-        return num2date(self.array[self.idx + ago],
+        print("buffer ", self.array[self.idx + ago])
+        try: 
+            return num2date(self.array[self.idx + ago],
                         tz=tz or self._tz, naive=naive).date()
+        except:
+            return None
 
     def time(self, ago=0, tz=None, naive=True):
         return num2date(self.array[self.idx + ago],
@@ -502,6 +450,12 @@ class LineBuffer(LineSingle):
         Useful for external comparisons to avoid precision errors
         '''
         return num2date(int(self.array[self.idx + ago]) + tm)
+    
+    def post_factor(self, factors: Union[float, array.array]=1.0):
+        # self.array apply factors
+        array = self.array
+        factors = np.array([factors] * self.lencount) if isinstance(factors, (int, float)) else factors
+        self.arry = array * factors
 
 
 class MetaLineActions(LineBuffer.__class__):
@@ -596,7 +550,6 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
 
     The metaclass does the dirty job of calculating minperiods and registering
     '''
-
     _ltype = LineBuffer.IndType
 
     def getindicators(self):
@@ -630,23 +583,11 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         else:
             self.prenext()
 
-    # def _once(self):
-    #     self.forward(size=self._clock.buflen())
-    #     self.home()
-
-    #     self.preonce(0, self._minperiod - 1)
-    #     self.oncestart(self._minperiod - 1, self._minperiod)
-    #     self.once(self._minperiod, self.buflen())
-
-    #     self.oncebinding()
-
-
 def LineDelay(a, ago=0, **kwargs):
     if ago <= 0:
         return _LineDelay(a, ago, **kwargs)
 
     return _LineForward(a, ago, **kwargs)
-
 
 def LineNum(num):
     return LineDelay(PseudoArray(num))
@@ -670,15 +611,6 @@ class _LineDelay(LineActions):
     def next(self):
         self[0] = self.a[self.ago]
 
-    # def once(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     src = self.a.array
-    #     ago = self.ago
-
-    #     for i in range(start, end):
-    #         dst[i] = src[i + ago]
-
 
 class _LineForward(LineActions):
     '''
@@ -700,18 +632,8 @@ class _LineForward(LineActions):
     def next(self):
         self[-self.ago] = self.a[0]
 
-    # def once(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     src = self.a.array
-    #     ago = self.ago
-
-    #     for i in range(start, end):
-    #         dst[i - ago] = src[i]
-
 
 class LinesOperation(LineActions):
-
     '''
     Holds an operation that operates on a two operands. Example: mul
 
@@ -758,58 +680,6 @@ class LinesOperation(LineActions):
         else:
             self[0] = self.operation(self.a, self.b[0])
 
-    # def once(self, start, end):
-    #     if self.bline:
-    #         self._once_op(start, end)
-    #     elif not self.r:
-    #         if not self.btime:
-    #             self._once_val_op(start, end)
-    #         else:
-    #             self._once_time_op(start, end)
-    #     else:
-    #         self._once_val_op_r(start, end)
-
-    # def _once_op(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     srca = self.a.array
-    #     srcb = self.b.array
-    #     op = self.operation
-
-    #     for i in range(start, end):
-    #         dst[i] = op(srca[i], srcb[i])
-
-    # def _once_time_op(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     srca = self.a.array
-    #     srcb = self.b
-    #     op = self.operation
-    #     tz = self._tz
-
-    #     for i in range(start, end):
-    #         dst[i] = op(num2date(srca[i], tz=tz).time(), srcb)
-
-    # def _once_val_op(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     srca = self.a.array
-    #     srcb = self.b
-    #     op = self.operation
-
-    #     for i in range(start, end):
-    #         dst[i] = op(srca[i], srcb)
-
-    # def _once_val_op_r(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     srca = self.a
-    #     srcb = self.b.array
-    #     op = self.operation
-
-    #     for i in range(start, end):
-    #         dst[i] = op(srca, srcb[i])
-
 
 class LineOwnOperation(LineActions):
     '''
@@ -826,12 +696,3 @@ class LineOwnOperation(LineActions):
 
     def next(self):
         self[0] = self.operation(self.a[0])
-
-    # def once(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     srca = self.a.array
-    #     op = self.operation
-
-    #     for i in range(start, end):
-    #         dst[i] = op(srca[i])

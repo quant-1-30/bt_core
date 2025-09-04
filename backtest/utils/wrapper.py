@@ -12,8 +12,10 @@ import logging
 import pdb
 import time
 import warnings
+import threading
 from functools import wraps
 from contextlib import contextmanager
+
 
 
 def deprecated(msg=None, stacklevel=2):
@@ -413,8 +415,9 @@ def singleton(cls):
     # instance = {}
     instance = weakref.WeakValueDictionary()
     def _singleton(*args,**kwargs):
-        if cls not in instance:
-            instance[cls] = cls(*args,**kwargs)
+        with threading.Lock() as lock:
+            if cls not in instance:
+                instance[cls] = cls(*args,**kwargs)
         return instance[cls]
 
     return _singleton

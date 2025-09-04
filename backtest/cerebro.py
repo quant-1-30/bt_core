@@ -23,6 +23,7 @@ import datetime
 
 import itertools
 import multiprocessing
+from notify import NotifyCenter
 from pytz import timezone
 
 from backtest.metabase import MetaParams, with_metaclass
@@ -67,8 +68,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             corresponding ``data`` in the ``self.datas`` iterable (``0`` would
             use the timezone from ``data0``)
 
-      - ``quicknotify`` (default: ``False``)
-
         Broker notifications are delivered right before the delivery of the
         *next* prices. For backtesting this has no implications, but with live
         brokers a notification can take place long before the bar is
@@ -83,7 +82,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('stdstats', False),
         ('writer', False),
         ('tz', None),
-        ('quicknotify', False),
     )
 
     def __init__(self):
@@ -95,12 +93,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.observers = list()
         self.analyzers = list()
         self.indicators = list()
-        self.sizer = NoSizer() # default sizer
         self.writers = list()
 
         self._dooptimize = False
         self._pretimers = list()
         self.storecbs = list()
+        
+        self.sizer = NoSizer() # default sizer
+        self.quicknotify = NotifyCenter()
 
     def adddata(self, data, init=False):
         '''
@@ -215,11 +215,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
                   weekdays=[], weekcarry=False,
                   monthdays=[], monthcarry=True,
                   allow=None,
-                  tzdata=None,
-                  *args, **kwargs):
+                  tzdata=None):
         '''
-        Schedules a timer to invoke ``notify_timer``
-
         Arguments:
 
           - ``when``: can be
@@ -285,10 +282,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
               in the system (aka ``self.data0``) will be used as the reference
               to find out the session times.
 
-          - ``*args``: any extra args will be passed to ``notify_timer``
-
-          - ``**kwargs``: any extra kwargs will be passed to ``notify_timer``
-
         Return Value:
 
           - The created timer
@@ -299,8 +292,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             weekdays=weekdays, weekcarry=weekcarry,
             monthdays=monthdays, monthcarry=monthcarry,
             allow=allow,
-            tzdata=tzdata,
-            *args, **kwargs)
+            tzdata=tzdata)
     
     def _check_timers(self, runstrats, dt0):
         # timers = self._timers if not cheat else self._timerscheat
@@ -342,27 +334,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.observers.append((True, obscls, args, kwargs))
     
-# -------------------------------------------------notify-----------------------------------------------------
-    
-    def notify_timer(self, timer, when, *args, **kwargs):
-        '''Receives a timer notification where ``timer`` is the timer which was
-        returned by ``add_timer``, and ``when`` is the calling time. ``args``
-        and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-        The actual ``when`` time can be later, but the system may have not be
-        able to call the timer before. This value is the timer value and no the
-        system time.
-        '''
-        pass
-
 # -------------------------------------------------strategy-----------------------------------------------------
     
-    def addsizer(self, sizercls, *args, **kwargs):
-        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
-        strategy added to cerebro
-        '''
-        self.sizer = (sizercls, args, kwargs)
-
     def addindicator(self, indcls, *args, **kwargs): # signal is indicator
         '''
         Adds an ``Indicator`` class to the mix. Instantiation will be done at
@@ -379,6 +352,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         instantiation.
         '''
         self.strats.append([(strategy, args, kwargs)])
+
+    def addsizer(self, sizercls, *args, **kwargs): # after strategy
+        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
+        strategy added to cerebro
+        '''
+        self.sizer = (sizercls, args, kwargs)
 
     def __call__(self, iterstrat):
         '''
@@ -402,9 +381,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
+        # initialize feed
         for data in self.datas:
             data.reset()
             data._start(**kwargs)
+
+        # initialize notify
+        self.quicknotify._addanalyzer(self.analyzers)
+        self.quicknotify._addobserver(self.observers)
 
         self.runstrats = list()
         self._event_stop = False  # Stop is requested
@@ -429,10 +413,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 self.runstrats.append(r)
 
             pool.close()
-
-            # if self.p.optdatas and self._dopreload and self._dorunonce:
-            #     for data in self.datas:
-            #         data.stop()
     
         return self.runstrats
     
@@ -502,9 +482,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for data in self.datas:
             data.stop()
 
-        for store in self.stores:
-            store.stop()
-
+        # for store in self.stores:
+        self.store.stop()
         # self.stop_writers(runstrats)       
 
         return runstrats
@@ -532,6 +511,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 drets.append(d.next())
 
             d0ret = any((dret for dret in drets))
+            print("dOret ", d0ret)
 
             if d0ret:
                 dts = []
@@ -574,7 +554,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                         return
 
                     # self._next_writers(runstrats)
-
         if self._event_stop:  # stop if requested
             return
         

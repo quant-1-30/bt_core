@@ -36,19 +36,11 @@ class TradeAnalyzer(Analyzer):
 
       - Won/Lost Count/ Total PNL/ Average PNL / Max PNL
 
-      - Long/Short Count/ Total PNL / Average PNL / Max PNL
-
-          - Won/Lost Count/ Total PNL/ Average PNL / Max PNL
-
       - Length (bars in the market)
 
         - Total/Average/Max/Min
 
         - Won/Lost Total/Average/Max/Min
-
-        - Long/Short Total/Average/Max/Min
-
-          - Won/Lost Total/Average/Max/Min
 
     Note:
 
@@ -83,6 +75,7 @@ class TradeAnalyzer(Analyzer):
 
             won = res.won = int(trade.pnlcomm >= 0.0)
             lost = res.lost = int(not won)
+
             tlong = res.tlong = trade.long
             tshort = res.tshort = not trade.long
 
@@ -123,29 +116,6 @@ class TradeAnalyzer(Analyzer):
                 func = max if wlname == 'won' else min
                 trwlpnl.max = func(wm, pnlcomm)
 
-            # Long/Short statistics
-            for tname in ['long', 'short']:
-                trls = trades[tname]
-                ls = res['t' + tname]
-
-                trls.total += ls  # long.total / short.total
-                trls.pnl.total += trade.pnlcomm * ls
-                trls.pnl.average = trls.pnl.total / (trls.total or 1.0)
-
-                for wlname in ['won', 'lost']:
-                    wl = res[wlname]
-                    pnlcomm = trade.pnlcomm * wl * ls
-
-                    trls[wlname] += wl * ls  # long.won / short.won
-
-                    trls.pnl[wlname].total += pnlcomm
-                    trls.pnl[wlname].average = \
-                        trls.pnl[wlname].total / (trls[wlname] or 1.0)
-
-                    wm = trls.pnl[wlname].max or 0.0
-                    func = max if wlname == 'won' else min
-                    trls.pnl[wlname].max = func(wm, pnlcomm)
-
             # Length
             trades.len.total += trade.barlen
             trades.len.average = trades.len.total / trades.total.closed
@@ -169,36 +139,3 @@ class TradeAnalyzer(Analyzer):
                     m = trwl.min or np.iinfo(np.int_).max
                     trwl.min = min(m, trade.barlen * wl)
 
-            # Length Long/Short
-            for lsname in ['long', 'short']:
-                trls = trades.len[lsname]  # trades.len.long
-                ls = res['t' + lsname]  # tlong/tshort
-
-                barlen = trade.barlen * ls
-
-                trls.total += barlen  # trades.len.long.total
-                total_ls = trades[lsname].total   # trades.long.total
-                trls.average = trls.total / (total_ls or 1.0)
-
-                # max/min
-                m = trls.max or 0
-                trls.max = max(m, barlen)
-                m = trls.min or np.iinfo(np.int_).max
-                trls.min = min(m, barlen or m)
-
-                for wlname in ['won', 'lost']:
-                    wl = res[wlname]  # won/lost
-
-                    barlen2 = trade.barlen * ls * wl
-
-                    trls_wl = trls[wlname]  # trades.len.long.won
-                    trls_wl.total += barlen2  # trades.len.long.won.total
-
-                    trls_wl.average = \
-                        trls_wl.total / (trades[lsname][wlname] or 1.0)
-
-                    # max/min
-                    m = trls_wl.max or 0
-                    trls_wl.max = max(m, barlen2)
-                    m = trls_wl.min or np.iinfo(np.int_).max
-                    trls_wl.min = min(m, barlen2 or m)

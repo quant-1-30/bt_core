@@ -7,7 +7,27 @@ from bt_sdk.core.model import *
 
 
 # # Create a Stratey
+# class MyStrategy(bt.Strategy):
+
+#     def log(self, txt, dt=None):
+#         ''' Logging function for this strategy'''
+#         # dt = dt or self.datas[0].datetime.date(0)
+#         # print('%s, %s' % (dt.isoformat(), txt))
+#         # dt = dt or self.datas[0].datetime.date(0)
+#         dt = str(self.datas[0].datetime.date(0))
+#         print('%s, %s' % (dt, txt))
+
+#     def __init__(self):
+#         # Keep a reference to the "close" line in the data[0] dataseries
+#         self.dataclose = self.datas[0].close
+
+#     def next(self):
+#         # Simply log the closing price of the series from the reference
+#         self.log('Close, %.2f' % self.dataclose[0])
+
+
 class MyStrategy(bt.Strategy):
+    params = dict(period=20)
 
     def log(self, txt, dt=None):
         ''' Logging function for this strategy'''
@@ -17,31 +37,12 @@ class MyStrategy(bt.Strategy):
         print('%s, %s' % (dt, txt))
 
     def __init__(self):
-        # Keep a reference to the "close" line in the data[0] dataseries
-        self.dataclose = self.datas[0].close
+
+        self.sma = btind.SimpleMovingAverage(self.datas[0], period=self.params.period)
 
     def next(self):
-        # Simply log the closing price of the series from the reference
-        self.log('Close, %.2f' % self.dataclose[0])
-
-
-# class MyStrategy(bt.Strategy):
-#     params = dict(period=20)
-
-#     def log(self, txt, dt=None):
-#         ''' Logging function for this strategy'''
-#         # dt = dt or self.datas[0].datetime.date(0)
-#         # print('%s, %s' % (dt.isoformat(), txt))
-#         dt = dt or self.datas[0].datetime.date(0)
-#         print('%s, %s' % (dt, txt))
-
-#     def __init__(self):
-
-#         self.sma = btind.SimpleMovingAverage(self.datas[0], period=self.params.period)
-
-#     def next(self):
-#         self.log('sma: %.2f' % self.sma[0])
-#         print("sma: ", self.sma[0])
+        self.log('sma: %.2f' % self.sma[0])
+        print("sma: ", self.sma[0])
 
 
 # class MyStrategy(bt.Strategy):
@@ -104,11 +105,11 @@ if __name__ == '__main__':
     cerebro.addstore(store)
     # print("backtest calendar: ", len(cerebro.store.get_calendar()))
     # print("backtest instrument: ", len(cerebro.store.get_instrument()))
-    print('Starting Portfolio Cash and Value: %.2f, %.2f' % (cerebro.store.get_cash(), cerebro.store.get_portfolio()))
+    # print(f'Starting Portfolio Cash and Value: {cerebro.store.getacct()}')
     # Run over everything
-    cerebro.run(sid=["603676"], start_date=20200101)
+    cerebro.run(sid=["603676"], start_date=20210201, end_date=20211208)
 
     # plot
     # cerebro.plot()
     # Print out the final result
-    print('Final Portfolio Value and Cash: %.2f, %.2f' % (cerebro.store.get_portfolio(), cerebro.store.get_cash()))
+    # print(f'Final Portfolio Value and Cash: %.2f, %.2f {cerebro.store.get_acct()}')

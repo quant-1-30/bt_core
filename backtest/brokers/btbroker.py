@@ -52,7 +52,7 @@ class Acct(object):
     def _t_account(self, api):
         act = api.fetch("account")
         if act:
-            msg = act[0]["msg"]
+            msg = act[0]["body"]
             self._cash = msg["cash"]
             self.portfolio_value = msg["portfolio_value"]
         else:

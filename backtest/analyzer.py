@@ -152,7 +152,7 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         for child in self._children:
             child._nextstart()
 
-        self.nextstart()
+        self.nextstart() 
 
     def _next(self):
         for child in self._children:

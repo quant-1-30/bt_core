@@ -19,7 +19,6 @@
 #
 ###############################################################################
 import math
-
 from backtest.observer import Observer
 
 
@@ -58,7 +57,7 @@ class BuySell(Observer):
         buy = list()
         sell = list()
 
-        for order in self._owner._orderspending:
+        for order in self._owner._orderspending: # records
             if order.data is not self.data or not order.executed.size:
                 continue
 

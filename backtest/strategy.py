@@ -21,7 +21,6 @@
 import numpy as np
 import warnings
 import collections
-import copy
 import datetime
 import itertools
 import operator
@@ -72,17 +71,10 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
         store = _obj.env.store # add store to strategy
+        sizer = _obj.env.sizer # add store to strategy
+        notify = _obj.env.notify
         _obj.store = store
-
-        _obj.sizer = 1.0 # default sizer cash
-        
-        # _obj._orderspending = list()
-        # _obj._tradespending = list()
-        
-        _obj.stats = _obj.observers = ItemCollection()
-        _obj.analyzers = ItemCollection()
-        _obj._slave_analyzers = list()
-        _obj._alnames = collections.defaultdict(itertools.count)
+        _obj._notify = notify
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -95,6 +87,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     '''
     Base class to be subclassed for user defined strategies.
     '''
+    params = (
+        ("name", "strategy"),
+            )
 
     _ltype = LineIterator.StratType
 
@@ -197,7 +192,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._minperiod = max(minperiods or [self._minperiod])
 
     def _getminperstatus(self):
-        # check the min period status connected to datas
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
         return minperstatus
@@ -217,17 +211,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _start(self):
         self._periodset()
 
-        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            analyzer._start()
-
-        for obs in self.observers:
-            if not isinstance(obs, list):
-                obs = [obs]  # support of multi-data observers
-
-            for o in obs:
-                o._start()
-
-        # self._stage2()
+        self._stage2()
         self._dlens = [len(data) for data in self.datas]
         self._minperstatus = np.iinfo(np.int_).max  # start in prenext
         self.start()
@@ -235,163 +219,21 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def start(self):
         '''Called right before the backtesting is about to be started.'''
         pass
-
-    def check(self):
-        """
-        Check if the strategy is ready to process the event data
-        """
-        edate = self.lines.datetime[0]
-        sdate = self.lines.datetime[-1]
-        status = self.store.check(sdate, edate)
-        if status != 0:
-            warnings.warn(f"Strategy check failed between {sdate} and {edate}.")
-            raise RuntimeError("check event_data error")
-        # determine if the strategy finish process the event data
     
     def _next(self):
         super(Strategy, self)._next() # lineiterator _next
 
         minperstatus = self._getminperstatus()
-        self._next_analyzers(minperstatus)
-        self._next_observers(minperstatus)
-
+        self._notify._next(minperstatus)
         self.clear()
-
-    def _next_observers(self, minperstatus):
-        for observer in self._lineiterators[LineIterator.ObsType]:
-            for analyzer in observer._analyzers:
-                if minperstatus < 0:
-                    analyzer._next()
-                elif minperstatus == 0:
-                    analyzer._nextstart()  # only called for the 1st value
-                else:
-                    analyzer._prenext()
-            observer._next()
-
-    def _next_analyzers(self, minperstatus):
-        for analyzer in self.analyzers:
-            if minperstatus < 0:
-                analyzer._next()
-            elif minperstatus == 0:
-                analyzer._nextstart()  # only called for the 1st value
-            else:
-                analyzer._prenext()
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
 
     def _stop(self):
         self.stop()
-
-        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            analyzer._stop()
-
-        # # change operators back to stage 1 - allows reuse of datas
-        # self._stage1()
-
-    def add_timer(self, when,
-                  offset=datetime.timedelta(), repeat=datetime.timedelta(),
-                  weekdays=[], weekcarry=False,
-                  monthdays=[], monthcarry=True,
-                  allow=None,
-                  tzdata=None, cheat=False,
-                  *args, **kwargs):
-        return self.cerebro._add_timer(
-            owner=self, when=when, offset=offset, repeat=repeat,
-            weekdays=weekdays, weekcarry=weekcarry,
-            monthdays=monthdays, monthcarry=monthcarry,
-            allow=allow,
-            tzdata=tzdata, strats=False, cheat=cheat,
-            *args, **kwargs)
-    
-    def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
-        '''Like _addanalyzer but meant for observers (or other entities) which
-        rely on the output of an analyzer for the data. These analyzers have
-        not been added by the user and are kept separate from the main
-        analyzers
-
-        Returns the created analyzer
-        '''
-        analyzer = ancls(*anargs, **ankwargs)
-        self._slave_analyzers.append(analyzer)
-        return analyzer
-
-    def _addanalyzer(self, ancls, *anargs, **ankwargs):
-        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
-        nsuffix = next(self._alnames[anname])
-        anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
-        analyzer = ancls(*anargs, **ankwargs)
-        self.analyzers.append(analyzer, anname)
-
-    def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
-        obsname = obskwargs.pop('obsname', '')
-        if not obsname:
-            obsname = obscls.__name__.lower()
-
-        if not multi:
-            newargs = list(itertools.chain(self.datas, obsargs))
-            # automatically observer to _ltype
-            obs = obscls(*newargs, **obskwargs)
-            self.stats.append(obs, obsname)
-            return
-
-        setattr(self.stats, obsname, list())
-        l = getattr(self.stats, obsname)
-
-        for data in self.datas:
-            obs = obscls(data, *obsargs, **obskwargs)
-            l.append(obs)
-
-    def _notify(self, procorders=[], proctrades=[]):
-
-        for order in procorders:
-            if order.exectype != order.Historical or order.histnotify:
-                self.notify_order(order)
-            for analyzer in itertools.chain(self.analyzers,
-                                            self._slave_analyzers):
-                analyzer._notify_order(order)
-
-        for trade in proctrades:
-            self.notify_trade(trade)
-            for analyzer in itertools.chain(self.analyzers,
-                                            self._slave_analyzers):
-                analyzer._notify_trade(trade)
-
-        cash = self.store.get_cash()
-        fundvalue = self.store.get_portfolio()
-
-        self.notify_cashvalue(cash, fundvalue)
-        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            analyzer._notify_cashvalue(cash, fundvalue)
-
-    def notify_timer(self, timer, when, *args, **kwargs):
-        '''Receives a timer notification where ``timer`` is the timer which was
-        returned by ``add_timer``, and ``when`` is the calling time. ``args``
-        and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-        The actual ``when`` time can be later, but the system may have not be
-        able to call the timer before. This value is the timer value and no the
-        system time.
-        '''
-        pass
-
-    def notify_cashvalue(self, cash, value):
-        '''
-        Receives the current fund value, value status of the strategy's broker
-        '''
-        pass
-
-    def notify_order(self, order):
-        '''
-        Receives an order whenever there has been a change in one
-        '''
-        pass
-
-    def notify_trade(self, trade):
-        '''
-        Receives a trade whenever there has been a change in one
-        '''
-        pass
+        # change operators back to stage 1 - allows reuse of datas
+        self._stage1()
 
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
@@ -430,14 +272,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        sizer = sizer if sizer else self.sizer
-        sizer_cash = sizer * self.store.getcash()
+        ratio = self.env.sizer.get_sizing(self.p.name) # 基于策略分配
+        sizer_cash = ratio * self.store.getcash()
         
-        _trades = self.store.buy(sid, 
+        order_meta, trade_meta = self.store.submit(sid, 
             sizer_cash=sizer_cash, price=price, plimit=plimit,
             exectype=exectype, ordertype=ordertype,
             **kwargs)
-        self._notify([], _trades)
+        self._notify.notify_order(order_meta)
+        self._notify.notify_trade(trade_meta)
 
     def sell(self, sid,
              size=None, price=None, plimit=None,
@@ -451,19 +294,39 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         if size:
-            trades = self.store.sell(sid,
+            order_meta, trade_meta = self.store.submit(sid,
                 size=abs(size), price=price, plimit=plimit,
                 exectype=exectype, ordertype=ordertype,
                 **kwargs)
-            self._notify([], trades)
+            self._notify.notify_order(order_meta)
+            self._notify.notify_trade(trade_meta)
+    
+    def hook(self):
+        """
+        Check if the strategy is ready to process the event data
+        """
+        isover = self.on_dt_over()
+        if isover:
+            # datetime[0] process event
+            status = self.store.check(self.lines.datetime[-1], self.lines.datetime[0])
+            if status != 0:
+                raise RuntimeError("check event_data error")
+            acct = self.store.get_acct()
+            self._notity.notify_acct(acct)
+
+    def on_dt_over(self):
+        delta = self.lines.datetime[0] - self.lines.datetime[-1]
+        isover = True if delta >= 24 * 60 * 60 else False
+        return isover 
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        super(Strategy, self).stop()
-        self.store.amend(self.line.datetime[0]) # amend if asset delist on dt
+        end_session = self.datetime[0]
+        self.store.check(end_session, end_session)
+        self.store.stop()
 
 
-class MetaSigStrategy(Strategy.__class__):
+class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类
 
     def __new__(meta, name, bases, dct):
         # map user defined next to custom to be able to call own method before
@@ -558,7 +421,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         - An ``str``: name given to the data when creating it (parameter
           ``name``) or when adding it cerebro with ``cerebro.adddata(...,
           name=)``
-
     '''
     params = (
         ('signals', []),
@@ -573,17 +435,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
 
     def signal_add(self, sigtype, signal):
         self._signals[sigtype].append(signal)
-
-    def _notify(self, qorders=[], qtrades=[]):
-        # Nullify the sentinel if done
-        procorders = qorders or self._orderspending
-        if self._sentinel is not None:
-            for order in procorders:
-                if order == self._sentinel and not order.alive():
-                    self._sentinel = None
-                    break
-
-        super(SignalStrategy, self)._notify(qorders=qorders, qtrades=qtrades)
 
     def _next_catch(self): # next
         self._next_signal()

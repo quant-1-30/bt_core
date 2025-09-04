@@ -10,7 +10,7 @@ from distutils import dir_util
 from shutil import rmtree, move
 from tempfile import mkdtemp, NamedTemporaryFile
 import os, pickle, errno, pandas as pd
-from util.paths import ensure_directory
+from .paths import ensure_directory
 
 
 # cacheObject --- bar_reader
@@ -269,3 +269,6 @@ class lazyproperty:
             value = self.func(instance)
             setattr(instance, self.func.__name__, value)
             return value
+        
+    def __set__(self, instance, cls):
+        return getattr(instance, self.func.__name__)

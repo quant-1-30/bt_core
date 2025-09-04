@@ -19,8 +19,6 @@
 #
 ###############################################################################
 
-import collections
-
 from .timereturn import TimeReturn
 from .positions import PositionsValue
 # from .transactions import Transactions

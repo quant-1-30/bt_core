@@ -87,24 +87,26 @@ class TimeReturn(TimeFrameAnalyzerBase):
     params = (
         ('data', None),
         ('firstopen', True),
-        ('fund', None),
+        # ('fund', None),
     )
 
     def start(self):
         super(TimeReturn, self).start()
-        if self.p.fund is None:
-            self._fundmode = self.strategy.broker.fundmode
-        else:
-            self._fundmode = self.p.fund
+        # if self.p.fund is None:
+        #     self._fundmode = self.strategy.broker.fundmode
+        # else:
+        #     self._fundmode = self.p.fund
 
         self._value_start = 0.0
         self._lastvalue = None
         if self.p.data is None:
-            # keep the initial portfolio value if not tracing a data
-            if not self._fundmode:
-                self._lastvalue = self.strategy.broker.getvalue()
-            else:
-                self._lastvalue = self.strategy.broker.fundvalue
+            # # keep the initial portfolio value if not tracing a data
+            # if not self._fundmode:
+            #     self._lastvalue = self.strategy.broker.getvalue()
+            # else:
+            #     self._lastvalue = self.strategy.broker.fundvalue
+                
+            self._lastvalue = self.strategy.broker.getvalue()
 
     def notify_fund(self, cash, fundvalue):
         # if not self._fundmode:
