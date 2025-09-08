@@ -18,10 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzers import TimeFrameAnalyzerBase
-
 import collections
 import math
+
+from backtest.analyzers import TimeFrameAnalyzerBase
 
 
 __all__ = ['LogReturnsRolling']
@@ -84,7 +84,6 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
     params = (
         ('data', None),
         ('firstopen', True),
-        # ('fund', None),
     )
 
     def start(self):
@@ -94,10 +93,10 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
                                          maxlen=self.compression)
 
         # keep the initial portfolio value if not tracing a data
-        self._lastvalue = self.strategy.broker.getvalue()
+        self._lastvalue = self.notify.store.getvalue()[0]
 
-    def notify_fund(self, cash, fundvalue):
-        self._value = fundvalue if self.p.data is None else self.p.data[0]
+    def notify_fund(self):
+        self._value = self.notify.store.getvalue()[0]
 
     def _on_dt_over(self):
         # next is called in a new timeframe period

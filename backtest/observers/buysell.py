@@ -36,9 +36,8 @@ class BuySell(Observer):
         bar
 
       - ``bardist`` (default: ``0.015`` 1.5%) Distance to max/min when
-        ``barplot`` is ``True``
     '''
-    lines = ('buy', 'sell',)
+    lines = ('buy', 'sell', 'comm', 'pnlplus', 'pnlminus')
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
     plotlines = dict(
@@ -50,23 +49,26 @@ class BuySell(Observer):
 
     params = (
         ('barplot', False),  # plot above/below max/min for clarity in bar plot
-        ('bardist', 0.015),  # distance to max/min in absolute perc
     )
 
     def next(self):
         buy = list()
         sell = list()
+        comm = 0.0
 
-        for order in self._owner._orderspending: # records
-            if order.data is not self.data or not order.executed.size:
+        for order_bit in self._owner.store.get_notification(): # records
+            if not order_bit.executed_zie:
                 continue
+            comm += order_bit.comm
 
-            if order.isbuy():
-                buy.append(order.executed.price)
+            if order_bit.direction> 0:
+                buy.append(order_bit)
             else:
-                sell.append(order.executed.price)
+                sell.append(order_bit)
+        
+        # Write comm
+        self.lines.comm[0] = comm
 
-        # Take into account replay ... something could already be in there
         # Write down the average buy/sell price
 
         # BUY
@@ -80,35 +82,28 @@ class BuySell(Observer):
         buyops = (curbuy + math.fsum(buy))
         buylen = curbuylen + len(buy)
 
-        value = buyops / float(buylen or 'NaN')
-        if not self.p.barplot:
-            self.lines.buy[0] = value
-        elif value == value:  # Not NaN
-            pbuy = self.data.low[0] * (1 - self.p.bardist)
-            self.lines.buy[0] = pbuy
+        buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
+        buylen = sum([b.executed_size for b in buy])  
 
-        # Update buylen values
-        curbuy = buyops
-        self.curbuylen = buylen
+        value = buyops / float(buylen or 'NaN')
+        self.lines.buy[0] = (value + curbuy)/2
 
         # SELL
         cursell = self.lines.sell[0]
         if cursell != cursell:  # NaN
             cursell = 0.0
-            self.curselllen = curselllen = 0
-        else:
-            curselllen = self.curselllen
 
-        sellops = (cursell + math.fsum(sell))
-        selllen = curselllen + len(sell)
+        sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
+        selllen = sum([s.executed_size for s in sell])  
 
         value = sellops / float(selllen or 'NaN')
-        if not self.p.barplot:
-            self.lines.sell[0] = value
-        elif value == value:  # Not NaN
-            psell = self.data.high[0] * (1 + self.p.bardist)
-            self.lines.sell[0] = psell
+        self.lines.sell[0] = (value + cursell)/2
 
-        # Update selllen values
-        cursell = sellops
-        self.curselllen = selllen
+        # Pnl
+        for pobj in self._owner.store.get_position():
+            pnl = pobj.pnl
+
+            if pnl >= 0.0:
+                self.lines.pnlplus[0] = pnl
+            else:
+                self.lines.pnlminus[0] = pnl

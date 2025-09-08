@@ -19,7 +19,8 @@
 #
 ###############################################################################
 
-from backtest.lineiterator import LineIterator, ObserverBase, StrategyBase
+import backtest as bt
+from backtest.lineiterator import LineIterator, ObserverBase
 from backtest.metabase import with_metaclass
 
 
@@ -43,7 +44,7 @@ class MetaObserver(ObserverBase.__class__):
 class Observer(with_metaclass(MetaObserver, ObserverBase)):
     _stclock = False
 
-    _OwnerCls = StrategyBase # super ---> findowner
+    _OwnerCls = bt.Notify # super ---> findowner
     _ltype = LineIterator.ObsType
 
     csv = True

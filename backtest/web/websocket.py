@@ -318,6 +318,8 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, Union
 
 from fastapi import WebSocket, WebSocketDisconnect
+# from fastapi import APIRouter, StreamingResponse 
+# # sse
 
 from utils import logger
 
@@ -392,5 +394,3 @@ class WSConnectionManager:
             logger.error(f"websocket error: {e}")
             self.disconnect(websocket)
 
-# from fastapi import APIRouter, StreamingResponse 
-# # sse

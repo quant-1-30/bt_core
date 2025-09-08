@@ -36,8 +36,8 @@ class TestMdApi:
 
     @pytest.fixture
     def reqMeta(self):
-        start_date = "20221017 9:30:00"
-        end_date = "20250503 15:00:00"
+        start_date = "20250707 9:30:00"
+        end_date = "20250830 15:00:00"
         start_time = datetime.strptime(start_date, '%Y%m%d %H:%M:%S').timestamp()
         end_time = datetime.strptime(end_date, '%Y%m%d %H:%M:%S').timestamp()
         sid = ['603676']
@@ -53,11 +53,11 @@ class TestMdApi:
     #     print("test_getInstrument: ", data)
     #     assert data is not None
     
-    # def test_subscribe(self, md_api, reqMeta):
-    #     with md_api.subscribe(reqMeta) as q:
-    #         data = get_data(q)
-    #     # print("subscribe data: ",data)
-    #     assert data is not None
+    def test_subscribe(self, md_api, reqMeta):
+        with md_api.subscribe(reqMeta) as q:
+            data = get_data(q)
+        # print("subscribe data: ",data)
+        assert data is not None
     
     # def test_get_close(self, md_api, reqMeta):
     #     data = md_api.get_close(reqMeta)
@@ -74,7 +74,7 @@ class TestMdApi:
     #     print("test_getEvent: ", data)
     #     assert data is not None
 
-    def test_factor(self, md_api, reqMeta):
-        data = md_api.factor(reqMeta)
-        print("test_getClose: ", data)
-        assert data is not None
+    # def test_factor(self, md_api, reqMeta):
+    #     data = md_api.factor(reqMeta)
+    #     print("test_getClose: ", data)
+    #     assert data is not None

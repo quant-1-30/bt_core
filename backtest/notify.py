@@ -3,79 +3,42 @@
 
 import itertools
 import collections
-from .metabase import ItemCollection
-from utils.wrapper import singleton
+from .metabase import MetaParams, findowner, ItemCollection, with_metaclass
+from .lineiterator import NotifyBase
+from .cerebro import Cerebro
 
 
-@singleton
-class NotifyCenter:
+class MetaNotify(NotifyBase.__class__):
 
-    def __init__(self):
-        self.analyzers = ItemCollection()
-        self._slave_analyzers = list()
-        self._alnames = collections.defaultdict(itertools.count)
-        self.stats = self.observers = ItemCollection()
+    def donew(cls, *args, **kwargs):
+        # # Hack to support original method name for notify_order
+        # if 'notify' in dct:
+        #     # rename 'notify' to 'notify_order'
+        #     dct['notify_order'] = dct.pop('notify')
+        # if 'notify_operation' in dct:
+        #     # rename 'notify' to 'notify_order'
+        #     dct['notify_trade'] = dct.pop('notify_operation')
+        _obj, args, kwargs = super(MetaNotify, cls).donew(*args, **kwargs)
+        env = findowner(_obj, Cerebro)
+        _obj.env = env
+        _obj.store = env.store
+        return _obj, args, kwargs
 
-    def _start(self):
-        """
-            alanyzers and obs
-        """
-        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-            analyzer._start()
+    def dopostinit(cls, _obj, *args, **kwargs):
+        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs)()
 
-        for obs in self.observers:
-            obs._start()
+        _obj.analyzers = ItemCollection()
+        _obj._slave_analyzers = list()
+        _obj._alnames = collections.defaultdict(itertools.count)
+        _obj.observers = ItemCollection()
+        return _obj, args, kwargs
 
-    def notify_order(self, order):
-        for observer in self.observers:
-            if hasattr(observer, 'notify_order'):
-                observer.notify_order(order)
-                
-        for analyzer in self.analyzers:
-            if hasattr(analyzer, 'notify_order'):
-                analyzer.notify_order(order)
-                
-    def notify_trade(self, trade):
-        for observer in self.observers:
-            if hasattr(observer, 'notify_trade'):
-                observer.notify_trade(trade)
-                
-        for analyzer in self.analyzers:
-            if hasattr(analyzer, 'notify_trade'):
-                analyzer.notify_trade(trade)
 
-    def notify_account(self, acct):
-        for observer in self.observers:
-            if hasattr(observer, 'notify_account'):
-                observer.notify_trade(acct)
-                
-        for analyzer in self.analyzers.values():
-            if hasattr(analyzer, 'notify_account'):
-                analyzer.notify_trade(acct)
-                
-    def notify_data(self, data, status, *args, **kwargs):
-        # stats for feeds
-        for observer in self.observers:
-            if hasattr(observer, 'notify_data'):
-                observer.notify_data(data, status, *args, **kwargs)
-                
-    # def notify_store(self, msg, *args, **kwargs):
-    #     for observer in self.observers:
-    #         if hasattr(observer, 'notify_store'):
-    #             observer.notify_store(msg, *args, **kwargs)
+class Notify(with_metaclass(MetaNotify, NotifyBase)):
 
-    def notify_timer(self, msg, *args, **kwargs):
-        '''Receives a timer notification where ``timer`` is the timer which was
-        returned by ``add_timer``, and ``when`` is the calling time. ``args``
-        and ``kwargs`` are any additional arguments passed to ``add_timer``
 
-        The actual ``when`` time can be later, but the system may have not be
-        able to call the timer before. This value is the timer value and no the
-        system time.
-        '''
-        for observer in self.observers:
-            if hasattr(observer, 'notify_timer'):
-                observer.notify_store(msg, *args, **kwargs)
+    # keep the latest delivered data date in the line
+    lines = ('datetime',)
     
     def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
         '''Like _addanalyzer but meant for observers (or other entities) which
@@ -105,7 +68,6 @@ class NotifyCenter:
             newargs = list(itertools.chain(datas, obsargs))
             # automatically observer to _ltype
             obs = obscls(*newargs, **obskwargs)
-            # self.stats.append(obs, obsname)
             return
 
         setattr(self.stats, obsname, list())
@@ -114,6 +76,67 @@ class NotifyCenter:
         for data in datas:
             obs = obscls(data, *obsargs, **obskwargs)
             l.append(obs)
+
+    def _start(self):
+        """
+            alanyzers and obs
+        """
+        for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+            analyzer._start()
+
+        for obs in self.observers:
+            obs._start()
+
+    def notify_order(self, order):
+        for observer in self.observers:
+            if hasattr(observer, 'notify_order'):
+                observer.notify_order(order)
+              
+        for analyzer in self.analyzers:
+            if hasattr(analyzer, 'notify_order'):
+                analyzer.notify_order(order)
+              
+    def notify_trade(self, trade):
+        for observer in self.observers:
+            if hasattr(observer, 'notify_trade'):
+                observer.notify_trade(trade)
+              
+        for analyzer in self.analyzers:
+            if hasattr(analyzer, 'notify_trade'):
+                analyzer.notify_trade(trade)
+
+    def notify_account(self, acct):
+        for observer in self.observers:
+            if hasattr(observer, 'notify_account'):
+                observer.notify_trade(acct)
+              
+        for analyzer in self.analyzers.values():
+            if hasattr(analyzer, 'notify_account'):
+                analyzer.notify_trade(acct)
+              
+    def notify_data(self, data, status, *args, **kwargs):
+        # stats for feeds
+        for observer in self.observers:
+            if hasattr(observer, 'notify_data'):
+                observer.notify_data(data, status, *args, **kwargs)
+              
+    # def notify_store(self, msg, *args, **kwargs):
+    #     for observer in self.observers:
+    #         if hasattr(observer, 'notify_store'):
+    #             observer.notify_store(msg, *args, **kwargs)
+
+    def notify_timer(self, msg, *args, **kwargs):
+        '''Receives a timer notification where ``timer`` is the timer which was
+        returned by ``add_timer``, and ``when`` is the calling time. ``args``
+        and ``kwargs`` are any additional arguments passed to ``add_timer``
+
+        The actual ``when`` time can be later, but the system may have not be
+        able to call the timer before. This value is the timer value and no the
+        system time.
+        '''
+        for observer in self.observers:
+            if hasattr(observer, 'notify_timer'):
+                observer.notify_timer(msg, *args, **kwargs)
 
     def _next(self, minperstatus):
         self._next_observers(minperstatus)
@@ -138,11 +161,6 @@ class NotifyCenter:
                 analyzer._nextstart()  # only called for the 1st value
             else:
                 analyzer._prenext()
-
-    # def register_plugin(self):
-    #     """
-    #         stmp / sms / webrtc / ws / 
-    #     """
 
     def stop(self):
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):

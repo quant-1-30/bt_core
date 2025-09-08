@@ -86,14 +86,12 @@ class PyFolio(Analyzer):
 
         self._returns = TimeReturn(**dtfcomp)
         self._positions = PositionsValue(headers=True, cash=True)
-        # self._transactions = Transactions(headers=True)
         self._gross_lev = GrossLeverage()
 
     def stop(self):
         super(PyFolio, self).stop()
         self.rets['returns'] = self._returns.get_analysis()
         self.rets['positions'] = self._positions.get_analysis()
-        # self.rets['transactions'] = self._transactions.get_analysis()
         self.rets['gross_lev'] = self._gross_lev.get_analysis()
 
     def get_pf_items(self):
@@ -113,7 +111,6 @@ class PyFolio(Analyzer):
         import pandas
         from pandas import DataFrame as DF
 
-        #
         # Returns
         cols = ['index', 'return']
         returns = DF.from_records(self.rets['returns'].items(),
@@ -121,7 +118,7 @@ class PyFolio(Analyzer):
         returns.index = pandas.to_datetime(returns.index)
         returns.index = returns.index.tz_localize('UTC')
         rets = returns['return']
-        #
+        
         # Positions
         pss = self.rets['positions']
         ps = [[k] + v[-2:] for k, v in pss.items()]
@@ -130,24 +127,7 @@ class PyFolio(Analyzer):
         positions.index = pandas.to_datetime(positions.index)
         positions.index = positions.index.tz_localize('UTC')
 
-        #
-        # Transactions
-        txss = self.rets['transactions']
-        txs = list()
-        # The transactions have a common key (date) and can potentially happend
-        # for several assets. The dictionary has a single key and a list of
-        # lists. Each sublist contains the fields of a transaction
-        # Hence the double loop to undo the list indirection
-        for k, v in txss.items():
-            for v2 in v:
-                txs.append([k] + v2)
-
-        cols = txs.pop(0)  # headers are in the first entry
-        transactions = DF.from_records(txs, index=cols[0], columns=cols)
-        transactions.index = pandas.to_datetime(transactions.index)
-        transactions.index = transactions.index.tz_localize('UTC')
-
-        # Gross Leverage
+       # Gross Leverage
         cols = ['index', 'gross_lev']
         gross_lev = DF.from_records(self.rets['gross_lev'].items(),
                                     index=cols[0], columns=cols)
@@ -157,4 +137,4 @@ class PyFolio(Analyzer):
         glev = gross_lev['gross_lev']
 
         # Return all together
-        return rets, positions, transactions, glev
+        return rets, positions, glev

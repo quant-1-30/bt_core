@@ -105,13 +105,12 @@ class LineBuffer(LineSingle):
         self.idx = -1
         self.extension = 0
 
-    def qbuffer(self, extrasize=0):
+    def qbuffer(self, savemem=0):
 
-        self.mode = self.QBuffer
+        if savemem:
+            self.mode = self.QBuffer
         self.maxlen = self._minperiod
 
-        self.extrasize = extrasize
-        self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
 
     def minbuffer(self, size):
@@ -129,7 +128,6 @@ class LineBuffer(LineSingle):
             return
 
         self.maxlen = size
-        self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
 
     def __len__(self):

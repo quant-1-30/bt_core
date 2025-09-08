@@ -19,7 +19,8 @@
 #
 ###############################################################################
 
-
+import backtest as bt
+from backtest.analyzers import LogReturnsRolling 
 from backtest.observer import Observer
 
 
@@ -56,7 +57,6 @@ class LogReturns(Observer):
     by looking at the *lines* by name at index ``0``.
 
     '''
-    _stclock = True
 
     lines = ('logret1',)
     plotinfo = dict(plot=True, subplot=True)
@@ -73,7 +73,7 @@ class LogReturns(Observer):
 
     def __init__(self):
         self.logret1 = self._owner._addanalyzer_slave(
-            analyzers.LogReturnsRolling,
+            LogReturnsRolling,
             data=self.data0, **self.p._getkwargs())
 
     def next(self):
@@ -88,7 +88,7 @@ class LogReturns2(LogReturns):
         super(LogReturns2, self).__init__()
 
         self.logret2 = self._owner._addanalyzer_slave(
-            analyzers.LogReturnsRolling,
+            LogReturnsRolling,
             data=self.data1, **self.p._getkwargs())
 
     def next(self):

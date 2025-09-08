@@ -39,7 +39,8 @@ class MetaAnalyzer(MetaParams):
 
         _obj._children = list()
 
-        _obj.strategy = strategy = findowner(_obj, bt.Strategy)
+        # _obj.strategy = strategy = findowner(_obj, bt.Strategy)
+        _obj.notify = notify = findowner(_obj, bt.Notify)
         _obj._parent = findowner(_obj, Analyzer)
 
         # Register with a master observer if created inside one
@@ -47,7 +48,8 @@ class MetaAnalyzer(MetaParams):
         if masterobs is not None:
             masterobs._register_analyzer(_obj)
 
-        _obj.datas = strategy.datas
+        # _obj.datas = strategy.datas
+        _obj.datas = notify.datas
 
         # For each data add aliases: for first data: data and data0
         if _obj.datas:
@@ -119,10 +121,6 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
       - ``prenext`` / ``nextstart`` / ``next`` family of methods that follow
         the calls made to the same methods in the strategy
 
-      - ``notify_trade`` / ``notify_order`` / ``notify_cashvalue`` /
-        ``notify_fund`` which receive the same notifications as the equivalent
-        methods of the strategy
-
     The mode of operation is open and no pattern is preferred. As such the
     analysis can be generated with the ``next`` calls, at the end of operations
     during ``stop`` and even with a single method like ``notify_trade``
@@ -142,6 +140,17 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
     def _register(self, child):
         self._children.append(child)
 
+    def _start(self):
+        for child in self._children:
+            child._start()
+
+        self.start()
+
+    def start(self):
+        '''Invoked to indicate the start of operations, giving the analyzer
+        time to setup up needed things'''
+        pass
+
     def _prenext(self):
         for child in self._children:
             child._prenext()
@@ -160,18 +169,6 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
         self.next()
 
-    def _start(self):
-        for child in self._children:
-            child._start()
-
-        self.start()
-
-    def _stop(self):
-        for child in self._children:
-            child._stop()
-
-        self.stop()
-    
     def prenext(self):
         '''Invoked for each prenext invocation of the strategy, until the minimum
         period of the strategy has been reached
@@ -191,55 +188,16 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         preiod of the strategy has been reached'''
         pass
 
-    # def start(self):
-    #     '''Invoked to indicate the start of operations, giving the analyzer
-    #     time to setup up needed things'''
-    #     pass
-
-    # def stop(self):
-    #     '''Invoked to indicate the end of operations, giving the analyzer
-    #     time to shut down needed things'''
-    #     pass
-
-    # def _notify_cashvalue(self, cash, value):
-    #     for child in self._children:
-    #         child._notify_cashvalue(cash, value)
-
-    #     self.notify_cashvalue(cash, value)
-
-    def _notify_fund(self, cash, fundvalue):
+    def _stop(self):
         for child in self._children:
-            child._notify_fund(cash, fundvalue)
+            child._stop()
 
-        self.notify_fund(cash, fundvalue)
+        self.stop()
 
-    def _notify_trade(self, trade):
-        for child in self._children:
-            child._notify_trade(trade)
-
-        self.notify_trade(trade)
-
-    def _notify_order(self, order):
-        for child in self._children:
-            child._notify_order(order)
-
-        self.notify_order(order)
-
-    # def notify_cashvalue(self, cash, value):
-    #     '''Receives the cash/value notification before each next cycle'''
-    #     pass
-
-    # def notify_fund(self, cash, fundvalue):
-    #     '''Receives the current cash, value, fundvalue and fund shares'''
-    #     pass
-
-    # def notify_order(self, order):
-    #     '''Receives order notifications before each next cycle'''
-    #     pass
-
-    # def notify_trade(self, trade):
-    #     '''Receives trade notifications before each next cycle'''
-    #     pass
+    def stop(self):
+        '''Invoked to indicate the end of operations, giving the analyzer
+        time to shut down needed things'''
+        pass
 
     def create_analysis(self):
         '''Meant to be overriden by subclasses. Gives a chance to create the

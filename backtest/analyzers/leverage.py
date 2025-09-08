@@ -42,13 +42,14 @@ class GrossLeverage(Analyzer):
     def start(self):
         super(GrossLeverage, self).start()
         
-    def notify_fund(self, cash, fundvalue):
-        self._cash = cash
+    def notify_fund(self):
+        fundvalue, cash = self.notify.store.get_value()
         self._value = fundvalue
+        self._cash = cash
 
     def next(self):
+        self.notify_fund()
         # Updates the leverage for "dtkey" (see base class) for each cycle
         # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
-        # lev = (self._value - self._cash) / self._value
-        lev = self._value / (self._value + self._cash)
+        lev = (self._value - self._cash) / self._value
         self.rets[self.data0.datetime.datetime()] = lev

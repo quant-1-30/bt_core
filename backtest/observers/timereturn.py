@@ -19,9 +19,6 @@
 #
 ###############################################################################
 
-# import calendar
-import datetime
-
 from backtest.observer import Observer
 from backtest.dataseries import TimeFrame
 from backtest import analyzers
@@ -57,7 +54,6 @@ class TimeReturn(Observer):
     by looking at the *lines* by name at index ``0``.
 
     '''
-    _stclock = True
 
     lines = ('timereturn',)
     plotinfo = dict(plot=True, subplot=True)
@@ -66,7 +62,6 @@ class TimeReturn(Observer):
     params = (
         ('timeframe', None),
         ('compression', None),
-        ('fund', None),
     )
 
     def _plotlabel(self):

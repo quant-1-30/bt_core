@@ -87,57 +87,20 @@ class TimeReturn(TimeFrameAnalyzerBase):
     params = (
         ('data', None),
         ('firstopen', True),
-        # ('fund', None),
     )
 
     def start(self):
         super(TimeReturn, self).start()
-        # if self.p.fund is None:
-        #     self._fundmode = self.strategy.broker.fundmode
-        # else:
-        #     self._fundmode = self.p.fund
 
-        self._value_start = 0.0
-        self._lastvalue = None
-        if self.p.data is None:
-            # # keep the initial portfolio value if not tracing a data
-            # if not self._fundmode:
-            #     self._lastvalue = self.strategy.broker.getvalue()
-            # else:
-            #     self._lastvalue = self.strategy.broker.fundvalue
-                
-            self._lastvalue = self.strategy.broker.getvalue()
+        self._value_start = self.notify.store.getvalue()[-1]
+        self._value = None
 
-    def notify_fund(self, cash, fundvalue):
-        # if not self._fundmode:
-        #     # Record current value
-        #     if self.p.data is None:
-        #         self._value = value  # the portofolio value if tracking no data
-        #     else:
-        #         self._value = self.p.data[0]  # the data value if tracking data
-        # else:
-        #     if self.p.data is None:
-        #         self._value = fundvalue  # the fund value if tracking no data
-        #     else:
-        #         self._value = self.p.data[0]  # the data value if tracking data
-        
-        self._value = fundvalue if self.p.data is None else self.p.data[0]
+    def notify_fund(self):
+        self._value = self.notify.store.getvalue()
 
     def on_dt_over(self):
         # next is called in a new timeframe period
-        # if self.p.data is None or len(self.p.data) > 1:
-        if self.p.data is None or self._lastvalue is not None:
-            self._value_start = self._lastvalue  # update value_start to last
-
-        else:
-            # The 1st tick has no previous reference, use the opening price
-            if self.p.firstopen:
-                self._value_start = self.p.data.open[0]
-            else:
-                self._value_start = self.p.data[0]
-
-    def next(self):
-        # Calculate the return
-        super(TimeReturn, self).next()
+        self.notify_fund()
         self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
-        self._lastvalue = self._value  # keep last value
+        self._value_start = self._value  # keep last value
+          

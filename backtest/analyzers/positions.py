@@ -72,11 +72,12 @@ class PositionsValue(Analyzer):
         self._usedate = tf >= TimeFrame.Days
 
     def next(self):
-        pvals = [self.strategy.broker.get_value([d]) for d in self.datas]
+        # pvals = [self.strategy.broker.get_value([d]) for d in self.datas]
+        pvals = self.notify.store.get_position()
         if self.p.cash:
-            pvals.append(self.strategy.broker.get_cash())
+            pvals.append(self.notify.store.get_value()[1])
 
         if self._usedate:
-            self.rets[self.strategy.datetime.date()] = pvals
+            self.rets[self.notify.datetime.date()] = pvals
         else:
-            self.rets[self.strategy.datetime.datetime()] = pvals
+            self.rets[self.notify.datetime.datetime()] = pvals

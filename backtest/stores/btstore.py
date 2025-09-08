@@ -18,6 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import numpy as np
+
+from datetime import datetime
 from bt_sdk.core.client import MdApi, TdApi
 from backtest.store import Store
 from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
@@ -76,15 +79,18 @@ class BTStore(Store):
         status = self.broker.set_cash(cashmeta)
         return status
     
-    def get_acct(self):
+    def get_value(self):
         # acct [cash, portfolio]
-        return self.broker.acct
+        acct = self.broker.acct
+        return np.sum(acct), acct[0]
     
     def get_position(self):
         return self.broker.fetch("position")
     
-    def subscribe(self, topic, sdate, edate, sid=[]):
-        req = ReqMeta(start_date=sdate, end_date=edate, sid=sid)
+    def subscribe(self, topic, sdate=0, edate=0, sid=[]):
+        start_date = sdate if sdate >0 else datetime.strptime("19900101", "%Y%m%d")
+        end_date = edate if edate > 0 else datetime.now().timestamp()
+        req = ReqMeta(start_date=start_date, end_date=end_date, sid=sid)
         return self.broker.subscribe(topic, req)
     
     def submit(self, sid="", size=0, price=0.0, sizer_cash=0, 
@@ -97,13 +103,12 @@ class BTStore(Store):
                                 exec_type=exec_type, 
                                 order_type=order_type,
                                 created_at=created_at)
-
-        trade_meta = self.broker.submit(order_meta)
-        return order_meta, trade_meta
+        self.broker.submit(order_meta)
     
-    def check(self, sdate, edate): # check if adj / rght occurred
+    def chain(self, sdate, edate): 
+        # check if adj / rght occurred
         req = ReqMeta(start_date=sdate, end_date=edate, sid=[])
-        return self.broker.check(req)
+        return self.broker.chain(req)
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")

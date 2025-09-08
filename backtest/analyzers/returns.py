@@ -79,7 +79,6 @@ class Returns(TimeFrameAnalyzerBase):
 
     params = (
         ('tann', None),
-        # ('fund', None),
     )
 
     _TANN = {
@@ -92,13 +91,13 @@ class Returns(TimeFrameAnalyzerBase):
     def start(self):
         super(Returns, self).start()
 
-        self._value_start = self.strategy.broker.getvalue()
+        self._value_start = self.notify.store.getvalue()[0]
         self._tcount = 0
 
     def stop(self):
         super(Returns, self).stop()
         
-        self._value_end = self.strategy.broker.getvalue()
+        self._value_end = self.notify.store.getvalue()[0]
         
         # Compound return
         try:

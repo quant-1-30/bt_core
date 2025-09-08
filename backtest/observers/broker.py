@@ -32,8 +32,6 @@ class Broker(Observer):
 
     Params: None
     '''
-    _stclock = True
-
     params = (
     )
 
@@ -47,7 +45,7 @@ class Broker(Observer):
         self.plotlines.value._name = 'FundValue'
 
     def next(self):
-        cash, portfolio = self.owner.store.get_acct()
+        portfolio, cash = self._owner.store.get_value()
 
         self.lines.cash[0] = cash
         self.lines.value[0] = portfolio

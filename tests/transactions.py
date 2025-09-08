@@ -55,7 +55,7 @@ class Transactions(Analyzer):
     '''
     params = (
         ('headers', False),
-        ('_pfheaders', ('date', 'amount', 'price', 'sid', "size")), # postiion schema
+        ('_pfheaders', ('date', 'amount', 'price', 'sid', "size")), # order_bit schema
     )
 
     def start(self):
@@ -63,9 +63,9 @@ class Transactions(Analyzer):
         if self.p.headers:
             self.rets[self.p._pfheaders[0]] = [list(self.p._pfheaders[1:])]
 
-        self._idnames = list(enumerate(self.strategy.getdatanames()))
+        # self._idnames = list(enumerate(self._owner.getdatanames()))
 
-    def notify_order(self, order, trades):
+    def notify_order(self):
         # An order could have several partial executions per cycle (unlikely
         # but possible) and therefore: collect each new execution notification
         # and let the work for next
@@ -78,8 +78,11 @@ class Transactions(Analyzer):
         
         # # order.executed.iterpending():
 
-        dt = self.strategy.datetime.datetime()
-        self.rets[dt] = trades
+        dt = self._owner.datetime.datetime()
+        order_bit = self._owner.store.get_notifications()
+
+        self.rets[dt] = order_bit
 
     def next(self):
         super(Transactions, self).next()  # let dtkey update
+        self.notify_order()

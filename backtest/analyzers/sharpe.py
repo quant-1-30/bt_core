@@ -117,7 +117,6 @@ class SharpeRatio(Analyzer):
         # old behavior
         ('daysfactor', None),
         ('legacyannual', False),
-        # ('fund', None),
     )
 
     RATEFACTORS = {
@@ -134,7 +133,6 @@ class SharpeRatio(Analyzer):
             self.timereturn = TimeReturn(
                 timeframe=self.p.timeframe,
                 compression=self.p.compression,
-                # fund=self.p.fund
                 )
 
     def stop(self):

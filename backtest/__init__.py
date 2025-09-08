@@ -27,6 +27,7 @@ from .lineiterator import *
 from .indicator import *
 from .analyzer import *
 from .observer import *
+from .notify import *
 from .sizer import *
 from .sizers import SizerFix  # old sizer for compatibility
 from .strategy import *

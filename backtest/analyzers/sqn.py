@@ -62,10 +62,14 @@ class SQN(Analyzer):
         self.pnl = list()
         self.count = 0
 
-    def notify_trade(self, trade):
-        if trade.status == trade.Closed:
-            self.pnl.append(trade.pnlcomm)
-            self.count += 1
+    def notify_trade(self):
+        p_obj = self.notify.store.get_position()
+        # if pobj.status == trade.Closed:
+        self.pnl.append(p_obj.pnl)
+        self.count += 1
+    
+    def next(self): # on_dt_over
+        self.notify_trade()
 
     def stop(self):
         if self.count > 1:
@@ -79,4 +83,4 @@ class SQN(Analyzer):
             sqn = 0
 
         self.rets.sqn = sqn
-        self.rets.trades = self.count
+        # self.rets.trades = self.count

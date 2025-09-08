@@ -57,85 +57,39 @@ class TradeAnalyzer(Analyzer):
         self.rets = AutoOrderedDict()
         self.rets.total.total = 0
 
+    def next(self):
+        p_objs = self.notify.store.get_position()
+        for p_obj in p_objs:
+            pnl = p_obj.pnl
+
+            if p_obj.justopen:
+                # Trade just opened
+                self.rets.total.total += 1
+                self.rets.total.open += 1
+
+            elif p_obj.isclosed:
+                # Trade just closed
+                self.total.closed += 1
+                won = int(p_obj.pnl >= 0.0)
+                if won:
+                    ret_won = self.rets.won
+                    ret_won.count += won
+                    ret_won.net.total += pnl
+                    ret_won.max = max(pnl, ret_won.max)
+                else:
+                    ret_loss = self.rets.loss
+                    ret_loss.count = int(not won)
+                    ret_loss.net.total += pnl
+                    ret_loss.min = min(pnl, ret_loss.min)
+
+                trpnl = self.rets.pnl
+                trpnl.net.total += pnl
+                trpnl.net.average = self.rets.pnl.net.total / self.rets.total.closed
+
     def stop(self):
         super(TradeAnalyzer, self).stop()
-        self.rets._close()
+        # Won/Lost statistics
+        self.rets.won.won_rate = self.rets.won.count / self.rets.total.total
+        self.rets.loss.lost_rate = self.rets.lost.count / self.rets.total.total
 
-    def notify_trade(self, trade):
-        if trade.justopened:
-            # Trade just opened
-            self.rets.total.total += 1
-            self.rets.total.open += 1
-
-        elif trade.status == trade.Closed:
-            trades = self.rets
-
-            res = AutoDict()
-            # Trade just closed
-
-            won = res.won = int(trade.pnlcomm >= 0.0)
-            lost = res.lost = int(not won)
-
-            tlong = res.tlong = trade.long
-            tshort = res.tshort = not trade.long
-
-            trades.total.open -= 1
-            trades.total.closed += 1
-
-            # Streak
-            for wlname in ['won', 'lost']:
-                wl = res[wlname]
-
-                trades.streak[wlname].current *= wl
-                trades.streak[wlname].current += wl
-
-                ls = trades.streak[wlname].longest or 0
-                trades.streak[wlname].longest = \
-                    max(ls, trades.streak[wlname].current)
-
-            trpnl = trades.pnl
-            trpnl.gross.total += trade.pnl
-            trpnl.gross.average = trades.pnl.gross.total / trades.total.closed
-            trpnl.net.total += trade.pnlcomm
-            trpnl.net.average = trades.pnl.net.total / trades.total.closed
-
-            # Won/Lost statistics
-            for wlname in ['won', 'lost']:
-                wl = res[wlname]
-                trwl = trades[wlname]
-
-                trwl.total += wl  # won.total / lost.total
-
-                trwlpnl = trwl.pnl
-                pnlcomm = trade.pnlcomm * wl
-
-                trwlpnl.total += pnlcomm
-                trwlpnl.average = trwlpnl.total / (trwl.total or 1.0)
-
-                wm = trwlpnl.max or 0.0
-                func = max if wlname == 'won' else min
-                trwlpnl.max = func(wm, pnlcomm)
-
-            # Length
-            trades.len.total += trade.barlen
-            trades.len.average = trades.len.total / trades.total.closed
-            ml = trades.len.max or 0
-            trades.len.max = max(ml, trade.barlen)
-
-            ml = trades.len.min or np.iinfo(np.int_).max
-            trades.len.min = min(ml, trade.barlen)
-
-            # Length Won/Lost
-            for wlname in ['won', 'lost']:
-                trwl = trades.len[wlname]
-                wl = res[wlname]
-
-                trwl.total += trade.barlen * wl
-                trwl.average = trwl.total / (trades[wlname].total or 1.0)
-
-                m = trwl.max or 0
-                trwl.max = max(m, trade.barlen * wl)
-                if trade.barlen * wl:
-                    m = trwl.min or np.iinfo(np.int_).max
-                    trwl.min = min(m, trade.barlen * wl)
-
+        self.rets._close()  # . notation cannot create more keys

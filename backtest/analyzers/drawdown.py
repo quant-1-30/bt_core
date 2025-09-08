@@ -71,14 +71,17 @@ class DrawDown(Analyzer):
     def stop(self):
         self.rets._close()  # . notation cannot create more keys
 
-    def notify_fund(self, cash, fundvalue):
+    def notify_fund(self):
         
-        self._value = fundvalue  # record current value
-        self._maxvalue = max(self._maxvalue, fundvalue)  # update peak
+        _fundvalue = self._owner.store.getvalue()[0]
+        
+        self._value = _fundvalue  # record current value
+        self._maxvalue = max(self._maxvalue, _fundvalue)  # update peak
 
     def next(self):
-        r = self.rets
+        self.notify_fund()
 
+        r = self.rets
         # calculate current drawdown values
         r.moneydown = moneydown = self._maxvalue - self._value
         r.drawdown = drawdown = 100.0 * moneydown / self._maxvalue
@@ -142,7 +145,7 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         
-        value = self.strategy.store.getvalue()
+        value = self.notify.store.getvalue()[0]
 
         # update the maximum seen peak
         if value > self.peak:

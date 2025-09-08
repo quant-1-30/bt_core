@@ -33,11 +33,12 @@ class MetaStore(MetaParams):
             super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
         _obj.owner = findowner(_obj, bt.strategy.Strategy)
         _obj._start(*args, **kwargs) # broker
+        _obj._orderspending = list()    
+        _obj._tradespending = list()   
         return _obj, args, kwargs
 
     def __call__(cls, *args, **kwargs):
         if cls._singleton is None:
-            owner = findowner(cls, bt.strategy.Strategy)
             cls._singleton = (
                 super(MetaStore, cls).__call__(*args, **kwargs))
         return cls._singleton
@@ -71,10 +72,6 @@ class Store(with_metaclass(MetaStore, object)):
     def stop(self):
         pass
 
-    # def put_notification(self, msg, *args, **kwargs):
-    #     self.notifs.append((msg, args, kwargs))
-
-    # def get_notifications(self):
-    #     '''Return the pending "store" notifications'''
-    #     self.notifs.append(None)  # put a mark / threads could still append
-    #     return [x for x in iter(self.notifs.popleft, None)]
+    def get_notification(self):
+        '''Return the notifications from broker'''
+        return self.broker.get_notification()

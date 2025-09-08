@@ -19,9 +19,9 @@
 #
 ###############################################################################
 import threading
+import collections
 
 from backtest.broker import BrokerBase
-from backtest.stores.btstore import BTStore
 from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
 
 __all__ = ["BTBroker"]
@@ -91,30 +91,35 @@ class BTBroker(BrokerBase):
     acct = Acct()
 
     def __init__(self, **kwargs): # kwargs - params left keys
-        pass
+        self._notifs = collections.deque()
 
     def set_cash(self, cashmeta: CashMeta):
         status = self.tdapi.set_cash(cashmeta)
         return status
 
-    def fetch(self, topic):
-        # position / account 
-        data = self.tdapi.fetch(topic)
-        return data
+    def fetch(self, topic:str):
+        o = self.tdapi.fetch(topic)
+        return o
     
-    def subscribe(self, topic:str, req: ReqMeta):
+    def subscribe(self, topic:str, req: ReqMeta): # contextlib
         q = self.tdapi.subscribe(topic, req)
         return q
 
     def submit(self, order_meta:OrderMeta):
-        trades = self.tdapi.trade(order_meta.model_dump()) # pydantic contain _thread.lock
-        return trades
+        order_bits = self.tdapi.trade(order_meta.model_dump()) # pydantic contain _thread.lock
+        self.put_notification(order_bits)
 
-    def check(self, req: ReqMeta):
-        status = self.tdapi.check(req)
+    def chain(self, req: ReqMeta):
+        # to keep trading sequence
+        status = self.tdapi.chain(req)
         return status
-
+    
     def stop(self):
         super().stop()
         self.tdapi.disconnected()
-    
+
+    def put_notification(self, msg):
+        self.notifs.append(msg)
+
+    def get_notification(self):
+        return self._notifs.pop()

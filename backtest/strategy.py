@@ -36,14 +36,6 @@ class MetaStrategy(StrategyBase.__class__):
     _indcol = dict()
 
     def __new__(meta, name, bases, dct):
-        # Hack to support original method name for notify_order
-        if 'notify' in dct:
-            # rename 'notify' to 'notify_order'
-            dct['notify_order'] = dct.pop('notify')
-        if 'notify_operation' in dct:
-            # rename 'notify' to 'notify_order'
-            dct['notify_trade'] = dct.pop('notify_operation')
-
         return super(MetaStrategy, meta).__new__(meta, name, bases, dct)
 
     def __init__(cls, name, bases, dct):
@@ -72,9 +64,8 @@ class MetaStrategy(StrategyBase.__class__):
 
         store = _obj.env.store # add store to strategy
         sizer = _obj.env.sizer # add store to strategy
-        notify = _obj.env.notify
         _obj.store = store
-        _obj._notify = notify
+        _obj.sizer = sizer
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -87,55 +78,34 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     '''
     Base class to be subclassed for user defined strategies.
     '''
-    params = (
-        ("name", "strategy"),
-            )
 
     _ltype = LineIterator.StratType
 
     lines = ('datetime',)
 
-    def qbuffer(self, savemem=0, replaying=False):
+    def qbuffer(self, savemem=0):
         '''Enable the memory saving schemes. Possible values for ``savemem``:
 
           0: No savings. Each lines object keeps in memory all values
 
           1: All lines objects save memory, using the strictly minimum needed
-
-        Negative values are meant to be used when plotting is required:
-
-          -1: Indicators at Strategy Level and Observers do not enable memory
-              savings (but anything declared below it does)
-
-          -2: Same as -1 plus activation of memory saving for any indicators
-              which has declared *plotinfo.plot* as False (will not be plotted)
         '''
-        if savemem < 0:
-            # Get any attribute which labels itself as Indicator
-            for ind in self._lineiterators[self.IndType]:
-                if isinstance(ind, (LineSingle,)) and not ind.plotinfo.plot:
-                    ind.qbuffer(savemem=1)
-                else:
-                    ind.qbuffer(savemem=0)
-        elif savemem > 0:
-            for data in self.datas:
-                data.qbuffer(savemem=savemem, replaying=replaying)
+        for data in self.datas:
+            data.qbuffer(savemem=savemem)
 
-            for line in self.lines:
-                line.qbuffer(savemem=1)
+        for line in self.lines:
+            line.qbuffer(savemem=1)
 
-            # Save in all object types depending on the strategy
-            for itcls in self._lineiterators:
-                for it in self._lineiterators[itcls]:
-                    it.qbuffer(savemem=1)
+        # Save in all object types depending on the strategy
+        for itcls in self._lineiterators:
+            for it in self._lineiterators[itcls]:
+                it.qbuffer(savemem=1)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
 
         _dminperiods = collections.defaultdict(list)
         for lineiter in self._lineiterators[LineIterator.IndType]:
-            # if multiple datas are used and multiple timeframes the larger
-            # timeframe may place larger time constraints in calling next.
             clk = getattr(lineiter, '_clock', None)
             if clk is None:
                 clk = getattr(lineiter._owner, '_clock', None)
@@ -146,36 +116,27 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 if id(clk) in dataids:
                     break  # already top-level clock (data feed)
 
-                # See if the current clock has higher level clocks
                 clk2 = getattr(clk, '_clock', None)
                 if clk2 is None:
                     clk2 = getattr(clk._owner, '_clock', None)
 
                 if clk2 is None:
-                    break  # if no clock found, bail out
+                    break 
 
-                clk = clk2  # keep the ref and try to go up the hierarchy
+                clk = clk2
 
             if clk is None:
-                continue  # no clock found, go to next
+                continue  
 
-            # LineSeriesStup wraps a line and the clock is the wrapped line and
-            # no the wrapper itself.
             if isinstance(clk, LineSeriesStub):
                 clk = clk.lines[0]
 
             _dminperiods[clk].append(lineiter._minperiod)
 
+        # calc data minperiods
         self._minperiods = list()
         for data in self.datas:
-
-            # Do not only consider the data as clock but also its lines which
-            # may have been individually passed as clock references and
-            # discovered as clocks above
-
-            # Initialize with data min period if any
             dlminperiods = _dminperiods[data]
-
             for l in data.lines:  # search each line for min periods
                 if l in _dminperiods:
                     dlminperiods += _dminperiods[l]  # found, add it
@@ -272,16 +233,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        ratio = self.env.sizer.get_sizing(self.p.name) # 基于策略分配
+        ratio = self.sizer.get_sizing(self.p.name) # 基于策略分配
         sizer_cash = ratio * self.store.getcash()
         
-        order_meta, trade_meta = self.store.submit(sid, 
-            sizer_cash=sizer_cash, price=price, plimit=plimit,
-            exectype=exectype, ordertype=ordertype,
-            **kwargs)
-        self._notify.notify_order(order_meta)
-        self._notify.notify_trade(trade_meta)
-
+        self.store.submit(sid, sizer_cash=sizer_cash, price=price, plimit=plimit,
+                            exectype=exectype, ordertype=ordertype, **kwargs)
+        
     def sell(self, sid,
              size=None, price=None, plimit=None,
              exectype=None, ordertype=None,
@@ -294,25 +251,21 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         if size:
-            order_meta, trade_meta = self.store.submit(sid,
-                size=abs(size), price=price, plimit=plimit,
-                exectype=exectype, ordertype=ordertype,
-                **kwargs)
-            self._notify.notify_order(order_meta)
-            self._notify.notify_trade(trade_meta)
+            self.store.submit(sid, size=abs(size), price=price, plimit=plimit, 
+                              exectype=exectype, ordertype=ordertype, **kwargs)
     
-    def hook(self):
+    def chain(self):
         """
-        Check if the strategy is ready to process the event data
+        Check chain on trading_days
         """
         isover = self.on_dt_over()
         if isover:
             # datetime[0] process event
-            status = self.store.check(self.lines.datetime[-1], self.lines.datetime[0])
+            status = self.store.chain(self.lines.datetime[-1], self.lines.datetime[0])
             if status != 0:
                 raise RuntimeError("check event_data error")
             acct = self.store.get_acct()
-            self._notity.notify_acct(acct)
+            self.notify_acct(acct)
 
     def on_dt_over(self):
         delta = self.lines.datetime[0] - self.lines.datetime[-1]

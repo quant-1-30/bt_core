@@ -131,7 +131,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     # Set to non 0 if resampling/replaying
     resampling = 0
-    replaying = 0
+    # replaying = 0
 
     _started = False
 
@@ -153,32 +153,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def num2date(self, dt, tz=None):
         return num2date(dt, tz or self._tz) # default is Asia/Shanghai
-
-    #def _getnexteos(self): 
-    #    '''Returns the next eos using a trading calendar if available'''
-    #    if self._clone:
-    #        return self.data._getnexteos()
-
-    #    if not len(self):
-    #        return datetime.datetime.min, 0.0
-
-    #    if self._calendar is None:
-    #        dt = self.lines.datetime[0]
-    #        dtime = num2date(dt)
-    #        nexteos = dtime.replace(
-    #            hour=self.p.sessionend.hour,
-    #            minute=self.p.sessionend.minute,
-    #            second=self.p.sessionend.second,
-    #            microsecond=self.p.sessionend.microsecond
-    #        )
-    #        while dtime > nexteos:
-    #            nexteos += datetime.timedelta(days=1) # localize
-    #    else:
-    #        _, nexteos = self._calendar.schedule(dtime, self._tz)
-    #    nextdteos = date2num(nexteos) # localize
-    #    return nexteos, nextdteos
     
-    def _geteos(self): 
+    def _getcurrenteos(self): 
         '''Returns the next eos using a trading calendar if available'''
         if self._clone:
             return self.data._getcurrenteos()
@@ -204,29 +180,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos
 
-    # def put_notification(self, status, *args, **kwargs):
-    #     '''Add arguments to notification queue'''
-    #     if self._laststatus != status:
-    #         self.notifs.append((status, args, kwargs))
-    #         self._laststatus = status
-
-    # def get_notifications(self):
-    #     '''Return the pending "store" notifications'''
-    #     # The background thread could keep on adding notifications. The None
-    #     # mark allows to identify which is the last notification to deliver
-    #     self.notifs.append(None)  # put a mark
-    #     notifs = list()
-    #     while True:
-    #         notif = self.notifs.popleft()
-    #         if notif is None:  # mark is reached
-    #             break
-    #         notifs.append(notif)
-    #     return notifs
-
-    def qbuffer(self, savemem=0, replaying=False):
-        extrasize = self.resampling or replaying
+    def qbuffer(self, savemem=0):
+        # extrasize = self.resampling
         for line in self.lines:
-            line.qbuffer(savemem=savemem, extrasize=extrasize)
+            line.qbuffer(savemem=savemem)
 
     def _start_finish(self):
         self._tz = self._gettz()
@@ -243,18 +200,13 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def start(self, preload=False):
         self._barstack = collections.deque()
         self._barstash = collections.deque()
-        self._laststatus = self.CONNECTED
+        # self._laststatus = self.CONNECTED
 
         # preload false ensure initialize buflen data is loaded
         if not preload:
             while len(self) <= self.buflen():
                 if not self.load():
                     break
-
-    def advance_peek(self):
-        if len(self) < self.buflen():
-            return self.lines.datetime[0]  
-        return float('inf')  # max date else
     
     def advance(self, size=1, datamaster=None):
 
@@ -280,15 +232,9 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self.post_factor() # dynamic factor
             if not ret:
                 return ret
-            # if datamaster is None:
-            #     return ret
         else:
             self.advance()
 
-        # if datamaster is not None:
-        #     if self.lines.datetime[0] > datamaster.lines.datetime[0]:
-        #         self.rewind()
-        #         return False
         return True
 
     def _load(self):
@@ -396,9 +342,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def resample(self, **kwargs):
         self.addfilter(Resampler, **kwargs)
-
-    # def replay(self, **kwargs):
-    #     self.addfilter(Replayer, **kwargs)
 
     def addfilter(self, p, *args, **kwargs):
             if inspect.isclass(p):

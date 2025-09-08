@@ -66,13 +66,11 @@ class PeriodStats(Analyzer):
         ('timeframe', TimeFrame.Years),
         ('compression', 1),
         ('zeroispos', False),
-        # ('fund', None),
     )
 
     def __init__(self):
         self._tr = TimeReturn(timeframe=self.p.timeframe,
                               compression=self.p.compression, 
-                              # fund=self.p.fund)
         )
 
     def stop(self):
