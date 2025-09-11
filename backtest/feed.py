@@ -227,9 +227,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def next(self, datamaster=None):
         # import pdb; pdb.set_trace()
         if len(self) >= self.buflen(): # consume > buffer size 
-            import pdb;pdb.set_trace()
             ret = self.load()
-            self.post_factor() # dynamic factor
+            # self.post_factor() # dynamic factor
             if not ret:
                 return ret
         else:

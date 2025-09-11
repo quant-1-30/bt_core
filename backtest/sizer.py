@@ -21,6 +21,9 @@
 from backtest.metabase import MetaParams, with_metaclass
 
 
+__all__ = ['sizers']
+
+
 class Sizer(with_metaclass(MetaParams, object)):
     '''This is the base class for *Sizers*. Any *sizer* should subclass this
     and override the ``_getsizing`` method
@@ -39,22 +42,20 @@ class Sizer(with_metaclass(MetaParams, object)):
         Gives access to information some complex sizers may need like portfolio
         value, ..
     '''
-    params = (
-        ('loopback', 7),  # calc volatility over last n days
-        ('stage_reserve', 0)
-    )
+    params = (("reserve", 0.0), )  # reserve a fraction of cash
 
-    def getsizing(self, strat_metrics, is_buy=True):
-        if is_buy:
-            return self._call_sizing(strat_metrics)
-        else:
-            return self._put_sizing(strat_metrics)
+    def getsizing(self, strats, datas={}):
+        return self._getsizing(strats, datas)
 
-    def _call_sizing(self, strat_metrics):
+    def _getsizing(self, strats, datas):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 
         Params:
+          - ``comminfo``: The CommissionInfo instance that contains
+            information about the commission for the data and allows
+            calculation of position value, operation cost, commision for the
+            operation
 
           - ``cash``: current available cash in the *broker*
 
@@ -70,9 +71,72 @@ class Sizer(with_metaclass(MetaParams, object)):
 
         '''
         raise NotImplementedError
-    
-    def _put_sizing(self, strat_metrics):
-        raise NotImplementedError
 
 
 SizerBase = Sizer  # alias for old naming
+
+
+class NoSizer(Sizer):
+    '''This is the default sizer used by ``backtrader`` if no other sizer is
+    set
+
+    It will simply return a size of ``1`` for each operation
+    '''
+
+    def _getsizing(self, strats, datas):
+        sizers = {strat._id: 1/(len(strats)) for strat in strats}
+        return sizers
+    
+
+class KellySizer(Sizer):
+    '''This sizer will return a size based on the Kelly Criterion
+
+    The Kelly Criterion is a formula used to determine the optimal size of a
+    series of bets in order to maximize the logarithm of wealth. It is often
+    used in gambling and investing to help manage risk and maximize returns.
+
+    The formula for the Kelly Criterion is:
+
+    f* = (bp - q) / b
+
+    where:
+
+      - f* is the fraction of the current bankroll to wager
+
+      - b is the net odds received on the wager (i.e., "b to 1") - this is
+        calculated as (1 / (price - 1)) for buy operations and (1 / price) for
+        sell operations
+
+      - p is the probability of winning (i.e., the probability that the bet
+        will pay off)
+
+      - q is the probability of losing, which is equal to 1 - p
+
+    The Kelly Criterion suggests that you should bet a fraction of your
+    bankroll equal to f* in order to maximize your long-term growth rate. If
+    f* is negative, it means that you should not place the bet at all.
+
+    Note that the Kelly Criterion assumes that you have an edge over the house
+    or market, meaning that your probability of winning (p) is greater than
+    your probability of losing (q). If you do not have an edge, then betting
+    according to the Kelly Criterion may lead to losses over time.
+
+    This sizer requires that ``self.strategy`` has two methods implemented:
+
+      - ``kelly_p(self, data)``: returns the probability of winning for the
+        given data
+
+      - ``kelly_q(self, data)``: returns the probability of losing for the
+        given data
+
+    '''
+
+    def _getsizing(self, strats, datas):
+        # datas represent stats of strats
+        raise NotImplementedError("KellySizer not implemented yet")
+    
+
+sizers = {
+    'default': NoSizer,
+    'kelly': KellySizer
+    }

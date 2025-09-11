@@ -82,10 +82,15 @@ class BTStore(Store):
     def get_value(self):
         # acct [cash, portfolio]
         acct = self.broker.acct
-        return np.sum(acct), acct[0]
+        return np.sum(acct), acct[0] 
     
     def get_position(self):
-        return self.broker.fetch("position")
+        o = self.broker.fetch("position")
+        return o
+    
+    def get_account(self):
+        o = self.broker.fetch("account")
+        return o
     
     def subscribe(self, topic, sdate=0, edate=0, sid=[]):
         start_date = sdate if sdate >0 else datetime.strptime("19900101", "%Y%m%d")
@@ -93,21 +98,22 @@ class BTStore(Store):
         req = ReqMeta(start_date=start_date, end_date=end_date, sid=sid)
         return self.broker.subscribe(topic, req)
     
-    def submit(self, sid="", size=0, price=0.0, sizer_cash=0, 
+    def submit(self, sid="", size=0, price=0.0, sizer_ratio=0, 
                pricelimit=0, exec_type=0, order_type=0, created_at=0):
         order_meta = OrderMeta(sid=sid,
                                 size=abs(size), 
                                 price=price,
-                                sizer_cash=sizer_cash, 
+                                sizer_ratio=sizer_ratio, 
                                 pricelimit=pricelimit,
                                 exec_type=exec_type, 
                                 order_type=order_type,
                                 created_at=created_at)
-        self.broker.submit(order_meta)
+        order_bits = self.broker.submit(order_meta)
+        return order_bits
     
     def chain(self, sdate, edate): 
         # check if adj / rght occurred
-        req = ReqMeta(start_date=sdate, end_date=edate, sid=[])
+        req = ReqMeta(start_date=int(sdate), end_date=int(edate), sid=[])
         return self.broker.chain(req)
     
     def cancel(self, order_id):

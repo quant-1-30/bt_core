@@ -111,6 +111,8 @@ class LineBuffer(LineSingle):
             self.mode = self.QBuffer
         self.maxlen = self._minperiod
 
+        # self.extrasize = extrasize
+        # self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
 
     def minbuffer(self, size):
@@ -304,7 +306,7 @@ class LineBuffer(LineSingle):
 
     bind2line = bind2lines
 
-    # keep to ensure lines[0] 
+    # keep to ensure lineAction 
     def __call__(self, ago=None):
         '''Returns either a delayed verison of itself in the form of a
         LineDelay object or a timeframe adapting version with regards to a ago

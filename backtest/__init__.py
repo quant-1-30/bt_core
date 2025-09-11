@@ -29,7 +29,6 @@ from .analyzer import *
 from .observer import *
 from .notify import *
 from .sizer import *
-from .sizers import SizerFix  # old sizer for compatibility
 from .strategy import *
 
 from .writer import *
@@ -53,12 +52,13 @@ from . import observers as obs
 from . import analyzers as analyzers
 from . import filters as filters
 from . import signals as signals
-from . import sizers as sizers
+# from . import sizers as sizers
 from . import stores as stores
 from . import brokers as brokers
 from . import timer as timer
 
 
+# from .sizers import SizerFix  # old sizer for compatibility
 # from . import studies as studies
 # from . import commissions as commissions
 # from . import commissions as comms

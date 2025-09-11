@@ -5,9 +5,7 @@ import pytest
 from datetime import datetime
 
 import backtest as bt
-# to ensure metaclass __init__ automated executed
 from bt_sdk.constant import *
-
 
 def get_data(q):
     data = []
@@ -60,17 +58,7 @@ class TestBTStore:
         end_time = int(datetime.strptime(end_date, '%Y%m%d').timestamp())
         sid = ['002750']
         return (topic, start_time, end_time, sid)
-
-    def test_getCalendar(self, store):
-        data = store.get_calendar()
-        print("getcalendar: ", data)
-        assert data is not None
-
-    def test_getInstrument(self, store):
-        data = store.get_instrument()
-        print("getinstrument: ", data)
-        assert data is not None 
-
+    
     # def test_set_cash(self, store):
     #         cash = 100000
     #         session = "20240101"
@@ -82,9 +70,24 @@ class TestBTStore:
     #     data = store.submit(**ordermeta)
     #     print("submit: ", data)
     #     assert data is not None
+    
+    # def test_chain(self, store, reqmeta):
+    #     data = store.chain(*reqmeta[1:3])
+    #     print("test_check: ", data)
+    #     assert data is not None
 
-    def test_getAcct(self, store):
-        data = store.get_acct()
+    def test_getCalendar(self, store):
+        data = store.get_calendar()
+        print("getcalendar: ", data)
+        assert data is not None
+
+    def test_getInstrument(self, store):
+        data = store.get_instrument()
+        print("getinstrument: ", data)
+        assert data is not None 
+
+    def test_getAccount(self, store):
+        data = store.get_account()
         print("get_acct: ", data)
         assert data is not None
 
@@ -95,11 +98,8 @@ class TestBTStore:
     
     def test_subscribe(self, store, reqmeta):
         ctx = store.subscribe(*reqmeta)
-        data = get_data(ctx.__enter__())
+        with ctx as q:
+            data = get_data(q)
         print("subscribe: ",  data)
     
-    # def test_check(self, store, reqmeta):
-    #     data = store.check(*reqmeta[1:3])
-    #     print("test_check: ", data)
-    #     assert data is not None
 

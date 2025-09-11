@@ -23,15 +23,14 @@ import datetime
 
 import itertools
 import multiprocessing
-from notify import NotifyCenter
 from pytz import timezone
 
 from backtest.metabase import MetaParams, with_metaclass
 from backtest import observers
-from backtest.strategy import Strategy, SignalStrategy
-from backtest.sizers import NoSizer
+from backtest.sizer import sizers
 from backtest.timer import Timer
 from backtest.errors import *
+from .notify import Notify
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -79,6 +78,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ('maxcpus', 1),
+        ("sizer", "default"),
         ('stdstats', False),
         ('writer', False),
         ('tz', None),
@@ -86,7 +86,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     def __init__(self):
 
-        self.store = None
         self.datas = list()
         self.strats = list()
         
@@ -95,12 +94,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.indicators = list()
         self.writers = list()
 
-        self._dooptimize = False
         self._pretimers = list()
         self.storecbs = list()
         
-        self.sizer = NoSizer() # default sizer
-        self.quicknotify = NotifyCenter()
+        self.sizer = sizers[self.p.sizer]
+        self.store = None
+        self.quicknotify = None
 
     def adddata(self, data, init=False):
         '''
@@ -387,8 +386,21 @@ class Cerebro(with_metaclass(MetaParams, object)):
             data._start(**kwargs)
 
         # initialize notify
-        self.quicknotify._addanalyzer(self.analyzers)
-        self.quicknotify._addobserver(self.observers)
+        self.quicknotify = Notify(*self.datas)
+
+        if self.p.stdstats:
+            self.quicknotify._addobserver(False, observers.Broker)
+            
+            self.quicknotify._addobserver(True, observers.BuySell,
+                                barplot=True)
+
+            self.quicknotify._addobserver(False, observers.DrawDown)
+
+        for ancls, anargs, ankwargs in self.analyzers:
+            self.quicknotify._addanalyzer(ancls, *anargs, **ankwargs)
+        
+        for multi, obscls, obsargs, obskwargs in self.observers:
+            self.quicknotify._addobserver(multi, obscls, *obsargs, **obskwargs)
 
         self.runstrats = list()
         self._event_stop = False  # Stop is requested
@@ -419,7 +431,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def _init_stcount(self):
         self.stcount = itertools.count(0)
 
-    def _next_stid(self):
+    # unique id for each strategy
+    def _next_stid(self): 
         return next(self.stcount)
     
     def runstrategies(self, iterstrat):
@@ -442,22 +455,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if runstrats:
             # defaultsizer = self.sizers.get(None, (None, None, None))
             for idx, strat in enumerate(runstrats):
-                if self.p.stdstats:
-                    strat._addobserver(False, observers.Broker)
-                    
-                    strat._addobserver(True, observers.BuySell,
-                                        barplot=True)
-
-                    strat._addobserver(False, observers.DataTrades)
-
-                for multi, obscls, obsargs, obskwargs in self.observers:
-                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
 
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
 
-                for ancls, anargs, ankwargs in self.analyzers:
-                    strat._addanalyzer(ancls, *anargs, **ankwargs)
 
             for writer in self.writers:
                 writer.start()
@@ -542,20 +543,19 @@ class Cerebro(with_metaclass(MetaParams, object)):
                         if dti > dt0:
                             di.rewind()  # cannot deliver yet
 
-            if self._event_stop:  # stop if requested
-                return
-
             if d0ret:  # bars produced by data or filters
                 # self._check_timers(runstrats, dt0) # notify_timer to control next
                 for strat in runstrats:
+                    # ratio = self.sizer.get_sizing(self.p.name) # 基于策略分配
                     strat._next()
 
                     if self._event_stop:  # stop if requested
                         return
+                
+                # 多策略情况,快速通知 
+                self.quicknotify._next(strat)  
 
-                    # self._next_writers(runstrats)
-        if self._event_stop:  # stop if requested
-            return
+        # self._next_writers(runstrats)
         
     def runstop(self):
         '''If invoked from inside a strategy or anywhere else, including other

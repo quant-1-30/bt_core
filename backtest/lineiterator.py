@@ -30,7 +30,7 @@ from .lineroot import LineRoot, LineSingle
 from .linebuffer import LineActions, LineNum
 from .lineseries import LineSeries, LineSeriesMaker
 from .dataseries import DataSeries
-from .metabase import with_metaclass, MetaParams, findowner
+from .metabase import with_metaclass
 from backtest.utils.autodict import DotDict
 
 
@@ -263,7 +263,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         if self._ltype == LineIterator.StratType:
             # supporting datas with different lengths
             minperstatus = self._getminperstatus()
-            self.hook()  #check if event
+            # self.hook()  #check if event
             if minperstatus < 0:
                 self.next()
             elif minperstatus == 0:

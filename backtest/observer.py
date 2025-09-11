@@ -19,9 +19,9 @@
 #
 ###############################################################################
 
-import backtest as bt
-from backtest.lineiterator import LineIterator, ObserverBase
-from backtest.metabase import with_metaclass
+from .lineiterator import LineIterator, ObserverBase
+from .metabase import with_metaclass
+from .notify import Notify
 
 
 class MetaObserver(ObserverBase.__class__):
@@ -44,7 +44,7 @@ class MetaObserver(ObserverBase.__class__):
 class Observer(with_metaclass(MetaObserver, ObserverBase)):
     _stclock = False
 
-    _OwnerCls = bt.Notify # super ---> findowner
+    _OwnerCls = Notify # super ---> findowner
     _ltype = LineIterator.ObsType
 
     csv = True

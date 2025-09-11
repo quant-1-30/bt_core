@@ -54,7 +54,8 @@ class AnnualReturn(Analyzer):
         self.ret = OrderedDict()
 
         v = list()
-        with self.notify.store.subscribe("account") as ctx: # datetime, portfolio_value, cash, leverage, margin, client_id
+        with self.notify.store.subscribe("account") as ctx: 
+            # datetime, portfolio_value, cash, leverage, margin, client_id
             while True:
                 msg = ctx.get()
                 if msg == "eof":  # EOF

@@ -62,10 +62,8 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
-        store = _obj.env.store # add store to strategy
-        sizer = _obj.env.sizer # add store to strategy
-        _obj.store = store
-        _obj.sizer = sizer
+        _obj.store = store = _obj.env.store # add store to strategy
+        _obj.sizer = sizer = _obj.env.sizer # add store to strategy
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -157,23 +155,23 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._minperstatus = minperstatus = max(dlens)
         return minperstatus
     
-    def _clk_update(self):
-        # 移除 _oldsync 判断，统一使用新的时钟更新机制
-        newdlens = [len(d) for d in self.datas]
-        if any(nl > l for l, nl in zip(self._dlens, newdlens)):
-            self.forward()
+    # def _clk_update(self):
+    #     # 移除 _oldsync 判断，统一使用新的时钟更新机制
+    #     newdlens = [len(d) for d in self.datas]
+    #     if any(nl > l for l, nl in zip(self._dlens, newdlens)):
+    #         self.forward()
 
-        self.lines.datetime[0] = max(d.datetime[0]
-                                     for d in self.datas if len(d))
-        self._dlens = newdlens
+    #     self.lines.datetime[0] = max(d.datetime[0]
+    #                                  for d in self.datas if len(d))
+    #     self._dlens = newdlens
 
-        return len(self)
+    #     return len(self)
     
     def _start(self):
         self._periodset()
 
-        self._stage2()
-        self._dlens = [len(data) for data in self.datas]
+        # self._stage2()
+        # self._dlens = [len(data) for data in self.datas]
         self._minperstatus = np.iinfo(np.int_).max  # start in prenext
         self.start()
 
@@ -184,29 +182,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _next(self):
         super(Strategy, self)._next() # lineiterator _next
 
-        minperstatus = self._getminperstatus()
-        self._notify._next(minperstatus)
-        self.clear()
-
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
+    
+    def on_dt_over(self):
+        delta = self.lines.datetime[0] - self.lines.datetime[-1]
+        isover = True if delta >= 24 * 60 * 60 else False
+        return isover 
 
-    def _stop(self):
-        self.stop()
-        # change operators back to stage 1 - allows reuse of datas
-        self._stage1()
-
-    def cancel(self, order_id):
-        '''Cancels the order in the broker'''
-        self.store.cancel(order_id)
-
-    def clear(self):
-        self._orderspending = list()
-        self._tradespending = list()
-
-    def buy(self, sid="", sizer=None, price=None, plimit=None,
-            exectype=None, ordertype=None,
-            **kwargs):
+    def buy(self, sid="", price=0.0, plimit=0.0,
+            exectype=None, ordertype=None, **kwargs):
         '''Create a buy (long) order and send it to the broker
 
           - ``exectype`` (default: ``None``)
@@ -233,16 +218,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        ratio = self.sizer.get_sizing(self.p.name) # 基于策略分配
-        sizer_cash = ratio * self.store.getcash()
-        
-        self.store.submit(sid, sizer_cash=sizer_cash, price=price, plimit=plimit,
+        sizer_ratio = self._sizer.getsizing()[self._id]
+        self.store.submit(sid, sizer_ratio=sizer_ratio, price=price, plimit=plimit,
                             exectype=exectype, ordertype=ordertype, **kwargs)
         
-    def sell(self, sid,
-             size=None, price=None, plimit=None,
-             exectype=None, ordertype=None,
-             **kwargs):
+    def sell(self, sid, price=0.0, plimit=0.0,
+             exectype=None, ordertype=None, **kwargs):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -250,9 +231,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        if size:
-            self.store.submit(sid, size=abs(size), price=price, plimit=plimit, 
-                              exectype=exectype, ordertype=ordertype, **kwargs)
+        sizer_ratio = self._sizer.getsizing()[self._id]
+        self.store.submit(sid, size=sizer_ratio, price=price, plimit=plimit, 
+                          exectype=exectype, ordertype=ordertype, **kwargs)
     
     def chain(self):
         """
@@ -267,16 +248,21 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             acct = self.store.get_acct()
             self.notify_acct(acct)
 
-    def on_dt_over(self):
-        delta = self.lines.datetime[0] - self.lines.datetime[-1]
-        isover = True if delta >= 24 * 60 * 60 else False
-        return isover 
+    def _stop(self):
+            self.stop()
+            # change operators back to stage 1 - allows reuse of datas
+            # self._stage1()
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
         end_session = self.datetime[0]
-        self.store.check(end_session, end_session)
+        print("strategy stop at session: ", end_session)
+        self.store.chain(end_session, end_session)
         self.store.stop()
+    
+    def cancel(self, order_id):
+        '''Cancels the order in the broker'''
+        self.store.cancel(order_id)
 
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类

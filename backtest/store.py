@@ -49,6 +49,7 @@ class Store(with_metaclass(MetaStore, object)):
 
     _singleton = None
     
+    # to ensure metaclass __init__ automated executed
     BrokerCls = None  # broker class will autoregister
     DataCls = None  # data class will auto register
 
