@@ -19,11 +19,12 @@
 #
 ###############################################################################
 
+import io
+import os
 import collections
 import datetime
 import inspect
-import io
-import os.path
+import numpy as np
 
 from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass
@@ -50,11 +51,6 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj, args, kwargs = \
             super(MetaAbstractDataBase, cls).dopreinit(_obj, *args, **kwargs)
 
-        # # # Find the owner and store it
-        # _obj._feed = findowner(_obj, FeedBase)
-
-        _obj.notifs = collections.deque()  # store notifications for cerebro
-
         _obj._dataname = _obj.p.dataname
         _obj._name = ''
         return _obj, args, kwargs
@@ -71,6 +67,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
+        _obj.adj_factors= np.array([1.0])
 
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
@@ -84,12 +81,6 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
                     _obj._ffilters.append((fp, [], {}))
 
             _obj._filters.append((fp, [], {}))
-
-        # context
-        _obj.context = None
-        # factor
-        _factors = 1.0 if not _obj.p.factors else _obj.p.factors
-        _obj.factors = _factors
 
         return _obj, args, kwargs
 
@@ -108,8 +99,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('filters', []),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
-        ('buffer', None), # buffer for data
-        ('factors', None)
     )
 
     (CONNECTED, DISCONNECTED, CONNBROKEN, DELAYED,
@@ -123,17 +112,37 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def _getstatusname(cls, status):
         return cls._NOTIFNAMES[status]
 
-    # _feed = None
-    _store = None
-
     _clone = False
-    _tmoffset = datetime.timedelta()
 
     # Set to non 0 if resampling/replaying
     resampling = 0
     # replaying = 0
 
     _started = False
+    
+    _tmoffset = datetime.timedelta()
+
+    def _start_finish(self):
+        self._tz = self._gettz()
+        self.lines.datetime._settz(self._tz)
+
+        self._tzinput = Localizer(self._gettzinput())
+        self._started = True
+
+    def _start(self, **kwargs):
+        self.start()
+        if not self._started:
+            self._start_finish() # dynamic update and add attributes _tzinput, _tz, _calendar, _started
+
+    def start(self):
+        self._barstack = collections.deque()
+        self._barstash = collections.deque()
+        # self._laststatus = self.CONNECTED
+
+    def qbuffer(self, savemem=0):
+        # extrasize = self.resampling
+        for line in self.lines:
+            line.qbuffer(savemem=savemem)
 
     def _gettzinput(self):
         '''Can be overriden by classes to return a timezone for input'''
@@ -179,34 +188,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         _, nexteos = self._calendar.schedule(dtime, self._tz) 
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos
-
-    def qbuffer(self, savemem=0):
-        # extrasize = self.resampling
-        for line in self.lines:
-            line.qbuffer(savemem=savemem)
-
-    def _start_finish(self):
-        self._tz = self._gettz()
-        self.lines.datetime._settz(self._tz)
-
-        self._tzinput = Localizer(self._gettzinput())
-        self._started = True
-
-    def _start(self, **kwargs):
-        self.start()
-        if not self._started:
-            self._start_finish() # dynamic update and add attributes _tzinput, _tz, _calendar, _started
-
-    def start(self, preload=False):
-        self._barstack = collections.deque()
-        self._barstash = collections.deque()
-        # self._laststatus = self.CONNECTED
-
-        # preload false ensure initialize buflen data is loaded
-        if not preload:
-            while len(self) <= self.buflen():
-                if not self.load():
-                    break
     
     def advance(self, size=1, datamaster=None):
 
@@ -215,14 +196,14 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             if self.lines.datetime[0] > datamaster.lines.datetime[0]:
                 self.lines.rewind()
 
-    def post_factors(self):
+    def apply_factors(self):
         """
             ohlc factors
         """
         adj_factors = self.adj_factors
         # datetime 
         for line_name in ["open", "high", "close", "low"]:
-            self.getattr(line_name).post_factor(adj_factors)
+            self.getattr(line_name).apply_factor(adj_factors)
 
     def next(self, datamaster=None):
         # import pdb; pdb.set_trace()
@@ -242,41 +223,43 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def load(self):
         while True:
             self.forward()
-            # if self._fromstack():  # bar is available
-            #     return True
 
-            # if not self._fromstack(stash=True):
-            #     _loadret = self._load()
-            #     if not _loadret:  # no bar use force to make sure in exactbars
-            #         self.backwards(force=True)  # undo data pointer
-            #         return _loadret
+            if self._fromstack():  # bar is available
+                return True
+
+            if not self._fromstack(stash=True):
+                _loadret = self._load()
+                if not _loadret:  # no bar use force to make sure in exactbars
+                    self.backwards()  # undo data pointer
+                    return _loadret
 
             _loadret = self._load()
             if not _loadret:
+                self.backwards()
                 return False
 
-            # dt = self.lines.datetime[0]
+            dt = self.lines.datetime[0]
 
-            # if self._tzinput:
-            #     dtime = num2date(dt)  # get it in a naive datetime
-            #     dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
-            #     self.lines.datetime[0] = dt = date2num(dtime) 
+            if self._tzinput:
+                dtime = num2date(dt)  # get it in a naive datetime
+                dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
+                self.lines.datetime[0] = dt = date2num(dtime) 
 
-        #    # Pass through filters
-        #     retff = False
-        #     for ff, fargs, fkwargs in self._filters:
-        #         if self._barstack: # previous filter may have put things onto the stack 
-        #             for i in range(len(self._barstack)):
-        #                 self._fromstack(forward=True)
-        #                 retff = ff(self, *fargs, **fkwargs) # check
-        #         else:
-        #             retff = ff(self, *fargs, **fkwargs)
+           # Pass through filters
+            retff = False
+            for ff, fargs, fkwargs in self._filters:
+                if self._barstack: # previous filter may have put things onto the stack 
+                    for i in range(len(self._barstack)):
+                        self._fromstack(forward=True)
+                        retff = ff(self, *fargs, **fkwargs) # check
+                else:
+                    retff = ff(self, *fargs, **fkwargs)
 
-        #         if retff:  # bar removed from systemn
-        #             break  # out of the inner loop
+                if retff:  # bar removed from systemn
+                    break  # out of the inner loop
 
-        #     if retff:  # bar removed from system - loop to get new bar
-        #         continue  # in the greater loop
+            if retff:  # bar removed from system - loop to get new bar
+                continue  # in the greater loop
             return True
     
     def _fromstack(self, forward=False, stash=False):
@@ -337,6 +320,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return bool(ret)
     
+    def apply_factor(self):
+        # line.array apply factors ohlc
+        pass
+    
 # --------------------------------------------------------------------- resample ---------------------------------------------------------------
 
     def resample(self, **kwargs):
@@ -362,7 +349,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         d._dataname = _dataname
         d._name = _dataname
         return d
-
+    
     def stop(self):
         pass
 

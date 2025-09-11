@@ -72,7 +72,7 @@ class Descr(object):
 
 
 class MetaMdData(DataBase.__class__):
-
+    
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
         super(MetaMdData, cls).__init__(name, bases, dct)
@@ -91,34 +91,41 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
     params = (
         ("mdapi", None),
         ('rtbar', False,), # use RealTime 5 seconds bars
-        ('adj_factors', None)
     )
 
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3) # Minimum size supported by real-time bars
     
     descr = Descr()
 
+    def __init__(self, **kwargs):
+        self.ctx = None
+        self.channel = None
+
     def _start(self, **kwargs):
         super()._start()
 
-        start_date = kwargs.get("start_date", 19900101)
-        fromdate = datetime.strptime(str(start_date), "%Y%m%d") + timedelta(hours=9, minutes=30)
-        todate = datetime.strptime(str(kwargs["end_date"]), "%Y%m%d") + timedelta(hours=15, minutes=0)
+        sdate = kwargs.get("start_date", 19900101)
+        edate = kwargs.get("end_date", datetime.now().strftime("%Y%m%d"))
+        fromdate = datetime.strptime(str(sdate), "%Y%m%d") + timedelta(hours=9, minutes=30)
+        todate = datetime.strptime(str(edate), "%Y%m%d") + timedelta(hours=15, minutes=0)
 
         reqmeta = ReqMeta(sid=kwargs["sid"], start_date=int(fromdate.timestamp()), end_date=int(todate.timestamp()))
+        
+        self.calc_adj(reqmeta)
 
-        self.post_factors(reqmeta)
         # wrap by contextmanager 整合迭代器与session 手动获取上下文
-        self.contxt = self.mdapi.subscribe(reqmeta)
-        self.buffer = self.contxt.__enter__()
-        # import pdb; pdb.set_trace()
+        self.ctx = self.mdapi.subscribe(reqmeta)
+        self.channel = self.ctx.__enter__() # q block
+        if self.channel is None:
+            warnings.warn("buffer is None, must subscribe first")
+            return
 
     def _load_bar(self, msg):
         line = msg["body"]["line"][0]
         dt = line[0]
         if dt < self.lines.datetime[-1] :
-            return False  # cannot deliver earlier than already delivered
-
+            return False  
+        # cannot deliver earlier than already delivered
         self.lines.datetime[0] = dt
         self.lines.open[0] = line[1]
         self.lines.high[0] = line[2]
@@ -146,13 +153,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         return True
 
     def _load(self):
-        if self.buffer is None:
-            warnings.warn("buffer is None, must subscribe first")
-            return
-        msg = self.buffer.get()
+        msg = self.channel.get()
         print("_load msg :", msg)
         if msg == "eof":
-            self.contxt.__exit__(None, None, None) #
+            self.ctx.__exit__(None, None, None) #
             return False  # Conn broken during historical/backfilling
         if self.p.rtbar:
             self._load_rtbar(msg)
@@ -160,9 +164,10 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
             self._load_bar(msg)
         return True
     
-    def post_factors(self, reqMeta: ReqMeta):
-        self.factors = self.mdapi.factor(reqMeta)
-
+    def calc_adj(self, reqmeta):
+        adj = self.mdapi.factor(reqmeta)
+        import pdb; pdb.set_trace()
+    
     def stop(self):
         super().stop()
         self.mdapi.disconnected()

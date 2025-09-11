@@ -52,7 +52,7 @@ from . import observers as obs
 from . import analyzers as analyzers
 from . import filters as filters
 from . import signals as signals
-# from . import sizers as sizers
+from . import sizers as sizers
 from . import stores as stores
 from . import brokers as brokers
 from . import timer as timer

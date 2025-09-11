@@ -238,12 +238,12 @@ class Lines(object):
         for line in self.lines:
             line.forward(value, size=size)
 
-    def backwards(self, size=1, force=False):
+    def backwards(self, size=1):
         '''
         Proxy line operation
         '''
         for line in self.lines:
-            line.backwards(size, force=force)
+            line.backwards(size)
 
     def rewind(self, size=1):
         '''
@@ -252,12 +252,12 @@ class Lines(object):
         for line in self.lines:
             line.rewind(size)
 
-    # def extend(self, value=NAN, size=0):
-    #     '''
-    #     Proxy line operation
-    #     '''
-    #     for line in self.lines:
-    #         line.extend(value, size)
+    def qbuffer(self, value=NAN, size=0):
+        '''
+        Proxy line operation
+        '''
+        for line in self.lines:
+            line.extend(value, size)
 
     def reset(self):
         '''
@@ -508,14 +508,14 @@ class LineSeries(with_metaclass(MetaLineSeries, LineMultiple)):
     def forward(self, value=NAN, size=1):
         self.lines.forward(value, size)
 
-    def backwards(self, size=1, force=False):
-        self.lines.backwards(size, force=force)
+    def backwards(self, size=1):
+        self.lines.backwards(size)
 
     def rewind(self, size=1):
         self.lines.rewind(size)
 
-    # def extend(self, value=NAN, size=0):
-    #     self.lines.extend(value, size)
+    def qbuffer(self, savemem):
+        self.lines.qbuffer(savemem)
 
     def reset(self):
         self.lines.reset()

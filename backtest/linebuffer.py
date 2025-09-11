@@ -77,7 +77,7 @@ class LineBuffer(LineSingle):
     def get_idx(self):
         return self._idx
 
-    def set_idx(self, idx, force=False):
+    def set_idx(self, idx):
         # if QBuffer and the last position of the buffer was reached, keep
         # it (unless force) as index 0. This allows resampling
         #  - forward adds a position, but the 1st one is discarded, the 0 is
@@ -109,8 +109,8 @@ class LineBuffer(LineSingle):
 
         if savemem:
             self.mode = self.QBuffer
-        self.maxlen = self._minperiod
 
+        self.maxlen = self._minperiod
         # self.extrasize = extrasize
         # self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
@@ -229,7 +229,7 @@ class LineBuffer(LineSingle):
         for i in range(size):
             self.array.append(value)
 
-    def backwards(self, size=1, force=False):
+    def backwards(self, size=1):
         ''' Moves the logical index backwards and reduces the buffer as much as needed
 
         Keyword Args:
@@ -237,7 +237,7 @@ class LineBuffer(LineSingle):
             buffer
         '''
         # Go directly to property setter to support force
-        self.set_idx(self._idx - size, force=force)
+        self.set_idx(self._idx - size)
         self.lencount -= size
         for i in range(size):
             self.array.pop()

@@ -27,7 +27,7 @@ from pytz import timezone
 
 from backtest.metabase import MetaParams, with_metaclass
 from backtest import observers
-from backtest.sizer import sizers
+from backtest.sizers import sizers
 from backtest.timer import Timer
 from backtest.errors import *
 from .notify import Notify
@@ -382,8 +382,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         # initialize feed
         for data in self.datas:
-            data.reset()
             data._start(**kwargs)
+            data.qbuffer(savemem=1) # 
 
         # initialize notify
         self.quicknotify = Notify(*self.datas)
@@ -556,6 +556,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 self.quicknotify._next(strat)  
 
         # self._next_writers(runstrats)
+        import pdb; pdb.set_trace()
         
     def runstop(self):
         '''If invoked from inside a strategy or anywhere else, including other

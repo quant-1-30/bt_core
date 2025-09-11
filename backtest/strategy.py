@@ -255,7 +255,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        end_session = self.datetime[0]
+        end_session = self.data.datetime[0] 
         print("strategy stop at session: ", end_session)
         self.store.chain(end_session, end_session)
         self.store.stop()

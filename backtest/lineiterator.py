@@ -310,12 +310,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         '''
         pass
 
-    def _addnotification(self, *args, **kwargs):
-        pass
-
-    def _notify(self):
-        pass
-
     def _plotinit(self):
         pass
 
