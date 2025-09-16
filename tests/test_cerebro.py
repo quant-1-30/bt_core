@@ -26,23 +26,23 @@ from bt_sdk.core.model import *
 #         self.log('Close, %.2f' % self.dataclose[0])
 
 
-class MyStrategy(bt.Strategy):
-    params = dict(period=20)
+# class MyStrategy(bt.Strategy):
+#     params = dict(period=20)
 
-    def log(self, txt, dt=None):
-        ''' Logging function for this strategy'''
-        # dt = dt or self.datas[0].datetime.date(0)
-        # print('%s, %s' % (dt.isoformat(), txt))
-        dt = dt or self.datas[0].datetime.date(0)
-        print('%s, %s' % (dt, txt))
+#     def log(self, txt, dt=None):
+#         ''' Logging function for this strategy'''
+#         # dt = dt or self.datas[0].datetime.date(0)
+#         # print('%s, %s' % (dt.isoformat(), txt))
+#         dt = dt or self.datas[0].datetime.date(0)
+#         print('%s, %s' % (dt, txt))
 
-    def __init__(self):
+#     def __init__(self):
 
-        self.sma = btind.SimpleMovingAverage(self.datas[0], period=self.params.period)
+#         self.sma = btind.SimpleMovingAverage(self.datas[0], period=self.params.period)
 
-    def next(self):
-        self.log('sma: %.2f' % self.sma[0])
-        print("sma: ", self.sma[0])
+#     def next(self):
+#         self.log('sma: %.2f' % self.sma[0])
+#         print("sma: ", self.sma[0])
 
 
 # class MyStrategy(bt.Strategy):
@@ -59,21 +59,25 @@ class MyStrategy(bt.Strategy):
 #             print('Previous close is higher than the moving average')
 
 
-# class MyStrategy(bt.Strategy):
-#     params = dict(period=20)
+class MyStrategy(bt.Strategy):
+    params = dict(period=20)
 
-#     def __init__(self):
+    def __init__(self):
 
-#         # data0 is a daily data
-#         sma0 = btind.SMA(self.data, period=15)  # 15 days sma
-#         # data1 is a weekly data
-#         sma1 = btind.SMA(self.data, period=5)  # 5 weeks sma
-#         self.buysig = sma0 > sma1
+        # data0 is a daily data
+        sma0 = btind.SMA(self.data, period=15)  # 15 days sma
+        # data1 is a weekly data
+        sma1 = btind.SMA(sma0, period=5)  # 5 weeks sma
+        sma2 = btind.SMA(sma1, period=5)  # 5 weeks sma
+        sma3 = btind.SMA(sma2, period=10)  # 5 weeks sma
+        ema = btind.EMA(sma2, period=10)
 
-#     def next(self):
-#         print("buysig: ", self.buysig[0])
-#         if self.buysig[0]:
-#             print('daily sma is greater than weekly sma1')
+        self.buysig = ema > sma3 # linesoperation
+
+    def next(self):
+        print("buysig: ", self.buysig[0])
+        if self.buysig[0]:
+            print('daily sma is greater than weekly sma1')
 
 
 # class MyStrategy(bt.Strategy):
@@ -107,7 +111,7 @@ if __name__ == '__main__':
     # print("backtest instrument: ", len(cerebro.store.get_instrument()))
     # print(f'Starting Portfolio Cash and Value: {cerebro.store.getacct()}')
     # Run over everything
-    cerebro.run(sid=["603676"], start_date=20210201, end_date=20211208)
+    cerebro.run(sid=["603676"], start_date=20200101, end_date=20201201)
 
     # plot
     # cerebro.plot()

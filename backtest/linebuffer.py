@@ -73,44 +73,39 @@ class LineBuffer(LineSingle):
         self.bindings = list()
         self.reset()
         self._tz = None
-
-    def get_idx(self):
-        return self._idx
-
-    def set_idx(self, idx):
-        # if QBuffer and the last position of the buffer was reached, keep
-        # it (unless force) as index 0. This allows resampling
-        #  - forward adds a position, but the 1st one is discarded, the 0 is
-        #  invariant
-        # forward/backwards, because the last input is read, and after a
-        # "backwards" is used to update the previous data. Unless the position
-        # 0 was moved to the previous index, it would fail
-        if self.mode == self.QBuffer:
-            # if force or self._idx < self.lenmark:
-            #     self._idx = idx
-            self._idx = idx % (self.maxlen)
-        else:  # default: UnBounded
-            self._idx = idx
-            # self._idx = idx % (np.iinfo(np.int32).max)
-
-    idx = property(get_idx, set_idx)
+        self.idx = -1
 
     def reset(self):
         ''' Resets the internal buffer structure and the indices
         '''
-        # extrasize to ensure resample / replay
-        self.array = array.array(str('d'))
+        if self.mode == self.QBuffer:
+            # add extrasize to ensure resample/replay work because they will
+            # use backwards to erase the last bar/tick before delivering a new
+            # bar The previous forward would have discarded the bar "period"
+            # times ago and it will not come back. Having + 1 in the size
+            # allows the forward without removing that bar
+
+            # self.array = collections.deque(maxlen=self.maxlen + self.extrasize)
+            # self.array = array.array(str('d'))
+            self.array = np.full(self.maxlen, np.nan)
+            self.useislice = True
+        else:
+            self.array = array.array(str('d'))
+            self.useislice = False
 
         self.lencount = 0
-        self.idx = -1
+        # self.idx = -1
         self.extension = 0
 
     def qbuffer(self, savemem=0):
+        # import pdb; pdb.set_trace()
 
         if savemem:
             self.mode = self.QBuffer
-
-        self.maxlen = self._minperiod
+            print("linebuffer qbuffer :", self.mode, self._minperiod)
+            _minperiod = self._minperiod
+            self.maxlen = _minperiod
+            print("maxlen ", self.maxlen)
         # self.extrasize = extrasize
         # self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
@@ -131,6 +126,50 @@ class LineBuffer(LineSingle):
 
         self.maxlen = size
         self.reset()
+    
+    # def get_idx(self):
+    #     # idx = self._idx
+    #     # self._idx = idx % (self.maxlen)
+    #     # self._idx = idx % (self.maxlen)
+    #     return self._idx
+
+    # def set_idx(self, idx):
+    #     print("set_idx ", idx)
+    #     # import pdb; pdb.set_trace()
+    #     # if QBuffer and the last position of the buffer was reached, keep
+    #     # it (unless force) as index 0. This allows resampling
+    #     #  - forward adds a position, but the 1st one is discarded, the 0 isinvariant
+    #     if self.mode == self.QBuffer:
+    #         # self._idx = idx % (self.maxlen)
+    #         self._idx = idx % (self.maxlen)
+    #     else:  # default: UnBounded
+    #         self._idx = idx
+    #         # self._idx = idx % (np.iinfo(np.int32).max)
+        
+    # idx = property(get_idx, set_idx)
+
+    def __getitem__(self, ago):
+        # return self.array[self.idx + ago]
+        idx = self.idx % self.maxlen
+        # print("__getitem__ ago", idx+ago)
+        return self.array[idx + ago]
+    
+    def __setitem__(self, ago, value):
+        ''' Sets a value at position "ago" and executes any associated bindings
+
+        Keyword Args:
+            ago (int): Point of the array to which size will be added to return
+            the slice
+            value (variable): value to be set
+        '''
+        # import pdb; pdb.set_trace()
+        # print("linebuffer __setitem__ ", self.idx, len(self.array))
+        # self.array[self.idx + ago] = value
+        idx = self.idx % self.maxlen
+        # print("__setitem__ idx ", idx)
+        self.array[idx + ago] = value
+        for binding in self.bindings:
+            binding[ago] = value
 
     def __len__(self):
         return self.lencount
@@ -144,9 +183,6 @@ class LineBuffer(LineSingle):
         is returned
         '''
         return len(self.array) - self.extension
-
-    def __getitem__(self, ago):
-        return self.array[self.idx + ago]
     
     def getzeroval(self, idx=0):
         ''' Returns a single value of the array relative to the real zero
@@ -194,19 +230,6 @@ class LineBuffer(LineSingle):
 
         return self.array[idx:idx + size]
 
-    def __setitem__(self, ago, value):
-        ''' Sets a value at position "ago" and executes any associated bindings
-
-        Keyword Args:
-            ago (int): Point of the array to which size will be added to return
-            the slice
-            value (variable): value to be set
-        '''
-        # print("idx and array ", self.idx, len(self.array))
-        self.array[self.idx + ago] = value
-        for binding in self.bindings:
-            binding[ago] = value
-
     def home(self):
         ''' Rewinds the logical index to the beginning
 
@@ -224,10 +247,12 @@ class LineBuffer(LineSingle):
             size (int): How many extra positions to enlarge the buffer
         '''
         self.idx += size
+        print("forward size and idx ", size, self.idx)
+        # import pdb; pdb.set_trace()
         self.lencount += size
 
-        for i in range(size):
-            self.array.append(value)
+        # for i in range(size):
+        #     self.array.append(value)
 
     def backwards(self, size=1):
         ''' Moves the logical index backwards and reduces the buffer as much as needed
@@ -237,10 +262,13 @@ class LineBuffer(LineSingle):
             buffer
         '''
         # Go directly to property setter to support force
-        self.set_idx(self._idx - size)
+        # self.set_idx(self._idx - size)
+        idx = self.idx - size
+        self.idx = idx
         self.lencount -= size
-        for i in range(size):
-            self.array.pop()
+
+        # for i in range(size):
+        #     self.array.pop()
 
     def rewind(self, size=1):
         self.idx -= size
@@ -319,6 +347,7 @@ class LineBuffer(LineSingle):
           If ago is anything else, it is assumed to be an int and a LineDelay
           object will be returned
         '''
+        # import pdb; pdb.set_trace()
         from .lineiterator import LineCoupler
         if ago is None or isinstance(ago, LineRoot):
             return LineCoupler(self, ago)
@@ -340,7 +369,7 @@ class LineBuffer(LineSingle):
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
-        print("buffer ", self.array[self.idx + ago])
+        print("line 0 idx dt", self.array[self.idx + ago])
         try: 
             return num2date(self.array[self.idx + ago],
                         tz=tz or self._tz, naive=naive).date()
@@ -451,11 +480,11 @@ class LineBuffer(LineSingle):
         '''
         return num2date(int(self.array[self.idx + ago]) + tm)
     
-    def post_factor(self, factors: Union[float, array.array]=1.0):
-        # self.array apply factors
+    def apply_factor(self, factors: Union[np.array]=1.0):
+        # import pdb; pdb.set_trace()
         array = self.array
-        factors = np.array([factors] * self.lencount) if isinstance(factors, (int, float)) else factors
-        self.arry = array * factors
+        assert len(array) == len(factors), f"Length of factors {len(factors)} must match length of array {len(array)}"
+        self.array = array * factors
 
 
 class MetaLineActions(LineBuffer.__class__):
@@ -516,6 +545,7 @@ class MetaLineActions(LineBuffer.__class__):
         _minperiod = max(_minperiods or [1])
 
         # update own minperiod if needed
+        print("MetaLineActions _minperiod ", _minperiod)
         _obj.updateminperiod(_minperiod)
 
         return _obj, args, kwargs
@@ -550,7 +580,7 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
 
     The metaclass does the dirty job of calculating minperiods and registering
     '''
-    _ltype = LineBuffer.IndType
+    _ltype = LineBuffer.IndType # indicator
 
     def getindicators(self):
         return []
@@ -571,6 +601,7 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         return obj
 
     def _next(self):
+        # print("LineActions _next foward")
         clock_len = len(self._clock)
         if clock_len > len(self):
             self.forward()
@@ -599,6 +630,7 @@ class _LineDelay(LineActions):
     "ago" periods effectively delaying the delivery of data
     '''
     def __init__(self, a, ago):
+        # import pdb; pdb.set_trace()
         super(_LineDelay, self).__init__()
         self.a = a
         self.ago = ago
@@ -618,6 +650,7 @@ class _LineForward(LineActions):
     "ago" periods from the future
     '''
     def __init__(self, a, ago):
+        # import pdb; pdb.set_trace()
         super(_LineForward, self).__init__()
         self.a = a
         self.ago = ago

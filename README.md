@@ -107,3 +107,8 @@ bind = "0.0.0.0:11000"
 timeout = 60
 accesslog = "access.log"
 errorlog = "error.log"
+
+# indicator period via addminperiod ---> update _minperiod
+# strategy _getminperstatus 
+# 策略由指标组成，指标嵌套实在strategy 体现， indicator 保持原子性， 因此 strategy 返回的_minperiod就是feed buflen
+

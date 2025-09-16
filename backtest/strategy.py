@@ -62,13 +62,17 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
-        _obj.store = store = _obj.env.store # add store to strategy
-        _obj.sizer = sizer = _obj.env.sizer # add store to strategy
+        _obj.store = _obj.env.store # add store to strategy
+        _obj.sizer = _obj.env.sizer # add store to strategy
+        _obj._minperiods = list()
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
+        
+        _obj._periodset()
+
         return _obj, args, kwargs
 
 
@@ -81,23 +85,20 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     lines = ('datetime',)
 
-    def qbuffer(self, savemem=0):
-        '''Enable the memory saving schemes. Possible values for ``savemem``:
+    # def qbuffer(self, savemem=0):
+    #     '''Enable the memory saving schemes. Possible values for ``savemem``:
 
-          0: No savings. Each lines object keeps in memory all values
+    #       0: No savings. Each lines object keeps in memory all values
 
-          1: All lines objects save memory, using the strictly minimum needed
-        '''
-        for data in self.datas:
-            data.qbuffer(savemem=savemem)
-
-        for line in self.lines:
-            line.qbuffer(savemem=1)
-
-        # Save in all object types depending on the strategy
-        for itcls in self._lineiterators:
-            for it in self._lineiterators[itcls]:
-                it.qbuffer(savemem=1)
+    #       1: All lines objects save memory, using the strictly minimum needed
+    #     '''
+    #     if not savemem:
+    #         for data in self.datas:
+    #             data.qbuffer(savemem=1)
+    #     # Save in all object types depending on the strategy
+    #     for itcls in self._lineiterators:
+    #         for it in self._lineiterators[itcls]:
+    #             it.qbuffer(savemem=1)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -132,7 +133,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             _dminperiods[clk].append(lineiter._minperiod)
 
         # calc data minperiods
-        self._minperiods = list()
         for data in self.datas:
             dlminperiods = _dminperiods[data]
             for l in data.lines:  # search each line for min periods
@@ -145,39 +145,47 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             dminperiod = max(_dminperiods[data] or [data._minperiod])
             self._minperiods.append(dminperiod)
 
-        # Set the minperiod
-        minperiods = \
-            [x._minperiod for x in self._lineiterators[LineIterator.IndType]]
-        self._minperiod = max(minperiods or [self._minperiod])
+    def _periodcalc(self):
+        # last check in case not all lineiterators were assigned to
+        # lines (directly or indirectly after some operations)
+        # An example is Kaufman's Adaptive Moving Average
+        indicators = self._lineiterators[LineIterator.IndType] # include LinesOperation
+        inds = [ind for ind in indicators if isinstance(ind, bt.indicators.Indicator)]
+        minperiod = max(self._minperiods) + len(inds) - 1 # due to default _minperiod is 1
+        print("strategy _periodcalc :", minperiod)
+        self._minperiod = minperiod
+        # import pdb; pdb.set_trace()
 
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
+        # print("_getminperstatus ", self._minperstatus)
         return minperstatus
-    
-    # def _clk_update(self):
-    #     # 移除 _oldsync 判断，统一使用新的时钟更新机制
-    #     newdlens = [len(d) for d in self.datas]
-    #     if any(nl > l for l, nl in zip(self._dlens, newdlens)):
-    #         self.forward()
-
-    #     self.lines.datetime[0] = max(d.datetime[0]
-    #                                  for d in self.datas if len(d))
-    #     self._dlens = newdlens
-
-    #     return len(self)
-    
+     
     def _start(self):
-        self._periodset()
+        self._periodcalc()
 
-        # self._stage2()
-        # self._dlens = [len(data) for data in self.datas]
+        for data in self.datas:
+            data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's     
+
+        # self.qbuffer()
         self._minperstatus = np.iinfo(np.int_).max  # start in prenext
         self.start()
 
     def start(self):
         '''Called right before the backtesting is about to be started.'''
         pass
+
+    def _addwriter(self, writer):
+        '''
+        Unlike the other _addxxx functions this one receives an instance
+        because the writer works at cerebro level and is only passed to the
+        strategy to simplify the logic
+        '''
+        self.writers.append(writer)
+
+    def _addindicator(self, indcls, *indargs, **indkwargs):
+        indcls(*indargs, **indkwargs) # postinit will take care of the rest
     
     def _next(self):
         super(Strategy, self)._next() # lineiterator _next

@@ -39,16 +39,20 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
     '''
     _OwnerCls = None
     _minperiod = 1
-    _opstage = 1
+    # _opstage = 1
  
     IndType, StratType, ObsType = range(3)
 
-    def _operation(self, other, operation, r=False, intify=False):
-        if self._opstage == 1:
-            return self._operation_stage1(
-                other, operation, r=r, intify=intify)
+    # def _operation(self, other, operation, r=False, intify=False):
+    #     if self._opstage == 1:
+    #         return self._operation_stage1(
+    #             other, operation, r=r, intify=intify)
 
-        return self._operation_stage2(other, operation, r=r)
+    #     return self._operation_stage2(other, operation, r=r)
+    
+    def _operation(self, other, operation, r=False, intify=False):
+        return self._operation_stage(
+                other, operation, r=r, intify=intify)
 
     def _roperation(self, other, operation, intify=False):
         '''
@@ -57,44 +61,59 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         '''
         return self._operation(other, operation, r=True, intify=intify)
 
-    def _operation_stage1(self, other, operation, r=False, intify=False):
-        '''
-        Two operands' operation. Scanning of other happens to understand
-        if other must be directly an operand or rather a subitem thereof
-        '''
+    # def _operation_stage1(self, other, operation, r=False, intify=False):
+    #     '''
+    #     Two operands' operation. Scanning of other happens to understand
+    #     if other must be directly an operand or rather a subitem thereof
+    #     '''
+    #     if isinstance(other, LineMultiple):
+    #         other = other.lines[0]
+
+    #     return self._makeoperation(other, operation, r=r, _ownerskip=self)
+    
+    # def _operation_stage2(self, other, operation, r=False):
+    #     '''
+    #     Rich Comparison operators. Scans other and returns either an
+    #     operation with other directly or a subitem from other
+    #     '''
+    #     if isinstance(other, LineRoot):
+    #         other = other[0]
+
+    #     # operation(float, other) ... expecting other to be a float
+    #     if r:
+    #         return operation(other, self[0])
+
+    #     return operation(self[0], other)
+    
+    def _operation_stage(self, other, operation, r=False, intify=False):
         if isinstance(other, LineMultiple):
             other = other.lines[0]
 
         return self._makeoperation(other, operation, r=r, _ownerskip=self)
-    
-    def _operation_stage2(self, other, operation, r=False):
-        '''
-        Rich Comparison operators. Scans other and returns either an
-        operation with other directly or a subitem from other
-        '''
-        if isinstance(other, LineRoot):
-            other = other[0]
 
-        # operation(float, other) ... expecting other to be a float
-        if r:
-            return operation(other, self[0])
+    # def _operationown(self, operation):
+    #     if self._opstage == 1:
+    #         return self._operationown_stage1(operation)
 
-        return operation(self[0], other)
+    #     return self._operationown_stage2(operation)
 
     def _operationown(self, operation):
-        if self._opstage == 1:
-            return self._operationown_stage1(operation)
-
-        return self._operationown_stage2(operation)
+        return self._operationown_stage(operation)
     
-    def _operationown_stage1(self, operation):
+    # def _operationown_stage1(self, operation):
+    #     '''
+    #     Operation with single operand which is "self"
+    #     '''
+    #     return self._makeoperationown(operation, _ownerskip=self)
+    
+    # def _operationown_stage2(self, operation):
+    #     return operation(self[0])
+    
+    def _operationown_stage(self, operation):
         '''
         Operation with single operand which is "self"
         '''
         return self._makeoperationown(operation, _ownerskip=self)
-    
-    def _operationown_stage2(self, operation):
-        return operation(self[0])
 
     # Arithmetic operators
     def _makeoperation(self, other, operation, r=False, _ownerskip=None):
@@ -282,6 +301,7 @@ class LineSingle(LineRoot):
         '''
         Add the minperiod (substracting the overlapping 1 minimum period)
         '''
+        print("lineSingle addminperiod ", minperiod)
         self._minperiod += minperiod - 1
 
     def incminperiod(self, minperiod):

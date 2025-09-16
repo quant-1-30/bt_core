@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import warnings
+import numpy as np
 import threading
 from datetime import datetime, timedelta
 
@@ -27,6 +28,7 @@ from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
 from backtest.stores.btstore import BTStore
+from backtest.utils.dateintern import num2date
 
 
 __all__ = ["MdData"]
@@ -106,13 +108,11 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
 
         sdate = kwargs.get("start_date", 19900101)
         edate = kwargs.get("end_date", datetime.now().strftime("%Y%m%d"))
-        fromdate = datetime.strptime(str(sdate), "%Y%m%d") + timedelta(hours=9, minutes=30)
-        todate = datetime.strptime(str(edate), "%Y%m%d") + timedelta(hours=15, minutes=0)
-
-        reqmeta = ReqMeta(sid=kwargs["sid"], start_date=int(fromdate.timestamp()), end_date=int(todate.timestamp()))
+        _from = datetime.strptime(str(sdate), "%Y%m%d") + timedelta(hours=9, minutes=30)
+        _to = datetime.strptime(str(edate), "%Y%m%d") + timedelta(hours=15, minutes=0)
+        reqmeta = ReqMeta(sid=kwargs["sid"], start_date=int(_from.timestamp()), end_date=int(_to.timestamp()))
         
-        self.calc_adj(reqmeta)
-
+        self.calc_adjfactor(reqmeta)
         # wrap by contextmanager 整合迭代器与session 手动获取上下文
         self.ctx = self.mdapi.subscribe(reqmeta)
         self.channel = self.ctx.__enter__() # q block
@@ -121,33 +121,34 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
             return
 
     def _load_bar(self, msg):
-        line = msg["body"]["line"][0]
-        dt = line[0]
-        if dt < self.lines.datetime[-1] :
-            return False  
-        # cannot deliver earlier than already delivered
-        self.lines.datetime[0] = dt
-        self.lines.open[0] = line[1]
-        self.lines.high[0] = line[2]
-        self.lines.low[0] = line[3]
-        self.lines.close[0] = line[4]
-        self.lines.volume[0] = line[5]
-        self.lines.amount[0] = line[6]
-        # self.lines.openinterest[0] = 0
+        data = msg["body"]["line"][0]
+        dt = self.lines.datetime[0]
+        if not np.isnan(dt) and dt >= data[0]:
+            import pdb; pdb.set_trace()
+            return False  # cannot deliver earlier than already delivered
+        print(f"linebuffer current tick {dt} and msg tick {data[0]}")
+
+        self.lines.datetime[0] = data[0]
+        self.lines.open[0] = data[1]
+        self.lines.high[0] = data[2]
+        self.lines.low[0] = data[3]
+        self.lines.close[0] = data[4]
+        self.lines.volume[0] = data[5]
+        self.lines.amount[0] = data[6]
+        # import pdb; pdb.set_trace()
         return True
 
     def _load_rtbar(self, rtbar): # tick 3s
-        dt = rtbar[0]
-        if dt < self.lines.datetime[-1]:
+        dt = self.lines.datetime[0]
+        if not np.isnan(dt) and dt >= rtbar[0]:
+            import pdb; pdb.set_trace()
             return False  # cannot deliver earlier than already delivered
-
-        self.lines.datetime[0] = dt
         # Put the tick into the bar
-        tick = rtbar[1]
-        self.lines.open[0] = tick
-        self.lines.high[0] = tick
-        self.lines.low[0] = tick
-        self.lines.close[0] = tick
+        self.lines.datetime[0] = rtbar[0]
+        self.lines.open[0] = rtbar[1]
+        self.lines.high[0] = rtbar[1]
+        self.lines.low[0] = rtbar[1]
+        self.lines.close[0] = rtbar[1]
         self.lines.volume[0] = rtbar[2]
         self.lines.amount[0] = rtbar[3]
         return True
@@ -164,9 +165,12 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
             self._load_bar(msg)
         return True
     
-    def calc_adj(self, reqmeta):
+    def calc_adjfactor(self, reqmeta):
         adj = self.mdapi.factor(reqmeta)
-        import pdb; pdb.set_trace()
+        factors = adj.adj_factors
+        if factors:
+            factors = dict(sorted(factors.items())) # sort by key
+            self.adj_factors = factors
     
     def stop(self):
         super().stop()

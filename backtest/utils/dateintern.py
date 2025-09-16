@@ -207,12 +207,11 @@ def num2date(x, tz=None, naive=True):
     If *x* is a sequence, a sequence of :class:`datetime` objects will
     be returned.
     """
-    print("num2date------------------------------------------------------------------------------------------------------- ", x)
     dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
+    # print("num2date dt: ", dt, dt.tzinfo)
     if tz is not None:
         tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
         dt = dt.astimezone(tz=tzinfo)
-    print("finish numdate :", dt)
     return dt
 
 def num2dt(num, tz=None, naive=True):
@@ -275,16 +274,6 @@ def market_utc(date, tzinfo="Asia/Shanghai"):
     m_close = format_dt + datetime.timedelta(hours=15, minutes=0)
     # trans to utc
     return m_open, m_close
-
-
-# def transformat(dt, _format="%Y%m%d"):
-#     """
-#         e.g. 20240101 --> 202401010000
-#     """
-#     dt_time = datetime.datetime.strptime(str(dt), _format)
-#     format_dt = dt_time.strftime("%Y%m%d%H%M")
-#     return format_dt
-
 
 def calc_distance(tick, _format="%Y%m%d%H%M"):
     # %-m 不补0

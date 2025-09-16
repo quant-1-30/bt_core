@@ -50,12 +50,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-sdk"
-version = "0.7.4"
+version = "0.7.5"
 description = "solve poetry and pybind pack bug"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "bt_sdk-0.7.4-py3-none-any.whl", hash = "sha256:d3433b8a9c88ae3b41d3f75f99665c3e6a833f70c2ecc5c9ad27667c702fbf8f"},
+    {file = "bt_sdk-0.7.5-py3-none-any.whl", hash = "sha256:082542187ab8a950e4f00682b16690f7290a9850dd2d477bc39ca85c9b483b4c"},
 ]
 
 [package.dependencies]
@@ -2136,4 +2136,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f154a2ce1064cc1bd69d2f4b43befe591fece76f06e47739590bc0685d233662"
+content-hash = "3feb1c1215f64cce19dde95f53bf1cc045b151073b77d4a43dbeb45436b8932d"

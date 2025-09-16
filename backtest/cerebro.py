@@ -81,6 +81,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("sizer", "default"),
         ('stdstats', False),
         ('writer', False),
+        ('savemem', 0),
         ('tz', None),
     )
 
@@ -447,18 +448,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
             sargs = self.datas + list(sargs)
             try:
                 strat = stratcls(*sargs, **skwargs)
+                # import pdb; pdb.set_trace()
                 strat._start()
             except StrategySkipError:
                 continue  # do not add strategy to the mix
             runstrats.append(strat)
-
         if runstrats:
-            # defaultsizer = self.sizers.get(None, (None, None, None))
-            for idx, strat in enumerate(runstrats):
-
+            for _, strat in enumerate(runstrats):
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
-
+                
+                import pdb; 
+                strat.qbuffer(savemem=self.p.savemem)
 
             for writer in self.writers:
                 writer.start()
@@ -556,7 +557,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 self.quicknotify._next(strat)  
 
         # self._next_writers(runstrats)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         
     def runstop(self):
         '''If invoked from inside a strategy or anywhere else, including other
