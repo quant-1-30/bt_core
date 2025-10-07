@@ -23,6 +23,7 @@ import datetime
 import math
 import time as _time
 import pytz
+import numpy as np
 import pandas as pd
 from datetime import timedelta
 
@@ -207,6 +208,8 @@ def num2date(x, tz=None, naive=True):
     If *x* is a sequence, a sequence of :class:`datetime` objects will
     be returned.
     """
+    if np.isnan(x):
+        return 0
     dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
     # print("num2date dt: ", dt, dt.tzinfo)
     if tz is not None:

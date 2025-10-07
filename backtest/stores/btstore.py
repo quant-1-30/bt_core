@@ -125,9 +125,9 @@ class BTStore(Store):
     
     def on_dt_over(self): 
         sdate, edate = self._feed.on_dt_over()
-        isover = (edate - sdate).days
+        isover = (edate - sdate).days if edate else False
         if isover:
-            req = ReqMeta(start_date=sdate, end_date=edate, sid=[])
+            req = ReqMeta(start_date=int(sdate.strftime("%Y%m%d")), end_date=int(edate.strftime("%Y%m%d")), sid=[])
             self.broker.on_dt_over(req)
     
     def cancel(self, order_id):
