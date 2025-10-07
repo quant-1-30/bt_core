@@ -22,7 +22,7 @@ import threading
 import collections
 
 from backtest.broker import BrokerBase
-from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
+from bt_sdk.core.model import OrderMeta, CashMeta, ExpMeta, ReqMeta
 
 __all__ = ["BTBroker"]
 
@@ -93,6 +93,9 @@ class BTBroker(BrokerBase):
     def __init__(self, **kwargs): # kwargs - params left keys
         self._notifs = collections.deque()
 
+    def register(self, exp: ExpMeta):
+        self.tdapi.register(exp)
+
     def set_cash(self, cashmeta: CashMeta):
         status = self.tdapi.set_cash(cashmeta)
         return status
@@ -109,9 +112,9 @@ class BTBroker(BrokerBase):
         order_bits = self.tdapi.trade(order_meta.model_dump()) # pydantic contain _thread.lock
         self.put_notification(order_bits)
 
-    def chain(self, req: ReqMeta):
+    def on_dt_over(self, req: ReqMeta):
         # to keep trading sequence
-        status = self.tdapi.chain(req)
+        status = self.tdapi.on_dt_over(req)
         return status
     
     def stop(self):

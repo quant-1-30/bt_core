@@ -1,5 +1,9 @@
 import backtrader as bt
 
+from backtest.utils.wrapper import register
+
+
+@register
 class SignalStrategy(bt.SignalStrategy):
     def __init__(self):
         # 创建信号

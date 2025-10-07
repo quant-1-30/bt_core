@@ -30,6 +30,7 @@ from .lineiterator import LineIterator, StrategyBase
 from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, ItemCollection, findowner
+from backtest.utils.dateintern import num2date
 
 
 class MetaStrategy(StrategyBase.__class__):
@@ -155,26 +156,26 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         print("strategy _periodcalc :", minperiod)
         self._minperiod = minperiod
         # import pdb; pdb.set_trace()
-
-    def _getminperstatus(self):
-        dlens = map(operator.sub, self._minperiods, map(len, self.datas))
-        self._minperstatus = minperstatus = max(dlens)
-        # print("_getminperstatus ", self._minperstatus)
-        return minperstatus
      
     def _start(self):
         self._periodcalc()
 
+        # Tell datas to adjust buffer to minimum period
         for data in self.datas:
             data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's     
 
-        # self.qbuffer()
         self._minperstatus = np.iinfo(np.int_).max  # start in prenext
         self.start()
 
     def start(self):
         '''Called right before the backtesting is about to be started.'''
         pass
+
+    def _getminperstatus(self):
+        dlens = map(operator.sub, self._minperiods, map(len, self.datas))
+        self._minperstatus = minperstatus = max(dlens)
+        # print("_getminperstatus ", self._minperstatus)
+        return minperstatus
 
     def _addwriter(self, writer):
         '''
@@ -186,17 +187,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
-    
+ 
     def _next(self):
         super(Strategy, self)._next() # lineiterator _next
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
-    
-    def on_dt_over(self):
-        delta = self.lines.datetime[0] - self.lines.datetime[-1]
-        isover = True if delta >= 24 * 60 * 60 else False
-        return isover 
 
     def buy(self, sid="", price=0.0, plimit=0.0,
             exectype=None, ordertype=None, **kwargs):
@@ -243,29 +239,23 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.store.submit(sid, size=sizer_ratio, price=price, plimit=plimit, 
                           exectype=exectype, ordertype=ordertype, **kwargs)
     
-    def chain(self):
+    def last(self):
         """
-        Check chain on trading_days
+            Update last trading_days
         """
-        isover = self.on_dt_over()
-        if isover:
-            # datetime[0] process event
-            status = self.store.chain(self.lines.datetime[-1], self.lines.datetime[0])
-            if status != 0:
-                raise RuntimeError("check event_data error")
-            acct = self.store.get_acct()
-            self.notify_acct(acct)
+        last_dt = self.lines.datetime[0]
+        self.store.on_dt_over(last_dt, last_dt)
+        acct = self.store.get_acct()
+        self.notify_acct(acct)
 
     def _stop(self):
-            self.stop()
-            # change operators back to stage 1 - allows reuse of datas
-            # self._stage1()
+        self.stop()
+        # change operators back to stage 1 - allows reuse of datas
+        # self._stage1()
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        end_session = self.data.datetime[0] 
-        print("strategy stop at session: ", end_session)
-        self.store.chain(end_session, end_session)
+        self.last()
         self.store.stop()
     
     def cancel(self, order_id):

@@ -390,7 +390,6 @@ class MetaLineSeries(LineMultiple.__class__):
             clsmodule = sys.modules[cls.__module__]
             setattr(clsmodule, alias, newcls)
 
-        # return the class
         return cls
 
     def donew(cls, *args, **kwargs):

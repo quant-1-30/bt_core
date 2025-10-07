@@ -19,69 +19,69 @@
 #
 ###############################################################################
 
-from datetime import datetime, date, timedelta
+from datetime import timedelta
 
 from .dataseries import TimeFrame, _Bar
 from .metabase import with_metaclass
 from . import metabase
-from backtest.utils.dateintern import date2num, num2date
+from backtest.utils.dateintern import num2date
 
 
-class DTFaker(object):
+# class DTFaker(object):
 
-    def __init__(self, data, forcedata=None):
-        self.data = data
+#     def __init__(self, data, forcedata=None):
+#         self.data = data
 
-        # Aliases
-        self.datetime = self
-        self.p = self
+#         # Aliases
+#         self.datetime = self
+#         self.p = self
 
-        if forcedata is None:
-            # _dtime = datetime.utcnow() + data._timeoffset()
-            # self._dt = dt = date2num(_dtime)  # utc-like time
-            # self._dtime = data.num2date(dt)  # localized time
-            self._dt = dt = data.datetime[0]
-            self._dtime = data.num2date(dt)
-        else:
-            self._dt = forcedata.datetime[0]  # utc-like time
-            self._dtime = forcedata.datetime.datetime()  # localized time
+#         if forcedata is None:
+#             # _dtime = datetime.utcnow() + data._timeoffset()
+#             # self._dt = dt = date2num(_dtime)  # utc-like time
+#             # self._dtime = data.num2date(dt)  # localized time
+#             self._dt = dt = data.datetime[0]
+#             self._dtime = data.num2date(dt)
+#         else:
+#             self._dt = forcedata.datetime[0]  # utc-like time
+#             self._dtime = forcedata.datetime.datetime()  # localized time
 
-        self.sessionend = data.p.sessionend
+#         self.sessionend = data.p.sessionend
 
-    def __len__(self):
-        return len(self.data)
+#     def __len__(self):
+#         return len(self.data)
 
-    def __call__(self, idx=0):
-        return self._dtime  # simulates data.datetime.datetime()
+#     def __call__(self, idx=0):
+#         return self._dtime  # simulates data.datetime.datetime()
 
-    def datetime(self, idx=0):
-        return self._dtime
+#     def datetime(self, idx=0):
+#         return self._dtime
 
-    def date(self, idx=0):
-        return self._dtime.date()
+#     def date(self, idx=0):
+#         return self._dtime.date()
 
-    def time(self, idx=0):
-        return self._dtime.time()
+#     def time(self, idx=0):
+#         return self._dtime.time()
 
-    @property
-    def _calendar(self):
-        return self.data._calendar
+#     @property
+#     def _calendar(self):
+#         return self.data._calendar
 
-    def __getitem__(self, idx):
-        return self._dt if idx == 0 else float('-inf')
+#     def __getitem__(self, idx):
+#         return self._dt if idx == 0 else float('-inf')
 
-    def num2date(self, *args, **kwargs):
-        return self.data.num2date(*args, **kwargs)
+#     def num2date(self, *args, **kwargs):
+#         return self.data.num2date(*args, **kwargs)
 
-    def date2num(self, *args, **kwargs):
-        return self.data.date2num(*args, **kwargs)
+#     def date2num(self, *args, **kwargs):
+#         return self.data.date2num(*args, **kwargs)
 
-    # def _getnexteos(self):
-    #     return self.data._getnexteos()
+#     # def _getnexteos(self):
+#     #     return self.data._getnexteos()
     
-    def _geteos(self):
-        '''Returns the next end of session date and time in utc-like format'''
-        return self._geteos()
+#     def _geteos(self):
+#         '''Returns the next end of session date and time in utc-like format'''
+#         return self._geteos()
 
 
 class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
@@ -119,8 +119,9 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
         self.data = data
 
-    def _checkbarover(self, data, fromcheck=False, forcedata=None):
-        chkdata = DTFaker(data, forcedata) if fromcheck else data
+    def _checkbarover(self, data, fromcheck=False):
+        # chkdata = DTFaker(data, forcedata) if fromcheck else data
+        chkdata = data
 
         isover = False
         if not self.componly and not self._barover(chkdata):
@@ -304,7 +305,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
             return ret, docheckover
 
-        if self._eoscheck(data, exact=True):
+        if self._eoscheck(data, exact=True): # eos must add 
             return True, True
 
         if self.subdays:
@@ -317,14 +318,6 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
             # if no extra and decomp bound is point
             return (brest == 0 and point == (bound * self.p.compression), True)
-
-        # # Code overriden by eoscheck
-        # if False and self.p.sessionend:
-        #     # Days scenario - get datetime to compare in output timezone
-        #     # because p.sessionend is expected in output timezone
-        #     bdtime = data.datetime.datetime()
-        #     bsend = datetime.combine(bdtime.date(), data.p.sessionend)
-        #     return bdtime == bsend
 
         return False, True  # subweeks, not subdays and not sessionend
 
@@ -401,7 +394,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
         self.bar.datetime = dtnum
         return True
 
-    def check(self, data, _forcedata=None):
+    def check(self, data):
         '''Called to check if the current stored bar has to be delivered in
         spite of the data not having moved forward. If no ticks from a live
         feed come in, a 5 second resampled bar could be delivered 20 seconds
@@ -412,7 +405,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
         if not self.bar.isopen():
             return
 
-        return self(data, fromcheck=True, forcedata=_forcedata)
+        return self(data, fromcheck=True)
 
 
 class Resampler(_BaseResampler):
@@ -474,7 +467,7 @@ class Resampler(_BaseResampler):
     #         return True
     #     return False
 
-    def __call__(self, data, fromcheck=False, forcedata=None):
+    def __call__(self, data, fromcheck=False):
         '''Called for each set of values produced by the data source'''
         consumed = False
         onedge = False
@@ -496,7 +489,7 @@ class Resampler(_BaseResampler):
         if cond:  # original is and, the 2nd term must also be true
             if not onedge:  # onedge true is sufficient
                 if docheckover:
-                    cond = self._checkbarover(data, fromcheck=fromcheck, forcedata=forcedata)
+                    cond = self._checkbarover(data, fromcheck=fromcheck)
         if cond:
             dodeliver = True
             if dodeliver:
@@ -505,7 +498,7 @@ class Resampler(_BaseResampler):
                 data._add2stack(self.bar.lvalues())
                 self.bar.bstart(maxdate=True)  # reset bar
 
-        if not fromcheck: # uupdate bar incase bar not be consumed
+        if not fromcheck: # update bar incase bar not be consumed and keep bar is open
             if not consumed:
                 self.bar.bupdate(data)  
                 data.backwards() 

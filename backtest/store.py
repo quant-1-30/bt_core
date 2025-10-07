@@ -31,8 +31,9 @@ class MetaStore(MetaParams):
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
-        _obj.owner = findowner(_obj, bt.strategy.Strategy)
-        _obj._start(*args, **kwargs) # broker
+        # _obj.owner = findowner(_obj, bt.strategy.Strategy)
+        _obj.owner = findowner(_obj, bt.cerebro.Cerebro)
+        _obj._start(*args, **kwargs) #
         _obj._orderspending = list()    
         _obj._tradespending = list()   
         return _obj, args, kwargs
@@ -58,7 +59,13 @@ class Store(with_metaclass(MetaStore, object)):
         ("timeout", -1),
         ("checksum", "eof")
     )
+
+    def _start(self, *args, **kwargs):
+        self.start(*args, **kwargs)
     
+    def register(self, experiment_id):
+        pass
+
     @staticmethod
     def iter_data(self, q): # queue.Empty
         data = []

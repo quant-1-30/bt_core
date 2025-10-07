@@ -112,3 +112,7 @@ errorlog = "error.log"
 # strategy _getminperstatus 
 # 策略由指标组成，指标嵌套实在strategy 体现， indicator 保持原子性， 因此 strategy 返回的_minperiod就是feed buflen
 
+# poetry env remove --all
+
+对于暂停上市 delist_date 为None 作为一种长期停盘的情况来考虑不能存在后视误差不清楚是否能重新上市
+asset status 由于吸收合并代码可能会消失但是主体继续上市存在 e.g. T00018

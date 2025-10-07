@@ -20,7 +20,7 @@
 ###############################################################################
 
 import datetime
-
+import hashlib
 import itertools
 import multiprocessing
 from pytz import timezone
@@ -365,6 +365,23 @@ class Cerebro(with_metaclass(MetaParams, object)):
         module without complains
         '''
         return self.runstrategies(iterstrat)
+    
+    def _init_stcount(self):
+        self.stcount = itertools.count(0)
+
+    # unique id for each strategy
+    def _next_stid(self): 
+        return next(self.stcount)
+    
+    def register_experiment(self, **kwargs):
+        strategy_name = "%".join([strat[0][0].__name__ for strat in self.strats])
+        sid=kwargs.get("sid", "")
+        sid_str = "%".join(sid)
+        # hashlib.pbkdf2_hmac()
+        # crpyted = hashlib.sha256()
+        # crpyted.update(uname)
+        # crpyted.hexdigest()
+        self.store.register(strategy_name, sid_str) 
 
     def run(self, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
@@ -384,7 +401,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # initialize feed
         for data in self.datas:
             data._start(**kwargs)
-            data.qbuffer(savemem=1) # 
+            data.qbuffer(savemem=1) 
+
+        # generate experiment
+        self.register_experiment(**kwargs) 
 
         # initialize notify
         self.quicknotify = Notify(*self.datas)
@@ -428,14 +448,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             pool.close()
     
         return self.runstrats
-    
-    def _init_stcount(self):
-        self.stcount = itertools.count(0)
-
-    # unique id for each strategy
-    def _next_stid(self): 
-        return next(self.stcount)
-    
+     
     def runstrategies(self, iterstrat):
         '''
         Internal method invoked by ``run``` to run a set of strategies
@@ -548,6 +561,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 # self._check_timers(runstrats, dt0) # notify_timer to control next
                 for strat in runstrats:
                     # ratio = self.sizer.get_sizing(self.p.name) # 基于策略分配
+                    self.store.on_dt_over()
                     strat._next()
 
                     if self._event_stop:  # stop if requested

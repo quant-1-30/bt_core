@@ -22,7 +22,10 @@
 import backtest as bt
 import backtest.indicators as btind
 
+from backtest.utils.wrapper import register
 
+
+@register
 class MA_CrossOver(bt.Strategy):
     '''This is a long-only strategy which operates on a moving average cross
 

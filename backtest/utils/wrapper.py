@@ -17,7 +17,6 @@ from functools import wraps
 from contextlib import contextmanager
 
 
-
 def deprecated(msg=None, stacklevel=2):
     """
     Used to mark a function as deprecated.
@@ -153,21 +152,21 @@ class Deprecated(object):
         return func_doc
 
 
-def warnings_filter(func):
-    """
-        作用范围:函数装饰器 (模块函数或者类函数)
-        功能:被装饰的函数上的警告不会打印,忽略
-    """
+# def warnings_filter(func):
+#     """
+#         作用范围:函数装饰器 (模块函数或者类函数)
+#         功能:被装饰的函数上的警告不会打印,忽略
+#     """
 
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        warnings.simplefilter('ignore')
-        ret = func(*args, **kwargs)
-        if not ABuEnv.g_ignore_all_warnings:
-            # 如果env中的设置不是忽略所有才恢复
-            warnings.simplefilter('default')
-        return ret
-    return wrapper
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         warnings.simplefilter('ignore')
+#         ret = func(*args, **kwargs)
+#         if not ABuEnv.g_ignore_all_warnings:
+#             # 如果env中的设置不是忽略所有才恢复
+#             warnings.simplefilter('default')
+#         return ret
+#     return wrapper
 
 
 def singleton(cls):
@@ -185,36 +184,14 @@ def singleton(cls):
     return get_instance
 
 
-def params_to_pandas(func):
-    """
-        函数装饰器:不定参数装饰器,定参数转换使用ABuScalerUtil中的装饰器arr_to_pandas(func)
-        将被装饰函数中的参数中所有可以迭代的序列转换为pd.DataFrame或者pd.Series
-    """
-    @wraps(func)
-    def wrapper(*arg, **kwargs):
-        # 把arg中的可迭代序列转换为pd.DataFrame或者pd.Series
-        arg_list = [arr_to_pandas(param) for param in arg]
-        # 把kwargs中的可迭代序列转换为pd.DataFrame或者pd.Series
-        arg_dict = {param_key: arr_to_pandas(kwargs[param_key]) for param_key in kwargs}
-        return func(*arg_list, **arg_dict)
-
-    return wrapper
-
-
-def params_to_numpy(func):
-    """
-        函数装饰器:不定参数装饰器,定参数转换使用ABuScalerUtil中的装饰器arr_to_numpy(func)
-        将被装饰函数中的参数中所有可以迭代的序列转换为np.array
-    """
-    @wraps(func)
-    def wrapper(*arg, **kwargs):
-        # 把arg中的可迭代序列转换为np.array
-        arg_list = [arr_to_numpy(param) for param in arg]
-        # 把kwargs中的可迭代序列转换为np.array
-        arg_dict = {param_key: arr_to_numpy(kwargs[param_key]) for param_key in kwargs}
-        return func(*arg_list, **arg_dict)
-
-    return wrapper
+def register(cls):
+    inst_names = {}
+    @wraps(cls)
+    def get_instance():
+        if cls.name in inst_names:
+            raise NameError(f'{cls.name} is not unique and keep {cls} unique')
+        return cls
+    return get_instance
 
 
 def catch_error(return_val=None, log=True):

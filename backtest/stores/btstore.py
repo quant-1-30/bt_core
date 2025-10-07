@@ -23,7 +23,8 @@ import numpy as np
 from datetime import datetime
 from bt_sdk.core.client import MdApi, TdApi
 from backtest.store import Store
-from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta
+from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta, ExpMeta
+from typing import List
 
 
 class BTStore(Store):
@@ -49,30 +50,41 @@ class BTStore(Store):
         ('td_addr', ("127.0.0.1", 8888)),
     )
 
-    def _start(self, *args, **kwargs):
+    def start(self, *args, **kwargs):
         kwargs["tdapi"] = TdApi(addr=self.p.td_addr, client_id=self.p.client_id)
         kwargs["mdapi"] = MdApi(addr=self.p.md_addr)
-        self.data = self.DataCls(*args, **kwargs)
+        self._feed = self.DataCls(*args, **kwargs)
         self.broker = self.BrokerCls(*args, **kwargs)
+ 
+    def register(self, strategy, assets):
+        exp = ExpMeta(strategy=strategy, assets=assets, client_id=self.p.client_id)
+        self.broker.register(exp)
     
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
         belongs to'''
         super(BTStore, self).setenvironment(env)
 
-# ----------------------------------------------------------- data api -----------------------------------------------------
+# ------------------------------------------------------------------- data api ---------------------------------------------------------------------
 
     def get_calendar(self):
         '''Returns the calendar data'''
-        return self.data.descr[0]
+        return self._feed.descr[0]
     
     def get_instrument(self):
         '''Returns the assets data'''
-        return self.data.descr[1]
+        return self._feed.descr[1]
+    
+    def get_benchmark(self, index="000001"):
+        # 000001 000680 399006 399001
+        dlines = self._feed.get_benchmark(index=index)
+        return dlines
     
     def get_feed(self):
         '''Returns a feed with the given parameters'''
-        return self.data
+        return self._feed
+
+# ------------------------------------------------------------------- broker api --------------------------------------------------------------------
     
     def set_cash(self, session, cash):
         cashmeta = CashMeta(session=session, cash=cash)
@@ -111,10 +123,12 @@ class BTStore(Store):
         order_bits = self.broker.submit(order_meta)
         return order_bits
     
-    def chain(self, sdate, edate): 
-        # check if adj / rght occurred
-        req = ReqMeta(start_date=int(sdate), end_date=int(edate), sid=[])
-        return self.broker.chain(req)
+    def on_dt_over(self): 
+        sdate, edate = self._feed.on_dt_over()
+        isover = (edate - sdate).days
+        if isover:
+            req = ReqMeta(start_date=sdate, end_date=edate, sid=[])
+            self.broker.on_dt_over(req)
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")
@@ -122,5 +136,5 @@ class BTStore(Store):
     def stop(self):
         '''Stops and tells the store to stop'''
         print("stop mdapi")
-        self.data.stop()
+        self._feed.stop()
         self.broker.stop()

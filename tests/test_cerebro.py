@@ -6,7 +6,7 @@ import backtest.indicators as btind
 from bt_sdk.core.model import *
 
 
-# # Create a Stratey
+# Create a Stratey
 # class MyStrategy(bt.Strategy):
 
 #     def log(self, txt, dt=None):
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # Add a strategy
     cerebro.addstrategy(MyStrategy)
     # add store
-    store = bt.BTStore(client_id="2038c248-abc6-4e40-b1d4-d77962ad94a8")
+    store = bt.BTStore(client_id="fc9dac14-b6bb-4a2a-a716-741fa73aa5ca")
     cerebro.addstore(store)
     # print("backtest calendar: ", len(cerebro.store.get_calendar()))
     # print("backtest instrument: ", len(cerebro.store.get_instrument()))

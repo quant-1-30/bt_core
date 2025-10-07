@@ -306,11 +306,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for obj in self._lineiterators[self.IndType]:
             obj.qbuffer(savemem=1)
 
-        # # Tell datas to adjust buffer to minimum period
-        # for data in self.datas:
-        #     data.minbuffer(self._minperiod) # #
-
-
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)
 # for the 3 subbranches without generating circular import references
@@ -340,7 +335,7 @@ class StrategyBase(DataAccessor):
 class NotifyBase(DataAccessor):
     pass
 
-# ----------------------------------------------------coupler--------------------------------------
+# ---------------------------------------------------------- coupler -----------------------------------------------------------------
 
 # Utility class to couple lines/lineiterators which may have different lengths
 # Will only work when runonce=False is passed to Cerebro

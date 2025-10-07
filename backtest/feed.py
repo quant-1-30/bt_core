@@ -67,6 +67,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
+
         # _obj.adj_factors= np.array([1.0])
         _obj.adj_factors= {}
 
@@ -123,13 +124,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
     _tmoffset = datetime.timedelta()
 
-    def _start_finish(self):
-        self._tz = self._gettz()
-        self.lines.datetime._settz(self._tz)
-
-        self._tzinput = Localizer(self._gettzinput())
-        self._started = True
-
     def _start(self, **kwargs):
         self.start()
         if not self._started:
@@ -139,6 +133,13 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self._barstack = collections.deque()
         self._barstash = collections.deque()
         # self._laststatus = self.CONNECTED
+    
+    def _start_finish(self):
+        self._tz = self._gettz()
+        self.lines.datetime._settz(self._tz)
+
+        self._tzinput = Localizer(self._gettzinput())
+        self._started = True
 
     # def qbuffer(self, savemem=0):
     #     # extrasize = self.resampling
@@ -225,6 +226,9 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ret = self.load()
         if not ret:
             return ret
+        if len(self) >= self.buflen(): # consume > buffer size
+            self.apply_factor() 
+
         return True
 
     def _load(self):
@@ -232,47 +236,39 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def load(self):
         while True:
-            print("feed load forward")
             self.forward()
-            # import pdb; pdb.set_trace()
 
-            # if self._fromstack():  # bar is available
-            #     return True
+            if self._fromstack():  # bar is available
+                return True
 
-            # if not self._fromstack(stash=True):
-            #     _loadret = self._load()
-            #     if not _loadret:  # no bar use force to make sure in exactbars
-            #         self.backwards()  # undo data pointer
-            #         return _loadret
+            if not self._fromstack(stash=True):
+                _loadret = self._load()
+                print("load _loadret", _loadret)
+                if not _loadret:  # no bar use force to make sure in exactbars
+                    self.backwards()  # undo data pointer
+                    return _loadret
 
-            _loadret = self._load()
-            print("load _loadret", _loadret)
-            if not _loadret:
-                self.backwards()
-                return False
+            dt = self.lines.datetime[0]
+            if self._tzinput:
+                dtime = num2date(dt)  # get it in a naive datetime
+                dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
+                self.lines.datetime[0] = dt = date2num(dtime) 
 
-        #     dt = self.lines.datetime[0]
+           # Pass through filters
+            retff = False
+            for ff, fargs, fkwargs in self._filters:
+                if self._barstack: # previous filter may have put things onto the stack 
+                    for i in range(len(self._barstack)):
+                        self._fromstack(forward=True)
+                        retff = ff(self, *fargs, **fkwargs) # check
+                else:
+                    retff = ff(self, *fargs, **fkwargs)
 
-        #     if self._tzinput:
-        #         dtime = num2date(dt)  # get it in a naive datetime
-        #         dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
-        #         self.lines.datetime[0] = dt = date2num(dtime) 
+                if retff:  # bar removed from systemn
+                    break  # out of the inner loop
 
-        #    # Pass through filters
-        #     retff = False
-        #     for ff, fargs, fkwargs in self._filters:
-        #         if self._barstack: # previous filter may have put things onto the stack 
-        #             for i in range(len(self._barstack)):
-        #                 self._fromstack(forward=True)
-        #                 retff = ff(self, *fargs, **fkwargs) # check
-        #         else:
-        #             retff = ff(self, *fargs, **fkwargs)
-
-        #         if retff:  # bar removed from systemn
-        #             break  # out of the inner loop
-
-        #     if retff:  # bar removed from system - loop to get new bar
-        #         continue  # in the greater loop
+            if retff:  # bar removed from system - loop to get new bar
+                continue  # in the greater loop
             return True
     
     def _fromstack(self, forward=False, stash=False):
@@ -333,6 +329,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return bool(ret)
     
+    def on_dt_over(self):
+        intervals = (num2date(self.lines.datetime[0]), num2date(self.lines.datetime[-1]))
+        return intervals
+    
 # --------------------------------------------------------------------- resample ---------------------------------------------------------------
 
     def resample(self, **kwargs):
@@ -348,7 +348,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             else:
                 self._filters.append((p, args, kwargs))
 
-# ---------------------------------------------------------clone------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------- clone------------------------------------------------------------------------
 
     def clone(self, **kwargs):
         return DataClone(dataname=self, **kwargs)
@@ -359,7 +359,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         d._name = _dataname
         return d
     
- # ----------------------------------------------------------- adjust api -----------------------------------------------------   
+ # --------------------------------------------------------------------- adjust api -----------------------------------------------------------------   
     def calc_adjfactor(self, reqmeta):
         raise NotImplementedError()
 
