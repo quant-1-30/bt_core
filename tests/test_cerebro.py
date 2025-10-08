@@ -6,7 +6,7 @@ import backtest.indicators as btind
 from bt_sdk.core.model import *
 
 
-# Create a Stratey
+# # Create a Stratey
 # class MyStrategy(bt.Strategy):
 
 #     def log(self, txt, dt=None):
@@ -111,9 +111,8 @@ if __name__ == '__main__':
     # print("backtest instrument: ", len(cerebro.store.get_instrument()))
     # print(f'Starting Portfolio Cash and Value: {cerebro.store.getacct()}')
     # Run over everything
-    cerebro.run(sid=["603676"], start_date=20200101, end_date=20201201)
+    cerebro.run(sid=["603676"], start_date=20200101, end_date=20200201)
 
     # plot
-    # cerebro.plot()
-    # Print out the final result
-    # print(f'Final Portfolio Value and Cash: %.2f, %.2f {cerebro.store.get_acct()}')
+    cerebro.plot()
+    print(f'Final Portfolio Value and Cash: %.2f, %.2f {cerebro.store.get_acct()}')

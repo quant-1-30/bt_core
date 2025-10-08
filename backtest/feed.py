@@ -254,21 +254,21 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                 dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
                 self.lines.datetime[0] = dt = date2num(dtime) 
 
-           # Pass through filters
-            retff = False
-            for ff, fargs, fkwargs in self._filters:
-                if self._barstack: # previous filter may have put things onto the stack 
-                    for i in range(len(self._barstack)):
-                        self._fromstack(forward=True)
-                        retff = ff(self, *fargs, **fkwargs) # check
-                else:
-                    retff = ff(self, *fargs, **fkwargs)
+        #    # Pass through filters
+        #     retff = False
+        #     for ff, fargs, fkwargs in self._filters:
+        #         if self._barstack: # previous filter may have put things onto the stack 
+        #             for i in range(len(self._barstack)):
+        #                 self._fromstack(forward=True)
+        #                 retff = ff(self, *fargs, **fkwargs) # check
+        #         else:
+        #             retff = ff(self, *fargs, **fkwargs)
 
-                if retff:  # bar removed from systemn
-                    break  # out of the inner loop
+        #         if retff:  # bar removed from systemn
+        #             break  # out of the inner loop
 
-            if retff:  # bar removed from system - loop to get new bar
-                continue  # in the greater loop
+        #     if retff:  # bar removed from system - loop to get new bar
+        #         continue  # in the greater loop
             return True
     
     def _fromstack(self, forward=False, stash=False):
@@ -329,9 +329,16 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return bool(ret)
     
-    def on_dt_over(self):
-        intervals = (num2date(self.lines.datetime[0]), num2date(self.lines.datetime[-1]))
-        return intervals
+    def on_dt_over(self, last=False):
+        end_date = num2date(self.lines.datetime[0])
+        start_date = num2date(self.lines.datetime[-1])
+        if last:
+            isover=True
+            interval = (end_date, end_date)
+        else:
+            isover = (end_date - start_date).days if start_date else False
+            interval = (start_date, end_date)
+        return isover, interval
     
 # --------------------------------------------------------------------- resample ---------------------------------------------------------------
 

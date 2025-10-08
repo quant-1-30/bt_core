@@ -239,15 +239,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.store.submit(sid, size=sizer_ratio, price=price, plimit=plimit, 
                           exectype=exectype, ordertype=ordertype, **kwargs)
     
-    def last(self):
-        """
-            Update last trading_days
-        """
-        last_dt = self.lines.datetime[0]
-        self.store.on_dt_over(last_dt, last_dt)
-        acct = self.store.get_acct()
-        self.notify_acct(acct)
-
     def _stop(self):
         self.stop()
         # change operators back to stage 1 - allows reuse of datas
@@ -255,7 +246,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        self.last()
         self.store.stop()
     
     def cancel(self, order_id):

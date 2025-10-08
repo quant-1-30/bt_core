@@ -78,6 +78,7 @@ class LineBuffer(LineSingle):
     def reset(self):
         ''' Resets the internal buffer structure and the indices
         '''
+        print("reset")
         if self.mode == self.QBuffer:
             # add extrasize to ensure resample/replay work because they will
             # use backwards to erase the last bar/tick before delivering a new
@@ -105,7 +106,8 @@ class LineBuffer(LineSingle):
             print("linebuffer qbuffer :", self.mode, self._minperiod)
             _minperiod = self._minperiod
             self.maxlen = _minperiod
-            print("maxlen ", self.maxlen)
+            # self.maxlen = max(_minperiod - 1, 1)
+            print("maxlen ", self.maxlen, _minperiod)
         # self.extrasize = extrasize
         # self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
@@ -124,8 +126,8 @@ class LineBuffer(LineSingle):
         if self.mode != self.QBuffer or self.maxlen >= size:
             return
 
-        self.maxlen = size
-        self.reset()
+        # self.maxlen = size
+        # self.reset()
     
     # def get_idx(self):
     #     # idx = self._idx
@@ -151,7 +153,7 @@ class LineBuffer(LineSingle):
     def __getitem__(self, ago):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
-        # print("__getitem__ ago", idx+ago)
+        print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
         return self.array[idx + ago]
     
     def __setitem__(self, ago, value):
@@ -163,7 +165,7 @@ class LineBuffer(LineSingle):
             value (variable): value to be set
         '''
         # import pdb; pdb.set_trace()
-        # print("linebuffer __setitem__ ", self.idx, len(self.array))
+        print("linebuffer __setitem__ ago", ago)
         # self.array[self.idx + ago] = value
         idx = self.idx % self.maxlen
         # print("__setitem__ idx ", idx)
@@ -247,7 +249,7 @@ class LineBuffer(LineSingle):
             size (int): How many extra positions to enlarge the buffer
         '''
         self.idx += size
-        print("forward size and idx ", size, self.idx)
+        print("forward idx ", self.idx)
         # import pdb; pdb.set_trace()
         self.lencount += size
 
@@ -365,26 +367,27 @@ class LineBuffer(LineSingle):
         self._tz = tz
 
     def datetime(self, ago=0, tz=None, naive=True):
-        return num2date(self.array[self.idx + ago],
+        return num2date(self[self.idx + ago],
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
-        print("line 0 idx dt", self.array[self.idx + ago])
+        # import pdb; pdb.set_trace()
+        print("linebuffe date ", self[self.idx + ago])
         try: 
-            return num2date(self.array[self.idx + ago],
+            return num2date(self[self.idx + ago],
                         tz=tz or self._tz, naive=naive).date()
         except:
             return None
 
     def time(self, ago=0, tz=None, naive=True):
-        return num2date(self.array[self.idx + ago],
+        return num2date(self[self.idx + ago],
                         tz=tz or self._tz, naive=naive).time()
 
     def dt(self, ago=0):
         '''
         return numeric date part of datetimefloat
         '''
-        return math.trunc(self.array[self.idx + ago])
+        return math.trunc(self[self.idx + ago])
 
     def tm_raw(self, ago=0):
         '''
@@ -393,7 +396,7 @@ class LineBuffer(LineSingle):
         # This function is named raw because it retrieves the fractional part
         # without transforming it to time to avoid the influence of the day
         # count (integer part of coding)
-        return math.modf(self.array[self.idx + ago])[0]
+        return math.modf(self[self.idx + ago])[0]
 
     def tm(self, ago=0):
         '''
@@ -402,7 +405,7 @@ class LineBuffer(LineSingle):
         # To avoid precision errors, this returns the fractional part after
         # having converted it to a datetime.time object to avoid precision
         # errors in comparisons
-        return time2num(num2date(self.array[self.idx + ago]).time())
+        return time2num(num2date(self[self.idx + ago]).time())
 
     def tm_lt(self, other, ago=0):
         '''
@@ -411,7 +414,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self.array[self.idx + ago]
+        dtime = self[self.idx + ago]
         tm, dt = math.modf(dtime)
 
         return dtime < (dt + other)
@@ -423,7 +426,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self.array[self.idx + ago]
+        dtime = self[self.idx + ago]
         tm, dt = math.modf(dtime)
 
         return dtime <= (dt + other)
@@ -435,7 +438,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self.array[self.idx + ago]
+        dtime = self[self.idx + ago]
         tm, dt = math.modf(dtime)
 
         return dtime == (dt + other)
@@ -447,7 +450,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self.array[self.idx + ago]
+        dtime = self[self.idx + ago]
         tm, dt = math.modf(dtime)
 
         return dtime > (dt + other)
@@ -459,7 +462,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self.array[self.idx + ago]
+        dtime = self[self.idx + ago]
         tm, dt = math.modf(dtime)
 
         return dtime >= (dt + other)
@@ -470,7 +473,7 @@ class LineBuffer(LineSingle):
 
         Useful for external comparisons to avoid precision errors
         '''
-        return int(self.array[self.idx + ago]) + tm
+        return int(self[self.idx + ago]) + tm
 
     def tm2datetime(self, tm, ago=0):
         '''
@@ -478,7 +481,7 @@ class LineBuffer(LineSingle):
 
         Useful for external comparisons to avoid precision errors
         '''
-        return num2date(int(self.array[self.idx + ago]) + tm)
+        return num2date(int(self[self.idx + ago]) + tm)
     
     def apply_factor(self, factors: Union[np.array]=1.0):
         # import pdb; pdb.set_trace()

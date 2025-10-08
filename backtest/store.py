@@ -77,9 +77,10 @@ class Store(with_metaclass(MetaStore, object)):
             data.append(msg)
         return data
 
-    def stop(self):
-        pass
-
     def get_notification(self):
         '''Return the notifications from broker'''
         return self.broker.get_notification()
+
+    def stop(self):
+        self._feed.stop()
+        self.broker.stop()

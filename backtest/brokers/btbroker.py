@@ -120,6 +120,7 @@ class BTBroker(BrokerBase):
     def stop(self):
         super().stop()
         self.tdapi.disconnected()
+        print("btbroker stop")
 
     def put_notification(self, msg):
         self.notifs.append(msg)

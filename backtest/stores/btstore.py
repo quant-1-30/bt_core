@@ -123,10 +123,10 @@ class BTStore(Store):
         order_bits = self.broker.submit(order_meta)
         return order_bits
     
-    def on_dt_over(self): 
-        sdate, edate = self._feed.on_dt_over()
-        isover = (edate - sdate).days if edate else False
+    def on_dt_over(self, last=False): 
+        isover, interval = self._feed.on_dt_over(last)
         if isover:
+            sdate, edate = interval
             req = ReqMeta(start_date=int(sdate.strftime("%Y%m%d")), end_date=int(edate.strftime("%Y%m%d")), sid=[])
             self.broker.on_dt_over(req)
     
@@ -135,6 +135,5 @@ class BTStore(Store):
     
     def stop(self):
         '''Stops and tells the store to stop'''
-        print("stop mdapi")
-        self._feed.stop()
-        self.broker.stop()
+        self.on_dt_over(last=True) # sync end_of_session
+        super().stop()

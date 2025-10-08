@@ -74,5 +74,4 @@ class BrokerBase(with_metaclass(MetaBroker, object)):
         self.tdapi.cancel(vtorder_id)
 
     def stop(self):
-        print("stop broker")
         pass

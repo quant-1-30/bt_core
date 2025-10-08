@@ -492,13 +492,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._runnext(runstrats)
 
             for strat in runstrats:
-                    strat._stop()
+                strat._stop()
 
         for data in self.datas:
             data.stop()
 
-        # for store in self.stores:
-        self.store.stop()
         # self.stop_writers(runstrats)       
 
         return runstrats
