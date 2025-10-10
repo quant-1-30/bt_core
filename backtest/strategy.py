@@ -21,7 +21,6 @@
 import numpy as np
 import warnings
 import collections
-import datetime
 import itertools
 import operator
 
@@ -146,19 +145,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             dminperiod = max(_dminperiods[data] or [data._minperiod])
             self._minperiods.append(dminperiod)
 
-    def _periodcalc(self):
-        # last check in case not all lineiterators were assigned to
-        # lines (directly or indirectly after some operations)
-        # An example is Kaufman's Adaptive Moving Average
-        indicators = self._lineiterators[LineIterator.IndType] # include LinesOperation
-        inds = [ind for ind in indicators if isinstance(ind, bt.indicators.Indicator)]
-        minperiod = max(self._minperiods) + len(inds) - 1 # due to default _minperiod is 1
-        print("strategy _periodcalc :", minperiod)
-        self._minperiod = minperiod
-        # import pdb; pdb.set_trace()
-     
     def _start(self):
-        self._periodcalc()
+        self._periodrecalc()
 
         # Tell datas to adjust buffer to minimum period
         for data in self.datas:
@@ -190,6 +178,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
  
     def _next(self):
         super(Strategy, self)._next() # lineiterator _next
+
+        minperstatus = self._getminperstatus()
+        self.store._next(minperstatus)  # store _next for dt_over check
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)

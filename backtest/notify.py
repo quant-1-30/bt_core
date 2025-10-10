@@ -22,9 +22,8 @@ class MetaNotify(NotifyBase.__class__):
         #     # rename 'notify' to 'notify_order'
         #     dct['notify_trade'] = dct.pop('notify_operation')
         _obj, args, kwargs = super(MetaNotify, cls).donew(*args, **kwargs)
-        env = findowner(_obj, bt.cerebro.Cerebro)
-        _obj.env = env
-        _obj.store = env.store
+        _obj.store = store = findowner(_obj, bt.stores)
+        _obj.datas = store.datas
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -34,14 +33,13 @@ class MetaNotify(NotifyBase.__class__):
         _obj._slave_analyzers = list()
         _obj._alnames = collections.defaultdict(itertools.count)
         _obj.stats = _obj.observers = ItemCollection()
+        # self._notifs = collections.deque()
         return _obj, args, kwargs
 
 
 class Notify(with_metaclass(MetaNotify, NotifyBase)):
 
-
-    # keep the latest delivered data date in the line
-    lines = ('datetime',)
+    # keep the latest delivered data date in the ldine
     
     def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
         '''Like _addanalyzer but meant for observers (or other entities) which
@@ -103,8 +101,7 @@ class Notify(with_metaclass(MetaNotify, NotifyBase)):
     #         if hasattr(observer, 'notify_timer'):
     #             observer.notify_timer(msg, *args, **kwargs)
 
-    def _next(self, strat):
-        minperstatus = strat._getminperstatus()
+    def _next(self, minperstatus):
         self._next_observers(minperstatus)
         self._next_analyzers(minperstatus)
 
@@ -128,8 +125,32 @@ class Notify(with_metaclass(MetaNotify, NotifyBase)):
             else:
                 analyzer._prenext()
 
+    def notify_data(self, data):
+        '''Notify daily data delivered'''
+        # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+        #     if hasattr(analyzer, 'notify_data'):
+        #         analyzer.notify_data(data)
+
+    def notify_order(self, order):
+        '''Notify order status changed'''
+        # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+        #     if hasattr(analyzer, 'notify_order'):
+        #         analyzer.notify_order(order)
+
+    def notify_account(self, data):
+        '''Notify account and position updated'''
+        # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+        #     if hasattr(analyzer, 'notify_account'):
+        #         analyzer.notify_account(data)
+
     def stop(self):
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
             analyzer._stop()
 
-    
+    # def put_notification(self, msg):
+    #     self.notifs.append(msg)
+
+    # def get_notification(self):
+    #     return self._notifs.pop()
+    # 
+     

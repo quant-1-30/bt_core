@@ -183,7 +183,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         # lines (directly or indirectly after some operations)
         # An example is Kaufman's Adaptive Moving Average
         indicators = self._lineiterators[LineIterator.IndType]
-        # import pdb; pdb.set_trace()
         indperiods = [ind._minperiod for ind in indicators]
         indminperiod = max(indperiods or [self._minperiod])
         print("_periodrecalc ", indminperiod)

@@ -23,8 +23,8 @@ class TestMdApi:
     
     @pytest.fixture
     def md_api(self):
-        return MdApi(addr="tcp://localhost:9000")
-        # return MdApi(addr="tcp://192.168.2.100:9000")
+        # return MdApi(addr=("localhost", 9000))
+        return MdApi(addr=("192.168.2.100", 9000))
     
     @pytest.fixture
     def session(self):
@@ -38,26 +38,26 @@ class TestMdApi:
     @pytest.fixture
     def reqMeta(self):
         start_date = "20100108 9:30:00"
-        end_date = "20240108 15:00:00"
+        end_date = "20240308 15:00:00"
         start_time = datetime.strptime(start_date, '%Y%m%d %H:%M:%S').timestamp()
         end_time = datetime.strptime(end_date, '%Y%m%d %H:%M:%S').timestamp()
         sid = ['603676']
         return ReqMeta(start_date = start_time ,end_date = end_time, sid = sid)
     
-    # def test_getCalendar(self, md_api):
-    #     data = md_api.get_calendar()
-    #     print("test_getCalendar: ", data)
-    #     assert data is not None
+    def test_getCalendar(self, md_api):
+        data = md_api.get_calendar()
+        print("test_getCalendar: ", data)
+        assert data is not None
 
-    # def test_getInstrument(self, md_api):
-    #     data = md_api.get_instrument()
-    #     print("test_getInstrument: ", data)
-    #     assert data is not None
+    def test_getInstrument(self, md_api):
+        data = md_api.get_instrument()
+        print("test_getInstrument: ", data)
+        assert data is not None
     
-    # def test_getBenchmark(self, md_api):
-    #     data = md_api.get_benchmark()
-    #     print("test_getBenchmark: ", data)
-    #     assert data is not None
+    def test_getBenchmark(self, md_api):
+        data = md_api.get_benchmark()
+        print("test_getBenchmark: ", data)
+        assert data is not None
     
     def test_subscribe(self, md_api, reqMeta):
         with md_api.subscribe(reqMeta) as q:
@@ -79,7 +79,7 @@ class TestMdApi:
     #     print("test_rgtEvent: ", data)
     #     assert data is not None
 
-    def test_factor(self, md_api, reqMeta):
-        data = md_api.factor(reqMeta)
-        print("test_get_factors: ", data.raw_factors, data.adj_factors)
-        assert data is not None
+    # def test_factor(self, md_api, reqMeta):
+    #     data = md_api.factor(reqMeta)
+    #     print("test_get_factors: ", data.raw_factors, data.adj_factors)
+    #     assert data is not None

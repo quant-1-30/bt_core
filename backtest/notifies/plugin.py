@@ -8,6 +8,9 @@ from email.mime.multipart import MIMEMultipart
 from concurrent.futures import ThreadPoolExecutor
 
 
+__all__ = ['async_email']
+
+
 def send_email(subject, body, to_email, from_email, smtp_server, smtp_port, login, password):
     # Create a multipart message
     msg = MIMEMultipart()
@@ -45,6 +48,3 @@ async def async_email(subject, body, to_email, from_email, smtp_server, smtp_por
             send_email,
             subject, body, to_email, from_email, smtp_server, smtp_port, login, password
         )
-
-
-__all__ = ['async_email']

@@ -60,7 +60,7 @@ class LineAlias(object):
         # into a not yet "forwarded" line, effectively writing the value 1
         # index too early and breaking the functionality (all in next mode)
         # Hence the need to transform it into a LineDelay object of null delay
-        if not isinstance(value, LineActions):
+        if not isinstance(value, LineActions): # LineBuffer __call__
             value = value(0)
 
         value.addbinding(obj.lines[self.line])

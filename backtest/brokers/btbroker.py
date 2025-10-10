@@ -90,9 +90,6 @@ class BTBroker(BrokerBase):
     
     acct = Acct()
 
-    def __init__(self, **kwargs): # kwargs - params left keys
-        self._notifs = collections.deque()
-
     def register(self, exp: ExpMeta):
         self.tdapi.register(exp)
 
@@ -114,7 +111,7 @@ class BTBroker(BrokerBase):
 
     def on_dt_over(self, req: ReqMeta):
         # to keep trading sequence
-        status = self.tdapi.on_dt_over(req)
+        status = self.tdapi.on_dt_over(req) # 返回predate acct 
         return status
     
     def stop(self):
@@ -122,8 +119,4 @@ class BTBroker(BrokerBase):
         self.tdapi.disconnected()
         print("btbroker stop")
 
-    def put_notification(self, msg):
-        self.notifs.append(msg)
 
-    def get_notification(self):
-        return self._notifs.pop()

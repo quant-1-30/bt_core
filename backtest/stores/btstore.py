@@ -46,7 +46,7 @@ class BTStore(Store):
     DataCls = None  # data class will auto register
 
     params = (
-        ('md_addr', "tcp://127.0.0.1:9000"),
+        ('md_addr', ("127.0.0.1", 9000)),
         ('td_addr', ("127.0.0.1", 8888)),
     )
 
@@ -120,15 +120,18 @@ class BTStore(Store):
                                 exec_type=exec_type, 
                                 order_type=order_type,
                                 created_at=created_at)
+
         order_bits = self.broker.submit(order_meta)
+        self.qucknotify.notify_order((order_meta, order_bits)) # notify order
         return order_bits
     
     def on_dt_over(self, last=False): 
-        isover, interval = self._feed.on_dt_over(last)
+        isover, interval, data = self._feed.on_dt_over(last)
+        self.quicknotify.notify_data(data) # notify daily data
         if isover:
-            sdate, edate = interval
-            req = ReqMeta(start_date=int(sdate.strftime("%Y%m%d")), end_date=int(edate.strftime("%Y%m%d")), sid=[])
-            self.broker.on_dt_over(req)
+            req = ReqMeta(*interval, sid=[])
+            data = self.broker.on_dt_over(req)
+            self.quicknotify.notify_account(data) # notify account and position
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")

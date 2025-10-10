@@ -20,6 +20,7 @@
 ###############################################################################
 import backtest as bt
 from backtest.metabase import MetaParams, with_metaclass, findowner
+from .notify import Notify
 
 
 class MetaStore(MetaParams):
@@ -32,10 +33,13 @@ class MetaStore(MetaParams):
         _obj, args, kwargs = \
             super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
         # _obj.owner = findowner(_obj, bt.strategy.Strategy)
-        _obj.owner = findowner(_obj, bt.cerebro.Cerebro)
-        _obj._start(*args, **kwargs) #
+        _obj.owner = env =  findowner(_obj, bt.cerebro.Cerebro)
+        _obj.datas = env.datas
         _obj._orderspending = list()    
-        _obj._tradespending = list()   
+        _obj._tradespending = list()  
+        _obj.quicknotify = Notify()  # quick notify instance
+
+        _obj._start(*args, **kwargs) #
         return _obj, args, kwargs
 
     def __call__(cls, *args, **kwargs):
@@ -63,8 +67,13 @@ class Store(with_metaclass(MetaStore, object)):
     def _start(self, *args, **kwargs):
         self.start(*args, **kwargs)
     
-    def register(self, experiment_id):
-        pass
+    def add_notify(self, analyzers=[], observers=[]):
+        '''Return the notify instance'''
+        for ancls, anargs, ankwargs in analyzers:
+            self.quicknotify._addanalyzer(ancls, *anargs, **ankwargs)
+        
+        for multi, obscls, obsargs, obskwargs in observers:
+            self.quicknotify._addobserver(multi, obscls, *obsargs, **obskwargs)
 
     @staticmethod
     def iter_data(self, q): # queue.Empty
@@ -76,11 +85,10 @@ class Store(with_metaclass(MetaStore, object)):
                 break
             data.append(msg)
         return data
-
-    def get_notification(self):
-        '''Return the notifications from broker'''
-        return self.broker.get_notification()
-
+    
+    def _next(self, minperstatus):
+        self.quicknotify._next(minperstatus)  # check dt_over and notify data/broker
+    
     def stop(self):
         self._feed.stop()
         self.broker.stop()

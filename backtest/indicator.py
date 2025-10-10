@@ -70,9 +70,6 @@ class MetaIndicator(IndicatorBase.__class__):
             refattr = getattr(cls, cls._refname)
             refattr[name] = cls
 
-        # Check if next and once have both been overridden
-        next_over = cls.next != IndicatorBase.next
-
 
 class Indicator(with_metaclass(MetaIndicator, IndicatorBase)):
     _ltype = LineIterator.IndType

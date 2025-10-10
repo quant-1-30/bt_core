@@ -106,7 +106,6 @@ class LineBuffer(LineSingle):
             print("linebuffer qbuffer :", self.mode, self._minperiod)
             _minperiod = self._minperiod
             self.maxlen = _minperiod
-            # self.maxlen = max(_minperiod - 1, 1)
             print("maxlen ", self.maxlen, _minperiod)
         # self.extrasize = extrasize
         # self.lenmark = self.maxlen - (not self.extrasize)
@@ -126,8 +125,8 @@ class LineBuffer(LineSingle):
         if self.mode != self.QBuffer or self.maxlen >= size:
             return
 
-        # self.maxlen = size
-        # self.reset()
+        self.maxlen = size
+        self.reset()
     
     # def get_idx(self):
     #     # idx = self._idx
@@ -367,27 +366,26 @@ class LineBuffer(LineSingle):
         self._tz = tz
 
     def datetime(self, ago=0, tz=None, naive=True):
-        return num2date(self[self.idx + ago],
+        return num2date(self[ago],
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
         # import pdb; pdb.set_trace()
-        print("linebuffe date ", self[self.idx + ago])
         try: 
-            return num2date(self[self.idx + ago],
+            return num2date(self[ago],
                         tz=tz or self._tz, naive=naive).date()
         except:
             return None
 
     def time(self, ago=0, tz=None, naive=True):
-        return num2date(self[self.idx + ago],
+        return num2date(self[ago],
                         tz=tz or self._tz, naive=naive).time()
 
     def dt(self, ago=0):
         '''
         return numeric date part of datetimefloat
         '''
-        return math.trunc(self[self.idx + ago])
+        return math.trunc(self[ago])
 
     def tm_raw(self, ago=0):
         '''
@@ -396,7 +394,7 @@ class LineBuffer(LineSingle):
         # This function is named raw because it retrieves the fractional part
         # without transforming it to time to avoid the influence of the day
         # count (integer part of coding)
-        return math.modf(self[self.idx + ago])[0]
+        return math.modf(self[ago])[0]
 
     def tm(self, ago=0):
         '''
@@ -405,7 +403,7 @@ class LineBuffer(LineSingle):
         # To avoid precision errors, this returns the fractional part after
         # having converted it to a datetime.time object to avoid precision
         # errors in comparisons
-        return time2num(num2date(self[self.idx + ago]).time())
+        return time2num(num2date(self[ago]).time())
 
     def tm_lt(self, other, ago=0):
         '''
@@ -414,7 +412,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self[self.idx + ago]
+        dtime = self[ago]
         tm, dt = math.modf(dtime)
 
         return dtime < (dt + other)
@@ -426,7 +424,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self[self.idx + ago]
+        dtime = self[ago]
         tm, dt = math.modf(dtime)
 
         return dtime <= (dt + other)
@@ -438,7 +436,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self[self.idx + ago]
+        dtime = self[ago]
         tm, dt = math.modf(dtime)
 
         return dtime == (dt + other)
@@ -450,7 +448,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self[self.idx + ago]
+        dtime = self[ago]
         tm, dt = math.modf(dtime)
 
         return dtime > (dt + other)
@@ -462,7 +460,7 @@ class LineBuffer(LineSingle):
         # To compare a raw "tm" part (fractional part of coded datetime)
         # with the tm of the current datetime, the raw "tm" has to be
         # brought in sync with the current "day" count (integer part) to avoid
-        dtime = self[self.idx + ago]
+        dtime = self[ago]
         tm, dt = math.modf(dtime)
 
         return dtime >= (dt + other)
@@ -473,7 +471,7 @@ class LineBuffer(LineSingle):
 
         Useful for external comparisons to avoid precision errors
         '''
-        return int(self[self.idx + ago]) + tm
+        return int(self[ago]) + tm
 
     def tm2datetime(self, tm, ago=0):
         '''
@@ -481,7 +479,7 @@ class LineBuffer(LineSingle):
 
         Useful for external comparisons to avoid precision errors
         '''
-        return num2date(int(self[self.idx + ago]) + tm)
+        return num2date(int(self[ago]) + tm)
     
     def apply_factor(self, factors: Union[np.array]=1.0):
         # import pdb; pdb.set_trace()
@@ -549,6 +547,7 @@ class MetaLineActions(LineBuffer.__class__):
 
         # update own minperiod if needed
         print("MetaLineActions _minperiod ", _minperiod)
+        # import pdb; pdb.set_trace()
         _obj.updateminperiod(_minperiod)
 
         return _obj, args, kwargs

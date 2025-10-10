@@ -27,13 +27,15 @@ class TestBTStore:
 
     @pytest.fixture # scope="function" / "class" / "module" / "session" 
     def client_id(self):
-        return "2038c248-abc6-4e40-b1d4-d77962ad94a8"
+        return "2160a316-b483-4fd1-8f0e-ff1fbe06ea80"
 
     # @pytest.fixture(scope="session")
     @pytest.fixture
     def store(self, client_id):
-        store = bt.BTStore(client_id=client_id)
-        # store.start()
+        store = bt.BTStore(
+            md_addr=("192.168.2.100", 9000),
+            td_addr=("192.168.2.100", 8888),
+            client_id=client_id)
         return store
     
     @pytest.fixture

@@ -115,13 +115,13 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                       zorder=self.pinf.zorder[ax] + 3.0,
                       **kwargs)
 
-    def plot(self, strategy, figid=0, numfigs=1, iplot=True,
+    def plot(self, store, figid=0, numfigs=1, iplot=True,
              start=None, end=None, **kwargs):
         # pfillers={}):
-        if not strategy.datas:
+        if not store.datas:
             return
 
-        if not len(strategy):
+        if not len(store):
             return
 
         if iplot:
@@ -136,10 +136,10 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         self.mpyplot = mpyplot
 
         self.pinf = PInfo(self.p.scheme)
-        self.sortdataindicators(strategy)
-        self.calcrows(strategy)
+        self.sortdataindicators(store)
+        self.calcrows(store)
 
-        st_dtime = strategy.lines.datetime.plot()
+        st_dtime = store.lines.datetime.plot()
         if start is None:
             start = 0
         if end is None:
@@ -176,7 +176,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
             self.pinf.xstart = self.pinf.pstart
             self.pinf.xend = self.pinf.pend
 
-            self.pinf.clock = strategy
+            self.pinf.clock = store
             self.pinf.xreal = self.pinf.clock.datetime.plot(
                 self.pinf.pstart, self.pinf.psize)
             self.pinf.xlen = len(self.pinf.xreal)
@@ -195,7 +195,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
 
             # Create the rest on a per data basis
             dt0, dt1 = self.pinf.xreal[0], self.pinf.xreal[-1]
-            for data in strategy.datas:
+            for data in store.datas:
                 if not data.plotinfo.plot:
                     continue
 
@@ -316,14 +316,14 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                                       fmt=self.pinf.sch.fmt_x_ticks)
         ax.xaxis.set_major_formatter(autofmt)
 
-    def calcrows(self, strategy):
+    def calcrows(self, store):
         # Calculate the total number of rows
         rowsmajor = self.pinf.sch.rowsmajor
         rowsminor = self.pinf.sch.rowsminor
         nrows = 0
 
         datasnoplot = 0
-        for data in strategy.datas:
+        for data in store.datas:
             if not data.plotinfo.plot:
                 # neither data nor indicators nor volume add rows
                 datasnoplot += 1
@@ -347,9 +347,9 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
 
         if False:
             # Datas and volumes
-            nrows += (len(strategy.datas) - datasnoplot) * rowsmajor
+            nrows += (len(store.datas) - datasnoplot) * rowsmajor
             if self.pinf.sch.volume and not self.pinf.sch.voloverlay:
-                nrows += (len(strategy.datas) - datasnoplot) * rowsminor
+                nrows += (len(store.datas) - datasnoplot) * rowsminor
 
         # top indicators/observers
         nrows += len(self.dplotstop) * rowsminor
@@ -827,7 +827,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         bbox_inches = 'tight' * tight or None
         fig.savefig(filename, dpi=dpi, bbox_inches=bbox_inches)
 
-    def sortdataindicators(self, strategy):
+    def sortdataindicators(self, store):
         # These lists/dictionaries hold the subplots that go above each data
         self.dplotstop = list()
         self.dplotsup = collections.defaultdict(list)
@@ -835,7 +835,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         self.dplotsover = collections.defaultdict(list)
 
         # Sort observers in the different lists/dictionaries
-        for x in strategy.getobservers():
+        for x in store.getobservers():
             if not x.plotinfo.plot or x.plotinfo.plotskip:
                 continue
 
@@ -846,7 +846,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                 self.dplotsover[key].append(x)
 
         # Sort indicators in the different lists/dictionaries
-        for x in strategy.getindicators():
+        for x in store.getindicators():
             if not hasattr(x, 'plotinfo'):
                 # no plotting support - so far LineSingle derived classes
                 continue
@@ -858,14 +858,14 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
 
             # support LineSeriesStub which has "owner" to point to the data
             key = getattr(x._clock, 'owner', x._clock)
-            if key is strategy:  # a LinesCoupler
-                key = strategy.data
+            if key is store:  # a LinesCoupler
+                key = store.data
 
             if getattr(x.plotinfo, 'plotforce', False):
-                if key not in strategy.datas:
-                    datas = strategy.datas
+                if key not in store.datas:
+                    datas = store.datas
                     while True:
-                        if key not in strategy.datas:
+                        if key not in store.datas:
                             key = key._clock
                         else:
                             break

@@ -20,17 +20,14 @@
 ###############################################################################
 
 import datetime
-import hashlib
 import itertools
 import multiprocessing
 from pytz import timezone
 
 from backtest.metabase import MetaParams, with_metaclass
-from backtest import observers
 from backtest.sizers import sizers
 from backtest.timer import Timer
 from backtest.errors import *
-from .notify import Notify
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -407,21 +404,21 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.register_experiment(**kwargs) 
 
         # initialize notify
-        self.quicknotify = Notify(*self.datas)
+        self.store.add_notify(self.analyzers, self.observers)
 
-        if self.p.stdstats:
-            self.quicknotify._addobserver(False, observers.Broker)
+        # if self.p.stdstats:
+        #     self.quicknotify._addobserver(False, observers.Broker)
             
-            self.quicknotify._addobserver(True, observers.BuySell,
-                                barplot=True)
+        #     self.quicknotify._addobserver(True, observers.BuySell,
+        #                         barplot=True)
 
-            self.quicknotify._addobserver(False, observers.DrawDown)
+        #     self.quicknotify._addobserver(False, observers.DrawDown)
 
-        for ancls, anargs, ankwargs in self.analyzers:
-            self.quicknotify._addanalyzer(ancls, *anargs, **ankwargs)
+        # for ancls, anargs, ankwargs in self.analyzers:
+        #     self.quicknotify._addanalyzer(ancls, *anargs, **ankwargs)
         
-        for multi, obscls, obsargs, obskwargs in self.observers:
-            self.quicknotify._addobserver(multi, obscls, *obsargs, **obskwargs)
+        # for multi, obscls, obsargs, obskwargs in self.observers:
+        #     self.quicknotify._addobserver(multi, obscls, *obsargs, **obskwargs)
 
         self.runstrats = list()
         self._event_stop = False  # Stop is requested
@@ -565,8 +562,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     if self._event_stop:  # stop if requested
                         return
                 
-                # 多策略情况,快速通知 
-                self.quicknotify._next(strat)  
+                # # 多策略情况,快速通知 
+                # self.quicknotify._next(strat)  
 
         # self._next_writers(runstrats)
         # import pdb; pdb.set_trace()

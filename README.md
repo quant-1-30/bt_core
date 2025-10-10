@@ -39,7 +39,6 @@ backtrader:
 
     _owner / addindicator is key to implement indicator _once / _next method (from base to compound)
 
-
     data _check /_last method
 
     LineCoupler (align different line length)
@@ -116,3 +115,14 @@ errorlog = "error.log"
 
 对于暂停上市 delist_date 为None 作为一种长期停盘的情况来考虑不能存在后视误差不清楚是否能重新上市
 asset status 由于吸收合并代码可能会消失但是主体继续上市存在 e.g. T00018
+
+# indicator period --> _minperiod 基于 basicops.py PeriodN 
+
+# plot 3level  multicursor /  ticker locate / 2grid
+
+# plot from notify
+
+# store and notify
+
+
+# utm https://docs.getutm.app/guides/windows/

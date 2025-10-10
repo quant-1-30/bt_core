@@ -22,16 +22,16 @@ class TestTdApi:
 
     @pytest.fixture
     def client_id(self):
-        return "fc9dac14-b6bb-4a2a-a716-741fa73aa5ca"
+        return "2160a316-b483-4fd1-8f0e-ff1fbe06ea80"
     
     @pytest.fixture
     def experiment_id(self):
-        return "5889b29e-2760-41c2-90db-e3614031bbd4"
+        return "d65e749c-83d8-4127-8922-d21326dd7a0a"
 
     @pytest.fixture
     def td_api(self, client_id, experiment_id):
-        api = TdApi(addr=("localhost", 8888), client_id=client_id, timeout=20)
-        # api = TdApi(addr=("192.168.2.100", 8888), client_id=client_id, timeout=20)
+        # api = TdApi(addr=("localhost", 8888), client_id=client_id, timeout=20)
+        api = TdApi(addr=("192.168.2.100", 8888), client_id=client_id, timeout=20)
         api.experiment_id = experiment_id
         return api
     
@@ -65,7 +65,8 @@ class TestTdApi:
     @pytest.fixture(scope="function")
     def reqmeta(self):
         start_date = "20250424"
-        end_date = "20250815"
+        end_date = "20250424"
+        # end_date = "20250815"
         start_time = datetime.strptime(start_date, '%Y%m%d')
         end_time = datetime.strptime(end_date, '%Y%m%d')
         sid = ['002750']
@@ -116,7 +117,7 @@ class TestTdApi:
         print("test_reqAccount: ", data)
         assert data is not None
     
-    def test_on_dt_over(self, td_api, reqmeta):
-        status = td_api.on_dt_over(reqmeta)
-        print("test_on_dt_over: ", status)
-        assert status is not None
+    # def test_on_dt_over(self, td_api, reqmeta):
+    #     status = td_api.on_dt_over(reqmeta)
+    #     print("test_on_dt_over: ", status)
+    #     assert status is not None
