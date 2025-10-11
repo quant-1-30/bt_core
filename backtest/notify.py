@@ -40,6 +40,15 @@ class MetaNotify(NotifyBase.__class__):
 class Notify(with_metaclass(MetaNotify, NotifyBase)):
 
     # keep the latest delivered data date in the ldine
+    """
+      - ``stdstats`` (default: ``True``)
+
+        If True default Observers will be added: Broker (Cash and Value),
+        Trades and BuySell
+    """
+    params = (
+        ('stdstats', True),  # add standard observers if True
+    )
     
     def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
         '''Like _addanalyzer but meant for observers (or other entities) which
@@ -82,24 +91,19 @@ class Notify(with_metaclass(MetaNotify, NotifyBase)):
         """
             alanyzers and obs
         """
+        # if self.p.stdstats:
+        #     self.quicknotify._addobserver(False, observers.Broker)
+            
+        #     self.quicknotify._addobserver(True, observers.BuySell,
+        #                         barplot=True)
+
+        #     self.quicknotify._addobserver(False, observers.DrawDown)
+        
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
             analyzer._start()
 
         for obs in self.observers:
             obs._start()
-
-    # def notify_timer(self, msg, *args, **kwargs):
-    #     '''Receives a timer notification where ``timer`` is the timer which was
-    #     returned by ``add_timer``, and ``when`` is the calling time. ``args``
-    #     and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-    #     The actual ``when`` time can be later, but the system may have not be
-    #     able to call the timer before. This value is the timer value and no the
-    #     system time.
-    #     '''
-    #     for observer in self.observers:
-    #         if hasattr(observer, 'notify_timer'):
-    #             observer.notify_timer(msg, *args, **kwargs)
 
     def _next(self, minperstatus):
         self._next_observers(minperstatus)
@@ -142,6 +146,18 @@ class Notify(with_metaclass(MetaNotify, NotifyBase)):
         # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
         #     if hasattr(analyzer, 'notify_account'):
         #         analyzer.notify_account(data)
+
+    # def notify_timer(self, msg):
+    #     '''Receives a timer notification where ``timer`` is the timer which was
+    #     returned by ``add_timer``, and ``when`` is the calling time. 
+
+    #     The actual ``when`` time can be later, but the system may have not be
+    #     able to call the timer before. This value is the timer value and no the
+    #     system time.
+    #     '''
+    #     for observer in self.observers:
+    #         if hasattr(observer, 'notify_timer'):
+    #             observer.notify_timer(msg)
 
     def stop(self):
         for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):

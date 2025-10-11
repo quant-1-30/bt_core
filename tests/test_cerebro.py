@@ -103,18 +103,9 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro()
     # Add a strategy
     cerebro.addstrategy(MyStrategy)
-    # add store
-    store = bt.BTStore(
-        md_addr=("192.168.2.100", 9000),
-        td_addr=("192.168.2.100", 8888),
-        client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80")
 
-    cerebro.addstore(store)
-    # print("backtest calendar: ", len(cerebro.store.get_calendar()))
-    # print("backtest instrument: ", len(cerebro.store.get_instrument()))
-    # print(f'Starting Portfolio Cash and Value: {cerebro.store.getacct()}')
-    # Run over everything
-    cerebro.run(sid=["603676"], start_date=20200101, end_date=20200201)
+    cerebro.addstore(bt.BTStore)
+    cerebro.run(sid=["603676"], start_date=20200101, end_date=20200201, client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80")
 
     # plot
     cerebro.plot()

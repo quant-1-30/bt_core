@@ -37,11 +37,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
          How many cores to use simultaneously for optimization
 
-      - ``stdstats`` (default: ``True``)
-
-        If True default Observers will be added: Broker (Cash and Value),
-        Trades and BuySell
-      
       - ``writer`` (default: ``False``)
 
         If set to ``True`` a default WriterFile will be created which will
@@ -76,7 +71,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     params = (
         ('maxcpus', 1),
         ("sizer", "default"),
-        ('stdstats', False),
         ('writer', False),
         ('savemem', 0),
         ('tz', None),
@@ -129,34 +123,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname, name=name)
         self._doreplay = True
 
-    def addstore(self, store):
-        '''Adds an ``Store`` instance to the if not already present'''
-        self.store = store
-        _feed = store.get_feed()
-        self.datas.append(_feed)
- 
-    def addstorecb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_store method
-
-        The signature of the callback must support the following:
-
-          - callback(msg, \*args, \*\*kwargs)
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        self.storecbs.append(callback)
-
     def addwriter(self, wrtcls, *args, **kwargs):
         '''Adds an ``Writer`` class to the mix. Instantiation will be done at
         ``run`` time in cerebro
         '''
         self.writers.append((wrtcls, args, kwargs))
 
-# -------------------------------------------------timer-----------------------------------------------------
+# ----------------------------------------------------------------- timer --------------------------------------------------------------
     
     def addtz(self, tz):
         '''
@@ -303,7 +276,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for strat in runstrats:
                     strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
 
-# -------------------------------------------------analyzer-----------------------------------------------------
+# ------------------------------------------------------------------ analyzer -----------------------------------------------------------
 
     def addanalyzer(self, ancls, *args, **kwargs):
         '''
@@ -330,8 +303,39 @@ class Cerebro(with_metaclass(MetaParams, object)):
         A counter-example is the CashValue, which observes system-wide values
         '''
         self.observers.append((True, obscls, args, kwargs))
+
+# ------------------------------------------------------------------ store --------------------------------------------------------------
+
+    def addstore(self, store, *args, **kwargs):
+        '''Adds an ``Store`` instance to the if not already present'''
+        self.stores.append([(store, args, kwargs)])
+ 
+    def addstorecb(self, callback):
+        '''Adds a callback to get messages which would be handled by the
+        notify_store method
+
+        The signature of the callback must support the following:
+
+          - callback(msg, \*args, \*\*kwargs)
+
+        The actual ``msg``, ``*args`` and ``**kwargs`` received are
+        implementation defined (depend entirely on the *data/broker/store*) but
+        in general one should expect them to be *printable* to allow for
+        reception and experimentation.
+        '''
+        self.storecbs.append(callback)
+
+    def make_experiment(self, **kwargs):
+        strategy_name = "%".join([strat[0][0].__name__ for strat in self.strats])
+        sid=kwargs.get("sid", "")
+        sid_str = "%".join(sid)
+        # hashlib.pbkdf2_hmac()
+        # crpyted = hashlib.sha256()
+        # crpyted.update(uname)
+        # crpyted.hexdigest()
+        self.store.register(strategy_name, sid_str) 
     
-# -------------------------------------------------strategy-----------------------------------------------------
+# ---------------------------------------------------------------- strategy ------------------------------------------------------------
     
     def addindicator(self, indcls, *args, **kwargs): # signal is indicator
         '''
@@ -356,13 +360,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.sizer = (sizercls, args, kwargs)
 
-    def __call__(self, iterstrat):
-        '''
-        Used during optimization to pass the cerebro over the multiprocesing
-        module without complains
-        '''
-        return self.runstrategies(iterstrat)
-    
     def _init_stcount(self):
         self.stcount = itertools.count(0)
 
@@ -370,15 +367,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def _next_stid(self): 
         return next(self.stcount)
     
-    def register_experiment(self, **kwargs):
-        strategy_name = "%".join([strat[0][0].__name__ for strat in self.strats])
-        sid=kwargs.get("sid", "")
-        sid_str = "%".join(sid)
-        # hashlib.pbkdf2_hmac()
-        # crpyted = hashlib.sha256()
-        # crpyted.update(uname)
-        # crpyted.hexdigest()
-        self.store.register(strategy_name, sid_str) 
+# ---------------------------------------------------------------- run-------------------------------------------------------------------
+
+    def __call__(self, iterstrat):
+        '''
+        Used during optimization to pass the cerebro over the multiprocesing
+        module without complains
+        '''
+        return self.runstrategies(iterstrat)
 
     def run(self, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
@@ -401,9 +397,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
             data.qbuffer(savemem=1) 
 
         # generate experiment
-        self.register_experiment(**kwargs) 
+        self.make_experiment(**kwargs) 
 
         # initialize notify
+        store = self.store[0]()
+        # self.store = store
+        # _feed = store.get_feed()
+        # self.datas.append(_feed)
+    
         self.store.add_notify(self.analyzers, self.observers)
 
         # if self.p.stdstats:
@@ -413,12 +414,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         #                         barplot=True)
 
         #     self.quicknotify._addobserver(False, observers.DrawDown)
-
-        # for ancls, anargs, ankwargs in self.analyzers:
-        #     self.quicknotify._addanalyzer(ancls, *anargs, **ankwargs)
-        
-        # for multi, obscls, obsargs, obskwargs in self.observers:
-        #     self.quicknotify._addobserver(multi, obscls, *obsargs, **obskwargs)
 
         self.runstrats = list()
         self._event_stop = False  # Stop is requested
@@ -446,7 +441,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     
         return self.runstrats
      
-    def runstrategies(self, iterstrat):
+    def runstrategies(self, iterstrat, store):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
@@ -561,12 +556,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                     if self._event_stop:  # stop if requested
                         return
-                
-                # # 多策略情况,快速通知 
-                # self.quicknotify._next(strat)  
 
         # self._next_writers(runstrats)
-        # import pdb; pdb.set_trace()
         
     def runstop(self):
         '''If invoked from inside a strategy or anywhere else, including other
@@ -611,8 +602,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
     #     for writer in self.runwriters:
     #         writer.writedict(dict(Cerebro=cerebroinfo))
     #         writer.stop()
-
-# -------------------------------------------------plot-----------------------------------------------------
+    
+# ---------------------------------------------------------------------- plot ------------------------------------------------------------
     
     def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
              width=16, height=9, dpi=300, tight=True, use=None,

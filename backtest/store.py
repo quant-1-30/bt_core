@@ -29,17 +29,20 @@ class MetaStore(MetaParams):
         super(MetaStore, cls).__init__(name, bases, dct)
         cls._singleton = None
 
+    def donew(cls, *args, **kwargs):
+        _obj, args, kwargs = super(MetaStore, cls).donew(*args, **kwargs)
+        _obj.owner = env =  findowner(_obj, bt.cerebro.Cerebro)
+        _obj.datas = env.datas
+        _obj.quicknotify = Notify()  # quick notify instance
+        return _obj, args, kwargs
+
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
-        # _obj.owner = findowner(_obj, bt.strategy.Strategy)
-        _obj.owner = env =  findowner(_obj, bt.cerebro.Cerebro)
-        _obj.datas = env.datas
+        
         _obj._orderspending = list()    
         _obj._tradespending = list()  
-        _obj.quicknotify = Notify()  # quick notify instance
-
-        _obj._start(*args, **kwargs) #
+        _obj._start(*args, **kwargs) 
         return _obj, args, kwargs
 
     def __call__(cls, *args, **kwargs):
