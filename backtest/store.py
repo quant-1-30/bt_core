@@ -66,18 +66,16 @@ class Store(with_metaclass(MetaStore, object)):
         ("timeout", -1),
         ("checksum", "eof")
     )
-
+    
     def _start(self, *args, **kwargs):
         self.start(*args, **kwargs)
     
-    def add_notify(self, analyzers=[], observers=[]):
-        '''Return the notify instance'''
-        for ancls, anargs, ankwargs in analyzers:
-            self.quicknotify._addanalyzer(ancls, *anargs, **ankwargs)
-        
-        for multi, obscls, obsargs, obskwargs in observers:
-            self.quicknotify._addobserver(multi, obscls, *obsargs, **obskwargs)
-
+    def _dt_over(self):
+        pass
+    
+    def _next(self, experiment_id):
+        self.quicknotify._next(experiment_id)  # check dt_over and notify data/broker
+    
     @staticmethod
     def iter_data(self, q): # queue.Empty
         data = []
@@ -87,10 +85,7 @@ class Store(with_metaclass(MetaStore, object)):
                 q.recycle()
                 break
             data.append(msg)
-        return data
-    
-    def _next(self, minperstatus):
-        self.quicknotify._next(minperstatus)  # check dt_over and notify data/broker
+        return data 
     
     def stop(self):
         self._feed.stop()

@@ -21,17 +21,17 @@
 import numpy as np
 from backtest.sizer import Sizer
 
-__all__ = ['NoSizer', 'KellySizer']
+__all__ = ['Fixed', 'KellySizer']
 
 
-class NoSizer(Sizer):
+class Fixed(Sizer):
     '''This is the default sizer used by ``backtrader`` if no other sizer is
     set
 
     It will simply return a size of ``1`` for each operation
     '''
 
-    def _getsizing(self, strats, datas):
+    def _getsizing(self, strats):
         sizers = {strat._id: 1/(len(strats)) for strat in strats}
         return sizers
     
@@ -79,7 +79,7 @@ class KellySizer(Sizer):
 
     '''
 
-    def _getsizing(self, strats, datas):
+    def _getsizing(self, strats):
         # datas represent stats of strats
         raise NotImplementedError("KellySizer not implemented yet")
     

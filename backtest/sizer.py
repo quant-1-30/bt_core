@@ -41,10 +41,10 @@ class Sizer(with_metaclass(MetaParams, object)):
     '''
     params = (("reserve", 0.0), )  # reserve a fraction of cash
 
-    def getsizing(self, strats, datas={}):
+    def getsizing(self, strats, datas={}, isbuy=True):
         return self._getsizing(strats, datas)
 
-    def _getsizing(self, strats, datas):
+    def _getsizing(self, strats, datas={}, isbuy=True):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 

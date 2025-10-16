@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import os
 import numpy as np
 
 from datetime import datetime
@@ -51,14 +52,22 @@ class BTStore(Store):
     )
 
     def start(self, *args, **kwargs):
-        kwargs["tdapi"] = TdApi(addr=self.p.td_addr, client_id=self.p.client_id)
-        kwargs["mdapi"] = MdApi(addr=self.p.md_addr)
+        md_addr = os.getenv("MD_ADDR", self.p.md_addr)
+        td_addr = os.getenv("TD_ADDR", self.p.td_addr)
+        kwargs["tdapi"] = TdApi(addr=td_addr, client_id=self.p.client_id)
+        kwargs["mdapi"] = MdApi(addr=md_addr)
         self._feed = self.DataCls(*args, **kwargs)
         self.broker = self.BrokerCls(*args, **kwargs)
  
-    def register(self, strategy, assets):
-        exp = ExpMeta(strategy=strategy, assets=assets, client_id=self.p.client_id)
-        self.broker.register(exp)
+    def register(self, strat):
+        strat_name = f"{strat.__name__}_{strat._id}"
+        # hashlib.pbkdf2_hmac()
+        # crpyted = hashlib.sha256()
+        # crpyted.update(uname)
+        # crpyted.hexdigest()
+        exp = ExpMeta(strategy=strat_name, appendix=self._feed.appendix, client_id=self.p.client_id)
+        status = self.broker.register(exp)
+        return status
     
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
@@ -86,9 +95,9 @@ class BTStore(Store):
 
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
     
-    def set_cash(self, session, cash):
+    def set_cash(self, experiment_id, session, cash):
         cashmeta = CashMeta(session=session, cash=cash)
-        status = self.broker.set_cash(cashmeta)
+        status = self.broker.set_cash(experiment_id, cashmeta)
         return status
     
     def get_value(self):
@@ -96,21 +105,19 @@ class BTStore(Store):
         acct = self.broker.acct
         return np.sum(acct), acct[0] 
     
-    def get_position(self):
-        o = self.broker.fetch("position")
+    def get_position(self, experiment_id):
+        o = self.broker.fetch(experiment_id, "position")
         return o
     
-    def get_account(self):
-        o = self.broker.fetch("account")
+    def get_account(self, experiment_id):
+        o = self.broker.fetch(experiment_id, "account")
         return o
     
-    def subscribe(self, topic, sdate=0, edate=0, sid=[]):
-        start_date = sdate if sdate >0 else datetime.strptime("19900101", "%Y%m%d")
-        end_date = edate if edate > 0 else datetime.now().timestamp()
-        req = ReqMeta(start_date=start_date, end_date=end_date, sid=sid)
-        return self.broker.subscribe(topic, req)
+    def subscribe(self, experiment_id, topic, sdate=0, edate=0, sid=[]):
+        req = ReqMeta(start_date=sdate, end_date=edate, sid=sid)
+        return self.broker.subscribe(experiment_id, topic, req)
     
-    def submit(self, sid="", size=0, price=0.0, sizer_ratio=0, 
+    def submit(self, experiment_id, sid="", size=0, price=0.0, sizer_ratio=0, 
                pricelimit=0, exec_type=0, order_type=0, created_at=0):
         order_meta = OrderMeta(sid=sid,
                                 size=abs(size), 
@@ -121,17 +128,21 @@ class BTStore(Store):
                                 order_type=order_type,
                                 created_at=created_at)
 
-        order_bits = self.broker.submit(order_meta)
-        self.qucknotify.notify_order((order_meta, order_bits)) # notify order
-        return order_bits
+        trades = self.broker.submit(experiment_id, order_meta)
+        return order_meta, trades
+
+    def _dt_over(self, last=False):
+        dtover, (dtkey, dt) = self._feed._dt_over()
+        return dtover, (dtkey, dt)
     
-    def on_dt_over(self, last=False): 
-        isover, interval, data = self._feed.on_dt_over(last)
-        self.quicknotify.notify_data(data) # notify daily data
-        if isover:
-            req = ReqMeta(*interval, sid=[])
-            data = self.broker.on_dt_over(req)
-            self.quicknotify.notify_account(data) # notify account and position
+    def on_dt_over(self, experiment_id, last=False): 
+        dt_over, dts = self._dt_over(last)
+        if dt_over:
+            data = self._feed.getvalues() # dataseries getvalue
+            self.quicknotify.notify_data(data) 
+            # broker on_dt_over
+            req = ReqMeta(*dts, sid=[])
+            self.broker.on_dt_over(experiment_id, req)
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")

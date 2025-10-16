@@ -78,7 +78,6 @@ class LineBuffer(LineSingle):
     def reset(self):
         ''' Resets the internal buffer structure and the indices
         '''
-        print("reset")
         if self.mode == self.QBuffer:
             # add extrasize to ensure resample/replay work because they will
             # use backwards to erase the last bar/tick before delivering a new
@@ -89,10 +88,11 @@ class LineBuffer(LineSingle):
             # self.array = collections.deque(maxlen=self.maxlen + self.extrasize)
             # self.array = array.array(str('d'))
             self.array = np.full(self.maxlen, np.nan)
-            self.useislice = True
-        else:
-            self.array = array.array(str('d'))
             self.useislice = False
+        else:
+            self.array = array.array('d')
+            self.useislice = True
+            self.maxlen = np.iinfo(np.int32).max  # practically unbounded
 
         self.lencount = 0
         # self.idx = -1
@@ -163,9 +163,8 @@ class LineBuffer(LineSingle):
             the slice
             value (variable): value to be set
         '''
-        # import pdb; pdb.set_trace()
-        print("linebuffer __setitem__ ago", ago)
         # self.array[self.idx + ago] = value
+        print("linebuffer __setitem__ ago", ago)
         idx = self.idx % self.maxlen
         # print("__setitem__ idx ", idx)
         self.array[idx + ago] = value
@@ -198,6 +197,24 @@ class LineBuffer(LineSingle):
         '''
         return self.array[idx]
 
+    # def get(self, ago=0, size=1):
+    #     ''' Returns a slice of the array relative to *ago*
+
+    #     Keyword Args:
+    #         ago (int): Point of the array to which size will be added
+    #         to return the slice size(int): size of the slice to return,
+    #         can be positive or negative
+
+    #     If size is positive *ago* will mark the end of the iterable and vice
+    #     versa if size is negative
+
+    #     Returns:
+    #         A slice of the underlying buffer
+    #     '''
+    #     start = self.idx + ago - size + 1
+    #     end = self.idx + ago + 1
+    #     return self.array[start:end]
+    
     def get(self, ago=0, size=1):
         ''' Returns a slice of the array relative to *ago*
 
@@ -212,10 +229,36 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        start = self.idx + ago - size + 1
-        end = self.idx + ago + 1
-        return self.array[start:end]
+        length = abs(size)
+        if size > 0:
+            start_index = self.idx + ago - length + 1
+        else:
+            start_index = self.idx + ago
 
+        circle_index = start_index % self.maxlen
+
+        if circle_index + length <= self.maxlen:
+            return self.array[circle_index:circle_index + length]
+        else:
+            array1 = self.array[circle_index:]
+            array2 = self.array[0:(circle_index + length) % self.maxlen]
+            return np.concatenate((array1, array2))
+
+    # def getzero(self, idx=0, size=1):
+    #     ''' Returns a slice of the array relative to the real zero of the buffer
+
+    #     Keyword Args:
+    #         idx (int): Where to start relative to the real start of the buffer
+    #         size(int): size of the slice to return
+
+    #     Returns:
+    #         A slice of the underlying buffer
+    #     '''
+    #     if self.useislice:
+    #         return list(islice(self.array, idx, idx + size))
+
+    #     return self.array[idx:idx + size]
+    
     def getzero(self, idx=0, size=1):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
@@ -229,7 +272,14 @@ class LineBuffer(LineSingle):
         if self.useislice:
             return list(islice(self.array, idx, idx + size))
 
-        return self.array[idx:idx + size]
+        circle_index = idx % self.maxlen
+
+        if circle_index + size <= self.maxlen:
+            return self.array[circle_index:circle_index + size]
+        else:
+            array1 = self.array[circle_index:]
+            array2 = self.array[0:(circle_index + size) % self.maxlen]
+            return np.concatenate((array1, array2))    
 
     def home(self):
         ''' Rewinds the logical index to the beginning
@@ -249,7 +299,6 @@ class LineBuffer(LineSingle):
         '''
         self.idx += size
         print("forward idx ", self.idx)
-        # import pdb; pdb.set_trace()
         self.lencount += size
 
         # for i in range(size):
@@ -263,7 +312,6 @@ class LineBuffer(LineSingle):
             buffer
         '''
         # Go directly to property setter to support force
-        # self.set_idx(self._idx - size)
         idx = self.idx - size
         self.idx = idx
         self.lencount -= size
@@ -287,6 +335,28 @@ class LineBuffer(LineSingle):
     def getindicators(self):
         return []
 
+    # def plot(self, idx=0, size=None):
+    #     ''' Returns a slice of the array relative to the real zero of the buffer
+
+    #     Keyword Args:
+    #         idx (int): Where to start relative to the real start of the buffer
+    #         size(int): size of the slice to return
+
+    #     This is a variant of getzero which unless told otherwise returns the
+    #     entire buffer, which is usually the idea behind plottint (all must
+    #     plotted)
+
+    #     Returns:
+    #         A slice of the underlying buffer
+    #     '''
+    #     return self.getzero(idx, size or len(self))
+
+    # def plotrange(self, start, end):
+    #     if self.useislice:
+    #         return list(islice(self.array, start, end))
+
+    #     return self.array[start:end]
+    
     def plot(self, idx=0, size=None):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
@@ -307,7 +377,14 @@ class LineBuffer(LineSingle):
         if self.useislice:
             return list(islice(self.array, start, end))
 
-        return self.array[start:end]
+        circle_start = start % self.maxlen
+        circle_end = end % self.maxlen
+        if circle_end >= circle_start:
+            return self.array[circle_start:circle_end]
+        else:   
+            array1 = self.array[circle_start:]
+            array2 = self.array[0:circle_end]
+            return np.concatenate((array1, array2)) 
 
     def addbinding(self, binding):
         ''' Adds another line binding

@@ -24,6 +24,7 @@ import itertools
 import multiprocessing
 from pytz import timezone
 
+from . import observers
 from backtest.metabase import MetaParams, with_metaclass
 from backtest.sizers import sizers
 from backtest.timer import Timer
@@ -70,7 +71,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ('maxcpus', 1),
-        ("sizer", "default"),
         ('writer', False),
         ('savemem', 0),
         ('tz', None),
@@ -89,9 +89,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._pretimers = list()
         self.storecbs = list()
         
-        self.sizer = sizers[self.p.sizer]
         self.store = None
-        self.quicknotify = None
 
     def adddata(self, data, init=False):
         '''
@@ -270,7 +268,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if not t.check(dt0):
                 continue
 
-            t.params.owner.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
+            # via store notify_timer
+            t.params.owner.notify_timer(t, t.lastwhen, *t.args, **t.kwargs) 
 
             if t.params.strats:
                 for strat in runstrats:
@@ -285,30 +284,32 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.analyzers.append((ancls, args, kwargs))
 
-    def addobserver(self, obscls, *args, **kwargs):
-        '''
-        Adds an ``Observer`` class to the mix. Instantiation will be done at
-        ``run`` time
-        '''
-        self.observers.append((False, obscls, args, kwargs))
+    # def addobserver(self, obscls, *args, **kwargs):
+    #     '''
+    #     Adds an ``Observer`` class to the mix. Instantiation will be done at
+    #     ``run`` time
+    #     '''
+    #     self.observers.append((False, obscls, args, kwargs))
 
-    def addobservermulti(self, obscls, *args, **kwargs):
-        '''
-        Adds an ``Observer`` class to the mix. Instantiation will be done at
-        ``run`` time
+    # def addobservermulti(self, obscls, *args, **kwargs):
+    #     '''
+    #     Adds an ``Observer`` class to the mix. Instantiation will be done at
+    #     ``run`` time
 
-        It will be added once per "data" in the system. A use case is a
-        buy/sell observer which observes individual datas.
+    #     It will be added once per "data" in the system. A use case is a
+    #     buy/sell observer which observes individual datas.
 
-        A counter-example is the CashValue, which observes system-wide values
-        '''
-        self.observers.append((True, obscls, args, kwargs))
+    #     A counter-example is the CashValue, which observes system-wide values
+    #     '''
+    #     self.observers.append((True, obscls, args, kwargs))
 
 # ------------------------------------------------------------------ store --------------------------------------------------------------
 
     def addstore(self, store, *args, **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
-        self.stores.append([(store, args, kwargs)])
+        self.store = store(*args, **kwargs)
+        _feed = store.get_feed()
+        self.datas.append(_feed)
  
     def addstorecb(self, callback):
         '''Adds a callback to get messages which would be handled by the
@@ -324,25 +325,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         reception and experimentation.
         '''
         self.storecbs.append(callback)
-
-    def make_experiment(self, **kwargs):
-        strategy_name = "%".join([strat[0][0].__name__ for strat in self.strats])
-        sid=kwargs.get("sid", "")
-        sid_str = "%".join(sid)
-        # hashlib.pbkdf2_hmac()
-        # crpyted = hashlib.sha256()
-        # crpyted.update(uname)
-        # crpyted.hexdigest()
-        self.store.register(strategy_name, sid_str) 
-    
+  
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
-    
-    def addindicator(self, indcls, *args, **kwargs): # signal is indicator
-        '''
-        Adds an ``Indicator`` class to the mix. Instantiation will be done at
-        ``run`` time in the passed strategies
-        '''
-        self.indicators.append((indcls, args, kwargs))
 
     def addstrategy(self, strategy, *args, **kwargs):
         '''
@@ -354,11 +338,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.strats.append([(strategy, args, kwargs)])
 
-    def addsizer(self, sizercls, *args, **kwargs): # after strategy
+    def addindicator(self, indcls, *args, **kwargs): # signal is indicator
+        '''
+        Adds an ``Indicator`` class to the mix. Instantiation will be done at
+        ``run`` time in the passed strategies
+        '''
+        self.indicators.append((indcls, args, kwargs))
+
+    def addsizer(self, sizer_type, *args, **kwargs):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
         strategy added to cerebro
         '''
-        self.sizer = (sizercls, args, kwargs)
+        self.sizer = sizers[sizer_type](*args, **kwargs)
 
     def _init_stcount(self):
         self.stcount = itertools.count(0)
@@ -394,33 +385,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # initialize feed
         for data in self.datas:
             data._start(**kwargs)
-            data.qbuffer(savemem=1) 
 
-        # generate experiment
-        self.make_experiment(**kwargs) 
-
-        # initialize notify
-        store = self.store[0]()
-        # self.store = store
-        # _feed = store.get_feed()
-        # self.datas.append(_feed)
-    
-        self.store.add_notify(self.analyzers, self.observers)
-
-        # if self.p.stdstats:
-        #     self.quicknotify._addobserver(False, observers.Broker)
-            
-        #     self.quicknotify._addobserver(True, observers.BuySell,
-        #                         barplot=True)
-
-        #     self.quicknotify._addobserver(False, observers.DrawDown)
+            # data.qbuffer(savemem=1) 
 
         self.runstrats = list()
         self._event_stop = False  # Stop is requested
 
         if not self.store:
             return []  # nothing can be run
-
+        
         # update params with run kwargs
         pkeys = self.params._getkeys()
         for key, val in kwargs.items():
@@ -441,7 +414,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     
         return self.runstrats
      
-    def runstrategies(self, iterstrat, store):
+    def runstrategies(self, iterstrat):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
@@ -453,19 +426,28 @@ class Cerebro(with_metaclass(MetaParams, object)):
             sargs = self.datas + list(sargs)
             try:
                 strat = stratcls(*sargs, **skwargs)
-                # import pdb; pdb.set_trace()
                 strat._start()
+                # strat.qbuffer(savemem=self.p.savemem)
             except StrategySkipError:
                 continue  # do not add strategy to the mix
             runstrats.append(strat)
+
         if runstrats:
             for _, strat in enumerate(runstrats):
+                if self.p.stdstats:
+                    strat._addobserver(False, observers.Broker)
+                    strat._addobserver(True, observers.BuySell, barplot=True)
+                    strat._addobserver(False, observers.Trades)
+
+                for multi, obscls, obsargs, obskwargs in self.observers:
+                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
+
+                for ancls, anargs, ankwargs in self.analyzers:
+                    strat._addanalyzer(ancls, *anargs, **ankwargs)
+                
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
                 
-                import pdb; 
-                strat.qbuffer(savemem=self.p.savemem)
-
             for writer in self.writers:
                 writer.start()
 
@@ -512,7 +494,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             drets = []
             for d in datas:
-                # import pdb; pdb.set_trace()
                 drets.append(d.next())
 
             d0ret = any((dret for dret in drets))
@@ -550,8 +531,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if d0ret:  # bars produced by data or filters
                 # self._check_timers(runstrats, dt0) # notify_timer to control next
                 for strat in runstrats:
-                    # ratio = self.sizer.get_sizing(self.p.name) # 基于策略分配
-                    self.store.on_dt_over()
                     strat._next()
 
                     if self._event_stop:  # stop if requested
@@ -639,9 +618,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        # if self._exactbars > 0:
-        #     return
-
         if not plotter:
             from . import plot
             # if self.p.oldsync:

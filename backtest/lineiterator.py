@@ -139,6 +139,7 @@ class MetaLineIterator(LineSeries.__class__):
         # Register (my)self as indicator to owner once
         if _obj._owner is not None: # Strategy继承自 LineIterator → LineSeries → LineRoot → LineMultiple
             _obj._owner.addindicator(_obj)
+
         return _obj, args, kwargs
 
 
@@ -296,14 +297,20 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _plotinit(self):
         pass
 
-    def qbuffer(self, savemem=0):
+    def qbuffer(self, savemem, _minperiod):
+        # 2 condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas
         if savemem:
             for line in self.lines:
                 line.qbuffer(savemem)
+                line.minbuffer(_minperiod)
 
         # If called, anything under it, must save
         for obj in self._lineiterators[self.IndType]:
             obj.qbuffer(savemem=1)
+
+        # Tell datas to adjust buffer to strategy datas minimum period 
+        for data in self.datas:
+            data.minbuffer(_minperiod) 
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

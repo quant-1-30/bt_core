@@ -67,6 +67,9 @@ class DataSeries(LineSeries):
 
     LineOrder = [DateTime, Open, High, Low, Close, Volume, OpenInterest]
 
+    def getvalues(self):
+        return [self.lines[i][0] for i in range(len(self.lines))]
+
     def getwriterheaders(self):
         headers = [self._name, 'len']
 

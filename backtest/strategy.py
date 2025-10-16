@@ -23,6 +23,7 @@ import warnings
 import collections
 import itertools
 import operator
+from collections import defaultdict
 
 import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
@@ -30,6 +31,8 @@ from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, ItemCollection, findowner
 from backtest.utils.dateintern import num2date
+
+MAXINT = np.iinfo(np.int_).max
 
 
 class MetaStrategy(StrategyBase.__class__):
@@ -62,9 +65,18 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
-        _obj.store = _obj.env.store # add store to strategy
-        _obj.sizer = _obj.env.sizer # add store to strategy
+        _obj.sizer = _obj.env.sizer # add sizing to strategy
+        _obj.store = store = _obj.env.store # add store to strategy
+        _obj._dt_over = store._dt_over # get dt_over function from store
+        
         _obj._minperiods = list()
+
+        _obj._orders = defaultdict(list)
+        _obj._trades = defaultdict(list) # AutoDictList
+
+        _obj.stats = _obj.observers = ItemCollection()
+        _obj.writers = list()
+
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -72,7 +84,7 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._periodset()
-
+        _obj._next_experiment()
         return _obj, args, kwargs
 
 
@@ -85,20 +97,24 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     lines = ('datetime',)
 
-    # def qbuffer(self, savemem=0):
-    #     '''Enable the memory saving schemes. Possible values for ``savemem``:
+    def qbuffer(self, savemem=0):
+        '''Enable the memory saving schemes. Possible values for ``savemem``:
 
-    #       0: No savings. Each lines object keeps in memory all values
+          0: No savings. Each lines object keeps in memory all values
 
-    #       1: All lines objects save memory, using the strictly minimum needed
-    #     '''
-    #     if not savemem:
-    #         for data in self.datas:
-    #             data.qbuffer(savemem=1)
-    #     # Save in all object types depending on the strategy
-    #     for itcls in self._lineiterators:
-    #         for it in self._lineiterators[itcls]:
-    #             it.qbuffer(savemem=1)
+          1: All lines objects save memory, using the strictly minimum needed
+        '''
+        for line in self.lines: # datetime *** --- strategy lines
+            line.qbuffer(savemem=savemem)
+
+        # Tell datas to adjust buffer to minimum period
+        for data in self.datas:
+            data.qbuffer(savemem=savemem)
+            data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's  
+
+        # Save in all object types depending on the strategy
+        for it in self._lineiterators[self.IndType]:
+                it.qbuffer(savemem, self._minperiod)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -148,42 +164,109 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _start(self):
         self._periodrecalc()
 
-        # Tell datas to adjust buffer to minimum period
-        for data in self.datas:
-            data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's     
+        for obs in self.observers:
+            if not isinstance(obs, list):
+                obs = [obs]  # support of multi-data observers
 
-        self._minperstatus = np.iinfo(np.int_).max  # start in prenext
+            for o in obs:
+                o._start()
+
+        self._minperstatus = MAXINT  # start in prenext
         self.start()
 
     def start(self):
         '''Called right before the backtesting is about to be started.'''
         pass
 
+    def _settz(self, tz):
+        self.lines.datetime._settz(tz)
+
+    def getdtkey(self):
+        '''Return the datetime key for the given datetime or the current one'''
+        dt = num2date(self.lines.datetime[0])
+        return num2date(dt)
+    
+    def _next_experiment(self):
+        self.experment_id = self.store.register(self)
+
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
-        # print("_getminperstatus ", self._minperstatus)
+        print("_getminperstatus ", self._minperstatus)
         return minperstatus
-
-    def _addwriter(self, writer):
-        '''
-        Unlike the other _addxxx functions this one receives an instance
-        because the writer works at cerebro level and is only passed to the
-        strategy to simplify the logic
-        '''
-        self.writers.append(writer)
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
+
+    # def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
+    #     '''Like _addanalyzer but meant for observers (or other entities) which
+    #     rely on the output of an analyzer for the data. These analyzers have
+    #     not been added by the user and are kept separate from the main
+    #     analyzers
+
+    #     Returns the created analyzer
+    #     '''
+    #     analyzer = ancls(*anargs, **ankwargs)
+    #     self._slave_analyzers.append(analyzer)
+    #     return analyzer
+
+    # def _getanalyzer_slave(self, idx):
+    #     return self._slave_analyzers.append[idx]
+
+    # def _addanalyzer(self, ancls, *anargs, **ankwargs):
+    #     anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
+    #     nsuffix = next(self._alnames[anname])
+    #     anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
+    #     analyzer = ancls(*anargs, **ankwargs)
+    #     self.analyzers.append(analyzer, anname)
+
+    def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
+        obsname = obskwargs.pop('obsname', '')
+        if not obsname:
+            obsname = obscls.__name__.lower()
+
+        if not multi:
+            newargs = list(itertools.chain(self.datas, obsargs))
+            obs = obscls(*newargs, **obskwargs)
+            self.stats.append(obs, obsname)
+            return
+
+        setattr(self.stats, obsname, list())
+        l = getattr(self.stats, obsname)
+
+        for data in self.datas:
+            obs = obscls(data, *obsargs, **obskwargs)
+            l.append(obs)
  
+    def _next_observers(self, minperstatus):
+        for observer in self.observers:
+            for analyzer in observer._analyzers:
+                if minperstatus < 0:
+                    analyzer._next()
+                elif minperstatus == 0:
+                    analyzer._nextstart()  # only called for the 1st value
+                else:
+                    analyzer._prenext()
+            observer._next()
+
+    # def _next_analyzers(self, minperstatus):
+    #     for analyzer in self.analyzers:
+    #         if minperstatus < 0:
+    #             analyzer._next()
+    #         elif minperstatus == 0:
+    #             analyzer._nextstart()  # only called for the 1st value
+    #         else:
+    #             analyzer._prenext()
+
     def _next(self):
+
+        self.store.on_dt_over(self.experment_id) # restricted by T + 1 
         super(Strategy, self)._next() # lineiterator _next
-
         minperstatus = self._getminperstatus()
-        self.store._next(minperstatus)  # store _next for dt_over check
+        self._next_observers(minperstatus)
+        # self._next_analyzers(minperstatus)
 
-    def _settz(self, tz):
-        self.lines.datetime._settz(tz)
+        self.clear()
 
     def buy(self, sid="", price=0.0, plimit=0.0,
             exectype=None, ordertype=None, **kwargs):
@@ -214,8 +297,18 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
           - the submitted order
         '''
         sizer_ratio = self._sizer.getsizing()[self._id]
-        self.store.submit(sid, sizer_ratio=sizer_ratio, price=price, plimit=plimit,
-                            exectype=exectype, ordertype=ordertype, **kwargs)
+        ordermeta, trades = self.store.submit(self.experment_id, 
+                                    sid, 
+                                    sizer_ratio=sizer_ratio, 
+                                    price=price, 
+                                    plimit=plimit,
+                                    exectype=exectype, 
+                                    ordertype=ordertype, 
+                                    **kwargs)
+        # dt
+        dt = self.getdtkey()
+        self.orders[dt].append(ordermeta)
+        self.trades[dt].append(trades)
         
     def sell(self, sid, price=0.0, plimit=0.0,
              exectype=None, ordertype=None, **kwargs):
@@ -226,9 +319,26 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        sizer_ratio = self._sizer.getsizing()[self._id]
-        self.store.submit(sid, size=sizer_ratio, price=price, plimit=plimit, 
-                          exectype=exectype, ordertype=ordertype, **kwargs)
+        sizer_ratio = self._sizer.getsizing(isbuy=False)[self._id]
+        ordermeta, trades = self.store.submit(self.experment_id, 
+                          sid, 
+                          size=sizer_ratio, 
+                          price=price, 
+                          plimit=plimit, 
+                          exectype=exectype, 
+                          ordertype=ordertype, 
+                          **kwargs)
+        dt = self.getdtkey()
+        self.orders[dt].append(ordermeta)
+        self.trades[dt].append(trades)
+
+    def _addwriter(self, writer):
+        '''
+        Unlike the other _addxxx functions this one receives an instance
+        because the writer works at cerebro level and is only passed to the
+        strategy to simplify the logic
+        '''
+        self.writers.append(writer)
     
     def _stop(self):
         self.stop()
@@ -237,7 +347,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        self.store.stop()
+        # self.store.stop()
     
     def cancel(self, order_id):
         '''Cancels the order in the broker'''

@@ -19,7 +19,6 @@
 #
 ###############################################################################
 import threading
-import collections
 
 from backtest.broker import BrokerBase
 from bt_sdk.core.model import OrderMeta, CashMeta, ExpMeta, ReqMeta
@@ -91,27 +90,27 @@ class BTBroker(BrokerBase):
     acct = Acct()
 
     def register(self, exp: ExpMeta):
-        self.tdapi.register(exp)
-
-    def set_cash(self, cashmeta: CashMeta):
-        status = self.tdapi.set_cash(cashmeta)
+        status = self.tdapi.register(exp)
         return status
 
-    def fetch(self, topic:str):
-        o = self.tdapi.fetch(topic)
+    def set_cash(self, experiment_id, cashmeta: CashMeta):
+        status = self.tdapi.set_cash(experiment_id, cashmeta)
+        return status
+
+    def fetch(self, experiment_id, topic:str):
+        o = self.tdapi.fetch(experiment_id, topic)
         return o
     
-    def subscribe(self, topic:str, req: ReqMeta): # contextlib
-        q = self.tdapi.subscribe(topic, req)
+    def subscribe(self, experiment_id, topic:str, req: ReqMeta): # contextlib
+        q = self.tdapi.subscribe(experiment_id, topic, req)
         return q
 
-    def submit(self, order_meta:OrderMeta):
-        order_bits = self.tdapi.trade(order_meta.model_dump()) # pydantic contain _thread.lock
+    def submit(self, experiment_id, order_meta:OrderMeta):
+        order_bits = self.tdapi.trade(experiment_id, order_meta.model_dump()) # pydantic contain _thread.lock
         self.put_notification(order_bits)
 
-    def on_dt_over(self, req: ReqMeta):
-        # to keep trading sequence
-        status = self.tdapi.on_dt_over(req) # 返回predate acct 
+    def on_dt_over(self, experiment_id, req: ReqMeta):
+        status = self.tdapi.on_dt_over(experiment_id, req) # staisfy T + 1 and update logic 
         return status
     
     def stop(self):

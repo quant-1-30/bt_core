@@ -28,6 +28,6 @@ from .fixedsize import *
 
 
 sizers = {
-    'default': NoSizer,
+    'fixed': Fixed,
     'kelly': KellySizer
     }

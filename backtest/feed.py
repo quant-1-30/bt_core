@@ -176,10 +176,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def num2date(self, dt, tz=None):
         return num2date(dt, tz or self._tz) # default is Asia/Shanghai
     
-    def _getcurrenteos(self): 
+    def _geteos(self): 
         '''Returns the next eos using a trading calendar if available'''
         if self._clone:
-            return self.data._getcurrenteos()
+            return self.data._geteos()
 
         if not len(self):
             return datetime.datetime.min, 0.0
@@ -209,26 +209,13 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             if self.lines.datetime[0] > datamaster.lines.datetime[0]:
                 self.lines.rewind()
     
-    # def next(self, datamaster=None):
-    #     # print("feed next buflen ", self.buflen())
-    #     # import pdb; pdb.set_trace()
-    #     if len(self) >= self.buflen(): # consume > buffer size 
-    #         ret = self.load()
-    #         if not ret:
-    #             return ret
-    #         # self.apply_factor() # dynamic factor
-    #     else:
-    #         self.advance()
-    #     # print("datetime array: ", self.lines.datetime.array)
-    #     return True
-    
     def next(self, datamaster=None):
         ret = self.load()
         if not ret:
             return ret
+        
         if len(self) >= self.buflen(): # consume > buffer size
             self.apply_factor() 
-
         return True
 
     def _load(self):
@@ -329,21 +316,14 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         return bool(ret)
     
-    def on_dt_over(self, last=False):
-        end_date = num2date(self.lines.datetime[0])
-        start_date = num2date(self.lines.datetime[-1])
+    def _dt_over(self, last=False):
+        dt = num2date(self.lines.datetime[0])
+        dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
         if last:
             isover=True
-            interval = (end_date, end_date)
-            # interval=(end_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
         else:
-            isover = (end_date - start_date).days if start_date else False
-            interval = (start_date, end_date)
-            # interval=(start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"))
-    
-        kline = (start_date, self.lines.open[-1], self.lines.high[-1],   
-                self.lines.low[-1], self.lines.close[-1], self.lines.volume[-1])
-        return isover, interval, kline 
+            isover = (dt - dtkey).days if dtkey else False
+        return isover, (dtkey, dt)
     
 # --------------------------------------------------------------------- resample ---------------------------------------------------------------
 
