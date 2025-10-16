@@ -18,7 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import calendar
 import datetime
 import pprint as pp
 import numpy as np
@@ -130,10 +129,10 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
     '''
     csv = True
 
-    def __len__(self):
-        '''Support for invoking ``len`` on analyzers by actually returning the
-        current length of the strategy the analyzer operates on'''
-        return len(self.strategy)
+    # def __len__(self):
+    #     '''Support for invoking ``len`` on analyzers by actually returning the
+    #     current length of the strategy the analyzer operates on'''
+    #     return len(self.strategy)
 
     def _register(self, child):
         self._children.append(child)
@@ -262,7 +261,8 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         self.timeframe = self.p.timeframe or self.data._timeframe
         self.compression = self.p.compression or self.data._compression
 
-        self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min) # dtkey is boundary
+        # self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min) # dtkey is boundary
+        self.dtkey=datetime.datetime.min
         super(TimeFrameAnalyzerBase, self)._start()
 
     def _prenext(self):
@@ -399,7 +399,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
     #     return dtcmp, dtkey
 
     def _dt_over(self, last=False):
-        dt_over, (dtkey, dt) = self.strategy._dt_over(last)
-        self.dtkey, self.dtkey1 = dtkey, dt
+        dt_over, dts = self.strategy._dt_over(last)
+        self.dtkey = dts[0]
         return dt_over
     

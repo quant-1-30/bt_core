@@ -82,35 +82,26 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
     '''
 
     params = (
-        ('data', None),
-        ('firstopen', True),
-    )
+        ('window', 1),
+     )
 
     def start(self):
         super(LogReturnsRolling, self).start()
+        
+        starvalue = self.strategy.get_value()
 
-        self._values = collections.deque([float('Nan')] * self.compression,
-                                         maxlen=self.compression)
+        self._values = collections.deque([float('Nan')] * self.p.window,
+                                         maxlen=self.p.window)
+        self._values.append(starvalue)
 
         # keep the initial portfolio value if not tracing a data
-        self._lastvalue = self.notify.store.getvalue()[0]
 
     def notify_fund(self):
         self._value = self.notify.store.getvalue()[0]
 
-    def _on_dt_over(self):
-        # next is called in a new timeframe period
-        if self.p.data is None or len(self.p.data) > 1:
-            # Not tracking a data feed or data feed has data already
-            vst = self._lastvalue  # update value_start to last
-        else:
-            # The 1st tick has no previous reference, use the opening price
-            vst = self.p.data.open[0] if self.p.firstopen else self.p.data[0]
-
+    def on_dt_over(self):
+        vst = self.streategy.get_value()
         self._values.append(vst)  # push values backwards (and out)
-
-    def next(self):
-        # Calculate the return
         super(LogReturnsRolling, self).next()
-        self.rets[self.dtkey] = math.log(self._value / self._values[0])
-        self._lastvalue = self._value  # keep last value
+        self.rets[self.dtkey] = math.log(self._values[-1] / self._values[0])
+

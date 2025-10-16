@@ -30,8 +30,7 @@ class Acct(object):
 
     def __init__(self):
         self._evt_acct = threading.Event()
-        self._cash = 0.0
-        self.portfolio_value = 0.0
+        self.fundval = []
 
     def __set__(self, instance, value):
         raise AttributeError("can't set attribute")
@@ -40,7 +39,7 @@ class Acct(object):
         if instance is None:
             return self
         self.acct_thd(instance.tdapi)
-        return (self._cash, self.portfolio_value)
+        return self.fundval
     
     def acct_thd(self, api):
         t = threading.Thread(target=self._t_account, args=(api,))
@@ -49,14 +48,10 @@ class Acct(object):
         self._evt_acct.wait() # wait for account data to be set
     
     def _t_account(self, api):
-        act = api.fetch("account")
+        act = api.get_value("account")
         if act:
             msg = act[0]["body"]
-            self._cash = msg["cash"]
-            self.portfolio_value = msg["portfolio_value"]
-        else:
-            self._cash = 0.0
-            self.portfolio_value = 0.0
+            self.fundval = msg
         self._evt_acct.set()
 
 
@@ -93,24 +88,24 @@ class BTBroker(BrokerBase):
         status = self.tdapi.register(exp)
         return status
 
-    def set_cash(self, experiment_id, cashmeta: CashMeta):
-        status = self.tdapi.set_cash(experiment_id, cashmeta)
+    def set_cash(self, cashmeta: CashMeta, experiment_id: str):
+        status = self.tdapi.set_cash(cashmeta, experiment_id)
         return status
 
-    def fetch(self, experiment_id, topic:str):
-        o = self.tdapi.fetch(experiment_id, topic)
+    def get_value(self, topic:str, experiment_id=''):
+        o = self.tdapi.fetch(topic, experiment_id) 
         return o
     
-    def subscribe(self, experiment_id, topic:str, req: ReqMeta): # contextlib
-        q = self.tdapi.subscribe(experiment_id, topic, req)
+    def subscribe(self, topic:str, req: ReqMeta, experiment_id:str): # contextlib
+        q = self.tdapi.subscribe(topic, req, experiment_id)
         return q
 
-    def submit(self, experiment_id, order_meta:OrderMeta):
-        order_bits = self.tdapi.trade(experiment_id, order_meta.model_dump()) # pydantic contain _thread.lock
+    def submit(self, order_meta:OrderMeta, experiment_id:str):
+        order_bits = self.tdapi.trade(order_meta, experiment_id) # pydantic contain _thread.lock
         self.put_notification(order_bits)
 
-    def on_dt_over(self, experiment_id, req: ReqMeta):
-        status = self.tdapi.on_dt_over(experiment_id, req) # staisfy T + 1 and update logic 
+    def on_dt_over(self, req: ReqMeta, experiment_id:str):
+        status = self.tdapi.on_dt_over(req, experiment_id) # staisfy T + 1 and update logic 
         return status
     
     def stop(self):

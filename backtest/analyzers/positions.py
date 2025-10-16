@@ -18,11 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzers import Analyzer
+from backtest.analyzers import Analyzer, TimeFrameAnalyzerBase
 from backtest.dataseries import TimeFrame
 
 
-class PositionsValue(Analyzer):
+# class PositionsValue(Analyzer):
+class PositionsValue(TimeFrameAnalyzerBase):
     '''This analyzer reports the value of the positions of the current set of
     datas
 
@@ -71,13 +72,7 @@ class PositionsValue(Analyzer):
         tf = min(d._timeframe for d in self.datas)
         self._usedate = tf >= TimeFrame.Days
 
-    def next(self):
+    def on_dt_over(self):
         # pvals = [self.strategy.broker.get_value([d]) for d in self.datas]
-        pvals = self.notify.store.get_position()
-        if self.p.cash:
-            pvals.append(self.notify.store.get_value()[1])
-
-        if self._usedate:
-            self.rets[self.notify.datetime.date()] = pvals
-        else:
-            self.rets[self.notify.datetime.datetime()] = pvals
+        pvals = self.strategy.get_position()
+        self.rets[self.dtkey] = pvals

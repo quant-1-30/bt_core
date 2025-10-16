@@ -78,12 +78,12 @@ class Calmar(TimeFrameAnalyzerBase):
         self._mdd = float('-inf')
         self._values = collections.deque([float('Nan')] * self.p.period,
                                          maxlen=self.p.period)
-        self._values.append(self.notify.store.get_value()[0])
+        self._values.append(self.strategy.get_value())
 
     def on_dt_over(self):
         self._mdd = max(self._mdd, self._maxdd.maxdd)
         
-        self._values.append(self.notify.store.get_value()[0])
+        self._values.append(self.strategy.get_value())
         rann = math.log(self._values[-1] / self._values[0]) / len(self._values)
         self.calmar = calmar = rann / (self._mdd or float('Inf'))
 

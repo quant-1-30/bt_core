@@ -70,7 +70,7 @@ class Store(with_metaclass(MetaStore, object)):
     def _start(self, *args, **kwargs):
         self.start(*args, **kwargs)
     
-    def _dt_over(self):
+    def _dt_over(self, last=False):
         pass
     
     def _next(self, experiment_id):

@@ -91,13 +91,15 @@ class Returns(TimeFrameAnalyzerBase):
     def start(self):
         super(Returns, self).start()
 
-        self._value_start = self.notify.store.getvalue()[0]
+        v = self.strategy.get_value()
+        self._value_start = v.portofolio_value + v.cash
         self._tcount = 0
 
     def stop(self):
         super(Returns, self).stop()
         
-        self._value_end = self.notify.store.getvalue()[0]
+        v = self.strategy.get_value()
+        self._value_end = v.portofolio_value + v.cash
         
         # Compound return
         try:
@@ -127,5 +129,5 @@ class Returns(TimeFrameAnalyzerBase):
 
         self.rets['rnorm100'] = rnorm * 100.0  # human readable %
 
-    def _on_dt_over(self):
+    def on_dt_over(self):
         self._tcount += 1  # count the subperiod

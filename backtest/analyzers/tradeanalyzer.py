@@ -62,7 +62,7 @@ class TradeAnalyzer(Analyzer):
         for p_obj in p_objs:
             pnl = p_obj.pnl
 
-            if p_obj.justopen:
+            if p_obj.justopen: # trades cumsum to calculate total
                 # Trade just opened
                 self.rets.total.total += 1
                 self.rets.total.open += 1

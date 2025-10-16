@@ -331,7 +331,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         dt = self.getdtkey()
         self.orders[dt].append(ordermeta)
         self.trades[dt].append(trades)
-
+    
     def _addwriter(self, writer):
         '''
         Unlike the other _addxxx functions this one receives an instance
@@ -339,6 +339,32 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         strategy to simplify the logic
         '''
         self.writers.append(writer)
+
+    def get_value(self, complete=False):
+        '''Returns the current value of the portfolio
+
+        If ``complete`` is ``False`` (default) the value of the cash in hand
+        plus the market value of the open positions is returned.
+
+        If ``complete`` is ``True`` the value of all positions is calculated
+        as if they were closed at the current market price and then added to
+        the cash in hand.
+        '''
+        if complete:
+            # warnings.warn("complete=True not implemented in BTStore")
+            v = self.store.subcribe(self.experment_id, "account")
+            return v
+        v = self.store.get_value(self.experment_id)
+        return v
+    
+    def get_position(self, complete=False):
+        '''Returns the current position of the portfolio'''
+        if complete:
+            # warnings.warn("complete=True not implemented in BTStore")
+            v = self.store.subcribe(self.experment_id, "account")
+            return v
+        v = self.store.get_position(self.experment_id)
+        return v
     
     def _stop(self):
         self.stop()
@@ -347,7 +373,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        # self.store.stop()
+        self.store.stop(self.experment_id, last=True)
     
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
@@ -389,7 +415,7 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
 
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
-            super(MetaSigStrategy, cls).dopostinit(_obj, *args, **kwargs)
+            super(MetaSigStrategy, cls).dopostinit(_obj, *args, **kwargs) # experiment_id
 
         for sigtype, sigcls, sigargs, sigkwargs in _obj.p.signals:
             _obj._signals[sigtype].append(sigcls(*sigargs, **sigkwargs))

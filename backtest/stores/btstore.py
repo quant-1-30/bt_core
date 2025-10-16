@@ -97,25 +97,22 @@ class BTStore(Store):
     
     def set_cash(self, experiment_id, session, cash):
         cashmeta = CashMeta(session=session, cash=cash)
-        status = self.broker.set_cash(experiment_id, cashmeta)
+        status = self.broker.set_cash(cashmeta, experiment_id)
         return status
     
-    def get_value(self):
+    def get_value(self, experiment_id): # alias get_account
         # acct [cash, portfolio]
         acct = self.broker.acct
-        return np.sum(acct), acct[0] 
+        v = acct.get(experiment_id, None)
+        return v
     
     def get_position(self, experiment_id):
-        o = self.broker.fetch(experiment_id, "position")
-        return o
-    
-    def get_account(self, experiment_id):
-        o = self.broker.fetch(experiment_id, "account")
+        o = self.broker.get_value("position", experiment_id)
         return o
     
     def subscribe(self, experiment_id, topic, sdate=0, edate=0, sid=[]):
         req = ReqMeta(start_date=sdate, end_date=edate, sid=sid)
-        return self.broker.subscribe(experiment_id, topic, req)
+        return self.broker.subscribe(topic, req, experiment_id)
     
     def submit(self, experiment_id, sid="", size=0, price=0.0, sizer_ratio=0, 
                pricelimit=0, exec_type=0, order_type=0, created_at=0):
@@ -128,7 +125,7 @@ class BTStore(Store):
                                 order_type=order_type,
                                 created_at=created_at)
 
-        trades = self.broker.submit(experiment_id, order_meta)
+        trades = self.broker.submit(order_meta, experiment_id)
         return order_meta, trades
 
     def _dt_over(self, last=False):
@@ -142,12 +139,12 @@ class BTStore(Store):
             self.quicknotify.notify_data(data) 
             # broker on_dt_over
             req = ReqMeta(*dts, sid=[])
-            self.broker.on_dt_over(experiment_id, req)
+            self.broker.on_dt_over(req, experiment_id)
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")
     
-    def stop(self):
+    def stop(self, experiment_id):
         '''Stops and tells the store to stop'''
-        self.on_dt_over(last=True) # sync end_of_session
+        self.on_dt_over(experiment_id, last=True) # sync end_of_session
         super().stop()

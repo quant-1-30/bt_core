@@ -109,7 +109,7 @@ class VWR(TimeFrameAnalyzerBase):
         super(VWR, self).start()
         # Add an initial placeholder for [-1] operation
             
-        self._pis = [self._owner.get_value()[0]]  # keep initial value
+        self._pis = [self.strategy.get_value()]  # keep initial value
 
         self._pns = [None]  # keep final prices (value)
 

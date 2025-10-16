@@ -21,6 +21,7 @@
 from collections import OrderedDict
 
 from backtest.analyzer import Analyzer
+from backtest.utils.dateintern import num2date
 
 
 class AnnualReturn(Analyzer):
@@ -53,19 +54,11 @@ class AnnualReturn(Analyzer):
         self.rets = list()
         self.ret = OrderedDict()
 
-        v = list()
-        with self.notify.store.subscribe("account") as ctx: 
-            # datetime, portfolio_value, cash, leverage, margin, client_id
-            while True:
-                msg = ctx.get()
-                if msg == "eof":  # EOF
-                    break
-                v.append(msg)
+        v = self.strategy.get_value(complete=True)
 
         for i in range(len(v) - 1, -1, -1):
-            dt = self.data.datetime.date(-i)
-            dt = v[i][0]
-            value_cur = v[i][1] + v[i][2] 
+            dt = num2date(v.datetime)
+            value_cur = v[i].portfolio_value + v[i].cash
 
             if dt.year > cur_year:
                 if cur_year >= 0:

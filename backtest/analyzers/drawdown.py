@@ -22,76 +22,76 @@ from backtest.analyzer import Analyzer, TimeFrameAnalyzerBase
 from backtest.utils import AutoOrderedDict
 
 
-__all__ = ['DrawDown', 'TimeDrawDown']
+__all__ = ['TimeDrawDown']
 
 
-class DrawDown(Analyzer):
-    '''This analyzer calculates trading system drawdowns stats such as drawdown
-    values in %s and in dollars, max drawdown in %s and in dollars, drawdown
-    length and drawdown max length
+# class DrawDown(Analyzer):
+#     '''This analyzer calculates trading system drawdowns stats such as drawdown
+#     values in %s and in dollars, max drawdown in %s and in dollars, drawdown
+#     length and drawdown max length
 
-    Params:
+#     Params:
 
-    Methods:
+#     Methods:
 
-      - ``get_analysis``
+#       - ``get_analysis``
 
-        Returns a dictionary (with . notation support and subdctionaries) with
-        drawdown stats as values, the following keys/attributes are available:
+#         Returns a dictionary (with . notation support and subdctionaries) with
+#         drawdown stats as values, the following keys/attributes are available:
 
-        - ``drawdown`` - drawdown value in 0.xx %
-        - ``moneydown`` - drawdown value in monetary units
-        - ``len`` - drawdown length
+#         - ``drawdown`` - drawdown value in 0.xx %
+#         - ``moneydown`` - drawdown value in monetary units
+#         - ``len`` - drawdown length
 
-        - ``max.drawdown`` - max drawdown value in 0.xx %
-        - ``max.moneydown`` - max drawdown value in monetary units
-        - ``max.len`` - max drawdown length
-    '''
+#         - ``max.drawdown`` - max drawdown value in 0.xx %
+#         - ``max.moneydown`` - max drawdown value in monetary units
+#         - ``max.len`` - max drawdown length
+#     '''
 
-    params = (
-        # ('fund', None),
-    )
+#     params = (
+#         # ('fund', None),
+#     )
 
-    def start(self):
-        super(DrawDown, self).start()
+#     def start(self):
+#         super(DrawDown, self).start()
         
-    def create_analysis(self):
-        self.rets = AutoOrderedDict()  # dict with . notation
+#     def create_analysis(self):
+#         self.rets = AutoOrderedDict()  # dict with . notation
 
-        self.rets.len = 0
-        self.rets.drawdown = 0.0
-        self.rets.moneydown = 0.0
+#         self.rets.len = 0
+#         self.rets.drawdown = 0.0
+#         self.rets.moneydown = 0.0
 
-        self.rets.max.len = 0.0
-        self.rets.max.drawdown = 0.0
-        self.rets.max.moneydown = 0.0
+#         self.rets.max.len = 0.0
+#         self.rets.max.drawdown = 0.0
+#         self.rets.max.moneydown = 0.0
 
-        self._maxvalue = float('-inf')  # any value will outdo it
+#         self._maxvalue = float('-inf')  # any value will outdo it
 
-    def stop(self):
-        self.rets._close()  # . notation cannot create more keys
+#     def stop(self):
+#         self.rets._close()  # . notation cannot create more keys
 
-    def notify_fund(self):
+#     def notify_fund(self):
         
-        _fundvalue = self._owner.store.getvalue()[0]
+#         _fundvalue = self._owner.store.getvalue()[0]
         
-        self._value = _fundvalue  # record current value
-        self._maxvalue = max(self._maxvalue, _fundvalue)  # update peak
+#         self._value = _fundvalue  # record current value
+#         self._maxvalue = max(self._maxvalue, _fundvalue)  # update peak
 
-    def next(self):
-        self.notify_fund()
+#     def next(self):
+#         self.notify_fund()
 
-        r = self.rets
-        # calculate current drawdown values
-        r.moneydown = moneydown = self._maxvalue - self._value
-        r.drawdown = drawdown = 100.0 * moneydown / self._maxvalue
+#         r = self.rets
+#         # calculate current drawdown values
+#         r.moneydown = moneydown = self._maxvalue - self._value
+#         r.drawdown = drawdown = 100.0 * moneydown / self._maxvalue
 
-        # maxximum drawdown values
-        r.max.moneydown = max(r.max.moneydown, moneydown)
-        r.max.drawdown = maxdrawdown = max(r.max.drawdown, drawdown)
+#         # maxximum drawdown values
+#         r.max.moneydown = max(r.max.moneydown, moneydown)
+#         r.max.drawdown = maxdrawdown = max(r.max.drawdown, drawdown)
 
-        r.len = r.len + 1 if drawdown else 0
-        r.max.len = max(r.max.len, r.len)
+#         r.len = r.len + 1 if drawdown else 0
+#         r.max.len = max(r.max.len, r.len)
 
 
 class TimeDrawDown(TimeFrameAnalyzerBase):
@@ -145,7 +145,7 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         
-        value = self.notify.store.getvalue()[0]
+        value = self.strategy.get_value()
 
         # update the maximum seen peak
         if value > self.peak:

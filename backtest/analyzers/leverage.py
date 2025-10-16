@@ -18,10 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzers import Analyzer
+from backtest.analyzers import Analyzer, TimeFrameAnalyzerBase
 
 
-class GrossLeverage(Analyzer):
+# class GrossLeverage(Analyzer):
+class GrossLeverage(TimeFrameAnalyzerBase):
     '''This analyzer calculates the Gross Leverage of the current strategy
     on a timeframe basis
 
@@ -42,14 +43,22 @@ class GrossLeverage(Analyzer):
     def start(self):
         super(GrossLeverage, self).start()
         
-    def notify_fund(self):
-        fundvalue, cash = self.notify.store.get_value()
-        self._value = fundvalue
-        self._cash = cash
+    # def notify_fund(self):
+    #     fundvalue, cash = self.notify.store.get_value()
+    #     self._value = fundvalue
+    #     self._cash = cash
 
-    def next(self):
+    # def next(self):
+    #     self.notify_fund()
+    #     # Updates the leverage for "dtkey" (see base class) for each cycle
+    #     # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
+    #     lev = (self._value - self._cash) / self._value
+    #     self.rets[self.data0.datetime.datetime()] = lev
+
+    def on_dt_over(self):
         self.notify_fund()
+        v = self.strategy.get_value()
         # Updates the leverage for "dtkey" (see base class) for each cycle
         # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
-        lev = (self._value - self._cash) / self._value
-        self.rets[self.data0.datetime.datetime()] = lev
+        lev = (v.portfolio_value - v.cash) / v.portfolio_value
+        self.rets[self.dtkey] = lev
