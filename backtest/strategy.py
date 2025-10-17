@@ -184,7 +184,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def getdtkey(self):
         '''Return the datetime key for the given datetime or the current one'''
         dt = num2date(self.lines.datetime[0])
-        return num2date(dt)
+        return int(dt.strftime("%Y%m%d"))
     
     def _next_experiment(self):
         self.experment_id = self.store.register(self)
@@ -297,7 +297,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
           - the submitted order
         '''
         sizer_ratio = self._sizer.getsizing()[self._id]
-        ordermeta, trades = self.store.submit(self.experment_id, 
+        order, trades = self.store.submit(self.experment_id, 
                                     sid, 
                                     sizer_ratio=sizer_ratio, 
                                     price=price, 
@@ -305,9 +305,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                     exectype=exectype, 
                                     ordertype=ordertype, 
                                     **kwargs)
-        # dt
+        # 
         dt = self.getdtkey()
-        self.orders[dt].append(ordermeta)
+        self.orders[dt].append(order)
         self.trades[dt].append(trades)
         
     def sell(self, sid, price=0.0, plimit=0.0,

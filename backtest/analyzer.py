@@ -400,6 +400,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
 
     def _dt_over(self, last=False):
         dt_over, dts = self.strategy._dt_over(last)
-        self.dtkey = dts[0]
+        dtkey = dts[0] 
+        self.dtkey = int(dtkey.strftime("%Y%m%d")) if dtkey else 0 # date to str
         return dt_over
     

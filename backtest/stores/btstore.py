@@ -19,9 +19,7 @@
 #
 ###############################################################################
 import os
-import numpy as np
 
-from datetime import datetime
 from bt_sdk.core.client import MdApi, TdApi
 from backtest.store import Store
 from bt_sdk.core.model import OrderMeta, ReqMeta, CashMeta, ExpMeta
@@ -116,7 +114,7 @@ class BTStore(Store):
     
     def submit(self, experiment_id, sid="", size=0, price=0.0, sizer_ratio=0, 
                pricelimit=0, exec_type=0, order_type=0, created_at=0):
-        order_meta = OrderMeta(sid=sid,
+        order = OrderMeta(sid=sid,
                                 size=abs(size), 
                                 price=price,
                                 sizer_ratio=sizer_ratio, 
@@ -125,8 +123,8 @@ class BTStore(Store):
                                 order_type=order_type,
                                 created_at=created_at)
 
-        trades = self.broker.submit(order_meta, experiment_id)
-        return order_meta, trades
+        trades = self.broker.submit(order, experiment_id)
+        return order, trades
 
     def _dt_over(self, last=False):
         dtover, (dtkey, dt) = self._feed._dt_over()

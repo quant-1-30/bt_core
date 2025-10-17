@@ -93,15 +93,15 @@ class BTBroker(BrokerBase):
         return status
 
     def get_value(self, topic:str, experiment_id=''):
-        o = self.tdapi.fetch(topic, experiment_id) 
+        o = self.tdapi.getvalue(topic, experiment_id) 
         return o
     
     def subscribe(self, topic:str, req: ReqMeta, experiment_id:str): # contextlib
         q = self.tdapi.subscribe(topic, req, experiment_id)
         return q
 
-    def submit(self, order_meta:OrderMeta, experiment_id:str):
-        order_bits = self.tdapi.trade(order_meta, experiment_id) # pydantic contain _thread.lock
+    def submit(self, order:OrderMeta, experiment_id:str):
+        order_bits = self.tdapi.trade(order, experiment_id) # pydantic contain _thread.lock
         self.put_notification(order_bits)
 
     def on_dt_over(self, req: ReqMeta, experiment_id:str):
