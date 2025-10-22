@@ -20,12 +20,13 @@
 ###############################################################################
 import math
 
-from backtest.analyzer import Analyzer
+from backtest.analyzer import Analyzer, TimeFrameAnalyzerBase
 from backtest.utils.mathsupport import average, standarddev
 from backtest.utils import AutoOrderedDict
 
 
-class SQN(Analyzer):
+# class SQN(Analyzer):
+class SQN(TimeFrameAnalyzerBase):
     '''SQN or SystemQualityNumber. Defined by Van K. Tharp to categorize trading
     systems.
 
@@ -62,19 +63,10 @@ class SQN(Analyzer):
         self.pnl = list()
         self.count = 0
 
-    # def notify_trade(self):
-    #     p_obj = self.notify.store.get_position()
-    #     # if pobj.status == trade.Closed:
-    #     self.pnl.append(p_obj.pnl)
-    #     self.count += 1
-    
-    # def next(self): # on_dt_over
-    #     self.notify_trade()
-
     def on_dt_over(self):
-        p_obj = self.strategy.get_position()
+        _, v = self._owner.getvalue()
         # if pobj.status == trade.Closed:
-        self.pnl.append(p_obj.pnl)
+        self.pnl.append(v.pnl)
         self.count += 1
 
     def stop(self):

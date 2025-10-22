@@ -21,10 +21,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from backtest.analyzers import Analyzer
+from backtest.analyzers import Analyzer, TimeFrameAnalyzerBase
 
 
-class Orders(Analyzer):
+class Orders(TimeFrameAnalyzerBase):
     '''This analyzer reports the orders occurred with each an every data in
     the system
 
@@ -48,10 +48,10 @@ class Orders(Analyzer):
 
     def on_dt_over(self):
         # super(Transactions, self).next()  # let dtkey update
-        dt_txns = self.strategy._orders.get(self.dtkey, [])
+        dt_txns = self._owner._orders.get(self.dtkey, [])
         if dt_txns:
             self.rets[self.dtkey] = dt_txns
 
     def stop(self):
         super(Orders, self).stop()
-        self.strategy._orders.clear()
+        self._owner._orders.clear()

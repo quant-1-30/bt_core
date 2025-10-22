@@ -19,7 +19,7 @@
 #
 ###############################################################################
 
-from backtest.analyzers import DrawDown
+from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -51,8 +51,8 @@ class DrawDown(Observer):
 
     def __init__(self):
         kwargs = self.p._getkwargs()
-        self._dd = self._owner._addanalyzer_slave(DrawDown,
-                                                  **kwargs)
+        self._dd = self._owner._addanalyzer(DrawDown,
+                                            **kwargs)
 
     def next(self):
         self.lines.drawdown[0] = self._dd.rets.drawdown  # update drawdown
@@ -73,7 +73,9 @@ class DrawDownLength(Observer):
     plotlines = dict(maxlength=dict(_plotskip=True,))
 
     def __init__(self):
-        self._dd = self._owner._addanalyzer_slave(DrawDown)
+        kwargs = self.p._getkwargs()
+        self._dd = self._owner._addanalyzer(DrawDown,
+                                            **kwargs)
 
     def next(self):
         self.lines.len[0] = self._dd.rets.len  # update drawdown length

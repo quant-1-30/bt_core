@@ -92,14 +92,13 @@ class TimeReturn(TimeFrameAnalyzerBase):
     def start(self):
         super(TimeReturn, self).start()
 
-        v = self.strategy.get_value()
+        v, _ = self._owner.getvalue()
         self._value_start = v.portofolio_value + v.cash
         self._value = None
 
     def on_dt_over(self):
         # next is called in a new timeframe period
-        self.notify_fund()
-        v = self.strategy.get_value()
+        v, _ = self._owner.getvalue()
         self._value = v.portofolio_value + v.cash
         self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
         self._value_start = self._value  # keep last value

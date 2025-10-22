@@ -54,7 +54,7 @@ class AnnualReturn(Analyzer):
         self.rets = list()
         self.ret = OrderedDict()
 
-        v = self.strategy.get_value(complete=True)
+        v, _ = self._owner.getvalue(current=False)
 
         for i in range(len(v) - 1, -1, -1):
             dt = num2date(v.datetime)

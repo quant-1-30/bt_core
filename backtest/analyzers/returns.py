@@ -91,14 +91,14 @@ class Returns(TimeFrameAnalyzerBase):
     def start(self):
         super(Returns, self).start()
 
-        v = self.strategy.get_value()
+        v, _ = self._owner.getvalue()
         self._value_start = v.portofolio_value + v.cash
         self._tcount = 0
 
     def stop(self):
         super(Returns, self).stop()
         
-        v = self.strategy.get_value()
+        v = self._owner.getvalue()
         self._value_end = v.portofolio_value + v.cash
         
         # Compound return

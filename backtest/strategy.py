@@ -84,7 +84,7 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._periodset()
-        _obj._next_experiment()
+        _obj._next_id()
         return _obj, args, kwargs
 
 
@@ -97,7 +97,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     lines = ('datetime',)
 
-    def qbuffer(self, savemem=0):
+    def qbuffer(self, savemem=1):
         '''Enable the memory saving schemes. Possible values for ``savemem``:
 
           0: No savings. Each lines object keeps in memory all values
@@ -115,6 +115,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # Save in all object types depending on the strategy
         for it in self._lineiterators[self.IndType]:
                 it.qbuffer(savemem, self._minperiod)
+        # include obs
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -161,8 +162,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             dminperiod = max(_dminperiods[data] or [data._minperiod])
             self._minperiods.append(dminperiod)
 
+    def _next_id(self):
+        self.experment_id = self.store.register(self)
+
     def _start(self):
         self._periodrecalc()
+
+        # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
+        for analyzer in self.analyzers:
+            analyzer._start()
 
         for obs in self.observers:
             if not isinstance(obs, list):
@@ -172,6 +180,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 o._start()
 
         self._minperstatus = MAXINT  # start in prenext
+
+        self._dlens = [len(data) for data in self.datas]
+
         self.start()
 
     def start(self):
@@ -180,14 +191,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
-
-    def getdtkey(self):
-        '''Return the datetime key for the given datetime or the current one'''
-        dt = num2date(self.lines.datetime[0])
-        return int(dt.strftime("%Y%m%d"))
-    
-    def _next_experiment(self):
-        self.experment_id = self.store.register(self)
 
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
@@ -198,27 +201,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
 
-    # def _addanalyzer_slave(self, ancls, *anargs, **ankwargs):
-    #     '''Like _addanalyzer but meant for observers (or other entities) which
-    #     rely on the output of an analyzer for the data. These analyzers have
-    #     not been added by the user and are kept separate from the main
-    #     analyzers
-
-    #     Returns the created analyzer
-    #     '''
-    #     analyzer = ancls(*anargs, **ankwargs)
-    #     self._slave_analyzers.append(analyzer)
-    #     return analyzer
-
-    # def _getanalyzer_slave(self, idx):
-    #     return self._slave_analyzers.append[idx]
-
-    # def _addanalyzer(self, ancls, *anargs, **ankwargs):
-    #     anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
-    #     nsuffix = next(self._alnames[anname])
-    #     anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
-    #     analyzer = ancls(*anargs, **ankwargs)
-    #     self.analyzers.append(analyzer, anname)
+    def _addanalyzer(self, ancls, *anargs, **ankwargs):
+        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
+        nsuffix = next(self._alnames[anname])
+        anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
+        analyzer = ancls(*anargs, **ankwargs)
+        self.analyzers.append(analyzer, anname)
 
     def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
         obsname = obskwargs.pop('obsname', '')
@@ -247,24 +235,40 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                     analyzer._nextstart()  # only called for the 1st value
                 else:
                     analyzer._prenext()
-            observer._next()
+            else:
+                observer._next()
 
-    # def _next_analyzers(self, minperstatus):
-    #     for analyzer in self.analyzers:
-    #         if minperstatus < 0:
-    #             analyzer._next()
-    #         elif minperstatus == 0:
-    #             analyzer._nextstart()  # only called for the 1st value
-    #         else:
-    #             analyzer._prenext()
+    def _clk_update(self):
+        # if self._oldsync:
+        #     clk_len = super(Strategy, self)._clk_update()
+        #     self.lines.datetime[0] = max(d.datetime[0]
+        #                                  for d in self.datas if len(d))
+        #     return clk_len
+
+        newdlens = [len(d) for d in self.datas]
+        if any(nl > l for l, nl in zip(self._dlens, newdlens)):
+            self.forward()
+
+        self.lines.datetime[0] = max(d.datetime[0]
+                                     for d in self.datas if len(d))
+        
+        self._dlens = newdlens
+
+        return len(self)
+
+    def on_dt_over(self, last=False)->bool:
+        dt = num2date(self.lines.datetime[0])
+        self.notify_data(dt)  # notification
+         
+        isover = self.store.on_dt_over(self.experment_id, last) # T + 1
+        return isover
 
     def _next(self):
+        self.on_dt_over()
 
-        self.store.on_dt_over(self.experment_id) # restricted by T + 1 
         super(Strategy, self)._next() # lineiterator _next
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
-        # self._next_analyzers(minperstatus)
 
         self.clear()
 
@@ -305,8 +309,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                     exectype=exectype, 
                                     ordertype=ordertype, 
                                     **kwargs)
-        # 
-        dt = self.getdtkey()
+        
+        dt = num2date(self.lines.datetime[0])
+        dt = int(dt.strftime("%Y%m%d")) 
         self.orders[dt].append(order)
         self.trades[dt].append(trades)
         
@@ -328,7 +333,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                           exectype=exectype, 
                           ordertype=ordertype, 
                           **kwargs)
-        dt = self.getdtkey()
+        
+        dt = num2date(self.lines.datetime[0])
+        dt = int(dt.strftime("%Y%m%d")) 
         self.orders[dt].append(ordermeta)
         self.trades[dt].append(trades)
     
@@ -340,8 +347,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         self.writers.append(writer)
 
-    def get_value(self, complete=False):
-        '''Returns the current value of the portfolio
+    def getvalue(self, current=False):
+        '''Returns the portfolio value and positions of strategy
 
         If ``complete`` is ``False`` (default) the value of the cash in hand
         plus the market value of the open positions is returned.
@@ -350,21 +357,27 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         as if they were closed at the current market price and then added to
         the cash in hand.
         '''
-        if complete:
-            # warnings.warn("complete=True not implemented in BTStore")
-            v = self.store.subcribe(self.experment_id, "account")
-            return v
-        v = self.store.get_value(self.experment_id)
-        return v
+        if current:
+            acct = self.store.getvalue(self.experment_id)
+            pos = self.store.getposition(self.experment_id)
+            return acct, pos
+
+        # warnings.warn("complete=True not implemented in BTStore")
+        acct = self.store.subcribe(self.experment_id, "account")
+        pos = self.store.subcribe(self.experment_id, "position")
+        return acct, pos
     
-    def get_position(self, complete=False):
-        '''Returns the current position of the portfolio'''
-        if complete:
-            # warnings.warn("complete=True not implemented in BTStore")
-            v = self.store.subcribe(self.experment_id, "account")
-            return v
-        v = self.store.get_position(self.experment_id)
-        return v
+    # def get_position(self, complete=False):
+    #     '''Returns the current position of the portfolio'''
+    #     if complete:
+    #         # warnings.warn("complete=True not implemented in BTStore")
+    #         v = self.store.subcribe(self.experment_id, "account")
+    #         return v
+    #     v = self.store.get_position(self.experment_id)
+    #     return v
+
+    def get_notificaitons(self):
+        return self.notifs
     
     def _stop(self):
         self.stop()

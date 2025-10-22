@@ -18,10 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzers import TimeReturn
+from backtest import analyzers
+from backtest.observer import Observer
 
 
-class Benchmark(TimeReturn):
+class Benchmark(Observer):
     '''This observer stores the *returns* of the strategy and the *return* of a
     reference asset which is one of the datas passed to the system.
 
@@ -83,23 +84,15 @@ class Benchmark(TimeReturn):
         return labels
 
     def __init__(self):
-        if self.p.data is None:  # use the 1st data in the system if none given
-            self.p.data = self.data0
-
         super(Benchmark, self).__init__()  # treturn including data parameter
         # Create a time return object without the data
         kwargs = self.p._getkwargs()
-        kwargs.update(data=None)  # to create a return for the stratey
-        t = self._owner._addanalyzer_slave(TimeReturn, **kwargs)
-
-        # swap for consistency
-        self.treturn, self.tbench = t, self.treturn
+        self.rbench = self._owner._addanalyzer(analyzers.Benchmark,
+                                                **kwargs())
 
     def next(self):
         super(Benchmark, self).next()
-        self.lines.benchmark[0] = self.tbench.rets.get(self.treturn.dtkey,
-                                                       float('NaN'))
-
-    def prenext(self):
-        if self.p._doprenext:
-            super(TimeReturn, self).prenext()
+        isover = self._owner.on_dt_over()
+        if isover:
+            self.lines.benchmark[0] = self.tbench.rets.get(self.treturn.dtkey, 
+                                                           float('NaN'))

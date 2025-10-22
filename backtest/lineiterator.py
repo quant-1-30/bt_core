@@ -120,11 +120,13 @@ class MetaLineIterator(LineSeries.__class__):
             max([x._minperiod for x in _obj.datas] or [_obj._minperiod]) # datas 包含其他指标
         print("MetaLineIterator dopreinit _minperiod", _obj._minperiod)
         
-        # The lines carry at least the same minperiod as
-        # that provided by the datas
+        # The lines carry at least the same minperiod as that provided by the object
+        # and update subindicator _minperiod to indicator
         for line in _obj.lines:
-            line.addminperiod(_obj._minperiod) # update subindicator _minperiod to indicator 
+            line.addminperiod(_obj._minperiod) 
 
+        # notifications 
+        _obj.notifs = collections.deque()  
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -244,7 +246,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
     def _next(self):
         clock_len = self._clk_update()
-        # import pdb; pdb.set_trace()
 
         for indicator in self._lineiterators[LineIterator.IndType]:
             indicator._next()
@@ -308,9 +309,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for obj in self._lineiterators[self.IndType]:
             obj.qbuffer(savemem=1)
 
-        # Tell datas to adjust buffer to strategy datas minimum period 
+        # datas maybe indicator 
         for data in self.datas:
-            data.minbuffer(_minperiod) 
+            data.minbuffer(_minperiod)
+
+    def notify_data(self, data):
+        self.notifs.append(data)
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

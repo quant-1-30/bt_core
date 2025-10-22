@@ -38,7 +38,7 @@ class MetaAnalyzer(MetaParams):
 
         _obj._children = list()
 
-        _obj.strategy = strategy = findowner(_obj, bt.Strategy)
+        _obj._owner = strategy = findowner(_obj, bt.Strategy)
         _obj._parent = findowner(_obj, Analyzer)
 
         # Register with a master observer if created inside one

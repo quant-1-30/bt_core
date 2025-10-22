@@ -109,9 +109,13 @@ class VWR(TimeFrameAnalyzerBase):
         super(VWR, self).start()
         # Add an initial placeholder for [-1] operation
             
-        self._pis = [self.strategy.get_value()]  # keep initial value
+        self._pis, _ = self.strat.getvalue()  # keep initial value
 
         self._pns = [None]  # keep final prices (value)
+    
+    def on_dt_over(self):
+        self._pis.append(self._pns[-1])  # last pn is pi in next period
+        self._pns.append(None)  # placeholder for [-1] operation
 
     def stop(self):
         super(VWR, self).stop()
@@ -141,11 +145,7 @@ class VWR(TimeFrameAnalyzerBase):
         self.rets['vwr'] = vwr
 
     def notify_fund(self):
-        self._pns[-1] = self._owner.get_values()[0] # annotate last pn for current period
-
-    def _on_dt_over(self):
-        self._pis.append(self._pns[-1])  # last pn is pi in next period
-        self._pns.append(None)  # placeholder for [-1] operation
+        self._pns[-1] = self.strat.getvalue()[0] # annotate last pn for current period
 
 
 VariabilityWeightedReturn = VWR

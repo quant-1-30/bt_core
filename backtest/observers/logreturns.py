@@ -20,7 +20,8 @@
 ###############################################################################
 
 import backtest as bt
-from backtest.analyzers import LogReturnsRolling 
+# from backtest.analyzers import LogReturnsRolling 
+from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -72,8 +73,8 @@ class LogReturns(Observer):
                 str(self.p.compression or 1)]
 
     def __init__(self):
-        self.logret1 = self._owner._addanalyzer_slave(
-            LogReturnsRolling,
+        self.logret1 = self._owner._addanalyzer(
+            analyzers.LogReturnsRolling,
             data=self.data0, **self.p._getkwargs())
 
     def next(self):
@@ -87,8 +88,8 @@ class LogReturns2(LogReturns):
     def __init__(self):
         super(LogReturns2, self).__init__()
 
-        self.logret2 = self._owner._addanalyzer_slave(
-            LogReturnsRolling,
+        self.logret2 = self._owner._addanalyzer(
+            analyzers.LogReturnsRolling,
             data=self.data1, **self.p._getkwargs())
 
     def next(self):

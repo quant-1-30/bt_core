@@ -21,7 +21,7 @@
 
 from .lineiterator import LineIterator, ObserverBase
 from .metabase import with_metaclass
-from .notify import Notify
+from .strategy import Strategy
 
 
 class MetaObserver(ObserverBase.__class__):
@@ -44,7 +44,7 @@ class MetaObserver(ObserverBase.__class__):
 class Observer(with_metaclass(MetaObserver, ObserverBase)):
     _stclock = False
 
-    _OwnerCls = Notify # super ---> findowner
+    _OwnerCls = Strategy # super ---> findowner
     _ltype = LineIterator.ObsType
 
     csv = True

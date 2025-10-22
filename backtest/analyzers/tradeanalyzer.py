@@ -20,11 +20,12 @@
 ###############################################################################
 import numpy as np
 
-from backtest.analyzer import Analyzer
+from backtest.analyzer import Analyzer, TimeFrameAnalyzerBase
 from backtest.utils import AutoOrderedDict, AutoDict
 
 
-class TradeAnalyzer(Analyzer):
+# class TradeAnalyzer(Analyzer):
+class TradeAnalyzer(TimeFrameAnalyzerBase):
     '''
     Provides statistics on closed trades (keeps also the count of open ones)
 
@@ -57,17 +58,12 @@ class TradeAnalyzer(Analyzer):
         self.rets = AutoOrderedDict()
         self.rets.total.total = 0
 
-    def next(self):
-        p_objs = self.notify.store.get_position()
-        for p_obj in p_objs:
+    def on_dt_over(self):
+        _, v = self._owner.getvalue()
+        for p_obj in v:
             pnl = p_obj.pnl
 
-            if p_obj.justopen: # trades cumsum to calculate total
-                # Trade just opened
-                self.rets.total.total += 1
-                self.rets.total.open += 1
-
-            elif p_obj.isclosed:
+            if p_obj.isclosed:
                 # Trade just closed
                 self.total.closed += 1
                 won = int(p_obj.pnl >= 0.0)
@@ -88,6 +84,11 @@ class TradeAnalyzer(Analyzer):
 
     def stop(self):
         super(TradeAnalyzer, self).stop()
+        # estimate total
+
+        # _trades = self._owner._trades
+        # self.rets.total.total += 1
+
         # Won/Lost statistics
         self.rets.won.won_rate = self.rets.won.count / self.rets.total.total
         self.rets.loss.lost_rate = self.rets.lost.count / self.rets.total.total

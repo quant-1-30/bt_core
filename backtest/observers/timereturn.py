@@ -73,8 +73,8 @@ class TimeReturn(Observer):
         ]
 
     def __init__(self):
-        self.treturn = self._owner._addanalyzer_slave(analyzers.TimeReturn,
-                                                      **self.p._getkwargs())
+        self.treturn = self._owner._addanalyzer(analyzers.TimeReturn,
+                                                **self.p._getkwargs())
 
     def next(self):
         self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey,

@@ -94,7 +94,7 @@ __all__ = ['TimeDrawDown']
 #         r.max.len = max(r.max.len, r.len)
 
 
-class TimeDrawDown(TimeFrameAnalyzerBase):
+class DrawDown(TimeFrameAnalyzerBase):
     '''This analyzer calculates trading system drawdowns on the chosen
     timeframe which can be different from the one used in the underlying data
     Params:
@@ -145,7 +145,7 @@ class TimeDrawDown(TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         
-        value = self.strategy.get_value()
+        value, _ = self._owner.getvalue()
 
         # update the maximum seen peak
         if value > self.peak:

@@ -75,16 +75,17 @@ class Calmar(TimeFrameAnalyzerBase):
                                    compression=self.p.compression)
 
     def start(self):
+        v, _ = self._owner.getvalue()
         self._mdd = float('-inf')
         self._values = collections.deque([float('Nan')] * self.p.period,
                                          maxlen=self.p.period)
-        self._values.append(self.strategy.get_value())
+        self._values.append(v)
 
     def on_dt_over(self):
-        self._mdd = max(self._mdd, self._maxdd.maxdd)
-        
-        self._values.append(self.strategy.get_value())
+        v, _ = self._owner.getvalue()
+        self._values.append(v)
         rann = math.log(self._values[-1] / self._values[0]) / len(self._values)
+        self._mdd = max(self._mdd, self._maxdd.maxdd)
         self.calmar = calmar = rann / (self._mdd or float('Inf'))
 
         self.rets[self.dtkey] = calmar

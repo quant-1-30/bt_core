@@ -18,18 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import collections
-import math
+import numpy as np
 
-from backtest.analyzers import TimeFrameAnalyzerBase
-
-
-__all__ = ['LogReturnsRolling']
+from backtest.analyzer import TimeFrameAnalyzerBase
 
 
-class LogReturnsRolling(TimeFrameAnalyzerBase):
-    '''This analyzer calculates rolling returns for a given timeframe and
-    compression
+class Benchmark(TimeFrameAnalyzerBase):
+    '''This analyzer calculates the Returns by looking at the beginning
+    and end of the timeframe
 
     Params:
 
@@ -73,6 +69,15 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
 
         Else the initial close will be used.
 
+      - ``fund`` (default: ``None``)
+
+        If ``None`` the actual mode of the broker (fundmode - True/False) will
+        be autodetected to decide if the returns are based on the total net
+        asset value or on the fund value. See ``set_fundmode`` in the broker
+        documentation
+
+        Set it to ``True`` or ``False`` for a specific behavior
+
     Methods:
 
       - get_analysis
@@ -82,23 +87,19 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
     '''
 
     params = (
-        ('window', 1),
-     )
+        ('index', '000001'),
+    )
 
     def start(self):
-        super(LogReturnsRolling, self).start()
-        
-        starvalue, _ = self._owner.getvalue()
+        super(Benchmark, self).start()
+        rawdata = self._owner.store.get_index(self.p.index)
+        close = np.array([r[4] for r in rawdata])
 
-        self._values = collections.deque([float('Nan')] * self.p.window,
-                                         maxlen=self.p.window)
-        self._values.append(starvalue)
-
-        # keep the initial portfolio value if not tracing a data
+        self.dts = np.array([r[0] for r in rawdata])
+        self.returns = close / close.shift(-1)
 
     def on_dt_over(self):
-        vst, _ = self._owner.getvalue()
-        self._values.append(vst)  # push values backwards (and out)
-        super(LogReturnsRolling, self).next()
-        self.rets[self.dtkey] = math.log(self._values[-1] / self._values[0])
-
+        # next is called in a new timeframe period
+        loc = np.searchsorted(self.dts, self.dtkey)
+        self.rets[self.dtkey] = self.returns[loc]
+          

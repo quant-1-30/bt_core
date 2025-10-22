@@ -19,6 +19,7 @@
 #
 ###############################################################################
 
+from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -40,12 +41,18 @@ class Broker(Observer):
 
     plotinfo = dict(plot=True, subplot=True)
 
+    def __init__(self):
+        kwargs = self.p._getkwargs()
+        self.vb = self._owner._addanalyzer(analyzers.Broker,
+                                                    **kwargs())
+
     def start(self):
         self.plotlines.cash._plotskip = True
         self.plotlines.value._name = 'FundValue'
 
     def next(self):
-        portfolio, cash = self._owner.store.get_value()
-
-        self.lines.cash[0] = cash
-        self.lines.value[0] = portfolio
+        isover = self._owner.on_dt_over()
+        if isover:
+            v = self.vb.rets.get(self.treturn.dtkey, (0,0))
+            self.lines.value[0] = v[0]
+            self.lines.cash[0] = v[1]

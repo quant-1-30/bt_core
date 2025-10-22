@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import math
+from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -51,59 +52,67 @@ class BuySell(Observer):
         ('barplot', False),  # plot above/below max/min for clarity in bar plot
     )
 
+    def __init__(self):
+        kwargs = self.p._getkwargs()
+        self.txns = self._owner._addanalyzer(analyzers.Transactions,
+                                                            **kwargs())
+
     def next(self):
-        buy = list()
-        sell = list()
-        comm = 0.0
+        isover = self._owner.on_dt_over()
+        if isover:
+            _trades = self.txns.rets(self.txns.dtkey, [])
+            buy = list()
+            sell = list()
+            comm = 0.0
 
-        for order_bit in self._owner.store.get_notification(): # records
-            if not order_bit.executed_zie:
-                continue
-            comm += order_bit.comm
+            for order_bit in _trades: # records
+                if not order_bit.executed_zie:
+                    continue
+                comm += order_bit.comm
 
-            if order_bit.direction> 0:
-                buy.append(order_bit)
+                if order_bit.direction> 0:
+                    buy.append(order_bit)
+                else:
+                    sell.append(order_bit)
+            
+            # Write comm
+            self.lines.comm[0] = comm
+
+            # Write down the average buy/sell price
+
+            # BUY
+            curbuy = self.lines.buy[0]
+            if curbuy != curbuy:  # NaN
+                curbuy = 0.0
+                self.curbuylen = curbuylen = 0
             else:
-                sell.append(order_bit)
-        
-        # Write comm
-        self.lines.comm[0] = comm
+                curbuylen = self.curbuylen
 
-        # Write down the average buy/sell price
+            buyops = (curbuy + math.fsum(buy))
+            buylen = curbuylen + len(buy)
 
-        # BUY
-        curbuy = self.lines.buy[0]
-        if curbuy != curbuy:  # NaN
-            curbuy = 0.0
-            self.curbuylen = curbuylen = 0
-        else:
-            curbuylen = self.curbuylen
+            buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
+            buylen = sum([b.executed_size for b in buy])  
 
-        buyops = (curbuy + math.fsum(buy))
-        buylen = curbuylen + len(buy)
+            value = buyops / float(buylen or 'NaN')
+            self.lines.buy[0] = (value + curbuy)/2
 
-        buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
-        buylen = sum([b.executed_size for b in buy])  
+            # SELL
+            cursell = self.lines.sell[0]
+            if cursell != cursell:  # NaN
+                cursell = 0.0
 
-        value = buyops / float(buylen or 'NaN')
-        self.lines.buy[0] = (value + curbuy)/2
+            sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
+            selllen = sum([s.executed_size for s in sell])  
 
-        # SELL
-        cursell = self.lines.sell[0]
-        if cursell != cursell:  # NaN
-            cursell = 0.0
+            value = sellops / float(selllen or 'NaN')
+            self.lines.sell[0] = (value + cursell)/2
 
-        sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
-        selllen = sum([s.executed_size for s in sell])  
+            # Pnl
+            for pobj in self._owner.store.get_position():
+                pnl = pobj.pnl
 
-        value = sellops / float(selllen or 'NaN')
-        self.lines.sell[0] = (value + cursell)/2
-
-        # Pnl
-        for pobj in self._owner.store.get_position():
-            pnl = pobj.pnl
-
-            if pnl >= 0.0:
-                self.lines.pnlplus[0] = pnl
-            else:
-                self.lines.pnlminus[0] = pnl
+                if pnl >= 0.0:
+                    self.lines.pnlplus[0] = pnl
+                else:
+                    self.lines.pnlminus[0] = pnl

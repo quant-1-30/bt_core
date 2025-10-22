@@ -23,10 +23,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import uuid
 
-from .. import Observer
-from ..utils.py3 import with_metaclass
-
-from ..trade import Trade
+from backtest import analyzers
+from backtest.observer import Observer
 
 
 class Trades(Observer):

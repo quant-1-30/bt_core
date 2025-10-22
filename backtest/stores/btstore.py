@@ -82,7 +82,7 @@ class BTStore(Store):
         '''Returns the assets data'''
         return self._feed.descr[1]
     
-    def get_benchmark(self, index="000001"):
+    def get_index(self, index):
         # 000001 000680 399006 399001
         dlines = self._feed.get_benchmark(index=index)
         return dlines
@@ -98,13 +98,13 @@ class BTStore(Store):
         status = self.broker.set_cash(cashmeta, experiment_id)
         return status
     
-    def get_value(self, experiment_id): # alias get_account
+    def getvalue(self, experiment_id): # alias get_account
         # acct [cash, portfolio]
         acct = self.broker.acct
         v = acct.get(experiment_id, None)
         return v
     
-    def get_position(self, experiment_id):
+    def getposition(self, experiment_id):
         o = self.broker.get_value("position", experiment_id)
         return o
     
@@ -138,6 +138,7 @@ class BTStore(Store):
             # broker on_dt_over
             req = ReqMeta(*dts, sid=[])
             self.broker.on_dt_over(req, experiment_id)
+        return dt_over
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")
