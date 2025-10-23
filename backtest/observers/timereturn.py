@@ -77,5 +77,7 @@ class TimeReturn(Observer):
                                                 **self.p._getkwargs())
 
     def next(self):
-        self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey,
+        isover = self._owner.on_dt_over()
+        if isover:
+            self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey,
                                                          float('NaN'))

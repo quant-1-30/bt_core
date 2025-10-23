@@ -19,9 +19,8 @@
 #
 ###############################################################################
 
-import collections
-import operator
 import sys
+from collections import defaultdict, deque
 
 # from .utils.py3 import map, range, zip, with_metaclass, string_types
 # from .utils import DotDict
@@ -126,7 +125,7 @@ class MetaLineIterator(LineSeries.__class__):
             line.addminperiod(_obj._minperiod) 
 
         # notifications 
-        _obj.notifs = collections.deque()  
+        _obj.notification = defaultdict(deque)
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -313,8 +312,16 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for data in self.datas:
             data.minbuffer(_minperiod)
 
-    def notify_data(self, data):
-        self.notifs.append(data)
+    def notify_data(self):
+        # strategy / indicator / observer
+        for ind in self._lineiterators[self.IndType]:
+            ind.notify_data()
+
+        for line, linealias in enumerate(self.lines.getlinealiases()):
+            self.notification[linealias] = self.lines.get(line=line) 
+
+    def get_notification(self):
+        return self.notification
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

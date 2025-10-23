@@ -113,9 +113,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's  
 
         # Save in all object types depending on the strategy
-        for it in self._lineiterators[self.IndType]:
-                it.qbuffer(savemem, self._minperiod)
-        # include obs
+        for itcls in self._lineiterators:
+            for it in self._lineiterators[itcls]:
+                it.qbuffer(savemem=savemem)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -257,9 +257,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return len(self)
 
     def on_dt_over(self, last=False)->bool:
-        dt = num2date(self.lines.datetime[0])
-        self.notify_data(dt)  # notification
-         
+        super().notify_data()
         isover = self.store.on_dt_over(self.experment_id, last) # T + 1
         return isover
 

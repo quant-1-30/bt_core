@@ -60,7 +60,6 @@ class Trades(Observer):
                       ls='', marker='o', color='red',
                       markersize=8.0, fillstyle='full')
     )
-
     def __init__(self):
 
         self.trades = 0
@@ -86,75 +85,73 @@ class Trades(Observer):
         self.trades_length_max = 0
         self.trades_length_min = 0
 
-    def next(self):
-        for trade in self._owner._tradespending:
-            if trade.data not in self.ddatas:
-                continue
-
-            if not trade.isclosed:
-                continue
-
-            pnl = trade.pnlcomm if self.p.pnlcomm else trade.pnl
-
-            if pnl >= 0.0:
-                self.lines.pnlplus[0] = pnl
-            else:
-                self.lines.pnlminus[0] = pnl
-
-
-class MetaDataTrades(Observer.__class__):
-    def donew(cls, *args, **kwargs):
-        _obj, args, kwargs = super(MetaDataTrades, cls).donew(*args, **kwargs)
-
-        # Recreate the lines dynamically
-        if _obj.params.usenames:
-            lnames = tuple(x._name for x in _obj.datas)
-        else:
-            lnames = tuple('data{}'.format(x) for x in range(len(_obj.datas)))
-
-        # Generate a new lines class
-        linescls = cls.lines._derive(uuid.uuid4().hex, lnames, 0, ())
-
-        # Instantiate lines
-        _obj.lines = linescls()
-
-        # Generate plotlines info
-        markers = ['o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p',
-                   '*', 'h', 'H', '+', 'x', 'D', 'd']
-
-        colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'b', 'g', 'r', 'c', 'm',
-                  'y', 'k', 'b', 'g', 'r', 'c', 'm']
-
-        basedict = dict(ls='', markersize=8.0, fillstyle='full')
-
-        plines = dict()
-        for lname, marker, color in zip(lnames, markers, colors):
-            plines[lname] = d = basedict.copy()
-            d.update(marker=marker, color=color)
-
-        plotlines = cls.plotlines._derive(
-            uuid.uuid4().hex, plines, [], recurse=True)
-        _obj.plotlines = plotlines()
-
-        return _obj, args, kwargs  # return the instantiated object and args
-
-
-class DataTrades(with_metaclass(MetaDataTrades, Observer)):
-    _stclock = True
-
-    params = (('usenames', True),)
-
-    plotinfo = dict(plot=True, subplot=True, plothlines=[0.0],
-                    plotymargin=0.10)
-
-    plotlines = dict()
+        self.treturn = self._owner._addanalyzer(analyzers.TradeAnalyzer,
+                                        **self.p._getkwargs())
 
     def next(self):
-        for trade in self._owner._tradespending:
-            if trade.data not in self.ddatas:
-                continue
+        isover = self._owner.on_dt_over()
+        # if isover:
+        #     pnl = trade.pnlcomm if self.p.pnlcomm else trade.pnl
 
-            if not trade.isclosed:
-                continue
+        #     if pnl >= 0.0:
+        #         self.lines.pnlplus[0] = pnl
+        #     else:
+        #         self.lines.pnlminus[0] = pnl
 
-            self.lines[trade.data._id - 1][0] = trade.pnl
+
+# class MetaDataTrades(Observer.__class__):
+#     def donew(cls, *args, **kwargs):
+#         _obj, args, kwargs = super(MetaDataTrades, cls).donew(*args, **kwargs)
+
+#         # Recreate the lines dynamically
+#         if _obj.params.usenames:
+#             lnames = tuple(x._name for x in _obj.datas)
+#         else:
+#             lnames = tuple('data{}'.format(x) for x in range(len(_obj.datas)))
+
+#         # Generate a new lines class
+#         linescls = cls.lines._derive(uuid.uuid4().hex, lnames, 0, ())
+
+#         # Instantiate lines
+#         _obj.lines = linescls()
+
+#         # Generate plotlines info
+#         markers = ['o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p',
+#                    '*', 'h', 'H', '+', 'x', 'D', 'd']
+
+#         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'b', 'g', 'r', 'c', 'm',
+#                   'y', 'k', 'b', 'g', 'r', 'c', 'm']
+
+#         basedict = dict(ls='', markersize=8.0, fillstyle='full')
+
+#         plines = dict()
+#         for lname, marker, color in zip(lnames, markers, colors):
+#             plines[lname] = d = basedict.copy()
+#             d.update(marker=marker, color=color)
+
+#         plotlines = cls.plotlines._derive(
+#             uuid.uuid4().hex, plines, [], recurse=True)
+#         _obj.plotlines = plotlines()
+
+#         return _obj, args, kwargs  # return the instantiated object and args
+
+
+# class DataTrades(with_metaclass(MetaDataTrades, Observer)):
+#     _stclock = True
+
+#     params = (('usenames', True),)
+
+#     plotinfo = dict(plot=True, subplot=True, plothlines=[0.0],
+#                     plotymargin=0.10)
+
+#     plotlines = dict()
+
+#     def next(self):
+#         for trade in self._owner._tradespending:
+#             if trade.data not in self.ddatas:
+#                 continue
+
+#             if not trade.isclosed:
+#                 continue
+
+#             self.lines[trade.data._id - 1][0] = trade.pnl

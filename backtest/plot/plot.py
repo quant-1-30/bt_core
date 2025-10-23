@@ -115,13 +115,13 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                       zorder=self.pinf.zorder[ax] + 3.0,
                       **kwargs)
 
-    def plot(self, store, figid=0, numfigs=1, iplot=True,
+    def plot(self, strategy, figid=0, numfigs=1, iplot=True,
              start=None, end=None, **kwargs):
         # pfillers={}):
-        if not store.datas:
+        if not strategy.datas:
             return
 
-        if not len(store):
+        if not len(strategy):
             return
 
         if iplot:
@@ -136,10 +136,12 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         self.mpyplot = mpyplot
 
         self.pinf = PInfo(self.p.scheme)
-        self.sortdataindicators(store)
-        self.calcrows(store)
+        self.sortdataindicators(strategy)
+        self.calcrows(strategy)
 
-        st_dtime = store.lines.datetime.plot()
+        # st_dtime = strategy.lines.datetime.plot()
+        # st_dtime = strategy.get_notifications()
+
         if start is None:
             start = 0
         if end is None:

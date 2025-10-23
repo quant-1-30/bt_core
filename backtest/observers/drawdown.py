@@ -78,6 +78,7 @@ class DrawDownLength(Observer):
                                             **kwargs)
 
     def next(self):
-        self.lines.len[0] = self._dd.rets.len  # update drawdown length
-        self.lines.maxlen[0] = self._dd.rets.max.len  # update max length
-
+        isover = self._owner.on_dt_over()
+        if isover:
+            self.lines.len[0] = self._dd.rets.len  # update drawdown length
+            self.lines.maxlen[0] = self._dd.rets.max.len  # update max length

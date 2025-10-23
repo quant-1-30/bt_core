@@ -82,12 +82,21 @@ class TradeAnalyzer(TimeFrameAnalyzerBase):
                 trpnl.net.total += pnl
                 trpnl.net.average = self.rets.pnl.net.total / self.rets.total.closed
 
+    def calcuate_total(self):
+        # caculate total
+        _trades = self._owner._trades
+
+        _size = np.array([_t.executed_size for _t in _trades])
+        _isbuy = np.array([1 if _t.isbuy else -1 for _t in _trades ])
+        executed_size = _size * _isbuy
+        cum_size = np.cumsum(executed_size)
+        zero_indices = np.nonzero(cum_size == 0)
+        total = len(zero_indices) + 1
+        return total
+
     def stop(self):
         super(TradeAnalyzer, self).stop()
-        # estimate total
-
-        # _trades = self._owner._trades
-        # self.rets.total.total += 1
+        self.rets.total.total = self.calcuate_total()
 
         # Won/Lost statistics
         self.rets.won.won_rate = self.rets.won.count / self.rets.total.total

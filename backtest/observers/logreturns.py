@@ -93,5 +93,7 @@ class LogReturns2(LogReturns):
             data=self.data1, **self.p._getkwargs())
 
     def next(self):
-        super(LogReturns2, self).next()
-        self.lines.logret2[0] = self.logret2.rets[self.logret2.dtkey]
+        isover = self._owner.on_dt_over()
+        if isover:
+            super(LogReturns2, self).next()
+            self.lines.logret2[0] = self.logret2.rets[self.logret2.dtkey]
