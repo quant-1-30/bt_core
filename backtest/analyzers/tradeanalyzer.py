@@ -20,12 +20,11 @@
 ###############################################################################
 import numpy as np
 
-from backtest.analyzer import Analyzer, TimeFrameAnalyzerBase
-from backtest.utils import AutoOrderedDict, AutoDict
+import backtest as bt
+from backtest.utils import AutoOrderedDict
 
 
-# class TradeAnalyzer(Analyzer):
-class TradeAnalyzer(TimeFrameAnalyzerBase):
+class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
     '''
     Provides statistics on closed trades (keeps also the count of open ones)
 

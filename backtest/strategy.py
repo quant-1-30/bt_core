@@ -31,6 +31,7 @@ from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, ItemCollection, findowner
 from backtest.utils.dateintern import num2date
+from .utils.autodict import AutoOrderedDict
 
 MAXINT = np.iinfo(np.int_).max
 
@@ -110,7 +111,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # Tell datas to adjust buffer to minimum period
         for data in self.datas:
             data.qbuffer(savemem=savemem)
-            data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's  
 
         # Save in all object types depending on the strategy
         for itcls in self._lineiterators:
@@ -161,12 +161,18 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
             dminperiod = max(_dminperiods[data] or [data._minperiod])
             self._minperiods.append(dminperiod)
-
-    def _next_id(self):
-        self.experment_id = self.store.register(self)
+    
+    def setminperiod(self):
+        for data in self.datas:
+            data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's  
+        
+        for itcls in self._lineiterators:
+            for it in self._lineiterators[itcls]:
+                it.setminperiod(self._minperiod)
 
     def _start(self):
         self._periodrecalc()
+        self.setminperiod()
 
         # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
         for analyzer in self.analyzers:
@@ -191,6 +197,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
+    
+    def _next_id(self):
+        self.experment_id = self.store.register(self)
 
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
@@ -239,12 +248,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 observer._next()
 
     def _clk_update(self):
-        # if self._oldsync:
-        #     clk_len = super(Strategy, self)._clk_update()
-        #     self.lines.datetime[0] = max(d.datetime[0]
-        #                                  for d in self.datas if len(d))
-        #     return clk_len
-
         newdlens = [len(d) for d in self.datas]
         if any(nl > l for l, nl in zip(self._dlens, newdlens)):
             self.forward()
@@ -365,17 +368,68 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         pos = self.store.subcribe(self.experment_id, "position")
         return acct, pos
     
-    # def get_position(self, complete=False):
-    #     '''Returns the current position of the portfolio'''
-    #     if complete:
-    #         # warnings.warn("complete=True not implemented in BTStore")
-    #         v = self.store.subcribe(self.experment_id, "account")
-    #         return v
-    #     v = self.store.get_position(self.experment_id)
-    #     return v
+    def getwriterheaders(self):
+        self.indobscsv = [self]
 
-    def get_notificaitons(self):
-        return self.notifs
+        indobs = itertools.chain(
+            self.getindicators_lines(), self.getobservers())
+        self.indobscsv.extend(filter(lambda x: x.csv, indobs))
+
+        headers = list()
+
+        # prepare the indicators/observers data headers
+        for iocsv in self.indobscsv:
+            name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
+            headers.append(name)
+            headers.append('len')
+            headers.extend(iocsv.getlinealiases())
+
+        return headers
+
+    def getwritervalues(self):
+        values = list()
+
+        for iocsv in self.indobscsv:
+            name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
+            values.append(name)
+            lio = len(iocsv)
+            values.append(lio)
+            if lio:
+                values.extend(map(lambda l: l[0], iocsv.lines.itersize()))
+            else:
+                values.extend([''] * iocsv.lines.size())
+
+        return values
+
+    def getwriterinfo(self):
+        wrinfo = AutoOrderedDict()
+
+        wrinfo['Params'] = self.p._getkwargs()
+
+        sections = [
+            ['Indicators', self.getindicators_lines()],
+            ['Observers', self.getobservers()]
+        ]
+
+        for sectname, sectitems in sections:
+            sinfo = wrinfo[sectname]
+            for item in sectitems:
+                itname = item.__class__.__name__
+                sinfo[itname].Lines = item.lines.getlinealiases() or None
+                sinfo[itname].Params = item.p._getkwargs() or None
+
+        ainfo = wrinfo.Analyzers
+
+        # Internal Value Analyzer
+        ainfo.Value.Begin = self.broker.startingcash
+        ainfo.Value.End = self.broker.getvalue()
+
+        # no slave analyzers for writer
+        for aname, analyzer in self.analyzers.getitems():
+            ainfo[aname].Params = analyzer.p._getkwargs() or None
+            ainfo[aname].Analysis = analyzer.get_analysis()
+
+        return wrinfo
     
     def _stop(self):
         self.stop()

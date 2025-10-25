@@ -18,13 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+# from __future__ import (absolute_import, division, print_function,
+#                         unicode_literals)
 
-from backtest.analyzers import Analyzer, TimeFrameAnalyzerBase
+import backtest as bt
 
 
-class Orders(TimeFrameAnalyzerBase):
+class Orders(bt.TimeFrameAnalyzerBase):
     '''This analyzer reports the orders occurred with each an every data in
     the system
 

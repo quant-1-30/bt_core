@@ -18,17 +18,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzer import Analyzer
-
+import backtest as bt
 from backtest.utils.mathsupport import average, standarddev
-from backtest.analyzers import TimeReturn
+from . import TimeReturn
 from backtest.dataseries import TimeFrame
 
 
 __all__ = ['PeriodStats']
 
 
-class PeriodStats(Analyzer):
+class PeriodStats(bt.Analyzer):
     '''Calculates basic statistics for given timeframe
 
     Params:

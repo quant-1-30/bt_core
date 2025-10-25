@@ -18,10 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import uuid
+import numpy as np
 
 from backtest import analyzers
 from backtest.observer import Observer
@@ -41,6 +38,21 @@ class Trades(Observer):
         Show net/profit and loss, i.e.: after commission. If set to ``False``
         if will show the result of trades before commission
     '''
+    
+    # # Generate plotlines info
+    # markers = ['o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p',
+    #            '*', 'h', 'H', '+', 'x', 'D', 'd']
+
+    # colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'b', 'g', 'r', 'c', 'm',
+    #           'y', 'k', 'b', 'g', 'r', 'c', 'm']
+
+    # basedict = dict(ls='', markersize=8.0, fillstyle='full')
+
+    # plines = dict()
+    # for lname, marker, color in zip(lnames, markers, colors):
+    #     plines[lname] = d = basedict.copy()
+    #     d.update(marker=marker, color=color)
+
     _stclock = True
 
     lines = ('pnlplus', 'pnlminus')
@@ -61,97 +73,17 @@ class Trades(Observer):
                       markersize=8.0, fillstyle='full')
     )
     def __init__(self):
-
-        self.trades = 0
-
-        self.trades_long = 0
-        self.trades_short = 0
-
-        self.trades_plus = 0
-        self.trades_minus = 0
-
-        self.trades_plus_gross = 0
-        self.trades_minus_gross = 0
-
-        self.trades_win = 0
-        self.trades_win_max = 0
-        self.trades_win_min = 0
-
-        self.trades_loss = 0
-        self.trades_loss_max = 0
-        self.trades_loss_min = 0
-
-        self.trades_length = 0
-        self.trades_length_max = 0
-        self.trades_length_min = 0
-
-        self.treturn = self._owner._addanalyzer(analyzers.TradeAnalyzer,
-                                        **self.p._getkwargs())
+        self.preturn = self._owner._addanalyzer(analyzers.PositionsValue, 
+                                                **self.p._getkwargs())
 
     def next(self):
         isover = self._owner.on_dt_over()
-        # if isover:
-        #     pnl = trade.pnlcomm if self.p.pnlcomm else trade.pnl
+        if isover:
+            dtkey = self.preturn.dtkey
+            pnls = np.array([p.pnl for p in self.preturn.rets[dtkey]])
+            pnl = np.sum(pnls)
 
-        #     if pnl >= 0.0:
-        #         self.lines.pnlplus[0] = pnl
-        #     else:
-        #         self.lines.pnlminus[0] = pnl
-
-
-# class MetaDataTrades(Observer.__class__):
-#     def donew(cls, *args, **kwargs):
-#         _obj, args, kwargs = super(MetaDataTrades, cls).donew(*args, **kwargs)
-
-#         # Recreate the lines dynamically
-#         if _obj.params.usenames:
-#             lnames = tuple(x._name for x in _obj.datas)
-#         else:
-#             lnames = tuple('data{}'.format(x) for x in range(len(_obj.datas)))
-
-#         # Generate a new lines class
-#         linescls = cls.lines._derive(uuid.uuid4().hex, lnames, 0, ())
-
-#         # Instantiate lines
-#         _obj.lines = linescls()
-
-#         # Generate plotlines info
-#         markers = ['o', 'v', '^', '<', '>', '1', '2', '3', '4', '8', 's', 'p',
-#                    '*', 'h', 'H', '+', 'x', 'D', 'd']
-
-#         colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'b', 'g', 'r', 'c', 'm',
-#                   'y', 'k', 'b', 'g', 'r', 'c', 'm']
-
-#         basedict = dict(ls='', markersize=8.0, fillstyle='full')
-
-#         plines = dict()
-#         for lname, marker, color in zip(lnames, markers, colors):
-#             plines[lname] = d = basedict.copy()
-#             d.update(marker=marker, color=color)
-
-#         plotlines = cls.plotlines._derive(
-#             uuid.uuid4().hex, plines, [], recurse=True)
-#         _obj.plotlines = plotlines()
-
-#         return _obj, args, kwargs  # return the instantiated object and args
-
-
-# class DataTrades(with_metaclass(MetaDataTrades, Observer)):
-#     _stclock = True
-
-#     params = (('usenames', True),)
-
-#     plotinfo = dict(plot=True, subplot=True, plothlines=[0.0],
-#                     plotymargin=0.10)
-
-#     plotlines = dict()
-
-#     def next(self):
-#         for trade in self._owner._tradespending:
-#             if trade.data not in self.ddatas:
-#                 continue
-
-#             if not trade.isclosed:
-#                 continue
-
-#             self.lines[trade.data._id - 1][0] = trade.pnl
+            if pnl >= 0.0:
+                self.lines.pnlplus[0] = pnl
+            else:
+                self.lines.pnlminus[0] = pnl

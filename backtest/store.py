@@ -20,7 +20,6 @@
 ###############################################################################
 import backtest as bt
 from backtest.metabase import MetaParams, with_metaclass, findowner
-from .notify import Notify
 
 
 class MetaStore(MetaParams):
@@ -33,7 +32,6 @@ class MetaStore(MetaParams):
         _obj, args, kwargs = super(MetaStore, cls).donew(*args, **kwargs)
         _obj.owner = env =  findowner(_obj, bt.cerebro.Cerebro)
         _obj.datas = env.datas
-        _obj.quicknotify = Notify()  # quick notify instance
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -72,9 +70,6 @@ class Store(with_metaclass(MetaStore, object)):
     
     def _dt_over(self, last=False):
         pass
-    
-    def _next(self, experiment_id):
-        self.quicknotify._next(experiment_id)  # check dt_over and notify data/broker
     
     @staticmethod
     def iter_data(self, q): # queue.Empty

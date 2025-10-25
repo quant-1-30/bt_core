@@ -18,16 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import backtest as bt
 from .timereturn import TimeReturn
 from .positions import PositionsValue
 # from .transactions import Transactions
 from .leverage import GrossLeverage
-from backtest.analyzer import Analyzer
 from backtest.dataseries import TimeFrame
 
 
-class PyFolio(Analyzer):
+class PyFolio(bt.Analyzer):
     '''This analyzer uses 4 children analyzers to collect data and transforms it
     in to a data set compatible with ``pyfolio``
 

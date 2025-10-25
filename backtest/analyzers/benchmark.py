@@ -20,10 +20,10 @@
 ###############################################################################
 import numpy as np
 
-from backtest.analyzer import TimeFrameAnalyzerBase
+import backtest as bt
 
 
-class Benchmark(TimeFrameAnalyzerBase):
+class Benchmark(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates the Returns by looking at the beginning
     and end of the timeframe
 

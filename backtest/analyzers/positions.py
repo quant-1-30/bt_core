@@ -18,12 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzers import Analyzer, TimeFrameAnalyzerBase
+import backtest as bt
 from backtest.dataseries import TimeFrame
 
 
-# class PositionsValue(Analyzer):
-class PositionsValue(TimeFrameAnalyzerBase):
+class PositionsValue(bt.TimeFrameAnalyzerBase):
     '''This analyzer reports the value of the positions of the current set of
     datas
 

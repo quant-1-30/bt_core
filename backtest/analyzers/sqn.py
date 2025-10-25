@@ -20,13 +20,12 @@
 ###############################################################################
 import math
 
-from backtest.analyzer import Analyzer, TimeFrameAnalyzerBase
+import backtest as bt
 from backtest.utils.mathsupport import average, standarddev
 from backtest.utils import AutoOrderedDict
 
 
-# class SQN(Analyzer):
-class SQN(TimeFrameAnalyzerBase):
+class SQN(bt.TimeFrameAnalyzerBase):
     '''SQN or SystemQualityNumber. Defined by Van K. Tharp to categorize trading
     systems.
 

@@ -19,9 +19,11 @@
 #
 ###############################################################################
 import threading
+from typing import List, Union, Generator
 
 from backtest.broker import BrokerBase
-from bt_sdk.core.model import OrderMeta, CashMeta, ExpMeta, ReqMeta
+from bt_sdk.core.data import Resp, Account, Position, Trade
+from bt_sdk.core.model import Experiment, Order, Cash, Query
 
 __all__ = ["BTBroker"]
 
@@ -30,7 +32,7 @@ class Acct(object):
 
     def __init__(self):
         self._evt_acct = threading.Event()
-        self.fundval = []
+        self.fundval = dict()
 
     def __set__(self, instance, value):
         raise AttributeError("can't set attribute")
@@ -48,10 +50,9 @@ class Acct(object):
         self._evt_acct.wait() # wait for account data to be set
     
     def _t_account(self, api):
-        act = api.get_value("account")
+        act = api.get_data("account")
         if act:
-            msg = act[0]["body"]
-            self.fundval = msg
+            self.fundval = act[0]["body"] # experiment: Account
         self._evt_acct.set()
 
 
@@ -84,33 +85,31 @@ class BTBroker(BrokerBase):
     
     acct = Acct()
 
-    def register(self, exp: ExpMeta):
-        status = self.tdapi.register(exp)
-        return status
+    def register(self, experiment: Experiment) -> Resp:
+        resp = self.tdapi.register(experiment)
+        return resp
 
-    def set_cash(self, cashmeta: CashMeta, experiment_id: str):
-        status = self.tdapi.set_cash(cashmeta, experiment_id)
-        return status
+    def set_cash(self, cash: Cash, experiment_id: str) -> Resp:
+        resp = self.tdapi.set_cash(cash, experiment_id)
+        return resp
 
-    def get_value(self, topic:str, experiment_id=''):
-        o = self.tdapi.getvalue(topic, experiment_id) 
-        return o
+    def get_data(self, topic:str, experiment_id='') -> Union[List[Account], List[Position]]:
+        data = self.tdapi.getvalue(topic, experiment_id) 
+        return data
     
-    def subscribe(self, topic:str, req: ReqMeta, experiment_id:str): # contextlib
-        q = self.tdapi.subscribe(topic, req, experiment_id)
+    def subscribe(self, topic:str, qty: Query, experiment_id:str) -> Generator: # contextlib
+        q = self.tdapi.subscribe(topic, qty, experiment_id)
         return q
 
-    def submit(self, order:OrderMeta, experiment_id:str):
-        order_bits = self.tdapi.trade(order, experiment_id) # pydantic contain _thread.lock
-        self.put_notification(order_bits)
+    def submit(self, order: Order, experiment_id:str) -> List[Trade]:
+        trades = self.tdapi.trade(order, experiment_id) # pydantic contain _thread.lock
+        return trades
 
-    def on_dt_over(self, req: ReqMeta, experiment_id:str):
-        status = self.tdapi.on_dt_over(req, experiment_id) # staisfy T + 1 and update logic 
-        return status
+    def on_dt_over(self, qty: Query, experiment_id:str) -> Resp:
+        resp = self.tdapi.on_dt_over(qty, experiment_id) # staisfy T + 1 and update logic 
+        return resp
     
     def stop(self):
         super().stop()
         self.tdapi.disconnected()
         print("btbroker stop")
-
-

@@ -20,11 +20,11 @@
 ###############################################################################
 import math
 
-from backtest.analyzer import TimeFrameAnalyzerBase
+import backtest as bt
 from backtest.dataseries import TimeFrame
 
 
-class Returns(TimeFrameAnalyzerBase):
+class Returns(bt.TimeFrameAnalyzerBase):
     '''Total, Average, Compound and Annualized Returns calculated using a
     logarithmic approach
 

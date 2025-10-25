@@ -18,11 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzers import Analyzer, TimeFrameAnalyzerBase
+import backtest as bt
 
 
-# class GrossLeverage(Analyzer):
-class GrossLeverage(TimeFrameAnalyzerBase):
+class GrossLeverage(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates the Gross Leverage of the current strategy
     on a timeframe basis
 

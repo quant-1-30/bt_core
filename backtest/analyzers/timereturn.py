@@ -18,10 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzer import TimeFrameAnalyzerBase
+import backtest as bt
 
 
-class TimeReturn(TimeFrameAnalyzerBase):
+class TimeReturn(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates the Returns by looking at the beginning
     and end of the timeframe
 

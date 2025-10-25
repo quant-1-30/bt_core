@@ -18,11 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest.analyzer import Analyzer, TimeFrameAnalyzerBase
+import backtest as bt
 from backtest.utils import AutoOrderedDict
 
 
-__all__ = ['TimeDrawDown']
+__all__ = ['DrawDown']
 
 
 # class DrawDown(Analyzer):
@@ -94,7 +94,7 @@ __all__ = ['TimeDrawDown']
 #         r.max.len = max(r.max.len, r.len)
 
 
-class DrawDown(TimeFrameAnalyzerBase):
+class DrawDown(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates trading system drawdowns on the chosen
     timeframe which can be different from the one used in the underlying data
     Params:
@@ -135,7 +135,7 @@ class DrawDown(TimeFrameAnalyzerBase):
     params = ()
 
     def start(self):
-        super(TimeDrawDown, self).start()
+        super(DrawDown, self).start()
         
         self.dd = 0.0
         self.maxdd = 0.0

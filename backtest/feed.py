@@ -141,12 +141,9 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self._tzinput = Localizer(self._gettzinput())
         self._started = True
 
-    # def qbuffer(self, savemem=0):
-    #     # extrasize = self.resampling
-    #     # self.qbuffer(savemem=savemem)
-    #     for line in self.lines:
-    #         line.qbuffer(savemem=savemem)
-    #     self.lines.qbuffer(savemem)
+    def qbuffer(self, savemem=1):
+        for line in self.lines:
+            line.qbuffer(savemem=savemem)
 
     # def minbuffer(self, size):
     #     self.lines.minbuffer(size)
@@ -315,15 +312,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             pass
 
         return bool(ret)
-    
-    def _dt_over(self, last=False):
-        dt = num2date(self.lines.datetime[0])
-        dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
-        if last:
-            isover=True
-        else:
-            isover = (dt - dtkey).days if dtkey else False
-        return isover, (dtkey, dt)
     
 # --------------------------------------------------------------------- resample ---------------------------------------------------------------
 

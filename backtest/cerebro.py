@@ -21,10 +21,11 @@
 
 import datetime
 import itertools
-import multiprocessing
+from collections import OrderedDict
 from pytz import timezone
 
 from . import observers
+from .writer import WriterFile
 from backtest.metabase import MetaParams, with_metaclass
 from backtest.sizers import sizers
 from backtest.timer import Timer
@@ -382,6 +383,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
+        self.runwriters = list()
+
         # initialize feed
         for data in self.datas:
             data._start(**kwargs)
@@ -400,17 +403,43 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if key in pkeys:
                 setattr(self.params, key, val)
 
-        if self.p.maxcpus == 1:
-            # If no optimmization is wished ... or 1 core is to be used / skipping spawn
-            for iterstrat in self.strats:
+        # Add the system default writer if requested
+        if self.p.writer is True:
+            wr = WriterFile()
+            self.runwriters.append(wr)
+
+        # Instantiate any other writers
+        for wrcls, wrargs, wrkwargs in self.writers:
+            wr = wrcls(*wrargs, **wrkwargs)
+            self.runwriters.append(wr)
+
+        # Write down if any writer wants the full csv output
+        self.writers_csv = any(map(lambda x: x.p.csv, self.runwriters))
+
+        if self.writers_csv:
+            wheaders = list()
+            for data in self.datas:
+                if data.csv:
+                    wheaders.extend(data.getwriterheaders())
+
+            for writer in self.runwriters:
+                if writer.p.csv:
+                    writer.addheaders(wheaders)
+
+        iterstrats = itertools.product(*self.strats)
+        if not self._dooptimize or self.p.maxcpus == 1:
+            # If no optimmization is wished ... or 1 core is to be used
+            # let's skip process "spawning"
+            for iterstrat in iterstrats:
                 runstrat = self.runstrategies(iterstrat)
                 self.runstrats.append(runstrat)
-        else:
-            pool = multiprocessing.Pool(self.p.maxcpus or None)
-            for r in pool.imap(self, self.strats): # __call__
-                self.runstrats.append(r)
+                if self._dooptimize:
+                    for cb in self.optcbs:
+                        cb(runstrat)  # callback receives finished strategy
 
-            pool.close()
+        for iterstrat in self.strats:
+            runstrat = self.runstrategies(iterstrat)
+            self.runstrats.append(runstrat)
     
         return self.runstrats
      
@@ -447,7 +476,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
-                
+        
+                for writer in self.runwriters:
+                    if writer.p.csv:
+                        writer.addheaders(strat.getwriterheaders())
+
             for writer in self.writers:
                 writer.start()
 
@@ -471,7 +504,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for data in self.datas:
             data.stop()
 
-        # self.stop_writers(runstrats)       
+        self.stop_writers(runstrats)       
 
         return runstrats
 
@@ -535,52 +568,56 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                     if self._event_stop:  # stop if requested
                         return
-
-        # self._next_writers(runstrats)
+                    
+                    self._next_writers(runstrats)
+                
+        self._next_writers(runstrats)
         
     def runstop(self):
         '''If invoked from inside a strategy or anywhere else, including other
         threads the execution will stop as soon as possible.'''
         self._event_stop = True  # signal a stop has been requested
 
-    # def _next_writers(self, runstrats):
-    #     if not self.runwriters:
-    #         return
+# ---------------------------------------------------------------------- writer ------------------------------------------------------------
 
-    #     if self.writers_csv:
-    #         wvalues = list()
-    #         for data in self.datas:
-    #             if data.csv:
-    #                 wvalues.extend(data.getwritervalues())
+    def _next_writers(self, runstrats):
+        if not self.runwriters:
+            return
 
-    #         for strat in runstrats:
-    #             wvalues.extend(strat.getwritervalues())
+        if self.writers_csv:
+            wvalues = list()
+            for data in self.datas:
+                if data.csv:
+                    wvalues.extend(data.getwritervalues())
 
-    #         for writer in self.runwriters:
-    #             if writer.p.csv:
-    #                 writer.addvalues(wvalues)
+            for strat in runstrats:
+                wvalues.extend(strat.getwritervalues())
 
-    #                 writer.next()
+            for writer in self.runwriters:
+                if writer.p.csv:
+                    writer.addvalues(wvalues)
 
-    # def stop_writers(self, runstrats):
-    #     cerebroinfo = OrderedDict()
-    #     datainfos = OrderedDict()
+                    writer.next()
 
-    #     for i, data in enumerate(self.datas):
-    #         datainfos['Data%d' % i] = data.getwriterinfo()
+    def stop_writers(self, runstrats):
+        cerebroinfo = OrderedDict()
+        datainfos = OrderedDict()
 
-    #     cerebroinfo['Datas'] = datainfos
+        for i, data in enumerate(self.datas):
+            datainfos['Data%d' % i] = data.getwriterinfo()
 
-    #     stratinfos = dict()
-    #     for strat in runstrats:
-    #         stname = strat.__class__.__name__
-    #         stratinfos[stname] = strat.getwriterinfo()
+        cerebroinfo['Datas'] = datainfos
 
-    #     cerebroinfo['Strategies'] = stratinfos
+        stratinfos = dict()
+        for strat in runstrats:
+            stname = strat.__class__.__name__
+            stratinfos[stname] = strat.getwriterinfo()
 
-    #     for writer in self.runwriters:
-    #         writer.writedict(dict(Cerebro=cerebroinfo))
-    #         writer.stop()
+        cerebroinfo['Strategies'] = stratinfos
+
+        for writer in self.runwriters:
+            writer.writedict(dict(Cerebro=cerebroinfo))
+            writer.stop()
     
 # ---------------------------------------------------------------------- plot ------------------------------------------------------------
     

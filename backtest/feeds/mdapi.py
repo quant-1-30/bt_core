@@ -23,7 +23,7 @@ import numpy as np
 import threading
 from datetime import datetime, timedelta
 
-from bt_sdk.core.model import ReqMeta
+from bt_sdk.core.model import Query
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
@@ -113,11 +113,11 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         # _from = datetime.strptime(str(sdate), "%Y%m%d") + timedelta(hours=9, minutes=30)
         # _to = datetime.strptime(str(edate), "%Y%m%d") + timedelta(hours=15, minutes=0)
         # reqmeta = ReqMeta(sid=kwargs["sid"], start_date=int(_from.timestamp()), end_date=int(_to.timestamp()))
-        reqmeta = ReqMeta(sid=kwargs["sid"], start_date=sdate, end_date=edate)
+        qty = Query(sid=kwargs["sid"], start_date=sdate, end_date=edate)
         
-        self.calc_adjfactor(reqmeta)
+        self.calc_adjfactor(qty)
         # wrap by contextmanager 整合迭代器与session 手动获取上下文
-        self.ctx = self.mdapi.subscribe(reqmeta)
+        self.ctx = self.mdapi.subscribe(qty)
         self.channel = self.ctx.__enter__()
         if self.channel is None:
             warnings.warn("buffer is None, must subscribe first")

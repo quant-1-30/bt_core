@@ -20,11 +20,11 @@
 ###############################################################################
 from collections import OrderedDict
 
-from backtest.analyzer import Analyzer
+import backtest as bt
 from backtest.utils.dateintern import num2date
 
 
-class AnnualReturn(Analyzer):
+class AnnualReturn(bt.Analyzer):
     '''
     This analyzer calculates the AnnualReturns by looking at the beginning
     and end of the year

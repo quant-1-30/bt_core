@@ -20,7 +20,7 @@
 ###############################################################################
 
 import sys
-from collections import defaultdict, deque
+import collections
 
 # from .utils.py3 import map, range, zip, with_metaclass, string_types
 # from .utils import DotDict
@@ -125,7 +125,7 @@ class MetaLineIterator(LineSeries.__class__):
             line.addminperiod(_obj._minperiod) 
 
         # notifications 
-        _obj.notification = defaultdict(deque)
+        _obj.notification = collections.defaultdict(collections.deque)
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -297,18 +297,21 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _plotinit(self):
         pass
 
-    def qbuffer(self, savemem, _minperiod):
-        # 2 condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas
-        if savemem:
-            for line in self.lines:
-                line.qbuffer(savemem)
-                line.minbuffer(_minperiod)
-
-        # If called, anything under it, must save
+    def qbuffer(self, savemem=1):
         for obj in self._lineiterators[self.IndType]:
-            obj.qbuffer(savemem=1)
+            obj.qbuffer(savemem=savemem)
+        
+        for line in self.lines:
+            line.qbuffer(savemem=savemem)
 
-        # datas maybe indicator 
+        # condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas
+        for data in self.datas:
+            data.qbuffer(savemem=savemem)
+
+    def setminperiod(self, _minperiod=1):
+        for line in self.lines:
+            line.minbuffer(_minperiod)
+        
         for data in self.datas:
             data.minbuffer(_minperiod)
 
@@ -319,9 +322,9 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
         for line, linealias in enumerate(self.lines.getlinealiases()):
             self.notification[linealias] = self.lines.get(line=line) 
-
-    def get_notification(self):
-        return self.notification
+    
+    def plot(self, linealias):
+        return self.notification[linealias]
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

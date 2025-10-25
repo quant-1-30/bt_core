@@ -20,13 +20,13 @@
 ###############################################################################
 import math
 
-from backtest.analyzer import Analyzer
+import backtest as bt
 from backtest.dataseries import TimeFrame
 from backtest.utils.mathsupport import average, standarddev
-from backtest.analyzers import TimeReturn, AnnualReturn
+from . import TimeReturn, AnnualReturn
 
 
-class SharpeRatio(Analyzer):
+class SharpeRatio(bt.Analyzer):
     '''This analyzer calculates the SharpeRatio of a strategy using a risk free
     asset which is simply an interest rate
 

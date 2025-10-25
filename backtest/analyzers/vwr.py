@@ -21,13 +21,13 @@
 
 import math
 
-from backtest.analyzer import TimeFrameAnalyzerBase
+import backtest as bt
 from .returns import Returns
 from backtest.utils.mathsupport import standarddev
 from backtest.dataseries import TimeFrame
 
 
-class VWR(TimeFrameAnalyzerBase):
+class VWR(bt.TimeFrameAnalyzerBase):
     '''Variability-Weighted Return: Better SharpeRatio with Log Returns
 
     Alias:

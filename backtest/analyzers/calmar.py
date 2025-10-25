@@ -21,14 +21,13 @@
 import collections
 import math
 
-from backtest.analyzers import TimeDrawDown
-from backtest.analyzer import TimeFrameAnalyzerBase
-from backtest.dataseries import TimeFrame
+import backtest as bt
+from . import DrawDown
 
 __all__ = ['Calmar']
 
 
-class Calmar(TimeFrameAnalyzerBase):
+class Calmar(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates the CalmarRatio
     timeframe which can be different from the one used in the underlying data
     Params:
@@ -66,12 +65,12 @@ class Calmar(TimeFrameAnalyzerBase):
     # packages = ('collections', 'math',)
 
     params = (
-        ('timeframe', TimeFrame.Months),  # default in calmar
+        ('timeframe', bt.TimeFrame.Months),  # default in calmar
         ('period', 36),
     )
 
     def __init__(self):
-        self._maxdd = TimeDrawDown(timeframe=self.p.timeframe,
+        self._maxdd = DrawDown(timeframe=self.p.timeframe,
                                    compression=self.p.compression)
 
     def start(self):

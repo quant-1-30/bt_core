@@ -21,13 +21,13 @@
 import collections
 import math
 
-from backtest.analyzers import TimeFrameAnalyzerBase
+import backtest as bt
 
 
 __all__ = ['LogReturnsRolling']
 
 
-class LogReturnsRolling(TimeFrameAnalyzerBase):
+class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates rolling returns for a given timeframe and
     compression
 
@@ -101,4 +101,3 @@ class LogReturnsRolling(TimeFrameAnalyzerBase):
         self._values.append(vst)  # push values backwards (and out)
         super(LogReturnsRolling, self).next()
         self.rets[self.dtkey] = math.log(self._values[-1] / self._values[0])
-
