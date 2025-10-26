@@ -29,5 +29,5 @@ from .fixedsize import *
 
 sizers = {
     'fixed': Fixed,
-    'kelly': KellySizer
+    'kelly': Kelly
     }

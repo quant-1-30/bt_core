@@ -20,8 +20,6 @@
 ###############################################################################
 
 import backtest as bt
-# from backtest.analyzers import LogReturnsRolling 
-from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -74,8 +72,7 @@ class LogReturns(Observer):
 
     def __init__(self):
         self.logret1 = self._owner._addanalyzer(
-            analyzers.LogReturnsRolling,
-            data=self.data0, **self.p._getkwargs())
+            bt.analyzers.LogReturnsRolling, data=self.data0, **self.p._getkwargs())
 
     def next(self):
         self.lines.logret1[0] = self.logret1.rets[self.logret1.dtkey]
@@ -87,10 +84,9 @@ class LogReturns2(LogReturns):
 
     def __init__(self):
         super(LogReturns2, self).__init__()
-
+        
         self.logret2 = self._owner._addanalyzer(
-            analyzers.LogReturnsRolling,
-            data=self.data1, **self.p._getkwargs())
+            bt.analyzers.LogReturnsRolling, data=self.data1, **self.p._getkwargs())
 
     def next(self):
         isover = self._owner.on_dt_over()

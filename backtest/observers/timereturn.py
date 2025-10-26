@@ -19,9 +19,9 @@
 #
 ###############################################################################
 
+import backtest as bt
 from backtest.observer import Observer
 from backtest.dataseries import TimeFrame
-from backtest import analyzers
 
 
 class TimeReturn(Observer):
@@ -73,8 +73,8 @@ class TimeReturn(Observer):
         ]
 
     def __init__(self):
-        self.treturn = self._owner._addanalyzer(analyzers.TimeReturn,
-                                                **self.p._getkwargs())
+        self.treturn = self._owner._addanalyzer(
+            bt.analyzers.TimeReturn, **self.p._getkwargs())
 
     def next(self):
         isover = self._owner.on_dt_over()

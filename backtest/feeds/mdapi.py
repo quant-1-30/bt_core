@@ -100,7 +100,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
     
     descr = Descr()
 
-    def __init__(self, **kwargs):
+    def __init__(self):
         self.ctx = None
         self.channel = None
 

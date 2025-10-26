@@ -19,8 +19,11 @@
 #
 ###############################################################################
 
-from backtest import analyzers
+import backtest as bt
 from backtest.observer import Observer
+
+
+__all__ = ["Broker"]
 
 
 class Broker(Observer):
@@ -43,8 +46,7 @@ class Broker(Observer):
 
     def __init__(self):
         kwargs = self.p._getkwargs()
-        self.vb = self._owner._addanalyzer(analyzers.Broker,
-                                                    **kwargs())
+        self.vb = self._owner._addanalyzer(bt.analyzers.Broker, **kwargs)
 
     def start(self):
         self.plotlines.cash._plotskip = True

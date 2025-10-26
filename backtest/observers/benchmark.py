@@ -18,8 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from backtest import analyzers
+import backtest as bt
 from backtest.observer import Observer
+
+__all__ = ["Benchmark"]
 
 
 class Benchmark(Observer):
@@ -87,8 +89,7 @@ class Benchmark(Observer):
         super(Benchmark, self).__init__()  # treturn including data parameter
         # Create a time return object without the data
         kwargs = self.p._getkwargs()
-        self.rbench = self._owner._addanalyzer(analyzers.Benchmark,
-                                                **kwargs())
+        self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
 
     def next(self):
         super(Benchmark, self).next()

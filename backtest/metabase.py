@@ -88,7 +88,7 @@ class MetaBase(type):
         return cls, args, kwargs
 
     def donew(cls, *args, **kwargs):
-        _obj = cls.__new__(cls, *args, **kwargs)
+        _obj = cls.__new__(cls, *args, **kwargs) # 如果存在多余 kwargs, __init__中参数不为空
         return _obj, args, kwargs
 
     def dopreinit(cls, _obj, *args, **kwargs):

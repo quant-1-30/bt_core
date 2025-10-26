@@ -153,6 +153,7 @@ class LineBuffer(LineSingle):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
         print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
+        import pdb ; pdb.set_trace()
         return self.array[idx + ago]
     
     def __setitem__(self, ago, value):

@@ -76,6 +76,8 @@ class MetaStrategy(StrategyBase.__class__):
         _obj._trades = defaultdict(list) # AutoDictList
 
         _obj.stats = _obj.observers = ItemCollection()
+        _obj.analyzers = ItemCollection()
+        _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
         _obj.writers = list()
 
         return _obj, args, kwargs

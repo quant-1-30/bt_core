@@ -21,7 +21,7 @@
 import numpy as np
 from backtest.sizer import Sizer
 
-__all__ = ['Fixed', 'KellySizer']
+__all__ = ['Fixed', 'Kelly']
 
 
 class Fixed(Sizer):
@@ -30,13 +30,13 @@ class Fixed(Sizer):
 
     It will simply return a size of ``1`` for each operation
     '''
-
+    
     def _getsizing(self, strats):
         sizers = {strat._id: 1/(len(strats)) for strat in strats}
         return sizers
     
 
-class KellySizer(Sizer):
+class Kelly(Sizer):
     '''This sizer will return a size based on the Kelly Criterion
 
     The Kelly Criterion is a formula used to determine the optimal size of a
@@ -78,6 +78,7 @@ class KellySizer(Sizer):
         given data
 
     '''
+    params = ()
 
     def _getsizing(self, strats):
         # datas represent stats of strats

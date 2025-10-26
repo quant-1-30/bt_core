@@ -6,23 +6,23 @@ import backtest.indicators as btind
 from bt_sdk.core.model import *
 
 
-class MyStrategy(bt.Strategy):
+# class MyStrategy(bt.Strategy):
 
-    def log(self, txt, dt=None):
-        ''' Logging function for this strategy'''
-        # dt = dt or self.datas[0].datetime.date(0)
-        # print('%s, %s' % (dt.isoformat(), txt))
-        # dt = dt or self.datas[0].datetime.date(0)
-        dt = str(self.datas[0].datetime.date(0))
-        print('%s, %s' % (dt, txt))
+#     def log(self, txt, dt=None):
+#         ''' Logging function for this strategy'''
+#         # dt = dt or self.datas[0].datetime.date(0)
+#         # print('%s, %s' % (dt.isoformat(), txt))
+#         # dt = dt or self.datas[0].datetime.date(0)
+#         dt = str(self.datas[0].datetime.date(0))
+#         print('%s, %s' % (dt, txt))
 
-    def __init__(self):
-        # Keep a reference to the "close" line in the data[0] dataseries
-        self.dataclose = self.datas[0].close
+#     def __init__(self):
+#         # Keep a reference to the "close" line in the data[0] dataseries
+#         self.dataclose = self.datas[0].close
 
-    def next(self):
-        # Simply log the closing price of the series from the reference
-        self.log('Close, %.2f' % self.dataclose[0])
+#     def next(self):
+#         # Simply log the closing price of the series from the reference
+#         self.log('Close, %.2f' % self.dataclose[0])
 
 
 # class MyStrategy(bt.Strategy):
@@ -79,23 +79,23 @@ class MyStrategy(bt.Strategy):
 #             print('daily sma is greater than weekly sma1')
 
 
-# class MyStrategy(bt.Strategy):
+class MyStrategy(bt.Strategy):
 
-#     def __init__(self):
+    def __init__(self):
 
-#         sma1 = btind.SimpleMovingAverage(self.data.close)
-#         ema1 = btind.ExponentialMovingAverage(self.data.close)
+        sma1 = btind.SimpleMovingAverage(self.data.close)
+        ema1 = btind.ExponentialMovingAverage(self.data.close)
 
-#         close_over_sma = self.data.close > sma1
-#         close_over_ema = self.data.close > ema1
-#         sma_ema_diff = sma1 - ema1
+        close_over_sma = self.data.close > sma1
+        close_over_ema = self.data.close > ema1
+        sma_ema_diff = sma1 - ema1
 
-#         self.buy_sig = bt.And(close_over_sma, close_over_ema, sma_ema_diff > 0)
+        self.buy_sig = bt.And(close_over_sma, close_over_ema, sma_ema_diff > 0)
 
-#     def next(self):
-#         print("buy_sig: ", self.buy_sig[0])
-#         if self.buy_sig[0]:
-#             print('buy')
+    def next(self):
+        print("buy_sig: ", self.buy_sig[0])
+        if self.buy_sig[0]:
+            print('buy')
 
 
 if __name__ == '__main__':

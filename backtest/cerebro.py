@@ -39,6 +39,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
          How many cores to use simultaneously for optimization
 
+      - ``stdstats`` (default: ``True``)
+
+        If True default Observers will be added: Broker (Cash and Value),
+        Trades and BuySell
+
       - ``writer`` (default: ``False``)
 
         If set to ``True`` a default WriterFile will be created which will
@@ -71,8 +76,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     '''
     params = (
-        ('maxcpus', 1),
+        ('stdstats', True),
         ('writer', False),
+        ("sizer", "fixed"),
         ('savemem', 0),
         ('tz', None),
     )
@@ -306,10 +312,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ------------------------------------------------------------------ store --------------------------------------------------------------
 
-    def addstore(self, store, *args, **kwargs):
+    def addstore(self, storecls, *args, **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
-        self.store = store(*args, **kwargs)
-        _feed = store.get_feed()
+        self.store = storecls(*args, **kwargs)
+        _feed = self.store.get_feed()
         self.datas.append(_feed)
  
     def addstorecb(self, callback):
@@ -368,7 +374,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         return self.runstrategies(iterstrat)
 
-    def run(self, **kwargs):
+    def run(self, *args, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was
         instantiated with.
@@ -383,15 +389,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
-        self.runwriters = list()
+        self.addsizer(self.p.sizer)
 
         # initialize feed
         for data in self.datas:
             data._start(**kwargs)
 
-            # data.qbuffer(savemem=1) 
-
         self.runstrats = list()
+        self.runwriters = list()
         self._event_stop = False  # Stop is requested
 
         if not self.store:
@@ -427,15 +432,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     writer.addheaders(wheaders)
 
         iterstrats = itertools.product(*self.strats)
-        if not self._dooptimize or self.p.maxcpus == 1:
-            # If no optimmization is wished ... or 1 core is to be used
-            # let's skip process "spawning"
-            for iterstrat in iterstrats:
-                runstrat = self.runstrategies(iterstrat)
-                self.runstrats.append(runstrat)
-                if self._dooptimize:
-                    for cb in self.optcbs:
-                        cb(runstrat)  # callback receives finished strategy
+        for iterstrat in iterstrats: # let's skip process "spawning" when mp
+            runstrat = self.runstrategies(iterstrat)
+            self.runstrats.append(runstrat)
+            for cb in self.optcbs:
+                cb(runstrat)  # callback receives finished strategy
 
         for iterstrat in self.strats:
             runstrat = self.runstrategies(iterstrat)

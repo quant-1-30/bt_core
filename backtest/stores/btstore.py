@@ -54,9 +54,10 @@ class BTStore(Store):
     def start(self, *args, **kwargs):
         md_addr = os.getenv("MD_ADDR", self.p.md_addr)
         td_addr = os.getenv("TD_ADDR", self.p.td_addr)
+        kw = kwargs.copy()
+        kw["mdapi"] = MdApi(addr=md_addr)
+        self._feed = self.DataCls(*args, **kw)
         kwargs["tdapi"] = TdApi(addr=td_addr, client_id=self.p.client_id)
-        kwargs["mdapi"] = MdApi(addr=md_addr)
-        self._feed = self.DataCls(*args, **kwargs)
         self.broker = self.BrokerCls(*args, **kwargs)
     
     def setenvironment(self, env):
@@ -86,7 +87,7 @@ class BTStore(Store):
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
     
     def register(self, strat) -> Resp:
-        strat_name = f"{strat.__name__}_{strat._id}"
+        strat_name = f"{strat.__class__.__name__}_{strat._id}"
         body = Experiment(strategy=strat_name, appendix=self._feed.appendix, client_id=self.p.client_id)
         resp = self.broker.register(body)
         return resp

@@ -80,7 +80,7 @@ class BTBroker(BrokerBase):
         defeating the purpose of working with a live broker
     '''
     params = (
-        ("tdapi", None),
+        ("tdapi", ""),
     )
     
     acct = Acct()

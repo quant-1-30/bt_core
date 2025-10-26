@@ -18,9 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-from backtest import analyzers
+import backtest as bt
 from backtest.observer import Observer
+
+__all__ = ["DrawDown", "DrawDownLength"]
 
 
 class DrawDown(Observer):
@@ -39,9 +40,7 @@ class DrawDown(Observer):
         Set it to ``True`` or ``False`` for a specific behavior
 
     '''
-    params = (
-        ('fund', None),
-    )
+    params = ()
 
     lines = ('drawdown', 'maxdrawdown',)
 
@@ -51,8 +50,7 @@ class DrawDown(Observer):
 
     def __init__(self):
         kwargs = self.p._getkwargs()
-        self._dd = self._owner._addanalyzer(DrawDown,
-                                            **kwargs)
+        self._dd = self._owner._addanalyzer(bt.DrawDown, **kwargs)
 
     def next(self):
         self.lines.drawdown[0] = self._dd.rets.drawdown  # update drawdown
@@ -74,8 +72,7 @@ class DrawDownLength(Observer):
 
     def __init__(self):
         kwargs = self.p._getkwargs()
-        self._dd = self._owner._addanalyzer(DrawDown,
-                                            **kwargs)
+        self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
 
     def next(self):
         isover = self._owner.on_dt_over()

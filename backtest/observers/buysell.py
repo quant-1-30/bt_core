@@ -19,8 +19,10 @@
 #
 ###############################################################################
 import math
-from backtest import analyzers
+import backtest as bt
 from backtest.observer import Observer
+
+__all__ = ["BuySell"]
 
 
 class BuySell(Observer):
@@ -53,9 +55,7 @@ class BuySell(Observer):
     )
 
     def __init__(self):
-        kwargs = self.p._getkwargs()
-        self.txns = self._owner._addanalyzer(analyzers.Transactions,
-                                                            **kwargs())
+        self.txns = self._owner._addanalyzer(bt.analyzers.Transactions)
 
     def next(self):
         isover = self._owner.on_dt_over()
@@ -77,9 +77,6 @@ class BuySell(Observer):
             
             # Write comm
             self.lines.comm[0] = comm
-
-            # Write down the average buy/sell price
-
             # BUY
             curbuy = self.lines.buy[0]
             if curbuy != curbuy:  # NaN

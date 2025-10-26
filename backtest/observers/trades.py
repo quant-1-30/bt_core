@@ -20,7 +20,8 @@
 ###############################################################################
 import numpy as np
 
-from backtest import analyzers
+import backtest as bt
+# from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -73,8 +74,8 @@ class Trades(Observer):
                       markersize=8.0, fillstyle='full')
     )
     def __init__(self):
-        self.preturn = self._owner._addanalyzer(analyzers.PositionsValue, 
-                                                **self.p._getkwargs())
+        self.preturn = self._owner._addanalyzer(
+            bt.analyzers.PositionsValue)
 
     def next(self):
         isover = self._owner.on_dt_over()
