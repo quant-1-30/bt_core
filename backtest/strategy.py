@@ -423,8 +423,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ainfo = wrinfo.Analyzers
 
         # Internal Value Analyzer
-        ainfo.Value.Begin = self.broker.startingcash
-        ainfo.Value.End = self.broker.getvalue()
+        acct = self.store.getacct(self.experment_id)
+        ainfo.Value.End = acct[0].portfolio_value if acct else 0
 
         # no slave analyzers for writer
         for aname, analyzer in self.analyzers.getitems():
@@ -433,6 +433,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return wrinfo
     
+    def clear(self):
+        self._orders.clear()
+        self._trades.clear()
+    
     def _stop(self):
         self.stop()
         # change operators back to stage 1 - allows reuse of datas
@@ -440,7 +444,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        self.store.stop(self.experment_id, last=True)
+        self.store.stop(self.experment_id)
     
     def cancel(self, order_id):
         '''Cancels the order in the broker'''

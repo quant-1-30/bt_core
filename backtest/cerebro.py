@@ -79,7 +79,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('stdstats', True),
         ('writer', False),
         ("sizer", "fixed"),
-        ('savemem', 0),
+        ('savemem', 1),
         ('tz', None),
     )
 
@@ -89,14 +89,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.strats = list()
         
         self.observers = list()
-        self.analyzers = list()
         self.indicators = list()
         self.writers = list()
-
-        self._pretimers = list()
         self.storecbs = list()
+        self.optcbs = list()  # holds a list of callbacks for opt strategies
         
         self.store = None
+
+        self._pretimers = list()
 
     def adddata(self, data, init=False):
         '''
@@ -282,34 +282,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for strat in runstrats:
                     strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
 
-# ------------------------------------------------------------------ analyzer -----------------------------------------------------------
-
-    def addanalyzer(self, ancls, *args, **kwargs):
-        '''
-        Adds an ``Analyzer`` class to the mix. Instantiation will be done at
-        ``run`` time
-        '''
-        self.analyzers.append((ancls, args, kwargs))
-
-    # def addobserver(self, obscls, *args, **kwargs):
-    #     '''
-    #     Adds an ``Observer`` class to the mix. Instantiation will be done at
-    #     ``run`` time
-    #     '''
-    #     self.observers.append((False, obscls, args, kwargs))
-
-    # def addobservermulti(self, obscls, *args, **kwargs):
-    #     '''
-    #     Adds an ``Observer`` class to the mix. Instantiation will be done at
-    #     ``run`` time
-
-    #     It will be added once per "data" in the system. A use case is a
-    #     buy/sell observer which observes individual datas.
-
-    #     A counter-example is the CashValue, which observes system-wide values
-    #     '''
-    #     self.observers.append((True, obscls, args, kwargs))
-
 # ------------------------------------------------------------------ store --------------------------------------------------------------
 
     def addstore(self, storecls, *args, **kwargs):
@@ -335,6 +307,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
   
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
+    def optcallback(self, cb):
+        '''
+        Adds a *callback* to the list of callbacks that will be called with the
+        optimizations when each of the strategies has been run
+
+        The signature: cb(strategy)
+        '''
+        self.optcbs.append(cb)
+
     def addstrategy(self, strategy, *args, **kwargs):
         '''
         Adds a ``Strategy`` class to the mix for a single pass run.
@@ -351,6 +332,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ``run`` time in the passed strategies
         '''
         self.indicators.append((indcls, args, kwargs))
+    
+    def addobserver(self, multi, obscls, *args, **kwargs):
+        '''
+        Adds an ``Observer`` class to the mix. Instantiation will be done at
+        ``run`` time
+        multi: bool
+        '''
+        self.observers.append((multi, obscls, args, kwargs))
 
     def addsizer(self, sizer_type, *args, **kwargs):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
@@ -437,10 +426,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self.runstrats.append(runstrat)
             for cb in self.optcbs:
                 cb(runstrat)  # callback receives finished strategy
-
-        for iterstrat in self.strats:
-            runstrat = self.runstrategies(iterstrat)
-            self.runstrats.append(runstrat)
     
         return self.runstrats
      
@@ -457,7 +442,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             try:
                 strat = stratcls(*sargs, **skwargs)
                 strat._start()
-                # strat.qbuffer(savemem=self.p.savemem)
+                strat.qbuffer(savemem=self.p.savemem)
             except StrategySkipError:
                 continue  # do not add strategy to the mix
             runstrats.append(strat)
@@ -472,9 +457,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
 
-                for ancls, anargs, ankwargs in self.analyzers:
-                    strat._addanalyzer(ancls, *anargs, **ankwargs)
-                
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
         
@@ -501,11 +483,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             for strat in runstrats:
                 strat._stop()
+            print("strat stop")
 
         for data in self.datas:
             data.stop()
+        print("feed data stop")
 
-        self.stop_writers(runstrats)       
+        self.stop_writers(runstrats) 
+
+        print("stop writer")      
 
         return runstrats
 

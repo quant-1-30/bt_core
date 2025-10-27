@@ -50,7 +50,8 @@ class Acct(object):
         self._evt_acct.wait() # wait for account data to be set
     
     def _t_account(self, api):
-        act = api.get_data("account")
+        # import pdb; pdb.set_trace()
+        act = api.getvalue("account")
         if act:
             self.fundval = act[0]["body"] # experiment: Account
         self._evt_acct.set()
@@ -93,7 +94,7 @@ class BTBroker(BrokerBase):
         resp = self.tdapi.set_cash(cash, experiment_id)
         return resp
 
-    def get_data(self, topic:str, experiment_id='') -> Union[List[Account], List[Position]]:
+    def get_data(self, topic:str, experiment_id='null') -> Union[List[Account], List[Position]]:
         data = self.tdapi.getvalue(topic, experiment_id) 
         return data
     
