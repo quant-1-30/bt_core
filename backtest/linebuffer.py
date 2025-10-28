@@ -32,6 +32,7 @@ import array
 import datetime
 import math
 import numpy as np
+import collections
 
 from itertools import islice
 from typing import Union
@@ -153,6 +154,7 @@ class LineBuffer(LineSingle):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
         print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
+        import pdb; pdb.set_trace()
         return self.array[idx + ago]
     
     def __setitem__(self, ago, value):
@@ -660,11 +662,13 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
     The metaclass does the dirty job of calculating minperiods and registering
     '''
     _ltype = LineBuffer.IndType # indicator
+    
+    notification = collections.defaultdict(collections.deque)
 
     def getindicators(self):
         return []
 
-    def qbuffer(self, savemem=0):
+    def qbuffer(self, savemem=1):
         super(LineActions, self).qbuffer(savemem=savemem)
         for data in self._datas:
             data.minbuffer(size=self._minperiod)
@@ -692,6 +696,11 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
             self.nextstart()
         else:
             self.prenext()
+    
+    def notify_data(self): 
+        print("LineAction notify")
+        self.notification["LineAction"] = self[0] 
+
 
 def LineDelay(a, ago=0, **kwargs):
     if ago <= 0:

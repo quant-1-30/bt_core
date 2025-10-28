@@ -587,9 +587,9 @@ class LineSeriesStub(LineSeries):
         if not self.slave:
             super(LineSeriesStub, self).advance(size)
 
-    def qbuffer(self):
+    def qbuffer(self, savemem):
         if not self.slave:
-            super(LineSeriesStub, self).qbuffer()
+            super(LineSeriesStub, self).qbuffer(savemem)
 
     def minbuffer(self, size):
         if not self.slave:
