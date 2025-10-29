@@ -142,6 +142,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self._started = True
 
     def qbuffer(self, savemem=1):
+        # import pdb; pdb.set_trace()
         for line in self.lines:
             line.qbuffer(savemem=savemem)
 

@@ -154,7 +154,7 @@ class LineBuffer(LineSingle):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
         print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         return self.array[idx + ago]
     
     def __setitem__(self, ago, value):
@@ -697,9 +697,11 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         else:
             self.prenext()
     
-    def notify_data(self): 
-        print("LineAction notify")
-        self.notification["LineAction"] = self[0] 
+    # def notify_data(self): 
+    #     print("LineAction notify")
+    #     self.notification["LineAction"] = self[0]
+    def notify_data(self):
+        pass 
 
 
 def LineDelay(a, ago=0, **kwargs):

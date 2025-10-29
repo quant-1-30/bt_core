@@ -52,8 +52,10 @@ class LineAlias(object):
         inside the line can be "set". This is achieved by adding a binding
         to the line inside "value"
         '''
+        # import pdb; pdb.set_trace()
+        print("__set__ value", isinstance(value, LineMultiple), value)
         if isinstance(value, LineMultiple):
-            value = value.lines[0]
+            value = value.lines[0] # sma linebuffer
 
         # If the now for sure, LineBuffer 'value' is not a LineActions the
         # binding below could kick-in too early in the chain writing the value
@@ -61,7 +63,8 @@ class LineAlias(object):
         # index too early and breaking the functionality (all in next mode)
         # Hence the need to transform it into a LineDelay object of null delay
         if not isinstance(value, LineActions): # LineBuffer __call__
-            value = value(0)
+            print("__Set__ LineActions ", value)
+            value = value(0) # __call__ ---> Linedelay
 
         value.addbinding(obj.lines[self.line])
 

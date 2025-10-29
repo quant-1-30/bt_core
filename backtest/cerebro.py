@@ -439,6 +439,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         for stratcls, sargs, skwargs in iterstrat:
             sargs = self.datas + list(sargs)
+
             try:
                 strat = stratcls(*sargs, **skwargs)
                 strat._start()
