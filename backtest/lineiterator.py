@@ -299,20 +299,20 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         pass
 
     def qbuffer(self, savemem=1):
-        for obj in self._lineiterators[self.IndType]:
-            obj.qbuffer(savemem=savemem)
-        
-        for line in self.lines:
-            line.qbuffer(savemem=savemem)
+        self.lines.qbuffer(savemem=savemem)
 
         # condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas
         for data in self.datas:
             print("lineiterator data", data)
             data.qbuffer(savemem=savemem)
 
-    def setminperiod(self, _minperiod=1):
-        for line in self.lines:
-            line.minbuffer(_minperiod)
+        # Save in all object types depending on the strategy
+        for itcls in self._lineiterators:
+            for it in self._lineiterators[itcls]:
+                it.qbuffer(savemem=savemem)
+        
+    def minbuffer(self, _minperiod=1):
+        self.lines.minbuffer(_minperiod)
         
         for data in self.datas:
             data.minbuffer(_minperiod)

@@ -442,8 +442,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             try:
                 strat = stratcls(*sargs, **skwargs)
-                strat._start()
-                strat.qbuffer(savemem=self.p.savemem)
             except StrategySkipError:
                 continue  # do not add strategy to the mix
             runstrats.append(strat)
@@ -452,8 +450,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for _, strat in enumerate(runstrats):
                 if self.p.stdstats:
                     strat._addobserver(False, observers.Broker)
-                    strat._addobserver(True, observers.BuySell, barplot=True)
-                    strat._addobserver(False, observers.Trades)
+                    # strat._addobserver(True, observers.BuySell, barplot=True)
+                    # strat._addobserver(False, observers.Trades)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
@@ -464,7 +462,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for writer in self.runwriters:
                     if writer.p.csv:
                         writer.addheaders(strat.getwriterheaders())
-
+                
+                strat._start()
+                strat.qbuffer(savemem=self.p.savemem)
+                
             for writer in self.writers:
                 writer.start()
 

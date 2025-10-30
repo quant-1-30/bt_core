@@ -49,7 +49,6 @@ from bt_sdk.core.model import *
 #     def __init__(self):
 
 #         self.movav = btind.SimpleMovingAverage(self.data, period=self.p.period)
-#         # self.cmpval = self.data.close(-1) > self.movav.lines.sma
 #         self.cmpval = self.data.close > self.movav.lines.sma
 
 #     def next(self):
@@ -67,10 +66,10 @@ class MyStrategy(bt.Strategy):
         # data0 is a daily data
         sma0 = btind.SMA(self.data.close, period=15)  # 15 days sma
         # data1 is a weekly data
-        sma1 = btind.SMA(sma0.sma, period=5)  # 5 weeks sma
-        sma2 = btind.SMA(sma1.sma, period=5)  # 5 weeks sma
-        sma3 = btind.SMA(sma2.sma, period=10)  # 5 weeks sma
-        ema = btind.EMA(sma2.sma, period=10)
+        sma1 = btind.SMA(sma0, period=5)  # 5 weeks sma
+        sma2 = btind.SMA(sma1, period=5)  # 5 weeks sma
+        sma3 = btind.SMA(sma2, period=10)  # 5 weeks sma
+        ema = btind.EMA(sma2, period=10)
 
         self.buysig = ema > sma3 # linesoperation
         # self.buysig = sma0 > sma1 # linesoperation

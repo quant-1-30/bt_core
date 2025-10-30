@@ -107,6 +107,7 @@ class BTBroker(BrokerBase):
         return trades
 
     def on_dt_over(self, qty: Query, experiment_id:str) -> Resp:
+        import pdb; pdb.set_trace()
         resp = self.tdapi.on_dt_over(qty, experiment_id) # staisfy T + 1 and update logic 
         return resp
     

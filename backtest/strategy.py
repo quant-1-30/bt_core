@@ -29,6 +29,7 @@ import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
 from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
+from .dataseries import TimeFrame
 from .metabase import with_metaclass, ItemCollection, findowner
 from backtest.utils.dateintern import num2date
 from .utils.autodict import AutoOrderedDict
@@ -100,25 +101,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     lines = ('datetime',)
 
-    def qbuffer(self, savemem=1):
-        '''Enable the memory saving schemes. Possible values for ``savemem``:
-
-          0: No savings. Each lines object keeps in memory all values
-
-          1: All lines objects save memory, using the strictly minimum needed
-        '''
-        for line in self.lines: # datetime *** --- strategy lines
-            line.qbuffer(savemem=savemem)
-
-        # Tell datas to adjust buffer to minimum period
-        for data in self.datas:
-            data.qbuffer(savemem=savemem)
-
-        # Save in all object types depending on the strategy
-        for itcls in self._lineiterators:
-            for it in self._lineiterators[itcls]:
-                it.qbuffer(savemem=savemem)
-
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
 
@@ -164,17 +146,29 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             dminperiod = max(_dminperiods[data] or [data._minperiod])
             self._minperiods.append(dminperiod)
     
-    def setminperiod(self):
+    def minbuffer(self):
+        _minperiod = self._minperiod
+        self.lines.minbuffer(_minperiod)
+
         for data in self.datas:
-            data.minbuffer(self._minperiod) # make sure data minperiod is at least strategy's  
+            data.minbuffer(_minperiod) # make sure data minperiod is at least strategy's  
         
         for itcls in self._lineiterators:
             for it in self._lineiterators[itcls]:
-                it.setminperiod(self._minperiod)
+                it.minbuffer(_minperiod)
+
+    def qbuffer(self, savemem=1):
+        '''Enable the memory saving schemes. Possible values for ``savemem``:
+
+          0: No savings. Each lines object keeps in memory all values
+
+          1: All lines objects save memory, using the strictly minimum needed
+        '''
+        super().qbuffer(savemem=savemem)
+        self.minbuffer()
 
     def _start(self):
         self._periodrecalc()
-        self.setminperiod()
 
         # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
         for analyzer in self.analyzers:
@@ -262,12 +256,21 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return len(self)
 
     def on_dt_over(self, last=False)->bool:
-        super().notify_data()
-        isover = self.store.on_dt_over(self.experment_id, last) # T + 1
-        return isover
-
+        """
+            on_dt_over is used to adapt T + 1 policy:
+                a. process position with adjustment or rightment on next trading_date
+                b. process account and position on preclose_date
+        """
+        _ = self.store.on_dt_over(self.experment_id, last) # T + 1
+        return 
+    
+    def notify_data(self):
+        if self.data._timeframe >= TimeFrame.Days or self._dt_over()[0]:
+            super().notify_data()
+            
     def _next(self):
         self.on_dt_over()
+        self.notify_data() 
 
         super(Strategy, self)._next() # lineiterator _next
         minperstatus = self._getminperstatus()

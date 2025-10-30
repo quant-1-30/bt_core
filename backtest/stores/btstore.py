@@ -130,7 +130,7 @@ class BTStore(Store):
     def on_dt_over(self, experiment_id, last=False) -> bool: 
         dt_over, dts = self._dt_over(last)
         if dt_over:
-            qry = Query(*dts, sid=[])
+            qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # no position args
             _ = self.broker.on_dt_over(qry, experiment_id)
         return dt_over
     
