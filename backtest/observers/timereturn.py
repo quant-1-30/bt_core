@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import datetime
 
 import backtest as bt
 from backtest.observer import Observer
@@ -75,9 +76,11 @@ class TimeReturn(Observer):
     def __init__(self):
         self.treturn = self._owner._addanalyzer(
             bt.analyzers.TimeReturn, **self.p._getkwargs())
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        isover = self._owner.on_dt_over()
-        if isover:
+        dtkey = self.treturn.dtkey
+        if dtkey > self.dtkey:
             self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey,
                                                          float('NaN'))
+            self.dtkey = dtkey

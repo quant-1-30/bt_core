@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import datetime
 
 import backtest as bt
 from backtest.observer import Observer
@@ -47,14 +48,16 @@ class Broker(Observer):
     def __init__(self):
         kwargs = self.p._getkwargs()
         self.vb = self._owner._addanalyzer(bt.analyzers.Broker, **kwargs)
+        self.dtkey = datetime.datetime.min
 
     def start(self):
         self.plotlines.cash._plotskip = True
         self.plotlines.value._name = 'FundValue'
 
     def next(self):
-        isover = self._owner.on_dt_over()
-        if isover:
-            v = self.vb.rets.get(self.treturn.dtkey, (0,0))
+        dtkey = self.vb.dtkey
+        if dtkey > self.dtkey:
+            v = self.vb.rets.get(dtkey, (0,0))
             self.lines.value[0] = v[0]
             self.lines.cash[0] = v[1]
+            self.dtkey = dtkey

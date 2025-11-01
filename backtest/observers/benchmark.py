@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import datetime
+
 import backtest as bt
 from backtest.observer import Observer
 
@@ -90,10 +92,11 @@ class Benchmark(Observer):
         # Create a time return object without the data
         kwargs = self.p._getkwargs()
         self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        super(Benchmark, self).next()
-        isover = self._owner.on_dt_over()
-        if isover:
-            self.lines.benchmark[0] = self.tbench.rets.get(self.treturn.dtkey, 
-                                                           float('NaN'))
+        # super(Benchmark, self).next()
+        dtkey = self.tbench.dtkey
+        if dtkey > self.dtkey:
+            self.lines.benchmark[0] = self.tbench.rets.get(dtkey, float('NaN'))
+            self.dtkey = dtkey

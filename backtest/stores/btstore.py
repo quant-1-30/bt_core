@@ -49,17 +49,23 @@ class BTStore(Store):
     params = (
         ('md_addr', ("127.0.0.1", 9000)),
         ('td_addr', ("127.0.0.1", 8888)),
+        ('fromdate', ''),
+        ('todate', ''),
     )
 
-    def start(self, *args, **kwargs):
+    def __init__(self):
+        # third api
         md_addr = os.getenv("MD_ADDR", self.p.md_addr)
         td_addr = os.getenv("TD_ADDR", self.p.td_addr)
-        kw = kwargs.copy()
+
         kw["mdapi"] = MdApi(addr=md_addr)
         self._feed = self.DataCls(*args, **kw)
         kwargs["tdapi"] = TdApi(addr=td_addr, client_id=self.p.client_id)
         self.broker = self.BrokerCls(*args, **kwargs)
     
+    def start(self, *args, **kwargs):
+        pass
+
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
         belongs to'''
@@ -85,10 +91,9 @@ class BTStore(Store):
         return dlines
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
-    
-    def register(self, strat) -> Resp:
-        strat_name = f"{strat.__class__.__name__}_{strat._id}"
-        body = Experiment(strategy=strat_name, appendix=self._feed.appendix, client_id=self.p.client_id)
+
+    def make_experiment(self, strat_id) -> Resp:
+        body = Experiment(strategy=strat_id, extra_info=self._feed.extra_info, client_id=self.p.client_id)
         resp = self.broker.register(body)
         return resp
     
@@ -124,7 +129,7 @@ class BTStore(Store):
         return order, trades
 
     def _dt_over(self, last=False) -> Tuple[bool, Tuple[int, int]]:
-        dtover, (dtkey, dt) = self._feed._dt_over()
+        dtover, (dtkey, dt) = self._feed._dt_over(last)
         return dtover, (dtkey, dt)
     
     def on_dt_over(self, experiment_id, last=False) -> bool: 

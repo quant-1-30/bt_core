@@ -66,7 +66,7 @@ class DataSeries(LineSeries):
 
     LineOrder = [DateTime, Open, High, Low, Close, Volume, OpenInterest]
     
-    def _dt_over(self, last=False):
+    def _dt_over(self, last=False): # to adapt A stock T + 1 policy
         dt = num2date(self.lines.datetime[0])
         dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
         if last:

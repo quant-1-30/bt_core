@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import datetime
 
 import backtest as bt
 from backtest.observer import Observer
@@ -73,9 +74,13 @@ class LogReturns(Observer):
     def __init__(self):
         self.logret1 = self._owner._addanalyzer(
             bt.analyzers.LogReturnsRolling, data=self.data0, **self.p._getkwargs())
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        self.lines.logret1[0] = self.logret1.rets[self.logret1.dtkey]
+        dtkey = self.logret1.dtkey
+        if dtkey > self.dtkey:
+            self.lines.logret1[0] = self.logret1.rets[self.logret1.dtkey]
+            self.dtkey = dtkey
 
 
 class LogReturns2(LogReturns):
@@ -87,9 +92,11 @@ class LogReturns2(LogReturns):
         
         self.logret2 = self._owner._addanalyzer(
             bt.analyzers.LogReturnsRolling, data=self.data1, **self.p._getkwargs())
+        self.dtkey = datetime
 
     def next(self):
-        isover = self._owner.on_dt_over()
-        if isover:
-            super(LogReturns2, self).next()
+        super(LogReturns2, self).next()
+        dtkey = self.logret2.dtkey
+        if dtkey > self.dtkey:
             self.lines.logret2[0] = self.logret2.rets[self.logret2.dtkey]
+            self.dtkey = dtkey

@@ -30,6 +30,7 @@ from backtest.metabase import MetaParams, with_metaclass
 from backtest.sizers import sizers
 from backtest.timer import Timer
 from backtest.errors import *
+from backtest.stores import _stores
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -77,9 +78,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ('stdstats', True),
+        ("cash", 100000),
+        ('savemem', 1),
         ('writer', False),
         ("sizer", "fixed"),
-        ('savemem', 1),
+        ("store", "bt"),
         ('tz', None),
     )
 
@@ -97,6 +100,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.store = None
 
         self._pretimers = list()
+
+    def set_cash(self, **kwargs):
+        self.cash = kwargs.pop("cash", self.p.cash)
 
     def adddata(self, data, init=False):
         '''
@@ -284,8 +290,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ------------------------------------------------------------------ store --------------------------------------------------------------
 
-    def addstore(self, storecls, *args, **kwargs):
+    def addstore(self, *args, **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
+        storecls = kwargs.pop("store", self.p.store)
         self.store = storecls(*args, **kwargs)
         _feed = self.store.get_feed()
         self.datas.append(_feed)
@@ -304,7 +311,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         reception and experimentation.
         '''
         self.storecbs.append(callback)
-  
+
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
     def optcallback(self, cb):
@@ -341,11 +348,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.observers.append((multi, obscls, args, kwargs))
 
-    def addsizer(self, sizer_type, *args, **kwargs):
+    def addsizer(self, **kwargs):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
         strategy added to cerebro
         '''
-        self.sizer = sizers[sizer_type](*args, **kwargs)
+        sizer_type = kwargs.pop("sizer", self.p.sizer)
+        self.sizer = sizers[sizer_type](**kwargs)
 
     def _init_stcount(self):
         self.stcount = itertools.count(0)
@@ -362,6 +370,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         module without complains
         '''
         return self.runstrategies(iterstrat)
+    
+    def _start(self, *args, **kwargs):
+        self.set_cash(**kwargs) # pop cash
+        self.addstore(*args, **kwargs) # pop client_id fromdate todate 
+        self.addsizer(self.p.sizer)
 
     def run(self, *args, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
@@ -378,7 +391,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
-        self.addsizer(self.p.sizer)
+        self._start(*args, **kwargs)
 
         # initialize feed
         for data in self.datas:
@@ -422,14 +435,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         iterstrats = itertools.product(*self.strats)
         for iterstrat in iterstrats: # let's skip process "spawning" when mp
-            runstrat = self.runstrategies(iterstrat)
+            runstrat = self.runstrategies(iterstrat, **kwargs)
             self.runstrats.append(runstrat)
             for cb in self.optcbs:
                 cb(runstrat)  # callback receives finished strategy
     
         return self.runstrats
      
-    def runstrategies(self, iterstrat):
+    def runstrategies(self, iterstrat, **kwargs):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
@@ -463,7 +476,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     if writer.p.csv:
                         writer.addheaders(strat.getwriterheaders())
                 
-                strat._start()
+                strat._start(**kwargs)
                 strat.qbuffer(savemem=self.p.savemem)
                 
             for writer in self.writers:

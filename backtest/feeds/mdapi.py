@@ -85,7 +85,14 @@ class MetaMdData(DataBase.__class__):
         _obj.mdapi = _obj.p.mdapi
         _obj.buffer = None # 
         _obj.adj_factors = None # 
-        _obj.appendix = "" # any extra info to relate with request
+        return _obj, args, kwargs
+    
+    def dopostinit(cls, _obj, *args, **kwargs):
+        _obj.p.assets = [_obj.p.asset] if isinstance(_obj.p.asset, str) else _obj.p.asset
+        _obj.extra_info = f"{_obj.p.assets}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
+
+        _obj.ctx = None # context for yield
+        _obj.adj_factors= {}
         return _obj, args, kwargs
 
 
@@ -94,34 +101,25 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
     params = (
         ("mdapi", None),
         ('rtbar', False,), # use RealTime 5 seconds bars
+        ("client_id", ''),
+        ("asset", None)
     )
 
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3) # Minimum size supported by real-time bars
     
     descr = Descr()
 
-    def __init__(self):
-        self.ctx = None
-        self.channel = None
-
-    def _start(self, **kwargs):
+    def start(self, **kwargs):
         super()._start()
 
-        # optimize ReqMeta
-        sdate = kwargs.get("start_date", 19900101)
-        edate = kwargs.get("end_date", datetime.now().strftime("%Y%m%d"))
-        # _from = datetime.strptime(str(sdate), "%Y%m%d") + timedelta(hours=9, minutes=30)
-        # _to = datetime.strptime(str(edate), "%Y%m%d") + timedelta(hours=15, minutes=0)
-        # reqmeta = ReqMeta(sid=kwargs["sid"], start_date=int(_from.timestamp()), end_date=int(_to.timestamp()))
-        qty = Query(sid=kwargs["sid"], start_date=sdate, end_date=edate)
-        
-        self.calc_adjfactor(qty)
+        qty = Query(sid=self.p.asset, start_date=self.p.fromdate, end_date=self.p.todate)
         # wrap by contextmanager 整合迭代器与session 手动获取上下文
         self.ctx = self.mdapi.subscribe(qty)
-        self.channel = self.ctx.__enter__()
-        if self.channel is None:
+        if self.ctx is None:
             warnings.warn("buffer is None, must subscribe first")
             return
+        # calculate adjustment coef
+        self.calc_adjfactor(qty)
 
     def _load_bar(self, msg):
         data = msg["body"]["line"][0]
@@ -157,7 +155,7 @@ class MdData(with_metaclass(MetaMdData, DataBase)):
         return True
 
     def _load(self):
-        msg = self.channel.get()
+        msg = self.ctx.__enter__().get()
         print("_load msg :", msg)
         if msg == "eof":
             self.ctx.__exit__(None, None, None) #

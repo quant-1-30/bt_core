@@ -34,6 +34,9 @@
 
 try:
     from .btstore import BTStore
+    from .ibstore import IBStore
+    from .oandastore import OandaStore
 except ImportError:
     pass  # The user may not have a module installed
 
+_stores = {"bt": BTStore, "ib": IBStore, "oa": OandaStore}

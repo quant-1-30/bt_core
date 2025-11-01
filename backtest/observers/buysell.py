@@ -19,6 +19,8 @@
 #
 ###############################################################################
 import math
+import datetime
+
 import backtest as bt
 from backtest.observer import Observer
 
@@ -56,10 +58,11 @@ class BuySell(Observer):
 
     def __init__(self):
         self.txns = self._owner._addanalyzer(bt.analyzers.Transactions)
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        isover = self._owner.on_dt_over()
-        if isover:
+        dtkey = self.txns.dtkey
+        if dtkey > self.dtkey:
             _trades = self.txns.rets(self.txns.dtkey, [])
             buy = list()
             sell = list()
@@ -74,7 +77,7 @@ class BuySell(Observer):
                     buy.append(order_bit)
                 else:
                     sell.append(order_bit)
-            
+
             # Write comm
             self.lines.comm[0] = comm
             # BUY
@@ -113,3 +116,5 @@ class BuySell(Observer):
                     self.lines.pnlplus[0] = pnl
                 else:
                     self.lines.pnlminus[0] = pnl
+
+            self.dtkey = dtkey

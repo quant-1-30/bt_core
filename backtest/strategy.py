@@ -23,6 +23,7 @@ import warnings
 import collections
 import itertools
 import operator
+import json
 from collections import defaultdict
 
 import backtest as bt
@@ -59,6 +60,8 @@ class MetaStrategy(StrategyBase.__class__):
 
         # Find the owner and store it
         _obj.env = _obj.cerebro = cerebro = findowner(_obj, bt.cerebro.Cerebro)
+        _obj.sizer = _obj.env.sizer # add sizing to strategy
+        _obj.store = store = _obj.env.store # add store to strategy
         _obj._id = cerebro._next_stid()
 
         return _obj, args, kwargs
@@ -67,10 +70,6 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
 
-        _obj.sizer = _obj.env.sizer # add sizing to strategy
-        _obj.store = store = _obj.env.store # add store to strategy
-        _obj._dt_over = store._dt_over # get dt_over function from store
-        
         _obj._minperiods = list()
 
         _obj._orders = defaultdict(list)
@@ -88,7 +87,7 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._periodset()
-        _obj._next_id()
+        _obj.experiment_id, _obj.u_id = _obj._next_id() # generate unique_id and experiment_id
         return _obj, args, kwargs
 
 
@@ -167,7 +166,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
 
-    def _start(self):
+    def _start(self, **kwargs):
         self._periodrecalc()
 
         # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
@@ -185,17 +184,22 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self._dlens = [len(data) for data in self.datas]
 
-        self.start()
+        self.start(**kwargs)
 
-    def start(self):
+    def start(self, **kwargs):
         '''Called right before the backtesting is about to be started.'''
-        pass
+        store = self.store
+        store.set_cash(self, **kwargs)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
     def _next_id(self):
-        self.experment_id = self.store.register(self)
+        # unique_id consisted of strategy name and params
+        p_str = json.dumps(self.p._getkwargs)
+        u_id = f"{self.__class__.__name__}({p_str})"
+        experiment_id = self.store.make_experiment(u_id)
+        return experiment_id, u_id
 
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
@@ -369,8 +373,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             return acct, pos
 
         # warnings.warn("complete=True not implemented in BTStore")
-        acct = self.store.subcribe(self.experment_id, "account")
-        pos = self.store.subcribe(self.experment_id, "position")
+        acct = self.store.getacct(self.experment_id)
+        pos = self.store.getposition(self.experment_id)
         return acct, pos
     
     def getwriterheaders(self):

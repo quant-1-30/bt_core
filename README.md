@@ -144,3 +144,15 @@ cloudpickle and loky  ---> pickle and mp
 # 存在问题 store datacls / brokercls
 
 # LineAction 当只有单个指标计算对应对象是LineBuffer需要封装为LineAction (keep _next / _once api consistent with lineiterator)
+
+# LineSeries getattr ---> ex sma.get / _LineDelay (sma ---> LineAction  ---> addbinding ----> self[0] = a[ago])
+
+# analyzer _on_dt_over api / feed _on_dt_over
+
+# cash intended for client_id and experiment_id accociated with cash with client_id
+
+# integrate store / set_cash into cerebro
+
+# solve observer next bug 
+
+

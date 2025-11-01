@@ -86,12 +86,12 @@ class BTBroker(BrokerBase):
     
     acct = Acct()
 
-    def register(self, experiment: Experiment) -> Resp:
-        resp = self.tdapi.register(experiment)
+    def set_cash(self, cash) -> Resp:
+        resp = self.tdapi.set_cash(cash)
         return resp
 
-    def set_cash(self, cash: Cash, experiment_id: str) -> Resp:
-        resp = self.tdapi.set_cash(cash, experiment_id)
+    def register(self, experiment: Experiment) -> Resp:
+        resp = self.tdapi.register(experiment)
         return resp
 
     def get_data(self, topic:str, experiment_id='null') -> Union[List[Account], List[Position]]:

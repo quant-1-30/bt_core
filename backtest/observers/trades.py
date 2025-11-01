@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import numpy as np
+import datetime
 
 import backtest as bt
 # from backtest import analyzers
@@ -76,11 +77,11 @@ class Trades(Observer):
     def __init__(self):
         self.preturn = self._owner._addanalyzer(
             bt.analyzers.PositionsValue)
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        isover = self._owner.on_dt_over()
-        if isover:
-            dtkey = self.preturn.dtkey
+        dtkey = self.preturn.dtkey
+        if dtkey > self.dtkey:
             pnls = np.array([p.pnl for p in self.preturn.rets[dtkey]])
             pnl = np.sum(pnls)
 
@@ -88,3 +89,5 @@ class Trades(Observer):
                 self.lines.pnlplus[0] = pnl
             else:
                 self.lines.pnlminus[0] = pnl
+
+            self.dtkey = dtkey

@@ -42,11 +42,6 @@ class GrossLeverage(bt.TimeFrameAnalyzerBase):
     def start(self):
         super(GrossLeverage, self).start()
         
-    # def notify_fund(self):
-    #     fundvalue, cash = self.notify.store.get_value()
-    #     self._value = fundvalue
-    #     self._cash = cash
-
     def on_dt_over(self):
         self.notify_fund()
         v, _ = self._owner.getvalue()

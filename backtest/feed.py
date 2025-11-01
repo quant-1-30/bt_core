@@ -68,8 +68,26 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
 
-        # _obj.adj_factors= np.array([1.0])
-        _obj.adj_factors= {}
+        if _obj.p.sessionstart is None:
+            _obj.p.sessionstart = datetime.timedelta()
+
+        if _obj.p.sessionend is None:
+            # remove 9 to avoid precision rounding errors
+            _obj.p.sessionend = datetime.timedelta()
+
+        if not isinstance(_obj.p.fromdate, datetime.date):
+            # push it to the end of the day, or else intraday
+            # values before the end of the day would be gone
+            _obj.p.fromdate = datetime.datetime.strptime(_obj.p.fromdate, "%Y%m%d")
+
+        _obj.p.fromdate = _obj.p.fromdate + _obj.p.sessionstart
+
+        if not isinstance(_obj.p.todate, datetime.date):
+            # push it to the end of the day, or else intraday
+            # values before the end of the day would be gone
+            _obj.p.fromdate = datetime.datetime.strptime(_obj.p.fromdate, "%Y%m%d")
+
+        _obj.p.todate = _obj.p.todate + _obj.p.sessionend
 
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
@@ -83,7 +101,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
                     _obj._ffilters.append((fp, [], {}))
 
             _obj._filters.append((fp, [], {}))
-
+        
         return _obj, args, kwargs
 
 
@@ -94,10 +112,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('name', None),
         ('compression', 1),
         ('timeframe', TimeFrame.Days),
+        ('sessionstart', datetime.timedelta(hour=9, minute=30)),
+        ('sessionend', datetime.timedelta(hour=15, minute=0)),
         ('fromdate', None),
         ('todate', None),
-        ('sessionstart', "9:30"),
-        ('sessionend', "15:00"),
         ('filters', []),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
@@ -140,14 +158,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         self._tzinput = Localizer(self._gettzinput())
         self._started = True
-
-    def qbuffer(self, savemem=1):
-        # import pdb; pdb.set_trace()
-        for line in self.lines:
-            line.qbuffer(savemem=savemem)
-
-    # def minbuffer(self, size):
-    #     self.lines.minbuffer(size)
 
     def updateminperiod(self, minperiod):
         self._minperiod = minperiod

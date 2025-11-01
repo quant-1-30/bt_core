@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import datetime
+
 import backtest as bt
 from backtest.observer import Observer
 
@@ -73,9 +75,12 @@ class DrawDownLength(Observer):
     def __init__(self):
         kwargs = self.p._getkwargs()
         self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        isover = self._owner.on_dt_over()
-        if isover:
+        dtkey = self._dd.dtkey
+        if dtkey > self.dtkey:
             self.lines.len[0] = self._dd.rets.len  # update drawdown length
             self.lines.maxlen[0] = self._dd.rets.max.len  # update max length
+
+            self.dtkey = dtkey
