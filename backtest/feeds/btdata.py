@@ -21,7 +21,6 @@
 import warnings
 import numpy as np
 import threading
-from datetime import datetime, timedelta
 
 from bt_sdk.core.model import Query
 from backtest.feed import DataBase
@@ -31,10 +30,37 @@ from backtest.stores.btstore import BTStore
 from backtest.utils.dateintern import num2date
 
 
-__all__ = ["MdData"]
+__all__ = ["BtData"]
 
 
-class Descr(object):
+class MetaBtData(DataBase.__class__):
+    
+    def __init__(cls, name, bases, dct):
+        """auto Register with the store when type class __import__"""
+        super(MetaBtData, cls).__init__(name, bases, dct)
+        BTStore.DataCls = cls
+
+    def donew(cls, *args, **kwargs):
+        print("MetaBtData donew kwargs ", kwargs)
+        _obj, args, kwargs = super(MetaBtData, cls).donew(*args, **kwargs)
+        print("MetaBtData donew kwargs after", kwargs)
+        return _obj, args, kwargs
+    
+    def dopostinit(cls, _obj, *args, **kwargs):
+        print("MetaBtData dopostinit kwargs ", kwargs)
+        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) # __init__
+        print("MetaBtData dopostinit kwargs ", kwargs)
+        _obj.mdapi = _obj.p.mdapi
+        _obj.extra_info = f"{str(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
+
+        _obj.ctx = None # context for yield
+        _obj.adj_factors= {}
+        _obj.buffer = None # 
+        _obj.adj_factors = None # 
+        return _obj, args, kwargs
+
+
+class BtDescr(object):
     '''Descriptor for calendar and instrument data'''
     def __init__(self):
         self.calendar = ()
@@ -73,46 +99,29 @@ class Descr(object):
         return self.calendar, self.assets
 
 
-class MetaMdData(DataBase.__class__):
-    
-    def __init__(cls, name, bases, dct):
-        """auto Register with the store when type class __import__"""
-        super(MetaMdData, cls).__init__(name, bases, dct)
-        BTStore.DataCls = cls
-
-    def doinit(cls, _obj, *args, **kwargs):
-        _obj, args, kwargs = super().doinit(_obj, *args, **kwargs) # __init__
-        _obj.mdapi = _obj.p.mdapi
-        _obj.buffer = None # 
-        _obj.adj_factors = None # 
-        return _obj, args, kwargs
-    
-    def dopostinit(cls, _obj, *args, **kwargs):
-        _obj.p.assets = [_obj.p.asset] if isinstance(_obj.p.asset, str) else _obj.p.asset
-        _obj.extra_info = f"{_obj.p.assets}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
-
-        _obj.ctx = None # context for yield
-        _obj.adj_factors= {}
-        return _obj, args, kwargs
-
-
-class MdData(with_metaclass(MetaMdData, DataBase)):
+class BtData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
         ("mdapi", None),
-        ('rtbar', False,), # use RealTime 5 seconds bars
-        ("client_id", ''),
-        ("asset", None)
+        ("rtbar", False,), # use RealTime 5 seconds bars
+        ("sid", None),
+        ("fromdate", None),
+        ("todate", None),
+        ("client_id", ""),
     )
 
     RTBAR_MINSIZE = (TimeFrame.Seconds, 3) # Minimum size supported by real-time bars
     
-    descr = Descr()
+    descr = BtDescr()
 
-    def start(self, **kwargs):
+    def __init__(*args, **kwargs):
+        # to solve abundant args or kwargs
+        pass 
+
+    def _start(self, *args, **kwargs):
         super()._start()
 
-        qty = Query(sid=self.p.asset, start_date=self.p.fromdate, end_date=self.p.todate)
+        qty = Query(sid=self.p.sid, start_date=self.p.fromdate, end_date=self.p.todate)
         # wrap by contextmanager 整合迭代器与session 手动获取上下文
         self.ctx = self.mdapi.subscribe(qty)
         if self.ctx is None:

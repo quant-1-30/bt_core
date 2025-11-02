@@ -101,7 +101,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self._pretimers = list()
 
-    def set_cash(self, **kwargs):
+    def set_cash(self, *args, **kwargs):
         self.cash = kwargs.pop("cash", self.p.cash)
 
     def adddata(self, data, init=False):
@@ -292,7 +292,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     def addstore(self, *args, **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
-        storecls = kwargs.pop("store", self.p.store)
+        storecls = _stores[kwargs.pop("store", self.p.store)]
+        # import pdb; pdb.set_trace
         self.store = storecls(*args, **kwargs)
         _feed = self.store.get_feed()
         self.datas.append(_feed)
@@ -348,12 +349,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.observers.append((multi, obscls, args, kwargs))
 
-    def addsizer(self, **kwargs):
+    def addsizer(self, *args, **kwargs):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
         strategy added to cerebro
         '''
         sizer_type = kwargs.pop("sizer", self.p.sizer)
-        self.sizer = sizers[sizer_type](**kwargs)
+        self.sizer = sizers[sizer_type](*args, **kwargs)
 
     def _init_stcount(self):
         self.stcount = itertools.count(0)
@@ -372,9 +373,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         return self.runstrategies(iterstrat)
     
     def _start(self, *args, **kwargs):
-        self.set_cash(**kwargs) # pop cash
+        self.set_cash(*args, **kwargs) # pop cash
         self.addstore(*args, **kwargs) # pop client_id fromdate todate 
-        self.addsizer(self.p.sizer)
+        self.addsizer(*args, **kwargs)
 
     def run(self, *args, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
@@ -461,10 +462,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if runstrats:
             for _, strat in enumerate(runstrats):
-                if self.p.stdstats:
-                    strat._addobserver(False, observers.Broker)
-                    # strat._addobserver(True, observers.BuySell, barplot=True)
-                    # strat._addobserver(False, observers.Trades)
+                # if self.p.stdstats:
+                #     strat._addobserver(False, observers.Broker)
+                #     strat._addobserver(True, observers.BuySell, barplot=True)
+                #     strat._addobserver(False, observers.Trades)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)

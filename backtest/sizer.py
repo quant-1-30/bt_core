@@ -41,6 +41,9 @@ class Sizer(with_metaclass(MetaParams, object)):
     '''
     params = (("reserve", 0.0), )  # reserve a fraction of cash
 
+    def __init__(*args, **kwargs):
+        pass
+
     def getsizing(self, strats, datas={}, isbuy=True):
         return self._getsizing(strats, datas)
 

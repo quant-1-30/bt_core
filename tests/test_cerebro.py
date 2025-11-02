@@ -101,11 +101,10 @@ class MyStrategy(bt.Strategy):
 
 if __name__ == '__main__':
 
-    cerebro = bt.Cerebro() # 配置params里面参数
+    cerebro = bt.Cerebro() # configure ---> store="bt"
     cerebro.set_cash(cash=10000)
     # Add a strategy
     cerebro.addstrategy(MyStrategy)
-    # cerebro.addstore(bt.BTStore)
-    cerebro.run(sid=["603676"], fromdate=20200101, todate=20200201, client_id="")
+    cerebro.run(sid=["603676"], fromdate=20200101, todate=20200201, client_id="1001fe63-3d5d-42b3-89d5-d96218617219")
     # plot
     cerebro.plot()

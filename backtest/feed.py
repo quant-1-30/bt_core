@@ -45,9 +45,9 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         if not cls.aliased and \
            name != 'DataBase' and not name.startswith('_'):
             cls._indcol[name] = cls
-
+        
     def dopreinit(cls, _obj, *args, **kwargs):
-        print("MetaAbstractDataBase dopreinit")
+        print("MetaAbstractDataBase dopreinit", kwargs)
         _obj, args, kwargs = \
             super(MetaAbstractDataBase, cls).dopreinit(_obj, *args, **kwargs)
 
@@ -56,7 +56,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
-        print("MetaAbstractDataBase dopostinit")
+        print("MetaAbstractDataBase dopostinit", kwargs)
         _obj, args, kwargs = \
             super(MetaAbstractDataBase, cls).dopostinit(_obj, *args, **kwargs)
 
@@ -78,16 +78,16 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         if not isinstance(_obj.p.fromdate, datetime.date):
             # push it to the end of the day, or else intraday
             # values before the end of the day would be gone
-            _obj.p.fromdate = datetime.datetime.strptime(_obj.p.fromdate, "%Y%m%d")
+            _obj.p.fromdate = datetime.datetime.strptime(str(_obj.p.fromdate), "%Y%m%d")
 
-        _obj.p.fromdate = _obj.p.fromdate + _obj.p.sessionstart
+        _obj.fromdate = _obj.p.fromdate + _obj.p.sessionstart
 
         if not isinstance(_obj.p.todate, datetime.date):
             # push it to the end of the day, or else intraday
             # values before the end of the day would be gone
-            _obj.p.fromdate = datetime.datetime.strptime(_obj.p.fromdate, "%Y%m%d")
+            _obj.p.todate = datetime.datetime.strptime(str(_obj.p.todate), "%Y%m%d")
 
-        _obj.p.todate = _obj.p.todate + _obj.p.sessionend
+        _obj.todate = _obj.p.todate + _obj.p.sessionend
 
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
@@ -112,8 +112,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('name', None),
         ('compression', 1),
         ('timeframe', TimeFrame.Days),
-        ('sessionstart', datetime.timedelta(hour=9, minute=30)),
-        ('sessionend', datetime.timedelta(hour=15, minute=0)),
+        ('sessionstart', datetime.timedelta(hours=9, minutes=30)),
+        ('sessionend', datetime.timedelta(hours=15, minutes=0)),
         ('fromdate', None),
         ('todate', None),
         ('filters', []),

@@ -155,4 +155,5 @@ cloudpickle and loky  ---> pickle and mp
 
 # solve observer next bug 
 
+# 类的 __class__ 返回元类的与继承无关系
 

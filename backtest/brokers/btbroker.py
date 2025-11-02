@@ -85,13 +85,17 @@ class BTBroker(BrokerBase):
     )
     
     acct = Acct()
-
-    def set_cash(self, cash) -> Resp:
-        resp = self.tdapi.set_cash(cash)
-        return resp
+    
+    def __init__(*args, **kwargs):
+        # to solve abundant args or kwargs
+        pass 
 
     def register(self, experiment: Experiment) -> Resp:
         resp = self.tdapi.register(experiment)
+        return resp.body["experiment_id"]
+    
+    def set_cash(self, body: Cash, experiment_id: str) -> Resp:
+        resp = self.tdapi.set_cash(body, experiment_id)
         return resp
 
     def get_data(self, topic:str, experiment_id='null') -> Union[List[Account], List[Position]]:

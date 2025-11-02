@@ -184,19 +184,20 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self._dlens = [len(data) for data in self.datas]
 
-        self.start(**kwargs)
+        self.start()
 
-    def start(self, **kwargs):
+    def start(self, ):
         '''Called right before the backtesting is about to be started.'''
         store = self.store
-        store.set_cash(self, **kwargs)
+        store.set_cash(self, self.env.cash)
+        print("strategy start finish")
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
     def _next_id(self):
         # unique_id consisted of strategy name and params
-        p_str = json.dumps(self.p._getkwargs)
+        p_str = json.dumps(self.p._getkwargs())
         u_id = f"{self.__class__.__name__}({p_str})"
         experiment_id = self.store.make_experiment(u_id)
         return experiment_id, u_id
@@ -265,7 +266,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 a. process position with adjustment or rightment on next trading_date
                 b. process account and position on preclose_date
         """
-        _ = self.store.on_dt_over(self.experment_id, last) # T + 1
+        # import pdb; pdb.set_trace()
+        _ = self.store.on_dt_over(self.experiment_id, last) # T + 1
         return 
     
     def notify_data(self):
@@ -311,7 +313,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
           - the submitted order
         '''
         sizer_ratio = self._sizer.getsizing()[self._id]
-        order, trades = self.store.submit(self.experment_id, 
+        order, trades = self.store.submit(self.experiment_id, 
                                     sid, 
                                     sizer_ratio=sizer_ratio, 
                                     price=price, 
@@ -335,7 +337,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         sizer_ratio = self._sizer.getsizing(isbuy=False)[self._id]
-        ordermeta, trades = self.store.submit(self.experment_id, 
+        ordermeta, trades = self.store.submit(self.experiment_id, 
                           sid, 
                           size=sizer_ratio, 
                           price=price, 
@@ -368,13 +370,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         the cash in hand.
         '''
         if current:
-            acct = self.store.getvalue(self.experment_id)
-            pos = self.store.getposition(self.experment_id)
+            acct = self.store.getvalue(self.experiment_id)
+            pos = self.store.getposition(self.experiment_id)
             return acct, pos
 
         # warnings.warn("complete=True not implemented in BTStore")
-        acct = self.store.getacct(self.experment_id)
-        pos = self.store.getposition(self.experment_id)
+        acct = self.store.getacct(self.experiment_id)
+        pos = self.store.getposition(self.experiment_id)
         return acct, pos
     
     def getwriterheaders(self):
@@ -430,7 +432,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ainfo = wrinfo.Analyzers
 
         # Internal Value Analyzer
-        acct = self.store.getacct(self.experment_id)
+        acct = self.store.getacct(self.experiment_id)
         ainfo.Value.End = acct[0].portfolio_value if acct else 0
 
         # no slave analyzers for writer
@@ -451,7 +453,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        self.store.stop(self.experment_id)
+        self.store.stop(self.experiment_id)
     
     def cancel(self, order_id):
         '''Cancels the order in the broker'''

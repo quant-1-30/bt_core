@@ -103,7 +103,7 @@ class MetaBase(type):
 
     # 元类创造类 , __call__ 参数为cls  / 类似于 一般类 , __call__ 参数为self (可以将__new__ / __init__ 纳入其中)
     def __call__(cls, *args, **kwargs):
-        # print("entering metabase __call__", args, kwargs)
+        print("entering metabase __call__", args, kwargs)
         cls, args, kwargs = cls.doprenew(*args, **kwargs)
         # print("metabase doprenew done")
         # _obj 是类实例
@@ -114,6 +114,7 @@ class MetaBase(type):
         _obj, args, kwargs = cls.doinit(_obj, *args, **kwargs)
         # print("metabase doinit done")
         _obj, args, kwargs = cls.dopostinit(_obj, *args, **kwargs)
+        print("finishing metabase __call__", args, kwargs)
         return _obj
 
 
@@ -310,11 +311,13 @@ class MetaParams(MetaBase):
 
         # Create params and set the values from the kwargs
         params = cls.params()
+        print('before kwargs ', kwargs)
         for pname, pdef in cls.params._getitems():
             # kwargs 覆盖 params默认值
             setattr(params, pname, kwargs.pop(pname, pdef)) # pop ---> kwargs in-place
 
         # Create the object and set the params in place
+        print("after kwargs ", kwargs)
         _obj, args, kwargs = super(MetaParams, cls).donew(*args, **kwargs)
         _obj.params = params
         _obj.p = params  # shorter alias
