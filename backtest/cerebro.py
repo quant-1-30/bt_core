@@ -462,8 +462,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if runstrats:
             for _, strat in enumerate(runstrats):
-                # if self.p.stdstats:
-                #     strat._addobserver(False, observers.Broker)
+                if self.p.stdstats:
+                    strat._addobserver(False, observers.Broker)
                 #     strat._addobserver(True, observers.BuySell, barplot=True)
                 #     strat._addobserver(False, observers.Trades)
 

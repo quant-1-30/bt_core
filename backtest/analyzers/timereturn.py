@@ -87,6 +87,7 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
     params = (
         ('data', None),
         ('firstopen', True),
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     def start(self):

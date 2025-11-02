@@ -65,16 +65,7 @@ class DataSeries(LineSeries):
     Close, Low, High, Open, Volume, OpenInterest, DateTime = range(7)
 
     LineOrder = [DateTime, Open, High, Low, Close, Volume, OpenInterest]
-    
-    def _dt_over(self, last=False): # to adapt A stock T + 1 policy
-        dt = num2date(self.lines.datetime[0])
-        dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
-        if last:
-            isover=True
-        else:
-            isover = (dt - dtkey).days if dtkey else False
-        return isover, (dtkey, dt)
-    
+     
     def getvalues(self):
         return [self.lines[i][0] for i in range(len(self.lines))]
 

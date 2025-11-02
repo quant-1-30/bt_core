@@ -132,7 +132,9 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         - ``maxddlen``
     '''
 
-    params = ()
+    params = (
+        ('timeframe', bt.TimeFrame.Days),
+    )
 
     def start(self):
         super(DrawDown, self).start()

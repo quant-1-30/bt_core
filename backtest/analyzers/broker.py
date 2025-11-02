@@ -57,6 +57,7 @@ class Broker(bt.TimeFrameAnalyzerBase):
         each return as keys
     '''
     params = (
+        ('timeframe', bt.TimeFrame.Days),
         ('headers',  False),
         ('cash', False),
     )

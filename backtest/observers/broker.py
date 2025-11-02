@@ -38,6 +38,7 @@ class Broker(Observer):
     Params: None
     '''
     params = (
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     alias = ('CashValue',)

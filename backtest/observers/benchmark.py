@@ -76,10 +76,10 @@ class Benchmark(Observer):
     plotlines = dict(benchmark=dict(_name='Benchmark'))
 
     params = (
-        ('data', None),
         ('_doprenext', False),
         # Set to false to ensure the asset is measured at 0% in the 1st tick
         ('firstopen', False),
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     def _plotlabel(self):

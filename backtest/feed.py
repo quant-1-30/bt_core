@@ -111,7 +111,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('dataname', None), # sid
         ('name', None),
         ('compression', 1),
-        ('timeframe', TimeFrame.Days),
+        ('timeframe', TimeFrame.Minutes),
         ('sessionstart', datetime.timedelta(hours=9, minutes=30)),
         ('sessionend', datetime.timedelta(hours=15, minutes=0)),
         ('fromdate', None),
@@ -184,7 +184,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def num2date(self, dt, tz=None):
         return num2date(dt, tz or self._tz) # default is Asia/Shanghai
     
-    def _geteos(self): 
+    def _getnexteos(self): 
         '''Returns the next eos using a trading calendar if available'''
         if self._clone:
             return self.data._geteos()
@@ -203,12 +203,21 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos
     
-    def _getnexteos(self): # next_trading_day
-        dt = self.lines.datetime[0]
-        dtime = num2date(dt)
-        _, nexteos = self._calendar.schedule(dtime, self._tz) 
-        nextdteos = date2num(nexteos) # localize
-        return nexteos, nextdteos
+    # def _getnexteos(self): # next_trading_day
+    #     dt = self.lines.datetime[0]
+    #     dtime = num2date(dt)
+    #     _, nexteos = self._calendar.schedule(dtime, self._tz) 
+    #     nextdteos = date2num(nexteos) # localize
+    #     return nexteos, nextdteos
+    
+    def _dt_over(self, last=False): # to adapt A stock T + 1 policy
+        dt = num2date(self.lines.datetime[0])
+        dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
+        if self._timeframe >= TimeFrame.Days or last:
+            isover = True
+        else:
+            isover = (dt - dtkey).days if dtkey else False
+        return isover, (dtkey, dt)
     
     def advance(self, size=1, datamaster=None):
 

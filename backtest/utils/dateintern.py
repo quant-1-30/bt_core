@@ -193,7 +193,7 @@ MUSECONDS_PER_DAY = MUSECONDS_PER_SECOND * SECONDS_PER_DAY
 #
 #    return dt
 
-def num2date(x, tz=None, naive=True):
+def num2date(x, tz='Asia/Shanghai', naive=True):
     # Same as matplotlib except if tz is None a naive datetime object
     # will be returned.
     """
@@ -208,13 +208,13 @@ def num2date(x, tz=None, naive=True):
     If *x* is a sequence, a sequence of :class:`datetime` objects will
     be returned.
     """
+    tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
     if np.isnan(x):
-        return 0
-    dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
+        return datetime.datetime(1970, 1, 1, tzinfo=tzinfo)
+    # dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
+    dt = datetime.datetime.fromtimestamp(x)
     # print("num2date dt: ", dt, dt.tzinfo)
-    if tz is not None:
-        tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
-        dt = dt.astimezone(tz=tzinfo)
+    dt = dt.astimezone(tz=tzinfo)
     return dt
 
 def num2dt(num, tz=None, naive=True):

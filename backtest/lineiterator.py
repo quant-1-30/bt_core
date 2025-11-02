@@ -318,6 +318,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             data.minbuffer(_minperiod)
 
     def notify_data(self):
+
         # strategy / indicator / observer
         for ind in self._lineiterators[self.IndType]:
             print("indicator notify_data ", ind)
@@ -325,7 +326,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             ind.notify_data()
 
         for line, linealias in enumerate(self.lines.getlinealiases()):
-            self.notification[linealias] = self.lines.get(line=line) 
+            self.notification[linealias].append(self.lines.get(line=line)[0])
     
     def plot(self, linealias):
         return self.notification[linealias]

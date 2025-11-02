@@ -62,7 +62,7 @@ class LogReturns(Observer):
     plotinfo = dict(plot=True, subplot=True)
 
     params = (
-        ('timeframe', None),
+        ('timeframe', bt.TimeFrame.Days),
         ('compression', None),
         ('fund', None),
     )

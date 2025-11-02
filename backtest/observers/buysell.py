@@ -54,6 +54,7 @@ class BuySell(Observer):
 
     params = (
         ('barplot', False),  # plot above/below max/min for clarity in bar plot
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     def __init__(self):

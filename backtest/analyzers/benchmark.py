@@ -88,6 +88,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
 
     params = (
         ('index', '000001'),
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     def start(self):

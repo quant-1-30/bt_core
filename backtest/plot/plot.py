@@ -35,7 +35,7 @@ import matplotlib.legend as mlegend
 import matplotlib.ticker as mticker
 
 from backtest.metabase import with_metaclass, AutoInfoClass, MetaParams
-from backtest.utils.dateintern import date2num
+from backtest.utils.dateintern import date2num, num2date
 from backtest.dataseries import TimeFrame
 
 from .finance import plot_candlestick, plot_ohlc, plot_volume, plot_lineonclose
@@ -140,6 +140,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         self.calcrows(strategy)
 
         st_dtime = strategy.plot("datetime")
+        st_dtime = [num2date(st) for st in st_dtime]
         import pdb; pdb.set_trace()
 
         if start is None:

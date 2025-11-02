@@ -60,6 +60,7 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
     params = (
         ('headers',  False),
         ('cash', False),
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     def start(self):

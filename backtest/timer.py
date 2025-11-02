@@ -238,8 +238,7 @@ class Timer(with_metaclass(MetaParams, object)):
 
         if d > self._nexteos:
             if self._isdata:  # eos provided by data
-                # nexteos, _ = self._tzdata._getnexteos()
-                nexteos, _ = self._tzdata._geteos()
+                nexteos, _ = self._tzdata._getnexteos()
             else:  # generic eos
                 # TIME_MAX 23:59:59.999999 means end of day
                 nexteos = datetime.combine(ddate, TIME_MAX)
@@ -286,8 +285,7 @@ class Timer(with_metaclass(MetaParams, object)):
         else:
             if d > self._nexteos:
                 if self._isdata:  # eos provided by data
-                    # nexteos, _ = self._tzdata._getnexteos()
-                    nexteos, _ = self._tzdata._geteos()
+                    nexteos, _ = self._tzdata._getnexteos()
                 else:  # generic eos
                     nexteos = datetime.combine(ddate, TIME_MAX)
 

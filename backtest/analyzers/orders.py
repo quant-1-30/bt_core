@@ -44,6 +44,7 @@ class Orders(bt.TimeFrameAnalyzerBase):
     '''
     params = (
         ('headers', False),
+        ('timeframe', bt.TimeFrame.Days),
     )
 
     def on_dt_over(self):

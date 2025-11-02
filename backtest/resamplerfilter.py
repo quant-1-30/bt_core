@@ -161,8 +161,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
     def _eosset(self):
         if self._nexteos is None:
-            # self._nexteos, self._nextdteos = self.data._getnexteos()
-            self._nexteos, self._nextdteos = self.data._geteos()
+            self._nexteos, self._nextdteos = self.data._getnexteos()
             return
 
     def _eoscheck(self, data, seteos=True, exact=False):
@@ -474,8 +473,7 @@ class Resampler(_BaseResampler):
         docheckover = True
         if not fromcheck:
             if self.componly:  # only if not subdays
-                # _, self._lastdteos = self.data._getnexteos()
-                _, self._lastdteos = self.data._geteos()
+                _, self._lastdteos = self.data._getnexteos()
                 consumed = True
             else:
                 onedge, docheckover = self._dataonedge(data)  # for subdays

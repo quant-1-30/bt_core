@@ -82,7 +82,8 @@ class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
     '''
 
     params = (
-        ('window', 1),
+        ('timeframe', bt.TimeFrame.Days),
+        ('period', 1),
      )
 
     def start(self):
@@ -90,8 +91,8 @@ class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
         
         starvalue, _ = self._owner.getvalue()
 
-        self._values = collections.deque([float('Nan')] * self.p.window,
-                                         maxlen=self.p.window)
+        self._values = collections.deque([float('Nan')] * self.p.period,
+                                         maxlen=self.p.period)
         self._values.append(starvalue)
 
         # keep the initial portfolio value if not tracing a data

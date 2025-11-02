@@ -28,11 +28,9 @@ from collections import defaultdict
 
 import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
-from .lineroot import LineSingle
 from .lineseries import LineSeriesStub
-from .dataseries import TimeFrame
 from .metabase import with_metaclass, ItemCollection, findowner
-from backtest.utils.dateintern import num2date
+from .utils.dateintern import num2date
 from .utils.autodict import AutoOrderedDict
 
 MAXINT = np.iinfo(np.int_).max
@@ -266,17 +264,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 a. process position with adjustment or rightment on next trading_date
                 b. process account and position on preclose_date
         """
-        # import pdb; pdb.set_trace()
-        _ = self.store.on_dt_over(self.experiment_id, last) # T + 1
-        return 
+        dt_over = self.store.on_dt_over(self.experiment_id, last) # T + 1
+        return dt_over
     
-    def notify_data(self):
-        if self.data._timeframe >= TimeFrame.Days or self._dt_over()[0]:
-            super().notify_data()
-            
     def _next(self):
-        self.on_dt_over()
-        self.notify_data() 
+        if self.on_dt_over():
+            super().notify_data()
 
         super(Strategy, self)._next() # lineiterator _next
         minperstatus = self._getminperstatus()

@@ -51,6 +51,9 @@ class SQN(bt.TimeFrameAnalyzerBase):
 
     '''
     alias = ('SystemQualityNumber',)
+    params = (
+        ('timeframe', bt.TimeFrame.Days),
+    )
 
     def create_analysis(self):
         '''Replace default implementation to instantiate an AutoOrdereDict

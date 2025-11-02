@@ -53,8 +53,11 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         - dictname['total']['total'] which will have a value of 0 (the field is
           also reachable with dot notation dictname.total.total
     '''
-    def create_analysis(self):
-        self.rets = AutoOrderedDict()
+    params = (
+        ('timeframe', bt.TimeFrame.Days),
+    )
+    
+    def __init__(self):
         self.rets.total.total = 0
 
     def on_dt_over(self):

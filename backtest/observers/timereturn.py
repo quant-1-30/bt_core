@@ -61,7 +61,7 @@ class TimeReturn(Observer):
     plotlines = dict(timereturn=dict(_name='Return'))
 
     params = (
-        ('timeframe', None),
+        ('timeframe', bt.TimeFrame.Days),
         ('compression', None),
     )
 

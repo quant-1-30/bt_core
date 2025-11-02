@@ -59,7 +59,10 @@ class Trades(Observer):
 
     lines = ('pnlplus', 'pnlminus')
 
-    params = dict(pnlcomm=True)
+    params = (
+        ("pnlcomm", True),
+        ('timeframe', bt.TimeFrame.Days),
+    )
 
     plotinfo = dict(plot=True, subplot=True,
                     plotname='Trades - Net Profit/Loss',

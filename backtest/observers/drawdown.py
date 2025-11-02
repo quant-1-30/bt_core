@@ -68,8 +68,11 @@ class DrawDownLength(Observer):
 
     lines = ('len', 'maxlen',)
 
-    plotinfo = dict(plot=True, subplot=True)
+    params = (
+        ('timeframe', bt.TimeFrame.Days),
+    )
 
+    plotinfo = dict(plot=True, subplot=True)
     plotlines = dict(maxlength=dict(_plotskip=True,))
 
     def __init__(self):
