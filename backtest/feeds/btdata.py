@@ -55,8 +55,6 @@ class MetaBtData(DataBase.__class__):
 
         _obj.ctx = None # context for yield
         _obj.adj_factors= {}
-        _obj.buffer = None # 
-        _obj.adj_factors = None # 
         return _obj, args, kwargs
 
 
@@ -122,13 +120,15 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         super()._start()
 
         qty = Query(sid=self.p.sid, start_date=self.p.fromdate, end_date=self.p.todate)
+        self.calc_adjfactor(qty)
+
         # wrap by contextmanager 整合迭代器与session 手动获取上下文
         self.ctx = self.mdapi.subscribe(qty)
         if self.ctx is None:
             warnings.warn("buffer is None, must subscribe first")
             return
         # calculate adjustment coef
-        self.calc_adjfactor(qty)
+        self.channel = self.ctx.__enter__()
 
     def _load_bar(self, msg):
         data = msg["body"]["line"][0]
@@ -164,7 +164,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         return True
 
     def _load(self):
-        msg = self.ctx.__enter__().get()
+        msg = self.channel.get()
         print("_load msg :", msg)
         if msg == "eof":
             self.ctx.__exit__(None, None, None) #
