@@ -96,7 +96,7 @@ class Benchmark(Observer):
 
     def next(self):
         # super(Benchmark, self).next()
-        dtkey = self.tbench.dtkey
+        dtkey = self.rbench.dtkey
         if dtkey > self.dtkey:
-            self.lines.benchmark[0] = self.tbench.rets.get(dtkey, float('NaN'))
+            self.lines.benchmark[0] = self.rbench.rets.get(dtkey, float('NaN'))
             self.dtkey = dtkey

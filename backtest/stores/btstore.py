@@ -135,7 +135,7 @@ class BTStore(Store):
         # import pdb; pdb.set_trace()
         dt_over, dts = self._dt_over(last)
         if dt_over:
-            qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # no position args
+            qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # on_dt_over ---> qry start_date 存在负数
             _ = self.broker.on_dt_over(qry, experiment_id)
         return dt_over
     

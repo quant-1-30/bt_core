@@ -217,6 +217,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             isover = True
         else:
             isover = (dt - dtkey).days if dtkey else False
+        print("_dt_over ", dt, dtkey)
         return isover, (dtkey, dt)
     
     def advance(self, size=1, datamaster=None):

@@ -1,159 +1,95 @@
                                         Fake it until you make it
 
-backtrader:
-    metaclass __new__ ---> __call__
 
-    __new__ dct meaning class attributes(property, method) / __call__ **kwargs meaning instance 
+# 核心架构设计
 
-    dataflow cerebro runnext ---> data[0] 变化 ---> strategy ---> indicator
+## 元类与类构造机制
 
-    addbings to sync datas minperiod
+Backtrader 使用元类系统实现类的自动注册和属性管理：
 
-    _owner lines ---> Indicator / Indicator ---> Strategy / DataFeed ---> Cerebro
-
-    coupler align dt
-
-    lineaction ---> makeoperation / coupler
-
-    lines _derive / lineseries __new__ update cls.lines
-
-    AutoInfoParam similar to lines _derive aims to update
-
-    add feed ---> based on lineseries preload ---> while load ---> _load
-
-    indicator ---> datas (lineseries) to update self.lines / next method
-
-    indicator ---> datas / IndType / self.lines
-
-    _clock ---> _clock._clock (high level clock)
-
-    slave is used for unchanged action
-
-    owner is used to connnect with strategy or cerebro obj
-
-    exactbars control the memory usage of strategy
-
-    every indicator has its own _once method (preonce > once > oncestart > oncebinding) inherit from linebuffer
-
-    line operation ---> LineOperation ---> inherit from linebuffer
-
-    _owner / addindicator is key to implement indicator _once / _next method (from base to compound)
-
-    data _check /_last method
-
-    LineCoupler (align different line length)
-
-    resample logic cerebro resampledata ---> resample ---> addfilter
-
-    feed + resample ---> while True ---> load ---> self._load ---> filter ---> stash popleft
-
-    componly --- means not intraday (compression only)
-
-    timer ---> checkmonth / checkweek (via bisect left / right) 
-    compare with nexteos / compare with checkmonth / checkweek / update dtwen
-
-    filter (nanpercentile / ~ / & / isin /frozenset / ().view(uint8)) --> bsplitter / day splitter
-
-    resample used for strategy / replay used for broker
-
-    strategy different mode depends on the data type ( islive / runonce )
-
-    _once ---> strategy._once() origin from lineiterator _once method 
-
-    _runonce_old ---> _once ---> _oncepost buflen 
-
-    _runonce ---> _once / reset ---> while _oncepost_open / _oncepost
-
-    _runnext_old ---> _next while
-
-    _runnext ---> _next_open / _next while
-
-    _minperiod ---> datas ---> line 
-
-    # strategy ---> indicate and lineaction (addindcator to _ltype.Ind) _once / _next  list(Indicator and Lineaction) 递归
-    # observer (addindcator to _ltype.Obs) / analyzers.owner.register prenext ---> next
-
-    # makeoperation 针对于二元的表达树 / 多元表达式会存在构建多元表达树 不同节点  = 右侧表达式 关键定义运算符返回的节点对象 
-    # 针对于backtrader 多元表示树就是 line对象
-
-    # 元类”在类定义时注册
-    # auto register meaning subclass of type __init__ will be triggered when __import__ only intended for metaclass 
-    # model.py
-    # __class__ means metaclass introspection / dynamic behavior
-    <!-- from .base import Meta  # 这行不会触发 Meta.__init__
-
-    class MyClass(metaclass=Meta):  # 这里才触发 Meta.__init__
-        pass -->
-
-    # strategy._next() tirgger _next --- indicator / _next_anlayzer / _next_observer
-
-
-    # sizer ---> intended to multistrategy binding to strategy not sid
-    # cerebro ---> executor singelton
-    # GPE 帕累托优化
-
-    # poetry lock --no-update / poetry update
-
-# **kwargs ---> key=value pack dict  / 解包 传入字典
-# three level a. construct  / b.base api class / instance
-# plugin webrtc / ws /
-
-
-# gunicorn.conf.py
-workers = 4
-worker_class = "uvicorn.workers.UvicornWorker"
-bind = "0.0.0.0:11000"
-timeout = 60
-accesslog = "access.log"
-errorlog = "error.log"
-
-# indicator period via addminperiod ---> update _minperiod
-# strategy _getminperstatus 
-# 策略由指标组成，指标嵌套实在strategy 体现， indicator 保持原子性， 因此 strategy 返回的_minperiod就是feed buflen
-
-# poetry env remove --all
-
-对于暂停上市 delist_date 为None 作为一种长期停盘的情况来考虑不能存在后视误差不清楚是否能重新上市
-asset status 由于吸收合并代码可能会消失但是主体继续上市存在 e.g. T00018
-
-# indicator period --> _minperiod 基于 basicops.py PeriodN 
-
-# plot 3level  multicursor /  ticker locate / 2grid
-
-# plot from notify
-
-# store and notify
-
-
-# utm https://docs.getutm.app/guides/windows/
-
-# memview -> np.frombuffer for process
-
-# store --- multi_strategies / 扩展store多个sids (pair trade)
-
-
-# 不同策略, minperiod 不一样
-
-# hashlib.pbkdf2_hmac()
-# crpyted = hashlib.sha256()
-# crpyted.update(uname)
-# crpyted.hexdigest()
+```
+class MetaParams(type):
+    """参数元类，用于自动处理类参数"""
+    def __new__(cls, name, bases, dct):
+        # __new__ 处理类属性：property、method等
+        # dct 包含所有类级别的属性定义
+        return super().__new__(cls, name, bases, dct)
     
-cloudpickle and loky  ---> pickle and mp
+    def __call__(cls, *args, **kwargs):
+        # __call__ 处理实例化参数：**kwargs 对应实例属性
+        return super().__call__(*args, **kwargs)
 
-# 存在问题 store datacls / brokercls
+class Strategy(metaclass=MetaParams):
+    """策略基类使用元类"""
+    pass
+```
 
-# LineAction 当只有单个指标计算对应对象是LineBuffer需要封装为LineAction (keep _next / _once api consistent with lineiterator)
+### 关键点：
+    __new__ 操作类属性字典（dct）
+    __call__ 处理实例化参数（**kwargs）
+    类的 __class__ 始终指向元类，与继承层次无关
 
-# LineSeries getattr ---> ex sma.get / _LineDelay (sma ---> LineAction  ---> addbinding ----> self[0] = a[ago])
 
-# analyzer _on_dt_over api / feed _on_dt_over
+## 数据流引擎
 
-# cash intended for client_id and experiment_id accociated with cash with client_id
+### 核心数据流动
 
-# integrate store / set_cash into cerebro
+    Cerebro.runnext() → data[0] 数据点变化 → Strategy.next() 触发 → Indicator 重新计算 → addbindings 同步所有数据的 minperiod
 
-# solve observer next bug 
+### 组件层级关系
+    DataFeed (Lineseries) → Indicator (Lines) → Strategy → Cerebro (执行引擎)
 
-# 类的 __class__ 返回元类的与继承无关系
 
+## 线条(Line)系统
+
+### Line 架构设计
+
+```
+class LineIterator:
+    """线条迭代器基类"""
+    def _next(self): pass  # 单步执行
+    def _once(self): pass  # 批量执行
+
+class LineOperation(LineIterator):
+    """线条操作，支持表达式树"""
+    def __init__(self, *args):
+        self.args = args  # 构建二元/多元表达式树
+        
+class LineCoupler(LineIterator):
+    """线条耦合器，对齐不同长度线条"""
+    def __init__(self, *lines):
+        self.lines = lines
+```
+
+### 线条派生系统
+
+```
+class MyIndicator(Indicator):
+    lines = ('myline',)  # 自动派生线条
+    params = (('period', 20),)  # AutoInfoParam 自动更新
+```
+
+## 执行模式详解
+
+| 模式 | 执行方法 | 适用场景 | 内存使用 | 
+|:---------:|:---------:|:---------:|
+| 传统模式   | _runnext_old → _next while   | 实时数据   | 较高 
+| 优化模式   | _runnext → _next_open/_next   | 批量处理   | 中等
+| Once模式   | runonce_old → _once   | 历史回测   | 较低
+| 优化Once   | _runonce → _once/reset   | 高效回测   |  最低
+| 优化模式   | 内容5   | 内容6   |
+
+### 内存管理策略
+
+```
+cerebro = Cerebro()
+cerebro.run(exactbars=1)  # 只保存当前值
+cerebro.run(exactbars=0)  # 保存完整历史
+cerebro.run(exactbars=-1) # 低内存模式
+```
+
+数据处理流水线
+
+数据加载流程
+
+    添加数据源 → 预加载 → while循环加载 → _load方法 → 数据过滤

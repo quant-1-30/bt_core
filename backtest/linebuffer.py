@@ -303,8 +303,10 @@ class LineBuffer(LineSingle):
         print("forward idx ", self.idx)
         self.lencount += size
 
-        # for i in range(size):
-        #     self.array.append(value)
+        if self.UnBounded:
+            print("UbBound array.array")
+            for i in range(size):
+                self.array.append(value)
 
     def backwards(self, size=1):
         ''' Moves the logical index backwards and reduces the buffer as much as needed
@@ -318,8 +320,10 @@ class LineBuffer(LineSingle):
         self.idx = idx
         self.lencount -= size
 
-        # for i in range(size):
-        #     self.array.pop()
+        if self.UnBounded:
+            print("UbBound array.array")
+            for i in range(size):
+                self.array.pop()
 
     def rewind(self, size=1):
         self.idx -= size
