@@ -322,7 +322,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         # strategy / indicator / observer
         for ind in self._lineiterators[self.IndType]:
             print("indicator notify_data ", ind)
-            # import pdb; pdb.set_trace()
             ind.notify_data()
 
         for line, linealias in enumerate(self.lines.getlinealiases()):

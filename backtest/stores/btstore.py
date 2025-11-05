@@ -97,7 +97,6 @@ class BTStore(Store):
     
     def set_cash(self, strat, cash) -> Resp:
         body = Cash(cash=cash, session=self._feed.fromdate)
-        # import pdb; pdb.set_trace()
         resp = self.broker.set_cash(body, strat.experiment_id)
         return resp
     
@@ -134,7 +133,6 @@ class BTStore(Store):
         dt_over, dts = self._dt_over(last)
         if dt_over:
             qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # on_dt_over ---> timestamp under utc
-            # import pdb; pdb.set_trace()
             _ = self.broker.on_dt_over(qry, experiment_id)
         return dt_over
     

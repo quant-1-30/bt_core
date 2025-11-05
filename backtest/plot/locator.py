@@ -54,7 +54,6 @@ def _idx2dt(idx, dates, tz):
         idx = ldates - 1
     if idx < 0:
         idx = 0
-    # import pdb; pdb.set_trace()
     return num2date(dates[idx], tz)
 
 

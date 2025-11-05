@@ -52,7 +52,6 @@ class LineAlias(object):
         inside the line can be "set". This is achieved by adding a binding
         to the line inside "value"
         '''
-        # import pdb; pdb.set_trace()
         print("__set__ value", isinstance(value, LineMultiple), value)
         if isinstance(value, LineMultiple):
             value = value.lines[0] # sma linebuffer

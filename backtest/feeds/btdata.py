@@ -122,19 +122,13 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         qty = Query(sid=self.p.sid, start_date=self.p.fromdate, end_date=self.p.todate)
         self.calc_adjfactor(qty)
 
-        # wrap by contextmanager 整合迭代器与session 手动获取上下文
-        self.ctx = self.mdapi.subscribe(qty)
-        if self.ctx is None:
-            warnings.warn("buffer is None, must subscribe first")
-            return
-        # calculate adjustment coef
-        self.channel = self.ctx.__enter__()
+        # self.channel = self.ctx.__enter__()  # wrap by contextmanager 整合迭代器与session 手动获取上下文
+        self.generator = self.mdapi.subscribe(qty)
 
     def _load_bar(self, msg):
         data = msg["body"]["line"][0]
         dt = self.lines.datetime[0]
         if not np.isnan(dt) and dt >= data[0]:
-            import pdb; pdb.set_trace()
             return False  # cannot deliver earlier than already delivered
         print(f"linebuffer current tick {dt} and msg tick {data[0]}")
 
@@ -145,13 +139,11 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         self.lines.close[0] = data[4]
         self.lines.volume[0] = data[5]
         self.lines.amount[0] = data[6]
-        # import pdb; pdb.set_trace()
         return True
 
     def _load_rtbar(self, rtbar): # tick 3s
         dt = self.lines.datetime[0]
         if not np.isnan(dt) and dt >= rtbar[0]:
-            import pdb; pdb.set_trace()
             return False  # cannot deliver earlier than already delivered
         # Put the tick into the bar
         self.lines.datetime[0] = rtbar[0]
@@ -164,17 +156,19 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         return True
 
     def _load(self):
-        msg = self.channel.get()
-        print("_load msg :", msg)
-        if msg == "eof":
-            self.ctx.__exit__(None, None, None) #
-            return False  # Conn broken during historical/backfilling
-        if self.p.rtbar:
-            self._load_rtbar(msg)
-        else:
-            self._load_bar(msg)
-        return True
-    
+        try:
+            msg = next(self.generator)
+            print("_load msg :", msg)
+            if msg == "eof":
+                return False  
+            if self.p.rtbar:
+                self._load_rtbar(msg)
+            else:
+                self._load_bar(msg)
+            return True
+        except StopIteration:
+            return False
+
     def calc_adjfactor(self, reqmeta):
         adj = self.mdapi.factor(reqmeta)
         factors = adj.adj_factors

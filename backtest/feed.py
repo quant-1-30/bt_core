@@ -213,7 +213,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def _dt_over(self, last=False): # to adapt A stock T + 1 policy
         dt = num2date(self.lines.datetime[0])
         dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
-        # import pdb; pdb.set_trace()
         if self._timeframe >= TimeFrame.Days or last:
             isover = True
         elif dtkey:
@@ -372,7 +371,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         """
             ohlc factors
         """
-        # import pdb; pdb.set_trace()
         if self.adj_factors:
             line_dt = [int(num2date(ts).strftime("%Y%m%d")) for ts in self.lines.datetime.array]
 

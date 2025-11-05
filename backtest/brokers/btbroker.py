@@ -50,7 +50,6 @@ class Acct(object):
         self._evt_acct.wait() # wait for account data to be set
     
     def _t_account(self, api):
-        # import pdb; pdb.set_trace()
         accts = api.getvalue("account")
         if accts:
             self.fundval = {acct.experiment_id: acct for acct in accts} # experiment: Account
@@ -104,15 +103,14 @@ class BTBroker(BrokerBase):
         return data
     
     def subscribe(self, topic:str, qty: Query, experiment_id:str) -> Generator: # contextlib
-        q = self.tdapi.subscribe(topic, qty, experiment_id)
-        return q
+        generator = self.tdapi.subscribe(topic, qty, experiment_id)
+        return generator # relate to mdpi subscribe
 
     def submit(self, order: Order, experiment_id:str) -> List[Trade]:
         trades = self.tdapi.trade(order, experiment_id) # pydantic contain _thread.lock
         return trades
 
     def on_dt_over(self, qty: Query, experiment_id:str) -> Resp:
-        # import pdb; pdb.set_trace()
         resp = self.tdapi.on_dt_over(qty, experiment_id) # staisfy T + 1 and update logic
 
         return resp

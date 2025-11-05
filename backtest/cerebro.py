@@ -293,7 +293,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def addstore(self, *args, **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[kwargs.pop("store", self.p.store)]
-        # import pdb; pdb.set_trace
         self.store = storecls(*args, **kwargs)
         _feed = self.store.get_feed()
         self.datas.append(_feed)

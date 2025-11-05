@@ -100,7 +100,6 @@ class LineBuffer(LineSingle):
         self.extension = 0
 
     def qbuffer(self, savemem=0):
-        # import pdb; pdb.set_trace()
 
         if savemem:
             self.mode = self.QBuffer
@@ -137,7 +136,6 @@ class LineBuffer(LineSingle):
 
     # def set_idx(self, idx):
     #     print("set_idx ", idx)
-    #     # import pdb; pdb.set_trace()
     #     # if QBuffer and the last position of the buffer was reached, keep
     #     # it (unless force) as index 0. This allows resampling
     #     #  - forward adds a position, but the 1st one is discarded, the 0 isinvariant
@@ -154,7 +152,6 @@ class LineBuffer(LineSingle):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
         print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
-        # import pdb; pdb.set_trace()
         return self.array[idx + ago]
     
     def __setitem__(self, ago, value):
@@ -431,7 +428,6 @@ class LineBuffer(LineSingle):
           If ago is anything else, it is assumed to be an int and a LineDelay
           object will be returned
         '''
-        # import pdb; pdb.set_trace()
         from .lineiterator import LineCoupler
         if ago is None or isinstance(ago, LineRoot):
             return LineCoupler(self, ago)
@@ -453,7 +449,6 @@ class LineBuffer(LineSingle):
                         tz=tz or self._tz, naive=naive)
 
     def date(self, ago=0, tz=None, naive=True):
-        # import pdb; pdb.set_trace()
         try: 
             return num2date(self[ago],
                         tz=tz or self._tz, naive=naive).date()
@@ -565,7 +560,6 @@ class LineBuffer(LineSingle):
         return num2date(int(self[ago]) + tm)
     
     def apply_factor(self, factors: Union[np.array]=1.0):
-        # import pdb; pdb.set_trace()
         array = self.array
         assert len(array) == len(factors), f"Length of factors {len(factors)} must match length of array {len(array)}"
         self.array = array * factors
@@ -630,7 +624,6 @@ class MetaLineActions(LineBuffer.__class__):
 
         # update own minperiod if needed
         print("MetaLineActions _minperiod ", _minperiod)
-        # import pdb; pdb.set_trace()
         _obj.updateminperiod(_minperiod)
 
         return _obj, args, kwargs
@@ -724,7 +717,6 @@ class _LineDelay(LineActions):
     "ago" periods effectively delaying the delivery of data
     '''
     def __init__(self, a, ago):
-        # import pdb; pdb.set_trace()
         super(_LineDelay, self).__init__()
         self.a = a
         self.ago = ago
@@ -744,7 +736,6 @@ class _LineForward(LineActions):
     "ago" periods from the future
     '''
     def __init__(self, a, ago):
-        # import pdb; pdb.set_trace()
         super(_LineForward, self).__init__()
         self.a = a
         self.ago = ago

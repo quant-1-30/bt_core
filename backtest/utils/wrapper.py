@@ -9,7 +9,6 @@ import sys
 import weakref
 import contextlib
 import logging
-import pdb
 import time
 import warnings
 import threading
@@ -279,9 +278,7 @@ def except_debug(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            pdb.set_trace()
             print(e)
-            # 再来一遍用s跟踪进去
             return func(*args, **kwargs)
 
     return wrapper
