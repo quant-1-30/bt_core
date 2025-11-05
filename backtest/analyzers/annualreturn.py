@@ -54,10 +54,10 @@ class AnnualReturn(bt.Analyzer):
         self.rets = list()
         self.ret = OrderedDict()
 
-        v, _ = self._owner.getvalue(current=False)
+        v, _ = self._owner.getvalue(complete=True)
 
         for i in range(len(v) - 1, -1, -1):
-            dt = num2date(v.datetime)
+            dt = num2date(v[i].datetime)
             value_cur = v[i].portfolio_value + v[i].cash
 
             if dt.year > cur_year:

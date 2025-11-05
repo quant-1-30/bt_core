@@ -61,8 +61,8 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         self.rets.total.total = 0
 
     def on_dt_over(self):
-        _, v = self._owner.getvalue()
-        for p_obj in v:
+        _, p = self._owner.getvalue()
+        for p_obj in p:
             pnl = p_obj.pnl
 
             if p_obj.isclosed:

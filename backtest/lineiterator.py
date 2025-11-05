@@ -326,10 +326,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             ind.notify_data()
 
         for line, linealias in enumerate(self.lines.getlinealiases()):
-            self.notification[linealias].append(self.lines.get(line=line)[0])
+            data = self.lines.get(line=line)[0]
+            if data: 
+                self.notification[linealias].append(data)
     
     def plot(self, linealias):
-        return self.notification[linealias][1:] # 0 index is nan
+        return self.notification[linealias] # 0 index is nan
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

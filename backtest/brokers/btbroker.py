@@ -51,9 +51,10 @@ class Acct(object):
     
     def _t_account(self, api):
         # import pdb; pdb.set_trace()
-        act = api.getvalue("account")
-        if act:
-            self.fundval = act[0]["body"] # experiment: Account
+        accts = api.getvalue("account")
+        if accts:
+            self.fundval = {acct.experiment_id: acct for acct in accts} # experiment: Account
+        print("fundval ", self.fundval)
         self._evt_acct.set()
 
 
@@ -98,7 +99,7 @@ class BTBroker(BrokerBase):
         resp = self.tdapi.set_cash(body, experiment_id)
         return resp
 
-    def get_data(self, topic:str, experiment_id='null') -> Union[List[Account], List[Position]]:
+    def get_data(self, topic:str, experiment_id='') -> Union[List[Account], List[Position]]:
         data = self.tdapi.getvalue(topic, experiment_id) 
         return data
     
@@ -112,7 +113,8 @@ class BTBroker(BrokerBase):
 
     def on_dt_over(self, qty: Query, experiment_id:str) -> Resp:
         # import pdb; pdb.set_trace()
-        resp = self.tdapi.on_dt_over(qty, experiment_id) # staisfy T + 1 and update logic 
+        resp = self.tdapi.on_dt_over(qty, experiment_id) # staisfy T + 1 and update logic
+
         return resp
     
     def stop(self):

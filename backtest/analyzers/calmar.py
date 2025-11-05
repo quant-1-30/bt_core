@@ -83,7 +83,7 @@ class Calmar(bt.TimeFrameAnalyzerBase):
     def on_dt_over(self):
         v, _ = self._owner.getvalue()
         self._values.append(v)
-        rann = math.log(self._values[-1] / self._values[0]) / len(self._values)
+        rann = math.log(self._values[-1].portfolio_value / self._values[0].portfolio_value) / len(self._values)
         self._mdd = max(self._mdd, self._maxdd.maxdd)
         self.calmar = calmar = rann / (self._mdd or float('Inf'))
 

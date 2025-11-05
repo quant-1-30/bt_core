@@ -215,6 +215,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
         analyzer = ancls(*anargs, **ankwargs)
         self.analyzers.append(analyzer, anname)
+        return analyzer
 
     def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
         obsname = obskwargs.pop('obsname', '')
@@ -265,6 +266,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 b. process account and position on preclose_date
         """
         dt_over = self.store.on_dt_over(self.experiment_id, last) # T + 1
+        # acct = self.store.getaccount(self.experiment_id) # for test
         return dt_over
     
     def _next(self):
@@ -352,7 +354,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         self.writers.append(writer)
 
-    def getvalue(self, current=False):
+    def getvalue(self, complete=False):
         '''Returns the portfolio value and positions of strategy
 
         If ``complete`` is ``False`` (default) the value of the cash in hand
@@ -362,15 +364,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         as if they were closed at the current market price and then added to
         the cash in hand.
         '''
-        if current:
-            acct = self.store.getvalue(self.experiment_id)
-            pos = self.store.getposition(self.experiment_id)
-            return acct, pos
-
-        # warnings.warn("complete=True not implemented in BTStore")
-        acct = self.store.getacct(self.experiment_id)
-        pos = self.store.getposition(self.experiment_id)
-        return acct, pos
+        if complete:
+            acct = self.store.subscribe(self.experiment_id, "account")
+            postn = self.store.subscribe(self.experiment_id, "position")
+        else:
+            acct = self.store.getaccount(self.experiment_id)
+            postn = self.store.getposition(self.experiment_id) # vector
+        return acct, postn
     
     def getwriterheaders(self):
         self.indobscsv = [self]
@@ -425,8 +425,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ainfo = wrinfo.Analyzers
 
         # Internal Value Analyzer
-        acct = self.store.getacct(self.experiment_id)
-        ainfo.Value.End = acct[0].portfolio_value if acct else 0
+        acct = self.store.getaccount(self.experiment_id)
+        ainfo.Value.End = acct.portfolio_value if acct else 0
 
         # no slave analyzers for writer
         for aname, analyzer in self.analyzers.getitems():

@@ -210,12 +210,13 @@ def num2date(x, tz='Asia/Shanghai', naive=True):
     """
     tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
     if np.isnan(x):
-        return datetime.datetime(1970, 1, 1, tzinfo=tzinfo)
-    # dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai'))
-    dt = datetime.datetime.fromtimestamp(x)
-    # print("num2date dt: ", dt, dt.tzinfo)
-    dt = dt.astimezone(tz=tzinfo)
-    return dt
+        return 0
+
+    # dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai')) # timestamp under utc 
+    utc_dt = datetime.datetime.fromtimestamp(x, tz=datetime.timezone.utc)
+    dt = utc_dt.astimezone(tzinfo) 
+    return dt # dt.replace(tzinfo=None) 
+
 
 def num2dt(num, tz=None, naive=True):
     return num2date(num, tz=tz, naive=naive).date()

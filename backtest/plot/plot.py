@@ -141,7 +141,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
 
         st_dtime = strategy.plot("datetime")
         st_dtime = [num2date(st) for st in st_dtime]
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         if start is None:
             start = 0
@@ -447,7 +447,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
 
             # plot data
             lplot = line.plotrange(self.pinf.xstart, self.pinf.xend)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
 
             # Global and generic for indicator
             if self.pinf.sch.linevalues and ind.plotinfo.plotlinevalues:

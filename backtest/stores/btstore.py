@@ -83,7 +83,7 @@ class BTStore(Store):
         '''Returns the assets data'''
         return self._feed.descr[1]
     
-    def get_index(self, index) -> List[List[int]]:
+    def get_bench(self, index) -> List[List[int]]:
         # 000001 000680 399006 399001
         dlines = self._feed.get_benchmark(index=index)
         return dlines
@@ -101,7 +101,7 @@ class BTStore(Store):
         resp = self.broker.set_cash(body, strat.experiment_id)
         return resp
     
-    def getacct(self, experiment_id) -> List[Account]:
+    def getaccount(self, experiment_id) -> List[Account]:
         acct = self.broker.acct
         v = acct.get(experiment_id, None)
         return v
@@ -110,9 +110,8 @@ class BTStore(Store):
         o = self.broker.get_data("position", experiment_id)
         return o
     
-    def subscribe(self, experiment_id, topic, sdate=19900101, edate=0, sid=[]) -> Generator:
-        req = Query(start_date=sdate, end_date=edate, sid=sid)
-        return self.broker.subscribe(topic, req, experiment_id)
+    def subscribe(self, experiment_id, topic) -> Generator:
+        return self.broker.subscribe(topic, Query(), experiment_id)
     
     def submit(self, experiment_id, sid="", size=0, price=0.0, sizer_ratio=0, 
                pricelimit=0, exec_type=0, order_type=0, created_at=0) -> Tuple[Order, Trade]:
@@ -132,10 +131,10 @@ class BTStore(Store):
         return dtover, (dtkey, dt)
     
     def on_dt_over(self, experiment_id, last=False) -> bool: 
-        # import pdb; pdb.set_trace()
         dt_over, dts = self._dt_over(last)
         if dt_over:
-            qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # on_dt_over ---> qry start_date 存在负数
+            qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # on_dt_over ---> timestamp under utc
+            # import pdb; pdb.set_trace()
             _ = self.broker.on_dt_over(qry, experiment_id)
         return dt_over
     
