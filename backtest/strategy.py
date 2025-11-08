@@ -265,19 +265,26 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 a. process position with adjustment or rightment on next trading_date
                 b. process account and position on preclose_date
         """
-        dt_over = self.store.on_dt_over(self.experiment_id, last) # T + 1
-        # acct = self.store.getaccount(self.experiment_id) # for test
+        dt_over = self.store.on_dt_over(self.experiment_id, last)
         return dt_over
     
     def _next(self):
-        if self.on_dt_over():
-            super().notify_data()
+        dtover = self.on_dt_over()
 
         super(Strategy, self)._next() # lineiterator _next
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
 
+        if dtover:
+            self.notify_data()
+
         self.clear()
+
+    def notify_data(self):
+        for data in self.datas:
+            data.notify_data()
+
+        super().notify_data()
 
     def buy(self, sid="", price=0.0, plimit=0.0,
             exectype=None, ordertype=None, **kwargs):

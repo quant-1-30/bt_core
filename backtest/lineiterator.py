@@ -125,8 +125,6 @@ class MetaLineIterator(LineSeries.__class__):
         for line in _obj.lines:
             line.addminperiod(_obj._minperiod) 
 
-        # notifications 
-        _obj.notification = collections.defaultdict(collections.deque)
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -250,8 +248,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for indicator in self._lineiterators[LineIterator.IndType]:
             indicator._next()
 
-        # self._notify()
-
         if self._ltype == LineIterator.StratType:
             # supporting datas with different lengths
             minperstatus = self._getminperstatus()
@@ -318,19 +314,14 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             data.minbuffer(_minperiod)
 
     def notify_data(self):
+ 
+        for itcls in self._lineiterators: # observers and indicators
+            for it in self._lineiterators[itcls]:
+                print("indicator notify_data ", it)
+                it.notify_data()
 
-        # strategy / indicator / observer
-        for ind in self._lineiterators[self.IndType]:
-            print("indicator notify_data ", ind)
-            ind.notify_data()
-
-        for line, linealias in enumerate(self.lines.getlinealiases()):
-            data = self.lines.get(line=line)[0]
-            if data: 
-                self.notification[linealias].append(data)
-    
-    def plot(self, linealias):
-        return self.notification[linealias] # 0 index is nan
+        for line in self.itersize():
+            line.notify_data()
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

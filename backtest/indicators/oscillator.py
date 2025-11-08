@@ -25,32 +25,40 @@ import sys
 from . import Indicator, MovingAverage
 
 
-class OscillatorMixIn(Indicator):
-    '''
-    MixIn class to create a subclass with another indicator. The main line of
-    that indicator will be substracted from the other base class main line
-    creating an oscillator
+# class OscillatorMixIn(Indicator):
+#     '''
+#     MixIn class to create a subclass with another indicator. The main line of
+#     that indicator will be substracted from the other base class main line
+#     creating an oscillator
 
-    The usage is:
+#     The usage is:
 
-      - Class XXXOscillator(XXX, OscillatorMixIn)
+#       - Class XXXOscillator(XXX, OscillatorMixIn)
 
-    Formula:
-      - XXX calculates lines[0]
-      - osc = self.data - XXX.lines[0]
-    '''
-    plotlines = dict(_0=dict(_name='osc'))
+#     Formula:
+#       - XXX calculates lines[0]
+#       - osc = self.data - XXX.lines[0]
+#     '''
+#     plotlines = dict(_0=dict(_name='osc'))
 
-    def _plotinit(self):
-        try:
-            lname = self.lines._getlinealias(0)
-            self.plotlines._0._name = lname + '_osc'
-        except AttributeError:
-            pass
+#     def _plotinit(self):
+#         try:
+#             lname = self.lines._getlinealias(0)
+#             self.plotlines._0._name = lname + '_osc'
+#         except AttributeError:
+#             pass
 
-    def __init__(self):
-        self.lines[0] = self.data - self.lines[0]
-        super(OscillatorMixIn, self).__init__()
+#     def __init__(self):
+#         self.lines[0] = self.data - self.lines[0] # self.lines[0] 在父类 XXX 中已经被定义 不能重新定义 --> self.lines.osc = self.data - self.lines[0] # self.lines[0]是父类
+
+#         super(OscillatorMixIn, self).__init__()
+
+
+# class SMAOscillator(SMA, OscillatorMixIn):
+#     '''
+#     SMA Oscillator: data - SMA(data)
+#     '''
+#     pass
 
 
 class Oscillator(Indicator):
@@ -100,29 +108,29 @@ class Oscillator(Indicator):
 
 # Automatic creation of Oscillating Lines
 
-for movav in MovingAverage._movavs[1:]:
-    _newclsdoc = '''
-    Oscillation of a %s around its data
-    '''
-    # Skip aliases - they will be created automatically
-    if getattr(movav, 'aliased', ''):
-        continue
+# for movav in MovingAverage._movavs[1:]:
+#     _newclsdoc = '''
+#     Oscillation of a %s around its data
+#     '''
+#     # Skip aliases - they will be created automatically
+#     if getattr(movav, 'aliased', ''):
+#         continue
 
-    movname = movav.__name__
-    linename = movav.lines._getlinealias(0)
-    newclsname = movname + 'Oscillator'
+#     movname = movav.__name__
+#     linename = movav.lines._getlinealias(0)
+#     newclsname = movname + 'Oscillator'
 
-    newaliases = [movname + 'Osc']
-    for alias in getattr(movav, 'alias', []):
-        for suffix in ['Oscillator', 'Osc']:
-            newaliases.append(alias + suffix)
+#     newaliases = [movname + 'Osc']
+#     for alias in getattr(movav, 'alias', []):
+#         for suffix in ['Oscillator', 'Osc']:
+#             newaliases.append(alias + suffix)
 
-    newclsdoc = _newclsdoc % movname
-    newclsdct = {'__doc__': newclsdoc,
-                 '__module__': OscillatorMixIn.__module__,
-                 '_notregister': True,
-                 'alias': newaliases}
+#     newclsdoc = _newclsdoc % movname
+#     newclsdct = {'__doc__': newclsdoc,
+#                  '__module__': OscillatorMixIn.__module__,
+#                  '_notregister': True,
+#                  'alias': newaliases}
 
-    newcls = type(str(newclsname), (movav, OscillatorMixIn), newclsdct)
-    module = sys.modules[OscillatorMixIn.__module__]
-    setattr(module, newclsname, newcls)
+#     newcls = type(str(newclsname), (movav, OscillatorMixIn), newclsdct)
+#     module = sys.modules[OscillatorMixIn.__module__]
+#     setattr(module, newclsname, newcls)

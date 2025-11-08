@@ -64,30 +64,9 @@ class BtDescr(object):
         self.calendar = ()
         self.assets = ()
 
-        self._evt_cal = threading.Event()
-        self._evt_asset = threading.Event()
-
-    def data_thd(self, api):
-        t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
-        t_ = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
-        t.start()
-        self._evt_cal.wait() # api async run in same thread and event loop
-
-        t_.start()
-        self._evt_asset.wait()
-
-    def _t_cal(self, api):
-        msg = api.get_calendar()
-        print("calendar msg: ", msg)
-        self.calendar = msg
-        self._evt_cal.set()
-
-    def _t_asset(self, api):
-        msg = api.get_instrument()
-        print("asset msg ", msg)
-        self.assets = msg
-        self._evt_asset.set()
-
+        self._evt_cal_event = threading.Event()
+        self._evt_asset_event = threading.Event()
+    
     def __set__(self, instance, value):
         raise AttributeError("can't set attribute")
     
@@ -95,6 +74,31 @@ class BtDescr(object):
         if len(self.calendar) ==0 or len(self.assets) ==0:
             self.data_thd(instance.mdapi)
         return self.calendar, self.assets
+
+    def data_thd(self, api):
+        # reset
+        self._evt_cal.event.clear()
+        self._evt_asset_event.clear()
+
+        t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
+        t_ = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
+        t.start()
+        self._evt_cal_event.wait() # api async run in same thread and event loop
+
+        t_.start()
+        self._evt_asset_event.wait()
+
+    def _t_cal(self, api):
+        msg = api.get_calendar()
+        print("calendar msg: ", msg)
+        self.calendar = msg
+        self._evt_cal_event.set()
+
+    def _t_asset(self, api):
+        msg = api.get_instrument()
+        print("asset msg ", msg)
+        self.assets = msg
+        self._evt_asset_event.set()
 
 
 class BtData(with_metaclass(MetaBtData, DataBase)):

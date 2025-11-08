@@ -102,8 +102,8 @@ class BTStore(Store):
     
     def getaccount(self, experiment_id) -> List[Account]:
         acct = self.broker.acct
-        v = acct.get(experiment_id, None)
-        return v
+        # import pdb; pdb.set_trace()
+        return acct.get(experiment_id, None)
     
     def getposition(self, experiment_id) -> List[Position]:
         o = self.broker.get_data("position", experiment_id)

@@ -389,6 +389,16 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         
             for line in adj_lines.values():
                 line.apply_factor(align_factors) 
+
+    def notify_data(self):
+        for line in self.itersize():
+            line.notify_data()
+
+    def plot(self, linealias):
+        pass
+
+    def plotrange(self, linealias, start, end):
+        pass
     
     def stop(self):
         pass

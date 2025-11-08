@@ -75,6 +75,8 @@ class LineBuffer(LineSingle):
         self.reset()
         self._tz = None
         self.idx = -1
+        # self.notification = collections.deque()
+        self.notification = []
 
     def reset(self):
         ''' Resets the internal buffer structure and the indices
@@ -338,6 +340,11 @@ class LineBuffer(LineSingle):
     def getindicators(self):
         return []
 
+    def notify_data(self):
+        data = self[0]
+        print("linebuffer notify_data ", data)
+        self.notification.append(data)
+
     # def plot(self, idx=0, size=None):
     #     ''' Returns a slice of the array relative to the real zero of the buffer
 
@@ -353,14 +360,8 @@ class LineBuffer(LineSingle):
     #         A slice of the underlying buffer
     #     '''
     #     return self.getzero(idx, size or len(self))
-
-    # def plotrange(self, start, end):
-    #     if self.useislice:
-    #         return list(islice(self.array, start, end))
-
-    #     return self.array[start:end]
     
-    def plot(self, idx=0, size=None):
+    def plot(self):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
         Keyword Args:
@@ -374,20 +375,23 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        return self.getzero(idx, size or len(self))
+        return self.notification
+
+    # def plotrange(self, start, end):
+    #     if self.useislice:
+    #         return list(islice(self.array, start, end))
+
+    #     circle_start = start % self.maxlen
+    #     circle_end = end % self.maxlen
+    #     if circle_end >= circle_start:
+    #         return self.array[circle_start:circle_end]
+    #     else:   
+    #         array1 = self.array[circle_start:]
+    #         array2 = self.array[0:circle_end]
+    #         return np.concatenate((array1, array2)) 
 
     def plotrange(self, start, end):
-        if self.useislice:
-            return list(islice(self.array, start, end))
-
-        circle_start = start % self.maxlen
-        circle_end = end % self.maxlen
-        if circle_end >= circle_start:
-            return self.array[circle_start:circle_end]
-        else:   
-            array1 = self.array[circle_start:]
-            array2 = self.array[0:circle_end]
-            return np.concatenate((array1, array2)) 
+        return self.notification[start:end]
 
     def addbinding(self, binding):
         ''' Adds another line binding
@@ -694,10 +698,8 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         else:
             self.prenext()
     
-    # def notify_data(self): 
-    #     print("LineAction notify")
-    #     self.notification["LineAction"] = self[0]
-    def notify_data(self):
+    def notify_data(self): 
+        # to consistent with indicator
         pass 
 
 

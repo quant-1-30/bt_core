@@ -44,6 +44,7 @@ class Acct(object):
         return self.fundval
     
     def acct_thd(self, api):
+        self._evt_acct.clear() # reset
         t = threading.Thread(target=self._t_account, args=(api,))
         t.daemon = True
         t.start()
@@ -53,7 +54,7 @@ class Acct(object):
         accts = api.getvalue("account")
         if accts:
             self.fundval = {acct.experiment_id: acct for acct in accts} # experiment: Account
-        print("fundval ", self.fundval)
+        # print("fundval ", self.fundval)
         self._evt_acct.set()
 
 

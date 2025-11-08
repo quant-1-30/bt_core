@@ -139,8 +139,9 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
         self.sortdataindicators(strategy)
         self.calcrows(strategy)
 
-        st_dtime = strategy.plot("datetime")
+        st_dtime = strategy.datetime.plot()
         st_dtime = [num2date(st) for st in st_dtime]
+        print("st_dtime ", len(st_dtime))
 
         if start is None:
             start = 0
@@ -179,7 +180,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
             self.pinf.xend = self.pinf.pend
 
             self.pinf.clock = strategy
-            self.pinf.xreal = self.pinf.clock.datetime.plot(
+            self.pinf.xreal = self.pinf.clock.datetime.plotrange(
                 self.pinf.pstart, self.pinf.psize)
             self.pinf.xlen = len(self.pinf.xreal)
             self.pinf.x = list(range(self.pinf.xlen))
@@ -213,6 +214,8 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                         xdata.append(dtidx)
                         xtemp.append(dt)
 
+                    # import pdb; pdb.set_trace()
+                    print("xtemp ", len(xtemp))
                     self.pinf.xstart = bisect.bisect_left(dts, xtemp[0])
                     self.pinf.xend = bisect.bisect_right(dts, xtemp[-1])
 
@@ -445,6 +448,7 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
             toskip -= 1  # one line less until legend can be added
 
             # plot data
+            # import pdb; pdb.set_trace()
             lplot = line.plotrange(self.pinf.xstart, self.pinf.xend)
 
             # Global and generic for indicator
@@ -479,7 +483,13 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                 lplotarray = lplotarray[lplotmask]
                 xdata = np.array(xdata)[lplotmask]
 
-            plottedline = pltmethod(xdata, lplotarray, **plotkwargs)
+            # plottedline = pltmethod(xdata, lplotarray, **plotkwargs)
+            # import pdb; pdb.set_trace() # ValueError: x and y must have same first dimension, but have shapes (53,) and (21,)
+            aligned_plotarray = np.zeros_like(xdata)
+            loc = len(xdata) - len(lplotarray)
+            aligned_plotarray[loc:] = lplotarray
+            plottedline = pltmethod(xdata, aligned_plotarray, **plotkwargs)
+
             try:
                 plottedline = plottedline[0]
             except:

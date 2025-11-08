@@ -60,6 +60,9 @@ class Broker(Observer):
         if dtkey > self.dtkey:
             v = self.vb.rets.get(dtkey, None)
             if v:
+                print("obs broker v", v)
+                # import pdb; pdb.set_trace()
                 self.lines.value[0] = v.portfolio_value
                 self.lines.cash[0] = v.cash
-                self.dtkey = dtkey
+            
+            self.dtkey = dtkey
