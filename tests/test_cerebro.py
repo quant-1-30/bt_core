@@ -78,6 +78,9 @@ class MyStrategy(bt.Strategy):
         print("buysig: ", self.buysig[0])
         if self.buysig[0]:
             print('daily sma is greater than weekly sma1')
+            self.buy()
+        else:
+            self.sell()
 
 # # LineSeriesStub
 # class MyStrategy(bt.Strategy):

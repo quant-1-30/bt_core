@@ -112,16 +112,7 @@ class BTStore(Store):
     def subscribe(self, experiment_id, topic) -> Generator:
         return self.broker.subscribe(topic, Query(), experiment_id)
     
-    def submit(self, experiment_id, sid="", size=0, price=0.0, sizer_ratio=0, 
-               pricelimit=0, exec_type=0, order_type=0, created_at=0) -> Tuple[Order, Trade]:
-        order = Order(sid=sid,
-                      size=abs(size), 
-                      price=price,
-                      sizer_ratio=sizer_ratio, 
-                      pricelimit=pricelimit,
-                      exec_type=exec_type, 
-                      order_type=order_type,
-                      created_at=created_at)
+    def submit(self, experiment_id, order: Order) -> Tuple[Order, Trade]:
         trades = self.broker.submit(order, experiment_id)
         return order, trades
 

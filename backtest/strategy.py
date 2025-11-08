@@ -25,6 +25,8 @@ import itertools
 import operator
 import json
 from collections import defaultdict
+from bt_sdk.constant import OrderType, ExecType
+from bt_sdk.core.model import Order
 
 import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
@@ -286,9 +288,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         super().notify_data()
 
-    def buy(self, sid="", price=0.0, plimit=0.0,
-            exectype=None, ordertype=None, **kwargs):
-        '''Create a buy (long) order and send it to the broker
+    def buy(self, execType=ExecType, plimit:str=''):
+        '''Create a buy (long) order and send it to the broker 
 
           - ``exectype`` (default: ``None``)
 
@@ -314,23 +315,23 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        sizer_ratio = self._sizer.getsizing()[self._id]
-        order, trades = self.store.submit(self.experiment_id, 
-                                    sid, 
-                                    sizer_ratio=sizer_ratio, 
-                                    price=price, 
-                                    plimit=plimit,
-                                    exectype=exectype, 
-                                    ordertype=ordertype, 
-                                    **kwargs)
+        sizer_ratio = self._sizer.getsizing()
+
+        order = Order(sid=self.datas[0].name,
+                      pricelimit=plimit,
+                      sizer_ratio=sizer_ratio, 
+                      exec_type=execType, 
+                      order_type=OrderType.Buy,
+                      created_at=int(self.lines.datetime[0]))
+
+        ord, trades = self.store.submit(self.experiment_id, order)
         
         dt = num2date(self.lines.datetime[0])
         dt = int(dt.strftime("%Y%m%d")) 
-        self.orders[dt].append(order)
+        self.orders[dt].append(ord)
         self.trades[dt].append(trades)
         
-    def sell(self, sid, price=0.0, plimit=0.0,
-             exectype=None, ordertype=None, **kwargs):
+    def sell(self, execType=ExecType.OCO, plimit: str='',):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -338,20 +339,25 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        sizer_ratio = self._sizer.getsizing(isbuy=False)[self._id]
-        ordermeta, trades = self.store.submit(self.experiment_id, 
-                          sid, 
-                          size=sizer_ratio, 
-                          price=price, 
-                          plimit=plimit, 
-                          exectype=exectype, 
-                          ordertype=ordertype, 
-                          **kwargs)
+        sizer_ratio = self.getsizing(isbuy=False)
+
+        order = Order(sid=self.datas[0].name,
+                      sizer_ratio=sizer_ratio, 
+                      pricelimit=plimit,
+                      exec_type=execType, 
+                      order_type=OrderType.Sell,
+                      created_at=int(self.lines.datetime[0]))
+        
+        ord, trades = self.store.submit(self.experiment_id, order)
         
         dt = num2date(self.lines.datetime[0])
         dt = int(dt.strftime("%Y%m%d")) 
-        self.orders[dt].append(ordermeta)
+        self.orders[dt].append(ord)
         self.trades[dt].append(trades)
+
+    def getsizing(self, isbuy=True):
+        '''Get the current sizing for the strategy'''
+        return self._sizer.getsizing()[self._id]
     
     def _addwriter(self, writer):
         '''

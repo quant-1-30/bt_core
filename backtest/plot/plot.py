@@ -484,11 +484,12 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                 xdata = np.array(xdata)[lplotmask]
 
             # plottedline = pltmethod(xdata, lplotarray, **plotkwargs)
-            # import pdb; pdb.set_trace() # ValueError: x and y must have same first dimension, but have shapes (53,) and (21,)
-            aligned_plotarray = np.zeros_like(xdata)
+            lplotarray = np.nan_to_num(lplotarray, nan=0).astype(int)
+            # ValueError: x and y must have same first dimension, but have shapes (53,) and (21,)
+            align_plotarray = np.zeros_like(xdata)
             loc = len(xdata) - len(lplotarray)
-            aligned_plotarray[loc:] = lplotarray
-            plottedline = pltmethod(xdata, aligned_plotarray, **plotkwargs)
+            align_plotarray[loc:] = lplotarray # ValueError: cannot convert float NaN to integer
+            plottedline = pltmethod(xdata, align_plotarray, **plotkwargs)
 
             try:
                 plottedline = plottedline[0]
