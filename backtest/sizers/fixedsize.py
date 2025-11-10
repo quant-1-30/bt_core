@@ -30,10 +30,13 @@ class Fixed(Sizer):
 
     It will simply return a size of ``1`` for each operation
     '''
+    params = (("reserve", 0.1),)   # reserve a fraction of cash
     
-    def _getsizing(self, strats):
-        sizers = {strat._id: 1/(len(strats)) for strat in strats}
-        return sizers
+    def __init__(*args, **kwargs):
+        pass
+
+    def _getsizing(self, strat):
+        return 1 - self.p.reserve
     
 
 class Kelly(Sizer):
@@ -80,7 +83,10 @@ class Kelly(Sizer):
     '''
     params = ()
 
-    def _getsizing(self, strats):
+    def __init__(*args, **kwargs):
+        pass
+
+    def _getsizing(self, strat):
         # datas represent stats of strats
         raise NotImplementedError("KellySizer not implemented yet")
     

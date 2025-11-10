@@ -33,32 +33,6 @@ from backtest.utils.dateintern import num2date
 __all__ = ["BtData"]
 
 
-class MetaBtData(DataBase.__class__):
-    
-    def __init__(cls, name, bases, dct):
-        """auto Register with the store when type class __import__"""
-        super(MetaBtData, cls).__init__(name, bases, dct)
-        BTStore.DataCls = cls
-
-    def donew(cls, *args, **kwargs):
-        print("MetaBtData donew kwargs ", kwargs)
-        _obj, args, kwargs = super(MetaBtData, cls).donew(*args, **kwargs)
-        print("MetaBtData donew kwargs after", kwargs)
-        return _obj, args, kwargs
-    
-    def dopostinit(cls, _obj, *args, **kwargs):
-        print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) # __init__
-        print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj.mdapi = _obj.p.mdapi
-        _obj.name = str(_obj.p.sid)
-        _obj.extra_info = f"{str(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
-
-        _obj.ctx = None # context for yield
-        _obj.adj_factors= {}
-        return _obj, args, kwargs
-
-
 class BtDescr(object):
     '''Descriptor for calendar and instrument data'''
     def __init__(self):
@@ -102,12 +76,38 @@ class BtDescr(object):
         self._evt_asset_event.set()
 
 
+class MetaBtData(DataBase.__class__):
+    
+    def __init__(cls, name, bases, dct):
+        """auto Register with the store when type class __import__"""
+        super(MetaBtData, cls).__init__(name, bases, dct)
+        BTStore.DataCls = cls
+
+    def donew(cls, *args, **kwargs):
+        print("MetaBtData donew kwargs ", kwargs)
+        _obj, args, kwargs = super(MetaBtData, cls).donew(*args, **kwargs)
+        print("MetaBtData donew kwargs after", kwargs)
+        return _obj, args, kwargs
+    
+    def dopostinit(cls, _obj, *args, **kwargs):
+        print("MetaBtData dopostinit kwargs ", kwargs)
+        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) # __init__
+        print("MetaBtData dopostinit kwargs ", kwargs)
+        _obj.mdapi = _obj.p.mdapi
+        _obj.name = ','.join(_obj.p.sid) 
+        _obj.extra_info = f"{str(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
+
+        _obj.ctx = None # context for yield
+        _obj.adj_factors= {}
+        return _obj, args, kwargs
+
+
 class BtData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
         ("mdapi", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
-        ("sid", None),
+        ("sid", []),
         ("fromdate", None),
         ("todate", None),
         ("client_id", ""),

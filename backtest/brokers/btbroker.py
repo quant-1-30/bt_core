@@ -105,10 +105,10 @@ class BTBroker(BrokerBase):
     
     def subscribe(self, topic:str, qty: Query, experiment_id:str) -> Generator: # contextlib
         generator = self.tdapi.subscribe(topic, qty, experiment_id)
-        return generator # relate to mdpi subscribe
+        return generator
 
     def submit(self, order: Order, experiment_id:str) -> List[Trade]:
-        trades = self.tdapi.trade(order, experiment_id) # pydantic contain _thread.lock
+        trades = self.tdapi.submit(order, experiment_id) # pydantic contain _thread.lock
         return trades
 
     def on_dt_over(self, qty: Query, experiment_id:str) -> Resp:

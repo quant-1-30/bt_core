@@ -288,7 +288,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         super().notify_data()
 
-    def buy(self, execType=ExecType, plimit:str=''):
+    def buy(self, execType=ExecType.Market, plimit: int=0):
         '''Create a buy (long) order and send it to the broker 
 
           - ``exectype`` (default: ``None``)
@@ -315,23 +315,31 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        sizer_ratio = self._sizer.getsizing()
+        sizer_ratio = self.sizer.getsizing(self) * 100
+        sid = self.datas[0].name.split(',')[0]
 
-        order = Order(sid=self.datas[0].name,
+        order = Order(sid=sid,
                       pricelimit=plimit,
                       sizer_ratio=sizer_ratio, 
-                      exec_type=execType, 
-                      order_type=OrderType.Buy,
-                      created_at=int(self.lines.datetime[0]))
+                      order_type=OrderType.Buy.value,
+                      exec_type=execType.value, 
+                      created_dt=int(self.lines.datetime[0]))
+        
+        # order = Order(sid=sid, 
+        #               pricelimit=2, # / 100
+        #               sizer_ratio=80, #  /100
+        #               order_type = OrderType.Buy.value,
+        #               exec_type=execType.value,
+        #               created_dt=int(self.lines.datetime[0])) # market / limit`
 
         ord, trades = self.store.submit(self.experiment_id, order)
         
         dt = num2date(self.lines.datetime[0])
         dt = int(dt.strftime("%Y%m%d")) 
-        self.orders[dt].append(ord)
-        self.trades[dt].append(trades)
+        self._orders[dt].append(ord)
+        self._trades[dt].append(trades)
         
-    def sell(self, execType=ExecType.OCO, plimit: str='',):
+    def sell(self, execType=ExecType.Market, plimit: int=0, sizer_ratio: int=100):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -339,21 +347,28 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        sizer_ratio = self.getsizing(isbuy=False)
+        sid = self.datas[0].name.split(',')[0]
 
-        order = Order(sid=self.datas[0].name,
+        order = Order(sid=sid,
                       sizer_ratio=sizer_ratio, 
                       pricelimit=plimit,
-                      exec_type=execType, 
-                      order_type=OrderType.Sell,
-                      created_at=int(self.lines.datetime[0]))
+                      order_type=OrderType.Sell.value,
+                      exec_type=execType.value, 
+                      created_dt=int(self.lines.datetime[0]))
+        
+        # order = Order(sid=sid, 
+        #               pricelimit=plimit, # / 100
+        #               sizer_ratio=80, #  /100
+        #               order_type = OrderType.Sell.value,
+        #               exec_type=execType.value,
+        #               created_at=int(self.lines.datetime[0])) # market / limit`
         
         ord, trades = self.store.submit(self.experiment_id, order)
         
         dt = num2date(self.lines.datetime[0])
         dt = int(dt.strftime("%Y%m%d")) 
-        self.orders[dt].append(ord)
-        self.trades[dt].append(trades)
+        self._orders[dt].append(ord)
+        self._trades[dt].append(trades)
 
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
@@ -383,6 +398,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         else:
             acct = self.store.getaccount(self.experiment_id)
             postn = self.store.getposition(self.experiment_id) # vector
+        print("strategy getvalue :", acct, postn)
         return acct, postn
     
     def getwriterheaders(self):

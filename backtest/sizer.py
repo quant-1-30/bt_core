@@ -39,15 +39,12 @@ class Sizer(with_metaclass(MetaParams, object)):
         Gives access to information some complex sizers may need like portfolio
         value, ..
     '''
-    params = (("reserve", 0.0), )  # reserve a fraction of cash
+    params = (("alias", "SizerBase"),)
 
-    def __init__(*args, **kwargs):
-        pass
+    def getsizing(self, strat):
+        return self._getsizing(strat)
 
-    def getsizing(self, strats, datas={}, isbuy=True):
-        return self._getsizing(strats, datas)
-
-    def _getsizing(self, strats, datas={}, isbuy=True):
+    def _getsizing(self, strat):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 
