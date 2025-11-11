@@ -64,7 +64,7 @@ class BuySell(Observer):
     def next(self):
         dtkey = self.txns.dtkey
         if dtkey > self.dtkey:
-            _trades = self.txns.rets(self.txns.dtkey, [])
+            _trades = self.txns.rets.get(dtkey, [])
             buy = list()
             sell = list()
             comm = 0.0

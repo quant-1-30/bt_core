@@ -23,6 +23,7 @@ matplotlib = "^3.10.5"
 pydantic = "2.6.4"
 pydantic-core = "2.16.3"
 ray = {extras = ["default"], version = "^2.51.1"}
+dotenv = "^0.9.9"
 
 [[tool.poetry.source]]
 name = "tuna"

@@ -85,7 +85,7 @@ class Trades(Observer):
     def next(self):
         dtkey = self.preturn.dtkey
         pnl_obj = self.preturn.rets.get(dtkey, None)
-        if dtkey > self.dtkey and pnl_obj:
+        if dtkey > self.dtkey:
             pnls = np.array([p.pnl for p in pnl_obj]) if pnl_obj else np.zeros([])
             pnl = np.sum(pnls)
 

@@ -31,6 +31,7 @@ from backtest.sizers import sizers
 from backtest.timer import Timer
 from backtest.errors import *
 from backtest.stores import _stores
+from backtest.utils.wrapper import consume_time
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -376,6 +377,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.addstore(*args, **kwargs) # pop client_id fromdate todate 
         self.addsizer(*args, **kwargs)
 
+    @consume_time
     def run(self, *args, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was

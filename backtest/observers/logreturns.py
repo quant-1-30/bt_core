@@ -98,5 +98,5 @@ class LogReturns2(LogReturns):
         super(LogReturns2, self).next()
         dtkey = self.logret2.dtkey
         if dtkey > self.dtkey:
-            self.lines.logret2[0] = self.logret2.rets[self.logret2.dtkey]
+            self.lines.logret2[0] = self.logret2.rets.get(dtkey, float('NaN'))
             self.dtkey = dtkey

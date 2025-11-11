@@ -47,18 +47,20 @@ class BTStore(Store):
     DataCls = None  # data class will auto register
 
     params = (
-        ("md_addr", ("127.0.0.1", 9000)),
-        ("td_addr", ("127.0.0.1", 8888)),
+        ("md_addr", ("127.0.0.1:9000")),
+        ("td_addr", ("127.0.0.1:8888")),
         ("client_id", "")
     )
 
     def __init__(self, *args, **kwargs): # 多余参数保留
         print("store initialize kwargs ", kwargs)
-        
-        kwargs["mdapi"] = MdApi(addr=os.getenv("MD_ADDR", self.p.md_addr))
+
+        md_addr = os.getenv("MD_ADDR", self.p.md_addr)
+        kwargs["mdapi"] = MdApi(addr=md_addr.split(":"))
         self._feed = self.DataCls(*args, **kwargs) 
-        
-        tdapi = TdApi(addr=os.getenv("TD_ADDR", self.p.td_addr), client_id=self.p.client_id)
+
+        td_addr = os.getenv("TD_ADDR", self.p.td_addr) 
+        tdapi = TdApi(addr=td_addr.split(":"), client_id=self.p.client_id)
         self.broker = self.BrokerCls(tdapi=tdapi)
     
     def _start(self, *args, **kwargs):
