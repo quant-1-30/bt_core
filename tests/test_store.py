@@ -99,9 +99,14 @@ class TestBTStore:
         assert data is not None
     
     def test_subscribe(self, store, reqmeta):
-        ctx = store.subscribe(*reqmeta)
-        with ctx as q:
-            data = get_data(q)
-        print("subscribe: ",  data)
+        _iter = store.subscribe(*reqmeta) # broker
+        res = []
+        while True:
+            try:
+                data = next(_iter)
+                res.append(data)
+            except StopIteration:
+                break
+        print("test_req: ", res)
+        assert res is not None
     
-

@@ -191,7 +191,10 @@ class Lines(object):
         self.lines = list()
         for line, linealias in enumerate(self._getlines()):
             kwargs = dict()
-            self.lines.append(LineBuffer(**kwargs))
+            # self.lines.append(LineBuffer(**kwargs))
+            lb = LineBuffer(**kwargs)
+            lb.extra_info = linealias
+            self.lines.append(lb)
 
         # Add the required extralines
         for i in range(self._getlinesextra()):
@@ -439,8 +442,7 @@ class LineSeries(with_metaclass(MetaLineSeries, LineMultiple)):
         legendloc=None,
     )
 
-    # csv = True
-    csv = False
+    csv = True
 
     @property
     def array(self):
@@ -559,6 +561,7 @@ class LineSeriesStub(LineSeries):
         self.owner = self._owner = line._owner
         self._minperiod = line._minperiod
         self.slave = slave
+        self.extra_info = line.extra_info
 
     # Only execute the operations below if the object is not a slave
     def forward(self, value=NAN, size=1):

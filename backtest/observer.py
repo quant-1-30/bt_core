@@ -37,7 +37,6 @@ class MetaObserver(ObserverBase.__class__):
 
         if _obj._stclock:  # Change clock if strategy wide observer
             _obj._clock = _obj._owner
-
         return _obj, args, kwargs
 
 

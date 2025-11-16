@@ -77,6 +77,7 @@ class LineBuffer(LineSingle):
         self.idx = -1
         # self.notification = collections.deque()
         self.notification = []
+        self.extra_info = ""
 
     def reset(self):
         ''' Resets the internal buffer structure and the indices
@@ -663,7 +664,7 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
     The metaclass does the dirty job of calculating minperiods and registering
     '''
     _ltype = LineBuffer.IndType # indicator
-    
+
     notification = collections.defaultdict(collections.deque)
 
     def getindicators(self):
@@ -722,6 +723,7 @@ class _LineDelay(LineActions):
         super(_LineDelay, self).__init__()
         self.a = a
         self.ago = ago
+        self.extra_info = a.extra_info
 
         # Need to add the delay to the period. "ago" is 0 based and therefore
         # we need to pass and extra 1 which is the minimum defined period for
@@ -741,6 +743,7 @@ class _LineForward(LineActions):
         super(_LineForward, self).__init__()
         self.a = a
         self.ago = ago
+        self.extra_info = a.extra_info
 
         # Need to add the delay to the period. "ago" is 0 based and therefore
         # we need to pass and extra 1 which is the minimum defined period for

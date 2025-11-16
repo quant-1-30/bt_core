@@ -94,3 +94,21 @@ cerebro.run(exactbars=-1) # 低内存模式
 
     添加数据源 → 预加载 → while循环加载 → _load方法 → 数据过滤
 
+
+<!-- #代码高亮
+try:
+    from pygments import highlight
+    from pygments.lexers import PythonLexer
+    from pygments.formatters import TerminalFormatter
+    PYGMENTS = True
+except ImportError:
+    PYGMENTS = False -->
+
+# prune_orders
+
+# getter  ---- property ;  setter --- @func.setter
+
+# __delete__(instance), __get__(instance,owner) , __set__(instance,value) 描述器 , 实例为类的类属性
+# __getattribute__ --- __getattr__ 显式访问不存在饿属性,除非显示调用或引发AttributeError异常
+
+# __delete__(self,instance) ,__del__(self)

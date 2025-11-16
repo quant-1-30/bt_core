@@ -81,7 +81,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('stdstats', True),
         ("cash", 100000),
         ('savemem', 1),
-        ('writer', False),
+        ('writer', True),
+        ("out", None),
         ("sizer", "fixed"),
         ("store", "bt"),
         ('tz', None),
@@ -363,6 +364,38 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def _next_stid(self): 
         return next(self.stcount)
     
+    # def cartesian(arrays, out=None):
+    #     """
+    #         参数组合 不同于product
+    #     """
+    #     arrays = [np.asarray(x) for x in arrays]
+    #     print('arrays',arrays)
+    #     shape = (len(x) for x in arrays)
+    #     print('shape',shape)
+    #     dtype = arrays[0].dtype
+
+    #     ix = np.indices(shape)
+    #     print('ix',ix)
+    #     ix = ix.reshape(len(arrays), -1).T
+    #     print('ix_:',ix)
+
+    #     if out is None:
+    #         out = np.empty_like(ix, dtype=dtype)
+    #         print('out',out.shape)
+
+    #     for n, arr in enumerate(arrays):
+    #         print('array',arrays[n])
+    #         print(ix[:,n])
+    #         out[:, n] = arrays[n][ix[:, n]]
+    #         print(out[:,n])
+
+    #     return out
+    
+    def _start(self, *args, **kwargs):
+        self.set_cash(*args, **kwargs) # pop cash
+        self.addstore(*args, **kwargs) # pop client_id fromdate todate 
+        self.addsizer(*args, **kwargs)
+    
 # ---------------------------------------------------------------- run-------------------------------------------------------------------
 
     def __call__(self, iterstrat):
@@ -371,11 +404,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         module without complains
         '''
         return self.runstrategies(iterstrat)
-    
-    def _start(self, *args, **kwargs):
-        self.set_cash(*args, **kwargs) # pop cash
-        self.addstore(*args, **kwargs) # pop client_id fromdate todate 
-        self.addsizer(*args, **kwargs)
 
     @consume_time
     def run(self, *args, **kwargs):
@@ -414,7 +442,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         # Add the system default writer if requested
         if self.p.writer is True:
-            wr = WriterFile()
+            wr = WriterFile(out=self.p.out, csv=True)
             self.runwriters.append(wr)
 
         # Instantiate any other writers
@@ -481,7 +509,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 strat._start(**kwargs)
                 strat.qbuffer(savemem=self.p.savemem)
                 
-            for writer in self.writers:
+            for writer in self.runwriters:
                 writer.start()
 
             # Prepare timers
@@ -507,9 +535,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         print("feed data stop")
 
         self.stop_writers(runstrats) 
-
         print("stop writer")      
-
         return runstrats
 
     def _runnext(self, runstrats):
@@ -575,13 +601,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     
                     self._next_writers(runstrats)
                 
-        self._next_writers(runstrats)
-        
-    def runstop(self):
-        '''If invoked from inside a strategy or anywhere else, including other
-        threads the execution will stop as soon as possible.'''
-        self._event_stop = True  # signal a stop has been requested
-
 # ---------------------------------------------------------------------- writer ------------------------------------------------------------
 
     def _next_writers(self, runstrats):
@@ -623,7 +642,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             writer.writedict(dict(Cerebro=cerebroinfo))
             writer.stop()
     
-# ---------------------------------------------------------------------- plot ------------------------------------------------------------
+# ---------------------------------------------------------------------- plot --------------------------------------------------------------
     
     def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
              width=16, height=9, dpi=300, tight=True, use=None,
@@ -681,3 +700,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             plotter.show()
 
         return figs
+
+    def runstop(self):
+        '''If invoked from inside a strategy or anywhere else, including other
+        threads the execution will stop as soon as possible.'''
+        self._event_stop = True  # signal a stop has been requested

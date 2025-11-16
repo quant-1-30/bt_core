@@ -226,6 +226,12 @@ class AutoInfoClass(object):
                 setattr(obj, infoname, recursecls())
 
         return obj
+    
+    def __str__(self):
+        p_str = ""
+        for k, v in self._getkwargs().items(): # after update kwargs 
+            p_str += f" {k}={v}, "
+        return p_str[:-2]
 
 
 class MetaParams(MetaBase):
@@ -265,7 +271,6 @@ class MetaParams(MetaBase):
 
         # Subclass and store the newly derived params class
         cls.params = params._derive(name, newparams, morebasesparams)
-
         return cls
 
     def donew(cls, *args, **kwargs):
@@ -321,7 +326,6 @@ class MetaParams(MetaBase):
         _obj, args, kwargs = super(MetaParams, cls).donew(*args, **kwargs)
         _obj.params = params
         _obj.p = params  # shorter alias
-
         # Parameter values have now been set before __init__
         return _obj, args, kwargs
 

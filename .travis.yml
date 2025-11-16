@@ -1,21 +1,22 @@
+dist: xenial
 language: python
-
 python:
   - "3.6"
   - "3.7"
   - "3.8"
-  - "3.9"
+  - "nightly"
+  - "pypy"
+  - "pypy3"
 
-before_install:
-  - export PYTHONPATH=$PYTHONPATH:$(pwd) 
+matrix:
+  allow_failures:
+    python: "3.8-dev"
+    python: "nightly"
 
-install:
-  - pip install -r requirements/base.txt
-  - pip install -r requirements/tests.txt
+# command to install dependencies
+# install:
+#  - pip install your_package
+#    pip install git+https://github.com/blampe/IbPy.git
 
-script:
-  - pytest --cov=qstrader/
-  - flake8 --ignore E501,F501,W504 tests qstrader
-
-after_success:
-  - coveralls
+# command to run tests
+script: cd tests && nosetests -v -v

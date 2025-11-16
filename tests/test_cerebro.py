@@ -1,5 +1,8 @@
 # Import the backtrader platform
 
+import warnings
+warnings.filterwarnings('ignore')
+
 from dotenv import load_dotenv
 
 import backtest as bt
@@ -60,58 +63,59 @@ from bt_sdk.core.model import *
 #             print('Previous close is higher than the moving average')
 
 
-# class MyStrategy(bt.Strategy):
-#     params = dict(period=20)
-
-#     def __init__(self):
-
-#         # data0 is a daily data
-#         sma0 = btind.SMA(self.data.close, period=15)  # 15 days sma
-#         # data1 is a weekly data
-#         sma1 = btind.SMA(sma0, period=5)  # 5 weeks sma
-#         sma2 = btind.SMA(sma1, period=5)  # 5 weeks sma
-#         sma3 = btind.SMA(sma2, period=10)  # 5 weeks sma
-#         ema = btind.EMA(sma2, period=10)
-
-#         self.buysig = ema > sma3 # linesoperation
-#         # self.buysig = sma0 > sma1 # linesoperation
-
-#     def next(self):
-#         print("buysig: ", self.buysig[0])
-#         if self.buysig[0]:
-#             print('daily sma is greater than weekly sma1')
-#             self.buy()
-#         else:
-#             self.sell()
-
-# LineSeriesStub
 class MyStrategy(bt.Strategy):
+    params = dict(period=10)
 
     def __init__(self):
 
-        sma1 = btind.SimpleMovingAverage(self.data.close)
-        ema1 = btind.ExponentialMovingAverage(self.data.close)
+        # data0 is a daily data
+        sma0 = btind.SMA(self.data.close, period=15)  # 15 days sma
+        # data1 is a weekly data
+        sma1 = btind.SMA(sma0, period=5)  # 5 weeks sma
+        sma2 = btind.SMA(sma1, period=5)  # 5 weeks sma
+        sma3 = btind.SMA(sma2, period=10)  # 5 weeks sma
+        ema = btind.EMA(sma2, period=10)
 
-        close_over_sma = self.data.close > sma1 # line ---> LineSeries
-        close_over_ema = self.data.close > ema1 # line ---> LineSeries
-        sma_ema_diff = sma1 - ema1
-
-        self.buy_sig = bt.And(close_over_sma, close_over_ema, sma_ema_diff > 0)
+        self.buysig = ema > sma3 # linesoperation
+        # self.buysig = sma0 > sma1 # linesoperation
 
     def next(self):
-        print("buy_sig: ", self.buy_sig[0])
-        if self.buy_sig[0]:
-            print('buy')
+        print("buysig: ", self.buysig[0])
+        if self.buysig[0]:
+            print('daily sma is greater than weekly sma1')
+            self.buy()
+        else:
+            self.sell()
+
+# # LineSeriesStub
+# class MyStrategy(bt.Strategy):
+
+#     def __init__(self):
+
+#         sma1 = btind.SimpleMovingAverage(self.data.close)
+#         ema1 = btind.ExponentialMovingAverage(self.data.close)
+
+#         close_over_sma = self.data.close > sma1 # line ---> LineSeries
+#         close_over_ema = self.data.close > ema1 # line ---> LineSeries
+#         sma_ema_diff = sma1 - ema1
+
+#         self.buy_sig = bt.And(close_over_sma, close_over_ema, sma_ema_diff > 0)
+
+#     def next(self):
+#         print("buy_sig: ", self.buy_sig[0])
+#         if self.buy_sig[0]:
+#             print('buy')
 
 
 if __name__ == '__main__':
     
     load_dotenv()
 
-    cerebro = bt.Cerebro() # configure ---> store="bt"
+    cerebro = bt.Cerebro(out="out_1.csv") # configure ---> store="bt" / # 2>/dev/null
+
     cerebro.set_cash(cash=10000)
     # Add a strategy
     cerebro.addstrategy(MyStrategy)
-    cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80")
+    cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="1001fe63-3d5d-42b3-89d5-d96218617219")
     # plot
     cerebro.plot()

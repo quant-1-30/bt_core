@@ -128,10 +128,6 @@ class WriterFile(WriterBase):
             self.writelineseparator()
             self.writeiterable(self.headers, counter='Id')
 
-    def stop(self):
-        if self.close_out:
-            self.out.close()
-
     def next(self):
         if self.p.csv:
             self.writeiterable(self.values, func=str, counter=next(self._len))
@@ -214,6 +210,10 @@ class WriterFile(WriterBase):
             else:
                 kline += ' ' + str(val)
                 self.writeline(kline)
+
+    def stop(self):
+        if self.close_out:
+            self.out.close()
 
 
 class WriterStringIO(WriterFile):

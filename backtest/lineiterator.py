@@ -111,7 +111,7 @@ class MetaLineIterator(LineSeries.__class__):
 
         # 1st data source is our ticking clock
         _obj._clock = _obj.datas[0]
-
+        
         # To automatically set the period Start by scanning the found datas
         # No calculation can take place until all datas have yielded "data"
         # A data could be an indicator and it could take x bars until
@@ -140,6 +140,8 @@ class MetaLineIterator(LineSeries.__class__):
         if _obj._owner is not None: # Strategy继承自 LineIterator → LineSeries → LineRoot → LineMultiple
             _obj._owner.addindicator(_obj)
 
+        _obj.extra_info = extra_info = _obj.nested_extra_info() # intended to indicator
+        
         return _obj, args, kwargs
 
 
@@ -178,6 +180,13 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
                     break
 
                 o = o._owner  # move up the hierarchy
+
+    def nested_extra_info(self):
+        extra_info = f"{self.__class__.__name__}("
+        for data in self.datas:
+            extra_info += f"{data.extra_info}," if not isinstance(data, DataSeries) else f"{data._name},"
+        extra_info += f"{str(self.p)})"
+        return extra_info
 
     def _periodrecalc(self):
         # last check in case not all lineiterators were assigned to

@@ -58,7 +58,7 @@ class TimeFrame(object):
 class DataSeries(LineSeries):
     plotinfo = dict(plot=True, plotind=True, plotylimited=True)
 
-    _name = ''
+    _extra_info = "{}"  # placeholder for extra info
     _compression = 1
     _timeframe = TimeFrame.Days
 
@@ -70,7 +70,8 @@ class DataSeries(LineSeries):
         return [self.lines[i][0] for i in range(len(self.lines))]
 
     def getwriterheaders(self):
-        headers = [self._name, 'len']
+        # headers = [self._name, 'len']
+        headers = [self._name, self.extra_info, 'len']
 
         for lo in self.LineOrder:
             headers.append(self._getlinealias(lo))
@@ -82,7 +83,7 @@ class DataSeries(LineSeries):
 
     def getwritervalues(self):
         l = len(self)
-        values = [self._name, l]
+        values = [self._name, self.extra_info, l]
 
         if l:
             values.append(self.datetime.datetime(0))

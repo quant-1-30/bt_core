@@ -51,8 +51,6 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj, args, kwargs = \
             super(MetaAbstractDataBase, cls).dopreinit(_obj, *args, **kwargs)
 
-        _obj._dataname = _obj.p.dataname
-        _obj._name = ''
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -61,9 +59,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
             super(MetaAbstractDataBase, cls).dopostinit(_obj, *args, **kwargs)
 
         # Either set by subclass or the parameter or use the dataname (ticker)
-        _obj._name = _obj._name or _obj.p.name
-        if not _obj._name and isinstance(_obj.p.dataname, str):
-            _obj._name = _obj.p.dataname
+        _obj._name = _obj.p.dataname or cls.__class__.__name__
 
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
@@ -108,8 +104,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     params = (
-        ('dataname', None), # sid
-        ('name', None),
+        ('dataname', ""),
         ('compression', 1),
         ('timeframe', TimeFrame.Minutes),
         ('sessionstart', datetime.timedelta(hours=9, minutes=30)),

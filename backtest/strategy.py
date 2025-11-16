@@ -308,6 +308,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             - ``Order.Close``. An order which can only be executed with the
               closing price of the session (usually during a closing auction)
 
+          - ``plimit``: plimit for limit/stop orders, int 
+
           - ``**kwargs``: additional broker implementations may support extra
             parameters. ``backtrader`` will pass the *kwargs* down to the
             created order objects
@@ -316,7 +318,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
           - the submitted order
         '''
         sizer_ratio = self.sizer.getsizing(self) * 100
-        sid = self.datas[0].name.split(',')[0]
+        sid = self.datas[0]._name.split(',')[0]
 
         order = Order(sid=sid,
                       pricelimit=plimit,
@@ -325,13 +327,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                       exec_type=execType.value, 
                       created_dt=int(self.lines.datetime[0]))
         
-        # order = Order(sid=sid, 
-        #               pricelimit=2, # / 100
-        #               sizer_ratio=80, #  /100
-        #               order_type = OrderType.Buy.value,
-        #               exec_type=execType.value,
-        #               created_dt=int(self.lines.datetime[0])) # market / limit`
-
         ord, trades = self.store.submit(self.experiment_id, order)
         
         dt = num2date(self.lines.datetime[0])
@@ -339,7 +334,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._orders[dt].append(ord)
         self._trades[dt].append(trades)
         
-    def sell(self, execType=ExecType.Market, plimit: int=0, sizer_ratio: int=100):
+    def sell(self, execType=ExecType.Market, plimit: int=0):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -347,21 +342,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        sid = self.datas[0].name.split(',')[0]
+        sizer_ratio = self.sizer.getsizing(self) * 100
+        sid = self.datas[0]._name.split(',')[0]
 
         order = Order(sid=sid,
                       sizer_ratio=sizer_ratio, 
-                      pricelimit=plimit,
+                      pricelimit=plimit,     
                       order_type=OrderType.Sell.value,
                       exec_type=execType.value, 
                       created_dt=int(self.lines.datetime[0]))
-        
-        # order = Order(sid=sid, 
-        #               pricelimit=plimit, # / 100
-        #               sizer_ratio=80, #  /100
-        #               order_type = OrderType.Sell.value,
-        #               exec_type=execType.value,
-        #               created_at=int(self.lines.datetime[0])) # market / limit`
         
         ord, trades = self.store.submit(self.experiment_id, order)
         
@@ -414,9 +403,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for iocsv in self.indobscsv:
             name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             headers.append(name)
+            headers.append(iocsv.extra_info)
+            print("iocsv extra_info ", iocsv, iocsv.extra_info)
             headers.append('len')
             headers.extend(iocsv.getlinealiases())
-
+        
+        # import pdb; pdb.set_trace()
         return headers
 
     def getwritervalues(self):
@@ -425,6 +417,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for iocsv in self.indobscsv:
             name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             values.append(name)
+            values.append(iocsv.extra_info)
             lio = len(iocsv)
             values.append(lio)
             if lio:
