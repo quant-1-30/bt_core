@@ -53,7 +53,7 @@ class BTStore(Store):
     )
 
     def __init__(self, *args, **kwargs): # 多余参数保留
-        print("store initialize kwargs ", kwargs)
+        # print("store initialize kwargs ", kwargs)
 
         md_addr = os.getenv("MD_ADDR", self.p.md_addr)
         kwargs["mdapi"] = MdApi(addr=md_addr.split(":"))

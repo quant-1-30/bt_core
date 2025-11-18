@@ -52,7 +52,7 @@ class LineAlias(object):
         inside the line can be "set". This is achieved by adding a binding
         to the line inside "value"
         '''
-        print("__set__ value", isinstance(value, LineMultiple), value)
+        # print("__set__ value", isinstance(value, LineMultiple), value)
         if isinstance(value, LineMultiple):
             value = value.lines[0] # sma linebuffer
 
@@ -321,7 +321,7 @@ class MetaLineSeries(LineMultiple.__class__):
         attributes and create corresponding classes for them which take over
         the class attributes
         '''
-        print("MetaLineSeries __new__", dct)
+        # print("MetaLineSeries __new__", dct)
         # Get the aliases - don't leave it there for subclasses
         aliases = dct.setdefault('alias', ())
         aliased = dct.setdefault('aliased', '')
@@ -329,7 +329,7 @@ class MetaLineSeries(LineMultiple.__class__):
         # Remove the line definition (if any) from the class creation
         linesoverride = dct.pop('linesoverride', False)
         newlines = dct.pop('lines', ())
-        print("MetaLineSeries __new__ newlines", newlines)
+        # print("MetaLineSeries __new__ newlines", newlines)
         extralines = dct.pop('extralines', 0)
 
         # remove the new plotinfo/plotlines definition if any
@@ -341,7 +341,7 @@ class MetaLineSeries(LineMultiple.__class__):
 
         # Create the class - pulling in any existing "lines"
         cls = super(MetaLineSeries, meta).__new__(meta, name, bases, dct)
-        print("MetaSeriesLines cls", cls)
+        # print("MetaSeriesLines cls", cls)
 
         # Check the line aliases before creating the lines
         lalias = getattr(cls, 'linealias', AutoInfoClass)
@@ -351,12 +351,12 @@ class MetaLineSeries(LineMultiple.__class__):
 
         # Get the actual lines or a default
         lines = getattr(cls, 'lines', Lines) # mro
-        print("MetaSeriesLines lines", lines)
+        # print("MetaSeriesLines lines", lines)
         # Create a subclass of the lines class with our name and newlines
         # and put it in the class
         morebaseslines = [x.lines for x in bases[1:] if hasattr(x, 'lines')]
-        print("morebaseslines", morebaseslines)
-        print("MetaLineSeries name", name)
+        # print("morebaseslines", morebaseslines)
+        # print("MetaLineSeries name", name)
         cls.lines = lines._derive(name, newlines, extralines, morebaseslines,
                                   linesoverride, lalias=la)
         
@@ -469,7 +469,7 @@ class LineSeries(with_metaclass(MetaLineSeries, LineMultiple)):
         # defining a __init__ guarantees the existence of im_func to findbases
         # in lineiterator later, because object.__init__ has no im_func
         # (object has slots)
-        print("LineSeries __init__")
+        # print("LineSeries __init__")
         super(LineSeries, self).__init__()
         pass
 

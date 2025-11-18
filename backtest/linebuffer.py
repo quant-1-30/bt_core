@@ -106,10 +106,10 @@ class LineBuffer(LineSingle):
 
         if savemem:
             self.mode = self.QBuffer
-            print("linebuffer qbuffer :", self.mode, self._minperiod)
+            # print("linebuffer qbuffer :", self.mode, self._minperiod)
             _minperiod = self._minperiod
             self.maxlen = _minperiod
-            print("maxlen ", self.maxlen, _minperiod)
+            # print("maxlen ", self.maxlen, _minperiod)
         # self.extrasize = extrasize
         # self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
@@ -154,7 +154,7 @@ class LineBuffer(LineSingle):
     def __getitem__(self, ago):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
-        print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
+        # print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
         return self.array[idx + ago]
     
     def __setitem__(self, ago, value):
@@ -166,7 +166,7 @@ class LineBuffer(LineSingle):
             value (variable): value to be set
         '''
         # self.array[self.idx + ago] = value
-        print("linebuffer __setitem__ ago", ago)
+        # print("linebuffer __setitem__ ago", ago)
         idx = self.idx % self.maxlen
         # print("__setitem__ idx ", idx)
         self.array[idx + ago] = value
@@ -300,11 +300,11 @@ class LineBuffer(LineSingle):
             size (int): How many extra positions to enlarge the buffer
         '''
         self.idx += size
-        print("forward idx ", self.idx)
+        # print("forward idx ", self.idx)
         self.lencount += size
 
         if self.UnBounded:
-            print("UbBound array.array")
+            # print("UbBound array.array")
             for i in range(size):
                 self.array.append(value)
 
@@ -321,7 +321,7 @@ class LineBuffer(LineSingle):
         self.lencount -= size
 
         if self.UnBounded:
-            print("UbBound array.array")
+            # print("UbBound array.array")
             for i in range(size):
                 self.array.pop()
 
@@ -343,7 +343,7 @@ class LineBuffer(LineSingle):
 
     def notify_data(self):
         data = self[0]
-        print("linebuffer notify_data ", data)
+        # print("linebuffer notify_data ", data)
         self.notification.append(data)
 
     # def plot(self, idx=0, size=None):
@@ -628,7 +628,7 @@ class MetaLineActions(LineBuffer.__class__):
         _minperiod = max(_minperiods or [1])
 
         # update own minperiod if needed
-        print("MetaLineActions _minperiod ", _minperiod)
+        # print("MetaLineActions _minperiod ", _minperiod)
         _obj.updateminperiod(_minperiod)
 
         return _obj, args, kwargs

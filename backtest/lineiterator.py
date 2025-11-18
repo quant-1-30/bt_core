@@ -48,7 +48,7 @@ class MetaLineIterator(LineSeries.__class__):
         lastarg = 0
         _obj.datas = []
         for arg in args:
-            print("lineiterator arg ", arg)
+            # print("lineiterator arg ", arg)
             if isinstance(arg, LineRoot):
                 _obj.datas.append(LineSeriesMaker(arg)) # line to LineSeries
 
@@ -118,7 +118,7 @@ class MetaLineIterator(LineSeries.__class__):
         # something is produced
         _obj._minperiod = \
             max([x._minperiod for x in _obj.datas] or [_obj._minperiod]) # datas 包含其他指标
-        print("MetaLineIterator dopreinit _minperiod", _obj._minperiod)
+        # print("MetaLineIterator dopreinit _minperiod", _obj._minperiod)
         
         # The lines carry at least the same minperiod as that provided by the object
         # and update subindicator _minperiod to indicator
@@ -308,7 +308,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
         # condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas
         for data in self.datas:
-            print("lineiterator data", data)
+            # print("lineiterator data", data)
             data.qbuffer(savemem=savemem)
 
         # Save in all object types depending on the strategy
@@ -326,7 +326,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
  
         for itcls in self._lineiterators: # observers and indicators
             for it in self._lineiterators[itcls]:
-                print("indicator notify_data ", it)
+                # print("indicator notify_data ", it)
                 it.notify_data()
 
         for line in self.itersize():

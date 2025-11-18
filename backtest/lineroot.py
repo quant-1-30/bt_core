@@ -13,7 +13,7 @@ class MetaLineRoot(metabase.MetaParams):
     '''
 
     def donew(cls, *args, **kwargs):
-        print("MetaLineRoot donew")
+        # print("MetaLineRoot donew")
         _obj, args, kwargs = super(MetaLineRoot, cls).donew(*args, **kwargs)
 
         # Find the owner and store it
@@ -301,7 +301,7 @@ class LineSingle(LineRoot):
         '''
         Add the minperiod (substracting the overlapping 1 minimum period)
         '''
-        print("lineSingle addminperiod ", minperiod)
+        # print("lineSingle addminperiod ", minperiod)
         self._minperiod += minperiod - 1 # overlapping 1 minimum period 
 
     def incminperiod(self, minperiod):

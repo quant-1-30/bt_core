@@ -74,5 +74,5 @@ class Broker(bt.TimeFrameAnalyzerBase):
     def on_dt_over(self):
         # pvals = [self.strategy.broker.get_value([d]) for d in self.datas]
         v, _ = self._owner.getvalue()
-        print("analyzer broker v: ", self.dtkey, v)
+        # print("analyzer broker v: ", self.dtkey, v)
         self.rets[self.dtkey] = v

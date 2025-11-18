@@ -124,6 +124,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         super()._start()
 
         qty = Query(sid=self.p.sid, start_date=self.p.fromdate, end_date=self.p.todate)
+        # import pdb; pdb.set_trace()
         self.calc_adjfactor(qty)
 
         # self.channel = self.ctx.__enter__()  # wrap by contextmanager 整合迭代器与session 手动获取上下文
@@ -134,7 +135,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         dt = self.lines.datetime[0]
         if not np.isnan(dt) and dt >= data[0]:
             return False  # cannot deliver earlier than already delivered
-        print(f"linebuffer current tick {dt} and msg tick {data[0]}")
+        # print(f"linebuffer current tick {dt} and msg tick {data[0]}")
 
         self.lines.datetime[0] = data[0]
         self.lines.open[0] = data[1]

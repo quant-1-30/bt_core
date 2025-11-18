@@ -119,4 +119,4 @@ class BTBroker(BrokerBase):
     def stop(self):
         super().stop()
         self.tdapi.disconnected()
-        print("btbroker stop")
+        # print("btbroker stop")

@@ -103,7 +103,7 @@ class MetaBase(type):
 
     # 元类创造类 , __call__ 参数为cls  / 类似于 一般类 , __call__ 参数为self (可以将__new__ / __init__ 纳入其中)
     def __call__(cls, *args, **kwargs):
-        print("entering metabase __call__", args, kwargs)
+        # print("entering metabase __call__", args, kwargs)
         cls, args, kwargs = cls.doprenew(*args, **kwargs)
         # print("metabase doprenew done")
         # _obj 是类实例
@@ -114,7 +114,7 @@ class MetaBase(type):
         _obj, args, kwargs = cls.doinit(_obj, *args, **kwargs)
         # print("metabase doinit done")
         _obj, args, kwargs = cls.dopostinit(_obj, *args, **kwargs)
-        print("finishing metabase __call__", args, kwargs)
+        # print("finishing metabase __call__", args, kwargs)
         return _obj
 
 

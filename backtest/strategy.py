@@ -190,7 +190,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Called right before the backtesting is about to be started.'''
         store = self.store
         store.set_cash(self, self.env.cash)
-        print("strategy start finish")
+        # print("strategy start finish")
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -205,7 +205,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
-        print("_getminperstatus ", self._minperstatus)
+        # print("_getminperstatus ", self._minperstatus)
         return minperstatus
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
@@ -318,7 +318,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
           - the submitted order
         '''
         sizer_ratio = self.sizer.getsizing(self) * 100
-        sid = self.datas[0]._name.split(',')[0]
+        sid = self.datas[0].p.sid[0]
 
         order = Order(sid=sid,
                       pricelimit=plimit,
@@ -343,7 +343,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns: the submitted order
         '''
         sizer_ratio = self.sizer.getsizing(self) * 100
-        sid = self.datas[0]._name.split(',')[0]
+        sid = self.datas[0].p.sid[0]
 
         order = Order(sid=sid,
                       sizer_ratio=sizer_ratio, 
@@ -387,7 +387,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         else:
             acct = self.store.getaccount(self.experiment_id)
             postn = self.store.getposition(self.experiment_id) # vector
-        print("strategy getvalue :", acct, postn)
+        # print("strategy getvalue :", acct, postn)
         return acct, postn
     
     def getwriterheaders(self):
@@ -404,7 +404,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             headers.append(name)
             headers.append(iocsv.extra_info)
-            print("iocsv extra_info ", iocsv, iocsv.extra_info)
+            # print("iocsv extra_info ", iocsv, iocsv.extra_info)
             headers.append('len')
             headers.extend(iocsv.getlinealiases())
         

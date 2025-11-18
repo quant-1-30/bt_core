@@ -116,6 +116,7 @@ if __name__ == '__main__':
     cerebro.set_cash(cash=10000)
     # Add a strategy
     cerebro.addstrategy(MyStrategy)
-    cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="1001fe63-3d5d-42b3-89d5-d96218617219")
+    # cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="1001fe63-3d5d-42b3-89d5-d96218617219")
+    cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80")
     # plot
     cerebro.plot()
