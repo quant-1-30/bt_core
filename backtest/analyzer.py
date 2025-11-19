@@ -254,7 +254,6 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         # ('timeframe', None),
         ('timeframe', TimeFrame.Days),
         ('compression', None),
-        ('_doprenext', True),
     )
 
     def _start(self):
@@ -272,14 +271,13 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         if self._dt_over():
             self.on_dt_over()
 
-        if self.p._doprenext:
-            self.prenext()
+        self.prenext()
 
     def _nextstart(self):
         for child in self._children:
             child._nextstart()
 
-        if self._dt_over() or not self.p._doprenext:  # exec if no prenext
+        if self._dt_over():  # exec if no prenext
             self.on_dt_over()
 
         self.nextstart()

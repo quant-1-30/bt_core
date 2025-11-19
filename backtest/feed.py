@@ -105,15 +105,17 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     params = (
         ('dataname', ""),
-        ('compression', 1),
         ('timeframe', TimeFrame.Minutes),
+        ('compression', 1),
+        ('filters', []),
+        ('tz', 'Asia/Shanghai'),
+        ('tzinput', None),
         ('sessionstart', datetime.timedelta(hours=9, minutes=30)),
         ('sessionend', datetime.timedelta(hours=15, minutes=0)),
         ('fromdate', None),
         ('todate', None),
-        ('filters', []),
-        ('tz', 'Asia/Shanghai'),
-        ('tzinput', None),
+        ("sid", []),
+        ("benchmark", ''),
     )
 
     (CONNECTED, DISCONNECTED, CONNBROKEN, DELAYED,
@@ -198,25 +200,17 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos
     
-    # def _getnexteos(self): # next_trading_day
-    #     dt = self.lines.datetime[0]
-    #     dtime = num2date(dt)
-    #     _, nexteos = self._calendar.schedule(dtime, self._tz) 
-    #     nextdteos = date2num(nexteos) # localize
-    #     return nexteos, nextdteos
-    
     def _dt_over(self, last=False): # to adapt A stock T + 1 policy
         dt = num2date(self.lines.datetime[0])
-        dtkey = num2date(self.lines.datetime[-1]) # nan to zero if nan
+        pre_dt = num2date(self.lines.datetime[-1]) # nan to zero if nan
         if self._timeframe >= TimeFrame.Days or last:
             isover = True
-        elif dtkey:
-            isover = (dt - dtkey).days > 0
+        elif pre_dt:
+            isover = (dt - pre_dt).days > 0
         else:
             isover = False
-        # print("_dt_over ", dt, dtkey)
 
-        return isover, (dtkey, dt)
+        return isover, (pre_dt, dt)
     
     def advance(self, size=1, datamaster=None):
 

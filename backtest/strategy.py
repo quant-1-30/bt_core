@@ -69,16 +69,17 @@ class MetaStrategy(StrategyBase.__class__):
     def dopreinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
+        
+        _obj.experiment_id = _obj._next_id() # generate unique_id and experiment_id
 
         _obj._minperiods = list()
-
-        _obj._orders = defaultdict(list)
-        _obj._trades = defaultdict(list) # AutoDictList
 
         _obj.stats = _obj.observers = ItemCollection()
         _obj.analyzers = ItemCollection()
         _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
         _obj.writers = list()
+        _obj._orders = list()
+        _obj._trades = list()
 
         return _obj, args, kwargs
 
@@ -87,7 +88,8 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._periodset()
-        _obj.experiment_id, _obj.u_id = _obj._next_id() # generate unique_id and experiment_id
+        # _obj.experiment_id, _obj.u_id = _obj._next_id() # generate unique_id and experiment_id
+
         return _obj, args, kwargs
 
 
@@ -190,7 +192,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Called right before the backtesting is about to be started.'''
         store = self.store
         store.set_cash(self, self.env.cash)
-        # print("strategy start finish")
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -198,9 +199,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _next_id(self):
         # unique_id consisted of strategy name and params
         p_str = json.dumps(self.p._getkwargs())
-        u_id = f"{self.__class__.__name__}({p_str})"
-        experiment_id = self.store.make_experiment(u_id)
-        return experiment_id, u_id
+        _identity = f"{self.__class__.__name__}({p_str})"
+        experiment_id = self.store.make_experiment(_identity)
+        # return experiment_id, _identity
+        return experiment_id
 
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
@@ -279,8 +281,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         if dtover:
             self.notify_data()
-
-        self.clear()
+            self.clear()
 
     def buy(self, execType=ExecType.Market, plimit: int=0):
         '''Create a buy (long) order and send it to the broker 
@@ -322,13 +323,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                       created_dt=int(self.lines.datetime[0]))
         
         ord, trades = self.store.submit(self.experiment_id, order)
-        
-        dt = num2date(self.lines.datetime[0])
-        dt = int(dt.strftime("%Y%m%d")) 
-    
-        self._orders[dt].append(ord)
+        self._orders.append(ord)
         if trades:
-            self._trades[dt].extend(trades)
+            self._trades.extend(trades)
+        # self.notification.append((ord, trades))
         
     def sell(self, execType=ExecType.Market, plimit: int=0):
         '''
@@ -349,14 +347,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                       created_dt=int(self.lines.datetime[0]))
         
         ord, trades = self.store.submit(self.experiment_id, order)
-        
-        dt = num2date(self.lines.datetime[0])
-        dt = int(dt.strftime("%Y%m%d"))
-
-        self._orders[dt].append(ord)
+        # self.notification.append((ord, trades))
+        self._orders.append(ord)
         if trades:
-            self._trades[dt].extend(trades)
-
+            self._trades.extend(trades)
+        
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
         return self._sizer.getsizing()[self._id]
@@ -437,11 +432,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return wrinfo
     
     def notify_data(self):
+        super().notify_data()
+
         for data in self.datas:
             data.notify_data()
-
-        super().notify_data()
-    
+        
     def getvalue(self, complete=False):
         '''Returns the portfolio value and positions of strategy
 
@@ -467,8 +462,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     
     def _stop(self):
         self.stop()
-        # change operators back to stage 1 - allows reuse of datas
-        # self._stage1()
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''

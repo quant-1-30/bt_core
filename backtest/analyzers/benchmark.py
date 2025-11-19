@@ -87,7 +87,6 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
     '''
 
     params = (
-        ('index', '000001'),
         ('timeframe', bt.TimeFrame.Days),
         ('compression', None),
     )
@@ -97,14 +96,18 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
 
     def start(self):
         super(Benchmark, self).start()
-        rawdata = self._owner.store.get_index(self.p.index)
-        close = np.array([r[4] for r in rawdata])
+        rawdata = self._owner.store.get_index()
 
-        self.dts = np.array([r[0] for r in rawdata])
-        self.returns = close / close.shift(-1)
+        close = np.array([r[4] for r in rawdata], dtype=np.float16)
+        rets = close[1:] / close[:-1]
+        padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
+
+        self.returns = padded
+        self.dts = np.array([int(r[0]) for r in rawdata], dtype=np.int64) # dt ohlc
 
     def on_dt_over(self):
         # next is called in a new timeframe period
-        loc = np.searchsorted(self.dts, self.dtkey)
+        dtkey = int(self.dtkey.strftime("%Y%m%d")) 
+        loc = np.searchsorted(self.dts, dtkey)
         self.rets[self.dtkey] = self.returns[loc]
           

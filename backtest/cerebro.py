@@ -498,7 +498,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     strat._addobserver(False, observers.DrawDown, barplot=True)
                     strat._addobserver(False, observers.DrawDownLength, barplot=True)
                     strat._addobserver(False, observers.BuySell, barplot=True)
-                    # strat._addobserver(False, observers.Benchmark, barplot=True) # 存在并发问题
+                    strat._addobserver(False, observers.Benchmark, barplot=True)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)

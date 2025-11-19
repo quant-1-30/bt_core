@@ -67,7 +67,7 @@ class BuySell(Observer):
         if dtkey > self.dtkey:
             _trades = self.txns.rets.get(dtkey, [])
 
-            for _bit in _trades: # records
+            for _bit in _trades:
                 if not _bit.executed_size:
                     continue
                 comm += _bit.comm

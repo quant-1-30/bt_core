@@ -55,10 +55,9 @@ class Transactions(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         # super(Transactions, self).next()  # let dtkey update
-        dt_txns = self._owner._trades.get(self.dtkey, [])
+        dt_txns = self._owner._trades
         if dt_txns:
             self.rets[self.dtkey] = dt_txns
 
     def stop(self):
         super(Transactions, self).stop()
-        self._owner._trades.clear()

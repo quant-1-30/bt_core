@@ -85,9 +85,8 @@ class BTStore(Store):
         '''Returns the assets data'''
         return self._feed.descr[1]
     
-    def get_index(self, index) -> List[Mapping[str, Any]]:
-        # 000001 000680 399006 399001
-        dlines = self._feed.get_index(index=index)
+    def get_index(self) -> List[List]:
+        dlines = self._feed.descr[2]
         return dlines
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
@@ -118,8 +117,8 @@ class BTStore(Store):
         return order, trades
 
     def _dt_over(self, last=False) -> Tuple[bool, Tuple[int, int]]:
-        dtover, (dtkey, dt) = self._feed._dt_over(last)
-        return dtover, (dtkey, dt)
+        dtover, (pre_dt, dt) = self._feed._dt_over(last)
+        return dtover, (pre_dt, dt)
     
     def on_dt_over(self, experiment_id, last=False) -> bool: 
         dt_over, dts = self._dt_over(last)

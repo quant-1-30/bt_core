@@ -62,7 +62,6 @@ class Benchmark(Observer):
 
     def _plotlabel(self):
         labels = super(Benchmark, self)._plotlabel()
-        labels.append(self.p.data._name)
         return labels
 
     def __init__(self, **kwargs):

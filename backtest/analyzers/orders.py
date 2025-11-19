@@ -49,10 +49,9 @@ class Orders(bt.TimeFrameAnalyzerBase):
     )
 
     def on_dt_over(self):
-        dt_txns = self._owner._orders.get(self.dtkey, [])
-        if dt_txns:
-            self.rets[self.dtkey] = dt_txns
+        dt_ords = self._owner._orders
+        if dt_ords:
+            self.rets[self.dtkey] = dt_ords
 
     def stop(self):
         super(Orders, self).stop()
-        self._owner._orders.clear()

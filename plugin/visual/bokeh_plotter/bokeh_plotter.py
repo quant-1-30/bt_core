@@ -147,3 +147,6 @@ def create_three_panel_layout():
 layout = create_three_panel_layout()
 show(layout)
 
+
+
+# parse csv ---> columnDataSource
