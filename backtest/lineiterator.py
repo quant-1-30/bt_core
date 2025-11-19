@@ -342,7 +342,7 @@ class DataAccessor(LineIterator):
     PriceHigh = DataSeries.High
     PriceOpen = DataSeries.Open
     PriceVolume = DataSeries.Volume
-    PriceOpenInteres = DataSeries.OpenInterest
+    # PriceOpenInteres = DataSeries.OpenInterest
     PriceDateTime = DataSeries.DateTime
 
 

@@ -362,8 +362,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         because the writer works at cerebro level and is only passed to the
         strategy to simplify the logic
         '''
-        self.writers.append(writer)
- 
+    
     def getwriterheaders(self):
         self.indobscsv = [self]
 
@@ -378,11 +377,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             headers.append(name)
             headers.append(iocsv.extra_info)
-            # print("iocsv extra_info ", iocsv, iocsv.extra_info)
-            headers.append('len')
-            headers.extend(iocsv.getlinealiases())
+            # headers.append('len')
+            col_alias = ";".join(iocsv.getlinealiases())
+            headers.append(col_alias)
         
-        # import pdb; pdb.set_trace()
         return headers
 
     def getwritervalues(self):
@@ -393,11 +391,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             values.append(name)
             values.append(iocsv.extra_info)
             lio = len(iocsv)
-            values.append(lio)
+            # values.append(lio)
             if lio:
-                values.extend(map(lambda l: l[0], iocsv.lines.itersize()))
+                v = map(lambda l: str(l[0]), iocsv.lines.itersize())
             else:
-                values.extend([''] * iocsv.lines.size())
+                v = [''] * iocsv.lines.size()
+            values.append(";".join(v))
 
         return values
 

@@ -364,33 +364,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def _next_stid(self): 
         return next(self.stcount)
     
-    # def cartesian(arrays, out=None):
-    #     """
-    #         参数组合 不同于product
-    #     """
-    #     arrays = [np.asarray(x) for x in arrays]
-    #     print('arrays',arrays)
-    #     shape = (len(x) for x in arrays)
-    #     print('shape',shape)
-    #     dtype = arrays[0].dtype
-
-    #     ix = np.indices(shape)
-    #     print('ix',ix)
-    #     ix = ix.reshape(len(arrays), -1).T
-    #     print('ix_:',ix)
-
-    #     if out is None:
-    #         out = np.empty_like(ix, dtype=dtype)
-    #         print('out',out.shape)
-
-    #     for n, arr in enumerate(arrays):
-    #         print('array',arrays[n])
-    #         print(ix[:,n])
-    #         out[:, n] = arrays[n][ix[:, n]]
-    #         print(out[:,n])
-
-    #     return out
-    
     def _start(self, *args, **kwargs):
         self.set_cash(*args, **kwargs) # pop cash
         self.addstore(*args, **kwargs) # pop client_id fromdate todate 

@@ -42,11 +42,9 @@ from . import utils as utils
 
 from . import feeds as feeds
 from . import indicators as indicators
-from . import strategies as strategies
 from . import observers as observers
 from . import analyzers as analyzers
 from . import filters as filters
-from . import signals as signals
 from . import sizers as sizers
 from . import stores as stores
 from . import brokers as brokers

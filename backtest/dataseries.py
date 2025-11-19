@@ -58,42 +58,39 @@ class TimeFrame(object):
 class DataSeries(LineSeries):
     plotinfo = dict(plot=True, plotind=True, plotylimited=True)
 
-    _extra_info = "{}"  # placeholder for extra info
     _compression = 1
     _timeframe = TimeFrame.Days
+    _extra_info = "{}"  # placeholder for extra info
 
-    Close, Low, High, Open, Volume, OpenInterest, DateTime = range(7)
+    # Close, Low, High, Open, Volume, OpenInterest, DateTime = range(7)
+    Open, High, Low, Close, Volume, Amount, DateTime = range(7)
 
-    LineOrder = [DateTime, Open, High, Low, Close, Volume, OpenInterest]
-     
     def getvalues(self):
         return [self.lines[i][0] for i in range(len(self.lines))]
 
     def getwriterheaders(self):
-        # headers = [self._name, 'len']
-        headers = [self._name, self.extra_info, 'len']
+        headers = [self._name, self.extra_info]
 
-        for lo in self.LineOrder:
-            headers.append(self._getlinealias(lo))
+        col_alias = ";".join(self.getlinealiases())
+        headers.append(col_alias)
 
-        morelines = self.getlinealiases()[len(self.LineOrder):]
-        headers.extend(morelines)
+        # morelines = self.getlinealiases()[len(self.LineOrder):]
+        # headers.extend(morelines)
 
         return headers
-
+    
     def getwritervalues(self):
         l = len(self)
-        values = [self._name, self.extra_info, l]
+        values = [self._name, self.extra_info]
 
         if l:
-            values.append(self.datetime.datetime(0))
-            for line in self.LineOrder[1:]:
-                values.append(self.lines[line][0])
-            for i in range(len(self.LineOrder), self.lines.size()):
-                values.append(self.lines[i][0])
+            v = [str(l[0]) for l in self.lines.itersize()]
         else:
-            values.extend([''] * self.lines.size())  # no values yet
-
+            v = [''] * self.lines.size()
+            # values.extend([''] * self.lines.size())  # no values yet
+            
+        v_str = ";".join(v)
+        values.append(v_str)
         return values
 
     def getwriterinfo(self):
