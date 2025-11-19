@@ -79,6 +79,7 @@ class Returns(bt.TimeFrameAnalyzerBase):
 
     params = (
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
         ('tann', None),
     )
 

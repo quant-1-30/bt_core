@@ -38,7 +38,7 @@ class Broker(Observer):
     Params: None
     '''
     params = (
-        ('timeframe', bt.TimeFrame.Days),
+        ('barplot', False),
     )
 
     alias = ('CashValue',)
@@ -46,8 +46,8 @@ class Broker(Observer):
 
     plotinfo = dict(plot=True, subplot=True)
 
-    def __init__(self):
-        kwargs = self.p._getkwargs()
+    def __init__(self, **kwargs):
+        # kwargs = self.p._getkwargs()
         self.vb = self._owner._addanalyzer(bt.analyzers.Broker, **kwargs)
         self.dtkey = datetime.datetime.min
 

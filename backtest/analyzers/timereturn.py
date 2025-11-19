@@ -42,13 +42,6 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         If ``None`` then the compression of the 1st data of the system will be
         used
 
-      - ``data`` (default: ``None``)
-
-        Reference asset to track instead of the portfolio value.
-
-        .. note:: this data must have been added to a ``cerebro`` instance with
-                  ``addata``, ``resampledata`` or ``replaydata``
-
       - ``firstopen`` (default: ``True``)
 
         When tracking the returns of a ``data`` the following is done when
@@ -85,9 +78,9 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
     '''
 
     params = (
-        ('data', None),
-        ('firstopen', True),
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
+        ('firstopen', True),
     )
 
     def start(self):

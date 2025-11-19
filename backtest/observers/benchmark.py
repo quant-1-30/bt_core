@@ -48,38 +48,16 @@ class Benchmark(Observer):
         .. note:: this data must have been added to a ``cerebro`` instance with
                   ``addata``, ``resampledata`` or ``replaydata``.
 
-
-      - ``_doprenext`` (default: ``False``)
-
-        Benchmarking will take place from the point at which the strategy kicks
-        in (i.e.: when the minimum period of the strategy has been met).
-
-        Setting this to ``True`` will record benchmarking values from the
-        starting point of the data feeds
-
-      - ``firstopen`` (default: ``False``)
-
-        Keepint it as ``False`` ensures that the 1st comparison point between
-        the value and the benchmark starts at 0%, because the benchmark will
-        not use its opening price.
-
-        See the ``TimeReturn`` analyzer reference for a full explanation of the
-        meaning of the parameter
-
     Remember that at any moment of a ``run`` the current values can be checked
     by looking at the *lines* by name at index ``0``.
 
     '''
-    # _stclock = True
 
     lines = ('benchmark',)
     plotlines = dict(benchmark=dict(_name='Benchmark'))
 
     params = (
-        ('_doprenext', False),
-        # Set to false to ensure the asset is measured at 0% in the 1st tick
-        ('firstopen', False),
-        ('timeframe', bt.TimeFrame.Days),
+        ('barplot', False),
     )
 
     def _plotlabel(self):
@@ -87,10 +65,10 @@ class Benchmark(Observer):
         labels.append(self.p.data._name)
         return labels
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(Benchmark, self).__init__()  # treturn including data parameter
         # Create a time return object without the data
-        kwargs = self.p._getkwargs()
+        # kwargs = self.p._getkwargs()
         self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
         self.dtkey = datetime.datetime.min
 
@@ -99,4 +77,5 @@ class Benchmark(Observer):
         dtkey = self.rbench.dtkey
         if dtkey > self.dtkey:
             self.lines.benchmark[0] = self.rbench.rets.get(dtkey, float('NaN'))
+
             self.dtkey = dtkey

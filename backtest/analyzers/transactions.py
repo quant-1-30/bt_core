@@ -50,6 +50,7 @@ class Transactions(bt.TimeFrameAnalyzerBase):
     params = (
         ('headers', False),
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
     )
 
     def on_dt_over(self):

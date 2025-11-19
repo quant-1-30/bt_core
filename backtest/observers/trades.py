@@ -22,7 +22,6 @@ import numpy as np
 import datetime
 
 import backtest as bt
-# from backtest import analyzers
 from backtest.observer import Observer
 
 
@@ -35,10 +34,6 @@ class Trades(Observer):
     direction)
 
     Params:
-      - ``pnlcomm`` (def: ``True``)
-
-        Show net/profit and loss, i.e.: after commission. If set to ``False``
-        if will show the result of trades before commission
     '''
     
     # # Generate plotlines info
@@ -60,8 +55,7 @@ class Trades(Observer):
     lines = ('pnlplus', 'pnlminus')
 
     params = (
-        ("pnlcomm", True),
-        ('timeframe', bt.TimeFrame.Days),
+        ('barplot', False), 
     )
 
     plotinfo = dict(plot=True, subplot=True,
@@ -88,6 +82,7 @@ class Trades(Observer):
         if dtkey > self.dtkey:
             pnls = np.array([p.pnl for p in pnl_obj]) if pnl_obj else np.zeros([])
             pnl = np.sum(pnls)
+            print("trades ", pnl)
 
             if pnl >= 0.0:
                 self.lines.pnlplus[0] = pnl

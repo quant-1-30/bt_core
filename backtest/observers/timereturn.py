@@ -61,8 +61,7 @@ class TimeReturn(Observer):
     plotlines = dict(timereturn=dict(_name='Return'))
 
     params = (
-        ('timeframe', bt.TimeFrame.Days),
-        ('compression', None),
+        ('barplot', False), 
     )
 
     def _plotlabel(self):

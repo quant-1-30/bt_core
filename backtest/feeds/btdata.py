@@ -124,18 +124,15 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         super()._start()
 
         qty = Query(sid=self.p.sid, start_date=self.p.fromdate, end_date=self.p.todate)
-        # import pdb; pdb.set_trace()
         self.calc_adjfactor(qty)
 
-        # self.channel = self.ctx.__enter__()  # wrap by contextmanager 整合迭代器与session 手动获取上下文
-        self.generator = self.mdapi.subscribe(qty)
+        self.generator = self.mdapi.subscribe(qty)  # self.ctx.__enter__()  # wrap by contextmanager 整合迭代器与session 手动获取上下文
 
     def _load_bar(self, msg):
         data = msg["body"]["line"][0]
         dt = self.lines.datetime[0]
         if not np.isnan(dt) and dt >= data[0]:
             return False  # cannot deliver earlier than already delivered
-        # print(f"linebuffer current tick {dt} and msg tick {data[0]}")
 
         self.lines.datetime[0] = data[0]
         self.lines.open[0] = data[1]
@@ -173,6 +170,10 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             return True
         except StopIteration:
             return False
+
+    def get_index(self, index):
+        klines = self.mdapi.get_benchmark(index)
+        return klines
 
     def calc_adjfactor(self, reqmeta):
         adj = self.mdapi.factor(reqmeta)

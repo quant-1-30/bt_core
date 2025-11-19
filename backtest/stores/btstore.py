@@ -85,9 +85,9 @@ class BTStore(Store):
         '''Returns the assets data'''
         return self._feed.descr[1]
     
-    def get_bench(self, index) -> List[List[int]]:
+    def get_index(self, index) -> List[Mapping[str, Any]]:
         # 000001 000680 399006 399001
-        dlines = self._feed.get_benchmark(index=index)
+        dlines = self._feed.get_index(index=index)
         return dlines
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
@@ -104,7 +104,6 @@ class BTStore(Store):
     
     def getaccount(self, experiment_id) -> List[Account]:
         acct = self.broker.acct
-        # import pdb; pdb.set_trace()
         return acct.get(experiment_id, None)
     
     def getposition(self, experiment_id) -> List[Position]:

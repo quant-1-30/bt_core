@@ -53,6 +53,7 @@ class SQN(bt.TimeFrameAnalyzerBase):
     alias = ('SystemQualityNumber',)
     params = (
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
     )
 
     def create_analysis(self):

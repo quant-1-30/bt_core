@@ -55,7 +55,7 @@ class Calmar(bt.TimeFrameAnalyzerBase):
     Methods:
       - ``get_analysis``
 
-        Returns a OrderedDict with a key for the time period and the
+        Returns a OrderedDict with a key for the time maxlen and the
         corresponding rolling Calmar ratio
 
     Attributes:
@@ -66,7 +66,8 @@ class Calmar(bt.TimeFrameAnalyzerBase):
 
     params = (
         ('timeframe', bt.TimeFrame.Months),  # default in calmar
-        ('period', 36),
+        ('compression', None),
+        ('maxlen', 36),
     )
 
     def __init__(self):
@@ -76,8 +77,8 @@ class Calmar(bt.TimeFrameAnalyzerBase):
     def start(self):
         v, _ = self._owner.getvalue()
         self._mdd = float('-inf')
-        self._values = collections.deque([float('Nan')] * self.p.period,
-                                         maxlen=self.p.period)
+        self._values = collections.deque([float('Nan')] * self.p.maxlen,
+                                         maxlen=self.p.maxlen)
         self._values.append(v)
 
     def on_dt_over(self):

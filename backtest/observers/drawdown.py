@@ -42,7 +42,9 @@ class DrawDown(Observer):
         Set it to ``True`` or ``False`` for a specific behavior
 
     '''
-    params = ()
+    params = (
+        ('barplot', False),
+    )
 
     lines = ('drawdown', 'maxdrawdown',)
 
@@ -50,13 +52,19 @@ class DrawDown(Observer):
 
     plotlines = dict(maxdrawdown=dict(_plotskip=True,))
 
-    def __init__(self):
-        kwargs = self.p._getkwargs()
-        self._dd = self._owner._addanalyzer(bt.DrawDown, **kwargs)
+    def __init__(self, **kwargs):
+        # kwargs = self.p._getkwargs()
+        self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
+        self.dtkey = datetime.datetime.min
 
     def next(self):
-        self.lines.drawdown[0] = self._dd.rets.drawdown  # update drawdown
-        self.lines.maxdrawdown[0] = self._dd.rets.max.drawdown  # update max
+        dtkey = self._dd.dtkey
+        if dtkey > self.dtkey:
+            dd, _ = self._dd.rets[dtkey]
+            self.lines.drawdown[0] = dd # update drawdown
+            self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
+
+            self.dtkey = dtkey
 
 
 class DrawDownLength(Observer):
@@ -69,21 +77,22 @@ class DrawDownLength(Observer):
     lines = ('len', 'maxlen',)
 
     params = (
-        ('timeframe', bt.TimeFrame.Days),
+        ('barplot', False),
     )
 
     plotinfo = dict(plot=True, subplot=True)
     plotlines = dict(maxlength=dict(_plotskip=True,))
 
-    def __init__(self):
-        kwargs = self.p._getkwargs()
+    def __init__(self, **kwargs):
+        # kwargs = self.p._getkwargs()
         self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
         self.dtkey = datetime.datetime.min
 
     def next(self):
         dtkey = self._dd.dtkey
         if dtkey > self.dtkey:
-            self.lines.len[0] = self._dd.rets.len  # update drawdown length
-            self.lines.maxlen[0] = self._dd.rets.max.len  # update max length
+            _, ddlen = self._dd.rets[dtkey]
+            self.lines.len[0] = ddlen  
+            self.lines.maxlen[0] = self._dd.rets["maxDrawdownLength"]
 
             self.dtkey = dtkey

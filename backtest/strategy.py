@@ -282,12 +282,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self.clear()
 
-    def notify_data(self):
-        for data in self.datas:
-            data.notify_data()
-
-        super().notify_data()
-
     def buy(self, execType=ExecType.Market, plimit: int=0):
         '''Create a buy (long) order and send it to the broker 
 
@@ -331,8 +325,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         
         dt = num2date(self.lines.datetime[0])
         dt = int(dt.strftime("%Y%m%d")) 
+    
         self._orders[dt].append(ord)
-        self._trades[dt].append(trades)
+        if trades:
+            self._trades[dt].extend(trades)
         
     def sell(self, execType=ExecType.Market, plimit: int=0):
         '''
@@ -355,9 +351,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ord, trades = self.store.submit(self.experiment_id, order)
         
         dt = num2date(self.lines.datetime[0])
-        dt = int(dt.strftime("%Y%m%d")) 
+        dt = int(dt.strftime("%Y%m%d"))
+
         self._orders[dt].append(ord)
-        self._trades[dt].append(trades)
+        if trades:
+            self._trades[dt].extend(trades)
 
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
@@ -370,26 +368,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         strategy to simplify the logic
         '''
         self.writers.append(writer)
-
-    def getvalue(self, complete=False):
-        '''Returns the portfolio value and positions of strategy
-
-        If ``complete`` is ``False`` (default) the value of the cash in hand
-        plus the market value of the open positions is returned.
-
-        If ``complete`` is ``True`` the value of all positions is calculated
-        as if they were closed at the current market price and then added to
-        the cash in hand.
-        '''
-        if complete:
-            acct = self.store.subscribe(self.experiment_id, "account")
-            postn = self.store.subscribe(self.experiment_id, "position")
-        else:
-            acct = self.store.getaccount(self.experiment_id)
-            postn = self.store.getposition(self.experiment_id) # vector
-        # print("strategy getvalue :", acct, postn)
-        return acct, postn
-    
+ 
     def getwriterheaders(self):
         self.indobscsv = [self]
 
@@ -456,6 +435,31 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             ainfo[aname].Analysis = analyzer.get_analysis()
 
         return wrinfo
+    
+    def notify_data(self):
+        for data in self.datas:
+            data.notify_data()
+
+        super().notify_data()
+    
+    def getvalue(self, complete=False):
+        '''Returns the portfolio value and positions of strategy
+
+        If ``complete`` is ``False`` (default) the value of the cash in hand
+        plus the market value of the open positions is returned.
+
+        If ``complete`` is ``True`` the value of all positions is calculated
+        as if they were closed at the current market price and then added to
+        the cash in hand.
+        '''
+        if complete:
+            acct = self.store.subscribe(self.experiment_id, "account")
+            postn = self.store.subscribe(self.experiment_id, "position")
+        else:
+            acct = self.store.getaccount(self.experiment_id)
+            postn = self.store.getposition(self.experiment_id) # vector
+        # print("strategy getvalue :", acct, postn)
+        return acct, postn
     
     def clear(self):
         self._orders.clear()

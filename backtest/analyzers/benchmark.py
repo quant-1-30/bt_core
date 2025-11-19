@@ -89,6 +89,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
     params = (
         ('index', '000001'),
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
     )
 
     def __init__(self):
@@ -96,7 +97,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
 
     def start(self):
         super(Benchmark, self).start()
-        rawdata = self._owner.store.get_bench(self.p.index)
+        rawdata = self._owner.store.get_index(self.p.index)
         close = np.array([r[4] for r in rawdata])
 
         self.dts = np.array([r[0] for r in rawdata])

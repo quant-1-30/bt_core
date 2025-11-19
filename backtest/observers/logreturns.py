@@ -63,8 +63,8 @@ class LogReturns(Observer):
 
     params = (
         ('timeframe', bt.TimeFrame.Days),
-        ('compression', None),
-        ('fund', None),
+        ('barplot', False),
+        # ('compression', None),
     )
 
     def _plotlabel(self):
@@ -80,18 +80,23 @@ class LogReturns(Observer):
         dtkey = self.logret1.dtkey
         if dtkey > self.dtkey:
             self.lines.logret1[0] = self.logret1.rets[self.logret1.dtkey]
+
             self.dtkey = dtkey
 
 
 class LogReturns2(LogReturns):
     '''Extends the observer LogReturns to show two instruments'''
     lines = ('logret2',)
+    
+    params = (
+        ('barplot', False),
+    )
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(LogReturns2, self).__init__()
-        
+        # kwargs = self.p._getkwargs()
         self.logret2 = self._owner._addanalyzer(
-            bt.analyzers.LogReturnsRolling, data=self.data1, **self.p._getkwargs())
+            bt.analyzers.LogReturnsRolling, data=self.data1, **kwargs)
         self.dtkey = datetime
 
     def next(self):
@@ -99,4 +104,5 @@ class LogReturns2(LogReturns):
         dtkey = self.logret2.dtkey
         if dtkey > self.dtkey:
             self.lines.logret2[0] = self.logret2.rets.get(dtkey, float('NaN'))
+
             self.dtkey = dtkey

@@ -37,6 +37,7 @@ class GrossLeverage(bt.TimeFrameAnalyzerBase):
 
     params = (
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
     )
 
     def start(self):

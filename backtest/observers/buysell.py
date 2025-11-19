@@ -42,7 +42,7 @@ class BuySell(Observer):
 
       - ``bardist`` (default: ``0.015`` 1.5%) Distance to max/min when
     '''
-    lines = ('buy', 'sell', 'comm', 'pnlplus', 'pnlminus')
+    lines = ('buy', 'sell', 'comm')
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
     plotlines = dict(
@@ -53,8 +53,7 @@ class BuySell(Observer):
     )
 
     params = (
-        ('barplot', False),  # plot above/below max/min for clarity in bar plot
-        ('timeframe', bt.TimeFrame.Days),
+        ('barplot', False), 
     )
 
     def __init__(self):
@@ -63,24 +62,21 @@ class BuySell(Observer):
 
     def next(self):
         dtkey = self.txns.dtkey
+        buy,sell = [], []
+        comm = 0.0
         if dtkey > self.dtkey:
             _trades = self.txns.rets.get(dtkey, [])
-            buy = list()
-            sell = list()
-            comm = 0.0
 
-            for order_bit in _trades: # records
-                if not order_bit.executed_zie:
+            for _bit in _trades: # records
+                if not _bit.executed_size:
                     continue
-                comm += order_bit.comm
+                comm += _bit.comm
 
-                if order_bit.direction> 0:
-                    buy.append(order_bit)
+                if _bit.direction:
+                    buy.append(_bit)
                 else:
-                    sell.append(order_bit)
+                    sell.append(_bit)
 
-            # Write comm
-            self.lines.comm[0] = comm
             # BUY
             curbuy = self.lines.buy[0]
             if curbuy != curbuy:  # NaN
@@ -88,9 +84,6 @@ class BuySell(Observer):
                 self.curbuylen = curbuylen = 0
             else:
                 curbuylen = self.curbuylen
-
-            buyops = (curbuy + math.fsum(buy))
-            buylen = curbuylen + len(buy)
 
             buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
             buylen = sum([b.executed_size for b in buy])  
@@ -108,14 +101,8 @@ class BuySell(Observer):
 
             value = sellops / float(selllen or 'NaN')
             self.lines.sell[0] = (value + cursell)/2
-
-            # Pnl
-            for pobj in self._owner.store.get_position():
-                pnl = pobj.pnl
-
-                if pnl >= 0.0:
-                    self.lines.pnlplus[0] = pnl
-                else:
-                    self.lines.pnlminus[0] = pnl
+            
+            # Write comm
+            self.lines.comm[0] = comm
 
             self.dtkey = dtkey

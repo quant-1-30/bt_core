@@ -87,6 +87,8 @@ class VWR(bt.TimeFrameAnalyzerBase):
     '''
 
     params = (
+        ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
         ('tann', None),
         ('tau', 0.20),
         ('sdev_max', 2.0),

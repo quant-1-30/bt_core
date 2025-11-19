@@ -492,9 +492,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if runstrats:
             for _, strat in enumerate(runstrats):
                 if self.p.stdstats:
-                    strat._addobserver(False, observers.Broker)
-                    strat._addobserver(True, observers.BuySell, barplot=True)
-                    strat._addobserver(False, observers.Trades)
+                    # ('timeframe', bt.TimeFrame.Days) ('compression', None),
+                    strat._addobserver(False, observers.Broker, barplot=True)
+                    strat._addobserver(False, observers.Trades, barplot=True)
+                    strat._addobserver(False, observers.DrawDown, barplot=True)
+                    strat._addobserver(False, observers.DrawDownLength, barplot=True)
+                    strat._addobserver(False, observers.BuySell, barplot=True)
+                    # strat._addobserver(False, observers.Benchmark, barplot=True) # 存在并发问题
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
@@ -639,7 +643,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         cerebroinfo['Strategies'] = stratinfos
 
         for writer in self.runwriters:
-            writer.writedict(dict(Cerebro=cerebroinfo))
+            # writer.writedict(dict(Cerebro=cerebroinfo))
             writer.stop()
     
 # ---------------------------------------------------------------------- plot --------------------------------------------------------------

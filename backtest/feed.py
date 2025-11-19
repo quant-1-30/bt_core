@@ -246,7 +246,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
             if not self._fromstack(stash=True):
                 _loadret = self._load()
-                print("load _loadret", _loadret)
+                # print("load _loadret", _loadret)
                 if not _loadret:  # no bar use force to make sure in exactbars
                     self.backwards()  # undo data pointer
                     return _loadret

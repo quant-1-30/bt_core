@@ -45,10 +45,10 @@ class Orders(bt.TimeFrameAnalyzerBase):
     params = (
         ('headers', False),
         ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
     )
 
     def on_dt_over(self):
-        # super(Transactions, self).next()  # let dtkey update
         dt_txns = self._owner._orders.get(self.dtkey, [])
         if dt_txns:
             self.rets[self.dtkey] = dt_txns
