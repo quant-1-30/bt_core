@@ -111,7 +111,7 @@ if __name__ == '__main__':
     
     load_dotenv()
 
-    cerebro = bt.Cerebro(out="out.csv") # configure ---> store="bt" # 2>/dev/null
+    cerebro = bt.Cerebro(out="out_1.csv") # configure ---> store="bt" # 2>/dev/null
 
     cerebro.set_cash(cash=10000)
     # Add a strategy

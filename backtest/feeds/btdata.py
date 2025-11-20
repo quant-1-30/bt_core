@@ -52,7 +52,7 @@ class MetaBtData(DataBase.__class__):
         print("MetaBtData dopostinit kwargs ", kwargs)
         _obj.mdapi = _obj.p.mdapi
 
-        _obj.extra_info = f"{str(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
+        _obj.extra_info = f"{','.join(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
         _obj.ctx = None # context for yield
         _obj.adj_factors= {}
         return _obj, args, kwargs

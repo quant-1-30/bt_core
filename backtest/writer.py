@@ -93,7 +93,7 @@ class WriterFile(WriterBase):
         ('close_out', False),
 
         ('csv', False),
-        ('csvsep', ','),
+        ('csvsep', ';'),
         ('csv_filternan', True),
         ('csv_counter', True),
 

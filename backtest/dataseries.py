@@ -58,9 +58,14 @@ class TimeFrame(object):
 class DataSeries(LineSeries):
     plotinfo = dict(plot=True, plotind=True, plotylimited=True)
 
-    _compression = 1
-    _timeframe = TimeFrame.Days
-    _extra_info = "{}"  # placeholder for extra info
+    # _compression = 1
+    # _timeframe = TimeFrame.Days
+    # _extra_info = "{}"  # placeholder for extra info
+
+    params = (
+        ("timeframe", TimeFrame.Days),
+        ("compression", 1),
+    )
 
     # Close, Low, High, Open, Volume, OpenInterest, DateTime = range(7)
     Open, High, Low, Close, Volume, Amount, DateTime = range(7)
@@ -69,10 +74,11 @@ class DataSeries(LineSeries):
         return [self.lines[i][0] for i in range(len(self.lines))]
 
     def getwriterheaders(self):
-        headers = [self._name, self.extra_info]
+        # headers = [self._name, self.extra_info]
+        headers = [self._name]
 
-        col_alias = ";".join(self.getlinealiases())
-        headers.append(col_alias)
+        _alias = ','.join(self.getlinealiases())
+        headers.append(_alias)
 
         # morelines = self.getlinealiases()[len(self.LineOrder):]
         # headers.extend(morelines)
@@ -81,7 +87,8 @@ class DataSeries(LineSeries):
     
     def getwritervalues(self):
         l = len(self)
-        values = [self._name, self.extra_info]
+        # values = [self._name, self.extra_info]
+        values = [self._name]
 
         if l:
             v = [str(l[0]) for l in self.lines.itersize()]
@@ -89,7 +96,7 @@ class DataSeries(LineSeries):
             v = [''] * self.lines.size()
             # values.extend([''] * self.lines.size())  # no values yet
             
-        v_str = ";".join(v)
+        v_str = ','.join(v)
         values.append(v_str)
         return values
 
@@ -97,6 +104,7 @@ class DataSeries(LineSeries):
         # returns dictionary with information
         info = OrderedDict()
         info['Name'] = self._name
+        info['ExtraInfo'] = self.extra_info
         info['Timeframe'] = TimeFrame.TName(self._timeframe)
         info['Compression'] = self._compression
 
