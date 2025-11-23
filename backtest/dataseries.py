@@ -56,7 +56,7 @@ class TimeFrame(object):
 
 
 class DataSeries(LineSeries):
-    plotinfo = dict(plot=True, plotind=True, plotylimited=True)
+    plotinfo = dict(plot=True, plotind=True, plotylimited=True, plotname="Feed")
 
     # _compression = 1
     # _timeframe = TimeFrame.Days
@@ -67,34 +67,27 @@ class DataSeries(LineSeries):
         ("compression", 1),
     )
 
-    # Close, Low, High, Open, Volume, OpenInterest, DateTime = range(7)
     Open, High, Low, Close, Volume, Amount, DateTime = range(7)
 
     def getvalues(self):
         return [self.lines[i][0] for i in range(len(self.lines))]
 
     def getwriterheaders(self):
-        # headers = [self._name, self.extra_info]
-        headers = [self._name]
-
+        headers= [self._name]
         _alias = ','.join(self.getlinealiases())
         headers.append(_alias)
-
         # morelines = self.getlinealiases()[len(self.LineOrder):]
         # headers.extend(morelines)
-
         return headers
     
     def getwritervalues(self):
-        l = len(self)
-        # values = [self._name, self.extra_info]
         values = [self._name]
 
+        l = len(self)
         if l:
             v = [str(l[0]) for l in self.lines.itersize()]
         else:
             v = [''] * self.lines.size()
-            # values.extend([''] * self.lines.size())  # no values yet
             
         v_str = ','.join(v)
         values.append(v_str)

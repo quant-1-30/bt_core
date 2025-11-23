@@ -75,8 +75,6 @@ class LineBuffer(LineSingle):
         self.reset()
         self._tz = None
         self.idx = -1
-        # self.notification = collections.deque()
-        self.notification = []
         self.extra_info = ""
 
     def reset(self):
@@ -274,13 +272,13 @@ class LineBuffer(LineSingle):
         if self.useislice:
             return list(islice(self.array, idx, idx + size))
 
-        circle_index = idx % self.maxlen
+        circle_idx = idx % self.maxlen
 
-        if circle_index + size <= self.maxlen:
-            return self.array[circle_index:circle_index + size]
+        if circle_idx + size <= self.maxlen:
+            return self.array[circle_idx:circle_idx + size]
         else:
-            array1 = self.array[circle_index:]
-            array2 = self.array[0:(circle_index + size) % self.maxlen]
+            array1 = self.array[circle_idx:]
+            array2 = self.array[0:(circle_idx + size) % self.maxlen]
             return np.concatenate((array1, array2))    
 
     def home(self):
@@ -304,7 +302,6 @@ class LineBuffer(LineSingle):
         self.lencount += size
 
         if self.UnBounded:
-            # print("UbBound array.array")
             for i in range(size):
                 self.array.append(value)
 
@@ -341,28 +338,7 @@ class LineBuffer(LineSingle):
     def getindicators(self):
         return []
 
-    def notify_data(self):
-        data = self[0]
-        # print("linebuffer notify_data ", data)
-        self.notification.append(data)
-
-    # def plot(self, idx=0, size=None):
-    #     ''' Returns a slice of the array relative to the real zero of the buffer
-
-    #     Keyword Args:
-    #         idx (int): Where to start relative to the real start of the buffer
-    #         size(int): size of the slice to return
-
-    #     This is a variant of getzero which unless told otherwise returns the
-    #     entire buffer, which is usually the idea behind plottint (all must
-    #     plotted)
-
-    #     Returns:
-    #         A slice of the underlying buffer
-    #     '''
-    #     return self.getzero(idx, size or len(self))
-    
-    def plot(self):
+    def plot(self, idx=0, size=None):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
         Keyword Args:
@@ -376,23 +352,20 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        return self.notification
-
-    # def plotrange(self, start, end):
-    #     if self.useislice:
-    #         return list(islice(self.array, start, end))
-
-    #     circle_start = start % self.maxlen
-    #     circle_end = end % self.maxlen
-    #     if circle_end >= circle_start:
-    #         return self.array[circle_start:circle_end]
-    #     else:   
-    #         array1 = self.array[circle_start:]
-    #         array2 = self.array[0:circle_end]
-    #         return np.concatenate((array1, array2)) 
-
+        return self.getzero(idx, size or len(self))
+    
     def plotrange(self, start, end):
-        return self.notification[start:end]
+        if self.useislice:
+            return list(islice(self.array, start, end))
+
+        circle_start = start % self.maxlen
+        circle_end = end % self.maxlen
+        if circle_end >= circle_start:
+            return self.array[circle_start:circle_end]
+        else:   
+            array1 = self.array[circle_start:]
+            array2 = self.array[0:circle_end]
+            return np.concatenate((array1, array2)) 
 
     def addbinding(self, binding):
         ''' Adds another line binding
@@ -699,10 +672,6 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         else:
             self.prenext()
     
-    def notify_data(self): 
-        # to consistent with indicator
-        pass 
-
 
 def LineDelay(a, ago=0, **kwargs):
     if ago <= 0:

@@ -59,7 +59,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
             super(MetaAbstractDataBase, cls).dopostinit(_obj, *args, **kwargs)
 
         # Either set by subclass or the parameter or use the dataname (ticker)
-        _obj._name = _obj.p.dataname or cls.__class__.__name__
+        _obj._name = _obj.plotinfo.plotname or _obj.p.dataname or cls.__class__.__name__
 
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
@@ -378,10 +378,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         
             for line in adj_lines.values():
                 line.apply_factor(align_factors) 
-
-    def notify_data(self):
-        for line in self.itersize():
-            line.notify_data()
 
     def plot(self, linealias):
         pass

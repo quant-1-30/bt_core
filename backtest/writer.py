@@ -126,6 +126,8 @@ class WriterFile(WriterBase):
 
         if self.p.csv:
             self.writelineseparator()
+            # 进入注释 indicator / observer 个数
+            
             self.writeiterable(self.headers, counter='Id')
 
     def next(self):

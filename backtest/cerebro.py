@@ -91,6 +91,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def __init__(self):
 
         self.datas = list()
+        self.store = None
         self.strats = list()
         
         self.observers = list()
@@ -99,8 +100,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.storecbs = list()
         self.optcbs = list()  # holds a list of callbacks for opt strategies
         
-        self.store = None
-
         self._pretimers = list()
 
     def set_cash(self, *args, **kwargs):
@@ -357,20 +356,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         sizer_type = kwargs.pop("sizer", self.p.sizer)
         self.sizer = sizers[sizer_type](*args, **kwargs)
 
-    def _init_stcount(self):
-        self.stcount = itertools.count(0)
+# ---------------------------------------------------------------- run-------------------------------------------------------------------
 
-    # unique id for each strategy
-    def _next_stid(self): 
-        return next(self.stcount)
-    
     def _start(self, *args, **kwargs):
         self.set_cash(*args, **kwargs) # pop cash
         self.addstore(*args, **kwargs) # pop client_id fromdate todate 
         self.addsizer(*args, **kwargs)
     
-# ---------------------------------------------------------------- run-------------------------------------------------------------------
-
     def __call__(self, iterstrat):
         '''
         Used during optimization to pass the cerebro over the multiprocesing
@@ -449,8 +441,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         Internal method invoked by ``run``` to run a set of strategies
         '''
-        self._init_stcount()
-
         self.runningstrats = runstrats = list()
 
         for stratcls, sargs, skwargs in iterstrat:
@@ -596,7 +586,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for writer in self.runwriters:
                 if writer.p.csv:
                     writer.addvalues(wvalues)
-
                     writer.next()
 
     def stop_writers(self, runstrats):
@@ -619,65 +608,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             # writer.writedict(dict(Cerebro=cerebroinfo))
             writer.stop()
     
-# ---------------------------------------------------------------------- plot --------------------------------------------------------------
-    
-    def plot(self, plotter=None, numfigs=1, iplot=True, start=None, end=None,
-             width=16, height=9, dpi=300, tight=True, use=None,
-             **kwargs):
-        '''
-        Plots the strategies inside cerebro
-
-        If ``plotter`` is None a default ``Plot`` instance is created and
-        ``kwargs`` are passed to it during instantiation.
-
-        ``numfigs`` split the plot in the indicated number of charts reducing
-        chart density if wished
-
-        ``iplot``: if ``True`` and running in a ``notebook`` the charts will be
-        displayed inline
-
-        ``use``: set it to the name of the desired matplotlib backend. It will
-        take precedence over ``iplot``
-
-        ``start``: An index to the datetime line array of the strategy or a
-        ``datetime.date``, ``datetime.datetime`` instance indicating the start
-        of the plot
-
-        ``end``: An index to the datetime line array of the strategy or a
-        ``datetime.date``, ``datetime.datetime`` instance indicating the end
-        of the plot
-
-        ``width``: in inches of the saved figure
-
-        ``height``: in inches of the saved figure
-
-        ``dpi``: quality in dots per inches of the saved figure
-
-        ``tight``: only save actual content and not the frame of the figure
-        '''
-        if not plotter:
-            from . import plot
-            # if self.p.oldsync:
-            #     plotter = plot.Plot_OldSync(**kwargs)
-            # else:
-            #     plotter = plot.Plot(**kwargs)
-            # plotter = plot.Plot(**kwargs)
-            plotter = plot.Plot_OldSync(**kwargs)
-
-        figs = []
-        for stratlist in self.runstrats:
-            for si, strat in enumerate(stratlist):
-                rfig = plotter.plot(strat, figid=si * 100,
-                                    numfigs=numfigs, iplot=iplot,
-                                    start=start, end=end, use=use)
-                # pfillers=pfillers2)
-
-                figs.append(rfig)
-
-            plotter.show()
-
-        return figs
-
     def runstop(self):
         '''If invoked from inside a strategy or anywhere else, including other
         threads the execution will stop as soon as possible.'''

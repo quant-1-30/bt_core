@@ -42,7 +42,7 @@ class BuySell(Observer):
 
       - ``bardist`` (default: ``0.015`` 1.5%) Distance to max/min when
     '''
-    lines = ('buy', 'sell', 'comm')
+    lines = ('avg_buy', 'avg_sell', 'comm')
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
     plotlines = dict(
@@ -78,7 +78,7 @@ class BuySell(Observer):
                     sell.append(_bit)
 
             # BUY
-            curbuy = self.lines.buy[0]
+            curbuy = self.lines.avg_buy[0]
             if curbuy != curbuy:  # NaN
                 curbuy = 0.0
                 self.curbuylen = curbuylen = 0
@@ -88,11 +88,11 @@ class BuySell(Observer):
             buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
             buylen = sum([b.executed_size for b in buy])  
 
-            value = buyops / float(buylen or 'NaN')
-            self.lines.buy[0] = (value + curbuy)/2
+            value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
+            self.lines.avg_buy[0] = (value + curbuy)/2
 
             # SELL
-            cursell = self.lines.sell[0]
+            cursell = self.lines.avg_sell[0]
             if cursell != cursell:  # NaN
                 cursell = 0.0
 
@@ -100,7 +100,7 @@ class BuySell(Observer):
             selllen = sum([s.executed_size for s in sell])  
 
             value = sellops / float(selllen or 'NaN')
-            self.lines.sell[0] = (value + cursell)/2
+            self.lines.avg_sell[0] = (value + cursell)/2
             
             # Write comm
             self.lines.comm[0] = comm

@@ -322,16 +322,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for data in self.datas:
             data.minbuffer(_minperiod)
 
-    def notify_data(self):
- 
-        for itcls in self._lineiterators: # observers and indicators
-            for it in self._lineiterators[itcls]:
-                # print("indicator notify_data ", it)
-                it.notify_data()
-
-        for line in self.itersize():
-            line.notify_data()
-
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)
 # for the 3 subbranches without generating circular import references

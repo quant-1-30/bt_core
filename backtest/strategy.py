@@ -59,10 +59,9 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = super(MetaStrategy, cls).donew(*args, **kwargs)
 
         # Find the owner and store it
-        _obj.env = _obj.cerebro = cerebro = findowner(_obj, bt.cerebro.Cerebro)
-        _obj.sizer = _obj.env.sizer # add sizing to strategy
-        _obj.store = store = _obj.env.store # add store to strategy
-        _obj._id = cerebro._next_stid()
+        _obj.env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
+        _obj.sizer = cerebro.sizer # add sizing to strategy
+        _obj.store = cerebro.store # add store to strategy
 
         return _obj, args, kwargs
 
@@ -70,8 +69,6 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
         
-        _obj.experiment_id = _obj._next_id() # generate unique_id and experiment_id
-
         _obj._minperiods = list()
 
         _obj.stats = _obj.observers = ItemCollection()
@@ -88,7 +85,8 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._periodset()
-        # _obj.experiment_id, _obj.u_id = _obj._next_id() # generate unique_id and experiment_id
+        
+        _obj.experiment_id = _obj._next_exp()
 
         return _obj, args, kwargs
 
@@ -97,10 +95,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     '''
     Base class to be subclassed for user defined strategies.
     '''
+    plotinfo = dict(plot=True, plotname="Strategy")
 
     _ltype = LineIterator.StratType
 
-    lines = ('datetime',)
+    # lines = ('datetime',)
+    lines = ('datetime', 'buy', 'sell')
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -196,13 +196,14 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
-    def _next_id(self):
-        # unique_id consisted of strategy name and params
+    def _next_exp(self) -> str:
+        """
+            Return experiment_id: str 
+        """
         p_str = json.dumps(self.p._getkwargs())
         _identity = f"{self.__class__.__name__}({p_str})"
-        experiment_id = self.store.make_experiment(_identity)
-        # return experiment_id, _identity
-        return experiment_id
+        exp_id = self.store.make_experiment(_identity)
+        return exp_id
 
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
@@ -280,8 +281,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._next_observers(minperstatus)
 
         if dtover:
-            self.notify_data()
             self.clear()
+
+    def _notify(self, qorder, qtrades=[]):
+        # need to know if quicknotify is on, to not reprocess pendingorders
+        # and pendingtrades, which have to exist for things like observers
+        # which look into it
+        self._orders.append(qorder)
+        if qtrades:
+            self._trades.extend(qtrades)
 
     def buy(self, execType=ExecType.Market, plimit: int=0):
         '''Create a buy (long) order and send it to the broker 
@@ -321,12 +329,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                       order_type=OrderType.Buy.value,
                       exec_type=execType.value, 
                       created_dt=int(self.lines.datetime[0]))
-        
+
         ord, trades = self.store.submit(self.experiment_id, order)
-        self._orders.append(ord)
         if trades:
-            self._trades.extend(trades)
-        # self.notification.append((ord, trades))
+            self.lines.buy[0] = 1 
+
+        self._notify(ord, trades)
         
     def sell(self, execType=ExecType.Market, plimit: int=0):
         '''
@@ -346,11 +354,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                       exec_type=execType.value, 
                       created_dt=int(self.lines.datetime[0]))
         
+
         ord, trades = self.store.submit(self.experiment_id, order)
-        # self.notification.append((ord, trades))
-        self._orders.append(ord)
         if trades:
-            self._trades.extend(trades)
+            self.lines.sell[0] = -1
+        
+        self._notify(ord, trades)
         
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
@@ -374,7 +383,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         # prepare the indicators/observers data headers
         for iocsv in self.indobscsv:
-            # name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             name = iocsv.plotinfo.plotname or iocsv.extra_info
             headers.append(name)
             col_alias = ",".join(iocsv.getlinealiases())
@@ -386,8 +394,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         values = list()
 
         for iocsv in self.indobscsv:
-            # name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
-            name = iocsv.plotinfo.plotname or iocsv.extra_info
+            name = iocsv.plotinfo.plotname or iocsv.extra_info # iocsv.__class__.__name__
             values.append(name)
             lio = len(iocsv)
             if lio:
@@ -428,12 +435,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return wrinfo
     
-    def notify_data(self):
-        super().notify_data()
-
-        for data in self.datas:
-            data.notify_data()
-        
     def getvalue(self, complete=False):
         '''Returns the portfolio value and positions of strategy
 

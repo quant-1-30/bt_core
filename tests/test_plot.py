@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from bokeh.plotting import figure, show
 from bokeh.layouts import gridplot, column
-from bokeh.models import ColumnDataSource, Range1d, HoverTool, LinearAxis, Tabs, Span, CrosshairTool, CustomJS
+from bokeh.models import ColumnDataSource, CDSView, BooleanFilter, IndexFilter, GroupFilter, Range1d, HoverTool, LinearAxis, Tabs, Span, CrosshairTool, CustomJS
 
 from scheme import tableau10
 
@@ -10,6 +10,11 @@ from scheme import tableau10
 def resample(ns, df, freq="D"):
     # resmaple 生成连续日期
     df = df.astype("float")
+    if "datetime" in df.columns:
+        data.index = df.index = df.loc[:, "datetime"].apply(lambda x: pd.to_datetime(float(x), unit="s"))
+    else:
+        df.index = data.index
+
     if ns == "MetaBtData":
         sample = df.resample(freq, closed="left", label="left").agg({
                 'open': 'first',     
@@ -21,6 +26,10 @@ def resample(ns, df, freq="D"):
             })
     else:
         sample = df.resample(freq, closed="left", label="left").first()
+
+    if "datetime" in sample.columns: 
+        sample.drop(columns=["datetime"], inplace=True)
+    sample["datetime"] = sample.index
     sample.dropna(axis=0, how="all", inplace=True)
     return sample
 
@@ -28,9 +37,8 @@ def resample(ns, df, freq="D"):
 if __name__ == "__main__":
 
     # 缺少 indicator 与 observer 个数 与 plotinfo 配置 需要单独写入文件 或者 csv 注释行
-    data = pd.read_csv("out.csv", header=1, sep=";")
-    # df = df.set_index(datetime_col)
-    data.index = data.loc[:, "datetime"].apply(lambda x: pd.to_datetime(float(x), unit="s"))
+    data = pd.read_csv("out_1.csv", header=1, sep=";")
+    # import pdb; pdb.set_trace()
 
     datasource = {}
     datasource["id"] = data.iloc[:,0].to_numpy()
@@ -44,8 +52,7 @@ if __name__ == "__main__":
         split_c_v = c_v.str.split(',', expand=True) 
         split_c_v.columns = d_c.split(',')
         resample_c_v = resample(n_c, split_c_v)
-
-        resample_c_v["datetime"] = resample_c_v.index # add datetime to all datasource
+        
         for key, v in resample_c_v.items():
             arr = v.to_numpy()
             if key != "datetime":
@@ -197,14 +204,8 @@ if __name__ == "__main__":
     # show(p)
 # -------------------------------------------------------------------------- strategy -------------------------------------------------------------------------
 
-    # 主要考虑 买入与卖出点 ---> sell / buy 并与feed在一张图里
-
     # p.triangle / p.inverted_triangle circle square triangle diamond
-    # p.triangle(x, y, size=15, color="navy", alpha=0.6, legend_label="正三角形")
-    # p.inverted_triangle(x, y, size=15, color="firebrick", alpha=0.6, legend_label="倒三角形")
-
-    # # 完整的三角形绘制示例
-    # p.triangle(
+    # p_strat.triangle(
     #     x,                          # x坐标（必需）
     #     y,                          # y坐标（必需）
     #     size=10,                    # 大小（像素）
@@ -223,122 +224,168 @@ if __name__ == "__main__":
     #     name=None,                  # 名称
     #     tags=[]                     # 标签
     # )
+    
+    title = "Strategy"
+    # # 创建主图表
+    p_strat = figure(
+        width=1200,
+        height=400,
+        title=title,
+        x_axis_type="datetime", # x_axis_type="datetime" if isinstance(dates[0], (np.datetime64, pd.Timestamp)) else "linear",
+        x_range=shared_x_range, # p_feed.x_range 
+        tools="pan,wheel_zoom,box_zoom,reset,save", # 基础工具
+        active_drag='pan',
+        active_scroll='wheel_zoom',
+        tooltips=None
+    )
+    strat = datasource[title] # datetime buy sell 
+    
+    buy = strat.data["buy"]
+    b_mask = buy >= 1.0
+    # import pdb; pdb.set_trace()
+    bview = CDSView(name="buy_filter", filter=BooleanFilter(b_mask))
+    p_strat.scatter("datetime", "buy", marker="triangle", source=strat, view=bview, size=15, color="navy", alpha=0.6, legend_label="正三角形")
+
+    sell = strat.data["sell"]
+    s_mask = sell <= -1.0 
+    sview = CDSView(name="sell_filter", filter=BooleanFilter(s_mask))
+    p_strat.scatter("datetime", "sell", marker="inverted_triangle", source=strat, view=sview, size=15, color="firebrick", alpha=0.6, legend_label="倒三角形")
+
+    # 添加交互工具
+    hover = HoverTool(
+        tooltips=[
+            ("Date", "@datetime{%F}"), # %Y%m%d
+            ("buy", "@buy{0.0f}"), # 保留0为小数 四舍五入 / {0} 截断
+            ("sell", "@sell{0.0f}"),
+        ],
+        formatters={
+            '@datetime': 'datetime'
+        },
+        mode='vline',
+        # renderers=[upper] # 不支持 rect / vbar
+    )
+
+    p_strat.add_tools(hover)
+    p_strat.legend.location = "top_left"
+    p_strat.legend.click_policy = "hide"  # 点击图例可隐藏/显示
+
+    show(p_strat)
 
 # -------------------------------------------------------------------------- indicator gridplots --------------------------------------------------------------
 
-    n_inds = ['SMA(close,period=15)', 'SMA(SMA(close,period=15),period=5)', 'SMA(SMA(SMA(close,period=15),period=5),period=5)', 
-    'SMA(SMA(SMA(SMA(close,period=15),period=5),period=5),period=10)', 'EMA(SMA(SMA(SMA(close,period=15),period=5),period=5),period=10)']
+    # n_inds = ['SMA(close,period=15)', 'SMA(SMA(close,period=15),period=5)', 'SMA(SMA(SMA(close,period=15),period=5),period=5)', 
+    # 'SMA(SMA(SMA(SMA(close,period=15),period=5),period=5),period=10)', 'EMA(SMA(SMA(SMA(close,period=15),period=5),period=5),period=10)']
 
-    tooltips = []
-    ind_plots = []
-    ind_vlines = []
+    # tooltips = []
+    # ind_plots = []
+    # ind_vlines = []
 
-    for i, name in enumerate(n_inds):
-        ind_source = datasource[name]
+    # for i, name in enumerate(n_inds):
+    #     ind_source = datasource[name]
 
-        p_ind = figure(
-            # title=name,
-            title='',
-            width=1000, 
-            height=100,
-            x_axis_type="datetime", # x_axis_type="datetime" if isinstance(dates[0], (np.datetime64, pd.Timestamp)) else "linear",
-            x_range=shared_x_range, # p_feed.x_range 
-            tools="pan,wheel_zoom,box_zoom,reset,save",
-        )
+    #     p_ind = figure(
+    #         # title=name,
+    #         title='',
+    #         width=1000, 
+    #         height=100,
+    #         x_axis_type="datetime", # x_axis_type="datetime" if isinstance(dates[0], (np.datetime64, pd.Timestamp)) else "linear",
+    #         x_range=shared_x_range, # p_feed.x_range 
+    #         tools="pan,wheel_zoom,box_zoom,reset,save",
+    #     )
 
-        # # 在服务器模式下，可以使用 Python 回调实现更复杂的联动逻辑
-        # def update_selection(attr, old, new):
-        #     # 这里可以添加基于选中点的联动逻辑
-        #     # 例如更新其他图表的高亮等
-        #     pass
+    #     # # 在服务器模式下，可以使用 Python 回调实现更复杂的联动逻辑
+    #     # def update_selection(attr, old, new):
+    #     #     # 这里可以添加基于选中点的联动逻辑
+    #     #     # 例如更新其他图表的高亮等
+    #     #     pass
 
-        # # 监听数据源的选中变化
-        # ind_source.selected.on_change('indices', update_selection)
+    #     # # 监听数据源的选中变化
+    #     # ind_source.selected.on_change('indices', update_selection)
 
-        vline = Span(location=0, dimension='height', line_color='red', line_width=1, line_alpha=0)
-        ind_vlines.append(vline)
-        p_ind.add_layout(vline)
+    #     vline = Span(location=0, dimension='height', line_color='red', line_width=1, line_alpha=0)
+    #     ind_vlines.append(vline)
+    #     p_ind.add_layout(vline)
 
-        ind_tooltip = [("Date", "@datetime{%F}")]
-        for idx, col in enumerate(ind_source.column_names):
-            if col != "datetime":
-                color_idx = idx % len(tableau10)
-                p_ind.line(
-                    'datetime', col, source=ind_source, 
-                    line_width=2, color=tableau10[color_idx], legend_label=col)
-                # ind_tooltip.append((col, f"@{{{col}}}{{0.2f}}"))
-        chain_tooltip = [f" {key}: @{{{key}}}{{0.2f}}" for key in ind_source.column_names if  key != "datetime"]
-        ind_tooltip.insert(0, (name, ','.join(chain_tooltip)))
-        tooltips.append(ind_tooltip)
+    #     ind_tooltip = [("Date", "@datetime{%F}")]
+    #     for idx, col in enumerate(ind_source.column_names):
+    #         if col != "datetime":
+    #             color_idx = idx % len(tableau10)
+    #             p_ind.line(
+    #                 'datetime', col, source=ind_source, 
+    #                 line_width=2, color=tableau10[color_idx], legend_label=col)
+    #             # ind_tooltip.append((col, f"@{{{col}}}{{0.2f}}"))
+    #     chain_tooltip = [f" {key}: @{{{key}}}{{0.2f}}" for key in ind_source.column_names if  key != "datetime"]
+    #     ind_tooltip.insert(0, (name, ','.join(chain_tooltip)))
+    #     tooltips.append(ind_tooltip)
  
-        p_ind.legend.location = "top_left"
-        p_ind.legend.background_fill_alpha = 0.3  # 0-1之间的值，0为完全透明，1为完全不透明
-        p_ind.legend.border_line_alpha = 0.3
+    #     p_ind.legend.location = "top_left"
+    #     p_ind.legend.background_fill_alpha = 0.3  # 0-1之间的值，0为完全透明，1为完全不透明
+    #     p_ind.legend.border_line_alpha = 0.3
 
-        p_ind.yaxis.axis_label = "指标"
+    #     p_ind.yaxis.axis_label = "指标"
 
-        if i < len(n_inds) - 1:
-            p_ind.xaxis.visible = False
+    #     if i < len(n_inds) - 1:
+    #         p_ind.xaxis.visible = False
 
-        ind_plots.append(p_ind)
+    #     ind_plots.append(p_ind)
 
 
-    # 创建统一的回调
-    hover_callback = CustomJS(
-        args=dict(vlines=ind_vlines), 
-        code="""
-            // 悬停时显示所有参考线
-            for (let i = 0; i < vlines.length; i++) {
-                vlines[i].line_alpha = 0.5;
-                vlines[i].location = cb_data.geometry.x;
-            }
-        """
-    )
+    # # 创建统一的回调
+    # hover_callback = CustomJS(
+    #     args=dict(vlines=ind_vlines), 
+    #     code="""
+    #         // 悬停时显示所有参考线
+    #         for (let i = 0; i < vlines.length; i++) {
+    #             vlines[i].line_alpha = 0.5;
+    #             vlines[i].location = cb_data.geometry.x;
+    #         }
+    #     """
+    # )
 
-    for idx, _plt in enumerate(ind_plots):
-        _tooltip = tooltips[idx]
+    # for idx, _plt in enumerate(ind_plots):
+    #     _tooltip = tooltips[idx]
 
-        hover = HoverTool(
-            tooltips=_tooltip,
-            formatters={
-                '@datetime': 'datetime'
-            },
-            mode='vline', # 'mouse': 离散数据 'hline': 数值对比 'vline': 时间序列
-            callback=hover_callback
-        )
+    #     hover = HoverTool(
+    #         tooltips=_tooltip,
+    #         formatters={
+    #             '@datetime': 'datetime'
+    #         },
+    #         mode='vline', # 'mouse': 离散数据 'hline': 数值对比 'vline': 时间序列
+    #         callback=hover_callback
+    #     )
 
-        crosshair = CrosshairTool( # 十字线联动
-            dimensions='height',
-            line_alpha=0.3,
-            line_color='gray',
-            line_width=1)
+    #     crosshair = CrosshairTool( # 十字线联动
+    #         dimensions='height',
+    #         line_alpha=0.3,
+    #         line_color='gray',
+    #         line_width=1)
      
-        _plt.add_tools(hover, crosshair)
+    #     _plt.add_tools(hover, crosshair)
     
-    # from bokeh.layouts import gridplot
+    # # from bokeh.layouts import gridplot
 
-    # # 假设我们将指标分成了两组：趋势指标和震荡指标
-    # trend_plots = [p_feed] + trend_plots_list  # 趋势指标图表列表
-    # oscillator_plots = oscillator_plots_list   # 震荡指标图表列表
+    # # # 假设我们将指标分成了两组：趋势指标和震荡指标
+    # # trend_plots = [p_feed] + trend_plots_list  # 趋势指标图表列表
+    # # oscillator_plots = oscillator_plots_list   # 震荡指标图表列表
 
-    # # 创建两个网格布局
-    # trend_grid = gridplot(trend_plots, ncols=1, plot_width=800, plot_height=200)
-    # oscillator_grid = gridplot(oscillator_plots, ncols=1, plot_width=800, plot_height=200)
+    # # # 创建两个网格布局
+    # # trend_grid = gridplot(trend_plots, ncols=1, plot_width=800, plot_height=200)
+    # # oscillator_grid = gridplot(oscillator_plots, ncols=1, plot_width=800, plot_height=200)
 
-    # # 创建两个标签页
-    # tab1 = Panel(child=trend_grid, title="趋势指标")
-    # tab2 = Panel(child=oscillator_grid, title="震荡指标")
+    # # # 创建两个标签页
+    # # tab1 = Panel(child=trend_grid, title="趋势指标")
+    # # tab2 = Panel(child=oscillator_grid, title="震荡指标")
 
-    # # 将标签页组合在一起
-    # tabs = Tabs(tabs=[tab1, tab2])
-    # show(tabs)
+    # # # 将标签页组合在一起
+    # # tabs = Tabs(tabs=[tab1, tab2])
+    # # show(tabs)
 
-    # grid = gridplot(ind_plots, ncols=1)
-    # # grid = gridplot(all_plots, ncols=ncols, plot_width=400, plot_height=200, sizing_mode='stretch_width')
-    # show(grid)
+    # # grid = gridplot(ind_plots, ncols=1)
+    # # # grid = gridplot(all_plots, ncols=ncols, plot_width=400, plot_height=200, sizing_mode='stretch_width')
+    # # show(grid)
 
-    layout = column(*ind_plots)
-    show(layout)
+    # layout = column(*ind_plots)
+    # show(layout)
 
 # ------------------------------------------------------------------------- indicator aggregate -----------------------------------------------------------------
 
@@ -442,3 +489,24 @@ if __name__ == "__main__":
     # reuse indicator logic
     n_obs = ['Broker(MetaBtData,barplot=True)', 'Trades - Net Profit/Loss', 'DrawDown(MetaBtData,barplot=True)', 
     'DrawDownLength(MetaBtData,barplot=True)', 'BuySell(MetaBtData,barplot=True)', 'Benchmark(MetaBtData,barplot=True)']
+
+
+
+# dpi 用于计算 打印尺寸 --- 像素/dpi 单位英寸
+
+# from bokeh.io import export_png, export_svg
+# from bokeh.plotting import figure, show
+# from bokeh.models import Range1d
+
+# # 创建图形
+# p = figure(width=800, height=600, title="高DPI示例")
+# p.circle([1, 2, 3, 4, 5], [2, 5, 3, 6, 4], size=10)
+
+# # 导出为 PNG，设置分辨率
+# export_png(p, filename="plot_high_dpi.png", 
+#            width=1600, height=1200)  # 2倍尺寸提高有效DPI
+
+# # 或者导出为 SVG（矢量格式，无限分辨率）
+# export_svg(p, filename="plot_vector.svg")
+
+# width=16, height=9, dpi=300, tight=True 
