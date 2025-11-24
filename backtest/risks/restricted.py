@@ -21,7 +21,7 @@
 import numpy as np
 from backtest.risk import Risk
 
-__all__ = ['Fixed', 'Pyramid']
+__all__ = ['CashRisk', 'LossRisk']
 
 
 class CashRisk(Risk):

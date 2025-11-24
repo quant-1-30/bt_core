@@ -67,42 +67,36 @@ class BuySell(Observer):
         if dtkey > self.dtkey:
             _trades = self.txns.rets.get(dtkey, [])
 
-            for _bit in _trades:
-                if not _bit.executed_size:
-                    continue
-                comm += _bit.comm
+            if _trades:
+                for _bit in _trades:
+                    if not _bit.executed_size:
+                        continue
+                    comm += _bit.comm
 
-                if _bit.direction:
-                    buy.append(_bit)
-                else:
-                    sell.append(_bit)
+                    if _bit.direction:
+                        buy.append(_bit)
+                    else:
+                        sell.append(_bit)
 
-            # BUY
-            curbuy = self.lines.avg_buy[0]
-            if curbuy != curbuy:  # NaN
-                curbuy = 0.0
-                self.curbuylen = curbuylen = 0
-            else:
-                curbuylen = self.curbuylen
+                # BUY
+                # curbuy = self.lines.avg_buy[0]
+                # if curbuy != curbuy:  # NaN
+                #     curbuy = 0.0
 
-            buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
-            buylen = sum([b.executed_size for b in buy])  
+                buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
+                buylen = sum([b.executed_size for b in buy])  
 
-            value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
-            self.lines.avg_buy[0] = (value + curbuy)/2
+                value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
+                self.lines.avg_buy[0] = value 
 
-            # SELL
-            cursell = self.lines.avg_sell[0]
-            if cursell != cursell:  # NaN
-                cursell = 0.0
+                # SELL
+                sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
+                selllen = sum([s.executed_size for s in sell])  
 
-            sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
-            selllen = sum([s.executed_size for s in sell])  
-
-            value = sellops / float(selllen or 'NaN')
-            self.lines.avg_sell[0] = (value + cursell)/2
+                value = sellops / float(selllen or 'NaN')
+                self.lines.avg_sell[0] = value 
             
-            # Write comm
-            self.lines.comm[0] = comm
+                # Write comm
+                self.lines.comm[0] = comm
 
-            self.dtkey = dtkey
+                self.dtkey = dtkey

@@ -460,11 +460,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if self.p.stdstats:
                     # ('timeframe', bt.TimeFrame.Days) ('compression', None),
                     strat._addobserver(False, observers.Broker, barplot=True)
+                    strat._addobserver(False, observers.TimeReturn, barplot=True)
+                    strat._addobserver(False, observers.Benchmark, barplot=True)
+                    strat._addobserver(False, observers.BuySell, barplot=True)
                     strat._addobserver(False, observers.Trades, barplot=True)
                     strat._addobserver(False, observers.DrawDown, barplot=True)
                     strat._addobserver(False, observers.DrawDownLength, barplot=True)
-                    strat._addobserver(False, observers.BuySell, barplot=True)
-                    strat._addobserver(False, observers.Benchmark, barplot=True)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
