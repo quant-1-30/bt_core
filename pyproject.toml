@@ -27,6 +27,10 @@ twine = "^6.2.0"
 ray = {extras = ["default"], version = "^2.51.1"}
 bokeh = "^3.8.1"
 reportlib = "^3.4.0"
+selenium = "^4.38.0"
+chromedriver = "^2.24.1"
+chromium = "^0.0.0"
+geckodriver = "^0.0.1"
 
 [[tool.poetry.source]]
 name = "tuna"

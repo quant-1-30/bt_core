@@ -24,12 +24,10 @@
 # The modules below should/must define __all__ with the objects wishes
 # or prepend an "_" (underscore) to private classes/variables
 
-from .fixedsize import *
-from .theta import *
+from .restricted import *
 
 
-sizers = {
-    'fixed': Fixed,
-    'pyramid': pyramid,
-    'kelly': Kelly
+_restricts = {
+    'cash': CashRisk,
+    'loss': LossRisk,
     }

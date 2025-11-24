@@ -21,7 +21,7 @@
 from backtest.metabase import MetaParams, with_metaclass
 
 
-class Sizer(with_metaclass(MetaParams, object)):
+class Risk(with_metaclass(MetaParams, object)):
     '''This is the base class for *Sizers*. Any *sizer* should subclass this
     and override the ``_getsizing`` method
 
@@ -39,41 +39,19 @@ class Sizer(with_metaclass(MetaParams, object)):
         Gives access to information some complex sizers may need like portfolio
         value, ..
     '''
-    params = (("alias", "SizerBase"),)
+    params = (("alias", "RiskControl"),)
 
-    def getsizing(self, datas, isbuy=True):
-        return self._getsizing(datas, isbuy)
-
-    def _getsizing(self, datas, isbuy):
-        '''This method has to be overriden by subclasses of Sizer to provide
-        the sizing functionality
+    def is_restricted(self, strat) -> bool:
+        '''This method has to be overriden by subclasses of RiskControl to provide
+        the riks functionality
 
         Params:
-          - ``comminfo``: The CommissionInfo instance that contains
-            information about the commission for the data and allows
-            calculation of position value, operation cost, commision for the
-            operation
 
-          - ``cash``: current available cash in the *broker*
+          - ``strat``: StrategyBase
 
-          - ``data``: target of the operation
-
-          - ``isbuy``: will be ``True`` for *buy* operations and ``False``
-            for *sell* operations
-
-        The method has to return the actual size (an int) to be executed. If
-        ``0`` is returned nothing will be executed.
-
-        The absolute value of the returned value will be used
-
+        The method has to return bool to indicator whether violate risk control.
         '''
         raise NotImplementedError
 
-    def restore(self, reset=False):
-      """
-        whether reset sizing policy such as pyramid
-      """
-      pass
 
-
-SizerBase = Sizer  # alias for old naming
+RiskBase = Risk  # alias for old naming

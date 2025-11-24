@@ -112,3 +112,6 @@ except ImportError:
 # __getattribute__ --- __getattr__ 显式访问不存在饿属性,除非显示调用或引发AttributeError异常
 
 # __delete__(self,instance) ,__del__(self)
+
+# get_sizing 两个维度，a. strategy 层面基于统一调度/strategy 波动率等; b. inner strategy 基于数据波动率等calc
+# risk control ---> get_sizing ---> strategy

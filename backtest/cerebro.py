@@ -28,6 +28,7 @@ from . import observers
 from .writer import WriterFile
 from backtest.metabase import MetaParams, with_metaclass
 from backtest.sizers import sizers
+from backtest.risks import restricted
 from backtest.timer import Timer
 from backtest.errors import *
 from backtest.stores import _stores
@@ -78,14 +79,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     '''
     params = (
-        ('stdstats', True),
         ("cash", 100000),
         ('savemem', 1),
-        ('writer', True),
-        ("out", None),
-        ("sizer", "fixed"),
         ("store", "bt"),
+        ("risk", "cash"),
+        ("sizer", "fixed"),
+        ('stdstats', True),
         ('tz', None),
+        ("out", None),
+        ('writer', True),
     )
 
     def __init__(self):
@@ -134,12 +136,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         dataname.resample(**kwargs)
         self.adddata(dataname, name=name)
         self._doreplay = True
-
-    def addwriter(self, wrtcls, *args, **kwargs):
-        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
-        ``run`` time in cerebro
-        '''
-        self.writers.append((wrtcls, args, kwargs))
 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
@@ -356,7 +352,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
         sizer_type = kwargs.pop("sizer", self.p.sizer)
         self.sizer = sizers[sizer_type](*args, **kwargs)
 
-# ---------------------------------------------------------------- run-------------------------------------------------------------------
+    def addrisk(self, *args, **kwargs):
+        '''Adds a ``RiskControl`` class (and args) which is the default risk for any
+        strategy added to cerebro
+        '''
+        _risk = kwargs.pop("risk", self.p.risk)
+        self.risk_ctl = restricted[_risk](*args, **kwargs)
+
+# ---------------------------------------------------------------- run -------------------------------------------------------------------
 
     def _start(self, *args, **kwargs):
         self.set_cash(*args, **kwargs) # pop cash
@@ -569,6 +572,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     self._next_writers(runstrats)
                 
 # ---------------------------------------------------------------------- writer ------------------------------------------------------------
+
+    def addwriter(self, wrtcls, *args, **kwargs):
+        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
+        ``run`` time in cerebro
+        '''
+        self.writers.append((wrtcls, args, kwargs))
 
     def _next_writers(self, runstrats):
         if not self.runwriters:

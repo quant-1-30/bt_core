@@ -74,7 +74,6 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
         self._usedate = tf >= TimeFrame.Days
 
     def on_dt_over(self):
-        # pvals = [self.strategy.broker.get_value([d]) for d in self.datas]
         _, pval = self._owner.getvalue()
         print("PositionsValue ", pval)
         if pval:

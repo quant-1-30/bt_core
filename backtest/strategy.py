@@ -62,6 +62,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.sizer = cerebro.sizer # add sizing to strategy
         _obj.store = cerebro.store # add store to strategy
+        _obj.risk = cerebro.risk_ctl # add risk manager to strategy
 
         return _obj, args, kwargs
 
@@ -320,21 +321,22 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        sizer_ratio = self.sizer.getsizing(self) * 100
-        sid = self.datas[0].p.sid[0]
+        if self.risk.is_restricted(self):
 
-        order = Order(sid=sid,
-                      pricelimit=plimit,
-                      sizer_ratio=sizer_ratio, 
-                      order_type=OrderType.Buy.value,
-                      exec_type=execType.value, 
-                      created_dt=int(self.lines.datetime[0]))
+            _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
 
-        ord, trades = self.store.submit(self.experiment_id, order)
-        if trades:
-            self.lines.buy[0] = 1 
+            order = Order(sid=self.datas[0].p.sid[0],
+                        pricelimit=plimit,
+                        sizer_ratio=int_sizer, 
+                        order_type=OrderType.Buy.value,
+                        exec_type=execType.value, 
+                        created_dt=int(self.lines.datetime[0]))
 
-        self._notify(ord, trades)
+            ord, trades = self.store.submit(self.experiment_id, order)
+            if trades:
+                self.lines.buy[0] = 1 
+
+            self._notify(ord, trades)
         
     def sell(self, execType=ExecType.Market, plimit: int=0):
         '''
@@ -344,20 +346,22 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        sizer_ratio = self.sizer.getsizing(self) * 100
-        sid = self.datas[0].p.sid[0]
+        if self.risk.is_restricted(self):
 
-        order = Order(sid=sid,
-                      sizer_ratio=sizer_ratio, 
-                      pricelimit=plimit,     
-                      order_type=OrderType.Sell.value,
-                      exec_type=execType.value, 
-                      created_dt=int(self.lines.datetime[0]))
+            _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
+
+            order = Order(sid=self.datas[0].p.sid[0],
+                          sizer_ratio=_sizer, 
+                          pricelimit=plimit,     
+                          order_type=OrderType.Sell.value,
+                          exec_type=execType.value, 
+                          created_dt=int(self.lines.datetime[0]))
         
 
         ord, trades = self.store.submit(self.experiment_id, order)
         if trades:
             self.lines.sell[0] = -1
+            self.sizer.restore() # reset sizing pyramid 
         
         self._notify(ord, trades)
         
@@ -435,17 +439,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return wrinfo
     
-    def getvalue(self, complete=False):
+    def getvalue(self, isall=False):
         '''Returns the portfolio value and positions of strategy
 
-        If ``complete`` is ``False`` (default) the value of the cash in hand
+        If ``isall`` is ``False`` (default) the value of the cash in hand
         plus the market value of the open positions is returned.
 
-        If ``complete`` is ``True`` the value of all positions is calculated
+        If ``isall`` is ``True`` the value of all positions is calculated
         as if they were closed at the current market price and then added to
         the cash in hand.
         '''
-        if complete:
+        if isall:
             acct = self.store.subscribe(self.experiment_id, "account")
             postn = self.store.subscribe(self.experiment_id, "position")
         else:

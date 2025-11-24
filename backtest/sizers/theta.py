@@ -19,25 +19,11 @@
 #
 ###############################################################################
 import numpy as np
+import warnings
 from backtest.sizer import Sizer
 
-__all__ = ['Fixed', 'Kelly']
+__all__ = ['Kelly']
 
-
-class Fixed(Sizer):
-    '''This is the default sizer used by ``backtrader`` if no other sizer is
-    set
-
-    It will simply return a size of ``1`` for each operation
-    '''
-    params = (("reserve", 0.1),)   # reserve a fraction of cash
-    
-    def __init__(*args, **kwargs):
-        pass
-
-    def _getsizing(self, strat):
-        return 1 - self.p.reserve
-    
 
 class Kelly(Sizer):
     '''This sizer will return a size based on the Kelly Criterion
@@ -81,12 +67,18 @@ class Kelly(Sizer):
         given data
 
     '''
-    params = ()
+    params = (
+        ("range", 10),
+        ("grad", 0.01),
+    )
 
-    def __init__(*args, **kwargs):
-        pass
-
-    def _getsizing(self, strat):
+    def _getsizing(self, datas, isbuy):
         # datas represent stats of strats
-        raise NotImplementedError("KellySizer not implemented yet")
-    
+        if self.p.range > datas[0]._minperiod:
+            warnings.warn(f"theta period: {self.p.range} > data _minperiod: f{datas[0]._minperiod}")
+
+        if isbuy:
+            _theta = np.std(datas[0].close.getval())
+            sizing = np.ceil(_theta / self.p.grad)
+            return sizing
+        return 100

@@ -97,19 +97,15 @@ class LineBuffer(LineSingle):
             self.maxlen = np.iinfo(np.int32).max  # practically unbounded
 
         self.lencount = 0
-        # self.idx = -1
         self.extension = 0
 
     def qbuffer(self, savemem=0):
 
         if savemem:
             self.mode = self.QBuffer
-            # print("linebuffer qbuffer :", self.mode, self._minperiod)
             _minperiod = self._minperiod
             self.maxlen = _minperiod
-            # print("maxlen ", self.maxlen, _minperiod)
         # self.extrasize = extrasize
-        # self.lenmark = self.maxlen - (not self.extrasize)
         self.reset()
 
     def minbuffer(self, size):
@@ -129,26 +125,6 @@ class LineBuffer(LineSingle):
         self.maxlen = size
         self.reset()
     
-    # def get_idx(self):
-    #     # idx = self._idx
-    #     # self._idx = idx % (self.maxlen)
-    #     # self._idx = idx % (self.maxlen)
-    #     return self._idx
-
-    # def set_idx(self, idx):
-    #     print("set_idx ", idx)
-    #     # if QBuffer and the last position of the buffer was reached, keep
-    #     # it (unless force) as index 0. This allows resampling
-    #     #  - forward adds a position, but the 1st one is discarded, the 0 isinvariant
-    #     if self.mode == self.QBuffer:
-    #         # self._idx = idx % (self.maxlen)
-    #         self._idx = idx % (self.maxlen)
-    #     else:  # default: UnBounded
-    #         self._idx = idx
-    #         # self._idx = idx % (np.iinfo(np.int32).max)
-        
-    # idx = property(get_idx, set_idx)
-
     def __getitem__(self, ago):
         # return self.array[self.idx + ago]
         idx = self.idx % self.maxlen
@@ -163,10 +139,7 @@ class LineBuffer(LineSingle):
             the slice
             value (variable): value to be set
         '''
-        # self.array[self.idx + ago] = value
-        # print("linebuffer __setitem__ ago", ago)
         idx = self.idx % self.maxlen
-        # print("__setitem__ idx ", idx)
         self.array[idx + ago] = value
         for binding in self.bindings:
             binding[ago] = value
@@ -196,24 +169,9 @@ class LineBuffer(LineSingle):
             A slice of the underlying buffer
         '''
         return self.array[idx]
-
-    # def get(self, ago=0, size=1):
-    #     ''' Returns a slice of the array relative to *ago*
-
-    #     Keyword Args:
-    #         ago (int): Point of the array to which size will be added
-    #         to return the slice size(int): size of the slice to return,
-    #         can be positive or negative
-
-    #     If size is positive *ago* will mark the end of the iterable and vice
-    #     versa if size is negative
-
-    #     Returns:
-    #         A slice of the underlying buffer
-    #     '''
-    #     start = self.idx + ago - size + 1
-    #     end = self.idx + ago + 1
-    #     return self.array[start:end]
+    
+    def getval(self):
+        return self.array
     
     def get(self, ago=0, size=1):
         ''' Returns a slice of the array relative to *ago*
@@ -229,58 +187,24 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        length = abs(size)
-        if size > 0:
-            start_index = self.idx + ago - length + 1
+        end_index = self.idx + ago + 1
+        if size <= self.idx:
+            start_index = self.idx - size
+            return self.array[start_index: end_index]
         else:
-            start_index = self.idx + ago
-
-        circle_index = start_index % self.maxlen
-
-        if circle_index + length <= self.maxlen:
-            return self.array[circle_index:circle_index + length]
-        else:
-            array1 = self.array[circle_index:]
-            array2 = self.array[0:(circle_index + length) % self.maxlen]
+            start_index = max(self.idx-self.maxlen, self.idx-size)
+            array1 = self.array[start_index:]
+            array2 = self.array[0:end_index]
             return np.concatenate((array1, array2))
 
-    # def getzero(self, idx=0, size=1):
-    #     ''' Returns a slice of the array relative to the real zero of the buffer
-
-    #     Keyword Args:
-    #         idx (int): Where to start relative to the real start of the buffer
-    #         size(int): size of the slice to return
-
-    #     Returns:
-    #         A slice of the underlying buffer
-    #     '''
-    #     if self.useislice:
-    #         return list(islice(self.array, idx, idx + size))
-
-    #     return self.array[idx:idx + size]
-    
-    def getzero(self, idx=0, size=1):
+    def getzero(self, size=1):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
         Keyword Args:
-            idx (int): Where to start relative to the real start of the buffer
-            size(int): size of the slice to return
 
-        Returns:
-            A slice of the underlying buffer
         '''
-        if self.useislice:
-            return list(islice(self.array, idx, idx + size))
-
-        circle_idx = idx % self.maxlen
-
-        if circle_idx + size <= self.maxlen:
-            return self.array[circle_idx:circle_idx + size]
-        else:
-            array1 = self.array[circle_idx:]
-            array2 = self.array[0:(circle_idx + size) % self.maxlen]
-            return np.concatenate((array1, array2))    
-
+        return self.get(ago=0, size=size)
+ 
     def home(self):
         ''' Rewinds the logical index to the beginning
 

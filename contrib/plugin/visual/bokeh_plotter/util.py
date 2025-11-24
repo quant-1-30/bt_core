@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import numpy as np
 from bokeh.models import Range1d, ColumnDataSource
@@ -35,7 +34,7 @@ def resample(ns, df, data, freq="D"):
     return sample
 
 def create_datasource(csv_path):
-    data = pd.read_csv(os.path.expanduser(csv_path), header=1, sep=";")
+    data = pd.read_csv(csv_path, header=1, sep=";")
 
     datasource = {}
     datasource["id"] = data.iloc[:,0].to_numpy()
