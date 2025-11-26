@@ -72,9 +72,10 @@ class TimeReturn(Observer):
             str(self.treturn.compression)
         ]
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        # kwargs = self.p._getkwargs()
         self.treturn = self._owner._addanalyzer(
-            bt.analyzers.TimeReturn, **self.p._getkwargs())
+            bt.analyzers.TimeReturn, **kwargs)
         self.dtkey = datetime.datetime.min
 
     def next(self):

@@ -136,6 +136,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
 
     def _load_bar(self, msg):
         data = msg["body"]["line"][0]
+        print("_load_bar ", data)
         dt = self.lines.datetime[0]
         if not np.isnan(dt) and dt >= data[0]:
             return False  # cannot deliver earlier than already delivered

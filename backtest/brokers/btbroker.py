@@ -28,34 +28,34 @@ from bt_sdk.core.model import Experiment, Order, Cash, Query
 __all__ = ["BTBroker"]
 
 
-class Acct(object):
+# class Acct(object):
 
-    def __init__(self):
-        self._evt_acct = threading.Event()
-        self.fundval = dict()
+#     def __init__(self):
+#         self._evt_acct = threading.Event()
+#         self.fundval = dict()
 
-    def __set__(self, instance, value):
-        raise AttributeError("can't set attribute")
+#     def __set__(self, instance, value):
+#         raise AttributeError("can't set attribute")
     
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        self.acct_thd(instance.tdapi)
-        return self.fundval
+#     def __get__(self, instance, owner):
+#         if instance is None:
+#             return self
+#         self.acct_thd(instance.tdapi)
+#         return self.fundval
     
-    def acct_thd(self, api):
-        self._evt_acct.clear() # reset
-        t = threading.Thread(target=self._t_account, args=(api,))
-        t.daemon = True
-        t.start()
-        self._evt_acct.wait() # wait for account data to be set
+#     def acct_thd(self, api):
+#         self._evt_acct.clear() # reset
+#         t = threading.Thread(target=self._t_account, args=(api,))
+#         t.daemon = True
+#         t.start()
+#         self._evt_acct.wait() # wait for account data to be set
     
-    def _t_account(self, api):
-        accts = api.getvalue("account")
-        if accts:
-            self.fundval = {acct.experiment_id: acct for acct in accts} # experiment: Account
-        # print("fundval ", self.fundval)
-        self._evt_acct.set()
+#     def _t_account(self, api):
+#         accts = api.getvalue("account")
+#         if accts:
+#             self.fundval = {acct.experiment_id: acct for acct in accts} # experiment: Account
+#         # print("fundval ", self.fundval)
+#         self._evt_acct.set()
 
 
 class BTBroker(BrokerBase):
@@ -85,7 +85,7 @@ class BTBroker(BrokerBase):
         ("tdapi", ""),
     )
     
-    acct = Acct()
+    # acct = Acct()
     
     def __init__(*args, **kwargs):
         # to solve abundant args or kwargs
@@ -99,7 +99,7 @@ class BTBroker(BrokerBase):
         resp = self.tdapi.set_cash(body, experiment_id)
         return resp
 
-    def get_data(self, topic:str, experiment_id='') -> Union[List[Account], List[Position]]:
+    def getvalue(self, topic:str, experiment_id='') -> Union[List[Account], List[Position]]:
         data = self.tdapi.getvalue(topic, experiment_id) 
         return data
     

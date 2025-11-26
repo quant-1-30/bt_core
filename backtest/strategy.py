@@ -62,7 +62,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.sizer = cerebro.sizer # add sizing to strategy
         _obj.store = cerebro.store # add store to strategy
-        _obj.risk = cerebro.risk_ctl # add risk manager to strategy
+        _obj.risk_control = cerebro.risk_control # add risk control to strategy
 
         return _obj, args, kwargs
 
@@ -170,6 +170,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.minbuffer()
 
     def _start(self, **kwargs):
+        self.start()
+        
         self._periodrecalc()
 
         # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
@@ -187,9 +189,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self._dlens = [len(data) for data in self.datas]
 
-        self.start()
-
-    def start(self, ):
+    def start(self):
         '''Called right before the backtesting is about to be started.'''
         store = self.store
         store.set_cash(self, self.env.cash)
@@ -321,13 +321,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        if self.risk.is_restricted(self):
-
+        if not self.risk_control.is_restricted(self):
             _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
 
             order = Order(sid=self.datas[0].p.sid[0],
                         pricelimit=plimit,
-                        sizer_ratio=int_sizer, 
+                        sizer_ratio=_sizer, 
                         order_type=OrderType.Buy.value,
                         exec_type=execType.value, 
                         created_dt=int(self.lines.datetime[0]))
@@ -346,8 +345,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        if self.risk.is_restricted(self):
-
+        if not self.risk_control.is_restricted(self):
             _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
             order = Order(sid=self.datas[0].p.sid[0],
@@ -358,12 +356,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                           created_dt=int(self.lines.datetime[0]))
         
 
-        ord, trades = self.store.submit(self.experiment_id, order)
-        if trades:
-            self.lines.sell[0] = -1
-            self.sizer.restore() # reset sizing pyramid 
+            ord, trades = self.store.submit(self.experiment_id, order)
+            if trades:
+                self.lines.sell[0] = -1
+                self.sizer.restore() # reset sizing pyramid 
         
-        self._notify(ord, trades)
+            self._notify(ord, trades)
         
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
@@ -456,7 +454,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             acct = self.store.getaccount(self.experiment_id)
             postn = self.store.getposition(self.experiment_id) # vector
         # print("strategy getvalue :", acct, postn)
-        return acct, postn
+        return (acct, postn)
     
     def clear(self):
         self._orders.clear()

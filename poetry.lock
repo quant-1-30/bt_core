@@ -339,12 +339,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-sdk"
-version = "0.8.4"
+version = "0.8.5"
 description = "revise tdapi"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "bt_sdk-0.8.4-py3-none-any.whl", hash = "sha256:b0304329e26f5b9edfb9e890c0dd1696435288fe9daf6ad4b40edeb8982c31dc"},
+    {file = "bt_sdk-0.8.5-py3-none-any.whl", hash = "sha256:a174d147b177780eb80b51053f58b4c70c2ee8ef50fe98dc4188ad78f304e02c"},
 ]
 
 [package.dependencies]
@@ -5817,4 +5817,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7387f8f657be61e6527d729bce1abdaa5ce497035f89479daa889901ed2dc765"
+content-hash = "7b4777d9d8b3bc50560f002fffe65d3723122f6158f6a9b3527ea5e330c20d04"

@@ -98,15 +98,14 @@ class BTStore(Store):
     
     def set_cash(self, strat, cash) -> Resp:
         body = Cash(cash=cash, session=self._feed.fromdate)
-        resp = self.broker.set_cash(body, strat.experiment_id)
-        return resp
+        self.broker.set_cash(body, strat.experiment_id)
     
-    def getaccount(self, experiment_id) -> List[Account]:
-        acct = self.broker.acct
-        return acct.get(experiment_id, None)
+    def getaccount(self, experiment_id) -> Account:
+        acct = self.broker.getvalue("account", experiment_id)
+        return acct[0]
     
     def getposition(self, experiment_id) -> List[Position]:
-        o = self.broker.get_data("position", experiment_id)
+        o = self.broker.getvalue("position", experiment_id)
         return o
     
     def subscribe(self, experiment_id, topic) -> Generator:

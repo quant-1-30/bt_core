@@ -27,7 +27,7 @@
 from .restricted import *
 
 
-_restricts = {
+_risk_ctl = {
     'cash': CashRisk,
     'loss': LossRisk,
     }

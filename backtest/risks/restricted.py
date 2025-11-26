@@ -33,7 +33,7 @@ class CashRisk(Risk):
     )
 
     def is_restricted(self, strat):
-      acct, _ = strat.getval()
+      acct, _ = strat.getvalue()
       ratio = acct.cash / (acct.portfolio_value + acct.cash)
       is_r = False if ratio >= self.p.safety else True
       return is_r
@@ -48,7 +48,7 @@ class LossRisk(Risk):
     )
 
     def is_restricted(self, strat):
-      dd = strat.stats.getattr("DrawDown")
+      dd = strat.stats.getbyname("DrawDown")
       loss_ratio = dd.lines.drawdown[0] 
       is_r = True if loss_ratio >= self.p.ratio else False
       return is_r

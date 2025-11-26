@@ -251,7 +251,6 @@ class MetaTimeFrameAnalyzerBase(Analyzer.__class__):
 class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
                                            Analyzer)):
     params = (
-        # ('timeframe', None),
         ('timeframe', TimeFrame.Days),
         ('compression', None),
     )

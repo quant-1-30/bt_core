@@ -83,17 +83,16 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         ('firstopen', True),
     )
 
-    def start(self):
-        super(TimeReturn, self).start()
-
+    def _start(self):
+        super(TimeReturn, self)._start()
         v, _ = self._owner.getvalue()
-        self._value_start = v.portofolio_value + v.cash
+        self._value_start = v.portfolio_value + v.cash
         self._value = None
 
     def on_dt_over(self):
         # next is called in a new timeframe period
-        v, _ = self._owner.getvalue()
-        self._value = v.portofolio_value + v.cash
+        data, _ = self._owner.getvalue()
+        self._value = data.portfolio_value + data.cash
         self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
         self._value_start = self._value  # keep last value
           

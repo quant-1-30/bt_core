@@ -28,7 +28,7 @@ from . import observers
 from .writer import WriterFile
 from backtest.metabase import MetaParams, with_metaclass
 from backtest.sizers import sizers
-from backtest.risks import restricted
+from backtest.risks import _risk_ctl
 from backtest.timer import Timer
 from backtest.errors import *
 from backtest.stores import _stores
@@ -95,7 +95,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.datas = list()
         self.store = None
         self.strats = list()
-        
+        self.risk_control = None
+
         self.observers = list()
         self.indicators = list()
         self.writers = list()
@@ -352,19 +353,20 @@ class Cerebro(with_metaclass(MetaParams, object)):
         sizer_type = kwargs.pop("sizer", self.p.sizer)
         self.sizer = sizers[sizer_type](*args, **kwargs)
 
-    def addrisk(self, *args, **kwargs):
+    def addControl(self, *args, **kwargs):
         '''Adds a ``RiskControl`` class (and args) which is the default risk for any
         strategy added to cerebro
         '''
         _risk = kwargs.pop("risk", self.p.risk)
-        self.risk_ctl = restricted[_risk](*args, **kwargs)
+        self.risk_control = _risk_ctl[_risk](*args, **kwargs)
 
 # ---------------------------------------------------------------- run -------------------------------------------------------------------
 
     def _start(self, *args, **kwargs):
         self.set_cash(*args, **kwargs) # pop cash
         self.addstore(*args, **kwargs) # pop client_id fromdate todate 
-        self.addsizer(*args, **kwargs)
+        self.addsizer()
+        self.addControl()
     
     def __call__(self, iterstrat):
         '''

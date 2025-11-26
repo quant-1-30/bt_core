@@ -76,16 +76,17 @@ class MyStrategy(bt.Strategy):
         sma3 = btind.SMA(sma2, period=10)  # 5 weeks sma
         ema = btind.EMA(sma2, period=10)
 
-        self.buysig = ema > sma3 # linesoperation
-        # self.buysig = sma0 > sma1 # linesoperation
-
+        self.buysig = sma2 - sma1 # self.buysig = sma0 > sma1 # linesoperation
+    
     def next(self):
-        print("buysig: ", self.buysig[0])
-        if self.buysig[0]:
+        if self.buysig[0] > 0:
+            print("buysig: ", self.buysig[0])
             print('daily sma is greater than weekly sma1')
             self.buy()
         else:
+            print("sellsig: ", self.buysig[0])
             self.sell()
+
 
 # class MyStrategy(bt.Strategy):
 # # LineSeriesStub
@@ -116,6 +117,7 @@ if __name__ == '__main__':
     cerebro.set_cash(cash=10000)
     # Add a strategy
     cerebro.addstrategy(MyStrategy)
-    # cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="1001fe63-3d5d-42b3-89d5-d96218617219")
-    cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80", benchmark="000001") # 000001 000680 399006 399001
+    # 000001 000680 399006 399001
+    cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="1001fe63-3d5d-42b3-89d5-d96218617219", benchmark="000001") # localhost
+    # cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80", benchmark="000001") # ssh 
     # plot via bokeh or mpl

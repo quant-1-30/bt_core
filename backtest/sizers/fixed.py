@@ -45,7 +45,7 @@ class Pyramid(Sizer):
       Pyramid holding policy
     """
     params = (
-      ("perc", (90, 100),)
+      ("perc", (90, 100)), 
     )   # reserve a fraction of cash
     
     def __init__(self):
