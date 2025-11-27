@@ -20,7 +20,7 @@
 ###############################################################################
 
 from backtest.indicator import Indicator
-from backtest.functions import CmpEx
+from backtest.operators import CmpEx
 
 
 class PivotPoint(Indicator):

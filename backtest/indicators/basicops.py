@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import numpy as np
 import functools
 import math
 import operator
@@ -391,6 +391,9 @@ class ExponentialSmoothing(Average):
         super(ExponentialSmoothing, self).next()
 
     def next(self):
+        if np.isnan(self.line[-1]):
+            self.line[-1] = 0.0 # avoid np.nan
+
         self.line[0] = self.line[-1] * self.alpha1 + self.data[0] * self.alpha
 
     def oncestart(self, start, end):

@@ -58,16 +58,16 @@ class DivByZero(Logic):
         b = self.b[0]
         self[0] = self.a[0] / b if b else self.zero
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b.array
-        zero = self.zero
+    # def once(self, start, end):
+    #     # cache python dictionary lookups
+    #     dst = self.array
+    #     srca = self.a.array
+    #     srcb = self.b.array
+    #     zero = self.zero
 
-        for i in range(start, end):
-            b = srcb[i]
-            dst[i] = srca[i] / b if b else zero
+    #     for i in range(start, end):
+    #         b = srcb[i]
+    #         dst[i] = srca[i] / b if b else zero
 
 
 class DivZeroByZero(Logic):
@@ -97,22 +97,6 @@ class DivZeroByZero(Logic):
         else:
             self[0] = self.a[0] / b
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b.array
-        single = self.single
-        dual = self.dual
-
-        for i in range(start, end):
-            b = srcb[i]
-            a = srca[i]
-            if b == 0.0:
-                dst[i] = dual if a == 0.0 else single
-            else:
-                dst[i] = a / b
-
 
 class Cmp(Logic):
     def __init__(self, a, b):
@@ -122,15 +106,8 @@ class Cmp(Logic):
 
     def next(self):
         self[0] = self.a[0] < self.b[0]
-
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b.array
-
-        for i in range(start, end):
-            dst[i] = srca[i] < srcb[i]
+        # import pdb; pdb.set_trace()
+        print("Cmp next: ", self[0])
 
 
 class CmpEx(Logic):
@@ -145,26 +122,6 @@ class CmpEx(Logic):
     def next(self):
         self[0] = self.a[0] < self.b[0]
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b.array
-        r1 = self.r1.array
-        r2 = self.r2.array
-        r3 = self.r3.array
-
-        for i in range(start, end):
-            ai = srca[i]
-            bi = srcb[i]
-
-            if ai < bi:
-                dst[i] = r1[i]
-            elif ai > bi:
-                dst[i] = r3[i]
-            else:
-                dst[i] = r2[i]
-
 
 class If(Logic):
     def __init__(self, cond, a, b):
@@ -176,29 +133,10 @@ class If(Logic):
     def next(self):
         self[0] = self.a[0] if self.cond[0] else self.b[0]
 
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        srca = self.a.array
-        srcb = self.b.array
-        cond = self.cond.array
-
-        for i in range(start, end):
-            dst[i] = srca[i] if cond[i] else srcb[i]
-
 
 class MultiLogic(Logic):
     def next(self):
         self[0] = self.flogic([arg[0] for arg in self.args])
-
-    def once(self, start, end):
-        # cache python dictionary lookups
-        dst = self.array
-        arrays = [arg.array for arg in self.args]
-        flogic = self.flogic
-
-        for i in range(start, end):
-            dst[i] = flogic([arr[i] for arr in arrays])
 
 
 class MultiLogicReduce(MultiLogic):

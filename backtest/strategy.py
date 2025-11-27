@@ -427,7 +427,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ainfo = wrinfo.Analyzers
 
         # Internal Value Analyzer
-        acct = self.store.getaccount(self.experiment_id)
+        acct, _ = self.getvalue()
         ainfo.Value.End = acct.portfolio_value if acct else 0
 
         # no slave analyzers for writer
@@ -437,17 +437,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return wrinfo
     
-    def getvalue(self, isall=False):
+    def getvalue(self, issub=False):
         '''Returns the portfolio value and positions of strategy
 
-        If ``isall`` is ``False`` (default) the value of the cash in hand
+        If ``issub`` is ``False`` (default) the value of the cash in hand
         plus the market value of the open positions is returned.
 
-        If ``isall`` is ``True`` the value of all positions is calculated
+        If ``issub`` is ``True`` the value of all positions is calculated
         as if they were closed at the current market price and then added to
         the cash in hand.
         '''
-        if isall:
+        if issub:
             acct = self.store.subscribe(self.experiment_id, "account")
             postn = self.store.subscribe(self.experiment_id, "position")
         else:

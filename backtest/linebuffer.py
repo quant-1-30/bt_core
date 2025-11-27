@@ -89,7 +89,7 @@ class LineBuffer(LineSingle):
 
             # self.array = collections.deque(maxlen=self.maxlen + self.extrasize)
             # self.array = array.array(str('d'))
-            self.array = np.full(self.maxlen, np.nan)
+            self.array = np.full(self.maxlen, np.nan) # bool --> 1.0 / 0.0  
             self.useislice = False
         else:
             self.array = array.array('d')
@@ -187,12 +187,13 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        end_index = self.idx + ago + 1
-        if size <= self.idx:
-            start_index = self.idx - size
+        idx = self.idx % self.maxlen
+        end_index = idx + ago + 1
+        if size <= idx:
+            start_index = idx - size
             return self.array[start_index: end_index]
         else:
-            start_index = max(self.idx-self.maxlen, self.idx-size)
+            start_index = max(idx-self.maxlen, idx-size)
             array1 = self.array[start_index:]
             array2 = self.array[0:end_index]
             return np.concatenate((array1, array2))
@@ -536,6 +537,7 @@ class MetaLineActions(LineBuffer.__class__):
 
         # register with _owner to be kicked later
         _obj._owner.addindicator(_obj)
+        _obj._lineiterators = collections.defaultdict(list) # api with lineiterator
 
         return _obj, args, kwargs
 
@@ -566,11 +568,18 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
 
     def getindicators(self):
         return []
+    
+    def extra_nested_info(self):
+        extra_info = f"{self.__class__.__name__}("
+        for data in self.datas:
+            extra_info += f"{data.extra_info}," if not isinstance(data, DataSeries) else f"{data._name},"
+        extra_info += f"{str(self.p)})"
+        return extra_info
 
     def qbuffer(self, savemem=1):
         super(LineActions, self).qbuffer(savemem=savemem)
         for data in self._datas:
-            data.minbuffer(size=self._minperiod)
+            data.minbuffer(self._minperiod)
 
     @staticmethod
     def arrayize(obj):

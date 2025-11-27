@@ -140,7 +140,7 @@ class MetaLineIterator(LineSeries.__class__):
         if _obj._owner is not None: # Strategy继承自 LineIterator → LineSeries → LineRoot → LineMultiple
             _obj._owner.addindicator(_obj)
 
-        _obj.extra_info = extra_info = _obj.nested_extra_info() # intended to indicator
+        _obj.extra_info = _obj.extra_nested_info() # intended to indicator
         
         return _obj, args, kwargs
 
@@ -181,7 +181,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
                 o = o._owner  # move up the hierarchy
 
-    def nested_extra_info(self):
+    def extra_nested_info(self):
         extra_info = f"{self.__class__.__name__}("
         for data in self.datas:
             extra_info += f"{data.extra_info}," if not isinstance(data, DataSeries) else f"{data._name},"
@@ -203,7 +203,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
     def getindicators_lines(self):
         return [x for x in self._lineiterators[LineIterator.IndType]
-                if hasattr(x.lines, 'getlinealiases')]
+                if hasattr(x.lines, 'getlinealiases')] # filter LineAction
 
     def getobservers(self):
         return self._lineiterators[LineIterator.ObsType]
@@ -254,7 +254,9 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _next(self):
         clock_len = self._clk_update()
 
+        # import pdb; pdb.set_trace()
         for indicator in self._lineiterators[LineIterator.IndType]:
+            # print("_next indicator ", indicator)
             indicator._next()
 
         if self._ltype == LineIterator.StratType:

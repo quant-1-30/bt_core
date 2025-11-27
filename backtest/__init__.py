@@ -36,7 +36,7 @@ from .signal import *
 from .cerebro import *
 from .timer import *
 from .flt import *
-from .functions import *
+from .operators import *
 
 from . import utils as utils
 

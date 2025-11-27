@@ -499,6 +499,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             self._runnext(runstrats)
 
+            self.stop_writers(runstrats) 
+            print("stop writer")     
+
             for strat in runstrats:
                 strat._stop()
             print("strat stop")
@@ -507,8 +510,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             data.stop()
         print("feed data stop")
 
-        self.stop_writers(runstrats) 
-        print("stop writer")      
         return runstrats
 
     def _runnext(self, runstrats):
