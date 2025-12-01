@@ -292,27 +292,40 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         if qtrades:
             self._trades.extend(qtrades)
 
-    def buy(self, execType=ExecType.Market, plimit: int=0):
+    def buy(self, plimit: int=0, execType=0, filler="trend"):
         '''Create a buy (long) order and send it to the broker 
+          
+          - ``plimit`` (default: ``0``) means set price limit or not
 
-          - ``exectype`` (default: ``None``)
+          - ``exectype`` (default: ``int``)
 
             Possible values:
 
-            - ``Order.Market`` or ``None``. A market order will be executed
-              with the next available price. In backtesting it will be the
-              opening price of the next bar
+            - ``0 `` alias for Order.Market. An order will be executed
+              on created_dt 
 
-            - ``Order.Limit``. An order which can only be executed at the given
-              ``price`` or better
+            - ``1 ``. alias for Order.Limit. An order be executed at the given
+                price`` or better. e.g.  oco / occ / smooth / trend
 
-            - ``Order.Stop``. An order which is triggered at ``price`` and
-              executed like an ``Order.Market`` order
+            - ``2 ``. alias for Order.Stop is not supported by A stock 
 
-            - ``Order.Close``. An order which can only be executed with the
-              closing price of the session (usually during a closing auction)
+            - ``3``. alias for StopLimit is not supported by A stock  
 
-          - ``plimit``: plimit for limit/stop orders, int 
+          - ``filler``: logic for simulate executed price on created_dt
+            
+            Possible values:
+
+            - ``oco``. An order which can only be executed on order created_dt 
+                where open price be base of plimit
+
+            - ``occ``. An order which can only be executed on order created_dt
+                where close price be base of plimit
+
+            - ``smooth``. An order which can only be executed on order created_dt
+                where mean of ohlc
+
+            - ``trend``. An order which can only be executed on order created_dt 
+                where high for buy order or low for sell order
 
           - ``**kwargs``: additional broker implementations may support extra
             parameters. ``backtrader`` will pass the *kwargs* down to the
@@ -327,9 +340,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         order = Order(sid=self.datas[0].p.sid[0],
                     pricelimit=plimit,
                     sizer_ratio=_sizer, 
-                    order_type=OrderType.Buy.value,
-                    exec_type=execType.value, 
-                    created_dt=int(self.lines.datetime[0]))
+                    order_type=0,
+                    exec_type=0, 
+                    created_dt=int(self.lines.datetime[0]),
+                    filler=filler)
 
         ord, trades = self.store.submit(self.experiment_id, order)
         if trades:
@@ -337,7 +351,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self._notify(ord, trades)
         
-    def sell(self, execType=ExecType.Market, plimit: int=0):
+    def sell(self, plimit: int=0, execType=0, filler="trend"):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -351,11 +365,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         order = Order(sid=self.datas[0].p.sid[0],
                       sizer_ratio=_sizer, 
                       pricelimit=plimit,     
-                      order_type=OrderType.Sell.value,
-                      exec_type=execType.value, 
-                      created_dt=int(self.lines.datetime[0]))
+                      order_type=1,
+                      exec_type=execType, 
+                      created_dt=int(self.lines.datetime[0]),
+                      filler=filler)
         
-
         ord, trades = self.store.submit(self.experiment_id, order)
         if trades:
             self.lines.sell[0] = -1

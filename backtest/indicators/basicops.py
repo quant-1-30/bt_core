@@ -351,7 +351,6 @@ class Average(PeriodN):
     def next(self):
         self.line[0] = \
             math.fsum(self.data.get(size=self.p.period)) / self.p.period
-        # import pdb; pdb.set_trace()
 
     def once(self, start, end):
         src = self.data.array
@@ -389,13 +388,9 @@ class ExponentialSmoothing(Average):
 
     def nextstart(self):
         # Fetch the seed value from the base class calculation
-        super(ExponentialSmoothing, self).next()
-        self.line[0] = 0.0
+        super(ExponentialSmoothing, self).next() # self.line[-1] = 0.0 # avoid np.nan 
 
     def next(self):
-        # if np.isnan(self.line[-1]):
-        #     self.line[-1] = 0.0 # avoid np.nan
-
         self.line[0] = self.line[-1] * self.alpha1 + self.data[0] * self.alpha
 
     def oncestart(self, start, end):
