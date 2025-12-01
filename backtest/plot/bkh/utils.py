@@ -1,9 +1,30 @@
+#!/usr/bin/env python
+# -*- coding: utf-8; py-indent-offset:4 -*-
+###############################################################################
+#
+# Copyright (C) 2015-2023 Daniel Rodriguez
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
 import pandas as pd
 import numpy as np
+
 from bokeh.models import Range1d, ColumnDataSource
 
 
-def resample(ns, df, data, freq="D"):
+def resample(ns, df, data, freq):
     # resmaple 生成连续日期
     df = df.astype("float")
     if "datetime" in df.columns:
@@ -33,7 +54,7 @@ def resample(ns, df, data, freq="D"):
     sample["datetime"] = sample.index
     return sample
 
-def create_datasource(csv_path):
+def create_datasource(csv_path, freq):
     data = pd.read_csv(csv_path, header=1, sep=";")
 
     datasource = {}
@@ -47,7 +68,7 @@ def create_datasource(csv_path):
         c_v = data.loc[:, d_c].astype(str)
         split_c_v = c_v.str.split(',', expand=True) 
         split_c_v.columns = d_c.split(',')
-        resample_c_v = resample(n_c, split_c_v, data)
+        resample_c_v = resample(n_c, split_c_v, data, freq)
         
         for key, v in resample_c_v.items():
             arr = v.to_numpy()
@@ -56,8 +77,7 @@ def create_datasource(csv_path):
 
             _src[key] = arr
         datasource[n_c] = ColumnDataSource(data=_src, name=n_c)
-    shared_x = Range1d(data.index[0], data.index[-1]) # 同步x轴
-    return datasource, shared_x
+    return datasource
 
 def merge_cds(*sources, on='datetime'):
     """

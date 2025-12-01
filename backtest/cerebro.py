@@ -26,13 +26,14 @@ from pytz import timezone
 
 from . import observers
 from .writer import WriterFile
-from backtest.metabase import MetaParams, with_metaclass
-from backtest.sizers import sizers
-from backtest.risks import _risk_ctl
-from backtest.timer import Timer
-from backtest.errors import *
-from backtest.stores import _stores
-from backtest.utils.wrapper import consume_time
+from .metabase import MetaParams, with_metaclass
+from .sizers import sizers
+from .risks import _risk_ctl
+from .timer import Timer
+from .errors import *
+from .stores import _stores
+from .utils.wrapper import consume_time
+from .plot import Plot
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -91,7 +92,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     )
 
     def __init__(self):
-
         self.datas = list()
         self.store = None
         self.strats = list()
@@ -104,6 +104,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.optcbs = list()  # holds a list of callbacks for opt strategies
         
         self._pretimers = list()
+        self._plot = Plot()
 
     def set_cash(self, *args, **kwargs):
         self.cash = kwargs.pop("cash", self.p.cash)
@@ -625,3 +626,31 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''If invoked from inside a strategy or anywhere else, including other
         threads the execution will stop as soon as possible.'''
         self._event_stop = True  # signal a stop has been requested
+
+    def plot(self, data_path, freq="D", **kwargs):
+        '''
+        Plots the strategies inside cerebro
+
+        If ``plotter`` is None a default ``Plot`` instance is created and
+        ``kwargs`` are passed to it during instantiation.
+
+        ``numfigs`` split the plot in the indicated number of charts reducing
+        chart density if wished
+
+        ``iplot``: if ``True`` and running in a ``notebook`` the charts will be
+        displayed inline
+
+        ``data_path``: str where save feed strategy indicator observer data
+        
+        ``freq``: default D  which frequency to plot data
+
+        ``width``: in inches of the saved figure
+
+        ``height``: in inches of the saved figure
+
+        ``dpi``: quality in dots per inches of the saved figure
+
+        ``tight``: only save actual content and not the frame of the figure
+        '''
+
+        self._plot.plot(data_path, freq=freq)

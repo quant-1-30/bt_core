@@ -3,7 +3,15 @@
 Note when comparing these calendars to the ones printed by cal(1): By
 default, these calendars have Monday as the first day of the week, and
 Sunday as the last (the European convention). Use setfirstweekday() to
-set the first day of the week (0=Monday, 6=Sunday)."""
+set the first day of the week (0=Monday, 6=Sunday).
+        
+熔断机制 2016-01-01 2016-01-07(1月8日起暂停实施指数熔断机制)
+2016年1月4日, A股遇到史上首次“熔断”。早盘, 两市双双低开,随后沪指一度跳水大跌,跌破3500点与3400点,各大板块纷纷下挫。
+午后, 沪深300指数在开盘之后继续下跌, 并于13点13分超过5%, 引发熔断,三家交易所暂停交易15分钟, 恢复交易之后, 沪深300指数继续下跌,
+并于13点34分触及7%的关口，三个交易所暂停交易至收市。
+2016年1月7日, 早盘9点42分, 沪深300指数跌幅扩大至5%, 再度触发熔断线, 两市将在9点57分恢复交易。开盘后, 仅3分钟 10:00
+沪深300指数再度快速探底, 最大跌幅7.21%, 二度熔断触及阈值。这是2016年以来的第二次提前收盘, 同时也创造了休市最快记录
+"""
 
 import sys
 import datetime
@@ -36,6 +44,15 @@ class IllegalWeekdayError(ValueError):
     def __str__(self):
         return "bad weekday number %r; must be 0 (Monday) to 6 (Sunday)" % self.weekday
 
+
+# from dateutil import rrule
+# new_year = rrule.rrule( # 元旦
+#     rrule.YEARLY,
+#     byyearday=1,
+#     cache=True,
+#     dtstart=start,
+#     until=end
+# )
 
 # Constants for months referenced later
 January = 1

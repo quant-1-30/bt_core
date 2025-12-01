@@ -18,11 +18,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-from colorsys import rgb_to_hls as rgb2hls, hls_to_rgb as hls2rgb
-
 import matplotlib.colors as mplcolors
 import matplotlib.path as mplpath
+
+from colorsys import rgb_to_hls as rgb2hls, hls_to_rgb as hls2rgb
 
 
 def tag_box_style(x0, y0, width, height, mutation_size, mutation_aspect=1):
@@ -91,3 +90,4 @@ def shade_color(color, percent):
     r, g, b = hls2rgb(h, l, s)
 
     return r, g, b
+
