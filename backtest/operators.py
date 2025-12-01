@@ -105,9 +105,8 @@ class Cmp(Logic):
         self.b = self.args[1]
 
     def next(self):
-        self[0] = self.a[0] < self.b[0]
-        # import pdb; pdb.set_trace()
-        print("Cmp next: ", self[0])
+        self[0] = self.a[0] - self.b[0]
+        # print("Cmp next: ", self[0])
 
 
 class CmpEx(Logic):

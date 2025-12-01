@@ -1,7 +1,13 @@
-                                        Fake it until you make it
-
-
 # 核心架构设计
+    项目基于backtrader重构， 核心从两个维度 a. broker feed store trade 核心模块剥离 ; b. 回测逻辑由 T+1 基于A股市场交易策略rewrite。主体backtest 负责 indicator 与 strategy 构建，
+    构建方式基于type元类 构建框架类，抽象具体实现细节，具体可以深入backtrader metabase 源码了解细节。关于 feed 与 broker 集成方式， 借鉴xtp系统 mdapi / tdapi 构建sdk 集成到backtest。 
+
+```mermaid
+
+graph Backtest
+    rpc_feed
+
+```
 
 ## 元类与类构造机制
 
@@ -94,24 +100,3 @@ cerebro.run(exactbars=-1) # 低内存模式
 
     添加数据源 → 预加载 → while循环加载 → _load方法 → 数据过滤
 
-
-<!-- #代码高亮
-try:
-    from pygments import highlight
-    from pygments.lexers import PythonLexer
-    from pygments.formatters import TerminalFormatter
-    PYGMENTS = True
-except ImportError:
-    PYGMENTS = False -->
-
-# prune_orders
-
-# getter  ---- property ;  setter --- @func.setter
-
-# __delete__(instance), __get__(instance,owner) , __set__(instance,value) 描述器 , 实例为类的类属性
-# __getattribute__ --- __getattr__ 显式访问不存在饿属性,除非显示调用或引发AttributeError异常
-
-# __delete__(self,instance) ,__del__(self)
-
-# get_sizing 两个维度，a. strategy 层面基于统一调度/strategy 波动率等; b. inner strategy 基于数据波动率等calc
-# risk control ---> get_sizing ---> strategy

@@ -106,6 +106,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     params = (
         ('dataname', ""),
         ('timeframe', TimeFrame.Minutes),
+        # ('timeframe', TimeFrame.Days),
         ('compression', 1),
         ('filters', []),
         ('tz', 'Asia/Shanghai'),
@@ -224,8 +225,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         if not ret:
             return ret
         
-        # if len(self) >= self.buflen(): # consume > buffer size
-        #     self.apply_factor() 
+        if len(self) >= self.buflen(): # consume > buffer size
+            self.apply_factor() 
         return True
 
     def _load(self):

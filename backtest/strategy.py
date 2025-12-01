@@ -321,21 +321,21 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        if not self.risk_control.is_restricted(self):
-            _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
+        # if not self.risk_control.is_restricted(self):
+        _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
 
-            order = Order(sid=self.datas[0].p.sid[0],
-                        pricelimit=plimit,
-                        sizer_ratio=_sizer, 
-                        order_type=OrderType.Buy.value,
-                        exec_type=execType.value, 
-                        created_dt=int(self.lines.datetime[0]))
+        order = Order(sid=self.datas[0].p.sid[0],
+                    pricelimit=plimit,
+                    sizer_ratio=_sizer, 
+                    order_type=OrderType.Buy.value,
+                    exec_type=execType.value, 
+                    created_dt=int(self.lines.datetime[0]))
 
-            ord, trades = self.store.submit(self.experiment_id, order)
-            if trades:
-                self.lines.buy[0] = 1 
+        ord, trades = self.store.submit(self.experiment_id, order)
+        if trades:
+            self.lines.buy[0] = 1 
 
-            self._notify(ord, trades)
+        self._notify(ord, trades)
         
     def sell(self, execType=ExecType.Market, plimit: int=0):
         '''
@@ -345,23 +345,23 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        if not self.risk_control.is_restricted(self):
-            _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
+        # if not self.risk_control.is_restricted(self):
+        _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
-            order = Order(sid=self.datas[0].p.sid[0],
-                          sizer_ratio=_sizer, 
-                          pricelimit=plimit,     
-                          order_type=OrderType.Sell.value,
-                          exec_type=execType.value, 
-                          created_dt=int(self.lines.datetime[0]))
+        order = Order(sid=self.datas[0].p.sid[0],
+                      sizer_ratio=_sizer, 
+                      pricelimit=plimit,     
+                      order_type=OrderType.Sell.value,
+                      exec_type=execType.value, 
+                      created_dt=int(self.lines.datetime[0]))
         
 
-            ord, trades = self.store.submit(self.experiment_id, order)
-            if trades:
-                self.lines.sell[0] = -1
-                self.sizer.restore() # reset sizing pyramid 
+        ord, trades = self.store.submit(self.experiment_id, order)
+        if trades:
+            self.lines.sell[0] = -1
+            self.sizer.restore() # reset sizing pyramid 
         
-            self._notify(ord, trades)
+        self._notify(ord, trades)
         
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''

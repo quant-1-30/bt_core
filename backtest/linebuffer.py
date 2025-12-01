@@ -170,9 +170,6 @@ class LineBuffer(LineSingle):
         '''
         return self.array[idx]
     
-    def getval(self):
-        return self.array
-    
     def get(self, ago=0, size=1):
         ''' Returns a slice of the array relative to *ago*
 
@@ -187,17 +184,17 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
+        # import pdb; pdb.set_trace()
         idx = self.idx % self.maxlen
-        end_index = idx + ago + 1
-        if size <= idx:
-            start_index = idx - size
+        if size <= idx + 1:
+            start_index = idx - size + 1
+            end_index = idx + ago + 1
             return self.array[start_index: end_index]
         else:
-            start_index = max(idx-self.maxlen, idx-size)
-            array1 = self.array[start_index:]
-            array2 = self.array[0:end_index]
+            array1 = self.array[idx-size:]
+            array2 = self.array[:idx]
             return np.concatenate((array1, array2))
-
+    
     def getzero(self, size=1):
         ''' Returns a slice of the array relative to the real zero of the buffer
 
