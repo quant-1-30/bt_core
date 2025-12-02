@@ -61,7 +61,7 @@ class Store(with_metaclass(MetaStore, object)):
 
     params = (
         ("timeout", -1),
-        ("checksum", "eof")
+        ("checksum", "eof"),
     )
     
     def _start(self, *args, **kwargs):

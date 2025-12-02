@@ -25,20 +25,18 @@ from .lineiterator import *
 from .indicator import *
 from .analyzer import *
 from .observer import *
+from .dataseries import *
 from .sizer import *
 from .strategy import *
 from .stores import *
-
 from .writer import *
-
 from .signal import *
-
-from .cerebro import *
 from .timer import *
 from .flt import *
 from .operators import *
 
-from . import utils as utils
+from .cerebro import *
+
 
 from . import feeds as feeds
 from . import indicators as indicators
@@ -49,4 +47,4 @@ from . import sizers as sizers
 from . import stores as stores
 from . import brokers as brokers
 from . import timer as timer
-from . import calendar as calendar
+from . import tradingcal as calendar

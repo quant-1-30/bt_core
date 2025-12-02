@@ -100,3 +100,11 @@ cerebro.run(exactbars=-1) # 低内存模式
 
     添加数据源 → 预加载 → while循环加载 → _load方法 → 数据过滤
 
+数据重采样
+
+    bar2edge  adjbartime  rightedge boundoff
+
+    resample 
+    replay 含义举例 重建4小时数据(next 推进，数据是更新的, 需要将数据保存在stash中)
+
+    2>/dev/null --- 0 1 2

@@ -59,7 +59,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
             super(MetaAbstractDataBase, cls).dopostinit(_obj, *args, **kwargs)
 
         # Either set by subclass or the parameter or use the dataname (ticker)
-        _obj._name = _obj.plotinfo.plotname or _obj.p.dataname or cls.__class__.__name__
+        _obj._name = _obj.plotinfo.plotname or cls.__class__.__name__
 
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
@@ -71,30 +71,14 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
             # remove 9 to avoid precision rounding errors
             _obj.p.sessionend = datetime.timedelta()
 
-        if not isinstance(_obj.p.fromdate, datetime.date):
-            # push it to the end of the day, or else intraday
-            # values before the end of the day would be gone
-            _obj.p.fromdate = datetime.datetime.strptime(str(_obj.p.fromdate), "%Y%m%d")
-
-        _obj.fromdate = _obj.p.fromdate + _obj.p.sessionstart
-
-        if not isinstance(_obj.p.todate, datetime.date):
-            # push it to the end of the day, or else intraday
-            # values before the end of the day would be gone
-            _obj.p.todate = datetime.datetime.strptime(str(_obj.p.todate), "%Y%m%d")
-
-        _obj.todate = _obj.p.todate + _obj.p.sessionend
-
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
 
         _obj._filters = list()
-        _obj._ffilters = list()
+
         for fp in _obj.p.filters:
             if inspect.isclass(fp):
                 fp = fp(_obj)
-                if hasattr(fp, 'last'):
-                    _obj._ffilters.append((fp, [], {}))
 
             _obj._filters.append((fp, [], {}))
         
@@ -106,17 +90,12 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     params = (
         ('dataname', ""),
         ('timeframe', TimeFrame.Minutes),
-        # ('timeframe', TimeFrame.Days),
         ('compression', 1),
         ('filters', []),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
         ('sessionstart', datetime.timedelta(hours=9, minutes=30)),
         ('sessionend', datetime.timedelta(hours=15, minutes=0)),
-        ('fromdate', None),
-        ('todate', None),
-        ("sid", []),
-        ("benchmark", ''),
     )
 
     (CONNECTED, DISCONNECTED, CONNBROKEN, DELAYED,
@@ -140,22 +119,29 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
     _tmoffset = datetime.timedelta()
 
-    def _start(self, **kwargs):
-        self.start()
+    def _start(self, *args, **kwargs):
+        self.start(*args, **kwargs)
         if not self._started:
             self._start_finish() # dynamic update and add attributes _tzinput, _tz, _calendar, _started
 
-    def start(self):
+    def start(self, *args, **kwargs):
         self._barstack = collections.deque()
         self._barstash = collections.deque()
         # self._laststatus = self.CONNECTED
+        
+        fromdate = datetime.datetime.strptime(str(kwargs["fromdate"]), "%Y%m%d") 
+        self.fromdate = fromdate + self.p.sessionstart
+        todate = datetime.datetime.strptime(str(kwargs["todate"]), "%Y%m%d")
+        self.todate = todate + self.p.sessionend
+        self.sid = kwargs["sid"]
     
     def _start_finish(self):
         self._tz = self._gettz()
         self.lines.datetime._settz(self._tz)
-
         self._tzinput = Localizer(self._gettzinput())
         self._started = True
+
+        self.extra_info = f"{','.join(self.sid)}@{self.fromdate}:{self.todate}" # any extra info to relate with feed
 
     def updateminperiod(self, minperiod):
         self._minperiod = minperiod
@@ -173,6 +159,18 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         # tz = pytz.timezone(self.p.tz)
         # return Localizer(tz)
         return tzparse(self.p.tz)
+
+    def _dt_over(self, last=False): # to adapt A stock T + 1 policy
+        dt = num2date(self.lines.datetime[0])
+        pre_dt = num2date(self.lines.datetime[-1]) # nan to zero if nan
+        if self._timeframe >= TimeFrame.Days or last:
+            isover = True
+        elif pre_dt:
+            isover = (dt - pre_dt).days > 0
+        else:
+            isover = False
+
+        return isover, (pre_dt, dt)
 
     def date2num(self, dt):
         if self._tz is not None:
@@ -199,35 +197,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             microsecond=self.p.sessionend.microsecond
         )
         nextdteos = date2num(nexteos) # localize
-        return nexteos, nextdteos
-    
-    def _dt_over(self, last=False): # to adapt A stock T + 1 policy
-        dt = num2date(self.lines.datetime[0])
-        pre_dt = num2date(self.lines.datetime[-1]) # nan to zero if nan
-        if self._timeframe >= TimeFrame.Days or last:
-            isover = True
-        elif pre_dt:
-            isover = (dt - pre_dt).days > 0
-        else:
-            isover = False
-
-        return isover, (pre_dt, dt)
-    
-    def advance(self, size=1, datamaster=None):
-
-        self.lines.advance(size)
-        if datamaster is not None:
-            if self.lines.datetime[0] > datamaster.lines.datetime[0]:
-                self.lines.rewind()
-    
-    def next(self, datamaster=None):
-        ret = self.load()
-        if not ret:
-            return ret
-        
-        if len(self) >= self.buflen(): # consume > buffer size
-            self.apply_factor() 
-        return True
+        return nexteos, nextdteos 
 
     def _load(self):
         return False
@@ -236,7 +206,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         while True:
             self.forward()
 
-            if self._fromstack():  # bar is available
+            if self._fromstack():  # resample bar is available
                 return True
 
             if not self._fromstack(stash=True):
@@ -268,7 +238,23 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             if retff:  # bar removed from system - loop to get new bar
                 continue  # in the greater loop
             return True
+
+    def next(self, datamaster=None):
+        ret = self.load()
+        if not ret:
+            return ret
+        
+        if len(self) >= self.buflen(): # consume > buffer size
+            self.apply_factor() 
+        return True
     
+    def advance(self, size=1, datamaster=None):
+
+        self.lines.advance(size)
+        if datamaster is not None:
+            if self.lines.datetime[0] > datamaster.lines.datetime[0]:
+                self.lines.rewind()
+
     def _fromstack(self, forward=False, stash=False):
         '''Load a value from the stack onto the lines to form the new bar
 
@@ -316,31 +302,29 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         for line, val in zip(self.itersize(), bar):
             line[0 + ago] = val
 
-    def _last(self, datamaster=None):
-        ret = 0
-        for ff, fargs, fkwargs in self._ffilters:
-            ret += ff.last(self, *fargs, **fkwargs)
-
-        while self._fromstack(forward=True):
-            # consume bar(s) produced by "last"s - adding room
-            pass
-
-        return bool(ret)
-    
 # --------------------------------------------------------------------- resample ---------------------------------------------------------------
 
     def resample(self, **kwargs):
         self.addfilter(Resampler, **kwargs)
 
     def addfilter(self, p, *args, **kwargs):
-            if inspect.isclass(p):
-                pobj = p(self, *args, **kwargs)
-                self._filters.append((pobj, [], {}))
+        if inspect.isclass(p):
+            pobj = p(self, *args, **kwargs)
+            self._filters.append((pobj, [], {}))
+        else:
+            raise TypeError(f'{p} is not class')
 
-                if hasattr(pobj, 'last'):
-                    self._ffilters.append((pobj, [], {}))
-            else:
-                self._filters.append((p, args, kwargs))
+    def _last(self, datamaster=None):
+        ret = 0
+        for ff, fargs, fkwargs in self._filters:
+            if hasattr(ff, 'last'):
+                ret += ff.last(self, *fargs, **fkwargs)
+
+        while self._fromstack(forward=True):
+            # consume bar(s) produced by "last"s - adding room
+            pass
+
+        return bool(ret)
 
 # --------------------------------------------------------------------- clone------------------------------------------------------------------------
 
@@ -349,7 +333,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def copyas(self, _dataname, **kwargs):
         d = self.clone(**kwargs)
-        d._dataname = _dataname
+        # d._dataname = _dataname
         d._name = _dataname
         return d
     
@@ -445,16 +429,16 @@ class CSVDataBase(with_metaclass(MetaCSVDataBase, DataBase)):
             self.f.close()
             self.f = None
 
-    def preload(self):
-        while self.load():
-            pass
+    # def preload(self):
+    #     while self.load():
+    #         pass
 
-        self._last()
-        self.home()
+    #     self._last()
+    #     self.home()
 
-        # preloaded - no need to keep the object around - breaks multip in 3.x
-        self.f.close()
-        self.f = None
+    #     # preloaded - no need to keep the object around - breaks multip in 3.x
+    #     self.f.close()
+    #     self.f = None
 
     def _load(self):
         if self.f is None:
@@ -490,7 +474,7 @@ class DataClone(AbstractDataBase):
 
     def __init__(self):
         self.data = self.p.dataname
-        self._dataname = self.data._dataname
+        # self._dataname = self.data._dataname
 
         # Copy date/session parameters
         self.p.sessionstart = self.data.p.sessionstart
@@ -507,10 +491,10 @@ class DataClone(AbstractDataBase):
         self._tz = self.data._tz
         self.lines.datetime._settz(self._tz)
 
-        self._calendar = self.data._calendar
+        # self._calendar = self.data._calendar
 
         # input has already been converted by guest data
-        self._tzinput = None  # no need to further converr
+        self._tzinput = self.data._tzinput  # no need to further converr
 
         # FIXME: if removed from guest, remove here too
         self.sessionstart = self.data.sessionstart
@@ -518,42 +502,15 @@ class DataClone(AbstractDataBase):
 
     def start(self):
         super(DataClone, self).start()
-        self._dlen = 0
-        self._preloading = False
-
-    def preload(self):
-        self._preloading = True
-        super(DataClone, self).preload()
-        self.data.home()  # preloading data was pushed forward
-        self._preloading = False
+        # self._dlen = 0
 
     def _load(self):
         # assumption: the data is in the system
         # simply copy the lines
-        if self._preloading:
-            # data is preloaded, we are preloading too, can move
-            # forward until have full bar or data source is exhausted
-            self.data.advance()
-            if len(self.data) > self.data.buflen():
-                return False
-
-            for line, dline in zip(self.lines, self.data.lines):
-                line[0] = dline[0]
-
-            return True
-
-        # Not preloading
-        if not (len(self.data) > self._dlen):
-            # Data not beyond last seen bar
-            return False
-
-        self._dlen += 1
-
         for line, dline in zip(self.lines, self.data.lines):
             line[0] = dline[0]
-
         return True
 
-    def advance(self, size=1, datamaster=None):
-        self._dlen += size
-        super(DataClone, self).advance(size, datamaster)
+    # def advance(self, size=1, datamaster=None):
+    #     self._dlen += size
+    #     super(DataClone, self).advance(size, datamaster)

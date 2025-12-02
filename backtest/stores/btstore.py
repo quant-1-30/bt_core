@@ -49,15 +49,14 @@ class BTStore(Store):
     params = (
         ("md_addr", ("127.0.0.1:9000")),
         ("td_addr", ("127.0.0.1:8888")),
-        ("client_id", "")
+        ("client_id", ""),
     )
 
-    def __init__(self, *args, **kwargs): # 多余参数保留
-        # print("store initialize kwargs ", kwargs)
-
+    # def __init__(self, *args, **kwargs): # 多余参数保留
+    def __init__(self): 
         md_addr = os.getenv("MD_ADDR", self.p.md_addr)
-        kwargs["mdapi"] = MdApi(addr=md_addr.split(":"))
-        self._feed = self.DataCls(*args, **kwargs) 
+        mdapi = MdApi(addr=md_addr.split(":"))
+        self._feed = self.DataCls(mdapi=mdapi) 
 
         td_addr = os.getenv("TD_ADDR", self.p.td_addr) 
         tdapi = TdApi(addr=td_addr.split(":"), client_id=self.p.client_id)
@@ -86,7 +85,7 @@ class BTStore(Store):
         return self._feed.descr[1]
     
     def get_index(self) -> List[List]:
-        dlines = self._feed.descr[2]
+        dlines = self._feed.benchmark
         return dlines
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------

@@ -87,7 +87,7 @@ class MetaStrategy(StrategyBase.__class__):
         
         _obj._periodset()
         
-        _obj.experiment_id = _obj._next_exp()
+        _obj.experiment_id = _obj._next_id()
 
         return _obj, args, kwargs
 
@@ -169,7 +169,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
 
-    def _start(self, **kwargs):
+    # def _start(self, **kwargs):
+    def _start(self):
         self.start()
         
         self._periodrecalc()
@@ -197,12 +198,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
-    def _next_exp(self) -> str:
+    def _next_id(self) -> str:
         """
             Return experiment_id: str 
         """
-        p_str = json.dumps(self.p._getkwargs())
-        _identity = f"{self.__class__.__name__}({p_str})"
+        _identity = f"{self.__class__.__name__}({json.dumps(self.p._getkwargs())})"
         exp_id = self.store.make_experiment(_identity)
         return exp_id
 
@@ -337,7 +337,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # if not self.risk_control.is_restricted(self):
         _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
 
-        order = Order(sid=self.datas[0].p.sid[0],
+        order = Order(sid=self.datas[0].sid[0],
                     pricelimit=plimit,
                     sizer_ratio=_sizer, 
                     order_type=0,
@@ -362,7 +362,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # if not self.risk_control.is_restricted(self):
         _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
-        order = Order(sid=self.datas[0].p.sid[0],
+        order = Order(sid=self.datas[0].sid[0],
                       sizer_ratio=_sizer, 
                       pricelimit=plimit,     
                       order_type=1,

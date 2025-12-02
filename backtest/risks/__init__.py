@@ -28,6 +28,6 @@ from .restricted import *
 
 
 _risk_ctl = {
-    'cash': CashRisk,
-    'loss': LossRisk,
+    'default': CashRisk,
+    'dd': LossRisk,
     }

@@ -87,10 +87,6 @@ class BTBroker(BrokerBase):
     
     # acct = Acct()
     
-    def __init__(*args, **kwargs):
-        # to solve abundant args or kwargs
-        pass 
-
     def register(self, experiment: Experiment) -> Resp:
         resp = self.tdapi.register(experiment)
         return resp.body["experiment_id"]

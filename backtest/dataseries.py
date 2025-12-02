@@ -29,10 +29,10 @@ from backtest.utils.autodict import AutoOrderedDict
 
 
 class TimeFrame(object):
-    (Ticks, MicroSeconds, Seconds, Minutes,
-     Days, Weeks, Months, Years, NoTimeFrame) = range(1, 10)
+    (Ticks, MicroSeconds, MilliSecond, Seconds, Minutes,
+     Days, Weeks, Months, Years, NoTimeFrame) = range(1, 11)
 
-    Names = ['', 'Ticks', 'MicroSeconds', 'Seconds', 'Minutes',
+    Names = ['', 'Ticks', 'MicroSeconds', 'MilliSecond', 'Seconds', 'Minutes',
              'Days', 'Weeks', 'Months', 'Years', 'NoTimeFrame']
 
     names = Names  # support old naming convention

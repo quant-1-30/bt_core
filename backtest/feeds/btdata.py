@@ -33,6 +33,50 @@ from backtest.utils.dateintern import num2date
 __all__ = ["BtData"]
 
 
+class BtDescr(object):
+    '''Descriptor for calendar and instrument data'''
+    def __init__(self):
+        self.calendar = ()
+        self.assets = ()
+
+        self._cal_evt = threading.Event()
+        self._asset_evt = threading.Event()
+    
+    def __set__(self, instance, value):
+        raise AttributeError("can't set attribute")
+    
+    def __get__(self, instance, owner):
+        if len(self.calendar) ==0 or len(self.assets) ==0 or len(self.benchmark) ==0:
+            self.data_thd(instance.mdapi)
+        return self.calendar, self.assets, self.benchmark
+
+    def data_thd(self, api):
+        # reset
+        self._cal_evt.clear()
+        self._asset_evt.clear()
+
+        t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
+        _t = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
+
+        t.start()
+        _t.start()
+
+        self._cal_evt.wait()
+        self._asset_evt.wait()
+
+    def _t_cal(self, api):
+        msg = api.get_calendar()
+        print("calendar msg: ", msg)
+        self.calendar = msg
+        self._cal_evt.set()
+
+    def _t_asset(self, api):
+        msg = api.get_instrument()
+        print("asset msg ", msg)
+        self.assets = msg
+        self._asset_evt.set()
+
+
 class MetaBtData(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
@@ -52,72 +96,15 @@ class MetaBtData(DataBase.__class__):
         print("MetaBtData dopostinit kwargs ", kwargs)
         _obj.mdapi = _obj.p.mdapi
 
-        _obj.extra_info = f"{','.join(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
         _obj.ctx = None # context for yield
         _obj.adj_factors= {}
+        # _obj.extra_info = f"{','.join(_obj.p.sid)}@{_obj.p.fromdate}:{_obj.p.todate}" # any extra info to relate with feed
         return _obj, args, kwargs
-
-
-class BtDescr(object):
-    '''Descriptor for calendar and instrument data'''
-    def __init__(self):
-        self.calendar = ()
-        self.assets = ()
-        self.benchmark = np.array([])
-
-        self._cal_evt = threading.Event()
-        self._asset_evt = threading.Event()
-        self._bench_evt = threading.Event()
-    
-    def __set__(self, instance, value):
-        raise AttributeError("can't set attribute")
-    
-    def __get__(self, instance, owner):
-        if len(self.calendar) ==0 or len(self.assets) ==0 or len(self.benchmark) ==0:
-            self.data_thd(instance.mdapi)
-        return self.calendar, self.assets, self.benchmark
-
-    def data_thd(self, api):
-        # reset
-        self._cal_evt.clear()
-        self._asset_evt.clear()
-        self._bench_evt.clear()
-
-        t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
-        _t = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
-        _t_ = threading.Thread(target=self._t_index, args=(api,), daemon=True)
-
-        t.start()
-        _t.start()
-        _t_.start()
-
-        self._cal_evt.wait()
-        self._asset_evt.wait()
-        self._bench_evt.wait()
-
-    def _t_cal(self, api):
-        msg = api.get_calendar()
-        print("calendar msg: ", msg)
-        self.calendar = msg
-        self._cal_evt.set()
-
-    def _t_asset(self, api):
-        msg = api.get_instrument()
-        print("asset msg ", msg)
-        self.assets = msg
-        self._asset_evt.set()
-
-    def _t_index(self, api):
-        msg = api.get_benchmark()
-        print("bench msg ", msg)
-        self.benchmark = msg
-        self._bench_evt.set()
 
 
 class BtData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
-        ("client_id", ""),
         ("mdapi", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
     )
@@ -125,12 +112,12 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
     descr=BtDescr()
 
     def _start(self, *args, **kwargs):
-        super()._start()
-        qty = Query(sid=self.p.sid, start_date=self.p.fromdate, end_date=self.p.todate)
+        super()._start(*args,**kwargs)
 
-        # 由于单线程, descr与 calc_adjfactor提前计算, 后面考虑基于threading或者async 局部重构
+        qty = Query(sid=self.sid, start_date=self.fromdate, end_date=self.todate)
         self.calc_adjfactor(qty)
-        self.descr
+
+        self.benchmark = self.mdapi.get_benchmark(kwargs["benchmark"])
 
         self.generator = self.mdapi.subscribe(qty)  # self.ctx.__enter__()  # wrap by contextmanager 整合迭代器与session 手动获取上下文
 

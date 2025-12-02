@@ -80,11 +80,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     '''
     params = (
-        ("cash", 100000),
+        ("client_id", ""),
         ('savemem', 1),
         ("store", "bt"),
-        ("risk", "cash"),
+        ("store_p", {}),
+        ("risk", "default"),
+        ("risk_p", {}),
         ("sizer", "fixed"),
+        ("sizer_p", {}),
         ('stdstats', True),
         ('tz', None),
         ("out", None),
@@ -92,52 +95,64 @@ class Cerebro(with_metaclass(MetaParams, object)):
     )
 
     def __init__(self):
-        self.datas = list()
-        self.store = None
-        self.strats = list()
-        self.risk_control = None
 
+        self.cash = 0.0
+        self.datas = list()
+        self.strats = list()
         self.observers = list()
         self.indicators = list()
         self.writers = list()
-        self.storecbs = list()
         self.optcbs = list()  # holds a list of callbacks for opt strategies
-        
+        self.storecbs = list()
         self._pretimers = list()
+        
         self._plot = Plot()
+        
+    def addstore(self):
+        '''Adds an ``Store`` instance to the if not already present'''
+        storecls = _stores[self.p.store]
+        self.store = storecls(client_id=self.p.client_id, **self.p.store_p)
 
-    def set_cash(self, *args, **kwargs):
-        self.cash = kwargs.pop("cash", self.p.cash)
-
-    def adddata(self, data, init=False):
+    def addsizer(self):
+        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
+        strategy added to cerebro
         '''
-        Adds a ``Data Feed`` instance to the mix.
+        self.sizer = sizers[self.p.sizer](**self.p.sizer_p)
 
-        If ``name`` is not None it will be put into ``data._name`` which is
-        meant for decoration/plotting purposes.
+    def addrisk(self):
+        '''Adds a ``RiskControl`` class (and args) which is the default risk for any
+        strategy added to cerebro
         '''
-        # data._id = next(self._dataid)
-        if init:
-            self.datas.insert(0, data)
-        else:
-            self.datas.append(data)
+        self.risk_control = _risk_ctl[self.p.risk](**self.p.risk_p)
 
-    def resampledata(self, dataname, name=None, **kwargs):
+    def set_cash(self, **kwargs):
+        self.cash = kwargs.pop("cash", 100000)
+
+# ------------------------------------------------------------------ callback --------------------------------------------------------------
+
+    def addstorecb(self, callback):
+        '''Adds a callback to get messages which would be handled by the
+        notify_store method
+
+        The signature of the callback must support the following:
+
+          - callback(msg, \*args, \*\*kwargs)
+
+        The actual ``msg``, ``*args`` and ``**kwargs`` received are
+        implementation defined (depend entirely on the *data/broker/store*) but
+        in general one should expect them to be *printable* to allow for
+        reception and experimentation.
         '''
-        Adds a ``Data Feed`` to be resample by the system
+        self.storecbs.append(callback)
 
-        If ``name`` is not None it will be put into ``data._name`` which is
-        meant for decoration/plotting purposes.
-
-        Any other kwargs like ``timeframe``, ``compression``, ``todate`` which
-        are supported by the resample filter will be passed transparently
+    def optcallback(self, cb):
         '''
-        if any(dataname is x for x in self.datas):
-            dataname = dataname.clone()
+        Adds a *callback* to the list of callbacks that will be called with the
+        optimizations when each of the strategies has been run
 
-        dataname.resample(**kwargs)
-        self.adddata(dataname, name=name)
-        self._doreplay = True
+        The signature: cb(strategy)
+        '''
+        self.optcbs.append(cb)
 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
@@ -287,40 +302,35 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for strat in runstrats:
                     strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
 
-# ------------------------------------------------------------------ store --------------------------------------------------------------
+# ------------------------------------------------------------------ data  --------------------------------------------------------------
 
-    def addstore(self, *args, **kwargs):
-        '''Adds an ``Store`` instance to the if not already present'''
-        storecls = _stores[kwargs.pop("store", self.p.store)]
-        self.store = storecls(*args, **kwargs)
-        _feed = self.store.get_feed()
-        self.datas.append(_feed)
- 
-    def addstorecb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_store method
-
-        The signature of the callback must support the following:
-
-          - callback(msg, \*args, \*\*kwargs)
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
+    def adddata(self, *args):
         '''
-        self.storecbs.append(callback)
+        Adds a ``Data Feed`` instance to the mix.
+
+        If ``name`` is not None it will be put into ``data._name`` which is
+        meant for decoration/plotting purposes.
+        '''
+        for _d in args:
+            self.datas.append(_d)
+    
+    def resampledata(self, **kwargs):
+        '''
+        Adds a ``Data Feed`` to be resample by the system
+
+        If ``name`` is not None it will be put into ``data._name`` which is
+        meant for decoration/plotting purposes.
+
+        Any other kwargs like ``timeframe``, ``compression``, ``todate`` which
+        are supported by the resample filter will be passed transparently
+        '''
+        data0 = self.store.get_feed()
+
+        dataname = data0.clone() # DataClone
+        dataname.resample(**kwargs)
+        return dataname
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
-
-    def optcallback(self, cb):
-        '''
-        Adds a *callback* to the list of callbacks that will be called with the
-        optimizations when each of the strategies has been run
-
-        The signature: cb(strategy)
-        '''
-        self.optcbs.append(cb)
 
     def addstrategy(self, strategy, *args, **kwargs):
         '''
@@ -347,28 +357,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.observers.append((multi, obscls, args, kwargs))
 
-    def addsizer(self, *args, **kwargs):
-        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
-        strategy added to cerebro
-        '''
-        sizer_type = kwargs.pop("sizer", self.p.sizer)
-        self.sizer = sizers[sizer_type](*args, **kwargs)
-
-    def addControl(self, *args, **kwargs):
-        '''Adds a ``RiskControl`` class (and args) which is the default risk for any
-        strategy added to cerebro
-        '''
-        _risk = kwargs.pop("risk", self.p.risk)
-        self.risk_control = _risk_ctl[_risk](*args, **kwargs)
-
 # ---------------------------------------------------------------- run -------------------------------------------------------------------
 
-    def _start(self, *args, **kwargs):
-        self.set_cash(*args, **kwargs) # pop cash
-        self.addstore(*args, **kwargs) # pop client_id fromdate todate 
-        self.addsizer()
-        self.addControl()
-    
     def __call__(self, iterstrat):
         '''
         Used during optimization to pass the cerebro over the multiprocesing
@@ -376,6 +366,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         return self.runstrategies(iterstrat)
 
+    def _start(self, **kwargs):
+        self.addstore()  # initialize store
+        self.addsizer()
+        self.addrisk()
+        self.set_cash(**kwargs)
+
+        _feed = self.store.get_feed()
+        self.datas.insert(0, _feed)
+        
     @consume_time
     def run(self, *args, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
@@ -392,7 +391,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
-        self._start(*args, **kwargs)
+        self._start(**kwargs)
 
         # initialize feed
         for data in self.datas:
@@ -451,7 +450,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         for stratcls, sargs, skwargs in iterstrat:
             sargs = self.datas + list(sargs)
-
             try:
                 strat = stratcls(*sargs, **skwargs)
             except StrategySkipError:
@@ -480,7 +478,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     if writer.p.csv:
                         writer.addheaders(strat.getwriterheaders())
                 
-                strat._start(**kwargs)
+                # strat._start(**kwargs)
+                strat._start()
                 strat.qbuffer(savemem=self.p.savemem)
                 
             for writer in self.runwriters:
@@ -627,7 +626,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         threads the execution will stop as soon as possible.'''
         self._event_stop = True  # signal a stop has been requested
 
-    def plot(self, data_path, freq="D", **kwargs):
+    def plot(self, out="", freq="D", **kwargs):
         '''
         Plots the strategies inside cerebro
 
@@ -652,5 +651,5 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-
-        self._plot.plot(data_path, freq=freq)
+        out = out if out else self.p.out
+        self._plot.plot(out, freq=freq, **kwargs)

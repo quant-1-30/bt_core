@@ -87,7 +87,7 @@ from backtest.utils.dateintern import num2date
 class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
     params = (
         ('bar2edge', True),
-        ('adjbartime', True),
+        ('adjbartime', False),
         ('rightedge', True),
         ('boundoff', 0),
         ('timeframe', TimeFrame.Days),
@@ -113,7 +113,6 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
         # Modify data information according to own parameters
         data.resampling = 1
-        data.replaying = self.replaying
         data._timeframe = self.p.timeframe
         data._compression = self.p.compression
 
@@ -121,10 +120,10 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
     def _checkbarover(self, data, fromcheck=False):
         # chkdata = DTFaker(data, forcedata) if fromcheck else data
-        chkdata = data
+        # chkdata = data
 
         isover = False
-        if not self.componly and not self._barover(chkdata):
+        if not self.componly and not self._barover(data):
             return isover
 
         if self.subdays and self.p.bar2edge:
@@ -196,16 +195,13 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
         return self._eoscheck(data)
 
     def _barover_weeks(self, data):
-        if self.data._calendar is None:
-            year, week, _ = data.num2date(self.bar.datetime).date().isocalendar()
-            yearweek = year * 100 + week
+        year, week, _ = data.num2date(self.bar.datetime).date().isocalendar()
+        yearweek = year * 100 + week
 
-            baryear, barweek, _ = data.datetime.date().isocalendar()
-            bar_yearweek = baryear * 100 + barweek
+        baryear, barweek, _ = data.datetime.date().isocalendar()
+        bar_yearweek = baryear * 100 + barweek
 
-            return bar_yearweek > yearweek
-        else:
-            return data._calendar.last_weekday(data.datetime.date())
+        return bar_yearweek > yearweek
 
     def _barover_months(self, data):
         dt = data.num2date(self.bar.datetime).date()
@@ -353,7 +349,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
             ph, pm = divmod(point, 60 * 60)
             pm, ps = divmod(pm, 60)
             pus = 0
-        elif self.p.timeframe <= TimeFrame.MicroSeconds:
+        elif self.p.timeframe <= TimeFrame.MicroSeconds: # 微秒
             ph, pm = divmod(point, 60 * 60 * 1e6)
             pm, psec = divmod(pm, 60 * 1e6)
             ps, pus = divmod(psec, 1e6)
@@ -448,7 +444,7 @@ class Resampler(_BaseResampler):
         ('rightedge', True),
     )
 
-    replaying = False
+    # replaying = False
 
     # def last(self, data):
     #     '''Called when the data is no longer producing bars
