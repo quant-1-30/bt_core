@@ -183,18 +183,19 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def _getnexteos(self): 
         '''Returns the next eos using a trading calendar if available'''
         if self._clone:
-            return self.data._geteos()
+            return self.data._getnexteos()
 
         if not len(self):
             return datetime.datetime.min, 0.0
 
         dt = self.lines.datetime[0]
         dtime = num2date(dt)
+        
+        total_seconds = int(self.p.sessionend.total_seconds())
         nexteos = dtime.replace(
-            hour=self.p.sessionend.hour,
-            minute=self.p.sessionend.minute,
-            second=self.p.sessionend.second,
-            microsecond=self.p.sessionend.microsecond
+            hour= total_seconds // 3600,
+            minute=(total_seconds % 3600) // 60,
+            second=total_seconds % 60
         )
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos 
@@ -483,9 +484,9 @@ class DataClone(AbstractDataBase):
         self.p.timeframe = self.data.p.timeframe
         self.p.compression = self.data.p.compression
 
-    def _start(self):
+    def _start(self, *args, **kwargs):
         # redefine to copy data bits from guest data
-        self.start()
+        self.start(*args, **kwargs)
 
         # Copy tz infos
         self._tz = self.data._tz
@@ -496,18 +497,14 @@ class DataClone(AbstractDataBase):
         # input has already been converted by guest data
         self._tzinput = self.data._tzinput  # no need to further converr
 
-        # FIXME: if removed from guest, remove here too
-        self.sessionstart = self.data.sessionstart
-        self.sessionend = self.data.sessionend
-
-    def start(self):
-        super(DataClone, self).start()
+    def start(self, *args, **kwargs):
+        super(DataClone, self).start(*args, **kwargs)
         # self._dlen = 0
 
     def _load(self):
         # assumption: the data is in the system
         # simply copy the lines
-        for line, dline in zip(self.lines, self.data.lines):
+        for line, dline in zip(self.lines, self.data.lines.itersize()):
             line[0] = dline[0]
         return True
 

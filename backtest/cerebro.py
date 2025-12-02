@@ -90,7 +90,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("sizer_p", {}),
         ('stdstats', True),
         ('tz', None),
-        ("out", None),
         ('writer', True),
     )
 
@@ -101,12 +100,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.strats = list()
         self.observers = list()
         self.indicators = list()
-        self.writers = list()
         self.optcbs = list()  # holds a list of callbacks for opt strategies
         self.storecbs = list()
         self._pretimers = list()
+        self.writers = list()
         
         self._plot = Plot()
+
+        self._start()
         
     def addstore(self):
         '''Adds an ``Store`` instance to the if not already present'''
@@ -125,7 +126,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.risk_control = _risk_ctl[self.p.risk](**self.p.risk_p)
 
-    def set_cash(self, **kwargs):
+    def _start(self):
+        self.addstore()  # initialize store
+        self.addsizer()
+        self.addrisk()
+
+        _feed = self.store.get_feed()
+        self.datas.insert(0, _feed)
+    
+    def set_cash(self, kwargs):
         self.cash = kwargs.pop("cash", 100000)
 
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
@@ -365,16 +374,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         module without complains
         '''
         return self.runstrategies(iterstrat)
-
-    def _start(self, **kwargs):
-        self.addstore()  # initialize store
-        self.addsizer()
-        self.addrisk()
-        self.set_cash(**kwargs)
-
-        _feed = self.store.get_feed()
-        self.datas.insert(0, _feed)
-        
+ 
     @consume_time
     def run(self, *args, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
@@ -391,7 +391,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
-        self._start(**kwargs)
+        self.set_cash(kwargs)
 
         # initialize feed
         for data in self.datas:
@@ -412,7 +412,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         # Add the system default writer if requested
         if self.p.writer is True:
-            wr = WriterFile(out=self.p.out, csv=True)
+            wr = WriterFile(out=kwargs["out"], csv=True)
             self.runwriters.append(wr)
 
         # Instantiate any other writers
@@ -651,5 +651,4 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        out = out if out else self.p.out
         self._plot.plot(out, freq=freq, **kwargs)

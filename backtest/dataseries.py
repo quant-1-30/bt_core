@@ -161,6 +161,7 @@ class _Bar(AutoOrderedDict):
 
         Returns False otherwise
         '''
+        # import pdb; pdb.set_trace()
         if reopen:
             self.bstart()
 
