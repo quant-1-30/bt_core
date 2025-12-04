@@ -81,6 +81,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ("client_id", ""),
+        ("cal", ""),
         ('savemem', 1),
         ("store", "bt"),
         ("store_p", {}),
@@ -106,9 +107,38 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.writers = list()
         
         self._plot = Plot()
-
         self._start()
+
+    def _start(self):
+        self.addcalendar()
         
+        self.addstore() 
+        self.addsizer()
+        self.addrisk()
+
+        datamaster = self.store.get_feed()
+        self.datas.insert(0, datamaster)
+
+    def addcalendar(self):
+        '''Adds a global trading calendar to the system. Individual data feeds
+        may have separate calendars which override the global one
+
+        ``cal`` can be an instance of ``TradingCalendar`` a string or an
+        instance of ``pandas_market_calendars``. A string will be will be
+        instantiated as a ``PandasMarketCalendar`` (which needs the module
+        ``pandas_market_calendar`` installed in the system.
+
+        If a subclass of `TradingCalendarBase` is passed (not an instance) it
+        will be instantiated
+        '''
+        from .tradingcal import TradingCalendarBase, TradingCalendar
+
+        cal = self.p.cal
+        if cal and issubclass(cal, TradingCalendarBase): 
+            self._tradingcal = cal
+        else:
+            self._tradingcal = TradingCalendar()
+
     def addstore(self):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[self.p.store]
@@ -125,18 +155,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         strategy added to cerebro
         '''
         self.risk_control = _risk_ctl[self.p.risk](**self.p.risk_p)
-
-    def _start(self):
-        self.addstore()  # initialize store
-        self.addsizer()
-        self.addrisk()
-
-        _feed = self.store.get_feed()
-        self.datas.insert(0, _feed)
-    
-    def set_cash(self, kwargs):
-        self.cash = kwargs.pop("cash", 100000)
-
+  
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
     def addstorecb(self, callback):
@@ -366,7 +385,30 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.observers.append((multi, obscls, args, kwargs))
 
+    # def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
+    #     '''Adds a signal to the system which will be later added to a
+    #     ``SignalStrategy``'''
+    #     self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
+
+    # def signal_strategy(self, stratcls, *args, **kwargs):
+    #     '''Adds a SignalStrategy subclass which can accept signals'''
+    #     self._signal_strat = (stratcls, args, kwargs)
+
+    # def signal_concurrent(self, onoff):
+    #     '''If signals are added to the system and the ``concurrent`` value is
+    #     set to True, concurrent orders will be allowed'''
+    #     self._signal_concurrent = onoff
+
+    # def signal_accumulate(self, onoff):
+    #     '''If signals are added to the system and the ``accumulate`` value is
+    #     set to True, entering the market when already in the market, will be
+    #     allowed to increase a position'''
+    #     self._signal_accumulate = onoff
+
 # ---------------------------------------------------------------- run -------------------------------------------------------------------
+    
+    def set_cash(self, kwargs):
+        self.cash = kwargs.pop("cash", 100000)
 
     def __call__(self, iterstrat):
         '''
@@ -392,7 +434,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             Strategy classes added with ``addstrategy``
         '''
         self.set_cash(kwargs)
-
+        
         # initialize feed
         for data in self.datas:
             data._start(**kwargs)
@@ -532,48 +574,30 @@ class Cerebro(with_metaclass(MetaParams, object)):
             drets = []
             for d in datas:
                 drets.append(d.next())
-
+            
             d0ret = any((dret for dret in drets))
-            print("dOret ", d0ret)
 
             if d0ret:
                 dts = []
                 for i, ret in enumerate(drets):
                     dts.append(datas[i].datetime[0] if ret else None)
+                print("dts ", dts)
 
-                if onlyresample or noresample:
-                    dt0 = min((d for d in dts if d is not None))
-                else:
-                    dt0 = min((d for i, d in enumerate(dts)
-                               if d is not None and i not in rsonly))
+                if not drets[0]: # last for resamplefilter
+                    for d in datas: 
+                        d._last()
+                    d0ret = False # alias break
 
-                dmaster = datas[dts.index(dt0)]
-
-                # retry to get a bar if not returned
-                for i, ret in enumerate(drets):
-                    if ret:
-                        continue
-                    d = datas[i]
-                    if d.next(datamaster=dmaster):
-                        dts[i] = d.datetime[0]
-                    else:
-                        pass
-
-                for i, dti in enumerate(dts):
-                    if dti is not None:
-                        di = datas[i]
-                        if dti > dt0:
-                            di.rewind()  # cannot deliver yet
-
-            if d0ret:  # bars produced by data or filters
                 # self._check_timers(runstrats, dt0) # notify_timer to control next
+
                 for strat in runstrats:
                     strat._next()
 
                     if self._event_stop:  # stop if requested
                         return
                     
-                    self._next_writers(runstrats)
+                self._next_writers(runstrats)
+        return
                 
 # ---------------------------------------------------------------------- writer ------------------------------------------------------------
 

@@ -52,11 +52,10 @@ class BTStore(Store):
         ("client_id", ""),
     )
 
-    # def __init__(self, *args, **kwargs): # 多余参数保留
-    def __init__(self): 
+    def __init__(self): # def __init__(self, *args, **kwargs): # 多余参数保留
         md_addr = os.getenv("MD_ADDR", self.p.md_addr)
         mdapi = MdApi(addr=md_addr.split(":"))
-        self._feed = self.DataCls(mdapi=mdapi) 
+        self._feed = self.DataCls(mdapi=mdapi, calendar=self.calendar) 
 
         td_addr = os.getenv("TD_ADDR", self.p.td_addr) 
         tdapi = TdApi(addr=td_addr.split(":"), client_id=self.p.client_id)

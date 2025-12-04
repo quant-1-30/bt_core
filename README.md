@@ -2,12 +2,6 @@
     项目基于backtrader重构， 核心从两个维度 a. broker feed store trade 核心模块剥离 ; b. 回测逻辑由 T+1 基于A股市场交易策略rewrite。主体backtest 负责 indicator 与 strategy 构建，
     构建方式基于type元类 构建框架类，抽象具体实现细节，具体可以深入backtrader metabase 源码了解细节。关于 feed 与 broker 集成方式， 借鉴xtp系统 mdapi / tdapi 构建sdk 集成到backtest。 
 
-```mermaid
-
-graph Backtest
-    rpc_feed
-
-```
 
 ## 元类与类构造机制
 
@@ -107,4 +101,7 @@ cerebro.run(exactbars=-1) # 低内存模式
     resample 
     replay 含义举例 重建4小时数据(next 推进，数据是更新的, 需要将数据保存在stash中)
 
-    2>/dev/null --- 0 1 2
+    2>/dev/null --- 0 1 2  |  find . -name / -type / -size / -perm / -group / -mtime
+
+
+find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;

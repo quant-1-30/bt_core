@@ -124,7 +124,7 @@ class _Bar(AutoOrderedDict):
     Order of definition is important and must match that of the lines
     definition in DataBase (which directly inherits from OHLCDateTime)
     '''
-    replaying = False
+    # replaying = False
 
     # Without - 1 ... converting back to time will not work
     # Need another -1 to support timezones which may move the time forward
@@ -142,8 +142,9 @@ class _Bar(AutoOrderedDict):
         self.high = float('-inf')
         self.open = float('NaN')
         self.volume = 0.0
-        # self.openinterest = 0.0
+        self.amount = 0.0
         self.datetime = self.MAXDATE if maxdate else None
+        # self.openinterest = 0.0
 
     def isopen(self):
         '''Returns if a bar has already been updated
@@ -161,17 +162,16 @@ class _Bar(AutoOrderedDict):
 
         Returns False otherwise
         '''
-        # import pdb; pdb.set_trace()
         if reopen:
             self.bstart()
-
-        self.datetime = data.datetime[0]
 
         self.high = max(self.high, data.high[0])
         self.low = min(self.low, data.low[0])
         self.close = data.close[0]
 
         self.volume += data.volume[0]
+        self.amount += data.amount[0]
+        self.datetime = data.datetime[0]
         # self.openinterest = data.openinterest[0]
 
         o = self.open

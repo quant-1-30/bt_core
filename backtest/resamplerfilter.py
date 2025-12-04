@@ -87,13 +87,11 @@ from backtest.utils.dateintern import num2date
 class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
     params = (
         ('bar2edge', True),
-        ('adjbartime', False),
+        ('adjbartime', True),
         ('rightedge', True),
         ('boundoff', 0),
         ('timeframe', TimeFrame.Days),
         ('compression', 1),
-        # ('sessionend', True),
-        # ('takelate', True),
     )
 
     def __init__(self, data):
@@ -191,17 +189,27 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
         return ret
 
+    # def _barover_days(self, data): # not suited for early close case
+    #     return self._eoscheck(data)
+
     def _barover_days(self, data):
-        return self._eoscheck(data)
+        _, _, day = data.num2date(self.bar.datetime).date().isocalendar()
+
+        _, _, barday = data.datetime.datetime().isocalendar()
+
+        return day != barday
 
     def _barover_weeks(self, data):
-        year, week, _ = data.num2date(self.bar.datetime).date().isocalendar()
-        yearweek = year * 100 + week
+        if self.data._calendar is None:
+            year, week, _ = data.num2date(self.bar.datetime).date().isocalendar()
+            yearweek = year * 100 + week
 
-        baryear, barweek, _ = data.datetime.date().isocalendar()
-        bar_yearweek = baryear * 100 + barweek
+            baryear, barweek, _ = data.datetime.datetime().isocalendar()
+            bar_yearweek = baryear * 100 + barweek
 
-        return bar_yearweek > yearweek
+            return bar_yearweek > yearweek
+        else:
+            return data._calendar.last_weekday(data.datetime.datetime())
 
     def _barover_months(self, data):
         dt = data.num2date(self.bar.datetime).date()
@@ -294,7 +302,7 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
                 # increase compcount
                 docheckover = False
                 self.compcount += 1
-                ret = not (self.compcount % self.p.compression)
+                ret = not (self.compcount % self.p.compression) # to solve repeated data bug (one more time)
             else:
                 docheckover = True
 
@@ -444,23 +452,22 @@ class Resampler(_BaseResampler):
         ('rightedge', True),
     )
 
-    # replaying = False
+    def last(self, data):
+        '''Called when the data is no longer producing bars
 
-    # def last(self, data):
-    #     '''Called when the data is no longer producing bars
+        Can be called multiple times. It has the chance to (for example)
+        produce extra bars which may still be accumulated and have to be
+        delivered
+        '''
+        if self.bar.isopen():
+            if self.doadjusttime:
+                self._adjusttime()
+            # import pdb; pdb.set_trace()
+            data._add2stack(self.bar.lvalues())
+            self.bar.bstart(maxdate=True)  # close the bar to avoid dups
+            return True
 
-    #     Can be called multiple times. It has the chance to (for example)
-    #     produce extra bars which may still be accumulated and have to be
-    #     delivered
-    #     '''
-    #     if self.bar.isopen():
-    #         if self.doadjusttime:
-    #             self._adjusttime()
-
-    #         data._add2stack(self.bar.lvalues())
-    #         self.bar.bstart(maxdate=True)  # close the bar to avoid dups
-    #         return True
-    #     return False
+        return False
 
     def __call__(self, data, fromcheck=False):
         '''Called for each set of values produced by the data source'''

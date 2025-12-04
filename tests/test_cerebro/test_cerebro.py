@@ -44,11 +44,12 @@ if __name__ == '__main__':
     
     load_dotenv()
     # configure store sizer risk 
-    cerebro = bt.Cerebro(out="out.csv", client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
+    cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
     # cerebro = bt.Cerebro(out="out.csv", client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
 
     # Add a strategy
     cerebro.addstrategy(TestStrategy)
 
-    cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001") 
-    cerebro.plot() 
+    cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="out.csv") 
+
+    cerebro.plot(out="out.csv") # independent 

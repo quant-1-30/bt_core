@@ -230,8 +230,6 @@ class AutoInfoClass(object):
     def __str__(self):
         p_str = ""
         for k, v in self._getkwargs().items(): # after update kwargs 
-        #     p_str += f" {k}={v}, "
-        # return p_str[:-2]
             p_str += f"{k}={v},"
         return p_str[:-1]
 

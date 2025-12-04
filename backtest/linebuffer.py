@@ -105,6 +105,7 @@ class LineBuffer(LineSingle):
             self.mode = self.QBuffer
             _minperiod = self._minperiod
             self.maxlen = _minperiod
+
         # self.extrasize = extrasize
         self.reset()
 
@@ -184,7 +185,6 @@ class LineBuffer(LineSingle):
         Returns:
             A slice of the underlying buffer
         '''
-        # import pdb; pdb.set_trace()
         idx = self.idx % self.maxlen
         if size <= idx + 1:
             start_index = idx - size + 1
@@ -220,12 +220,13 @@ class LineBuffer(LineSingle):
             size (int): How many extra positions to enlarge the buffer
         '''
         self.idx += size
-        # print("forward idx ", self.idx)
         self.lencount += size
 
         if self.UnBounded:
             for i in range(size):
                 self.array.append(value)
+
+        self[0] = np.nan
 
     def backwards(self, size=1):
         ''' Moves the logical index backwards and reduces the buffer as much as needed
@@ -238,11 +239,14 @@ class LineBuffer(LineSingle):
         idx = self.idx - size
         self.idx = idx
         self.lencount -= size
-
+        
         if self.UnBounded:
             # print("UbBound array.array")
             for i in range(size):
                 self.array.pop()
+        
+        # if self.maxlen == 1 :
+        #     self[0] = np.nan # intended for resample
 
     def rewind(self, size=1):
         self.idx -= size
@@ -345,15 +349,11 @@ class LineBuffer(LineSingle):
         self._tz = tz
 
     def datetime(self, ago=0, tz=None, naive=True):
-        return num2date(self[ago],
-                        tz=tz or self._tz, naive=naive)
-
-    def date(self, ago=0, tz=None, naive=True):
-        try: 
-            return num2date(self[ago],
-                        tz=tz or self._tz, naive=naive).date()
-        except:
-            return None
+        print("buffer datetime: ", self[ago])
+        _dt = num2date(self[ago], tz=tz or self._tz, naive=naive)
+        
+        dt = _dt if isinstance(_dt, datetime.datetime) else datetime.datetime.min
+        return dt
 
     def time(self, ago=0, tz=None, naive=True):
         return num2date(self[ago],
@@ -523,7 +523,6 @@ class MetaLineActions(LineBuffer.__class__):
         _minperiod = max(_minperiods or [1])
 
         # update own minperiod if needed
-        # print("MetaLineActions _minperiod ", _minperiod)
         _obj.updateminperiod(_minperiod)
 
         return _obj, args, kwargs

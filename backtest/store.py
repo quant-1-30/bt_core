@@ -31,7 +31,8 @@ class MetaStore(MetaParams):
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaStore, cls).donew(*args, **kwargs)
         _obj.owner = env =  findowner(_obj, bt.cerebro.Cerebro)
-        _obj.datas = env.datas
+        _obj.calendar = _obj.owner._tradingcal 
+
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -39,7 +40,8 @@ class MetaStore(MetaParams):
             super(MetaStore, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._orderspending = list()    
-        _obj._tradespending = list()  
+        _obj._tradespending = list() 
+
         _obj._start(*args, **kwargs) 
         return _obj, args, kwargs
 

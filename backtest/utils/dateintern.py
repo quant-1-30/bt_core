@@ -210,7 +210,8 @@ def num2date(x, tz='Asia/Shanghai', naive=True):
     """
     tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
     if np.isnan(x):
-        return 0
+        # return 0
+        return x 
 
     # dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai')) # timestamp under utc 
     utc_dt = datetime.datetime.fromtimestamp(x, tz=datetime.timezone.utc)

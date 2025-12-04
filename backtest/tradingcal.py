@@ -132,26 +132,26 @@ class TradingCalendar(TradingCalendarBase):
         A list of weekdays in ISO format (Monday: 1 -> Sunday: 7) in which the
         market doesn't trade. This is usually Saturday and Sunday and hence the
         default
-
-        熔断机制 2016-01-01 2016-01-07(1月8日起暂停实施指数熔断机制)
-        2016年1月4日, A股遇到史上首次“熔断”。早盘, 两市双双低开,随后沪指一度跳水大跌,跌破3500点与3400点,各大板块纷纷下挫。
-        午后, 沪深300指数在开盘之后继续下跌, 并于13点13分超过5%, 引发熔断,三家交易所暂停交易15分钟, 恢复交易之后, 沪深300指数继续下跌,
-        并于13点34分触及7%的关口，三个交易所暂停交易至收市。
-        2016年1月7日, 早盘9点42分, 沪深300指数跌幅扩大至5%, 再度触发熔断线, 两市将在9点57分恢复交易。开盘后, 仅3分钟 10:00
-        沪深300指数再度快速探底, 最大跌幅7.21%, 二度熔断触及阈值。这是2016年以来的第二次提前收盘, 同时也创造了休市最快记录
     '''
 
     params = (
-        ('open', time.min),
-        ('close', _time_max),
+        ('open', time(hour=9, minute=30)),
+        ('close', time(hour=15, minute=0)),
         ('holidays', []),  # list of non trading days (date)
-        ('earlydays', []),  # list of tuples (date, opentime, closetime)
+        ('earlydays', [(datetime(2016, 1, 4), time(hour=9, minute=30), time(hour=13, minute=34)), (datetime(2016, 1, 7), time(hour=9, minute=30), time(hour=10, minute=0))]),  # list of tuples (date, opentime, closetime)
         ('offdays', ISOWEEKEND),  # list of non trading (isoweekdays)
     )
 
     def __init__(self):
-        self._earlydays = [x[0] for x in self.p.earlydays]  # speed up searches
-        # to_pydatetime / pd.DatetimeIndex / timedelta / searchsorted 
+        """
+            熔断机制 2016-01-01 2016-01-07(1月8日起暂停实施指数熔断机制)
+            2016年1月4日, A股遇到史上首次“熔断”。早盘, 两市双双低开,随后沪指一度跳水大跌,跌破3500点与3400点,各大板块纷纷下挫。
+            午后, 沪深300指数在开盘之后继续下跌, 并于13点13分超过5%, 引发熔断,三家交易所暂停交易15分钟, 恢复交易之后, 沪深300指数继续下跌,
+            并于13点34分触及7%的关口，三个交易所暂停交易至收市。
+            2016年1月7日, 早盘9点42分, 沪深300指数跌幅扩大至5%, 再度触发熔断线, 两市将在9点57分恢复交易。开盘后, 仅3分钟 10:00
+            沪深300指数再度快速探底, 最大跌幅7.21%, 二度熔断触及阈值。这是2016年以来的第二次提前收盘, 同时也创造了休市最快记录
+        """
+        self._earlydays = [x[0] for x in self.p.earlydays]  # to_pydatetime / pd.DatetimeIndex / timedelta / searchsorted 
 
     def _nextday(self, day):
         '''
@@ -199,4 +199,3 @@ class TradingCalendar(TradingCalendarBase):
                 opening = opening.replace(tzinfo=None)
 
             return opening, closing
-
