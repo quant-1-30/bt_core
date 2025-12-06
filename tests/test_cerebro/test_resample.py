@@ -18,10 +18,9 @@ class TestResample(bt.Strategy):
         dt = dt or self.datas[0].datetime.date(0)
         print('%s, %s' % (dt, txt))
 
-    def __init__(self):
-
-        # data0 is a daily data
-        sma0 = btind.SMA(self.data.close, period=25)  # 15 days sma
+    # def __init__(self):
+    #     # data0 is a daily data
+    #     sma0 = btind.SMA(self.data.close, period=25)  # 15 days sma
 
 
 if __name__ == '__main__':

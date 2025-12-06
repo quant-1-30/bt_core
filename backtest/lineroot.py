@@ -73,7 +73,7 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
     
     # def _operation_stage2(self, other, operation, r=False):
     #     '''
-    #     Rich Comparison operators. Scans other and returns either an
+    #     Rich Comparison operator. Scans other and returns either an
     #     operation with other directly or a subitem from other
     #     '''
     #     if isinstance(other, LineRoot):
@@ -115,7 +115,7 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         '''
         return self._makeoperationown(operation, _ownerskip=self)
 
-    # Arithmetic operators
+    # Arithmetic operator
     def _makeoperation(self, other, operation, r=False, _ownerskip=None):
         raise NotImplementedError
 

@@ -27,9 +27,10 @@ from pytz import timezone
 from . import observers
 from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
+from .strategy import Strategy, SignalStrategy
 from .sizers import sizers
 from .risks import _risk_ctl
-from .timer import Timer
+from .timer import Timer, SESSION_START
 from .errors import *
 from .stores import _stores
 from .utils.wrapper import consume_time
@@ -95,16 +96,21 @@ class Cerebro(with_metaclass(MetaParams, object)):
     )
 
     def __init__(self):
-
         self.cash = 0.0
         self.datas = list()
         self.strats = list()
         self.observers = list()
         self.indicators = list()
+        self.signals = list()
+        self._signal_strat = (None, None, None)
+        self._signal_concurrent = False
+        self._signal_accumulate = False
+        self.writers = list()
         self.optcbs = list()  # holds a list of callbacks for opt strategies
         self.storecbs = list()
+
         self._pretimers = list()
-        self.writers = list()
+        self._mcstimers = list()
         
         self._plot = Plot()
         self._start()
@@ -208,25 +214,23 @@ class Cerebro(with_metaclass(MetaParams, object)):
         else:
             tz = timezone(tz)
 
-    def _add_timer(self, owner, when,
+    def _add_timer(self, when,
                    offset=datetime.timedelta(), repeat=datetime.timedelta(),
                    weekdays=[], weekcarry=False,
                    monthdays=[], monthcarry=True,
                    allow=None,
-                   tzdata=None, strats=False, cheat=False,
+                   tzdata=None,
                    *args, **kwargs):
         '''Internal method to really create the timer (not started yet) which
         can be called by cerebro instances or other objects which can access
         cerebro'''
 
         timer = Timer(
-            tid=len(self._pretimers),
-            owner=owner, strats=strats,
             when=when, offset=offset, repeat=repeat,
             weekdays=weekdays, weekcarry=weekcarry,
             monthdays=monthdays, monthcarry=monthcarry,
             allow=allow,
-            tzdata=tzdata, cheat=cheat,
+            tzdata=tzdata,
             *args, **kwargs
         )
 
@@ -310,25 +314,24 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - The created timer
 
         '''
-        return self._add_timer(
-            owner=self, when=when, offset=offset, repeat=repeat,
+        return self._add_timer(when=when, offset=offset, repeat=repeat,
             weekdays=weekdays, weekcarry=weekcarry,
             monthdays=monthdays, monthcarry=monthcarry,
             allow=allow,
             tzdata=tzdata)
     
     def _check_timers(self, runstrats, dt0):
-        # timers = self._timers if not cheat else self._timerscheat
-        for t in self._pretimers:
-            if not t.check(dt0):
-                continue
-
-            # via store notify_timer
-            t.params.owner.notify_timer(t, t.lastwhen, *t.args, **t.kwargs) 
-
-            if t.params.strats:
+        if dt0:
+            for t in self._pretimers:
+                if not t.check(dt0):
+                    continue
+                
+                print("_check_timer ", dt0)
                 for strat in runstrats:
-                    strat.notify_timer(t, t.lastwhen, *t.args, **t.kwargs)
+                    strat.notify_timer(t)
+
+            for _t in self._mcstimers: # mcstimers: metricstimer
+                self.notify_timer()
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
@@ -385,25 +388,25 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.observers.append((multi, obscls, args, kwargs))
 
-    # def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
-    #     '''Adds a signal to the system which will be later added to a
-    #     ``SignalStrategy``'''
-    #     self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
+    def signal_strategy(self, stratcls, *args, **kwargs):
+        '''Adds a SignalStrategy subclass which can accept signals'''
+        self._signal_strat = (stratcls, args, kwargs)
 
-    # def signal_strategy(self, stratcls, *args, **kwargs):
-    #     '''Adds a SignalStrategy subclass which can accept signals'''
-    #     self._signal_strat = (stratcls, args, kwargs)
+    def add_signal(self, sigtype, sigcls, *sigargs, **sigkwargs):
+        '''Adds a signal to the system which will be later added to a
+        ``SignalStrategy``'''
+        self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
 
-    # def signal_concurrent(self, onoff):
-    #     '''If signals are added to the system and the ``concurrent`` value is
-    #     set to True, concurrent orders will be allowed'''
-    #     self._signal_concurrent = onoff
+    def signal_concurrent(self, onoff):
+        '''If signals are added to the system and the ``concurrent`` value is
+        set to True, concurrent orders will be allowed'''
+        self._signal_concurrent = onoff
 
-    # def signal_accumulate(self, onoff):
-    #     '''If signals are added to the system and the ``accumulate`` value is
-    #     set to True, entering the market when already in the market, will be
-    #     allowed to increase a position'''
-    #     self._signal_accumulate = onoff
+    def signal_accumulate(self, onoff):
+        '''If signals are added to the system and the ``accumulate`` value is
+        set to True, entering the market when already in the market, will be
+        allowed to increase a position'''
+        self._signal_accumulate = onoff
 
 # ---------------------------------------------------------------- run -------------------------------------------------------------------
     
@@ -435,9 +438,16 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.set_cash(kwargs)
         
-        # initialize feed
+        # Prepare feed
         for data in self.datas:
             data._start(**kwargs)
+
+        # Prepare timers
+        if not self._pretimers:
+            self._pretimers.append(Timer(when=SESSION_START))  # add default timer to adjust T+1
+
+        for timer in itertools.chain(self._pretimers, self._mcstimers):
+            timer.start(self.datas[0]) # preprocess tzdata if needed
 
         self.runstrats = list()
         self.runwriters = list()
@@ -475,6 +485,34 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if writer.p.csv:
                     writer.addheaders(wheaders)
 
+        # signal strategy
+        if self.signals:  # allow processing of signals
+            signalst, sargs, skwargs = self._signal_strat
+            if signalst is None:
+                # Try to see if the 1st regular strategy is a signal strategy
+                try:
+                    signalst, sargs, skwargs = self.strats.pop(0)
+                except IndexError:
+                    pass  # Nothing there
+                else:
+                    if not isinstance(signalst, SignalStrategy):
+                        # no signal ... reinsert at the beginning
+                        self.strats.insert(0, (signalst, sargs, skwargs))
+                        signalst = None  # flag as not presetn
+
+            if not signalst:  # recheck
+                # Still None, create a default one
+                signalst, sargs, skwargs = SignalStrategy, tuple(), dict()
+
+            # Add the signal strategy
+            self.addstrategy(signalst,
+                                _accumulate=self._signal_accumulate,
+                                _concurrent=self._signal_concurrent,
+                                signals=self.signals,
+                                *sargs,
+                                **skwargs)
+
+        # strategy cartesian product
         iterstrats = itertools.product(*self.strats)
         for iterstrat in iterstrats: # let's skip process "spawning" when mp
             runstrat = self.runstrategies(iterstrat, **kwargs)
@@ -527,18 +565,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for writer in self.runwriters:
                 writer.start()
 
-            # Prepare timers
-            self._timers = []
-            self._timerscheat = []
-            for timer in self._pretimers:
-                # preprocess tzdata if needed
-                timer.start(self.datas[0])
-
-                if timer.params.cheat:
-                    self._timerscheat.append(timer)
-                else:
-                    self._timers.append(timer) 
-
             self._runnext(runstrats)
 
             self.stop_writers(runstrats) 
@@ -581,20 +607,17 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 dts = []
                 for i, ret in enumerate(drets):
                     dts.append(datas[i].datetime[0] if ret else None)
-                print("dts ", dts)
+                # print("dts ", dts)
 
                 if not drets[0]: # last for resamplefilter
                     for d in datas: 
                         d._last()
                     d0ret = False # alias break
 
-                # self._check_timers(runstrats, dt0) # notify_timer to control next
+                self._check_timers(runstrats, dts[0]) # notify_timer to control next
 
-                for strat in runstrats:
+                for strat in runstrats: # to process nan in indicator due to forward
                     strat._next()
-
-                    if self._event_stop:  # stop if requested
-                        return
                     
                 self._next_writers(runstrats)
         return
@@ -650,6 +673,35 @@ class Cerebro(with_metaclass(MetaParams, object)):
         threads the execution will stop as soon as possible.'''
         self._event_stop = True  # signal a stop has been requested
 
+# ---------------------------------------------------------------------- writer ------------------------------------------------------------
+    
+    def collector_timer(self, when,
+                  offset=datetime.timedelta(), repeat=datetime.timedelta(),
+                  weekdays=[], weekcarry=False,
+                  monthdays=[], monthcarry=True,
+                  allow=None,
+                  tzdata=None):
+        """
+            timer to collector metrics such as CPU Memory
+        """
+        _timer = self._add_timer(when=when, offset=offset, repeat=repeat,
+            weekdays=weekdays, weekcarry=weekcarry,
+            monthdays=monthdays, monthcarry=monthcarry,
+            allow=allow,
+            tzdata=tzdata)
+        self._mtimers.append(_timer)
+
+    def notify_timer(self): # connect to monitor system
+        '''Receives a timer notification where ``timer`` is the timer which was
+        returned by ``add_timer``, and ``when`` is the calling time. ``args``
+        and ``kwargs`` are any additional arguments passed to ``add_timer``
+
+        The actual ``when`` time can be later, but the system may have not be
+        able to call the timer before. This value is the timer value and no the
+        system time.
+        '''
+        pass
+    
     def plot(self, out="", freq="D", **kwargs):
         '''
         Plots the strategies inside cerebro

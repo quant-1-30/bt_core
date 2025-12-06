@@ -20,7 +20,7 @@
 ###############################################################################
 
 from backtest.indicator import Indicator
-from backtest.operators import And, If
+from backtest.operator import And, If
 from . import MovAv, ATR
 
 

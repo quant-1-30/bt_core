@@ -11,8 +11,21 @@ import backtest.indicators as btind
 warnings.filterwarnings('ignore')
 
 
+# 60 日均线
+# volume gt smavol 5 
+# macd (yellow / white > 0)
+# drawdown 0.5
+
+
+
+
 class TestStrategy(bt.Strategy):
     params = dict(period=10)
+
+    def log(self, txt, dt=None):
+        ''' Logging function for this strategy'''
+        dt = dt or self.datas[0].datetime.date(0)
+        print('%s, %s' % (dt, txt))
 
     def __init__(self):
 
@@ -45,6 +58,6 @@ if __name__ == '__main__':
     # Add a strategy
     cerebro.addstrategy(TestStrategy)
 
-    cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="out.csv") 
+    cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="out.csv") 
 
     cerebro.plot(out="out.csv") # independent 

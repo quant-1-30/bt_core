@@ -30,6 +30,7 @@ from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass
 from .resamplerfilter import Resampler 
 from backtest.utils.dateintern import *
+from bt_sdk.core.model import Query
 
 
 class MetaAbstractDataBase(OHLCDateTime.__class__):
@@ -76,7 +77,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
         _obj._filters = list()
- 
+        _obj.adj_factors = {} # default
         return _obj, args, kwargs
 
 
@@ -88,8 +89,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('compression', 1),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
-        ('sessionstart', datetime.timedelta(hours=9, minutes=30)),
-        ('sessionend', datetime.timedelta(hours=15, minutes=0)),
+        ('sessionstart', datetime.time(9,30,0)),
+        ('sessionend', datetime.time(15,0,0)),
         ('calendar', None),
     )
 
@@ -129,44 +130,32 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def start(self, *args, **kwargs):
         self._barstack = collections.deque()
         self._barstash = collections.deque()
+        self._tz = self._gettz()
         # self._laststatus = self.CONNECTED
         
         fromdate = datetime.datetime.strptime(str(kwargs["fromdate"]), "%Y%m%d") 
-        self.fromdate = fromdate + self.p.sessionstart
+        self.fromdate = datetime.datetime.combine(fromdate.date(), self.p.sessionstart).replace(tzinfo=self._tz)
         todate = datetime.datetime.strptime(str(kwargs["todate"]), "%Y%m%d")
-        self.todate = todate + self.p.sessionend
+        self.todate = datetime.datetime.combine(todate.date(), self.p.sessionend).replace(tzinfo=self._tz)
         self.sid = kwargs["sid"]
     
     def _start_finish(self):
-        self._tz = self._gettz()
-        self.lines.datetime._settz(self._tz)
-        self._tzinput = Localizer(self._gettzinput())
         self._started = True
-        self._calendar = cal = self.p.calendar
+        self.lines.datetime._settz(self._tz)
+        # self._tzinput = Localizer(self._gettzinput())
+        self._tzinput = self._gettzinput()
+        self._calendar = self.p.calendar
 
         self.extra_info = f"FeedInfo: {self.fromdate}:{self.todate}@{','.join(self.sid)}" # any extra info to relate with feed
-
-    def _gettzinput(self):
-        '''Can be overriden by classes to return a timezone for input'''
-        return tzparse(self.p.tzinput)
 
     def _gettz(self):
         '''To be overriden by subclasses which may auto-calculate the
         timezone'''
-        # tz = pytz.timezone(self.p.tz)
-        # return Localizer(tz)
         return tzparse(self.p.tz)
-
-    def _dt_over(self, last=False): # to adapt A stock T + 1 policy
-        dt = num2date(self.lines.datetime[0])
-        pre_dt = num2date(self.lines.datetime[-1]) # nan to zero if nan
-
-        if self._timeframe >= TimeFrame.Days or last:
-            isover = True
-        else:
-            isover = (dt - pre_dt).days > 0 if isinstance(pre_dt, datetime.datetime) else False
-
-        return isover, (pre_dt, dt)
+    
+    def _gettzinput(self):
+        '''Can be overriden by classes to return a timezone for input'''
+        return tzparse(self.p.tzinput)
 
     def date2num(self, dt):
         if self._tz is not None:
@@ -186,13 +175,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         dt = self.lines.datetime[0]
         dtime = num2date(dt)
-        
-        total_seconds = int(self.p.sessionend.total_seconds())
-        nexteos = dtime.replace(
-            hour= total_seconds // 3600,
-            minute=(total_seconds % 3600) // 60,
-            second=total_seconds % 60
-        )
+
+        nexteos = datetime.datetime.combine(dtime, self.p.sessionend).replace(tzinfo=dtime.tzinfo)
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos 
 
@@ -214,10 +198,11 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                     return _loadret
 
             dt = self.lines.datetime[0]
-            if self._tzinput:
-                dtime = num2date(dt)  # get it in a naive datetime
-                dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
-                self.lines.datetime[0] = dt = date2num(dtime) 
+
+            # if self._tzinput:
+            #     dtime = num2date(dt)  # get it in a naive datetime
+            #     dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
+            #     self.lines.datetime[0] = dt = date2num(dtime) 
 
            # Pass through filters
             retff = False
@@ -304,8 +289,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         if not ret:
             return ret
  
-        # if len(self) >= self.buflen(): # consume > buffer size
-        #     self.apply_factor()
+        if len(self) >= self.buflen(): # consume > buffer size
+            self.apply_factor()
 
         return True
     
@@ -402,9 +387,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         d._name = _dataname
         return d
     
- # --------------------------------------------------------------------- adjust api -----------------------------------------------------------------   
-    def calc_adjfactor(self, reqmeta):
-        raise NotImplementedError()
+ # --------------------------------------------------------------------- common api -----------------------------------------------------------------   
 
     def apply_factor(self):
         """
@@ -429,6 +412,15 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         
             for line in adj_lines.values():
                 line.apply_factor(align_factors) 
+
+    def on_dt_over(self):
+        dt = num2date(self.lines.datetime[0])
+        pre_dt = num2date(self.lines.datetime[-1]) # nan to zero if nan
+        # if self._timeframe == TimeFrame.Days:
+        if pre_dt:
+            qry = Query(start_date=pre_dt, end_date=dt, sid=[]) # on_dt_over ---> timestamp under utc
+            return qry
+        return 
 
     def plot(self, linealias):
         pass
@@ -494,17 +486,6 @@ class CSVDataBase(with_metaclass(MetaCSVDataBase, DataBase)):
         if self.f is not None:
             self.f.close()
             self.f = None
-
-    # def preload(self):
-    #     while self.load():
-    #         pass
-
-    #     self._last()
-    #     self.home()
-
-    #     # preloaded - no need to keep the object around - breaks multip in 3.x
-    #     self.f.close()
-    #     self.f = None
 
     def _load(self):
         if self.f is None:
@@ -578,6 +559,5 @@ class DataClone(AbstractDataBase):
             line[0] = dline[0]
         return True
 
-    # def advance(self, size=1, datamaster=None):
-    #     self._dlen += size
-    #     super(DataClone, self).advance(size, datamaster)
+    def advance(self, size=1, datamaster=None):
+        super(DataClone, self).advance(size, datamaster)

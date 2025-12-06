@@ -265,32 +265,18 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return len(self)
 
-    def on_dt_over(self, last=False)->bool:
-        """
-            on_dt_over is used to adapt T + 1 policy:
-                a. process position with adjustment or rightment on next trading_date
-                b. process account and position on preclose_date
-        """
-        dt_over = self.store.on_dt_over(self.experiment_id, last)
-        return dt_over
-    
     def _next(self):
-        dtover = self.on_dt_over()
-
         super(Strategy, self)._next() # lineiterator _next
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
+    
+    def notify_timer(self, t): # executed before _next api
+        self.store.on_dt_over(self.experiment_id) # trigger on sessionstart due to T + 1 policy
+        self.clear() # to keep cache one trade trades
 
-        if dtover:
-            self.clear()
-
-    def _notify(self, qorder, qtrades=[]):
-        # need to know if quicknotify is on, to not reprocess pendingorders
-        # and pendingtrades, which have to exist for things like observers
-        # which look into it
-        self._orders.append(qorder)
-        if qtrades:
-            self._trades.extend(qtrades)
+    def getsizing(self, isbuy=True):
+        '''Get the current sizing for the strategy'''
+        return self._sizer.getsizing()[self._id]
 
     def buy(self, plimit: int=0, execType=0, filler="trend"):
         '''Create a buy (long) order and send it to the broker 
@@ -334,22 +320,22 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        # if not self.risk_control.is_restricted(self):
-        _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
+        if not self.risk_control.is_restricted(self):
+            _sizer = int(self.sizer.getsizing(self.datas)) # 单位100
 
-        order = Order(sid=self.datas[0].sid[0],
-                    pricelimit=plimit,
-                    sizer_ratio=_sizer, 
-                    order_type=0,
-                    exec_type=0, 
-                    created_dt=int(self.lines.datetime[0]),
-                    filler=filler)
+            order = Order(sid=self.datas[0].sid[0],
+                        pricelimit=plimit,
+                        sizer_ratio=_sizer, 
+                        order_type=0,
+                        exec_type=0, 
+                        created_dt=int(self.lines.datetime[0]),
+                        filler=filler)
 
-        ord, trades = self.store.submit(self.experiment_id, order)
-        if trades:
-            self.lines.buy[0] = 1 
+            _ord, trades = self.store.submit(self.experiment_id, order)
+            if trades:
+                self.lines.buy[0] = 1 
 
-        self._notify(ord, trades)
+            self.notify_trade(_ord, trades)
         
     def sell(self, plimit: int=0, execType=0, filler="trend"):
         '''
@@ -359,35 +345,36 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        # if not self.risk_control.is_restricted(self):
-        _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
+        if not self.risk_control.is_restricted(self):
+            _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
-        order = Order(sid=self.datas[0].sid[0],
-                      sizer_ratio=_sizer, 
-                      pricelimit=plimit,     
-                      order_type=1,
-                      exec_type=execType, 
-                      created_dt=int(self.lines.datetime[0]),
-                      filler=filler)
+            order = Order(sid=self.datas[0].sid[0],
+                          sizer_ratio=_sizer, 
+                          pricelimit=plimit,     
+                          order_type=1,
+                          exec_type=execType, 
+                          created_dt=int(self.lines.datetime[0]),
+                          filler=filler)
         
-        ord, trades = self.store.submit(self.experiment_id, order)
-        if trades:
-            self.lines.sell[0] = -1
-            self.sizer.restore() # reset sizing pyramid 
+            _ord, trades = self.store.submit(self.experiment_id, order)
+            if trades:
+                self.lines.sell[0] = -1
+                self.sizer.restore() # reset sizing pyramid 
         
-        self._notify(ord, trades)
-        
-    def getsizing(self, isbuy=True):
-        '''Get the current sizing for the strategy'''
-        return self._sizer.getsizing()[self._id]
+            self.notify_trade(_ord, trades)
     
-    def _addwriter(self, writer):
-        '''
-        Unlike the other _addxxx functions this one receives an instance
-        because the writer works at cerebro level and is only passed to the
-        strategy to simplify the logic
-        '''
-    
+    def notify_trade(self, qorder, qtrades=[]):
+        # need to know if quicknotify is on, to not reprocess pendingorders
+        # and pendingtrades, which have to exist for things like observers
+        # which look into it
+        self._orders.append(qorder)
+        if qtrades:
+            self._trades.extend(qtrades)
+ 
+    def cancel(self, order_id):
+        '''Cancels the order in the broker'''
+        self.store.cancel(order_id)
+         
     def getwriterheaders(self):
         self.indobscsv = [self]
 
@@ -481,10 +468,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Called right before the backtesting is about to be stopped'''
         self.store.stop(self.experiment_id)
     
-    def cancel(self, order_id):
-        '''Cancels the order in the broker'''
-        self.store.cancel(order_id)
-
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类
 
@@ -505,18 +488,6 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
 
         _obj._signals = collections.defaultdict(list)
 
-        _data = _obj.p._data
-        if _data is None:
-            _obj._dtarget = _obj.data0
-        elif isinstance(_data, int):
-            _obj._dtarget = _obj.datas[_data]
-        elif isinstance(_data, str):
-            _obj._dtarget = _obj.getdatabyname(_data)
-        elif isinstance(_data, bt.LineRoot):
-            _obj._dtarget = _data
-        else:
-            _obj._dtarget = _obj.data0
-
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -527,10 +498,13 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
             _obj._signals[sigtype].append(sigcls(*sigargs, **sigkwargs))
 
         # Record types of signals
-        _obj._longshort = bool(_obj._signals[bt.SIGNAL_LONG])
         _obj._long = bool(_obj._signals[bt.SIGNAL_LONG])
+        _obj._short = bool(_obj._signals[bt.SIGNAL_SHORT])
+
         _obj._longexit = bool(_obj._signals[bt.SIGNAL_LONGEXIT])
-        return _obj, args, kwargs
+        _obj._shortexit = bool(_obj._signals[bt.SIGNAL_SHORTEXIT])
+
+        return _obj, args, kwargswargs
 
 
 class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
@@ -586,11 +560,10 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         ('signals', []),
         ('_accumulate', False),
         ('_concurrent', False),
-        ('_data', None),
     )
 
     def _start(self):
-        self._sentinel = None  # sentinel for order concurrency
+        # self._sentinel = None  # sentinel for order concurrency
         super(SignalStrategy, self)._start()
 
     def signal_add(self, sigtype, signal):
@@ -601,50 +574,69 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         if hasattr(self, '_next_custom'):
             self._next_custom()
 
-    def _next_signal(self):
-        if self._sentinel is not None and not self.p._concurrent:
-            return  # order active and more than 1 not allowed
+    def _next_signal(self): # not supported short sell 
+            if self._sentinel is not None and not self.p._concurrent:
+                return  # order active and more than 1 not allowed
 
-        sigs = self._signals
-        nosig = [[0.0]]
+            sigs = self._signals
+            nosig = [[0.0]]
 
-        # Calculate current status of the signals
-        ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+            # Calculate current status of the signals
+            # ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+            # ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
 
-        l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
-        l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
-        l_enter2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
-        l_enter = l_enter0 or l_enter1 or l_enter2
+            l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+            l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+            l_enter2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+            l_enter = l_enter0 or l_enter1 or l_enter2
 
-        # aim to sell long position
-        l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
-        l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
-        l_ex2 = all(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
-        l_exit = l_ex0 or l_ex1 or l_ex2
+            s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+            s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+            s_enter2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+            s_enter = s_enter0 or s_enter1 or s_enter2
 
+            l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
+            l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
+            l_ex2 = all(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
+            l_exit = l_ex0 or l_ex1 or l_ex2
 
-        # Opposite of individual long  underlies to sell long position
-        l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
-        l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
-        l_leav2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
-        l_leave = l_leav0 or l_leav1 or l_leav2
+            s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
+            s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
+            s_ex2 = all(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
+            s_exit = s_ex0 or s_ex1 or s_ex2
 
-        # Invalidate long leave if longexit signals are available
-        l_leave = not self._longexit and l_leave
+            # Use oppossite signales to start reversal (by closing)
+            # but only if no "xxxExit" exists
+            l_rev = not self._longexit and s_enter
+            s_rev = not self._shortexit and l_enter
 
-        # Take size and start logic
-        size = self.getposition(self._dtarget).size
-        if not size:
-            if ls_long or l_enter:
-                self._sentinel = self.buy(self._dtarget)
-        elif size > 0:  # current long position
-            if l_exit or l_leave:
-                # closing position - not relevant for concurrency
-                self.close(self._dtarget)
+            # Opposite of individual long and short
+            l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+            l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+            l_leav2 = all(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+            l_leave = l_leav0 or l_leav1 or l_leav2
 
-            if ls_long or l_enter:
-                if self.p._accumulate:
-                    self._sentinel = self.buy(self._dtarget)
+            s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+            s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+            s_leav2 = all(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+            s_leave = s_leav0 or s_leav1 or s_leav2
 
-        elif size < 0:  # current short position
-            raise NotImplementedError("short is not supported")
+            # Invalidate long leave if longexit signals are available
+            l_leave = not self._longexit and l_leave
+            # Invalidate short leave if shortexit signals are available
+            s_leave = not self._shortexit and s_leave
+
+            # Take size and start logic
+            size = self.getposition(self._dtarget).size
+            if not size:
+                if l_enter:
+                    self.buy()
+
+            elif size > 0:  # current long position
+                if l_exit or l_rev or l_leave:
+                    # closing position - not relevant for concurrency
+                    self.sell(self._dtarget) # sell means close
+
+                if l_enter:
+                    if self.p._accumulate:
+                        self.buy()

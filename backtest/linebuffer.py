@@ -349,9 +349,8 @@ class LineBuffer(LineSingle):
         self._tz = tz
 
     def datetime(self, ago=0, tz=None, naive=True):
-        print("buffer datetime: ", self[ago])
+        # print("buffer datetime: ", self[ago])
         _dt = num2date(self[ago], tz=tz or self._tz, naive=naive)
-        
         dt = _dt if isinstance(_dt, datetime.datetime) else datetime.datetime.min
         return dt
 

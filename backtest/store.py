@@ -69,7 +69,8 @@ class Store(with_metaclass(MetaStore, object)):
     def _start(self, *args, **kwargs):
         self.start(*args, **kwargs)
     
-    def _dt_over(self, last=False):
+    def on_dt_over(self, last=False):
+        # determin whether T + 0 or T + 1
         pass
     
     @staticmethod

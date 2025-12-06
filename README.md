@@ -95,13 +95,20 @@ cerebro.run(exactbars=-1) # 低内存模式
     添加数据源 → 预加载 → while循环加载 → _load方法 → 数据过滤
 
 数据重采样
+    compress ---> onendge ---> checkbarover
 
     bar2edge  adjbartime  rightedge boundoff
 
-    resample 
+    resample  masterdata last 由于forward存在nan 导致indicator为nan ; 而resample 存在last函数 _fromstack fill forward导致的nan
     replay 含义举例 重建4小时数据(next 推进，数据是更新的, 需要将数据保存在stash中)
 
     2>/dev/null --- 0 1 2  |  find . -name / -type / -size / -perm / -group / -mtime
+
+定时模块
+    lastcall --- month --- weekday --- when --- repeat  when reach not on day or not repeat or execeed nexteos to update _lastcall
+    daycarry ---> 3, 5 target is 4 , when acceed 3 but bisect.bisect_right == bisect.bisect_left and carry is True (1 + False = 1)
+
+    optimize to implement 9:30 timer_event and monitor data with timer
 
 
 find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;

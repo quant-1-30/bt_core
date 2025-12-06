@@ -39,6 +39,8 @@ class MetaAnalyzer(MetaParams):
         _obj._children = list()
 
         _obj._owner = strategy = findowner(_obj, bt.Strategy)
+        _obj.datas = strategy.datas
+        
         _obj._parent = findowner(_obj, Analyzer)
 
         # Register with a master observer if created inside one
@@ -46,11 +48,9 @@ class MetaAnalyzer(MetaParams):
         if masterobs is not None:
             masterobs._register_analyzer(_obj)
 
-        _obj.datas = strategy.datas
-
         # For each data add aliases: for first data: data and data0
         if _obj.datas:
-            _obj.data = data = _obj.datas[0]
+            _obj.data = data = _obj.datas[0] # _clock
 
             for l, line in enumerate(data.lines):
                 linealias = data._getlinealias(l)

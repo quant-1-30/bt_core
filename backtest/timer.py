@@ -29,9 +29,9 @@ from .metabase import MetaParams, with_metaclass
 from backtest.utils.dateintern import date2num, num2date
 
 
-__all__ = ['SESSION_TIME', 'SESSION_START', 'SESSION_END', 'Timer']
+__all__ = ['SESSION_START', 'SESSION_END', 'Timer']
 
-SESSION_TIME, SESSION_START, SESSION_END = range(3)
+SESSION_START, SESSION_END = range(2)
 
 TIME_MAX = datetime.max
 
@@ -108,11 +108,6 @@ class Timer(with_metaclass(MetaParams, object)):
               in the system (aka ``self.data0``) will be used as the reference
               to find out the session times.
 
-          - ``cheat`` (default ``False``) if ``True`` the timer will be called
-            before the broker has a chance to evaluate the orders. This opens
-            the chance to issue orders based on opening price for example right
-            before the session starts
-
           - ``*args``: any extra args will be passed to ``notify_timer``
 
           - ``**kwargs``: any extra kwargs will be passed to ``notify_timer``
@@ -123,8 +118,6 @@ class Timer(with_metaclass(MetaParams, object)):
 
     '''
     params = (
-        # ('tid', None),
-        # ('owner', None),
         ('when', None),
         ('offset', timedelta()),
         ('repeat', timedelta()),
@@ -136,9 +129,9 @@ class Timer(with_metaclass(MetaParams, object)):
         ('tzdata', None),
     )
 
-    SESSION_TIME, SESSION_START, SESSION_END = range(3)
+    SESSION_START, SESSION_END = range(2)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): # to tolerate abundant args or kwargs
         self.args = args
         self.kwargs = kwargs
 
@@ -158,7 +151,7 @@ class Timer(with_metaclass(MetaParams, object)):
         self._isdata = isinstance(self._tzdata, AbstractDataBase)
         self._reset_when()
 
-        self._nexteos = datetime.min
+        self._nexteos = None
         self._curdate = date.min
 
         self._curmonth = -1  # non-existent month
@@ -236,12 +229,12 @@ class Timer(with_metaclass(MetaParams, object)):
         if self._lastcall == ddate:  # not repeating, awaiting date change
             return False
 
-        if d > self._nexteos:
+        if not self._nexteos or d > self._nexteos:
             if self._isdata:  # eos provided by data
                 nexteos, _ = self._tzdata._getnexteos()
             else:  # generic eos
                 # TIME_MAX 23:59:59.999999 means end of day
-                nexteos = datetime.combine(ddate, TIME_MAX)
+                nexteos = datetime.combine(ddate, TIME_MAX).replace(tzinfo=d.tzinfo)
             self._nexteos = nexteos
             self._reset_when()
 
@@ -255,14 +248,14 @@ class Timer(with_metaclass(MetaParams, object)):
                 ret = self.p.allow(ddate)
 
             if not ret:
-                self._reset_when(ddate)  # this day won't make it
+                self._reset_when(ddate)  # this day won't make it / update _lastcall 
                 return False  # timer target not met
 
         # no day change or passed month, week and allow filters on date change
         dwhen = self._dwhen
         dtwhen = self._dtwhen
         if dtwhen is None:
-            dwhen = datetime.combine(ddate, self._when)
+            dwhen = datetime.combine(ddate, self._when).replace(tzinfo=d.tzinfo)
             if self.p.offset:
                 dwhen += self.p.offset
 
@@ -287,7 +280,7 @@ class Timer(with_metaclass(MetaParams, object)):
                 if self._isdata:  # eos provided by data
                     nexteos, _ = self._tzdata._getnexteos()
                 else:  # generic eos
-                    nexteos = datetime.combine(ddate, TIME_MAX)
+                    nexteos = datetime.combine(ddate, TIME_MAX).replace(tzinfo=d.tzinfo)
 
                 self._nexteos = nexteos
             else:

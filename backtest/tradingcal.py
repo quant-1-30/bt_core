@@ -25,7 +25,7 @@
 from datetime import datetime, timedelta, time
 
 from .metabase import MetaParams, with_metaclass
-from .utils.dateintern import UTC
+from .utils.dateintern import tzparse
 
 __all__ = ['TradingCalendarBase', 'TradingCalendar', 'PandasMarketCalendar']
 
@@ -168,7 +168,7 @@ class TradingCalendar(TradingCalendarBase):
 
             return day, isocal
 
-    def schedule(self, day, tz=None):
+    def schedule(self, day, tz:str=''):
         '''
         Returns the opening and closing times for the given ``day``. If the
         method is called, the assumption is that ``day`` is an actual trading
@@ -176,6 +176,8 @@ class TradingCalendar(TradingCalendarBase):
 
         The return value is a tuple with 2 components: opentime, closetime
         '''
+        tzinfo = tzparse(tz)
+
         while True:
             dt = day.date()
             try:
@@ -184,18 +186,11 @@ class TradingCalendar(TradingCalendarBase):
             except ValueError:  # not found
                 o, c = self.p.open, self.p.close
 
-            closing = datetime.combine(dt, c)
-            if tz is not None:
-                closing = tz.localize(closing).astimezone(UTC)
-                closing = closing.replace(tzinfo=None)
+            closing = datetime.combine(dt, c).replace(tzinfo=tz)
 
             if day > closing:  # current time over eos
                 day += ONEDAY
                 continue
 
-            opening = datetime.combine(dt, o)
-            if tz is not None:
-                opening = tz.localize(opening).astimezone(UTC)
-                opening = opening.replace(tzinfo=None)
-
+            opening = datetime.combine(dt, o).replace(tzinfo=tzinfo)
             return opening, closing

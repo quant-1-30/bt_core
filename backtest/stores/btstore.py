@@ -113,21 +113,16 @@ class BTStore(Store):
         trades = self.broker.submit(order, experiment_id)
         return order, trades
 
-    def _dt_over(self, last=False) -> Tuple[bool, Tuple[int, int]]:
-        dtover, (pre_dt, dt) = self._feed._dt_over(last)
-        return dtover, (pre_dt, dt)
-    
-    def on_dt_over(self, experiment_id, last=False) -> bool: 
-        dt_over, dts = self._dt_over(last)
-        if dt_over:
-            qry = Query(start_date=dts[0], end_date=dts[-1], sid=[]) # on_dt_over ---> timestamp under utc
+    def on_dt_over(self, experiment_id) -> bool: 
+        qry = self._feed.on_dt_over()
+        if qry:
             _ = self.broker.on_dt_over(qry, experiment_id)
-        return dt_over
+        return 
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")
     
     def stop(self, experiment_id):
         '''Stops and tells the store to stop'''
-        self.on_dt_over(experiment_id, last=True) # sync end_of_session
+        self.on_dt_over(experiment_id) # sync last 
         super().stop()

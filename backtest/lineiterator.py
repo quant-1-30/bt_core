@@ -254,7 +254,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _next(self):
         clock_len = self._clk_update()
 
-        # import pdb; pdb.set_trace()
         for indicator in self._lineiterators[LineIterator.IndType]:
             # print("_next indicator ", indicator)
             indicator._next()

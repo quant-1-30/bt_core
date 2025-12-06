@@ -65,7 +65,7 @@ class LineAlias(object):
             print("__Set__ LineActions ", value)
             value = value(0) # __call__ ---> Linedelay
 
-        value.addbinding(obj.lines[self.line])
+        value.addbinding(obj.lines[self.line]) # when indicator value change sync with line 
 
 
 class Lines(object):

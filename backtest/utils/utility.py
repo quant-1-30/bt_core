@@ -41,44 +41,6 @@ def unstack_value(result, assets, missing_value):
     ).values
 
 
-# def asymmetric_round_price(price, prefer_round_down, tick_size, diff=0.95):
-#     """
-#         Asymmetric rounding function for adjusting prices to the specified number
-#         of places in a way that "improves" the price. For limit prices, this means
-#         preferring to round down on buys and preferring to round up on sells.
-#         For stop prices, it means the reverse.
-
-#         If prefer_round_down == True:
-#             When .05 below to .95 above a specified decimal place, use it.
-#         If prefer_round_down == False:
-#             When .95 below to .05 above a specified decimal place, use it.
-
-#         In math-speak:
-
-#         If prefer_round_down: [<X-1>.0095, X.0195) -> round to X.01.
-#         If not prefer_round_down: (<X-1>.0005, X.0105] -> round to X.01.
-#     """
-#     precision = zp_math.number_of_decimal_places(tick_size)
-#     multiplier = int(tick_size * (10 ** precision))
-#     diff -= 0.5  # shift the difference down
-#     diff *= (10 ** -precision)  # adjust diff to precision of tick size
-#     diff *= multiplier  # adjust diff to value of tick_size
-
-#     # Subtracting an epsilon from diff to enforce the open-ness of the upper
-#     # bound on buys and the lower bound on sells.  Using the actual system
-#     # epsilon doesn't quite get there, so use a slightly less epsilon-ey value.
-#     epsilon = float_info.epsilon * 10
-#     diff = diff - epsilon
-
-#     # relies on rounding half away from zero, unlike numpy's bankers' rounding
-#     rounded = tick_size * consistent_round(
-#         (price - (diff if prefer_round_down else -diff)) / tick_size
-#     )
-#     if zp_math.tolerant_equals(rounded, 0.0):
-#         return 0.0
-#     return rounded
-
-
 def vectorized_is_element(array, choices):
     """
     Check if each element of ``array`` is in choices.
@@ -106,31 +68,6 @@ def getargspec(f):
         defaults = full_argspec.defaults)
 
 
-def signature():
-    """
-        sig = signature(foo)
-        str(sig)
-        #'(a, *, b:int, **kwargs)'
-        str(sig.parameters['b'])
-        #'b:int'
-        sig.parameters['b'].annotation
-        #<class 'int'>
-    """
-
-
-def display():
-    """
-        pandas DataFrame表格最大显示行数
-        pd.options.display.max_rows = 20
-        pandas DataFrame表格最大显示列数
-        pd.options.display.max_columns = 20
-        pandas精度浮点数显示4位
-        pd.options.display.precision = 4
-        numpy精度浮点数显示4位, 不使用科学计数法
-        np.set_printoptions(precision=4, suppress=True)
-    """
-
-
 def encrypt(obj):
 
     """
@@ -149,9 +86,6 @@ def encrypt(obj):
 
 
 def extract(_p_dir,file='RomDataBu/df_kl.h5.zip'):
-    """
-    解压数据
-    """
     data_example_zip = os.path.join(_p_dir, file)
     try:
         from zipfile import ZipFile
@@ -275,20 +209,6 @@ def get_utc_timestamp(dt):
     return dt
 
 
-# if not os.path.exists(g_project_kl_df_data_example):
-#     # 如果还没有进行解压，开始解压df_kl.h5.zip
-#     data_example_zip = os.path.join(_p_dir, 'RomDataBu/df_kl.h5.zip')
-#     try:
-#         from zipfile import ZipFile
-#         zip_h5 = ZipFile(data_example_zip, 'r')
-#         unzip_dir = os.path.join(_p_dir, 'RomDataBu/')
-#         for h5 in zip_h5.namelist():
-#             zip_h5.extract(h5, unzip_dir)
-#         zip_h5.close()
-#     except Exception as e:
-#         # 解压测试数据zip失败，就不开启测试数据模式了
-#         print('example env failed! e={}'.format(e))
-#     return
 
 def check_indexes_all_same(indexes, message="Indexes are not equal."):
     """Check that a list of Index objects are all equal.

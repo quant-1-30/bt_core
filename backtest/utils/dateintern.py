@@ -48,98 +48,6 @@ TIME_MAX = datetime.time(23, 59, 59, 999990)
 TIME_MIN = datetime.time.min
 
 
-def tzparse(tz):
-    # If no object has been provided by the user and a timezone can be
-    # found via contractdtails, then try to get it from pytz, which may or
-    # may not be available.
-    tzstr = isinstance(tz, str)
-    if tz is None or not tzstr:
-        return Localizer(tz)
-
-    try:
-        import pytz  # keep the import very local
-    except ImportError:
-        return Localizer(tz)    # nothing can be done
-
-    tzs = tz
-    if tzs == 'CST':  # usual alias
-        tzs = 'CST6CDT'
-
-    try:
-        tz = pytz.timezone(tzs)
-    except pytz.UnknownTimeZoneError:
-        return Localizer(tz)    # nothing can be done
-
-    return tz
-
-
-def Localizer(tz):
-    import types
-
-    def localize(self, dt):
-        return dt.replace(tzinfo=self)
-
-    if tz is not None and not hasattr(tz, 'localize'):
-        # patch the tz instance with a bound method
-        tz.localize = types.MethodType(localize, tz)
-
-    return tz
-
-
-# A UTC class, same as the one in the Python Docs
-class _UTC(datetime.tzinfo):
-    """UTC"""
-
-    def utcoffset(self, dt):
-        return ZERO
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return ZERO
-
-    def localize(self, dt):
-        return dt.replace(tzinfo=self)
-
-
-class _LocalTimezone(datetime.tzinfo):
-
-    def utcoffset(self, dt):
-        if self._isdst(dt):
-            return DSTOFFSET
-        else:
-            return STDOFFSET
-
-    def dst(self, dt):
-        if self._isdst(dt):
-            return DSTDIFF
-        else:
-            return ZERO
-
-    def tzname(self, dt):
-        return _time.tzname[self._isdst(dt)]
-
-    def _isdst(self, dt):
-        tt = (dt.year, dt.month, dt.day,
-              dt.hour, dt.minute, dt.second,
-              dt.weekday(), 0, 0)
-        try:
-            stamp = _time.mktime(tt)
-        except (ValueError, OverflowError):
-            return False  # Too far in the future, not relevant
-
-        tt = _time.localtime(stamp)
-        return tt.tm_isdst > 0
-
-    def localize(self, dt):
-        return dt.replace(tzinfo=self)
-
-
-UTC = _UTC()
-TZLocal = _LocalTimezone()
-
-
 HOURS_PER_DAY = 24.0
 MINUTES_PER_HOUR = 60.0
 SECONDS_PER_MINUTE = 60.0
@@ -149,49 +57,19 @@ SECONDS_PER_DAY = SECONDS_PER_MINUTE * MINUTES_PER_DAY
 MUSECONDS_PER_DAY = MUSECONDS_PER_SECOND * SECONDS_PER_DAY
 
 
-#def num2date(x, tz=None, naive=True):
-#    # Same as matplotlib except if tz is None a naive datetime object
-#    # will be returned.
-#    """
-#    *x* is a float value which gives the number of days
-#    (fraction part represents hours, minutes, seconds) since
-#    0001-01-01 00:00:00 UTC *plus* *one*.
-#    The addition of one here is a historical artifact.  Also, note
-#    that the Gregorian calendar is assumed; this is not universal
-#    practice.  For details, see the module docstring.
-#    Return value is a :class:`datetime` instance in timezone *tz* (default to
-#    rcparams TZ value).
-#    If *x* is a sequence, a sequence of :class:`datetime` objects will
-#    be returned.
-#    """
-#
-#    ix = int(x)
-#    dt = datetime.datetime.fromordinal(ix)
-#    remainder = float(x) - ix
-#    hour, remainder = divmod(HOURS_PER_DAY * remainder, 1)
-#    minute, remainder = divmod(MINUTES_PER_HOUR * remainder, 1)
-#    second, remainder = divmod(SECONDS_PER_MINUTE * remainder, 1)
-#    microsecond = int(MUSECONDS_PER_SECOND * remainder)
-#    if microsecond < 10:
-#        microsecond = 0  # compensate for rounding errors
-#
-#    if True and tz is not None:
-#        dt = datetime.datetime(
-#            dt.year, dt.month, dt.day, int(hour), int(minute), int(second),
-#            microsecond, tzinfo=UTC)
-#        dt = dt.astimezone(tz)
-#        if naive:
-#            dt = dt.replace(tzinfo=None)
-#    else:
-#        # If not tz has been passed return a non-timezoned dt
-#        dt = datetime.datetime(
-#            dt.year, dt.month, dt.day, int(hour), int(minute), int(second),
-#            microsecond)
-#
-#    if microsecond > 999990:  # compensate for rounding errors
-#        dt += datetime.timedelta(microseconds=1e6 - microsecond)
-#
-#    return dt
+def tzparse(tz: str):
+    # If no object has been provided by the user and a timezone can be
+    # found via contractdtails, then try to get it from pytz, which may or
+    # may not be available.
+    if not tz:
+        return datetime.timezone.utc
+
+    if isinstance(tz, str):
+        tzinfo = pytz.timezone(tz)
+    elif isinstance(tz, pytz.tzinfo):
+        tzinfo = tz
+    else:
+        raise TypeError(f"{tz} can not convert to tzinfo object")
 
 def num2date(x, tz='Asia/Shanghai', naive=True):
     # Same as matplotlib except if tz is None a naive datetime object
@@ -210,8 +88,7 @@ def num2date(x, tz='Asia/Shanghai', naive=True):
     """
     tzinfo = pytz.timezone(tz) if isinstance(tz, str) else tz
     if np.isnan(x):
-        # return 0
-        return x 
+        return 0
 
     # dt = datetime.datetime.fromtimestamp(x, tz=pytz.timezone('Asia/Shanghai')) # timestamp under utc 
     utc_dt = datetime.datetime.fromtimestamp(x, tz=datetime.timezone.utc)
@@ -279,32 +156,6 @@ def market_utc(date, tzinfo="Asia/Shanghai"):
     m_close = format_dt + datetime.timedelta(hours=15, minutes=0)
     # trans to utc
     return m_open, m_close
-
-def calc_distance(tick, _format="%Y%m%d%H%M"):
-    # %-m 不补0
-    formate_date = datetime.datetime.strptime(str(tick), _format)
-    delta = formate_date - datetime.datetime(year=formate_date.year, month=formate_date.month, day=formate_date.day, hours=9, minutes=30)
-    return delta.seconds, formate_date
-    
-
-def loc2ticker(dt, loc, _format="%Y%m%d"):
-    struct_date = datetime.datetime.strptime(str(dt), _format)
-    loc_date = struct_date + datetime.timedelta(hours=9, minutes=30) + datetime.timedelta(seconds=loc * 3)
-    return loc_date 
-
-def locate_pos(price, minutes, direction):
-    print('minutes locate_pos', minutes)
-    # 当卖出价格大于bid价格才会成交，买入价格低于bid价格才会成交
-    loc = list(minutes[minutes <= price].index) if direction == '1' else \
-        list(minutes[minutes >= price].index)
-    # print('present minutes', minutes[minutes <= price])
-    try:
-        # pos = pd.Timestamp(datetime.datetime.utcfromtimestamp(loc[0]))
-        pos = loc[0]
-    except IndexError:
-        print('price out of minutes')
-        pos = None
-    return pos
 
 
 def parse_date_str_series(format_str, tz, date_str_series):

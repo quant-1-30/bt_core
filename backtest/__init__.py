@@ -33,7 +33,7 @@ from .writer import *
 from .signal import *
 from .timer import *
 from .flt import *
-from .operators import *
+from .operator import *
 
 from .cerebro import *
 
