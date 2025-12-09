@@ -108,5 +108,5 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
     def on_dt_over(self):
         dtkey1 = int(self.dtkey1.strftime("%Y%m%d")) 
         loc = np.searchsorted(self.dts, dtkey1)
-        self.rets[dtkey1] = self.returns[loc]
+        self.rets[self.dtkey1] = self.returns[loc]
           

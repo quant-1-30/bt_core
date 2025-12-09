@@ -537,15 +537,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if runstrats:
             for _, strat in enumerate(runstrats):
-                if self.p.stdstats:
-                    # ('timeframe', bt.TimeFrame.Days) ('compression', None),
+                if self.p.stdstats: # ('timeframe', bt.TimeFrame.Days) ('compression', None),
                     strat._addobserver(False, observers.Broker, barplot=True)
                     strat._addobserver(False, observers.TimeReturn, barplot=True)
                     strat._addobserver(False, observers.Benchmark, barplot=True)
                     strat._addobserver(False, observers.BuySell, barplot=True)
-                    strat._addobserver(False, observers.Trades, barplot=True)
                     strat._addobserver(False, observers.DrawDown, barplot=True)
                     strat._addobserver(False, observers.DrawDownLength, barplot=True)
+                    strat._addobserver(False, observers.Trades, barplot=True)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
@@ -726,4 +725,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        self._plot.plot(out, freq=freq, **kwargs)
+        strat = self.runningstrats[0]
+        inds = strat._lineiterators[0] 
+        obs = strat._lineiterators[2]
+        self._plot.plot(out, freq=freq, num_ind=len(inds), num_obs=len(obs), **kwargs)

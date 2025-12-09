@@ -43,12 +43,10 @@ def resample(ns, df, data, freq):
             })
     elif ns == "Strategy":
         sample = df.resample(freq, closed="left", label="left").max()
-        # import pdb; pdb.set_trace()
     else:
         sample = df.resample(freq, closed="left", label="left").last()
 
-    # sample.dropna(axis=0, how="any", inplace=True) 
-    sample.dropna(axis=0, how="all", inplace=True) 
+    # sample.dropna(axis=0, how="all", inplace=True) # "any" 
 
     if "datetime" in sample.columns: 
         sample.drop(columns=["datetime"], inplace=True)
@@ -62,7 +60,6 @@ def create_datasource(csv_path, freq):
     
     names_col = data.columns[1::2]
     datas_col = data.columns[2::2]
-
     for n_c, d_c in zip(names_col, datas_col):
         _src = {} 
         c_v = data.loc[:, d_c].astype(str)
@@ -77,9 +74,9 @@ def create_datasource(csv_path, freq):
 
             _src[key] = arr
         datasource[n_c] = ColumnDataSource(data=_src, name=n_c)
-    return datasource
+    return datasource, names_col
 
-def merge_cds(*sources, on='datetime'):
+def merge_cds(*sources, on='datetime', dropna=True):
     """
     使用 pandas 合并多个数据源
     
@@ -95,11 +92,11 @@ def merge_cds(*sources, on='datetime'):
     dfs = []
     for i, source in enumerate(sources):
         df = pd.DataFrame(source.data)
+        df.dropna(axis=0, how="all", inplace=True) 
         chain_tooltip = [f" {key}: @{{{key}}}{{0.2f}}<br>" for key in source.column_names if  key != "datetime"]
         tooltips.append((source.name, ''.join(chain_tooltip)))
         dfs.append(df)
     
-    # 合并所有 DataFrame
     merged_df = dfs[0]
     for df in dfs[1:]:
         if on in merged_df.columns and on in df.columns:
@@ -107,7 +104,6 @@ def merge_cds(*sources, on='datetime'):
         else:
             merged_df = pd.concat([merged_df, df], axis=1)
     
-    # 排序（如果是时间序列）
     if on in merged_df.columns and pd.api.types.is_datetime64_any_dtype(merged_df[on]):
         merged_df = merged_df.sort_values(on)
     
@@ -115,3 +111,12 @@ def merge_cds(*sources, on='datetime'):
     del _source.data["index"]
     
     return _source, tooltips
+
+
+def on_shift(source, shift=1, drop=True):
+    df = pd.DataFrame(source.data)
+    df = df.shift(shift) # observer shift 1 
+    df.dropna(axis=0, how="all", inplace=True) # drop last column 
+    
+    _source = ColumnDataSource(df)
+    return _source

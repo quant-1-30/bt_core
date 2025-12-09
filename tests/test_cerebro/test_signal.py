@@ -41,13 +41,12 @@ class MACDSignal(btind.Indicator):
         self.lines.breakthrough = macd.signal 
 
 
-class DDSignal(btind.Indicator):
+class DDSignal(btind.Indicator): # self define need to addminpeeriod
 
     lines = ("breakthrough",)
     params = (("period", 90), ("drawdown", 50.0))
 
-    def __init__(self):
-    #     self._dd = DDI(period=self.p.period, drawdown=self.p.drawdown)
+    def __init__(self): # self._dd = DDI(period=self.p.period, drawdown=self.p.drawdown)
         self.lines[0].addminperiod(self.p.period)
 
     def next(self):
@@ -70,6 +69,6 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, data1)
     cerebro.add_signal(bt.SIGNAL_LONG, DDSignal, data1)
 
-    cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="out_signal.csv") 
+    cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="signal.csv") 
 
-    cerebro.plot(out="out_signal.csv") # independent 
+    cerebro.plot(out="signal.csv")

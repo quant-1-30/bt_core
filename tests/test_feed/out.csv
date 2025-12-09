@@ -1,4 +1,0 @@
-===============================================================================
-Id;Feed;open,high,low,close,volume,amount,datetime;DataClone;open,high,low,close,volume,amount,datetime;DataClone;open,high,low,close,volume,amount,datetime;DataClone;open,high,low,close,volume,amount,datetime;DataClone;open,high,low,close,volume,amount,datetime;Strategy;datetime,buy,sell;SMA(close,period=25);sma
-1;Feed;10.62,10.66,10.6,10.6,11130000.0,1181076000.0,1577957400.0;DataClone;,,,,,,;DataClone;,,,,,,;DataClone;,,,,,,;DataClone;,,,,,,;Strategy;1577957400.0,nan,nan;SMA(close,period=25);nan
-2;Feed;10.6,10.6,10.53,10.56,3720000.0,392927031.0,1577957460.0;DataClone;,,,,,,;DataClone;,,,,,,;DataClone;,,,,,,;DataClone;,,,,,,;Strategy;1577957460.0,nan,nan;SMA(close,period=25);nan

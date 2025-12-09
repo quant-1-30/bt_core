@@ -58,10 +58,10 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
         each return as keys
     '''
     params = (
+        ('timeframe', bt.TimeFrame.Days),
+        ('compression', None),
         ('headers',  False),
         ('cash', False),
-        ('timeframe', bt.TimeFrame.Days),
-        ('compression', 1),
     )
 
     def start(self):
@@ -71,9 +71,8 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
             self.rets['Datetime'] = headers + ['cash'] * self.p.cash
 
         tf = min(d._timeframe for d in self.datas)
-        self._usedate = tf >= TimeFrame.Days
+        self._usedate = tf >= bt.TimeFrame.Days
 
     def on_dt_over(self):
-        _, pval = self._owner.getvalue()
-        print("PositionsValue ", pval)
-        self.rets[self.dtkey1] = pval
+        _, v = self._owner.getvalue()
+        self.rets[self.dtkey1] = v

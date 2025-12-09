@@ -196,7 +196,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         indperiods = [ind._minperiod for ind in indicators]
         indminperiod = max(indperiods or [self._minperiod])
         print("_periodrecalc ", indminperiod)
-        # import pdb; pdb.set_trace()
         self.updateminperiod(indminperiod)
 
     def getindicators(self):
@@ -256,13 +255,11 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         clock_len = self._clk_update()
 
         for indicator in self._lineiterators[LineIterator.IndType]:
-            # print("_next indicator ", indicator)
             indicator._next()
 
         if self._ltype == LineIterator.StratType:
             # supporting datas with different lengths
             minperstatus = self._getminperstatus()
-            # self.hook()  #check if event
             if minperstatus < 0:
                 self.next()
             elif minperstatus == 0:
@@ -306,7 +303,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         pass
 
     def qbuffer(self, savemem=1):
-        # import pdb; pdb.set_trace()
         self.lines.qbuffer(savemem=savemem)
 
         # condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas

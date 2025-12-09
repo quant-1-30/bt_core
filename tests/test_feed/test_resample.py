@@ -44,5 +44,5 @@ if __name__ == '__main__':
     datas = [data1, data2, data3, data4]
     cerebro.adddata(*datas)
 
-    cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="out.csv") # localhost
+    cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="resample.csv") # localhost
     

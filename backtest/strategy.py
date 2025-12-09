@@ -209,7 +209,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
-        # print("_getminperstatus ", self._minperstatus)
         return minperstatus
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
@@ -483,7 +482,6 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
         for sigtype, sigcls, sigargs, sigkwargs in _obj.p.signals:
             _obj._signals[sigtype].append(sigcls(*sigargs, **sigkwargs)) # autoregister signal indicator
         
-        # import pdb; pdb.set_trace()
         _obj, args, kwargs = \
             super(MetaSigStrategy, cls).dopostinit(_obj, *args, **kwargs)
 

@@ -65,8 +65,7 @@ class Benchmark(Observer):
         return labels
 
     def __init__(self, **kwargs):
-        super(Benchmark, self).__init__()  # treturn including data parameter
-        # kwargs = self.p._getkwargs()
+        super(Benchmark, self).__init__()  # kwargs = self.p._getkwargs()
         self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
         self.dtkey = datetime.datetime.min
 

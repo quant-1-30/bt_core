@@ -62,7 +62,6 @@ class Plot(with_metaclass(MetaParams, object)):
         strat_src = self.datasource["Strategy"]
         feed_src, _tooltip = merge_cds(feed_src, strat_src) # 
         self.bt_tooltips.append(_tooltip)
-
         # 创建主图表
         p_main = figure(
             width=self.p.scheme.figure_width,
@@ -130,11 +129,7 @@ class Plot(with_metaclass(MetaParams, object)):
  
 # ------------------------------------------------------------------------ indicator ----------------------------------------------------------------
 
-    def plotind(self):
-        # n_inds = ['SMA(close,period=15)', 'SMA(SMA(close,period=15),period=5)', 'SMA(SMA(SMA(close,period=15),period=5),period=5)', 
-        #         'SMA(SMA(SMA(SMA(close,period=15),period=5),period=5),period=10)', 'EMA(SMA(SMA(SMA(close,period=15),period=5),period=5),period=10)']
-        n_inds = ['SMA(close,period=25)', 'SMA(SMA(close,period=25),period=5)']
-
+    def plotind(self, n_inds):
         subind_src = [self.datasource[name] for name in n_inds]
         ind_src, ind_tooltip = merge_cds(*subind_src)
 
@@ -180,15 +175,14 @@ class Plot(with_metaclass(MetaParams, object)):
 
 # --------------------------------------------------------------------- observe gridplots ----------------------------------------------------------------------
     
-    def plotobs(self):
-        # or reuse indicator in one figure
-        n_obs = ['Broker(Feed,barplot=True)', 'Trades - Net Profit/Loss', 'DrawDown(Feed,barplot=True)', 
-         'DrawDownLength(Feed,barplot=True)', 'BuySell(Feed,barplot=True)', 'Benchmark(Feed,barplot=True)']
+    def plotobs(self, n_obs):# or reuse indicator in one figure
 
         p_observers = []
 
         for i, name in enumerate(n_obs):
-            obs_src = self.datasource[name]
+            # obs_src = self.datasource[name]
+            obs_src = on_shift(self.datasource[name], shift=1) # 
+
             title = "" if i > 0 else "Observer" # f'Observer: {name.split("(")[0]}',
 
             p_obs = figure(
@@ -277,6 +271,22 @@ class Plot(with_metaclass(MetaParams, object)):
         show(grid)
         return grid
 
+    def plot(self, csv_path, freq, num_ind, num_obs, filename=None, save=False):
+        self.datasource, _names = create_datasource(csv_path, freq)
+        self.plotdata() # Feed and Strategy 整合
+
+        import pdb; pdb.set_trace()
+        ind_names = _names[2: num_ind+2]
+        self.plotind(ind_names) # Indicator
+
+        obs_names = _names[-num_obs:]
+        self.plotobs(obs_names) # Observer
+
+        grid_plot = self.show()
+        
+        if save:
+            self.savefig(grid_plot, filename)
+
     def savefig(self, fig, filename):
         # 保存为 HTML 文件
         output_file(f"{filename}.html")
@@ -290,14 +300,3 @@ class Plot(with_metaclass(MetaParams, object)):
         #     export_png(e_p, filename=f"{filename}.png", scale_factor=1, 
         #             width=self.p.scheme.width, height=self.p.scheme.heigh) # export_svg / need selenium driver
 
-    def plot(self, csv_path, freq, filename=None, save=False):
-        self.datasource = create_datasource(csv_path, freq)
-
-        self.plotdata() # Feed and Strategy 整合
-        self.plotind() # Indicator
-        self.plotobs() # Observer
-
-        grid_plot = self.show()
-        
-        if save:
-            self.savefig(grid_plot, filename)

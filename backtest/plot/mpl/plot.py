@@ -214,7 +214,6 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
                         xdata.append(dtidx)
                         xtemp.append(dt)
 
-                    # import pdb; pdb.set_trace()
                     print("xtemp ", len(xtemp))
                     self.pinf.xstart = bisect.bisect_left(dts, xtemp[0])
                     self.pinf.xend = bisect.bisect_right(dts, xtemp[-1])
@@ -448,7 +447,6 @@ class Plot_OldSync(with_metaclass(MetaParams, object)):
             toskip -= 1  # one line less until legend can be added
 
             # plot data
-            # import pdb; pdb.set_trace()
             lplot = line.plotrange(self.pinf.xstart, self.pinf.xend)
 
             # Global and generic for indicator

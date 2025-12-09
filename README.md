@@ -112,3 +112,7 @@ cerebro.run(exactbars=-1) # 低内存模式
 
 
 find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;
+
+# 目前适配单策略, 针对于多策略问题
+
+    
