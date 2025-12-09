@@ -61,7 +61,7 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
         ('headers',  False),
         ('cash', False),
         ('timeframe', bt.TimeFrame.Days),
-        ('compression', None),
+        ('compression', 1),
     )
 
     def start(self):
@@ -76,5 +76,4 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
     def on_dt_over(self):
         _, pval = self._owner.getvalue()
         print("PositionsValue ", pval)
-        if pval:
-          self.rets[self.dtkey] = pval
+        self.rets[self.dtkey1] = pval

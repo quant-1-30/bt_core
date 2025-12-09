@@ -183,13 +183,14 @@ class Plot(with_metaclass(MetaParams, object)):
     def plotobs(self):
         # or reuse indicator in one figure
         n_obs = ['Broker(Feed,barplot=True)', 'Trades - Net Profit/Loss', 'DrawDown(Feed,barplot=True)', 
-        'DrawDownLength(Feed,barplot=True)', 'BuySell(Feed,barplot=True)', 'Benchmark(Feed,barplot=True)']
+         'DrawDownLength(Feed,barplot=True)', 'BuySell(Feed,barplot=True)', 'Benchmark(Feed,barplot=True)']
 
         p_observers = []
 
         for i, name in enumerate(n_obs):
             obs_src = self.datasource[name]
             title = "" if i > 0 else "Observer" # f'Observer: {name.split("(")[0]}',
+
             p_obs = figure(
                 title = title,
                 width=self.p.scheme.figure_width, 
@@ -211,7 +212,7 @@ class Plot(with_metaclass(MetaParams, object)):
 
             self.bt_tooltips.append(obs_tooltip)
  
-            if i < len(n_obs):
+            if i < len(n_obs) - 1:
                 p_obs.xaxis.visible = False
             p_observers.append(p_obs)
 

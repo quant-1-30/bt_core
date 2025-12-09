@@ -462,7 +462,6 @@ class Resampler(_BaseResampler):
         if self.bar.isopen():
             if self.doadjusttime:
                 self._adjusttime()
-            # import pdb; pdb.set_trace()
             data._add2stack(self.bar.lvalues())
             self.bar.bstart(maxdate=True)  # close the bar to avoid dups
             return True

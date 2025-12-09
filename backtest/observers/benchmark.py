@@ -66,15 +66,12 @@ class Benchmark(Observer):
 
     def __init__(self, **kwargs):
         super(Benchmark, self).__init__()  # treturn including data parameter
-        # Create a time return object without the data
         # kwargs = self.p._getkwargs()
         self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
         self.dtkey = datetime.datetime.min
 
     def next(self):
-        # super(Benchmark, self).next()
         dtkey = self.rbench.dtkey
         if dtkey > self.dtkey:
-            self.lines.benchmark[0] = self.rbench.rets.get(dtkey, float('NaN'))
-
+            self.lines.benchmark[0] = self.rbench.rets.get(self.rbench.dtkey1, float('NaN')) 
             self.dtkey = dtkey

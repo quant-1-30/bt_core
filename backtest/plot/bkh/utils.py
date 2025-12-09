@@ -47,7 +47,8 @@ def resample(ns, df, data, freq):
     else:
         sample = df.resample(freq, closed="left", label="left").last()
 
-    sample.dropna(axis=0, how="any", inplace=True) # 剔除非交易日
+    # sample.dropna(axis=0, how="any", inplace=True) 
+    sample.dropna(axis=0, how="all", inplace=True) 
 
     if "datetime" in sample.columns: 
         sample.drop(columns=["datetime"], inplace=True)
@@ -56,7 +57,6 @@ def resample(ns, df, data, freq):
 
 def create_datasource(csv_path, freq):
     data = pd.read_csv(csv_path, header=1, sep=";")
-
     datasource = {}
     datasource["id"] = data.iloc[:,0].to_numpy()
     

@@ -29,6 +29,7 @@ if __name__ == '__main__':
     load_dotenv()
 
     cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219", stdstats=False) # configure ---> store="bt" # 2>/dev/null
+    cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80", stdstats=False) # ssh
     # Add a strategy
     cerebro.addstrategy(TestResample)
 
@@ -44,5 +45,4 @@ if __name__ == '__main__':
     cerebro.adddata(*datas)
 
     cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="out.csv") # localhost
-    # cerebro.run(sid=["603676"], fromdate=20200101, todate=20210101, client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80", benchmark="000001") # ssh
     

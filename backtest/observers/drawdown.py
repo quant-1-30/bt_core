@@ -60,7 +60,7 @@ class DrawDown(Observer):
     def next(self):
         dtkey = self._dd.dtkey
         if dtkey > self.dtkey:
-            dd, _ = self._dd.rets[dtkey]
+            dd, _ = self._dd.rets[self._dd.dtkey1]
             self.lines.drawdown[0] = dd # update drawdown
             self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
 
@@ -91,8 +91,7 @@ class DrawDownLength(Observer):
     def next(self):
         dtkey = self._dd.dtkey
         if dtkey > self.dtkey:
-            _, ddlen = self._dd.rets[dtkey]
+            _, ddlen = self._dd.rets[self._dd.dtkey1]
             self.lines.len[0] = ddlen  
             self.lines.maxlen[0] = self._dd.rets["maxDrawdownLength"]
-
             self.dtkey = dtkey

@@ -73,7 +73,6 @@ class Broker(bt.TimeFrameAnalyzerBase):
         self._usedate = tf >= bt.TimeFrame.Days
 
     def on_dt_over(self):
-        # pvals = [self.strategy.broker.get_value([d]) for d in self.datas]
         v, _ = self._owner.getvalue()
-        # print("analyzer broker v: ", self.dtkey, v)
-        self.rets[self.dtkey] = v
+        # self.rets[self.dtkey] = v
+        self.rets[self.dtkey1] = v

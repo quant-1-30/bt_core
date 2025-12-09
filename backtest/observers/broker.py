@@ -58,9 +58,8 @@ class Broker(Observer):
     def next(self):
         dtkey = self.vb.dtkey
         if dtkey > self.dtkey:
-            v = self.vb.rets.get(dtkey, None)
+            v = self.vb.rets.get(self.vb.dtkey1, None)
             if v:
-                # print("obs broker v", v)
                 self.lines.value[0] = v.portfolio_value
                 self.lines.cash[0] = v.cash
             

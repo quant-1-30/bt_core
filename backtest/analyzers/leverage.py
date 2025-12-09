@@ -49,4 +49,5 @@ class GrossLeverage(bt.TimeFrameAnalyzerBase):
         # Updates the leverage for "dtkey" (see base class) for each cycle
         # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
         lev = (v.portfolio_value - v.cash) / v.portfolio_value
-        self.rets[self.dtkey] = lev
+        # self.rets[self.dtkey] = lev
+        self.rets[self.dtkey1] = lev

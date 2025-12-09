@@ -42,9 +42,10 @@ class BuySell(Observer):
 
       - ``bardist`` (default: ``0.015`` 1.5%) Distance to max/min when
     '''
-    lines = ('avg_buy', 'avg_sell', 'comm')
+    lines = ('buy', 'sell', 'comm')
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
+
     plotlines = dict(
         buy=dict(marker='^', markersize=8.0, color='lime',
                  fillstyle='full', ls=''),
@@ -62,21 +63,22 @@ class BuySell(Observer):
 
     def next(self):
         dtkey = self.txns.dtkey
-        buy,sell = [], []
-        comm = 0.0
+        
         if dtkey > self.dtkey:
-            _trades = self.txns.rets.get(dtkey, [])
+            comm = 0.0
+            buy,sell = [], []
 
+            _trades = self.txns.rets.get(self.txns.dtkey1, [])
             if _trades:
-                for _bit in _trades:
-                    if not _bit.executed_size:
+                for _trade in _trades:
+                    if not _trade.executed_size:
                         continue
-                    comm += _bit.comm
+                    comm += _trade.comm
 
-                    if _bit.direction:
-                        buy.append(_bit)
+                    if _trade.direction:
+                        buy.append(_trade)
                     else:
-                        sell.append(_bit)
+                        sell.append(_trade)
 
                 # BUY
                 # curbuy = self.lines.avg_buy[0]
@@ -87,16 +89,16 @@ class BuySell(Observer):
                 buylen = sum([b.executed_size for b in buy])  
 
                 value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
-                self.lines.avg_buy[0] = value 
+                self.lines.buy[0] = value 
 
                 # SELL
                 sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
                 selllen = sum([s.executed_size for s in sell])  
 
                 value = sellops / float(selllen or 'NaN')
-                self.lines.avg_sell[0] = value 
+                self.lines.sell[0] = value 
             
                 # Write comm
                 self.lines.comm[0] = comm
 
-                self.dtkey = dtkey
+            self.dtkey = dtkey

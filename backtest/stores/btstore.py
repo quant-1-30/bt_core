@@ -111,7 +111,7 @@ class BTStore(Store):
     
     def submit(self, experiment_id, order: Order) -> Tuple[Order, Trade]:
         trades = self.broker.submit(order, experiment_id)
-        return order, trades
+        return trades
 
     def on_dt_over(self, experiment_id) -> bool: 
         qry = self._feed.on_dt_over()

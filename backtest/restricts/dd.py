@@ -18,16 +18,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-# from __future__ import (absolute_import, division, print_function,
-#                         unicode_literals)
+import numpy as np
+from backtest.restricted import MetaRestricted
 
-# The modules below should/must define __all__ with the objects wishes
-# or prepend an "_" (underscore) to private classes/variables
-
-from .restricted import *
+__all__ = ['DD']
 
 
-_risk_ctl = {
-    'default': CashRisk,
-    'dd': LossRisk,
-    }
+class DD(MetaRestricted):
+    """
+        DrawDown Restricted 
+    """
+    params = (
+      ("thres", 30.0),
+    )
+
+    def is_restricted(self, strat):
+      dd = strat.stats.getbyname("drawdown") # lowercase
+      _ratio = dd.lines.drawdown[0] 
+      is_r = True if _ratio >= self.p.thres else False
+      return is_r

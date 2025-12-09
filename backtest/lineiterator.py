@@ -123,7 +123,7 @@ class MetaLineIterator(LineSeries.__class__):
         # The lines carry at least the same minperiod as that provided by the object
         # and update subindicator _minperiod to indicator
         for line in _obj.lines:
-            line.addminperiod(_obj._minperiod) 
+            line.addminperiod(_obj._minperiod) # aggregate minperiod step by indicator 
 
         return _obj, args, kwargs
 
@@ -196,6 +196,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         indperiods = [ind._minperiod for ind in indicators]
         indminperiod = max(indperiods or [self._minperiod])
         print("_periodrecalc ", indminperiod)
+        # import pdb; pdb.set_trace()
         self.updateminperiod(indminperiod)
 
     def getindicators(self):
@@ -305,6 +306,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         pass
 
     def qbuffer(self, savemem=1):
+        # import pdb; pdb.set_trace()
         self.lines.qbuffer(savemem=savemem)
 
         # condition: 1\ not nesting sma1 = SMA(self.data): self.datas / sma2 = SMA(sma1): self.lines --> self.datas

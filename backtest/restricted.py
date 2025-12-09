@@ -21,7 +21,7 @@
 from backtest.metabase import MetaParams, with_metaclass
 
 
-class Risk(with_metaclass(MetaParams, object)):
+class MetaRestricted(with_metaclass(MetaParams, object)):
     '''This is the base class for *Sizers*. Any *sizer* should subclass this
     and override the ``_getsizing`` method
 
@@ -53,5 +53,3 @@ class Risk(with_metaclass(MetaParams, object)):
         '''
         raise NotImplementedError
 
-
-RiskBase = Risk  # alias for old naming

@@ -141,6 +141,7 @@ class LineBuffer(LineSingle):
             value (variable): value to be set
         '''
         idx = self.idx % self.maxlen
+        print("idx, maxlen", idx, self.idx, self.maxlen, len(self.array))
         self.array[idx + ago] = value
         for binding in self.bindings:
             binding[ago] = value

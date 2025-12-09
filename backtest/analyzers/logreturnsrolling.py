@@ -102,4 +102,5 @@ class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
         vst, _ = self._owner.getvalue()
         self._values.append(vst)  # push values backwards (and out)
         super(LogReturnsRolling, self).next()
-        self.rets[self.dtkey] = math.log(self._values[-1].portfolio_value / self._values[0].portfolio_value)
+        # self.rets[self.dtkey] = math.log(self._values[-1].portfolio_value / self._values[0].portfolio_value)
+        self.rets[self.dtkey1] = math.log(self._values[-1].portfolio_value / self._values[0].portfolio_value)

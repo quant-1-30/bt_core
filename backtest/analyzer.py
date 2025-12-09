@@ -260,7 +260,10 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         self.timeframe = self.p.timeframe or self.data._timeframe
         self.compression = self.p.compression or self.data._compression
 
-        self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min) # dtkey is boundary
+        # self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min) # dtkey is boundary
+        self.dtcmp = None
+        self.dtkey = datetime.datetime.min
+
         super(TimeFrameAnalyzerBase, self)._start()
     
     def _prenext(self):
@@ -298,7 +301,8 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
             dtcmp, dtkey = np.iinfo(np.int_).max, datetime.datetime.max
         else:
             # With >= 1.9.x the system datetime is in the strategy
-            dt = self._owner.datetime.datetime()
+            # dt = self._owner.datetime.datetime()
+            dt = self._owner._clock.datetime.datetime() #
             dtcmp, dtkey = self._get_dt_cmpkey(dt)
 
         if self.dtcmp is None or dtcmp > self.dtcmp:

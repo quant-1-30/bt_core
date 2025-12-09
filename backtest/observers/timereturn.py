@@ -81,6 +81,6 @@ class TimeReturn(Observer):
     def next(self):
         dtkey = self.treturn.dtkey
         if dtkey > self.dtkey:
-            self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey,
+            self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey1,
                                                          float('NaN'))
             self.dtkey = dtkey

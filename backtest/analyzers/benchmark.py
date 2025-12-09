@@ -106,8 +106,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         self.dts = np.array([int(r[0]) for r in rawdata], dtype=np.int64) # dt ohlc
 
     def on_dt_over(self):
-        # next is called in a new timeframe period
-        dtkey = int(self.dtkey.strftime("%Y%m%d")) 
-        loc = np.searchsorted(self.dts, dtkey)
-        self.rets[self.dtkey] = self.returns[loc]
+        dtkey1 = int(self.dtkey1.strftime("%Y%m%d")) 
+        loc = np.searchsorted(self.dts, dtkey1)
+        self.rets[dtkey1] = self.returns[loc]
           

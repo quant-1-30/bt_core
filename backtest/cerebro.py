@@ -29,7 +29,7 @@ from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import sizers
-from .risks import _risk_ctl
+from .restricts import _rctl
 from .timer import Timer, SESSION_START
 from .errors import *
 from .stores import _stores
@@ -86,8 +86,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('savemem', 1),
         ("store", "bt"),
         ("store_p", {}),
-        ("risk", "default"),
-        ("risk_p", {}),
+        ("rctl", "dd"),
+        ("rctl_p", {}),
         ("sizer", "fixed"),
         ("sizer_p", {}),
         ('stdstats', True),
@@ -120,10 +120,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         
         self.addstore() 
         self.addsizer()
-        self.addrisk()
-
-        datamaster = self.store.get_feed()
-        self.datas.insert(0, datamaster)
+        self.addrestricted()
 
     def addcalendar(self):
         '''Adds a global trading calendar to the system. Individual data feeds
@@ -156,11 +153,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.sizer = sizers[self.p.sizer](**self.p.sizer_p)
 
-    def addrisk(self):
+    def addrestricted(self):
         '''Adds a ``RiskControl`` class (and args) which is the default risk for any
         strategy added to cerebro
         '''
-        self.risk_control = _risk_ctl[self.p.risk](**self.p.risk_p)
+        self.rctl = _rctl[self.p.rctl](**self.p.rctl_p)
   
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
@@ -439,6 +436,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.set_cash(kwargs)
         
         # Prepare feed
+        datamaster = self.store.get_feed()
+        self.datas.insert(0, datamaster)
         for data in self.datas:
             data._start(**kwargs)
 
