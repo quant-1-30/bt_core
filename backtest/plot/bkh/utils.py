@@ -48,7 +48,6 @@ def on_resample(ns, df, origin, freq):
     else:
         sample = df.resample(freq, closed="left", label="left").last()
 
-    # import pdb; pdb.set_trace()
     sample.dropna(axis=0, how="all", inplace=True, subset=["datetime"])  
 
     if "datetime" in sample.columns: 
@@ -60,7 +59,6 @@ def create_datasource(csv_path, freq):
     data = pd.read_csv(csv_path, header=1, sep=";")
     datasource = {}
     datasource["id"] = data.iloc[:,0].to_numpy()
-
     
     names_col = data.columns[1::2]
     datas_col = data.columns[2::2]

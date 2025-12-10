@@ -73,26 +73,26 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         
         self.dd = 0.0
         self.maxdd = 0.0
-        self.maxddlen = 0
-        self.peak = float('-inf')
+        self.peak = 0.0 # float('-inf')
+
         self.ddlen = 0
+        self.maxddlen = 0
 
     def on_dt_over(self):
         
         acct, _ = self._owner.getvalue()
-        value = acct.portfolio_value + acct.cash if acct else 0
+        value = acct.portfolio_value + acct.cash
 
         # update the maximum seen peak
         if value > self.peak:
             self.peak = value
-            self.ddlen = 0  # start of streak
+            self.ddlen = 0 
 
         # calculate the current drawdown
         self.dd = dd = 100.0 * (self.peak - value) / self.peak if self.peak > 0.0 else 0.0
         self.ddlen += bool(dd)
 
         # drawdown drawdownlength 
-        # self.rets[self.dtkey] = (dd, self.ddlen)
         self.rets[self.dtkey1] = (dd, self.ddlen)
 
         # update the maxdrawdown if needed

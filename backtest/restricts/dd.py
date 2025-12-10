@@ -33,7 +33,9 @@ class DD(MetaRestricted):
     )
 
     def is_restricted(self, strat):
-      dd = strat.stats.getbyname("drawdown") # lowercase
-      _ratio = dd.lines.drawdown[0] 
-      is_r = True if _ratio >= self.p.thres else False
-      return is_r
+      if "drawdown" in strat.stats._names:
+        dd = strat.stats.getbyname("drawdown") # lowercase
+        _ratio = dd.lines.drawdown[0] 
+        is_r = True if _ratio >= self.p.thres else False
+        return is_r
+      return False
