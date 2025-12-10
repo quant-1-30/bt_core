@@ -540,11 +540,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if self.p.stdstats: # ('timeframe', bt.TimeFrame.Days) ('compression', None),
                     strat._addobserver(False, observers.Broker, barplot=True)
                     strat._addobserver(False, observers.TimeReturn, barplot=True)
-                    strat._addobserver(False, observers.Benchmark, barplot=True)
                     strat._addobserver(False, observers.BuySell, barplot=True)
+                    strat._addobserver(False, observers.Trades, barplot=True)
                     strat._addobserver(False, observers.DrawDown, barplot=True)
                     strat._addobserver(False, observers.DrawDownLength, barplot=True)
-                    strat._addobserver(False, observers.Trades, barplot=True)
+                    strat._addobserver(False, observers.Benchmark, barplot=True)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
@@ -700,7 +700,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         pass
     
-    def plot(self, out="", freq="D", **kwargs):
+    def plot(self, out="", freq="D", num_ind=1, num_obs=1, **kwargs):
         '''
         Plots the strategies inside cerebro
 
@@ -725,7 +725,4 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        strat = self.runningstrats[0]
-        inds = strat._lineiterators[0] 
-        obs = strat._lineiterators[2]
-        self._plot.plot(out, freq=freq, num_ind=len(inds), num_obs=len(obs), **kwargs)
+        self._plot.plot(out, freq=freq, num_ind=num_ind, num_obs=num_obs, **kwargs)

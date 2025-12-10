@@ -10,8 +10,11 @@ import backtest.indicators as btind
 
 warnings.filterwarnings('ignore')
 
+# 涉及 linebuffer __init__ /  具体值计算比较 next  __getitem__
+# basciops to implement next method and use linebuffer instead of __getitem__
+# self define need to addminpeeriod
 
-class PriceSignal(btind.Indicator): # basciops to implement next method and use linebuffer instead of __getitem__
+class PriceSignal(btind.Indicator):  # 分钟重采样日线 --- 60日均线
 
     lines = ('breakthrough',)
     params = (("period", 60),)
@@ -21,7 +24,7 @@ class PriceSignal(btind.Indicator): # basciops to implement next method and use 
         self.lines.breakthrough = sma - self.data.close
     
 
-class VolSignal(btind.Indicator):
+class VolSignal(btind.Indicator): # 分钟重采样 --- 日成交量突破
 
     lines = ('breakthrough',)
     params = (("period", 70), ("thres", 1.05))
@@ -31,7 +34,7 @@ class VolSignal(btind.Indicator):
         self.lines.breakthrough = vsma - self.data.volume 
 
 
-class MACDSignal(btind.Indicator):
+class MACDSignal(btind.Indicator): # 分钟重采样 --- MACD dif / def 背离
 
     lines = ('breakthrough',)
     params = (("period", 20), ("thres", 1.05))
@@ -41,17 +44,17 @@ class MACDSignal(btind.Indicator):
         self.lines.breakthrough = macd.signal 
 
 
-class DDSignal(btind.Indicator): # self define need to addminpeeriod
+class DDSignal(btind.Indicator): # 分钟重采用 --- maxdrawdown 0.4
 
     lines = ("breakthrough",)
-    params = (("period", 90), ("drawdown", 50.0))
+    params = (("period", 90), ("drawdown", 0.4))
 
     def __init__(self): # self._dd = DDI(period=self.p.period, drawdown=self.p.drawdown)
         self.lines[0].addminperiod(self.p.period)
 
     def next(self):
         cdata = self.data.close.get(size=self.p.period)
-        self.lines.breakthrough[0] = max(cdata) / cdata[0]  - self.p.drawdown
+        self.lines.breakthrough[0] = cdata[0] / max(cdata) + self.p.drawdown - 1
 
 
 if __name__ == '__main__':
@@ -70,5 +73,3 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_LONG, DDSignal, data1)
 
     cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="signal.csv") 
-
-    cerebro.plot(out="signal.csv")

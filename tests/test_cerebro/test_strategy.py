@@ -44,5 +44,3 @@ if __name__ == '__main__':
     cerebro.addstrategy(TestStrategy)
 
     cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="strategy.csv") 
-
-    cerebro.plot(out="strategy.csv")

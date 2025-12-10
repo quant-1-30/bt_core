@@ -5,8 +5,8 @@ from bokeh.layouts import gridplot, column
 from bokeh.models import CDSView, BooleanFilter, Range1d, HoverTool, CrosshairTool, LinearAxis, Tabs, Span, CustomJS, PanTool, WheelZoomTool, NumeralTickFormatter
 from bokeh.io import export_png, export_svg
 
-from .scheme import tableau10, tableau20
-from .utils import resample, create_datasource, merge_cds
+from .scheme import tableau20
+from .utils import create_datasource, merge_cds, on_shift
 
 from backtest.metabase import with_metaclass, AutoInfoClass, MetaParams
 
@@ -15,9 +15,10 @@ class PlotScheme(object):
     def __init__(self):
         self.figure_width = 1500
         self.figure_height = [400, 200, 200]
-        # self.line_width=1
-        # self.line_alpha=0
+
         self.vbar_width = 3 
+        self.line_width=5 # vbar / rect 
+        self.line_alpha=0
 
         self.fill_alpha = 0.05 # transparent
 
@@ -53,7 +54,8 @@ class Plot(with_metaclass(MetaParams, object)):
         self.bt_tooltips = list()
         self.bt_renderers = list()
         self.figures = list()
-        
+
+        self.shared_x = None 
         self.datasource = None
 
     def plotdata(self):
@@ -73,6 +75,8 @@ class Plot(with_metaclass(MetaParams, object)):
             # active_scroll='wheel_zoom',
             tooltips=None
         )
+        
+        # ------------------------------------------------------------- candle -----------------------------------------------------------            
 
         # 计算实体顶部和底部
         feed_src.data['top_body'] = np.maximum(feed_src.data['open'], feed_src.data['close'])
@@ -83,34 +87,45 @@ class Plot(with_metaclass(MetaParams, object)):
         feed_src.data['upper_shadow'] = feed_src.data['high'] - feed_src.data['top_body']
         feed_src.data['lower_shadow'] = feed_src.data['bottom_body'] - feed_src.data['low']
 
-        feed_src.data['color'] = np.where(feed_src.data['close'] >= feed_src.data['open'], 'green', 'red')
-        feed_src.data['line_color'] = np.where(feed_src.data['close'] >= feed_src.data['open'], 'darkgreen', 'darkred')
+        feed_src.data['color'] = np.where(
+            feed_src.data['close'] >= feed_src.data['open'],
+            '#FF5252',   # 'red'  # 亮红色
+            '#00C853',  # 'green' # 亮绿色
+        )
+        
+        feed_src.data['line_color'] = np.where(
+            feed_src.data['close'] >= feed_src.data['open'],
+            '#D32F2F',   # darkred 
+            '#009624',  # darkgreen
+        )
     
         price_line = p_main.line("datetime", "close", source=feed_src,
-                    line_width=2, color=tableau10[0], legend_label="close")
+                    line_width=2, color=tableau20[0], legend_label="close")
         self.bt_renderers.append(price_line)
 
         # 绘制上影线：从实体顶部到最高价
         p_main.segment(x0='datetime', y0='top_body', x1='datetime', y1='high', 
-                color='line_color', line_width=1, source=feed_src, legend_label="上影线")
+                color='line_color', line_width=1.5, source=feed_src, legend_label="上影线")
 
         # 绘制下影线：从实体底部到最低价
         p_main.segment(x0='datetime', y0='bottom_body', x1='datetime', y1='low', 
-                color='line_color', line_width=1, source=feed_src, legend_label="下影线")
-    
+                color='line_color', line_width=1.5, source=feed_src, legend_label="下影线")
+
         # 绘制实体
         p_main.vbar(
             x='datetime', 
-            width=self.p.scheme.vbar_width,
+            width=self.p.scheme.vbar_width, # self.p.scheme.vbar_width * 100  # 增加宽度，比如2倍
             top='top_body',
             bottom='bottom_body',
             source=feed_src,
             fill_color='color',
             # fill_alpha=0.7,
             line_color="line_color",
-            line_width=1,
+            line_width=self.p.scheme.line_width,
             legend_label="实体"
         )
+        
+        # ------------------------------------------------------------- strategy -----------------------------------------------------------            
     
         # 绘制 策略买入与卖出点
         price_range = (feed_src.data['high'] - feed_src.data['low']).mean()
@@ -123,10 +138,46 @@ class Plot(with_metaclass(MetaParams, object)):
 
         s_mask = feed_src.data["sell"] < -0.0
         sview = CDSView(name="sell_filter", filter=BooleanFilter(s_mask))
+
         p_main.scatter("datetime", "sell_price", marker="inverted_triangle", source=feed_src, view=sview, size=15, color="firebrick", alpha=0.6, legend_label="倒三角形")
+
+        # ------------------------------------------------------------- volume -----------------------------------------------------------            
+
+        feed_src.data['volume_color'] = np.where(
+            feed_src.data['close'] >= feed_src.data['open'],
+            'green',
+            'red'
+        )
         
+        # 归一化成交量，使其显示在图表底部
+        volume_max = max(feed_src.data['volume'])
+        price_min = min(feed_src.data['low'])
+        
+        # 将成交量缩放到合适的高度（例如占图表高度的10%）
+        scaling_factor = 0.4
+        price_range = max(feed_src.data['high']) - price_min
+        volume_height = price_range * scaling_factor
+        
+        feed_src.data['volume_scaled'] = price_min + (feed_src.data['volume'] / volume_max) * volume_height
+        
+        # 添加成交量柱状图
+        volume_bars = p_main.vbar(
+            x='datetime',
+            top='volume_scaled',
+            bottom=price_min,
+            width=self.p.scheme.vbar_width,
+            source=feed_src,
+            fill_color='volume_color',
+            line_color='line_color',
+            line_width=self.p.scheme.line_width,
+            fill_alpha=0.5,
+            legend_label="Volume"
+        )
+        
+        # 将成交量图例添加到图表中
+        p_main.legend.location = "top_left"
         self.figures.append(p_main)
- 
+
 # ------------------------------------------------------------------------ indicator ----------------------------------------------------------------
 
     def plotind(self, n_inds):
@@ -160,7 +211,7 @@ class Plot(with_metaclass(MetaParams, object)):
 
                 ind_line = p_indicator.line(
                     'datetime', ind_col, source=ind_src,
-                    line_width=2, color=tableau10[color_idx], y_range_name=ind_col, legend_label=ind_col)
+                    line_width=2, color=tableau20[color_idx], y_range_name=ind_col, legend_label=ind_col)
 
                 y_axis = LinearAxis(
                     y_range_name=ind_col, 
@@ -181,7 +232,7 @@ class Plot(with_metaclass(MetaParams, object)):
 
         for i, name in enumerate(n_obs):
             # obs_src = self.datasource[name]
-            obs_src = on_shift(self.datasource[name], shift=1) # 
+            obs_src = on_shift(self.datasource[name], shift=-1) # 
 
             title = "" if i > 0 else "Observer" # f'Observer: {name.split("(")[0]}',
 
@@ -275,7 +326,6 @@ class Plot(with_metaclass(MetaParams, object)):
         self.datasource, _names = create_datasource(csv_path, freq)
         self.plotdata() # Feed and Strategy 整合
 
-        import pdb; pdb.set_trace()
         ind_names = _names[2: num_ind+2]
         self.plotind(ind_names) # Indicator
 

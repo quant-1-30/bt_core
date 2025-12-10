@@ -43,4 +43,4 @@ if __name__ == '__main__':
     cerebro.addstrategy(TestStrategy)
 
     path = "/Users/hengxinliu/startup/backtest/tests/test_cerebro/strategy.csv"
-    cerebro.plot(out=path) # independent 
+    cerebro.plot(out=path, num_ind=6, num_obs=7)  

@@ -24,13 +24,15 @@ import numpy as np
 from bokeh.models import Range1d, ColumnDataSource
 
 
-def resample(ns, df, data, freq):
+def on_resample(ns, df, origin, freq):
     # resmaple 生成连续日期
     df = df.astype("float")
+
     if "datetime" in df.columns:
-        data.index = df.index = df.loc[:, "datetime"].apply(lambda x: pd.to_datetime(float(x), unit="s"))
+        origin.index = df.index = df.loc[:, "datetime"].apply(lambda x: pd.to_datetime(float(x), unit="s"))
     else:
-        df.index = data.index
+        df.index = origin.index
+        df.loc[:, "datetime"] = [x.timestamp() for x in df.index]
 
     if ns == "Feed":
         sample = df.resample(freq, closed="left", label="left").agg({
@@ -46,7 +48,8 @@ def resample(ns, df, data, freq):
     else:
         sample = df.resample(freq, closed="left", label="left").last()
 
-    # sample.dropna(axis=0, how="all", inplace=True) # "any" 
+    # import pdb; pdb.set_trace()
+    sample.dropna(axis=0, how="all", inplace=True, subset=["datetime"])  
 
     if "datetime" in sample.columns: 
         sample.drop(columns=["datetime"], inplace=True)
@@ -57,6 +60,7 @@ def create_datasource(csv_path, freq):
     data = pd.read_csv(csv_path, header=1, sep=";")
     datasource = {}
     datasource["id"] = data.iloc[:,0].to_numpy()
+
     
     names_col = data.columns[1::2]
     datas_col = data.columns[2::2]
@@ -65,18 +69,17 @@ def create_datasource(csv_path, freq):
         c_v = data.loc[:, d_c].astype(str)
         split_c_v = c_v.str.split(',', expand=True) 
         split_c_v.columns = d_c.split(',')
-        resample_c_v = resample(n_c, split_c_v, data, freq)
+        resample_c_v = on_resample(n_c, split_c_v, data, freq)
         
         for key, v in resample_c_v.items():
             arr = v.to_numpy()
-            if key != "datetime":
-                arr = np.where(np.isnan(arr), 0.0, arr)
-
+            # if key != "datetime":
+            #     arr = np.where(np.isnan(arr), 0.0, arr)
             _src[key] = arr
         datasource[n_c] = ColumnDataSource(data=_src, name=n_c)
     return datasource, names_col
 
-def merge_cds(*sources, on='datetime', dropna=True):
+def merge_cds(*sources, on='datetime', dropna=True, exclude="datetime"):
     """
     使用 pandas 合并多个数据源
     
@@ -88,11 +91,13 @@ def merge_cds(*sources, on='datetime', dropna=True):
     合并后的 ColumnDataSource
     """
     tooltips = [("Date", "@datetime{%F}")]
-    
     dfs = []
     for i, source in enumerate(sources):
         df = pd.DataFrame(source.data)
-        df.dropna(axis=0, how="all", inplace=True) 
+
+        subset = [col for col in df.columns if col != exclude]
+        df.dropna(axis=0, how="all", inplace=True, subset=subset)
+
         chain_tooltip = [f" {key}: @{{{key}}}{{0.2f}}<br>" for key in source.column_names if  key != "datetime"]
         tooltips.append((source.name, ''.join(chain_tooltip)))
         dfs.append(df)
@@ -109,14 +114,17 @@ def merge_cds(*sources, on='datetime', dropna=True):
     
     _source = ColumnDataSource(merged_df.reset_index(drop=True)) # remove index
     del _source.data["index"]
-    
     return _source, tooltips
 
 
 def on_shift(source, shift=1, drop=True):
     df = pd.DataFrame(source.data)
-    df = df.shift(shift) # observer shift 1 
-    df.dropna(axis=0, how="all", inplace=True) # drop last column 
-    
-    _source = ColumnDataSource(df)
+    if "datetime" in df.columns:
+        df.set_index("datetime", drop=True, inplace=True)
+    _df = df.shift(shift) # observer shift 1
+    _df.dropna(axis=0, how="all", inplace=True) # drop last column / _df = _df.fillna(method="ffill")
+    _df = _df.fillna(0.0) # keep sequence
+    _df["datetime"] = _df.index
+    _source = ColumnDataSource(_df.reset_index(drop=True))
+    del _source.data["index"]
     return _source

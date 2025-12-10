@@ -206,7 +206,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
            # Pass through filters
             retff = False
-            # import pdb; pdb.set_trace()
             for ff, fargs, fkwargs in self._filters:
                 if self._barstack: # previous filter may have put things onto the stack 
                     for i in range(len(self._barstack)):
@@ -318,7 +317,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
     def _add2stack(self, bar, stash=False):
         '''Saves given bar (list of values) to the stack for later retrieval'''
-        # import pdb; pdb.set_trace()
         print("_add2stack ", self, bar)
         if not stash:
             self._barstack.append(bar)
