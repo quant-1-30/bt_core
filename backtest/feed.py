@@ -400,10 +400,13 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             adj_factors = np.array([self.adj_factors[dt] for dt in adj_dates])
 
             indices = np.searchsorted(adj_dates, line_dt, side='right') - 1
-            indices = np.clip(indices, 0, len(adj_dates) - 1)
+            # indices = np.clip(indices, 0, len(adj_dates) - 1)
 
             # 批量应用复权因子
-            align_factors = adj_factors[indices]
+            align_factors = np.ones_like(line_dt, dtype=np.float64)
+            valid_mask = indices > 0
+            align_factors[valid_mask] = adj_factors[indices[valid_mask]]
+            # import pdb; pdb.set_trace()
 
             # datetime
             adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}

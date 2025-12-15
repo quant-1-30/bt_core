@@ -29,7 +29,7 @@ class DD(MetaRestricted):
         DrawDown Restricted 
     """
     params = (
-      ("thres", 30.0),
+      ("thres", 2.0),
     )
 
     def is_restricted(self, strat):

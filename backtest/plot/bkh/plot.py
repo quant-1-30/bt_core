@@ -58,12 +58,13 @@ class Plot(with_metaclass(MetaParams, object)):
         self.shared_x = None 
         self.datasource = None
 
-    def plotdata(self):
-        # shared_x = Range1d(data.index[0], data.index[-1]) # 同步x轴
-        feed_src = self.datasource["Feed"]
-        strat_src = self.datasource["Strategy"]
-        feed_src, _tooltip = merge_cds(feed_src, strat_src) # 
+    def plotdata(self, names, candle):
+        dmaster = self.datasource[names[0]] # Feed
+        strat_src = self.datasource[names[-1]] # Strategy
+        dmaster, _tooltip = merge_cds(dmaster, strat_src)  
         self.bt_tooltips.append(_tooltip)
+        # shared_x = Range1d(data.index[0], data.index[-1]) # 同步x轴
+        
         # 创建主图表
         p_main = figure(
             width=self.p.scheme.figure_width,
@@ -76,89 +77,105 @@ class Plot(with_metaclass(MetaParams, object)):
             tooltips=None
         )
         
-        # ------------------------------------------------------------- candle -----------------------------------------------------------            
+        price_line = p_main.line("datetime", "close", source=dmaster,
+                    line_width=2, color=tableau20[0], legend_label="close")
+        self.bt_renderers.append(price_line)
 
-        # 计算实体顶部和底部
-        feed_src.data['top_body'] = np.maximum(feed_src.data['open'], feed_src.data['close'])
-        feed_src.data['bottom_body'] = np.minimum(feed_src.data['open'], feed_src.data['close'])
-
-        # 计算影线长度和实体高度
-        feed_src.data['body_height'] = feed_src.data['top_body'] - feed_src.data['bottom_body']
-        feed_src.data['upper_shadow'] = feed_src.data['high'] - feed_src.data['top_body']
-        feed_src.data['lower_shadow'] = feed_src.data['bottom_body'] - feed_src.data['low']
-
-        feed_src.data['color'] = np.where(
-            feed_src.data['close'] >= feed_src.data['open'],
+        # 设置颜色 
+        dmaster.data['color'] = np.where(
+            dmaster.data['close'] >= dmaster.data['open'],
             '#FF5252',   # 'red'  # 亮红色
             '#00C853',  # 'green' # 亮绿色
         )
         
-        feed_src.data['line_color'] = np.where(
-            feed_src.data['close'] >= feed_src.data['open'],
+        dmaster.data['line_color'] = np.where(
+            dmaster.data['close'] >= dmaster.data['open'],
             '#D32F2F',   # darkred 
             '#009624',  # darkgreen
         )
+        
+        # ------------------------------------------------------------- candle -----------------------------------------------------------            
+        if candle:
+            # 计算实体顶部和底部
+            dmaster.data['top_body'] = np.maximum(dmaster.data['open'], dmaster.data['close'])
+            dmaster.data['bottom_body'] = np.minimum(dmaster.data['open'], dmaster.data['close'])
+
+            # 计算影线长度和实体高度
+            dmaster.data['body_height'] = dmaster.data['top_body'] - dmaster.data['bottom_body']
+            dmaster.data['upper_shadow'] = dmaster.data['high'] - dmaster.data['top_body']
+            dmaster.data['lower_shadow'] = dmaster.data['bottom_body'] - dmaster.data['low']
     
-        price_line = p_main.line("datetime", "close", source=feed_src,
-                    line_width=2, color=tableau20[0], legend_label="close")
-        self.bt_renderers.append(price_line)
+            # 绘制上影线：从实体顶部到最高价
+            p_main.segment(x0='datetime', y0='top_body', x1='datetime', y1='high', 
+                    color='line_color', line_width=1.5, source=dmaster, legend_label="上影线")
 
-        # 绘制上影线：从实体顶部到最高价
-        p_main.segment(x0='datetime', y0='top_body', x1='datetime', y1='high', 
-                color='line_color', line_width=1.5, source=feed_src, legend_label="上影线")
+            # 绘制下影线：从实体底部到最低价
+            p_main.segment(x0='datetime', y0='bottom_body', x1='datetime', y1='low', 
+                    color='line_color', line_width=1.5, source=dmaster, legend_label="下影线")
 
-        # 绘制下影线：从实体底部到最低价
-        p_main.segment(x0='datetime', y0='bottom_body', x1='datetime', y1='low', 
-                color='line_color', line_width=1.5, source=feed_src, legend_label="下影线")
-
-        # 绘制实体
-        p_main.vbar(
-            x='datetime', 
-            width=self.p.scheme.vbar_width, # self.p.scheme.vbar_width * 100  # 增加宽度，比如2倍
-            top='top_body',
-            bottom='bottom_body',
-            source=feed_src,
-            fill_color='color',
-            # fill_alpha=0.7,
-            line_color="line_color",
-            line_width=self.p.scheme.line_width,
-            legend_label="实体"
-        )
+            # 绘制实体
+            p_main.vbar(
+                x='datetime', 
+                width=self.p.scheme.vbar_width, # self.p.scheme.vbar_width * 100  # 增加宽度，比如2倍
+                top='top_body',
+                bottom='bottom_body',
+                source=dmaster,
+                fill_color='color',
+                # fill_alpha=0.7,
+                line_color="line_color",
+                line_width=self.p.scheme.line_width,
+                legend_label="实体"
+            )
         
         # ------------------------------------------------------------- strategy -----------------------------------------------------------            
     
         # 绘制 策略买入与卖出点
-        price_range = (feed_src.data['high'] - feed_src.data['low']).mean()
-        feed_src.data['buy_price'] = feed_src.data['low'] - price_range * 0.05
-        feed_src.data['sell_price'] = feed_src.data['high'] + price_range * 0.05
+        price_range = (dmaster.data['high'] - dmaster.data['low']).mean()
+        dmaster.data['buy_price'] = dmaster.data['low'] - price_range * 0.05
+        dmaster.data['sell_price'] = dmaster.data['high'] + price_range * 0.05
 
-        b_mask = feed_src.data["buy"] > 0.0
+        b_mask = dmaster.data["buy"] > 0.0
         bview = CDSView(name="buy_filter", filter=BooleanFilter(b_mask))
-        p_main.scatter("datetime", "buy_price", marker="triangle", source=feed_src, view=bview, size=15, color="navy", alpha=0.6, legend_label="正三角形")
 
-        s_mask = feed_src.data["sell"] < -0.0
+        p_main.scatter("datetime",  "buy_price", 
+                marker="triangle", 
+                source=dmaster, 
+                view=bview, 
+                size=15, 
+                color="firebrick", 
+                alpha=0.6, 
+                legend_label="正三角形")
+
+        s_mask = dmaster.data["sell"] < -0.0
         sview = CDSView(name="sell_filter", filter=BooleanFilter(s_mask))
 
-        p_main.scatter("datetime", "sell_price", marker="inverted_triangle", source=feed_src, view=sview, size=15, color="firebrick", alpha=0.6, legend_label="倒三角形")
+        p_main.scatter("datetime", "sell_price", 
+                marker="inverted_triangle", 
+                source=dmaster, 
+                view=sview, 
+                size=15, 
+                color="navy", 
+                alpha=0.6, 
+                legend_label="倒三角形")
 
         # ------------------------------------------------------------- volume -----------------------------------------------------------            
 
-        feed_src.data['volume_color'] = np.where(
-            feed_src.data['close'] >= feed_src.data['open'],
+        dmaster.data['color'] = np.where(
+            dmaster.data['close'] >= dmaster.data['open'],
             'green',
             'red'
         )
         
         # 归一化成交量，使其显示在图表底部
-        volume_max = max(feed_src.data['volume'])
-        price_min = min(feed_src.data['low'])
+        volume_max = max(dmaster.data['volume'])
+        price_min = min(dmaster.data['low'])
         
         # 将成交量缩放到合适的高度（例如占图表高度的10%）
         scaling_factor = 0.4
-        price_range = max(feed_src.data['high']) - price_min
+        price_range = max(dmaster.data['high']) - price_min
         volume_height = price_range * scaling_factor
         
-        feed_src.data['volume_scaled'] = price_min + (feed_src.data['volume'] / volume_max) * volume_height
+        dmaster.data['volume_scaled'] = price_min + (dmaster.data['volume'] / volume_max) * volume_height
         
         # 添加成交量柱状图
         volume_bars = p_main.vbar(
@@ -166,8 +183,8 @@ class Plot(with_metaclass(MetaParams, object)):
             top='volume_scaled',
             bottom=price_min,
             width=self.p.scheme.vbar_width,
-            source=feed_src,
-            fill_color='volume_color',
+            source=dmaster,
+            # fill_color='volume_color',
             line_color='line_color',
             line_width=self.p.scheme.line_width,
             fill_alpha=0.5,
@@ -322,9 +339,11 @@ class Plot(with_metaclass(MetaParams, object)):
         show(grid)
         return grid
 
-    def plot(self, csv_path, freq, num_ind, num_obs, filename=None, save=False):
+    def plot(self, csv_path, freq, num_ind, num_obs, num_data=1, filename=None, save=False, candle=False):
         self.datasource, _names = create_datasource(csv_path, freq)
-        self.plotdata() # Feed and Strategy 整合
+
+        data_names = (_names[0], _names[num_data]) # exclude DataClone
+        self.plotdata(data_names, candle=candle)
 
         ind_names = _names[2: num_ind+2]
         self.plotind(ind_names) # Indicator

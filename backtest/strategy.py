@@ -168,8 +168,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
 
-    def _start(self):
-        self.start()
+    def _start(self, savemem=1):
+        self.start(savemem=savemem)
         
         self._periodrecalc()
 
@@ -190,8 +190,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self.on_dt_over = False
 
-    def start(self):
+    def start(self, savemem=1):
         '''Called right before the backtesting is about to be started.'''
+        self.qbuffer(savemem=savemem)
         store = self.store
         store.set_cash(self, self.env.cash)
 
@@ -207,6 +208,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return exp_id
 
     def _getminperstatus(self):
+        # import pdb; pdb.set_trace()  # --- IGNORE ---
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
         return minperstatus
@@ -263,10 +265,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return len(self)
 
     def _next(self):
-        # super(Strategy, self)._next() # lineiterator _next
+        # super(Strategy, self)._next() # lineiterator _nex
         minperstatus = self._getminperstatus() # datas already next 
         self._next_observers(minperstatus)
         self.clear()
+        # import pdb; pdb.set_trace()
         super(Strategy, self)._next() # lineiterator _next
 
     def notify_timer(self, t): # trigger on sessionstart due to T + 1 policy
@@ -344,6 +347,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
+        # if self.rctl.is_restricted(self):
         _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
         order = Order(sid=self.datas[0].sid[0],
@@ -461,13 +465,13 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
 
     def __new__(meta, name, bases, dct):
         # map user defined next to custom to be able to call own method before
-        if 'next' in dct:
-            dct['_next_custom'] = dct.pop('next')
+        # if 'next' in dct:
+        #     dct['_next_custom'] = dct.pop('next')
 
         cls = super(MetaSigStrategy, meta).__new__(meta, name, bases, dct)
 
         # after class creation remap _next_catch to be next
-        cls.next = cls._next_catch
+        # cls._next = cls._next_catch
         return cls
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -561,81 +565,90 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         exp_id = self.store.make_experiment(_identity)
         return exp_id
 
-    def _start(self):
+    def _start(self, savemem=1):
         # self._sentinel = None  # sentinel for order concurrency
-        super(SignalStrategy, self)._start()
+        super(SignalStrategy, self)._start(savemem=savemem)
 
     def signal_add(self, sigtype, signal):
         self._signals[sigtype].append(signal)
 
-    def _next_catch(self): # next
+    def _next(self): # next
+        # import pdb; pdb.set_trace()
+        super(SignalStrategy, self)._next()
         self._next_signal()
-        if hasattr(self, '_next_custom'):
-            self._next_custom()
+        # if hasattr(self, '_next_custom'):
+        #     self._next_custom()
 
     def _next_signal(self): # not supported short sell 
-            # if self._sentinel is not None and not self.p._concurrent:
-            #     return  # order active and more than 1 not allowed
+        # if self._sentinel is not None and not self.p._concurrent:
+        #     return  # order active and more than 1 not allowed
 
-            sigs = self._signals
-            nosig = [[0.0]]
+        sigs = self._signals
+        nosig = [[0.0]]
 
-            # Calculate current status of the signals
-            # ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
-            # ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+        # Calculate current status of the signals
+        # ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+        # ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
 
-            l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
-            l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
-            l_enter2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
-            l_enter = l_enter0 or l_enter1 or l_enter2
+        l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+        l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+        l_enter2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+        l_enter = l_enter0 or l_enter1 or l_enter2
 
-            s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
-            s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
-            s_enter2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
-            s_enter = s_enter0 or s_enter1 or s_enter2
+        s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+        s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+        s_enter2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+        s_enter = s_enter0 or s_enter1 or s_enter2
 
-            l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
-            l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
-            l_ex2 = any(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
-            l_exit = l_ex0 or l_ex1 or l_ex2
+        l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
+        l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
+        l_ex2 = any(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
+        l_exit = l_ex0 or l_ex1 or l_ex2
 
-            s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
-            s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
-            s_ex2 = any(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
-            s_exit = s_ex0 or s_ex1 or s_ex2
+        s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
+        s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
+        s_ex2 = any(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
+        s_exit = s_ex0 or s_ex1 or s_ex2
 
-            # Use oppossite signales to start reversal (by closing)
-            # but only if no "xxxExit" exists
-            l_rev = not self._longexit and s_enter
-            s_rev = not self._shortexit and l_enter
+        # Use oppossite signales to start reversal (by closing)
+        # but only if no "xxxExit" exists
+        l_rev = not self._longexit and s_enter
+        s_rev = not self._shortexit and l_enter
 
-            # Opposite of individual long and short
-            l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
-            l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
-            l_leav2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
-            l_leave = l_leav0 or l_leav1 or l_leav2
+        # Opposite of individual long and short
+        l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+        l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+        l_leav2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+        l_leave = l_leav0 or l_leav1 or l_leav2
 
-            s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
-            s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
-            s_leav2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
-            s_leave = s_leav0 or s_leav1 or s_leav2
+        s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+        s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+        s_leav2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+        s_leave = s_leav0 or s_leav1 or s_leav2
 
-            # Invalidate long leave if longexit signals are available
-            l_leave = not self._longexit and l_leave
-            # Invalidate short leave if shortexit signals are available
-            s_leave = not self._shortexit and s_leave
+        # Invalidate long leave if longexit signals are available
+        l_leave = not self._longexit and l_leave
+        # Invalidate short leave if shortexit signals are available
+        s_leave = not self._shortexit and s_leave
 
-            # Take size and start logic
-            # size = self.getposition(self._dtarget).size
-            # if not size:
-            #     if l_enter:
-            #         self.buy()
+        # Take size and start logic
+        # size = self.getposition(self._dtarget).size
+        # if not size:
+        #     if l_enter:
+        #         self.buy()
 
-            # elif size > 0:  # current long position
-            #     if l_exit or l_rev or l_leave:
-            #         # closing position - not relevant for concurrency
-            #         self.sell() # sell means close
+        # elif size > 0:  # current long position
+        #     if l_exit or l_rev or l_leave:
+        #         # closing position - not relevant for concurrency
+        #         self.sell() # sell means close
 
-            #     if l_enter:
-            #         if self.p._accumulate:
-            #             self.buy()
+        #     if l_enter:
+        #         if self.p._accumulate:
+        #             self.buy()
+
+        if l_enter:
+            if self.p._accumulate:
+                self.buy()
+        elif l_exit or l_rev or l_leave:
+            # closing position - not relevant for concurrency
+            self.sell() # sell means close

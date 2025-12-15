@@ -48,7 +48,8 @@ class MetaLineIterator(LineSeries.__class__):
         lastarg = 0
         _obj.datas = []
         for arg in args:
-            # print("lineiterator arg ", arg)
+            print("lineiterator arg ", arg)
+            # import pdb; pdb.set_trace()
             if isinstance(arg, LineRoot):
                 _obj.datas.append(LineSeriesMaker(arg)) # line to LineSeries
 
@@ -69,6 +70,7 @@ class MetaLineIterator(LineSeries.__class__):
         # If no datas have been passed to an indicator ... use the
         # main datas of the owner, easing up adding "self.data" ...
         if not _obj.datas and isinstance(_obj, (IndicatorBase, ObserverBase)):
+            import pdb; pdb.set_trace()
             _obj.datas = _obj._owner.datas[0:mindatas]
 
         # Create a dictionary to be able to check for presence

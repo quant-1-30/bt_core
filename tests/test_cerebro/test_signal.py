@@ -12,64 +12,86 @@ warnings.filterwarnings('ignore')
 
 # 涉及 linebuffer __init__ /  具体值计算比较 next  __getitem__
 # basciops to implement next method and use linebuffer instead of __getitem__
-# self define need to addminpeeriod
+# self define need to addminpeeriod and define dmaster
 
-class PriceSignal(btind.Indicator):  # 分钟重采样日线 --- 60日均线
+class WeekPriceSignal(btind.Indicator): 
 
-    lines = ('breakthrough',)
-    params = (("period", 60),)
-
-    def __init__(self):
-        sma = btind.SMA(self.data.close, period=self.p.period) # PeriodN __init__ already addimperiod self.p.period
-        self.lines.breakthrough = sma - self.data.close
-    
-
-class VolSignal(btind.Indicator): # 分钟重采样 --- 日成交量突破
-
-    lines = ('breakthrough',)
-    params = (("period", 70), ("thres", 1.05))
+    lines = ('signal',)
+    params = (("wperiod", 10),)
 
     def __init__(self):
-        vsma = btind.SMA(self.data.volume, period=self.p.period)
-        self.lines.breakthrough = vsma - self.data.volume 
+        sma = btind.SMA(self.data0.close, period=self.p.wperiod) # PeriodN __init__ already addimperiod self.p.period
+        self.lines.signal = sma - self.data1.close # bool(self.delta[0] > 0) # np.False_ ---> bool 
+
+    def next(self):
+        delta = self.lines.signal[0]
+        print("WeekPriceSignal delta: ", delta)
 
 
-class MACDSignal(btind.Indicator): # 分钟重采样 --- MACD dif / def 背离
+class DailyPriceSignal(btind.Indicator): 
 
-    lines = ('breakthrough',)
-    params = (("period", 20), ("thres", 1.05))
+    lines = ('signal',)
+    params = (("dperiod", 120),)
 
     def __init__(self):
-        macd = btind.MACD(self.data.close) # 12 / 26 / 9
-        self.lines.breakthrough = macd.signal 
+        self.min_ind = btind.Lowest(self.data0.close, period=self.p.dperiod) # PeriodN __init__ already addimperiod self.p.period
+        self.delta = self.data0.close - self.min_ind * 2 # bool(delta < 0) # np.False_ ---> bool
 
 
-class DDSignal(btind.Indicator): # 分钟重采用 --- maxdrawdown 0.4
+class MACDSignal(btind.Indicator): 
 
-    lines = ("breakthrough",)
-    params = (("period", 90), ("drawdown", 0.4))
+    lines = ('signal',)
+    params = (('period1', 12), ('period2', 26), ('period3', 9),)
 
-    def __init__(self): # self._dd = DDI(period=self.p.period, drawdown=self.p.drawdown)
+    def __init__(self):
+        macd = btind.MACDHisto(self.data0.close, period_me1=self.p.period1, period_me2=self.p.period2, period_signal=self.p.period3) # 12 / 26 / 9
+        self.lines.signal = macd.histo
+
+    def next(self):
+        signal = bool(self.lines.signal[0] > 0)
+        print("MACDSignal ", signal )
+
+
+class VolSignal(btind.Indicator):
+
+    _mindatas = 2
+    lines = ('signal',)
+    params = (("period", 10), ("thres", 1.05))
+
+    def __init__(self):
+        vsma = btind.SMA(self.data0.volume, period=self.p.period)
+        self.lines.signal = vsma - self.data0.volume 
+
+
+class SellSignal(btind.Indicator): 
+
+    lines = ("signal",)
+    params = (("period", 10), ("thres", 0.95), ("thres2", 0.85))
+
+    def __init__(self): 
         self.lines[0].addminperiod(self.p.period)
 
     def next(self):
+        # return < 0.15  ---> close < max(10 week close) * 0.98
+        # return >= 0.15 ---> close < max(10 day close) * 0.95
         cdata = self.data.close.get(size=self.p.period)
-        self.lines.breakthrough[0] = cdata[0] / max(cdata) + self.p.drawdown - 1
+        self.lines.breakthrough[0] = cdata[0] - self.p.thres * max(cdata)
 
 
 if __name__ == '__main__':
     
     load_dotenv()
     # configure store sizer risk 
-    # cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
-    cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
+    cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
+    # cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
 
-    data1 = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
-    cerebro.adddata(data1)
+    ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
+    wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
 
-    cerebro.add_signal(bt.SIGNAL_LONG, PriceSignal, data1)
-    cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, data1)
-    cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, data1)
-    cerebro.add_signal(bt.SIGNAL_LONG, DDSignal, data1)
+    cerebro.add_signal(bt.SIGNAL_LONG, WeekPriceSignal, wdata, ddata)
+    cerebro.add_signal(bt.SIGNAL_LONG_INV, DailyPriceSignal, ddata)
+    cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, ddata)
+    cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, ddata)
+    # cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal) 
 
-    cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="signal.csv") 
+    cerebro.run(cash=100000, sid=["600089"], fromdate=20220101, todate=20250925, benchmark="000001", out="signal.csv") 

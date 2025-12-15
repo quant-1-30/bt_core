@@ -332,7 +332,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
-    def adddata(self, *args):
+    def adddata(self, *args, dmaster=False): # dmaster not dataclone
         '''
         Adds a ``Data Feed`` instance to the mix.
 
@@ -341,7 +341,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         for _d in args:
             self.datas.append(_d)
-    
+
+        if dmaster:
+            # add default datamaster
+            datamaster = self.store.get_feed()
+            self.datas.insert(0, datamaster)
+
     def resampledata(self, **kwargs):
         '''
         Adds a ``Data Feed`` to be resample by the system
@@ -356,6 +361,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         dataname = data0.clone() # DataClone
         dataname.resample(**kwargs)
+        self.adddata(dataname)
         return dataname
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
@@ -436,8 +442,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.set_cash(kwargs)
         
         # Prepare feed
-        datamaster = self.store.get_feed()
-        self.datas.insert(0, datamaster)
+        self.adddata(dmaster=True)
         for data in self.datas:
             data._start(**kwargs)
 
@@ -556,9 +561,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     if writer.p.csv:
                         writer.addheaders(strat.getwriterheaders())
                 
-                # strat._start(**kwargs)
-                strat._start()
-                strat.qbuffer(savemem=self.p.savemem)
+                strat._start(savemem=self.p.savemem)
                 
             for writer in self.runwriters:
                 writer.start()
