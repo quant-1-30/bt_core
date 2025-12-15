@@ -13,6 +13,7 @@ warnings.filterwarnings('ignore')
 # 涉及 linebuffer __init__ /  具体值计算比较 next  __getitem__
 # basciops to implement next method and use linebuffer instead of __getitem__
 # self define need to addminpeeriod and define dmaster
+# PeriodN __init__ already addimperiod self.p.period
 
 class WeekPriceSignal(btind.Indicator): 
 
@@ -20,11 +21,12 @@ class WeekPriceSignal(btind.Indicator):
     params = (("wperiod", 10),)
 
     def __init__(self):
-        sma = btind.SMA(self.data0.close, period=self.p.wperiod) # PeriodN __init__ already addimperiod self.p.period
-        self.lines.signal = sma - self.data1.close # bool(self.delta[0] > 0) # np.False_ ---> bool 
+        sma = btind.SMA(self.data0.close, period=self.p.wperiod)
+        self.lines.signal = sma - self.data1.close 
 
     def next(self):
         delta = self.lines.signal[0]
+        #  bool(self.delta[0] > 0) # np.False_ ---> bool 
         print("WeekPriceSignal delta: ", delta)
 
 
@@ -34,8 +36,8 @@ class DailyPriceSignal(btind.Indicator):
     params = (("dperiod", 120),)
 
     def __init__(self):
-        self.min_ind = btind.Lowest(self.data0.close, period=self.p.dperiod) # PeriodN __init__ already addimperiod self.p.period
-        self.delta = self.data0.close - self.min_ind * 2 # bool(delta < 0) # np.False_ ---> bool
+        low_ind = btind.Lowest(self.data0.close, period=self.p.dperiod) 
+        self.delta = self.data0.close - low_ind * 2 
 
 
 class MACDSignal(btind.Indicator): 
@@ -44,7 +46,10 @@ class MACDSignal(btind.Indicator):
     params = (('period1', 12), ('period2', 26), ('period3', 9),)
 
     def __init__(self):
-        macd = btind.MACDHisto(self.data0.close, period_me1=self.p.period1, period_me2=self.p.period2, period_signal=self.p.period3) # 12 / 26 / 9
+        macd = btind.MACDHisto(self.data0.close, 
+                            period_me1=self.p.period1, 
+                            period_me2=self.p.period2, 
+                            period_signal=self.p.period3) 
         self.lines.signal = macd.histo
 
     def next(self):
@@ -54,28 +59,33 @@ class MACDSignal(btind.Indicator):
 
 class VolSignal(btind.Indicator):
 
-    _mindatas = 2
     lines = ('signal',)
-    params = (("period", 10), ("thres", 1.05))
+    params = (("period1", 10), ("thres", 1.05))
 
     def __init__(self):
-        vsma = btind.SMA(self.data0.volume, period=self.p.period)
-        self.lines.signal = vsma - self.data0.volume 
+        vsma = btind.SMA(self.data0.volume, period=self.p.period1)
+        self.lines.signal = vsma - self.data0.volume * self.p.thres 
 
 
 class SellSignal(btind.Indicator): 
 
     lines = ("signal",)
-    params = (("period", 10), ("thres", 0.95), ("thres2", 0.85))
+    params = (("dperiod", 10), ("thres", 0.85))
 
     def __init__(self): 
-        self.lines[0].addminperiod(self.p.period)
+        # self.lines[0].addminperiod(self.p.period)
+        high_ind = btind.Highest(self.data0.close, period=self.p.dperiod) 
+        self.lines.signal = self.data0.close - high_ind * self.p.thres
+
+
+class DrawDownSignal(btind.Indicator): 
+
+    lines = ('signal',)
+    params = (("thres", 70),)
 
     def next(self):
-        # return < 0.15  ---> close < max(10 week close) * 0.98
-        # return >= 0.15 ---> close < max(10 day close) * 0.95
-        cdata = self.data.close.get(size=self.p.period)
-        self.lines.breakthrough[0] = cdata[0] - self.p.thres * max(cdata)
+        obs = self._owner.stats.getbyname("drawdonw") # lowercase
+        self.lines.signal[0] = self.p.thres  - obs.lines.drawdown[0]
 
 
 if __name__ == '__main__':
@@ -92,6 +102,7 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_LONG_INV, DailyPriceSignal, ddata)
     cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, ddata)
     cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, ddata)
-    # cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal) 
+    cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
 
-    cerebro.run(cash=100000, sid=["600089"], fromdate=20220101, todate=20250925, benchmark="000001", out="signal.csv") 
+    cerebro.addrisk("pf", thres=0.75)
+    cerebro.run(cash=100000, sid=["300308"], fromdate=20220101, todate=20250925, benchmark="000001", out="signal.csv") 

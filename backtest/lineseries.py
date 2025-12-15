@@ -143,7 +143,7 @@ class Lines(object):
                 linealias = linealias[0]
 
             desc = LineAlias(line)  # keep a reference below
-            setattr(newcls, linealias, desc)
+            setattr(newcls, linealias, desc) # e.g. lines.signal
 
         # Create extra aliases for the given name, checking if the names is in
         # l2alias (which is from the argument lalias and comes from the

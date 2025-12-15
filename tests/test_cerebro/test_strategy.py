@@ -21,7 +21,6 @@ class TestStrategy(bt.Strategy):
         sma3 = btind.SMA(sma2, period=10) 
         ema = btind.EMA(sma2, period=5)
         self.macd = btind.MACDHisto(self.data.close)
-
         self.buysig = bt.operator.Cmp(sma1, ema)
     
     def next(self):
@@ -36,11 +35,15 @@ class TestStrategy(bt.Strategy):
 if __name__ == '__main__':
     
     load_dotenv()
-    # configure store sizer risk 
-    # cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
-    cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
+    # configure store sizer 
+    cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
+    # cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
+    
+    ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
 
     # Add a strategy
-    cerebro.addstrategy(TestStrategy)
+    cerebro.addstrategy(TestStrategy, ddata)
 
-    cerebro.run(cash=100000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="strategy.csv") 
+    # configure risk management
+    cerebro.addrisk("pf", thres=0.75)
+    cerebro.run(cash=100000, sid=["300308"], fromdate=20200101, todate=20210101, benchmark="000001", out="strategy.csv") 

@@ -113,6 +113,39 @@ cerebro.run(exactbars=-1) # 低内存模式
 
 find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;
 
-# 目前适配单策略, 针对于多策略问题
+# Profile
 
-    
+## memory
+python -m memray run --aggregate -o output.bin my_script.py
+python -m memray flamegraph output.bin
+python -m memray summary output.bin
+python -m memray table output.bin
+python -m memray tree output.bin
+python -m memray stats output.bin
+
+## memory html
+python3 -m http.server 8000 | ***.html
+open ***.html 
+
+## performance
+py-spy record -o profile.svg --pid 12345
+# OR
+py-spy record -o profile.svg -- python myprogram.py
+
+
+# Homebrew
+
+# 禁用自动更新
+export HOMEBREW_NO_AUTO_UPDATE=1
+
+# 禁用 JSON API 安装（强制使用本地 Git taps）
+export HOMEBREW_NO_INSTALL_FROM_API=1
+
+# 使用国内 Bottle 镜像（加速下载预编译包）
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+
+git -C "$(brew --repo homebrew/core)" remote -v
+https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+
+
+set dmaster which means target data

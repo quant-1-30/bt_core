@@ -62,7 +62,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.sizer = cerebro.sizer # add sizing to strategy
         _obj.store = cerebro.store # add store to strategy
-        _obj.rctl = cerebro.rctl # add risk control to strategy
+        _obj.risk_control = cerebro.risks # add risk control to strategy
 
         return _obj, args, kwargs
 
@@ -86,7 +86,7 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
         
         _obj._periodset()
-        _obj.experiment_id = _obj._next_id()
+        _obj.experiment_id = _obj._u_id()
 
         return _obj, args, kwargs
 
@@ -199,7 +199,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
-    def _next_id(self) -> str:
+    def _u_id(self) -> str:
         """
             Return experiment_id: str 
         """
@@ -263,24 +263,30 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                      for d in self.datas if len(d))        
         self._dlens = newdlens
         return len(self)
+    
+    def _check_risk(self):
+        '''Check risk control rules before sending orders'''
+        risk_signal = np.all([_r.check_risk() for _r in self.risk_control])
+        return risk_signal
 
     def _next(self):
-        # super(Strategy, self)._next() # lineiterator _nex
         minperstatus = self._getminperstatus() # datas already next 
         self._next_observers(minperstatus)
         self.clear()
-        # import pdb; pdb.set_trace()
-        super(Strategy, self)._next() # lineiterator _next
+        
+        if self._check_risk():
+            _input = input("Please enter Y or N to continue: ").strip()
+            if _input.lower() != 'y':
+                print("Risk control triggered. Stopping strategy execution.")
+                return  # Skip user-defined next and do not process further
 
-    def notify_timer(self, t): # trigger on sessionstart due to T + 1 policy
-        self.store.on_dt_over(self.experiment_id) 
-        self.on_dt_over = True
+        super(Strategy, self)._next() # lineiterator _next
 
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
         return self._sizer.getsizing()[self._id]
 
-    def buy(self, plimit: int=0, execType=0, filler="trend"):
+    def buy(self, plimit: int=0, execType=0, filler="likehood"):
         '''Create a buy (long) order and send it to the broker 
           
           - ``plimit`` (default: ``0``) means set price limit or not
@@ -322,24 +328,23 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        if not self.rctl.is_restricted(self):
-            _sizer = int(self.sizer.getsizing(self.datas))
+        _sizer = int(self.sizer.getsizing(self.datas))
 
-            order = Order(sid=self.datas[0].sid[0],
-                        pricelimit=plimit,
-                        sizer_ratio=_sizer, 
-                        order_type=0,
-                        exec_type=0, 
-                        created_dt=int(self.lines.datetime[0]),
-                        filler=filler)
+        order = Order(sid=self.datas[0].sid[0],
+                    pricelimit=plimit,
+                    sizer_ratio=_sizer, 
+                    order_type=0,
+                    exec_type=0, 
+                    created_dt=int(self.lines.datetime[0]),
+                    filler=filler)
 
-            trades = self.store.submit(self.experiment_id, order)
-            if trades:
-                self.lines.buy[0] = 1 
+        trades = self.store.submit(self.experiment_id, order)
+        if trades:
+            self.lines.buy[0] = 1 
 
-            self.notify_trade(order, trades)
+        self.notify_trade(order, trades)
         
-    def sell(self, plimit: int=0, execType=0, filler="trend"):
+    def sell(self, plimit: int=0, execType=0, filler="likehood"):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -347,7 +352,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        # if self.rctl.is_restricted(self):
         _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
         order = Order(sid=self.datas[0].sid[0],
@@ -364,6 +368,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.sizer.restore() # reset sizing pyramid 
         
         self.notify_trade(order, trades)
+    
+    def notify_timer(self, t): # trigger on sessionstart due to T + 1 policy
+        self.store.on_dt_over(self.experiment_id) 
+        self.on_dt_over = True
     
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders
@@ -534,9 +542,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
       - ``_accumulate`` (default: ``False``): allow to enter the market
         (long/short) even if already in the market
 
-      - ``_concurrent`` (default: ``False``): allow orders to be issued even if
-        orders are already pending execution
-
       - ``_data`` (default: ``None``): if multiple datas are present in the
         system which is the target for orders. This can be
 
@@ -550,11 +555,10 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
     '''
     params = (
         ('signals', []),
-        ('_accumulate', False),
-        ('_concurrent', False),
+        ('_accumulate', True),
     )
     
-    def _next_id(self) -> str:
+    def _u_id(self) -> str:
         """
             Return experiment_id: str 
         """
@@ -580,8 +584,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         #     self._next_custom()
 
     def _next_signal(self): # not supported short sell 
-        # if self._sentinel is not None and not self.p._concurrent:
-        #     return  # order active and more than 1 not allowed
 
         sigs = self._signals
         nosig = [[0.0]]
@@ -610,10 +612,9 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         s_ex2 = any(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
         s_exit = s_ex0 or s_ex1 or s_ex2
 
-        # Use oppossite signales to start reversal (by closing)
         # but only if no "xxxExit" exists
-        l_rev = not self._longexit and s_enter
-        s_rev = not self._shortexit and l_enter
+        l_rev = not self._longexit and s_enter # reverse --- longexit
+        s_rev = not self._shortexit and l_enter # reverse --- shortexit
 
         # Opposite of individual long and short
         l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
@@ -630,21 +631,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         l_leave = not self._longexit and l_leave
         # Invalidate short leave if shortexit signals are available
         s_leave = not self._shortexit and s_leave
-
-        # Take size and start logic
-        # size = self.getposition(self._dtarget).size
-        # if not size:
-        #     if l_enter:
-        #         self.buy()
-
-        # elif size > 0:  # current long position
-        #     if l_exit or l_rev or l_leave:
-        #         # closing position - not relevant for concurrency
-        #         self.sell() # sell means close
-
-        #     if l_enter:
-        #         if self.p._accumulate:
-        #             self.buy()
 
         if l_enter:
             if self.p._accumulate:

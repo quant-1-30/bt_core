@@ -106,7 +106,6 @@ class Cmp(Logic):
 
     def next(self):
         self[0] = self.a[0] - self.b[0]
-        # print("Cmp next: ", self[0])
 
 
 class CmpEx(Logic):

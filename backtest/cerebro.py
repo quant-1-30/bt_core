@@ -29,7 +29,7 @@ from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import sizers
-from .restricts import _rctl
+from .risks import _rctl
 from .timer import Timer, SESSION_START
 from .errors import *
 from .stores import _stores
@@ -86,8 +86,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('savemem', 1),
         ("store", "bt"),
         ("store_p", {}),
-        ("rctl", "dd"),
-        ("rctl_p", {}),
         ("sizer", "fixed"),
         ("sizer_p", {}),
         ('stdstats', True),
@@ -99,12 +97,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.cash = 0.0
         self.datas = list()
         self.strats = list()
+        self.risks = list()
         self.observers = list()
         self.indicators = list()
         self.signals = list()
         self._signal_strat = (None, None, None)
-        self._signal_concurrent = False
-        self._signal_accumulate = False
+        self._signal_accumulate = True
         self.writers = list()
         self.optcbs = list()  # holds a list of callbacks for opt strategies
         self.storecbs = list()
@@ -120,7 +118,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         
         self.addstore() 
         self.addsizer()
-        self.addrestricted()
 
     def addcalendar(self):
         '''Adds a global trading calendar to the system. Individual data feeds
@@ -152,13 +149,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         strategy added to cerebro
         '''
         self.sizer = sizers[self.p.sizer](**self.p.sizer_p)
-
-    def addrestricted(self):
-        '''Adds a ``RiskControl`` class (and args) which is the default risk for any
-        strategy added to cerebro
-        '''
-        self.rctl = _rctl[self.p.rctl](**self.p.rctl_p)
-  
+ 
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
     def addstorecb(self, callback):
@@ -366,6 +357,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
+    def addrisk(self, risk_name, **kwargs):
+        '''Adds a ``RiskControl`` class (and args) which is the default risk for any
+        strategy added to cerebro
+        '''
+        _r = _rctl[risk_name](**kwargs)
+        self.risks.append(_r)
+
     def addstrategy(self, strategy, *args, **kwargs):
         '''
         Adds a ``Strategy`` class to the mix for a single pass run.
@@ -399,11 +397,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''Adds a signal to the system which will be later added to a
         ``SignalStrategy``'''
         self.signals.append((sigtype, sigcls, sigargs, sigkwargs))
-
-    def signal_concurrent(self, onoff):
-        '''If signals are added to the system and the ``concurrent`` value is
-        set to True, concurrent orders will be allowed'''
-        self._signal_concurrent = onoff
 
     def signal_accumulate(self, onoff):
         '''If signals are added to the system and the ``accumulate`` value is
@@ -511,7 +504,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             # Add the signal strategy
             self.addstrategy(signalst,
                                 _accumulate=self._signal_accumulate,
-                                _concurrent=self._signal_concurrent,
                                 signals=self.signals,
                                 *sargs,
                                 **skwargs)
