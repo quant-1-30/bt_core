@@ -26,7 +26,8 @@ from bokeh.models import Range1d, ColumnDataSource
 
 def on_resample(ns, df, origin, freq):
     # resmaple 生成连续日期
-    df = df.astype("float")
+    # df = df.astype("float")
+    df = df.replace('', np.nan).astype("float")
 
     if "datetime" in df.columns:
         origin.index = df.index = df.loc[:, "datetime"].apply(lambda x: pd.to_datetime(float(x), unit="s"))

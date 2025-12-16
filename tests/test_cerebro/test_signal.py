@@ -23,7 +23,7 @@ class WeekPriceSignal(btind.Indicator):
 
     def __init__(self):
         sma = btind.SMA(self.data0.close, period=self.p.period)
-        self.lines.signal = sma - self.data1.close 
+        self.lines.signal = sma / self.data1.close - 1.0
 
     def next(self):
         delta = self.lines.signal[0]
@@ -38,7 +38,11 @@ class DailyPriceSignal(btind.Indicator):
 
     def __init__(self):
         low_ind = btind.Lowest(self.data0.close, period=self.p.period) 
-        self.delta = self.data0.close - low_ind * 2 
+        self.lines.signal = self.data0.close / low_ind  - 2.0
+    
+    def next(self):
+        signal = self.lines.signal[0]
+        print("DailyPriceSignal ", signal )
 
 
 class MACDSignal(btind.Indicator): 
@@ -54,18 +58,23 @@ class MACDSignal(btind.Indicator):
         self.lines.signal = macd.histo
 
     def next(self):
-        signal = bool(self.lines.signal[0] > 0)
+        signal = self.lines.signal[0]
         print("MACDSignal ", signal )
 
 
 class VolSignal(btind.Indicator):
 
-    lines = ('signal',)
-    params = (("period", 10), ("thres", 1.05)) # daily
+    lines = ("signal",)
+    params = (("period", 10), ("thres", 1.1)) # daily
 
     def __init__(self):
         vsma = btind.SMA(self.data0.volume, period=self.p.period)
-        self.lines.signal = vsma - self.data0.volume * self.p.thres 
+        self.lines.signal = vsma / (self.data0.volume * self.p.thres) - 1.0
+
+    def next(self):
+        # signal =  self.vsma[0] / (self.data0.volume[0] * self.p.thres) - 1.0
+        signal = self.lines.signal[0]
+        print("VolSignal ", signal )
 
 
 class SellSignal(btind.Indicator): 
@@ -76,7 +85,11 @@ class SellSignal(btind.Indicator):
     def __init__(self): 
         # self.lines[0].addminperiod(self.p.period)
         high_ind = btind.Highest(self.data0.close, period=self.p.period) 
-        self.lines.signal = self.data0.close - high_ind * self.p.thres
+        self.lines.signal = self.data0.close / (high_ind * self.p.thres) - 1.0
+    
+    def next(self):
+        signal = self.lines.signal[0]
+        print("SellSignal ", signal )
 
 
 class DrawDownSignal(btind.Indicator): 
@@ -85,7 +98,7 @@ class DrawDownSignal(btind.Indicator):
     params = (("thres", 70),)
 
     def next(self):
-        obs = self._owner.stats.getbyname("drawdonw") # lowercase
+        obs = self._owner.stats.getbyname("drawdown") # lowercase
         self.lines.signal[0] = self.p.thres  - obs.lines.drawdown[0]
 
 
@@ -162,9 +175,10 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, ddata)
     cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, ddata)
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
+    cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     cerebro.addrisk("pf", thres=0.75)
-    cerebro.run(cash=100000, sid=["300308"], fromdate=20220101, todate=20250925, benchmark="000001", out="signal.csv") 
+    cerebro.run(cash=100000, sid=["300308"], fromdate=20220101, todate=20250925, benchmark="000001", out="signal.csv")  # 11000s
 
 
     # data.addfilter(btfilters.SessionFiller, fill_vol=args.fvol)

@@ -695,7 +695,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         pass
     
-    def plot(self, out="", freq="D", num_ind=1, num_obs=1, **kwargs):
+    def plot(self, out="", freq="D", num_data=0, num_ind=1, num_obs=1, **kwargs):
         '''
         Plots the strategies inside cerebro
 
@@ -720,4 +720,4 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        self._plot.plot(out, freq=freq, num_ind=num_ind, num_obs=num_obs, **kwargs)
+        self._plot.plot(out, freq=freq, num_data=num_data, num_ind=num_ind, num_obs=num_obs, **kwargs)

@@ -81,7 +81,7 @@ class Plot(with_metaclass(MetaParams, object)):
                     line_width=2, color=tableau20[0], legend_label="close")
         self.bt_renderers.append(price_line)
 
-        # 设置颜色 
+        # 设置颜色
         dmaster.data['color'] = np.where(
             dmaster.data['close'] >= dmaster.data['open'],
             '#FF5252',   # 'red'  # 亮红色
@@ -339,13 +339,13 @@ class Plot(with_metaclass(MetaParams, object)):
         show(grid)
         return grid
 
-    def plot(self, csv_path, freq, num_ind, num_obs, num_data=1, filename=None, save=False, candle=False):
+    def plot(self, csv_path, freq, num_data, num_ind, num_obs, filename=None, save=False, candle=False):
         self.datasource, _names = create_datasource(csv_path, freq)
 
-        data_names = (_names[0], _names[num_data]) # exclude DataClone
+        data_names = _names[:num_data+1] # feed + dataclone(s) + strategy
         self.plotdata(data_names, candle=candle)
 
-        ind_names = _names[2: num_ind+2]
+        ind_names = _names[num_data+1: num_ind+num_data+1]
         self.plotind(ind_names) # Indicator
 
         obs_names = _names[-num_obs:]

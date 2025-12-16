@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import numpy as np
 import datetime as _datetime
 from collections import OrderedDict
 
@@ -87,7 +87,8 @@ class DataSeries(LineSeries):
         if l:
             v = [str(l[0]) for l in self.lines.itersize()]
         else:
-            v = [''] * self.lines.size()
+            # v = [''] * self.lines.size()
+            v = [str(np.nan)] * self.lines.size()
             
         v_str = ','.join(v)
         values.append(v_str)
