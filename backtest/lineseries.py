@@ -382,7 +382,7 @@ class MetaLineSeries(LineMultiple.__class__):
             'pl_' + name, newplotlines, morebasesplotlines, recurse=True)
 
         # create declared class aliases (a subclass with no modifications)
-        for alias in aliases:
+        for alias in aliases: # alias to class in module
             newdct = {'__doc__': cls.__doc__,
                       '__module__': cls.__module__,
                       'aliased': cls.__name__}

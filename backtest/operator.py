@@ -34,7 +34,7 @@ class List(list):
 class Logic(LineActions):
     def __init__(self, *args):
         super(Logic, self).__init__()
-        self.args = [self.arrayize(arg) for arg in args]
+        self.args = [self.arrayize(arg) for arg in args] # linebuffer arrayize to line or lines[0]
 
 
 class DivByZero(Logic):

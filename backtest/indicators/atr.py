@@ -41,7 +41,7 @@ class TrueHigh(Indicator):
     lines = ('truehigh',)
 
     def __init__(self):
-        self.lines.truehigh = Max(self.data.high, self.data.close(-1))
+        self.lines.truehigh = Max(self.data.high, self.data.close(-1)) # Max --- lineaction
         super(TrueHigh, self).__init__()
 
 

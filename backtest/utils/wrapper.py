@@ -5,6 +5,9 @@ Created on Sat Feb 16 13:56:19 2019
 
 @author: python
 """
+import cProfile
+import pstats
+import io
 import sys
 import weakref
 import contextlib
@@ -655,3 +658,24 @@ def deprecated(msg=None, stacklevel=2):
             return fn(*args, **kwargs)
         return wrapper
     return deprecated_dec
+
+def profile(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):  # 改为 async if needed
+        # 从请求中检查是否启用 profiling（如 X-Profile: 1）
+        if should_profile():  # 自定义判断逻辑
+            pr = cProfile.Profile()
+            pr.enable()
+            try:
+                result = await func(*args, **kwargs)  # async
+            finally:
+                pr.disable()
+                s = io.StringIO()
+                ps = pstats.Stats(pr, stream=s).sort_stats('cumulative')
+                ps.print_stats(30)  # 打印 top 30
+                print(s.getvalue())
+                # 或保存到文件：ps.dump_stats(f"profile_{time.time()}.prof")
+            return result
+        else:
+            return await func(*args, **kwargs)
+    return wrapper

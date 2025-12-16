@@ -1,5 +1,6 @@
 # Import the backtrader platform
 
+import argparse
 import warnings
 import numpy as np
 from dotenv import load_dotenv
@@ -18,10 +19,10 @@ warnings.filterwarnings('ignore')
 class WeekPriceSignal(btind.Indicator): 
 
     lines = ('signal',)
-    params = (("wperiod", 10),)
+    params = (("period", 10),) # week
 
     def __init__(self):
-        sma = btind.SMA(self.data0.close, period=self.p.wperiod)
+        sma = btind.SMA(self.data0.close, period=self.p.period)
         self.lines.signal = sma - self.data1.close 
 
     def next(self):
@@ -33,23 +34,23 @@ class WeekPriceSignal(btind.Indicator):
 class DailyPriceSignal(btind.Indicator): 
 
     lines = ('signal',)
-    params = (("dperiod", 120),)
+    params = (("period", 120),) # daily
 
     def __init__(self):
-        low_ind = btind.Lowest(self.data0.close, period=self.p.dperiod) 
+        low_ind = btind.Lowest(self.data0.close, period=self.p.period) 
         self.delta = self.data0.close - low_ind * 2 
 
 
 class MACDSignal(btind.Indicator): 
 
     lines = ('signal',)
-    params = (('period1', 12), ('period2', 26), ('period3', 9),)
+    params = (('period', 12), ('period1', 26), ('period2', 9),) # daily
 
     def __init__(self):
         macd = btind.MACDHisto(self.data0.close, 
-                            period_me1=self.p.period1, 
-                            period_me2=self.p.period2, 
-                            period_signal=self.p.period3) 
+                            period_me1=self.p.period, 
+                            period_me2=self.p.period1, 
+                            period_signal=self.p.period2) 
         self.lines.signal = macd.histo
 
     def next(self):
@@ -60,21 +61,21 @@ class MACDSignal(btind.Indicator):
 class VolSignal(btind.Indicator):
 
     lines = ('signal',)
-    params = (("period1", 10), ("thres", 1.05))
+    params = (("period", 10), ("thres", 1.05)) # daily
 
     def __init__(self):
-        vsma = btind.SMA(self.data0.volume, period=self.p.period1)
+        vsma = btind.SMA(self.data0.volume, period=self.p.period)
         self.lines.signal = vsma - self.data0.volume * self.p.thres 
 
 
 class SellSignal(btind.Indicator): 
 
     lines = ("signal",)
-    params = (("dperiod", 10), ("thres", 0.85))
+    params = (("period", 10), ("thres", 0.85)) # daily
 
     def __init__(self): 
         # self.lines[0].addminperiod(self.p.period)
-        high_ind = btind.Highest(self.data0.close, period=self.p.dperiod) 
+        high_ind = btind.Highest(self.data0.close, period=self.p.period) 
         self.lines.signal = self.data0.close - high_ind * self.p.thres
 
 
@@ -88,9 +89,67 @@ class DrawDownSignal(btind.Indicator):
         self.lines.signal[0] = self.p.thres  - obs.lines.drawdown[0]
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='DataFilter/DataFiller Sample')
+
+    parser.add_argument('--data', '-d',
+                        default='../../datas/2006-01-02-volume-min-001.txt',
+                        help='data to add to the system')
+
+    parser.add_argument('--filter', '-ft', action='store_true',
+                        help='Filter using session start/end times')
+
+    parser.add_argument('--filler', '-fl', action='store_true',
+                        help='Fill missing bars inside start/end times')
+
+    parser.add_argument('--fvol', required=False, default=0.0,
+                        type=float,
+                        help='Use as fill volume for missing bar (def: 0.0)')
+
+    parser.add_argument('--tstart', '-ts',
+                        # default='09:14:59',
+                        # help='Start time for the Session Filter (%H:%M:%S)')
+                        default='09:15',
+                        help='Start time for the Session Filter (HH:MM)')
+
+    parser.add_argument('--tend', '-te',
+                        # default='17:15:59',
+                        # help='End time for the Session Filter (%H:%M:%S)')
+                        default='17:15',
+                        help='End time for the Session Filter (HH:MM)')
+
+    parser.add_argument('--relvol', '-rv', action='store_true',
+                        help='Add relative volume indicator')
+
+    parser.add_argument('--fromdate', '-f',
+                        default='2006-01-01',
+                        help='Starting date in YYYY-MM-DD format')
+
+    parser.add_argument('--todate', '-t',
+                        default='2006-12-31',
+                        help='Starting date in YYYY-MM-DD format')
+
+    parser.add_argument('--writer', '-w', action='store_true',
+                        help='Add a writer to cerebro')
+
+    parser.add_argument('--wrcsv', '-wc', action='store_true',
+                        help='Enable CSV Output in the writer')
+
+    parser.add_argument('--plot', '-p', action='store_true',
+                        help='Plot the read data')
+
+    parser.add_argument('--numfigs', '-n', default=1,
+                        help='Plot using numfigs figures')
+
+    return parser.parse_args()
+
+
 if __name__ == '__main__':
     
     load_dotenv()
+    
+    args = parse_args()
     # configure store sizer risk 
     cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
     # cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
@@ -106,3 +165,19 @@ if __name__ == '__main__':
 
     cerebro.addrisk("pf", thres=0.75)
     cerebro.run(cash=100000, sid=["300308"], fromdate=20220101, todate=20250925, benchmark="000001", out="signal.csv") 
+
+
+    # data.addfilter(btfilters.SessionFiller, fill_vol=args.fvol)
+
+    # frompackages = (
+    #     ('math', ('factorial')),
+    # )
+
+    # if not args.dual:
+    #     data0.addfilter(bt.filters.Renko, **fkwargs)
+    #     cerebro.adddata(data0)
+    # else:
+    #     cerebro.adddata(data0)
+    #     data1 = data0.clone()
+    #     data1.addfilter(bt.filters.Renko, **fkwargs)
+    #     cerebro.adddata(data1)

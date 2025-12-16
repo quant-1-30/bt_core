@@ -53,5 +53,5 @@ class AccelerationDecelerationOscillator(Indicator):
 
     def __init__(self):
         ao = AwesomeOscillator()
-        self.l.accde = ao - self.p.movav(ao, period=self.p.period)
+        self.l.accde = ao - self.p.movav(ao, period=self.p.period) # l alias lines
         super(AccelerationDecelerationOscillator, self).__init__()

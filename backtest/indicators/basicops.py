@@ -38,7 +38,7 @@ class PeriodN(btind.Indicator):
 
     def __init__(self):
         super(PeriodN, self).__init__()
-        self.addminperiod(self.p.period)
+        self.addminperiod(self.p.period) # nested indicators to add _minperiod
 
 
 class OperationN(PeriodN):
@@ -57,14 +57,14 @@ class OperationN(PeriodN):
     def next(self):
         self.line[0] = self.func(self.data.get(size=self.p.period))
 
-    def once(self, start, end):
-        dst = self.line.array
-        src = self.data.array
-        period = self.p.period
-        func = self.func
+    # def once(self, start, end):
+    #     dst = self.line.array
+    #     src = self.data.array
+    #     period = self.p.period
+    #     func = self.func
 
-        for i in range(start, end):
-            dst[i] = func(src[i - period + 1: i + 1])
+    #     for i in range(start, end):
+    #         dst[i] = func(src[i - period + 1: i + 1])
 
 
 class BaseApplyN(OperationN):
@@ -318,21 +318,21 @@ class Accum(btind.Indicator):
     def next(self):
         self.line[0] = self.line[-1] + self.data[0]
 
-    def oncestart(self, start, end):
-        dst = self.line.array
-        src = self.data.array
-        prev = self.p.seed
+    # def oncestart(self, start, end):
+    #     dst = self.line.array
+    #     src = self.data.array
+    #     prev = self.p.seed
 
-        for i in range(start, end):
-            dst[i] = prev = prev + src[i]
+    #     for i in range(start, end):
+    #         dst[i] = prev = prev + src[i]
 
-    def once(self, start, end):
-        dst = self.line.array
-        src = self.data.array
-        prev = dst[start - 1]
+    # def once(self, start, end):
+    #     dst = self.line.array
+    #     src = self.data.array
+    #     prev = dst[start - 1]
 
-        for i in range(start, end):
-            dst[i] = prev = prev + src[i]
+    #     for i in range(start, end):
+    #         dst[i] = prev = prev + src[i]
 
 
 class Average(PeriodN):
@@ -352,13 +352,13 @@ class Average(PeriodN):
         self.line[0] = \
             math.fsum(self.data.get(size=self.p.period)) / self.p.period
 
-    def once(self, start, end):
-        src = self.data.array
-        dst = self.line.array
-        period = self.p.period
+    # def once(self, start, end):
+    #     src = self.data.array
+    #     dst = self.line.array
+    #     period = self.p.period
 
-        for i in range(start, end):
-            dst[i] = math.fsum(src[i - period + 1:i + 1]) / period
+    #     for i in range(start, end):
+    #         dst[i] = math.fsum(src[i - period + 1:i + 1]) / period
 
 
 class ExponentialSmoothing(Average):
@@ -393,23 +393,8 @@ class ExponentialSmoothing(Average):
     def next(self):
         self.line[0] = self.line[-1] * self.alpha1 + self.data[0] * self.alpha
 
-    def oncestart(self, start, end):
-        # Fetch the seed value from the base class calculation
-        super(ExponentialSmoothing, self).once(start, end)
 
-    def once(self, start, end):
-        darray = self.data.array
-        larray = self.line.array
-        alpha = self.alpha
-        alpha1 = self.alpha1
-
-        # Seed value from SMA calculated with the call to oncestart
-        prev = larray[start - 1]
-        for i in range(start, end):
-            larray[i] = prev = prev * alpha1 + darray[i] * alpha
-
-
-class ExponentialSmoothingDynamic(ExponentialSmoothing):
+class ExponentialSmoothingDynamic(ExponentialSmoothing): # alpha is bug need to fixup
     '''
     Averages a given data over a period using exponential smoothing
 
@@ -429,27 +414,15 @@ class ExponentialSmoothingDynamic(ExponentialSmoothing):
 
     def __init__(self):
         super(ExponentialSmoothingDynamic, self).__init__()
-
         # Hack: alpha is a "line" and carries a minperiod which is not being
         # considered because this indicator makes no line assignment. It has
         # therefore to be considered manually
-        minperioddiff = max(0, self.alpha._minperiod - self.p.period)
+        minperioddiff = max(0, self.alpha._minperiod - self.p.period) #missing alpha and alpha1 line
         self.lines[0].incminperiod(minperioddiff)
 
     def next(self):
         self.line[0] = \
             self.line[-1] * self.alpha1[0] + self.data[0] * self.alpha[0]
-
-    def once(self, start, end):
-        darray = self.data.array
-        larray = self.line.array
-        alpha = self.alpha.array
-        alpha1 = self.alpha1.array
-
-        # Seed value from SMA calculated with the call to oncestart
-        prev = larray[start - 1]
-        for i in range(start, end):
-            larray[i] = prev = prev * alpha1[i] + darray[i] * alpha[i]
 
 
 class WeightedAverage(PeriodN):
@@ -479,13 +452,3 @@ class WeightedAverage(PeriodN):
         dataweighted = map(operator.mul, data, self.p.weights)
         self.line[0] = self.p.coef * math.fsum(dataweighted)
 
-    def once(self, start, end):
-        darray = self.data.array
-        larray = self.line.array
-        period = self.p.period
-        coef = self.p.coef
-        weights = self.p.weights
-
-        for i in range(start, end):
-            data = darray[i - period + 1: i + 1]
-            larray[i] = coef * math.fsum(map(operator.mul, data, weights))

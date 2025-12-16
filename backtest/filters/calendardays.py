@@ -52,9 +52,6 @@ class CalendarDays(with_metaclass(MetaParams, object)):
     ONEDAY = timedelta(days=1)
     lastdt = date.max
 
-    def __init__(self, data):
-        pass
-
     def __call__(self, data):
         '''
         If the data has a gap larger than 1 day amongst bars, the missing bars

@@ -131,6 +131,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self._barstack = collections.deque()
         self._barstash = collections.deque()
         self._tz = self._gettz()
+        self._tzinput = self._gettzinput()
         # self._laststatus = self.CONNECTED
         
         fromdate = datetime.datetime.strptime(str(kwargs["fromdate"]), "%Y%m%d") 
@@ -142,8 +143,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def _start_finish(self):
         self._started = True
         self.lines.datetime._settz(self._tz)
-        # self._tzinput = Localizer(self._gettzinput())
-        self._tzinput = self._gettzinput()
         self._calendar = self.p.calendar
 
         self.extra_info = f"FeedInfo: {self.fromdate}:{self.todate}@{','.join(self.sid)}" # any extra info to relate with feed
@@ -155,7 +154,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
     def _gettzinput(self):
         '''Can be overriden by classes to return a timezone for input'''
-        return tzparse(self.p.tzinput)
+        return tzparse(self.p.tzinput) if self.p.tzinput else None
 
     def date2num(self, dt):
         if self._tz is not None:
@@ -198,11 +197,10 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                     return _loadret
 
             dt = self.lines.datetime[0]
-
-            # if self._tzinput:
-            #     dtime = num2date(dt)  # get it in a naive datetime
-            #     dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
-            #     self.lines.datetime[0] = dt = date2num(dtime) 
+            if self._tzinput:
+                dtime = num2date(dt)  # get it in a naive datetime
+                dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
+                self.lines.datetime[0] = dt = date2num(dtime) 
 
            # Pass through filters
             retff = False
@@ -214,11 +212,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                 else:
                     retff = ff(self, *fargs, **fkwargs)
 
-            #     if retff:  # bar removed from systemn
-            #         break  # out of the inner loop
-
-            # if retff:  # bar removed from system - loop to get new bar
-            #     continue  # in the greater loop
+                if retff:  # any of filter satify or all false out of the inner loop
+                    break 
 
             return True
 
@@ -244,49 +239,25 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
             self.tick_last = getattr(self.lines, alias0)[0]
 
-    # def next(self, datamaster=None, ticks=True):
-
+    def next(self, datamaster=None, ticks=False):
     #     if len(self) >= self.buflen():
-    #         if ticks:
-    #             self._tick_nullify()
-
-    #         # not preloaded - request next bar
-    #         ret = self.load()
-    #         if not ret:
-    #             # if load cannot produce bars - forward the result
-    #             return ret
-
-    #         if datamaster is None:
-    #             # bar is there and no master ... return load's result
-    #             if ticks:
-    #                 self._tick_fill()
-    #             return ret
-    #     else:
-    #         self.advance(ticks=ticks)
-
-    #     # a bar is "loaded" or was preloaded - index has been moved to it
-    #     if datamaster is not None:
-    #         # there is a time reference to check against
-    #         if self.lines.datetime[0] > datamaster.lines.datetime[0]:
-    #             # can't deliver new bar, too early, go back
-    #             self.rewind()
-    #             return False
-    #         else:
-    #             if ticks:
-    #                 self._tick_fill()
-
-    #     else:
-    #         if ticks:
-    #             self._tick_fill()
-
-    #     # tell the world there is a bar (either the new or the previous
-    #     return True
-
-    def next(self, datamaster=None):
+        if ticks:
+            self._tick_nullify()
 
         ret = self.load()
         if not ret:
             return ret
+
+        # a bar is "loaded" or was preloaded - index has been moved to it
+        if datamaster is not None:
+            # there is a time reference to check against
+            if self.lines.datetime[0] > datamaster.lines.datetime[0]:
+                # can't deliver new bar, too early, go back
+                self.rewind()
+                return False
+            else:
+                if ticks:
+                    self._tick_fill()
  
         if len(self) >= self.buflen(): # consume > buffer size
             self.apply_factor()
@@ -521,8 +492,7 @@ class DataClone(AbstractDataBase):
     _clone = True
 
     def __init__(self):
-        self.data = self.p.dataname
-        # self._dataname = self.data._dataname
+        self.data = self.p.dataname # dataname=self in clone api
 
         # Copy date/session parameters
         self.p.sessionstart = self.data.p.sessionstart

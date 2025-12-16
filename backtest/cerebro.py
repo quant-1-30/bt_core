@@ -503,10 +503,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             # Add the signal strategy
             self.addstrategy(signalst,
-                                _accumulate=self._signal_accumulate,
-                                signals=self.signals,
-                                *sargs,
-                                **skwargs)
+                             _accumulate=self._signal_accumulate,
+                             signals=self.signals,
+                             *sargs,
+                             **skwargs)
 
         # strategy cartesian product
         iterstrats = itertools.product(*self.strats)

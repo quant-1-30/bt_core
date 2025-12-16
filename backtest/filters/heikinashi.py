@@ -33,9 +33,6 @@ class HeikinAshi(object):
       - http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:heikin_ashi
 
     '''
-    def __init__(self, data):
-        pass
-
     def __call__(self, data):
         o, h, l, c = data.open[0], data.high[0], data.low[0], data.close[0]
 

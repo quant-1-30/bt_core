@@ -89,7 +89,7 @@ class MetaLineIterator(LineSeries.__class__):
                 setattr(_obj, 'data_%d' % l, line)
 
             for d, data in enumerate(_obj.datas):
-                setattr(_obj, 'data%d' % d, data)
+                setattr(_obj, 'data%d' % d, data) # data0, data1, ...
 
                 for l, line in enumerate(data.lines):
                     linealias = data._getlinealias(l)
