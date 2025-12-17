@@ -20,6 +20,7 @@ class PlotScheme(object):
         self.line_width=5 # vbar / rect 
         self.line_alpha=0
 
+        self.scaling_factor = 0.15 # volume height scaling
         self.fill_alpha = 0.05 # transparent
 
         # layout
@@ -34,16 +35,7 @@ class PlotScheme(object):
         self.dpi = 300
         self.tight = True
 
-        # self.sharex = None
-        # self.figs = list()
-        # self.cursors = list()
-        # self.daxis = collections.OrderedDict()
-        # self.vaxis = list()
-        # self.zorder = dict()
-        # self.coloridx = collections.defaultdict(lambda: -1)
-        # self.handles = collections.defaultdict(list)
-        # self.labels = collections.defaultdict(list)
-        # self.legpos = collections.defaultdict(int)
+        self.sharex = None
 
 
 class Plot(with_metaclass(MetaParams, object)):
@@ -51,9 +43,9 @@ class Plot(with_metaclass(MetaParams, object)):
 
     def __init__(self):
         
-        self.bt_tooltips = list()
-        self.bt_renderers = list()
         self.figures = list()
+        self.bt_tooltips = list() # tooltips for hovertool
+        self.bt_renderers = list() # render line for hovertool
 
         self.shared_x = None 
         self.datasource = None
@@ -63,7 +55,7 @@ class Plot(with_metaclass(MetaParams, object)):
         strat_src = self.datasource[names[-1]] # Strategy
         dmaster, _tooltip = merge_cds(dmaster, strat_src)  
         self.bt_tooltips.append(_tooltip)
-        # shared_x = Range1d(data.index[0], data.index[-1]) # 同步x轴
+        # self.sharex = Range1d(data.index[0], data.index[-1]) # 同步x轴
         
         # 创建主图表
         p_main = figure(
@@ -76,10 +68,51 @@ class Plot(with_metaclass(MetaParams, object)):
             # active_scroll='wheel_zoom',
             tooltips=None
         )
+
+        # ------------------------------------------------------------- volume -----------------------------------------------------------            
+
+        dmaster.data['color'] = np.where(
+            dmaster.data['close'] >= dmaster.data['open'],
+            'green',
+            'red'
+        )
         
-        price_line = p_main.line("datetime", "close", source=dmaster,
-                    line_width=2, color=tableau20[0], legend_label="close")
-        self.bt_renderers.append(price_line)
+        # 归一化成交量，使其显示在图表底部
+        volume_max = max(dmaster.data['volume'])
+        price_min = min(dmaster.data['low'])
+        
+        # 将成交量缩放到合适的高度（例如占图表高度的10%）
+        scaling_factor = self.p.scheme.scaling_factor
+        price_range = max(dmaster.data['high']) - price_min
+        volume_height = price_range * scaling_factor
+        
+        dmaster.data['volume_scaled'] = price_min + (dmaster.data['volume'] / volume_max) * volume_height
+        
+        # 添加成交量柱状图
+        p_main.vbar(
+            x='datetime',
+            top='volume_scaled',
+            bottom=price_min,
+            width=self.p.scheme.vbar_width,
+            source=dmaster,
+            # fill_color='volume_color',
+            line_color='line_color',
+            line_width=self.p.scheme.line_width,
+            fill_alpha=0.5,
+            legend_label="Volume",
+        )
+        
+        # ------------------------------------------------------------- price -----------------------------------------------------------            
+        
+        close_line = p_main.line(
+                            "datetime", "close", 
+                            source=dmaster,
+                            line_width=2, 
+                            color=tableau20[0], 
+                            legend_label="close"
+                            )
+
+        self.bt_renderers.append(close_line)
 
         # 设置颜色
         dmaster.data['color'] = np.where(
@@ -94,7 +127,7 @@ class Plot(with_metaclass(MetaParams, object)):
             '#009624',  # darkgreen
         )
         
-        # ------------------------------------------------------------- candle -----------------------------------------------------------            
+        # ------------------------------------------------------------- price candle -----------------------------------------------------------            
         if candle:
             # 计算实体顶部和底部
             dmaster.data['top_body'] = np.maximum(dmaster.data['open'], dmaster.data['close'])
@@ -124,7 +157,7 @@ class Plot(with_metaclass(MetaParams, object)):
                 # fill_alpha=0.7,
                 line_color="line_color",
                 line_width=self.p.scheme.line_width,
-                legend_label="实体"
+                legend_label="实体",
             )
         
         # ------------------------------------------------------------- strategy -----------------------------------------------------------            
@@ -144,7 +177,8 @@ class Plot(with_metaclass(MetaParams, object)):
                 size=15, 
                 color="firebrick", 
                 alpha=0.6, 
-                legend_label="正三角形")
+                legend_label="正三角形",
+                )
 
         s_mask = dmaster.data["sell"] < -0.0
         sview = CDSView(name="sell_filter", filter=BooleanFilter(s_mask))
@@ -156,41 +190,9 @@ class Plot(with_metaclass(MetaParams, object)):
                 size=15, 
                 color="navy", 
                 alpha=0.6, 
-                legend_label="倒三角形")
+                legend_label="倒三角形",
+                )
 
-        # ------------------------------------------------------------- volume -----------------------------------------------------------            
-
-        dmaster.data['color'] = np.where(
-            dmaster.data['close'] >= dmaster.data['open'],
-            'green',
-            'red'
-        )
-        
-        # 归一化成交量，使其显示在图表底部
-        volume_max = max(dmaster.data['volume'])
-        price_min = min(dmaster.data['low'])
-        
-        # 将成交量缩放到合适的高度（例如占图表高度的10%）
-        scaling_factor = 0.4
-        price_range = max(dmaster.data['high']) - price_min
-        volume_height = price_range * scaling_factor
-        
-        dmaster.data['volume_scaled'] = price_min + (dmaster.data['volume'] / volume_max) * volume_height
-        
-        # 添加成交量柱状图
-        volume_bars = p_main.vbar(
-            x='datetime',
-            top='volume_scaled',
-            bottom=price_min,
-            width=self.p.scheme.vbar_width,
-            source=dmaster,
-            # fill_color='volume_color',
-            line_color='line_color',
-            line_width=self.p.scheme.line_width,
-            fill_alpha=0.5,
-            legend_label="Volume"
-        )
-        
         # 将成交量图例添加到图表中
         p_main.legend.location = "top_left"
         self.figures.append(p_main)

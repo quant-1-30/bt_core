@@ -78,6 +78,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._barstash = collections.deque()  # for filter operations
         _obj._filters = list()
         _obj.adj_factors = {} # default
+        _obj._record_adj = None 
         return _obj, args, kwargs
 
 
@@ -358,32 +359,56 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
  # --------------------------------------------------------------------- common api -----------------------------------------------------------------   
 
+    # def apply_factor(self):
+    #     """
+    #         ohlc factors
+    #     """
+    #     if self.adj_factors:
+    #         # print("apply_factor ", self, self.lines.datetime.array)
+    #         line_dt = [int(num2date(ts).strftime("%Y%m%d")) for ts in self.lines.datetime.array]
+
+    #         # 预处理复权因子数据
+    #         adj_dates = np.array(sorted(self.adj_factors.keys()))
+    #         adj_factors = np.array([self.adj_factors[dt] for dt in adj_dates])
+
+    #         indices = np.searchsorted(adj_dates, line_dt, side='right') - 1
+    #         # indices = np.clip(indices, 0, len(adj_dates) - 1)
+
+    #         # 批量应用复权因子
+    #         align_factors = np.ones_like(line_dt, dtype=np.float64)
+    #         valid_mask = indices >= 0
+    #         align_factors[valid_mask] = adj_factors[indices[valid_mask]]
+
+    #         # datetime
+    #         adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
+        
+    #         for line in adj_lines.values():
+    #             line.apply_factor(align_factors)
+    
     def apply_factor(self):
         """
-            ohlc factors
+            ohlc accumulated factors
         """
-        if self.adj_factors:
-            # print("apply_factor ", self, self.lines.datetime.array)
-            line_dt = [int(num2date(ts).strftime("%Y%m%d")) for ts in self.lines.datetime.array]
+        if not self.adj_factors:
+            return
 
-            # 预处理复权因子数据
-            adj_dates = np.array(sorted(self.adj_factors.keys()))
-            adj_factors = np.array([self.adj_factors[dt] for dt in adj_dates])
+        current_dt = int(num2date(self.lines.datetime[0]).strftime("%Y%m%d"))
 
-            indices = np.searchsorted(adj_dates, line_dt, side='right') - 1
-            # indices = np.clip(indices, 0, len(adj_dates) - 1)
-
-            # 批量应用复权因子
-            align_factors = np.ones_like(line_dt, dtype=np.float64)
-            valid_mask = indices > 0
-            align_factors[valid_mask] = adj_factors[indices[valid_mask]]
-            # import pdb; pdb.set_trace()
-
-            # datetime
+        if current_dt in self.adj_factors and current_dt != self._record_adj:
+            factor = self.adj_factors[current_dt]
+        
             adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
         
             for line in adj_lines.values():
-                line.apply_factor(align_factors) 
+                value = line[0]
+                line.apply_factor(factor)
+                line[0] = value / factor  # ensure current value not changed
+
+            _v = self.volume[0]
+            self.volume.apply_factor(1.0 / factor)
+            self.volume[0] = _v * factor
+
+            self._record_adj = current_dt
 
     def on_dt_over(self):
         dt = num2date(self.lines.datetime[0])

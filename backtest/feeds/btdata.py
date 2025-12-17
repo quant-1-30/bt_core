@@ -161,9 +161,16 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         except StopIteration:
             return False
 
+    # def calc_adjfactor(self, reqmeta):
+    #     adj = self.mdapi.factor(reqmeta)
+    #     factors = adj.adj_factors
+    #     if factors:
+    #         factors = dict(sorted(factors.items())) # sort by key
+    #         self.adj_factors = factors
+    
     def calc_adjfactor(self, reqmeta):
         adj = self.mdapi.factor(reqmeta)
-        factors = adj.adj_factors
+        factors = adj.raw_factors
         if factors:
             factors = dict(sorted(factors.items())) # sort by key
             self.adj_factors = factors

@@ -458,10 +458,14 @@ class LineBuffer(LineSingle):
         '''
         return num2date(int(self[ago]) + tm)
     
-    def apply_factor(self, factors: Union[np.array]=1.0):
+    # def apply_factor(self, factors: Union[np.array]=1.0):
+    #     array = self.array
+    #     assert len(array) == len(factors), f"Length of factors {len(factors)} must match length of array {len(array)}"
+    #     self.array = array * factors
+    
+    def apply_factor(self, factor: float):
         array = self.array
-        assert len(array) == len(factors), f"Length of factors {len(factors)} must match length of array {len(array)}"
-        self.array = array * factors
+        self.array = array * factor
 
 
 class MetaLineActions(LineBuffer.__class__):
