@@ -205,10 +205,11 @@ class Plot(with_metaclass(MetaParams, object)):
 
         self.bt_tooltips.append(ind_tooltip)
 
+
         p_indicator = figure(
             title="Indicator",
             width=self.p.scheme.figure_width, 
-            height=self.p.scheme.figure_height[1],
+            height=int(self.p.scheme.figure_height[1] * 1.2), # avoid y overlap
             x_axis_type="datetime",
             x_range=self.figures[0].x_range,  
             tools="pan,wheel_zoom,box_zoom,reset,save",
@@ -217,7 +218,6 @@ class Plot(with_metaclass(MetaParams, object)):
         p_indicator.yaxis.visible = False
         p_indicator.yaxis.axis_label = ""
 
-        # nbins = len(ind_srcs.column_names) - 1
         for color_idx, ind_col in enumerate(ind_src.column_names):
             if ind_col != "datetime":
 
@@ -229,8 +229,7 @@ class Plot(with_metaclass(MetaParams, object)):
                 )
 
                 ind_line = p_indicator.line(
-                    'datetime', ind_col, source=ind_src,
-                    line_width=2, color=tableau20[color_idx], y_range_name=ind_col, legend_label=ind_col)
+                    'datetime', ind_col, source=ind_src, line_width=2, color=tableau20[color_idx], legend_label=ind_col)
 
                 y_axis = LinearAxis(
                     y_range_name=ind_col, 
@@ -240,8 +239,10 @@ class Plot(with_metaclass(MetaParams, object)):
                 # y_axis.bounds = (color_idx/nbins, (color_idx+1)/nbins)  # 从中间到顶部
                 p_indicator.add_layout(y_axis, 'left' if color_idx % 2 == 0 else 'right')
 
-        self.bt_renderers.append(ind_line) # keep main indicator
+        self.bt_renderers.append(ind_line) # self.bt_renderers.append(ind_renders) # keep main indicator
+
         self.figures.append(p_indicator)
+
 
 # --------------------------------------------------------------------- observe gridplots ----------------------------------------------------------------------
     
@@ -309,6 +310,10 @@ class Plot(with_metaclass(MetaParams, object)):
         
         for idx, _plt in enumerate(self.figures):
             _tooltip = self.bt_tooltips[idx]
+
+            figure_renders = self.bt_renderers[idx]
+            renderers = figure_renders if isinstance(figure_renders, list) else [figure_renders]
+
             hover = HoverTool(
                 tooltips=_tooltip,
                 formatters={
@@ -316,7 +321,7 @@ class Plot(with_metaclass(MetaParams, object)):
                 },
                 mode='vline', 
                 callback=hover_callback,
-                renderers = [self.bt_renderers[idx]],
+                renderers = renderers,
                 point_policy="follow_mouse"
             )
 
@@ -341,8 +346,8 @@ class Plot(with_metaclass(MetaParams, object)):
         show(grid)
         return grid
 
-    def plot(self, csv_path, freq, num_data, num_ind, num_obs, filename=None, save=False, candle=False):
-        self.datasource, _names = create_datasource(csv_path, freq)
+    def plot(self, num_data: int, num_ind: int, num_obs: int, source:str, freq: str="D", candle=False, save=False, filename=None):
+        self.datasource, _names = create_datasource(source, freq)
 
         data_names = _names[:num_data+1] # feed + dataclone(s) + strategy
         self.plotdata(data_names, candle=candle)

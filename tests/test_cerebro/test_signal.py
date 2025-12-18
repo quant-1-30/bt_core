@@ -1,6 +1,5 @@
 # Import the backtrader platform
 
-import argparse
 import warnings
 import numpy as np
 from dotenv import load_dotenv
@@ -15,7 +14,7 @@ warnings.filterwarnings('ignore')
 # basciops to implement next method and use linebuffer instead of __getitem__
 # self define need to addminpeeriod and define dmaster
 # PeriodN __init__ already addimperiod self.p.period
-#signal scale to 0 - 1
+# signal scale to 0 - 1 / bool(self.delta[0] > 0) # np.False_ ---> bool 
 
 
 class WeekPriceSignal(btind.Indicator): 
@@ -31,7 +30,6 @@ class WeekPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             import pdb; pdb.set_trace()
-        #  bool(self.delta[0] > 0) # np.False_ ---> bool 
         print("WeekPriceSignal delta: ", signal)
 
 
@@ -111,69 +109,13 @@ class DrawDownSignal(btind.Indicator):
         obs = self._owner.stats.getbyname("drawdown") # lowercase
         signal = self.p.thres - obs.lines.drawdown[0]
         self.lines.signal[0] = signal
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description='DataFilter/DataFiller Sample')
-
-    parser.add_argument('--data', '-d',
-                        default='../../datas/2006-01-02-volume-min-001.txt',
-                        help='data to add to the system')
-
-    parser.add_argument('--filter', '-ft', action='store_true',
-                        help='Filter using session start/end times')
-
-    parser.add_argument('--filler', '-fl', action='store_true',
-                        help='Fill missing bars inside start/end times')
-
-    parser.add_argument('--fvol', required=False, default=0.0,
-                        type=float,
-                        help='Use as fill volume for missing bar (def: 0.0)')
-
-    parser.add_argument('--tstart', '-ts',
-                        # default='09:14:59',
-                        # help='Start time for the Session Filter (%H:%M:%S)')
-                        default='09:15',
-                        help='Start time for the Session Filter (HH:MM)')
-
-    parser.add_argument('--tend', '-te',
-                        # default='17:15:59',
-                        # help='End time for the Session Filter (%H:%M:%S)')
-                        default='17:15',
-                        help='End time for the Session Filter (HH:MM)')
-
-    parser.add_argument('--relvol', '-rv', action='store_true',
-                        help='Add relative volume indicator')
-
-    parser.add_argument('--fromdate', '-f',
-                        default='2006-01-01',
-                        help='Starting date in YYYY-MM-DD format')
-
-    parser.add_argument('--todate', '-t',
-                        default='2006-12-31',
-                        help='Starting date in YYYY-MM-DD format')
-
-    parser.add_argument('--writer', '-w', action='store_true',
-                        help='Add a writer to cerebro')
-
-    parser.add_argument('--wrcsv', '-wc', action='store_true',
-                        help='Enable CSV Output in the writer')
-
-    parser.add_argument('--plot', '-p', action='store_true',
-                        help='Plot the read data')
-
-    parser.add_argument('--numfigs', '-n', default=1,
-                        help='Plot using numfigs figures')
-
-    return parser.parse_args()
+        print("DrawDownSignal ", signal )
 
 
 if __name__ == '__main__':
     
     load_dotenv()
     
-    args = parse_args()
     # configure store sizer risk 
     # cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
     cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
@@ -189,5 +131,5 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     cerebro.addrisk("tl", thres=0.75) # tl means tolerance 
-    cerebro.run(cash=100000, sid=["300308"], fromdate=20210101, todate=20250925, benchmark="000001", out="signal.csv")
+    cerebro.run(cash=100000, sid=["300308"], fromdate=20210101, todate=20250925, benchmark="000001")
 

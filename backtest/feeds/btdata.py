@@ -66,13 +66,13 @@ class BtDescr(object):
 
     def _t_cal(self, api):
         msg = api.get_calendar()
-        print("calendar msg: ", msg)
+        # print("calendar msg: ", msg)
         self.calendar = msg
         self._cal_evt.set()
 
     def _t_asset(self, api):
         msg = api.get_instrument()
-        print("asset msg ", msg)
+        # print("asset msg ", msg)
         self.assets = msg
         self._asset_evt.set()
 

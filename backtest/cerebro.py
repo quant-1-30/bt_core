@@ -82,7 +82,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ("client_id", ""),
-        ("cal", ""),
+        ("calendar", ""),
         ('savemem', 1),
         ("store", "bt"),
         ("store_p", {}),
@@ -91,6 +91,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('stdstats', True),
         ('tz', None),
         ('writer', True),
+        ("isplot", False)
     )
 
     def __init__(self):
@@ -133,7 +134,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         from .tradingcal import TradingCalendarBase, TradingCalendar
 
-        cal = self.p.cal
+        cal = self.p.calendar
         if cal and issubclass(cal, TradingCalendarBase): 
             self._tradingcal = cal
         else:
@@ -515,7 +516,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self.runstrats.append(runstrat)
             for cb in self.optcbs:
                 cb(runstrat)  # callback receives finished strategy
-    
+
+        if self.p.isplot:
+            dstrat = self.runningstrats[0]
+            self.plot(self, num_data=len(self.datas), 
+                            num_ind=len(dstrat._lineiterators[0]), 
+                            num_obs=len(dstrat._lineiterators[2]),
+                            out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
         return self.runstrats
      
     def runstrategies(self, iterstrat, **kwargs):
@@ -536,11 +543,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for _, strat in enumerate(runstrats):
                 if self.p.stdstats: # ('timeframe', bt.TimeFrame.Days) ('compression', None),
                     strat._addobserver(False, observers.Broker, barplot=True)
-                    strat._addobserver(False, observers.TimeReturn, barplot=True)
-                    strat._addobserver(False, observers.BuySell, barplot=True)
                     strat._addobserver(False, observers.Trades, barplot=True)
+                    strat._addobserver(False, observers.BuySell, barplot=True)
                     strat._addobserver(False, observers.DrawDown, barplot=True)
                     strat._addobserver(False, observers.DrawDownLength, barplot=True)
+                    strat._addobserver(False, observers.TimeReturn, barplot=True)
                     strat._addobserver(False, observers.Benchmark, barplot=True)
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
@@ -695,7 +702,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         pass
     
-    def plot(self, out="", freq="D", num_data=0, num_ind=1, num_obs=1, **kwargs):
+    def plot(self, num_data=0, num_ind=1, num_obs=1, source="", freq="D", **kwargs):
         '''
         Plots the strategies inside cerebro
 
@@ -720,4 +727,4 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         ``tight``: only save actual content and not the frame of the figure
         '''
-        self._plot.plot(out, freq=freq, num_data=num_data, num_ind=num_ind, num_obs=num_obs, **kwargs)
+        self._plot.plot(num_data=num_data, num_ind=num_ind, num_obs=num_obs, source=source, freq=freq, **kwargs)

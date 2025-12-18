@@ -42,7 +42,7 @@ class Broker(Observer):
     )
 
     alias = ('CashValue',)
-    lines = ('cash', 'value')
+    lines = ('cash', 'netvalue')
 
     plotinfo = dict(plot=True, subplot=True)
 
@@ -60,7 +60,7 @@ class Broker(Observer):
         if dtkey > self.dtkey:
             v = self.vb.rets.get(self.vb.dtkey1, None)
             if v:
-                self.lines.value[0] = v.portfolio_value + v.cash
                 self.lines.cash[0] = v.cash
+                self.lines.netvalue[0] = v.portfolio_value + v.cash
             
             self.dtkey = dtkey

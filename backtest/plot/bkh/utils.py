@@ -98,7 +98,8 @@ def merge_cds(*sources, on='datetime', dropna=True, exclude="datetime"):
         df.dropna(axis=0, how="all", inplace=True, subset=subset)
 
         chain_tooltip = [f" {key}: @{{{key}}}{{0.2f}}<br>" for key in source.column_names if  key != "datetime"]
-        tooltips.append((source.name, ''.join(chain_tooltip)))
+        source_tooltip = ''.join(chain_tooltip) 
+        tooltips.append((source.name, source_tooltip))
         dfs.append(df)
     
     merged_df = dfs[0]

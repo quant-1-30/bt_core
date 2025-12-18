@@ -42,7 +42,7 @@ class BuySell(Observer):
 
       - ``bardist`` (default: ``0.015`` 1.5%) Distance to max/min when
     '''
-    lines = ('buy', 'sell', 'comm')
+    lines = ('buy', 'sell') # 'comm'
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
 
@@ -80,7 +80,6 @@ class BuySell(Observer):
                     else:
                         sell.append(_trade)
 
-                # BUY
                 # curbuy = self.lines.avg_buy[0]
                 # if curbuy != curbuy:  # NaN
                 #     curbuy = 0.0
@@ -98,7 +97,7 @@ class BuySell(Observer):
                 value = sellops / float(selllen or 'NaN')
                 self.lines.sell[0] = value 
             
-                # Write comm
-                self.lines.comm[0] = comm
+                # # Write comm
+                # self.lines.comm[0] = comm
 
             self.dtkey = dtkey
