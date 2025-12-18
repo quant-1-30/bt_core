@@ -273,13 +273,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         minperstatus = self._getminperstatus() # datas already next 
         self._next_observers(minperstatus)
         self.clear()
-        
-        if self._check_risk():
-            _input = input("Please enter Y or N to continue: ").strip()
-            if _input.lower() != 'y':
-                print("Risk control triggered. Stopping strategy execution.")
-                return  # Skip user-defined next and do not process further
-
         super(Strategy, self)._next() # lineiterator _next
 
     def getsizing(self, isbuy=True):
@@ -369,9 +362,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         
         self.notify_trade(order, trades)
     
-    def notify_timer(self, t): # trigger on sessionstart due to T + 1 policy
+    def notify_timer(self, dts): # trigger on sessionstart due to T + 1 policy
         self.store.on_dt_over(self.experiment_id) 
         self.on_dt_over = True
+        
+        if self._check_risk():
+            _input = input(f"TimerRiskCheck on {dts}. Please enter Y or N to continue: ").strip()
+            if _input.lower() != 'y':
+                print("Risk control triggered. Stopping strategy execution.")
+                return 
     
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders

@@ -109,7 +109,7 @@ class DrawDownSignal(btind.Indicator):
 
     def next(self):
         obs = self._owner.stats.getbyname("drawdown") # lowercase
-        signal = self.p.thres - obs.lines.drawdown[0]/100.0
+        signal = self.p.thres - obs.lines.drawdown[0]
         self.lines.signal[0] = signal
 
 
@@ -188,6 +188,6 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-    cerebro.addrisk("pf", thres=0.75)
+    cerebro.addrisk("tl", thres=0.75) # tl means tolerance 
     cerebro.run(cash=100000, sid=["300308"], fromdate=20210101, todate=20250925, benchmark="000001", out="signal.csv")
 

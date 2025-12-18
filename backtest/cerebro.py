@@ -316,7 +316,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 
                 print("_check_timer ", dt0)
                 for strat in runstrats:
-                    strat.notify_timer(t)
+                    strat.notify_timer(dt0)
 
             for _t in self._mcstimers: # mcstimers: metricstimer
                 self.notify_timer()

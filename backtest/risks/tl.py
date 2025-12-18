@@ -21,10 +21,10 @@
 import numpy as np
 from backtest.risk import RiskBase
 
-__all__ = ['PortfolioRisk']
+__all__ = ['ToleranceRisk']
 
 
-class PortfolioRisk(RiskBase):
+class ToleranceRisk(RiskBase):
     """
       Portfolio Risk Management 
     """

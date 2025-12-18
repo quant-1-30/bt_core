@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import numpy as np
 import backtest as bt
 from backtest.utils import AutoOrderedDict
 
@@ -88,9 +89,9 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
             self.peak = value
             self.ddlen = 0 
 
-        # calculate the current drawdown
-        self.dd = dd = 100.0 * (self.peak - value) / self.peak if self.peak > 0.0 else 0.0
-        self.ddlen += bool(dd)
+        # self.dd = dd = (self.peak - value) / self.peak if self.peak > 0.0 else 0.0
+        self.dd = dd = 1.0 -  np.divide(value, self.peak) if self.peak > 0.0 else 0.0
+        self.ddlen += bool(dd > 0.0)
 
         # drawdown drawdownlength 
         self.rets[self.dtkey1] = (dd, self.ddlen)
@@ -99,5 +100,5 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.maxdd = maxdd =  max(self.maxdd, dd)
         self.maxddlen = maxddlen = max(self.maxddlen, self.ddlen)
           
-        self.rets['maxDrawdown'] = self.maxdd
-        self.rets['maxDrawdownLength'] = self.maxddlen
+        self.rets['maxDrawdown'] = maxdd
+        self.rets['maxDrawdownLength'] = maxddlen

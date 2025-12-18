@@ -63,7 +63,6 @@ class DrawDown(Observer):
             dd, _ = self._dd.rets[self._dd.dtkey1]
             self.lines.drawdown[0] = dd # update drawdown
             self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
-
             self.dtkey = dtkey
 
 
