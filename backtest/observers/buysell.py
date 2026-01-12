@@ -68,17 +68,17 @@ class BuySell(Observer):
             comm = 0.0
             buy,sell = [], []
 
-            _trades = self.txns.rets.get(self.txns.dtkey1, [])
-            if _trades:
-                for _trade in _trades:
-                    if not _trade.executed_size:
+            trades = self.txns.rets.get(self.txns.dtkey1, [])
+            if trades:
+                for trade in trades:
+                    if not trade.executed_size:
                         continue
-                    comm += _trade.comm
+                    comm += trade.comm
 
-                    if _trade.direction:
-                        buy.append(_trade)
+                    if trade.isbuy:
+                        buy.append(trade)
                     else:
-                        sell.append(_trade)
+                        sell.append(trade)
 
                 # curbuy = self.lines.avg_buy[0]
                 # if curbuy != curbuy:  # NaN

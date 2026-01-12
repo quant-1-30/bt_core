@@ -298,7 +298,7 @@ class Timer(with_metaclass(MetaParams, object)):
                     if self._isdata:
                         self._dwhen = self._tzdata.num2date(dtwhen)
                     else:  # assume pytz compatible or None
-                        self._dwhen = num2date(dtwhen, tz=self._tzdata)
+                        self._dwhen = num2date(dtwhen)
                     break
 
         return True  # timer target was met

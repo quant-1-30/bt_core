@@ -99,6 +99,6 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         # update the maxdrawdown if needed
         self.maxdd = maxdd =  max(self.maxdd, dd)
         self.maxddlen = maxddlen = max(self.maxddlen, self.ddlen)
-          
+
         self.rets['maxDrawdown'] = maxdd
         self.rets['maxDrawdownLength'] = maxddlen

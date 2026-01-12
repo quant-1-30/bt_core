@@ -29,8 +29,10 @@ import numpy as np
 from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass
 from .resamplerfilter import Resampler 
-from backtest.utils.dateintern import *
-from bt_sdk.core.model import Query
+from backtest.utils.dateintern import num2date, date2num, ts2intdt, tzparse
+from bt_sdk.core.protocol import QueryBody
+
+HalfDaySeconds = 12 * 3600
 
 
 class MetaAbstractDataBase(OHLCDateTime.__class__):
@@ -78,7 +80,8 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._barstash = collections.deque()  # for filter operations
         _obj._filters = list()
         _obj.adj_factors = {} # default
-        _obj._record_adj = None 
+        _obj._record_adj = None
+        _obj.bench = None # benchmark
         return _obj, args, kwargs
 
 
@@ -93,13 +96,14 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('sessionstart', datetime.time(9,30,0)),
         ('sessionend', datetime.time(15,0,0)),
         ('calendar', None),
+        ("timeout", -1),
     )
 
-    (CONNECTED, DISCONNECTED, CONNBROKEN, DELAYED,
+    (CONNECTED, disconnect, CONNBROKEN, DELAYED,
      LIVE, NOTSUBSCRIBED, NOTSUPPORTED_TF, UNKNOWN) = range(8)
 
     _NOTIFNAMES = [
-        'CONNECTED', 'DISCONNECTED', 'CONNBROKEN', 'DELAYED',
+        'CONNECTED', 'disconnect', 'CONNBROKEN', 'DELAYED',
         'LIVE', 'NOTSUBSCRIBED', 'NOTSUPPORTED_TIMEFRAME', 'UNKNOWN']
 
     @classmethod
@@ -134,19 +138,11 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         self._tz = self._gettz()
         self._tzinput = self._gettzinput()
         # self._laststatus = self.CONNECTED
-        
-        fromdate = datetime.datetime.strptime(str(kwargs["fromdate"]), "%Y%m%d") 
-        self.fromdate = datetime.datetime.combine(fromdate.date(), self.p.sessionstart).replace(tzinfo=self._tz)
-        todate = datetime.datetime.strptime(str(kwargs["todate"]), "%Y%m%d")
-        self.todate = datetime.datetime.combine(todate.date(), self.p.sessionend).replace(tzinfo=self._tz)
-        self.sid = kwargs["sid"]
-    
+         
     def _start_finish(self):
         self._started = True
         self.lines.datetime._settz(self._tz)
         self._calendar = self.p.calendar
-
-        self.extra_info = f"FeedInfo: {self.fromdate}:{self.todate}@{','.join(self.sid)}" # any extra info to relate with feed
 
     def _gettz(self):
         '''To be overriden by subclasses which may auto-calculate the
@@ -162,8 +158,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             return date2num(self._tz.localize(dt))
         return date2num(dt)
 
-    def num2date(self, dt, tz=None):
-        return num2date(dt, tz or self._tz) # default is Asia/Shanghai
+    def num2date(self, dts):
+        return num2date(dts) # default is Asia/Shanghai
     
     def _getnexteos(self): 
         '''Returns the next eos using a trading calendar if available'''
@@ -199,7 +195,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
             dt = self.lines.datetime[0]
             if self._tzinput:
-                dtime = num2date(dt)  # get it in a naive datetime
+                dtime = num2date(dt)  # get it in a native datetime
                 dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
                 self.lines.datetime[0] = dt = date2num(dtime) 
 
@@ -359,32 +355,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
  # --------------------------------------------------------------------- common api -----------------------------------------------------------------   
 
-    # def apply_factor(self):
-    #     """
-    #         ohlc factors
-    #     """
-    #     if self.adj_factors:
-    #         # print("apply_factor ", self, self.lines.datetime.array)
-    #         line_dt = [int(num2date(ts).strftime("%Y%m%d")) for ts in self.lines.datetime.array]
-
-    #         # 预处理复权因子数据
-    #         adj_dates = np.array(sorted(self.adj_factors.keys()))
-    #         adj_factors = np.array([self.adj_factors[dt] for dt in adj_dates])
-
-    #         indices = np.searchsorted(adj_dates, line_dt, side='right') - 1
-    #         # indices = np.clip(indices, 0, len(adj_dates) - 1)
-
-    #         # 批量应用复权因子
-    #         align_factors = np.ones_like(line_dt, dtype=np.float64)
-    #         valid_mask = indices >= 0
-    #         align_factors[valid_mask] = adj_factors[indices[valid_mask]]
-
-    #         # datetime
-    #         adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
-        
-    #         for line in adj_lines.values():
-    #             line.apply_factor(align_factors)
-    
     def apply_factor(self):
         """
             ohlc accumulated factors
@@ -411,13 +381,14 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self._record_adj = current_dt
 
     def on_dt_over(self):
-        dt = num2date(self.lines.datetime[0])
-        pre_dt = num2date(self.lines.datetime[-1]) # nan to zero if nan
-        # if self._timeframe == TimeFrame.Days:
-        if pre_dt:
-            qry = Query(start_date=pre_dt, end_date=dt, sid=[]) # on_dt_over ---> timestamp under utc
-            return qry
-        return 
+        delta = self.lines.datetime[0] - self.lines.datetime[-1]
+        if delta >= HalfDaySeconds: # nan --> np.inf 
+            body = QueryBody(
+                    start_date=int(self.lines.datetime[-1]), 
+                    end_date=int(self.lines.datetime[0]), 
+                    sid=[]) 
+            return body
+        return None
 
     def plot(self, linealias):
         pass

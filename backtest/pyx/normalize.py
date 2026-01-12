@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def naive_grouped_rowwise_apply(data,
+def native_grouped_rowwise_apply(data,
                                 group_labels,
                                 func,
                                 func_args=(),
@@ -32,11 +32,11 @@ def naive_grouped_rowwise_apply(data,
     >>> labels = np.array([[0, 0, 1],
     ...                    [0, 1, 0],
     ...                    [1, 0, 2]])
-    >>> naive_grouped_rowwise_apply(data, labels, lambda row: row - row.min())
+    >>> native_grouped_rowwise_apply(data, labels, lambda row: row - row.min())
     array([[ 0.,  1.,  0.],
            [ 0.,  0.,  2.],
            [ 0.,  0.,  0.]])
-    >>> naive_grouped_rowwise_apply(data, labels, lambda row: row / row.sum())
+    >>> native_grouped_rowwise_apply(data, labels, lambda row: row / row.sum())
     array([[ 0.33333333,  0.66666667,  1.        ],
            [ 0.33333333,  1.        ,  0.66666667],
            [ 1.        ,  1.        ,  1.        ]])

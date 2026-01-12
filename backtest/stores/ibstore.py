@@ -926,7 +926,7 @@ class IBStore(with_metaclass(MetaSingleton, object)):
 
         Not valid for cash markets
         '''
-        # Get a naive localtime object
+        # Get a native localtime object
         msg.time = datetime.utcfromtimestamp(float(msg.time))
         self.qs[msg.reqId].put(msg)
 

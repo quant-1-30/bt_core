@@ -1,14 +1,11 @@
 # Import the backtrader platform
 
-import warnings
+import uuid
 import numpy as np
 from dotenv import load_dotenv
 
-from bt_sdk.core.model import *
 import backtest as bt
 import backtest.indicators as btind
-
-warnings.filterwarnings('ignore')
 
 # 涉及 linebuffer __init__ /  具体值计算比较 next  __getitem__
 # basciops to implement next method and use linebuffer instead of __getitem__
@@ -59,7 +56,7 @@ class MACDSignal(btind.Indicator):
                             period_me1=self.p.period, 
                             period_me2=self.p.period1, 
                             period_signal=self.p.period2) 
-        self.lines.signal = macd.histo
+        self.lines.signal = macd.histo # transformt to ratio
 
     def next(self):
         signal = self.lines.signal[0]
@@ -116,9 +113,8 @@ if __name__ == '__main__':
     
     load_dotenv()
     
-    # configure store sizer risk 
     # cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
-    cerebro = bt.Cerebro(client_id="2160a316-b483-4fd1-8f0e-ff1fbe06ea80") # ssh 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) # ssh 
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
@@ -131,5 +127,4 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     cerebro.addrisk("tl", thres=0.75) # tl means tolerance 
-    cerebro.run(cash=100000, sid=["300308"], fromdate=20210101, todate=20250925, benchmark="000001")
-
+    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")

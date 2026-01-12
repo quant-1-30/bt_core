@@ -39,7 +39,7 @@ from typing import Union
 
 from .lineroot import LineRoot, LineSingle, LineMultiple
 from backtest.metabase import with_metaclass
-from backtest.utils.dateintern import num2date, time2num
+from backtest.utils.dateintern import num2date
 
 NAN = float('NaN')
 
@@ -348,15 +348,14 @@ class LineBuffer(LineSingle):
     def _settz(self, tz):
         self._tz = tz
 
-    def datetime(self, ago=0, tz=None, naive=True):
+    def datetime(self, ago=0, native=True):
         # print("buffer datetime: ", self[ago])
-        _dt = num2date(self[ago], tz=tz or self._tz, naive=naive)
+        _dt = num2date(self[ago], native=native)
         dt = _dt if isinstance(_dt, datetime.datetime) else datetime.datetime.min
         return dt
 
-    def time(self, ago=0, tz=None, naive=True):
-        return num2date(self[ago],
-                        tz=tz or self._tz, naive=naive).time()
+    def time(self, ago=0, native=True):
+        return num2date(self[ago], native=native).time()
 
     def dt(self, ago=0):
         '''
@@ -373,14 +372,14 @@ class LineBuffer(LineSingle):
         # count (integer part of coding)
         return math.modf(self[ago])[0]
 
-    def tm(self, ago=0):
-        '''
-        return numeric time part of datetimefloat
-        '''
-        # To avoid precision errors, this returns the fractional part after
-        # having converted it to a datetime.time object to avoid precision
-        # errors in comparisons
-        return time2num(num2date(self[ago]).time())
+    # def tm(self, ago=0):
+    #     '''
+    #     return numeric time part of datetimefloat
+    #     '''
+    #     # To avoid precision errors, this returns the fractional part after
+    #     # having converted it to a datetime.time object to avoid precision
+    #     # errors in comparisons
+    #     return time2num(num2date(self[ago]).time())
 
     def tm_lt(self, other, ago=0):
         '''

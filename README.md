@@ -158,3 +158,37 @@ set dmaster which means target data
 # ├── liquidity_risk.py     # 流动性风险
 # └── risk_orchestrator.py  # 风险协调器
 
+# git commit failure and git reset --soft HEAD~1
+
+# cython 优化 util 模块主要涉及时间处理 / data对象
+# 指标核心计算公式通过cython改写 / 复用 numpy / dataclone memoryveiw
+# 保留metabase 核心架构
+
+# tls context = threading.local()
+
+# class PricingDataAssociable(ABC) / PricingDataAssociable.register(Asset) 
+# 虚拟子类不需要直接继承自抽象基类, 注册虚拟子类不论是否实现抽象基类中的抽象,Python都认为它是抽象基类的子类
+# from toolz import curry / np.vectorize
+
+sync: threading.Event() set and wait
+
+if ext.endswith('.py'): # execute external code
+    with open(ext) as f:
+        ns = {}
+        exec(compile(f.read(), ext, 'exec'), ns, ns)
+
+def is_sorted_ascending(a):
+    """Check if a numpy array is sorted."""
+    return (np.fmax.accumulate(a) <= a).all()
+
+
+ta-lib
+
+tar -xzf ta-lib-0.6.4-src.tar.gz
+cd ta-lib-0.6.4
+
+chmod +x autogen.sh  # ensure the permissions are set to generate the configure file
+./autogen.sh         # generate the configure file
+./configure
+make
+sudo make install

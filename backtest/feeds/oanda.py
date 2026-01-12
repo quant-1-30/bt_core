@@ -274,7 +274,7 @@ class OandaData(with_metaclass(MetaOandaData, DataBase)):
                     # Try to reconnect
                     if not self.p.reconnect or self._reconns == 0:
                         # Can no longer reconnect
-                        self.put_notification(self.DISCONNECTED)
+                        self.put_notification(self.disconnect)
                         self._state = self._ST_OVER
                         return False  # failed
 
@@ -286,13 +286,13 @@ class OandaData(with_metaclass(MetaOandaData, DataBase)):
                     self.put_notification(self.CONNBROKEN)
                     code = msg['code']
                     if code not in [599, 598, 596]:
-                        self.put_notification(self.DISCONNECTED)
+                        self.put_notification(self.disconnect)
                         self._state = self._ST_OVER
                         return False  # failed
 
                     if not self.p.reconnect or self._reconns == 0:
                         # Can no longer reconnect
-                        self.put_notification(self.DISCONNECTED)
+                        self.put_notification(self.disconnect)
                         self._state = self._ST_OVER
                         return False  # failed
 
@@ -349,13 +349,13 @@ class OandaData(with_metaclass(MetaOandaData, DataBase)):
                 msg = self.qhist.get()
                 if msg is None:  # Conn broken during historical/backfilling
                     # Situation not managed. Simply bail out
-                    self.put_notification(self.DISCONNECTED)
+                    self.put_notification(self.disconnect)
                     self._state = self._ST_OVER
                     return False  # error management cancelled the queue
 
                 elif 'code' in msg:  # Error
                     self.put_notification(self.NOTSUBSCRIBED)
-                    self.put_notification(self.DISCONNECTED)
+                    self.put_notification(self.disconnect)
                     self._state = self._ST_OVER
                     return False
 
@@ -367,7 +367,7 @@ class OandaData(with_metaclass(MetaOandaData, DataBase)):
                 else:
                     # End of histdata
                     if self.p.historical:  # only historical
-                        self.put_notification(self.DISCONNECTED)
+                        self.put_notification(self.disconnect)
                         self._state = self._ST_OVER
                         return False  # end of historical
 

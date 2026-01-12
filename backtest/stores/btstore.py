@@ -19,13 +19,16 @@
 #
 ###############################################################################
 import os
+import numpy as np
+import pyarrow as pa
 from typing import Union, List, Mapping, Any, Generator, Tuple
 
-from bt_sdk.core.client import MdApi, TdApi
 from backtest.store import Store
-from bt_sdk.core.data import Resp, Account, Position, Trade
-from bt_sdk.core.model import Order, Cash, Experiment, Query
+from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
+from bt_sdk.core.protocol import *
 from typing import List
+
+__all__ = ["BTStore"]
 
 
 class BTStore(Store):
@@ -42,28 +45,29 @@ class BTStore(Store):
       - ``account_tmout`` (default: ``10.0``): refresh period for account
         value/cash refresh
     '''
-    
-    BrokerCls = None  # broker class will autoregister
-    DataCls = None  # data class will auto register
+    # autoregister when metaclass init 
+    BrokerCls = None  
+    DataCls = None  
 
     params = (
         ("md_addr", ("127.0.0.1:9000")),
         ("td_addr", ("127.0.0.1:8888")),
-        ("client_id", ""),
+        ("client_id", b""),
+        ("timeout", 10)
     )
 
-    def __init__(self): # def __init__(self, *args, **kwargs): # 多余参数保留
-        md_addr = os.getenv("MD_ADDR", self.p.md_addr)
-        mdapi = MdApi(addr=md_addr.split(":"))
-        self._feed = self.DataCls(mdapi=mdapi, calendar=self.calendar) 
+    def __init__(self): 
+        md_addr = os.getenv("MD_ADDR", self.p.md_addr).split(":")
+        mdapi = MdApi(addr=(md_addr[0], int(md_addr[1])))
+        self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
-        td_addr = os.getenv("TD_ADDR", self.p.td_addr) 
-        tdapi = TdApi(addr=td_addr.split(":"), client_id=self.p.client_id)
+        td_addr = os.getenv("TD_ADDR", self.p.td_addr).split(":")
+        tdapi = TdApi(client_id=self.p.client_id, addr=(td_addr[0], int(td_addr[1])), timeout=self.p.timeout)
         self.broker = self.BrokerCls(tdapi=tdapi)
-    
-    def _start(self, *args, **kwargs):
+
+    def _start(self):
         pass
-   
+
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
         belongs to'''
@@ -75,49 +79,50 @@ class BTStore(Store):
 
 # ------------------------------------------------------------------- data api ---------------------------------------------------------------------
 
-    def get_calendar(self) -> List[int]:
+    def get_calendar(self) -> np.array:
         '''Returns the calendar data'''
-        return self._feed.descr[0]
+        return self._feed.calendar
     
-    def get_instrument(self) -> List[Mapping[str, Any]]:
+    def get_instrument(self) -> Dict[str, Any]:
         '''Returns the assets data'''
-        return self._feed.descr[1]
+        return self._feed.instrument
     
-    def get_index(self) -> List[List]:
-        dlines = self._feed.benchmark
-        return dlines
+    def get_benchmark(self) -> pa.Table:
+        table = self._feed.bench
+        return table
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
 
-    def make_experiment(self, strat_id) -> Resp:
-        body = Experiment(strategy=strat_id, extra_info=self._feed.extra_info, client_id=self.p.client_id)
+    def register(self, strategy, strat_info) -> List[Resp]:
+        extra_info = f"Strategy: {strat_info}; Feed: {self._feed.extra_info}"
+        body = RegisterBody(strategy=strategy, extra_info=extra_info, client_id=self.p.client_id)
         resp = self.broker.register(body)
         return resp
     
-    def set_cash(self, strat, cash) -> Resp:
-        body = Cash(cash=cash, session=self._feed.fromdate)
-        self.broker.set_cash(body, strat.experiment_id)
+    def set_cash(self, experiment_id, session, cash) -> List[Resp]:
+        body = CashBody(cash=cash, session=session)
+        self.broker.set_cash(body, experiment_id)
     
-    def getaccount(self, experiment_id) -> Account:
-        acct = self.broker.getvalue("account", experiment_id)
+    def getaccount(self, experiment_id) -> List[Resp]:
+        acct = self.broker.getvalue(SubTopic.Account, experiment_id)
         return acct[0]
     
-    def getposition(self, experiment_id) -> List[Position]:
-        o = self.broker.getvalue("position", experiment_id)
+    def getposition(self, experiment_id) -> List[Resp]:
+        o = self.broker.getvalue(SubTopic.Position, experiment_id)
         return o
     
-    def subscribe(self, experiment_id, topic) -> Generator:
-        return self.broker.subscribe(topic, Query(), experiment_id)
+    def subscribe(self, experiment_id, topic, body: QueryBody) -> List[Resp]:
+        return self.broker.subscribe(topic, body, experiment_id)
     
-    def submit(self, experiment_id, order: Order) -> Tuple[Order, Trade]:
-        trades = self.broker.submit(order, experiment_id)
+    def submit(self, experiment_id, body: OrderBody) -> List[Resp]:
+        trades = self.broker.submit(body, experiment_id)
         return trades
 
-    def on_dt_over(self, experiment_id) -> bool: 
-        qry = self._feed.on_dt_over()
-        if qry:
-            _ = self.broker.on_dt_over(qry, experiment_id)
-        return 
+    def on_dt_over(self, experiment_id) -> List[Resp]:
+        body = self._feed.on_dt_over()
+        if body:
+            self.broker.on_dt_over(body, experiment_id)
+        return []
     
     def cancel(self, order_id):
         raise NotImplementedError("cancel not implemented in BTStore")

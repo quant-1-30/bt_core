@@ -54,7 +54,7 @@ def _idx2dt(idx, dates, tz):
         idx = ldates - 1
     if idx < 0:
         idx = 0
-    return num2date(dates[idx], tz)
+    return num2date(dates[idx])
 
 
 class RRuleLocator(RRLocator):

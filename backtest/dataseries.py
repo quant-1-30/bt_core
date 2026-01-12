@@ -22,7 +22,6 @@ import numpy as np
 import datetime as _datetime
 from collections import OrderedDict
 
-from .utils.dateintern import num2date
 from .lineseries import LineSeries
 from backtest.utils.dateintern import date2num
 from backtest.utils.autodict import AutoOrderedDict

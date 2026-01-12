@@ -27,7 +27,7 @@ from datetime import date, datetime, timedelta
 import threading
 
 from backtrader.feed import DataBase
-from backtrader import (TimeFrame, num2date, date2num, BrokerBase,
+from backtrader import (TimeFrame, BrokerBase,
                         Order, BuyOrder, SellOrder, OrderBase, OrderData)
 from backtrader.utils.py3 import bytes, with_metaclass, MAXFLOAT
 from backtrader.metabase import MetaParams

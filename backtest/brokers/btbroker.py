@@ -22,40 +22,9 @@ import threading
 from typing import List, Union, Generator
 
 from backtest.broker import BrokerBase
-from bt_sdk.core.data import Resp, Account, Position, Trade
-from bt_sdk.core.model import Experiment, Order, Cash, Query
+from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp
 
 __all__ = ["BTBroker"]
-
-
-# class Acct(object):
-
-#     def __init__(self):
-#         self._evt_acct = threading.Event()
-#         self.fundval = dict()
-
-#     def __set__(self, instance, value):
-#         raise AttributeError("can't set attribute")
-    
-#     def __get__(self, instance, owner):
-#         if instance is None:
-#             return self
-#         self.acct_thd(instance.tdapi)
-#         return self.fundval
-    
-#     def acct_thd(self, api):
-#         self._evt_acct.clear() # reset
-#         t = threading.Thread(target=self._t_account, args=(api,))
-#         t.daemon = True
-#         t.start()
-#         self._evt_acct.wait() # wait for account data to be set
-    
-#     def _t_account(self, api):
-#         accts = api.getvalue("account")
-#         if accts:
-#             self.fundval = {acct.experiment_id: acct for acct in accts} # experiment: Account
-#         # print("fundval ", self.fundval)
-#         self._evt_acct.set()
 
 
 class BTBroker(BrokerBase):
@@ -85,33 +54,47 @@ class BTBroker(BrokerBase):
         ("tdapi", ""),
     )
     
-    # acct = Acct()
+    @staticmethod
+    def get_body(data: list):
+        return [r.body for r in data]
     
-    def register(self, experiment: Experiment) -> Resp:
-        resp = self.tdapi.register(experiment)
-        return resp.body["experiment_id"]
+    def register(self, body: RegisterBody) -> List[Resp]:
+        fut = self.tdapi.register(body)
+        data = fut.result()
+        body = self.get_body(data) # body=ExperimentBody
+        print("register body ", body)
+        return body[0].experiment_id
     
-    def set_cash(self, body: Cash, experiment_id: str) -> Resp:
-        resp = self.tdapi.set_cash(body, experiment_id)
-        return resp
+    def set_cash(self, body: CashBody, experiment_id: bytes) -> List[Resp]:
+        fut = self.tdapi.set_cash(experiment_id, body)
+        data = fut.result()
+        body = self.get_body(data) # None
+        return body
 
-    def getvalue(self, topic:str, experiment_id='') -> Union[List[Account], List[Position]]:
-        data = self.tdapi.getvalue(topic, experiment_id) 
-        return data
+    def getvalue(self, topic: int, experiment_id='') -> List[Resp]:
+        fut = self.tdapi.getvalue(experiment_id, topic) 
+        data = fut.result()
+        body = self.get_body(data) # PositionBody / AccountBody 
+        return body
     
-    def subscribe(self, topic:str, qty: Query, experiment_id:str) -> Generator: # contextlib
-        generator = self.tdapi.subscribe(topic, qty, experiment_id)
-        return generator
+    def subscribe(self, topic:int, body: QueryBody, experiment_id:str) -> List[Resp]: 
+        fut = self.tdapi.subscribe(experiment_id, topic, body)
+        data = fut.result()
+        body = self.get_body(data) # TradeBody / PositionBody / AccountBody 
+        return body
 
-    def submit(self, order: Order, experiment_id:str) -> List[Trade]:
-        trades = self.tdapi.submit(order, experiment_id) # pydantic contain _thread.lock
-        return trades
+    def submit(self, body: OrderBody, experiment_id:str) -> List[Resp]:
+        fut = self.tdapi.submit(experiment_id, body) 
+        data = fut.result()
+        body = self.get_body(data) # TradeBody 
+        return body
 
-    def on_dt_over(self, qty: Query, experiment_id:str) -> Resp:
-        resp = self.tdapi.on_dt_over(qty, experiment_id) # staisfy T + 1 and update logic
-
-        return resp
+    def on_dt_over(self, body: QueryBody, experiment_id:str) -> List[Resp]:
+        fut = self.tdapi.on_dt_over(experiment_id, body)
+        data = fut.result()
+        body = self.get_body(data) # None 
+        return body
     
     def stop(self):
         super().stop()
-        self.tdapi.disconnected()
+        self.tdapi.disconnect()

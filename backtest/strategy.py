@@ -25,14 +25,13 @@ import itertools
 import operator
 import json
 from collections import defaultdict
-from bt_sdk.constant import OrderType, ExecType
-from bt_sdk.core.model import Order
+# from bt_sdk.core.tdapi import OrderType, ExecType
+from bt_sdk.core.protocol import OrderBody
 
 import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, ItemCollection, findowner
-from .utils.dateintern import num2date
 from .utils.autodict import AutoOrderedDict
 
 MAXINT = np.iinfo(np.int_).max
@@ -84,9 +83,9 @@ class MetaStrategy(StrategyBase.__class__):
     def dopostinit(cls, _obj, *args, **kwargs):
         _obj, args, kwargs = \
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
-        
+
         _obj._periodset()
-        _obj.experiment_id = _obj._u_id()
+        _obj.register() # generate experiment_id
 
         return _obj, args, kwargs
 
@@ -168,11 +167,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
 
-    def _start(self, savemem=1):
-        self.start(savemem=savemem)
-        
+    def set_cash(self, **kwargs):
+        cash = kwargs.pop("cash", 100000)
+        session = kwargs["fromdate"]
+        self.store.set_cash(self.experiment_id, session, cash)
+
+    def _start(self, savemem, **kwargs):
+        '''Called right before the backtesting is about to be started.'''
+        self.qbuffer(savemem=savemem)
         self._periodrecalc()
 
+        self.set_cash(**kwargs)
         # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
         for analyzer in self.analyzers:
             analyzer._start()
@@ -190,25 +195,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self.on_dt_over = False
 
-    def start(self, savemem=1):
-        '''Called right before the backtesting is about to be started.'''
-        self.qbuffer(savemem=savemem)
-        store = self.store
-        store.set_cash(self, self.env.cash)
+    def register(self) -> str:
+        """
+            Return experiment_id: str 
+        """
+        extra_info = json.dumps(self.p._getkwargs())
+        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
-    def _u_id(self) -> str:
-        """
-            Return experiment_id: str 
-        """
-        _identity = f"{self.__class__.__name__}({json.dumps(self.p._getkwargs())})"
-        exp_id = self.store.make_experiment(_identity)
-        return exp_id
-
     def _getminperstatus(self):
-        # import pdb; pdb.set_trace()  # --- IGNORE ---
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         self._minperstatus = minperstatus = max(dlens)
         return minperstatus
@@ -279,7 +276,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Get the current sizing for the strategy'''
         return self._sizer.getsizing()[self._id]
 
-    def buy(self, plimit: int=0, execType=0, filler="likehood"):
+    def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
           - ``plimit`` (default: ``0``) means set price limit or not
@@ -323,7 +320,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         _sizer = int(self.sizer.getsizing(self.datas))
 
-        order = Order(sid=self.datas[0].sid[0],
+        order = OrderBody(
+                    # sid=self.datas[0].sid[0],
+                    sid = b"300308",
                     pricelimit=plimit,
                     sizer_ratio=_sizer, 
                     order_type=0,
@@ -337,7 +336,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self.notify_trade(order, trades)
         
-    def sell(self, plimit: int=0, execType=0, filler="likehood"):
+    def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -347,7 +346,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
-        order = Order(sid=self.datas[0].sid[0],
+        order = OrderBody(
+                    #   sid=self.datas[0].sid[0],
+                      sid = b"300308",
                       sizer_ratio=_sizer, 
                       pricelimit=plimit,     
                       order_type=1,
@@ -557,20 +558,21 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         ('_accumulate', True),
     )
     
-    def _u_id(self) -> str:
+    def register(self) -> str:
         """
             Return experiment_id: str 
         """
-        p_kw = self.p._getkwargs()
-        signals = p_kw.pop("signals")
-        signal_names = ','.join([item[1].__name__ for item in signals])
-        _identity = f"{self.__class__.__name__}[{signal_names}]({json.dumps(p_kw)})"
-        exp_id = self.store.make_experiment(_identity)
-        return exp_id
+        extra_infos = []
+        for sig_type, sigs in self._signals.items():
+            _info = [f"{sig.__class__.__name__}({json.dumps(sig.p._getkwargs())})" for sig in sigs]
+            extra_infos.extend(_info)
+        
+        extra_info = ','.join(extra_infos)
+        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
-    def _start(self, savemem=1):
+    def _start(self, savemem, **kwargs):
         # self._sentinel = None  # sentinel for order concurrency
-        super(SignalStrategy, self)._start(savemem=savemem)
+        super(SignalStrategy, self)._start(savemem, **kwargs)
 
     def signal_add(self, sigtype, signal):
         self._signals[sigtype].append(signal)

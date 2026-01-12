@@ -380,7 +380,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
             self.contractdetails = cdetails.contractDetails
         else:
             # no contract can be found (or many)
-            self.put_notification(self.DISCONNECTED)
+            self.put_notification(self.disconnect)
             return
 
         if self.pretradecontract is None:
@@ -397,7 +397,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
                 self.tradecontractdetails = cdetails.contractDetails
             else:
                 # no contract can be found (or many)
-                self.put_notification(self.DISCONNECTED)
+                self.put_notification(self.disconnect)
                 return
 
         if self._state == self._ST_START:
@@ -479,7 +479,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
                     self.put_notification(self.CONNBROKEN)
                     # Try to reconnect
                     if not self.ib.reconnect(resub=True):
-                        self.put_notification(self.DISCONNECTED)
+                        self.put_notification(self.disconnect)
                         return False  # failed
 
                     self._statelivereconn = self.p.backfill
@@ -574,7 +574,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
                 if msg is None:  # Conn broken during historical/backfilling
                     # Situation not managed. Simply bail out
                     self._subcription_valid = False
-                    self.put_notification(self.DISCONNECTED)
+                    self.put_notification(self.disconnect)
                     return False  # error management cancelled the queue
 
                 elif msg == -354:  # Data not subscribed
@@ -602,7 +602,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
 
                 # End of histdata
                 if self.p.historical:  # only historical
-                    self.put_notification(self.DISCONNECTED)
+                    self.put_notification(self.disconnect)
                     return False  # end of historical
 
                 # Live is also wished - go for it
@@ -650,7 +650,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
 
         # Live is requested
         if not self.ib.reconnect(resub=True):
-            self.put_notification(self.DISCONNECTED)
+            self.put_notification(self.disconnect)
             self._state = self._ST_OVER
             return False  # failed - was so
 

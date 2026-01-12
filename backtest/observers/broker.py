@@ -47,13 +47,12 @@ class Broker(Observer):
     plotinfo = dict(plot=True, subplot=True)
 
     def __init__(self, **kwargs):
-        # kwargs = self.p._getkwargs()
         self.vb = self._owner._addanalyzer(bt.analyzers.Broker, **kwargs)
         self.dtkey = datetime.datetime.min
 
     def start(self):
         self.plotlines.cash._plotskip = True
-        self.plotlines.value._name = 'FundValue'
+        # self.plotlines.value._name = 'FundValue'
 
     def next(self):
         dtkey = self.vb.dtkey

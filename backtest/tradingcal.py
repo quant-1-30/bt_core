@@ -44,7 +44,7 @@ ONEDAY = timedelta(days=1)
 
 
 class TradingCalendarBase(with_metaclass(MetaParams, object)):
-    def _nextday(self, day):
+    def _nextday(self, day: datetime):
         '''
         Returns the next trading day (datetime/date instance) after ``day``
         (datetime/date instance) and the isocalendar components
@@ -53,28 +53,28 @@ class TradingCalendarBase(with_metaclass(MetaParams, object)):
         '''
         raise NotImplementedError
 
-    def schedule(self, day):
+    def schedule(self, day: datetime):
         '''
         Returns a tuple with the opening and closing times (``datetime.time``)
         for the given ``date`` (``datetime/date`` instance)
         '''
         raise NotImplementedError
 
-    def nextday(self, day):
+    def nextday(self, day: datetime):
         '''
         Returns the next trading day (datetime/date instance) after ``day``
         (datetime/date instance)
         '''
         return self._nextday(day)[0]  # 1st ret elem is next day
 
-    def nextday_week(self, day):
+    def nextday_week(self, day: datetime):
         '''
         Returns the iso week number of the next trading day, given a ``day``
         (datetime/date) instance
         '''
         self._nextday(day)[1][1]  # 2 elem is isocal / 0 - y, 1 - wk, 2 - day
 
-    def last_weekday(self, day):
+    def last_weekday(self, day: datetime):
         '''
         Returns ``True`` if the given ``day`` (datetime/date) instance is the
         last trading day of this week
@@ -83,7 +83,7 @@ class TradingCalendarBase(with_metaclass(MetaParams, object)):
         # a week change even if the number is smaller (year change)
         return day.isocalendar()[1] != self._nextday(day)[1][1]
 
-    def last_monthday(self, day):
+    def last_monthday(self, day: datetime):
         '''
         Returns ``True`` if the given ``day`` (datetime/date) instance is the
         last trading day of this month
@@ -92,7 +92,7 @@ class TradingCalendarBase(with_metaclass(MetaParams, object)):
         # a week change even if the number is smaller (year change)
         return day.month != self._nextday(day)[0].month
 
-    def last_yearday(self, day):
+    def last_yearday(self, day: datetime):
         '''
         Returns ``True`` if the given ``day`` (datetime/date) instance is the
         last trading day of this month
@@ -153,7 +153,7 @@ class TradingCalendar(TradingCalendarBase):
         """
         self._earlydays = [x[0] for x in self.p.earlydays]  # to_pydatetime / pd.DatetimeIndex / timedelta / searchsorted 
 
-    def _nextday(self, day):
+    def _nextday(self, day: datetime):
         '''
         Returns the next trading day (datetime/date instance) after ``day``
         (datetime/date instance) and the isocalendar components
@@ -168,7 +168,7 @@ class TradingCalendar(TradingCalendarBase):
 
             return day, isocal
 
-    def schedule(self, day, tz:str=''):
+    def schedule(self, day: datetime, tz:str=''):
         '''
         Returns the opening and closing times for the given ``day``. If the
         method is called, the assumption is that ``day`` is an actual trading
@@ -183,12 +183,12 @@ class TradingCalendar(TradingCalendarBase):
             try:
                 i = self._earlydays.index(dt)
                 o, c = self.p.earlydays[i][1:]
-            except ValueError:  # not found
+            except ValueError:  
                 o, c = self.p.open, self.p.close
 
             closing = datetime.combine(dt, c).replace(tzinfo=tz)
 
-            if day > closing:  # current time over eos
+            if day > closing:  
                 day += ONEDAY
                 continue
 

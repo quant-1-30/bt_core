@@ -20,61 +20,91 @@
 ###############################################################################
 import warnings
 import numpy as np
-import threading
+import queue
+import pyarrow as pa
+import pyarrow.compute as pc
+import reactivex.operators as ops
 
-from bt_sdk.core.model import Query
+from typing import List
+
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
 from backtest.stores.btstore import BTStore
 from backtest.utils.dateintern import num2date
+from bt_sdk.core.protocol import QueryBody
 
 
 __all__ = ["BtData"]
 
 
-class BtDescr(object):
-    '''Descriptor for calendar and instrument data'''
-    def __init__(self):
-        self.calendar = ()
-        self.assets = ()
+def chain_table(tables: List[pa.Table]):
+    ctable = pa.concat_tables(tables, promote_options="permissive") # zero_copy , but combine_chunk is heavy memory ops
+    return ctable
 
-        self._cal_evt = threading.Event()
-        self._asset_evt = threading.Event()
+
+class Calendar:
+    '''Descriptor calendar'''
+    def __init__(self, max_expected_size=100000):
+        self._current_idx = 0
+        self._allocated_buf = np.empty(max_expected_size, dtype=np.int32)
+
+    def _fill_buffer(self, table: pa.Table):
+        num_rows = table.num_columns
+        self._allocated_buf[self._current_idx: num_rows + self._current_idx] = table["date"].to_numpy()
+        self._current_idx += num_rows
+
+    def __get__(self, instance, owner):
+        if instance is None: return self
+        
+        mdapi = getattr(instance, 'mdapi', None)
+        
+        if self._current_idx == 0:
+            obs = mdapi.get_calendar()
+            obs.subscribe( # Disposable 
+                on_next=self._fill_buffer,
+                on_completed=lambda: print("Calendar Loaded")
+            )
+            obs.run() # block api
+        return self._allocated_buf[:self._current_idx]
+
+
+class Instrument(object):
+    '''Descriptor instrument'''
+    def __init__(self, batch_size=10):
+        self.batch_size = batch_size
+        self.assets = {}
     
     def __set__(self, instance, value):
-        raise AttributeError("can't set attribute")
+        raise AttributeError("not allowed to set")
     
     def __get__(self, instance, owner):
-        if len(self.calendar) ==0 or len(self.assets) ==0 or len(self.benchmark) ==0:
-            self.data_thd(instance.mdapi)
-        return self.calendar, self.assets, self.benchmark
+        if instance is None: return self
+        
+        mdapi = getattr(instance, 'mdapi', None)
 
-    def data_thd(self, api):
-        # reset
-        self._cal_evt.clear()
-        self._asset_evt.clear()
+        def process_batch(batch_list):
+            datas.extend(batch_list)
 
-        t = threading.Thread(target=self._t_cal, args=(api,), daemon=True)
-        _t = threading.Thread(target=self._t_asset, args=(api,), daemon=True)
-
-        t.start()
-        _t.start()
-
-        self._cal_evt.wait()
-        self._asset_evt.wait()
-
-    def _t_cal(self, api):
-        msg = api.get_calendar()
-        # print("calendar msg: ", msg)
-        self.calendar = msg
-        self._cal_evt.set()
-
-    def _t_asset(self, api):
-        msg = api.get_instrument()
-        # print("asset msg ", msg)
-        self.assets = msg
-        self._asset_evt.set()
+        if len(self.assets) == 0:
+            datas = []
+            # ops.buffer_with_count(self.batch_size) # ops.to_list()
+            obs = mdapi.get_instrument().pipe(
+                ops.buffer_with_time_or_count(
+                    timespan=0.5,            
+                    count=self.batch_size    
+                    )
+                )
+            obs.subscribe(
+                on_next=process_batch
+            )
+            obs.run() # run block api
+            
+            table = pa.concat_tables(datas)
+            # df = table.to_pandas()  # Arrow → Pandas
+            # self.assets = df.to_dict('records')  # row_dict
+            self.assets = table.to_pylist() # row-wise dict list
+        return self.assets
 
 
 class MetaBtData(DataBase.__class__):
@@ -92,10 +122,10 @@ class MetaBtData(DataBase.__class__):
     
     def dopostinit(cls, _obj, *args, **kwargs):
         print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) # __init__
+        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
         print("MetaBtData dopostinit kwargs ", kwargs)
         _obj.mdapi = _obj.p.mdapi
-        _obj.ctx = None # context for yield
+        _obj.chan = queue.Queue()
         return _obj, args, kwargs
 
 
@@ -104,71 +134,116 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
     params = (
         ("mdapi", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
+        ("batch_size", 10)
     )
-    
-    descr=BtDescr()
+
+    calendar = Calendar() 
+    instrument = Instrument()
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
+        self._row_iter = None # initialize iter buffer
 
-        qty = Query(sid=self.sid, start_date=self.fromdate, end_date=self.todate)
-        self.calc_adjfactor(qty)
+        sids = kwargs["sid"]
+        start_date = kwargs["fromdate"]
+        end_date = kwargs["todate"]
 
-        self.benchmark = self.mdapi.get_benchmark(kwargs["benchmark"])
+        sid_str = [sid.decode("utf-8") for sid in sids]
+        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+        body = QueryBody(start_date=start_date, end_date=end_date, sid=sids)
 
-        self.generator = self.mdapi.subscribe(qty)  # self.ctx.__enter__()  # wrap by contextmanager 整合迭代器与session 手动获取上下文
+        observable = self.mdapi.subscribe(body)
+        observable.subscribe( # nonblocking 
+            on_next=self.chan.put,
+            on_error=lambda e: self.chan.put(e),
+            on_completed=lambda: self.chan.put(StopIteration) 
+        )
+        self.calc_adjfactor(body)
 
-    def _load_bar(self, msg):
-        data = msg["body"]["line"][0]
-        dt = self.lines.datetime[0]
-        if not np.isnan(dt) and dt >= data[0]:
-            return False  # cannot deliver earlier than already delivered
-
-        self.lines.datetime[0] = data[0]
-        self.lines.open[0] = data[1]
-        self.lines.high[0] = data[2]
-        self.lines.low[0] = data[3]
-        self.lines.close[0] = data[4]
-        self.lines.volume[0] = data[5]
-        self.lines.amount[0] = data[6]
-        return True
-
-    def _load_rtbar(self, rtbar): # tick 3s
-        dt = self.lines.datetime[0]
-        if not np.isnan(dt) and dt >= rtbar[0]:
-            return False  # cannot deliver earlier than already delivered
-        # Put the tick into the bar
-        self.lines.datetime[0] = rtbar[0]
-        self.lines.open[0] = rtbar[1]
-        self.lines.high[0] = rtbar[1]
-        self.lines.low[0] = rtbar[1]
-        self.lines.close[0] = rtbar[1]
-        self.lines.volume[0] = rtbar[2]
-        self.lines.amount[0] = rtbar[3]
-        return True
+        index = kwargs.get("benchmark", b"000001")
+        bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
+        self.calc_benchmark(bench_body)
 
     def _load(self):
-        try:
-            msg = next(self.generator)
-            print("_load msg :", msg)
-            if msg == "eof":
-                return False  
-            if self.p.rtbar:
-                self._load_rtbar(msg)
-            else:
-                self._load_bar(msg)
-            return True
-        except StopIteration:
-            return False
+        while True:
+            if self._row_iter is not None:
+                try:
+                    row = next(self._row_iter)
+                    # print("row :", row)
+                    if self.p.rtbar:
+                        self._load_rtbar(row)
+                    else:
+                        self._load_bar(row)
+                    return True
+                except StopIteration:
+                    self._row_iter = None
 
-    def calc_adjfactor(self, reqmeta):
-        adj = self.mdapi.factor(reqmeta)
-        # factors = adj.adj_factors
-        factors = adj.raw_factors
+            msg = self.chan.get() # next pa.Table
+            if msg is StopIteration:
+                return False
+            if isinstance(msg, Exception):
+                raise msg
+
+            self._row_iter = self._make_iter(msg) # self._row_iter = iter(msg.to_pylist()) 
+
+    def _make_iter(self, table):
+        cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']]
+        return zip(*cols)
+
+    def _load_bar(self, row):
+        dt = self.lines.datetime[0]
+        if not np.isnan(dt) and dt >= row[0]:
+            return False 
+        
+        self.lines.datetime[0] = row[0]
+        self.lines.open[0] = row[1]
+        self.lines.high[0] = row[2]
+        self.lines.low[0] = row[3]
+        self.lines.close[0] = row[4]
+        self.lines.volume[0] = row[5]
+        self.lines.amount[0] = row[6]
+        return True
+
+    def _load_rtbar(self, row): # tick 3s
+        dt = self.lines.datetime[0]
+        if not np.isnan(dt) and dt >= row[0]:
+            return False  
+        
+        self.lines.datetime[0] = row[0]
+        self.lines.open[0] = row[1]
+        self.lines.high[0] = row[1]
+        self.lines.low[0] = row[1]
+        self.lines.close[0] = row[1]
+        self.lines.volume[0] = row[2]
+        self.lines.amount[0] = row[3]
+        return True
+
+    def calc_adjfactor(self, body: QueryBody):
+        adj = self.mdapi.get_factor(body)
+        factors = adj.raw_factors # adj_factors
         if factors:
             factors = dict(sorted(factors.items())) # sort by key
             self.adj_factors = factors
-    
+
+    def calc_benchmark(self, body: QueryBody):
+
+        def process_batch(batch_list):
+            data.extend(batch_list)
+
+        data = []
+        obs = self.mdapi.get_benchmark(body).pipe( # pipe return observal
+            ops.buffer_with_time_or_count(
+                timespan=0.5,            
+                count=self.p.batch_size    
+                ),
+            # ops.do_action(on_next=process_batch)
+            )
+        obs.subscribe(
+            on_next=process_batch
+        )
+        obs.run() 
+        self.bench = pa.concat_tables(data)
+
     def stop(self):
         super().stop()
-        self.mdapi.disconnected()
+        self.mdapi.disconnect()

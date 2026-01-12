@@ -150,7 +150,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         strategy added to cerebro
         '''
         self.sizer = sizers[self.p.sizer](**self.p.sizer_p)
- 
+
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
     def addstorecb(self, callback):
@@ -407,9 +407,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ---------------------------------------------------------------- run -------------------------------------------------------------------
     
-    def set_cash(self, kwargs):
-        self.cash = kwargs.pop("cash", 100000)
-
     def __call__(self, iterstrat):
         '''
         Used during optimization to pass the cerebro over the multiprocesing
@@ -432,9 +429,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
-        '''
-        self.set_cash(kwargs)
-        
+        ''' 
         # Prepare feed
         self.adddata(dmaster=True)
         for data in self.datas:
@@ -560,7 +555,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     if writer.p.csv:
                         writer.addheaders(strat.getwriterheaders())
                 
-                strat._start(savemem=self.p.savemem)
+                strat._start(self.p.savemem, **kwargs)
                 
             for writer in self.runwriters:
                 writer.start()

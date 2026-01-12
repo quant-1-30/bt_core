@@ -19,6 +19,16 @@ from functools import wraps
 from contextlib import contextmanager
 
 
+def singleton(cls):
+
+    instance = weakref.WeakValueDictionary()
+    def _singleton(*args,**kwargs):
+        with threading.Lock() as lock:
+            if cls not in instance:
+                instance[cls] = cls(*args,**kwargs)
+        return instance[cls]
+    return _singleton
+
 def deprecated(msg=None, stacklevel=2):
     """
     Used to mark a function as deprecated.
@@ -47,7 +57,6 @@ def deprecated(msg=None, stacklevel=2):
             return fn(*args, **kwargs)
         return wrapper
     return deprecated_dec
-
 
 def _deprecated_getitem_method(name, attrs):
     """Create a deprecated ``__getitem__`` method that tells users to use
@@ -83,32 +92,21 @@ def _deprecated_getitem_method(name, attrs):
 
 
 class Deprecated(object):
-    """
-    支持装饰类或者方法,在使用类或者方法时警告Deprecated信息
-    wraps --- update_wrapper(包含了update_wrapper) ,如果单独函数修饰不加@wraps(f),需要update_wrapper(wrapper_function,f)
-    类作为修饰器,必须实现__call__
-    ---(__name__, __module__ and __doc__)
-    """
 
     def __init__(self, tip_info=''):
-        # 用户自定义警告信息tip_info
         self.tip_info = tip_info
 
     def __call__(self, obj):
         if isinstance(obj, object):
-            # 针对类装饰
             return self._decorate_class(obj)
         else:
-            # 针对方法装饰
             return self._decorate_fun(obj)
 
     def _decorate_class(self, cls):
-        """实现类装饰警告Deprecated信息"""
 
         msg = "class {} is deprecated".format(cls.__name__)
         if self.tip_info:
             msg += "; {}".format(self.tip_info)
-        # 取出原始init
         init = cls.__init__
 
         def wrapped(*args, **kwargs):
@@ -119,14 +117,10 @@ class Deprecated(object):
 
         wrapped.__name__ = '__init__'
         wrapped.__doc__ = self._update_doc(init.__doc__)
-        # init成为deprecated_original,必须要使用这个属性名字,在其它地方,如AbuParamBase会寻找原始方法找它
         wrapped.deprecated_original = init
-
         return cls
 
     def _decorate_fun(self, fun):
-        """实现方法装饰警告Deprecated信息"""
-
         msg = "func {} is deprecated".format(fun.__name__)
         if self.tip_info:
             msg += "; {}".format(self.tip_info)
@@ -135,82 +129,32 @@ class Deprecated(object):
             warnings.warn(msg, category=DeprecationWarning)
             return fun(*args, **kwargs)
 
-        # 更新func及文档信息
         wrapped.__name__ = fun.__name__
         wrapped.__dict__ = fun.__dict__
         wrapped.__doc__ = self._update_doc(fun.__doc__)
-
         return wrapped
 
     def _update_doc(self, func_doc):
-        """更新文档信息,把原来的文档信息进行合并格式化, 即第一行为deprecated_doc(Deprecated: tip_info),下一行为原始func_doc"""
         deprecated_doc = "Deprecated"
         if self.tip_info:
-            """如果有tip format tip"""
             deprecated_doc = "{}: {}".format(deprecated_doc, self.tip_info)
         if func_doc:
-            # 把原来的文档信息进行合并格式化, 即第一行为deprecated_doc,下一行为原始func_doc
             func_doc = "{}\n{}".format(deprecated_doc, func_doc)
         return func_doc
 
+def warnings_filter(func):
 
-# def warnings_filter(func):
-#     """
-#         作用范围:函数装饰器 (模块函数或者类函数)
-#         功能:被装饰的函数上的警告不会打印,忽略
-#     """
-
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         warnings.simplefilter('ignore')
-#         ret = func(*args, **kwargs)
-#         if not ABuEnv.g_ignore_all_warnings:
-#             # 如果env中的设置不是忽略所有才恢复
-#             warnings.simplefilter('default')
-#         return ret
-#     return wrapper
-
-
-def singleton(cls):
-    """
-        作用范围:类装饰器
-        功能:被装饰后类变成单例类
-    """
-    instances = {}
-    @wraps(cls)
-    def get_instance(*args, **kw):
-        if cls not in instances:
-            # 不存在实例instances才进行构造
-            instances[cls] = cls(*args, **kw)
-        return instances[cls]
-    return get_instance
-
-
-def register(cls):
-    inst_names = {}
-    @wraps(cls)
-    def get_instance():
-        if cls.name in inst_names:
-            raise NameError(f'{cls.name} is not unique and keep {cls} unique')
-        return cls
-    return get_instance
-
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        warnings.simplefilter('ignore')
+        ret = func(*args, **kwargs)
+        if not ABuEnv.g_ignore_all_warnings:
+            warnings.simplefilter('default')
+        return ret
+    return wrapper
 
 def catch_error(return_val=None, log=True):
-    """
-    作用范围:函数装饰器 (模块函数或者类函数)
-    功能:捕获被装饰的函数中所有异常,即忽略函数中所有的问题,用在函数的执行级别低,且不需要后续处理
-    :param return_val: 异常后返回的值,
-                eg:
-                    class A:
-                        @ABuDTUtil.catch_error(return_val=100)
-                        def a_func(self):
-                            raise ValueError('catch_error')
-                            return 100
-                    in: A().a_func()
-                    out: 100
-    :param log: 是否打印错误日志
-    """
+    
     def decorate(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -219,17 +163,11 @@ def catch_error(return_val=None, log=True):
             except Exception as e:
                 logging.exception(e) if log else logging.debug(e)
                 return return_val
-
         return wrapper
-
     return decorate
 
-
 def consume_time(func):
-    """
-    作用范围:函数装饰器 (模块函数或者类函数)
-    功能:简单统计被装饰函数运行时间
-    """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.time()
@@ -237,44 +175,25 @@ def consume_time(func):
         end_time = time.time()
         print('{} cost {}s'.format(func.__name__, round(end_time - start_time, 3)))
         return result
-
     return wrapper
 
-
 def empty_wrapper(func):
-    """
-    作用范围:函数装饰器 (模块函数或者类函数)
-    功能:空装饰器,为fix版本问题使用,或者分逻辑功能实现使用
-    """
 
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
-
     return wrapper
 
-
-# noinspection PyUnusedLocal
-def empty_wrapper_with_params(*p_args, **p_kwargs):
-    """
-    作用范围:函数装饰器 (模块函数或者类函数)
-    功能:带参数空装饰器,为fix版本问题使用,或者分逻辑功能实现使用
-    """
+def empty_wrapper_with_params(*p_args, **p_kwargs): # noinspection PyUnusedLocal
 
     def decorate(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         return wrapper
-
     return decorate
 
-
 def except_debug(func):
-    """
-    作用范围:函数装饰器 (模块函数或者类函数)
-    功能:debug,调试使用,装饰在有问题函数上,发生问题打出问题后,再运行一次函数,可以用s跟踪问题了
-    """
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -283,163 +202,7 @@ def except_debug(func):
         except Exception as e:
             print(e)
             return func(*args, **kwargs)
-
     return wrapper
-
-
-class LazyFunc(object):
-    """
-    描述器类:作用在类中需要lazy的对象方法上
-    优先级:
-    __getattribute__ > __getattr__
-    #1 调用属性会触发该功能,属性存在则会返回相应的值；
-    #2 如果属性不存在则会抛出异常AttributeError,所以可以自定义异常信息
-    #3 存在__getattr__,若有异常出现则会传递给__getattr__用来接收,执行操作
-    #描述符discription
-    __get__ __set__ __delete__
-
-    lazy property  描述符 __get__ __set__(其中一个方法) __delete__ ,将函数或者方法变成实例的属性(__dict__)
-
-    class TestDes:
-        def __get__(self, instance, owner):
-            print(instance, owner)
-            return 'TestDes:__get__'
-
-    class TestMain:
-        des = TestDes()
-
-    if __name__ == '__main__':
-        t = TestMain()
-        print(t.des)
-        print(TestMain.des)
-    """
-
-    def __init__(self, func):
-        """
-        外部使用eg:
-            class BuyCallMixin(object):
-                @LazyFunc
-                def buy_type_str(self):
-                    return "call"
-
-                @LazyFunc
-                def expect_direction(self):
-                    return 1.0
-        """
-        self.func = func
-        self.cache = weakref.WeakKeyDictionary()
-
-    def __get__(self, instance, owner):
-        """描述器__get__,使用weakref.WeakKeyDictionary将以实例化的instance加入缓存"""
-        if instance is None:
-            return self
-        try:
-            return self.cache[instance]
-        except KeyError:
-            ret = self.func(instance)
-            self.cache[instance] = ret
-            return ret
-
-    def __set__(self, instance, value):
-        """描述器__set__,raise AttributeError,即禁止外部set值"""
-        raise AttributeError("LazyFunc set value!!!")
-
-    def __delete__(self, instance):
-        """描述器___delete__从weakref.WeakKeyDictionary cache中删除instance"""
-        del self.cache[instance]
-
-
-class LazyClsFunc(LazyFunc):
-    """
-        描述器类:
-        作用在类中需要lazy的类方法上,实际上只是使用__get__(owner, owner)
-        替换原始__get__(self, instance, owner)
-    """
-
-    def __get__(self, instance, owner):
-        """描述器__get__,使用__get__(owner, owner)替换原始__get__(self, instance, owner)"""
-        return super(LazyClsFunc, self).__get__(owner, owner)
-
-
-def add_doc(func, doc):
-    """Lazy add doc"""
-    func.__doc__ = doc
-
-
-def import_module(name):
-    """Lazy impor _module"""
-    __import__(name)
-    return sys.modules[name]
-
-
-# valid_check装饰器工作:
-def valid_check(func):
-    """检测度量的输入是否正常,非正常显示info,正常继续执行被装饰方法"""
-
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        if self.valid:
-            return func(self, *args, **kwargs)
-        else:
-            logging.info('metric input is invalid or zero order gen!')
-
-    return wrapper
-
-
-# 单例模式
-def singleton(cls):
-
-    # instance = {}
-    instance = weakref.WeakValueDictionary()
-    def _singleton(*args,**kwargs):
-        with threading.Lock() as lock:
-            if cls not in instance:
-                instance[cls] = cls(*args,**kwargs)
-        return instance[cls]
-
-    return _singleton
-
-
-def _validate_type(_type=(list,tuple)):
-    def decorate(func):
-        def wrap(*args):
-            res = func(*args)
-            if not isinstance(res, _type):
-                raise TypeError('can not algorithm type:%s' % _type)
-            return res
-        return wrap
-    return decorate
-
-
-def deprecated(msg=None, stacklevel=2):
-    """
-    Used to mark a function as deprecated.
-
-    Parameters
-    ----------
-    msg : str
-        The message to display in the deprecation warning.
-    stacklevel : int
-        How far up the stack the warning needs to go, before
-        showing the relevant calling lines.
-
-    Examples
-    --------
-    @deprecated(msg='function_a is deprecated! Use function_b instead.')
-    def function_a(*args, **kwargs):
-    """
-    def deprecated_dec(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            warnings.warn(
-                msg or "Function %s is deprecated." % fn.__name__,
-                category=DeprecationWarning,
-                stacklevel=stacklevel
-            )
-            return fn(*args, **kwargs)
-        return wrapper
-    return deprecated_dec
-
 
 def require_not_initialized(exception):
     """
@@ -456,79 +219,32 @@ def require_not_initialized(exception):
     def decorator(method):
         @wraps(method)
         def wrapped_method(self, *args, **kwargs):
-            if self.initialized:
+            if self.initialized: # not self.initialized /  
                 raise exception
             return method(self, *args, **kwargs)
         return wrapped_method
     return decorator
 
+def valid_check(func):
 
-def require_initialized(exception):
-    """
-    Decorator for API methods that should only be called after
-    TradingAlgorithm.initialize.  `exception` will be raised if the method is
-    called before initialize has completed.
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if self.valid:
+            return func(self, *args, **kwargs)
+        else:
+            logging.info('metric input is invalid or zero order gen!')
+    return wrapper
 
-    Examples
-    --------
-    @require_initialized(SomeException("Don't do that!"))
-    def method(self):
-        # Do stuff that should only be allowed after initialize.
-    """
-    def decorator(method):
-        @wraps(method)
-        def wrapped_method(self, *args, **kwargs):
-            if not self.initialized:
-                raise exception
-            return method(self, *args, **kwargs)
-        return wrapped_method
-    return decorator
+def _validate_type(_type=(list,tuple)):
 
-
-def disallowed_in_before_trading_start(exception):
-    """
-    Decorator for API methods that cannot be called from within
-    TradingAlgorithm.before_trading_start.  `exception` will be raised if the
-    method is called inside `before_trading_start`.
-
-    Examples
-    --------
-    @disallowed_in_before_trading_start(SomeException("Don't do that!"))
-    def method(self):
-        # Do stuff that is not allowed inside before_trading_start.
-    """
-    def decorator(method):
-        @wraps(method)
-        def wrapped_method(self, *args, **kwargs):
-            if self._in_before_trading_start:
-                raise exception
-            return method(self, *args, **kwargs)
-        return wrapped_method
-    return decorator
-
-
-def _make_unsupported_method(name):
-    def method(*args, **kwargs):
-        raise NotImplementedError(
-            "Method %s is not supported on LabelArrays." % name
-        )
-    method.__name__ = name
-    method.__doc__ = "Unsupported LabelArray Method: %s" % name
-    return method
-
-
-@contextmanager
-def ignore_pandas_nan_categorical_warning():
-    with warnings.catch_warnings():
-        # Pandas >= 0.18 doesn't like null-ish values in categories, but
-        # avoiding that requires a broader change to how missing values are
-        # handled in pipe, so for now just silence the warning.
-        warnings.filterwarnings(
-            'ignore',
-            category=FutureWarning,
-        )
-        yield
-
+    def decorate(func):
+        def wrap(*args):
+            res = func(*args)
+            if not isinstance(res, _type):
+                raise TypeError('can not algorithm type:%s' % _type)
+            return res
+        return wrap
+    return decorate
 
 def remove_na(f):
     @wraps(f)
@@ -539,6 +255,49 @@ def remove_na(f):
         return result
     return wrapper
 
+def _make_unsupported_method(name):
+    def method(*args, **kwargs):
+        raise NotImplementedError(
+            "Method %s is not supported on LabelArrays." % name
+        )
+    method.__name__ = name
+    method.__doc__ = "Unsupported LabelArray Method: %s" % name
+    return method
+
+def api_method(f): # patch 
+
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        # Get the instance and call the method
+        algo_instance = get_algo_instance()
+        if algo_instance is None:
+            raise RuntimeError(
+                'api method %s'
+                % f.__name__
+            )
+        return getattr(algo_instance, f.__name__)(*args, **kwargs)
+    return f
+
+def profile(func):
+
+    @wraps(func)
+    async def wrapper(*args, **kwargs):  # 改为 async if needed
+        if should_profile():  
+            pr = cProfile.Profile()
+            pr.enable()
+            try:
+                result = await func(*args, **kwargs) 
+            finally:
+                pr.disable()
+                s = io.StringIO()
+                ps = pstats.Stats(pr, stream=s).sort_stats('cumulative')
+                ps.print_stats(30)  
+                print(s.getvalue())
+                # ps.dump_stats(f"profile_{time.time()}.prof")
+            return result
+        else:
+            return await func(*args, **kwargs)
+    return wrapper
 
 def coerce_numbers_to_my_dtype(f):
     """
@@ -563,119 +322,55 @@ def coerce_numbers_to_my_dtype(f):
         return f(self, other)
     return method
 
+def optionally(preprocessor):
+    """Modify a preprocessor to explicitly allow `None`.
 
-# 基于api_method 将方法注册到api
-def api_method(f):
-    # Decorator that adds the decorated class method as a callable
-    # function (wrapped) to zipline.api
-    @wraps(f)
-    def wrapped(*args, **kwargs):
-        # Get the instance and call the method
-        algo_instance = get_algo_instance()
-        if algo_instance is None:
-            raise RuntimeError(
-                'zipline api method %s must be called during a ArkQuant.'
-                % f.__name__
-            )
-        return getattr(algo_instance, f.__name__)(*args, **kwargs)
-    # Add functor to zipline.api
-    # setattr(zipline.api, f.__name__, wrapped)
-    # zipline.api.__all__.append(f.__name__)
-    # f.is_api_method = True
-    return f
-
-
-class Context:
-    def __init__(self):
-        print("int __init__")
-
-    def __enter__(self):
-        print("int __enter__")
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        print("in __exit__")
-
-if __name__ == '__main__':
-    with Context():
-        print('start with')
-
-        
-class Context(contextlib.ContextDecorator):
-
-    def __init__(self, how_used):
-        self.how_used = how_used
-        print(f'__init__({how_used})')
-
-    def __enter__(self):
-        print(f'__enter__({self.how_used})')
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        print(f'__exit__({self.how_used})')
-
-
-# @Context('这是装饰器方式')
-# def func(message):
-#     print(message)
-
-@Context
-def func(message):
-    print(message)
-
-
-@contextlib.contextmanager
-def make_context():
-    print("enter make_context")
-    try:
-        yield {}
-    except RuntimeError as err:
-        print(f"{err=}")
-
-
-def deprecated(msg=None, stacklevel=2):
-    """
-    Used to mark a function as deprecated.
     Parameters
     ----------
-    msg : str
-        The message to display in the deprecation warning.
-    stacklevel : int
-        How far up the stack the warning needs to go, before
-        showing the relevant calling lines.
-    Usage
-    -----
-    @deprecated(msg='function_a is deprecated! Use function_b instead.')
-    def function_a(*args, **kwargs):
-    """
-    def deprecated_dec(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            warnings.warn(
-                msg or "Function %s is deprecated." % fn.__name__,
-                category=DeprecationWarning,
-                stacklevel=stacklevel
-            )
-            return fn(*args, **kwargs)
-        return wrapper
-    return deprecated_dec
+    preprocessor : callable[callable, str, any -> any]
+        A preprocessor to delegate to when `arg is not None`.
 
-def profile(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):  # 改为 async if needed
-        # 从请求中检查是否启用 profiling（如 X-Profile: 1）
-        if should_profile():  # 自定义判断逻辑
-            pr = cProfile.Profile()
-            pr.enable()
-            try:
-                result = await func(*args, **kwargs)  # async
-            finally:
-                pr.disable()
-                s = io.StringIO()
-                ps = pstats.Stats(pr, stream=s).sort_stats('cumulative')
-                ps.print_stats(30)  # 打印 top 30
-                print(s.getvalue())
-                # 或保存到文件：ps.dump_stats(f"profile_{time.time()}.prof")
-            return result
-        else:
-            return await func(*args, **kwargs)
+    Returns
+    -------
+    optional_preprocessor : callable[callable, str, any -> any]
+        A preprocessor that delegates to `preprocessor` when `arg is not None`.
+
+    Examples
+    --------
+    >>> def preprocessor(func, argname, arg):
+    ...     if not isinstance(arg, int):
+    ...         raise TypeError('arg must be int')
+    ...     return arg
+    ...
+    >>> @preprocess(a=optionally(preprocessor))
+    ... def f(a):
+    ...     return a
+    ...
+    >>> f(1)  # call with int
+    1
+    >>> f('a')  # call with not int
+    Traceback (most recent call last):
+       ...
+    TypeError: arg must be int
+    >>> f(None) is None  # call with explicit None
+    True
+    """
+    @wraps(preprocessor)
+    def wrapper(func, argname, arg):
+        return arg if arg is None else preprocessor(func, argname, arg)
+
     return wrapper
+
+
+def ensure_upper_case(func, argname, arg):
+    if isinstance(arg, string_types):
+        return arg.upper()
+    else:
+        raise TypeError(
+            "{0}() expected argument '{1}' to"
+            " be a string, but got {2} instead.".format(
+                func.__name__,
+                argname,
+                arg,
+            ),
+        )
