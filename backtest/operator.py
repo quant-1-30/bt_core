@@ -21,6 +21,7 @@
 
 import functools
 import math
+import numpy as np 
 
 from .linebuffer import LineActions
 
@@ -180,7 +181,8 @@ class Min(MultiLogic):
 
 
 class Sum(MultiLogic):
-    flogic = math.fsum
+    # flogic = math.fsum # high accuracy 
+    flogic = np.sum
 
 
 class Any(MultiLogic):

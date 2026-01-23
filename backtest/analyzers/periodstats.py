@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import numpy as np
 import backtest as bt
-from backtest.utils.mathsupport import average, standarddev
 from . import TimeReturn
 from backtest.dataseries import TimeFrame
 
@@ -87,8 +87,10 @@ class PeriodStats(bt.Analyzer):
                 else:
                     nul += tret == 0.0
 
-        self.rets['average'] = avg = average(trets)
-        self.rets['stddev'] = standarddev(trets, avg)
+        # self.rets['average'] = avg = average(trets)
+        # self.rets['stddev'] = standarddev(trets, avg)
+        self.rets['average'] = avg = np.mean(trets) # whether size - False / True
+        self.rets['stddev'] = np.std(trets)
 
         self.rets['positive'] = pos
         self.rets['negative'] = neg

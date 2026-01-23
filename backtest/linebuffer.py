@@ -43,6 +43,8 @@ from backtest.utils.dateintern import num2date
 
 NAN = float('NaN')
 
+UnBounded, QBuffer = (0, 1)
+
 
 class LineBuffer(LineSingle):
     '''
@@ -66,11 +68,10 @@ class LineBuffer(LineSingle):
     is set in this class
     it will also be set in the binding.
     '''
-    UnBounded, QBuffer = (0, 1)
 
     def __init__(self):
         self.lines = [self]
-        self.mode = self.UnBounded
+        self.mode = UnBounded
         self.bindings = list()
         self.reset()
         self._tz = None
@@ -80,7 +81,7 @@ class LineBuffer(LineSingle):
     def reset(self):
         ''' Resets the internal buffer structure and the indices
         '''
-        if self.mode == self.QBuffer:
+        if self.mode == QBuffer:
             # add extrasize to ensure resample/replay work because they will
             # use backwards to erase the last bar/tick before delivering a new
             # bar The previous forward would have discarded the bar "period"
@@ -102,7 +103,7 @@ class LineBuffer(LineSingle):
     def qbuffer(self, savemem=0):
 
         if savemem:
-            self.mode = self.QBuffer
+            self.mode = QBuffer
             _minperiod = self._minperiod
             self.maxlen = _minperiod
 
@@ -120,7 +121,7 @@ class LineBuffer(LineSingle):
         In dqbuffer mode the buffer has to be adjusted for this if currently
         less than requested
         '''
-        if self.mode != self.QBuffer or self.maxlen >= size:
+        if self.mode != QBuffer or self.maxlen >= size:
             return
 
         self.maxlen = size
@@ -128,7 +129,7 @@ class LineBuffer(LineSingle):
     
     def __getitem__(self, ago):
         # return self.array[self.idx + ago]
-        idx = self.idx % self.maxlen
+        idx = self.idx % self.maxlen # python % 与除数符号一致, math % 与被除数一致
         # print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
         return self.array[idx + ago]
     
@@ -222,11 +223,11 @@ class LineBuffer(LineSingle):
         self.idx += size
         self.lencount += size
 
-        if self.UnBounded:
+        if self.mode == UnBounded: # array.array('d') 
             for i in range(size):
                 self.array.append(value)
 
-        self[0] = np.nan
+        # self[0] = np.nan # no accurate size >= 1
 
     def backwards(self, size=1):
         ''' Moves the logical index backwards and reduces the buffer as much as needed
@@ -240,14 +241,12 @@ class LineBuffer(LineSingle):
         self.idx = idx
         self.lencount -= size
         
-        if self.UnBounded:
-            # print("UbBound array.array")
+        if self.mode == UnBounded: # array.array('d')
             for i in range(size):
                 self.array.pop()
-        
-        # if self.maxlen == 1 :
-        #     self[0] = np.nan # intended for resample
 
+        # reset to nan with size
+        
     def rewind(self, size=1):
         self.idx -= size
         self.lencount -= size

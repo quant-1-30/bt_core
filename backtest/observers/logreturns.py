@@ -19,7 +19,7 @@
 #
 ###############################################################################
 import datetime
-
+import numpy as np
 import backtest as bt
 from backtest.observer import Observer
 
@@ -74,13 +74,13 @@ class LogReturns(Observer):
     def __init__(self):
         self.logret1 = self._owner._addanalyzer(
             bt.analyzers.LogReturnsRolling, data=self.data0, **self.p._getkwargs())
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self.logret1.dtkey
-        if dtkey > self.dtkey:
-            self.lines.logret1[0] = self.logret1.rets[self.logret1.dtkey1]
-            self.dtkey = dtkey
+        dtcmp = self.logret1.dtcmp
+        if dtcmp > self.dtcmp:
+            self.lines.logret1[0] = self.logret1.rets[self.logret1.dtcmp]
+            self.dtcmp = dtcmp
 
 
 class LogReturns2(LogReturns):
@@ -96,11 +96,11 @@ class LogReturns2(LogReturns):
         # kwargs = self.p._getkwargs()
         self.logret2 = self._owner._addanalyzer(
             bt.analyzers.LogReturnsRolling, data=self.data1, **kwargs)
-        self.dtkey = datetime
+        self.dtcmp = p.iinfo(np.int_).min
 
     def next(self):
         super(LogReturns2, self).next()
-        dtkey = self.logret2.dtkey
-        if dtkey > self.dtkey:
+        dtcmp = self.logret2.dtcmp
+        if dtcmp > self.dtcmp:
             self.lines.logret2[0] = self.logret2.rets.get(self.logret2.dtkey1, float('NaN'))
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp

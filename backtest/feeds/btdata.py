@@ -148,10 +148,8 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         start_date = kwargs["fromdate"]
         end_date = kwargs["todate"]
 
-        sid_str = [sid.decode("utf-8") for sid in sids]
-        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+        # calculate tick and adj
         body = QueryBody(start_date=start_date, end_date=end_date, sid=sids)
-
         observable = self.mdapi.subscribe(body)
         observable.subscribe( # nonblocking 
             on_next=self.chan.put,
@@ -160,9 +158,15 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         )
         self.calc_adjfactor(body)
 
+        # calculate benchmark
         index = kwargs.get("benchmark", b"000001")
-        bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
-        self.calc_benchmark(bench_body)
+        body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
+        self.calc_benchmark(body)
+
+        # setattr
+        self.sid = sids
+        sid_str = [sid.decode("utf-8") for sid in sids]
+        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
 
     def _load(self):
         while True:

@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import numpy as np
 import backtest as bt
 from backtest.dataseries import TimeFrame
 
@@ -75,4 +76,4 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         _, v = self._owner.getvalue()
-        self.rets[self.dtkey1] = v
+        self.rets[self.dtcmp] = v

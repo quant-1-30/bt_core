@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import math
+import numpy as np
 
 import backtest as bt
 from backtest.utils.mathsupport import average, standarddev
@@ -75,7 +76,8 @@ class SQN(bt.TimeFrameAnalyzerBase):
     def stop(self):
         if self.count > 1:
             pnl_av = average(self.pnl)
-            pnl_stddev = standarddev(self.pnl)
+            # pnl_stddev = standarddev(self.pnl)
+            pnl_stddev = np.std(self.pnl)
             try:
                 sqn = math.sqrt(len(self.pnl)) * pnl_av / pnl_stddev
             except ZeroDivisionError:

@@ -89,7 +89,7 @@ class Calmar(bt.TimeFrameAnalyzerBase):
         self.calmar = calmar = rann / (self._mdd or float('Inf'))
 
         # self.rets[self.dtkey] = calmar
-        self.rets[self.dtkey1] = calmar
+        self.rets[self.dtcmp] = calmar
 
     def stop(self):
         self.on_dt_over()  # update last values

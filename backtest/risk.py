@@ -74,4 +74,4 @@ class RiskBase(with_metaclass(MetaRisk, object)):
 
         The method has to return bool to indicator whether violate risk control.
         '''
-        return self._check_risk(self)
+        return self._check(self)

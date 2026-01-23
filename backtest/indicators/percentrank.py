@@ -19,7 +19,8 @@
 #
 ###############################################################################
 
-from math import fsum
+# from math import fsum
+import numpy as np
 
 from . import BaseApplyN
 
@@ -36,5 +37,6 @@ class PercentRank(BaseApplyN):
     lines = ('pctrank',)
     params = (
         ('period', 50),
-        ('func', lambda d: fsum(x < d[-1] for x in d) / len(d)),
+        # ('func', lambda d: fsum(x < d[-1] for x in d) / len(d)),
+        ('func', lambda d: np.sum(x < d[-1] for x in d) / len(d)),
     )

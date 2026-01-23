@@ -24,6 +24,7 @@ from __future__ import (absolute_import, division, print_function,
 import argparse
 import datetime
 import math
+import numpy as np 
 
 # The above could be sent to an independent module
 import backtrader as bt
@@ -75,7 +76,8 @@ def runstrategy():
         td = ((dtend - dtstart).seconds // 60) + 1
         cerebro.addindicator(RelativeVolume,
                              period=td,
-                             volisnan=math.isnan(args.fvol))
+                            #  volisnan=math.isnan(args.fvol))
+                             volisnan=np.isnan(args.fvol))
 
     # Add an empty strategy
     cerebro.addstrategy(bt.Strategy)

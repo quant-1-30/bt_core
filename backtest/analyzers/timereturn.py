@@ -94,6 +94,6 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         data, _ = self._owner.getvalue()
         self._value = data.portfolio_value + data.cash
         # self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
-        self.rets[self.dtkey1] = (self._value / self._value_start) - 1.0
+        self.rets[self.dtcmp] = (self._value / self._value_start) - 1.0
         self._value_start = self._value  # keep last value
           

@@ -32,10 +32,13 @@ class ToleranceRisk(RiskBase):
       ("thres", 0.7),
     )
 
-    def _check_risk(self, strat):
+    def _check(self, strat):
         initial_cash = self._owner.cash
         acct = [strat.getvalue()[0] for strat in self._owner.runningstrats] 
         v = np.sum([a.portfolio_value + a.cash for a in acct])
         
+        if initial_cash <=0 :
+          return True
+
         signal = v / initial_cash < self.p.thres
         return signal

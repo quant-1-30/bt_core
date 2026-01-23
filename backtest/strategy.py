@@ -261,11 +261,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = newdlens
         return len(self)
     
-    def _check_risk(self):
+    def _rcheck(self):
         '''Check risk control rules before sending orders'''
-        risk_signal = np.all([_r.check_risk() for _r in self.risk_control])
-        return risk_signal
+        ignore = np.all([_r.check_risk() for _r in self.risk_control])
+        return ignore
 
+    # @profile
     def _next(self):
         minperstatus = self._getminperstatus() # datas already next 
         self._next_observers(minperstatus)
@@ -321,8 +322,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         _sizer = int(self.sizer.getsizing(self.datas))
 
         order = OrderBody(
-                    # sid=self.datas[0].sid[0],
-                    sid = b"300308",
+                    sid=self.datas[0].sid[0],
                     pricelimit=plimit,
                     sizer_ratio=_sizer, 
                     order_type=0,
@@ -347,8 +347,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
         order = OrderBody(
-                    #   sid=self.datas[0].sid[0],
-                      sid = b"300308",
+                      sid=self.datas[0].sid[0],
                       sizer_ratio=_sizer, 
                       pricelimit=plimit,     
                       order_type=1,
@@ -367,11 +366,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.store.on_dt_over(self.experiment_id) 
         self.on_dt_over = True
         
-        if self._check_risk():
-            _input = input(f"TimerRiskCheck on {dts}. Please enter Y or N to continue: ").strip()
-            if _input.lower() != 'y':
-                print("Risk control triggered. Stopping strategy execution.")
-                return 
+        # if self._rcheck():
+        #     # _input = input(f"TimerRiskCheck on {dts}. Please enter Y or N to continue: ").strip()
+        #     # if _input.lower() != 'y':
+        #         print("Risk control triggered. Stopping strategy execution.")
+        #         return 
     
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders

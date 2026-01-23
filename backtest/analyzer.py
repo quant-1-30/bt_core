@@ -395,5 +395,6 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         dtcmp -= tadjust
         dtkey = dtcmp
 
-        return dtcmp, dtkey
+        # return dtcmp, dtkey
+        return int(dtcmp.timestamp()), dtkey
  

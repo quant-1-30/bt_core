@@ -24,6 +24,24 @@ class TestResample(bt.Strategy):
         sma0 = btind.SMA(self.data.close, period=25)  # 15 days sma
 
 
+    # data.addfilter(btfilters.SessionFiller, fill_vol=args.fvol)
+
+    # frompackages = (
+    #     ('math', ('factorial')),
+    # )
+
+    # if not args.dual:
+    #     data0.addfilter(bt.filters.Renko, **fkwargs)
+    #     cerebro.adddata(data0)
+    # else:
+    #     cerebro.adddata(data0)
+    #     data1 = data0.clone()
+    #     data1.addfilter(bt.filters.Renko, **fkwargs)
+    #     cerebro.adddata(data1)
+
+
+
+
 if __name__ == '__main__':
     
     load_dotenv()

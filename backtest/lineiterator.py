@@ -245,13 +245,19 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     bind2lines = bindlines
     bind2line = bind2lines
 
+    # def _clk_update(self):
+    #     clock_len = len(self._clock)
+    #     if clock_len != len(self):
+    #         self.forward()
+    #     return clock_len
+
+    # @profile
     def _clk_update(self):
+        self.forward() # push strategy forward
         clock_len = len(self._clock)
-        if clock_len != len(self):
-            # print("lineiterator _clk_update forward")
-            self.forward()
         return clock_len
 
+    # @profile
     def _next(self):
         clock_len = self._clk_update()
 
@@ -259,7 +265,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             indicator._next()
 
         if self._ltype == LineIterator.StratType:
-            # supporting datas with different lengths
             minperstatus = self._getminperstatus()
             if minperstatus < 0:
                 self.next()

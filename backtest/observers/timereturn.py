@@ -19,7 +19,7 @@
 #
 ###############################################################################
 import datetime
-
+import numpy as np
 import backtest as bt
 from backtest.observer import Observer
 from backtest.dataseries import TimeFrame
@@ -76,11 +76,11 @@ class TimeReturn(Observer):
         # kwargs = self.p._getkwargs()
         self.treturn = self._owner._addanalyzer(
             bt.analyzers.TimeReturn, **kwargs)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self.treturn.dtkey
-        if dtkey > self.dtkey:
-            self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtkey1,
+        dtcmp = self.treturn.dtcmp
+        if dtcmp > self.dtcmp:
+            self.lines.timereturn[0] = self.treturn.rets.get(self.treturn.dtcmp,
                                                          float('NaN'))
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp

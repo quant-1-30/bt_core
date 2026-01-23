@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import numpy as np
 import datetime
 
 import backtest as bt
@@ -48,18 +49,18 @@ class Broker(Observer):
 
     def __init__(self, **kwargs):
         self.vb = self._owner._addanalyzer(bt.analyzers.Broker, **kwargs)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def start(self):
         self.plotlines.cash._plotskip = True
         # self.plotlines.value._name = 'FundValue'
 
     def next(self):
-        dtkey = self.vb.dtkey
-        if dtkey > self.dtkey:
-            v = self.vb.rets.get(self.vb.dtkey1, None)
+        dtcmp = self.vb.dtcmp
+        if dtcmp > self.dtcmp:
+            v = self.vb.rets.get(self.vb.dtcmp, None)
             if v:
                 self.lines.cash[0] = v.cash
                 self.lines.netvalue[0] = v.portfolio_value + v.cash
             
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp

@@ -51,7 +51,8 @@ cpdef object num2date(double x, bint native=True): # inline only used in cdef
     second = <int>remainder
     microsecond = <int>((remainder - second) * 1000000)
     
-    if microsecond < 10: microsecond = 0
+    if microsecond < 10: 
+        microsecond = 0
     elif microsecond > 999990:
         microsecond = 0
         second += 1 # 位运算

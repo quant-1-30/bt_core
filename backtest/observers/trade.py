@@ -49,18 +49,17 @@ class Trades(Observer):
     def __init__(self, **kwargs):
         # kwargs = self.p._getkwargs()
         self.preturn = self._owner._addanalyzer(bt.analyzers.PositionsValue, **kwargs)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self.preturn.dtkey
-        pnl_obj = self.preturn.rets.get(self.preturn.dtkey1, None)
-        if dtkey > self.dtkey:
+        dtcmp = self.preturn.dtcmp
+        pnl_obj = self.preturn.rets.get(self.preturn.dtcmp, None)
+        if dtcmp > self.dtcmp:
             pnl = np.sum([p.pnl for p in pnl_obj]) if pnl_obj else np.nan
-            # print("trades ", pnl)
 
             if pnl > 0.0:
                 self.lines.pnlplus[0] = pnl
             elif pnl <= 0.0 :
                 self.lines.pnlminus[0] = pnl
 
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp

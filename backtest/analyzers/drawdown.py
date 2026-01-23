@@ -94,7 +94,7 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.ddlen += bool(dd > 0.0)
 
         # drawdown drawdownlength 
-        self.rets[self.dtkey1] = (dd, self.ddlen)
+        self.rets[self.dtcmp] = (dd, self.ddlen)
 
         # update the maxdrawdown if needed
         self.maxdd = maxdd =  max(self.maxdd, dd)

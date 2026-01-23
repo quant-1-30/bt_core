@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import math
+import numpy as np
 import datetime
 
 import backtest as bt
@@ -59,16 +60,16 @@ class BuySell(Observer):
 
     def __init__(self):
         self.txns = self._owner._addanalyzer(bt.analyzers.Transactions)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self.txns.dtkey
+        dtcmp = self.txns.dtcmp
         
-        if dtkey > self.dtkey:
+        if dtcmp > self.dtcmp:
             comm = 0.0
             buy,sell = [], []
 
-            trades = self.txns.rets.get(self.txns.dtkey1, [])
+            trades = self.txns.rets.get(self.txns.dtcmp, [])
             if trades:
                 for trade in trades:
                     if not trade.executed_size:
@@ -84,15 +85,18 @@ class BuySell(Observer):
                 # if curbuy != curbuy:  # NaN
                 #     curbuy = 0.0
 
-                buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
-                buylen = sum([b.executed_size for b in buy])  
+                # buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
+                # buylen = sum([b.executed_size for b in buy])  
+                buyops = np.sum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
+                buylen = np.sum([b.executed_size for b in buy])  
 
                 value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
                 self.lines.buy[0] = value 
 
-                # SELL
-                sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
-                selllen = sum([s.executed_size for s in sell])  
+                # sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
+                # selllen = sum([s.executed_size for s in sell])  
+                sellops = np.sum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
+                selllen = np.sum([s.executed_size for s in sell])  
 
                 value = sellops / float(selllen or 'NaN')
                 self.lines.sell[0] = value 
@@ -100,4 +104,4 @@ class BuySell(Observer):
                 # # Write comm
                 # self.lines.comm[0] = comm
 
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp

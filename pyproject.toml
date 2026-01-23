@@ -36,6 +36,8 @@ reactivex = "^4.1.0"
 cython = "^3.2.4"
 pyarrow = "^22.0.0"
 ib = "^0.8.0"
+line-profiler = "^5.0.0"
+snakeviz = "^2.2.2"
 
 [[tool.poetry.source]]
 name = "tuna"

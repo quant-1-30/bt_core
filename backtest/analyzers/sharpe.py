@@ -19,10 +19,10 @@
 #
 ###############################################################################
 import math
+import numpy as np
 
 import backtest as bt
 from backtest.dataseries import TimeFrame
-from backtest.utils.mathsupport import average, standarddev
 from . import TimeReturn, AnnualReturn
 
 
@@ -139,8 +139,10 @@ class SharpeRatio(bt.Analyzer):
         super(SharpeRatio, self).stop()
         if self.p.legacyannual:
             rate = self.p.riskfreerate
-            retavg = average([r - rate for r in self.anret.rets])
-            retdev = standarddev(self.anret.rets)
+            # retavg = average([r - rate for r in self.anret.rets])
+            # retdev = standarddev(self.anret.rets)
+            retavg = np.mean([r - rate for r in self.anret.rets])
+            retdev = np.std(self.anret.rets)
 
             self.ratio = retavg / retdev
         else:
@@ -180,8 +182,9 @@ class SharpeRatio(bt.Analyzer):
                 # Get the excess returns - arithmetic mean - original sharpe
                 ret_free = [r - rate for r in returns]
                 ret_free_avg = average(ret_free)
-                retdev = standarddev(ret_free, avgx=ret_free_avg,
-                                     bessel=self.p.stddev_sample)
+                # retdev = standarddev(ret_free, avgx=ret_free_avg,
+                #                      bessel=self.p.stddev_sample)
+                retdev = np.std(ret_free)
 
                 try:
                     ratio = ret_free_avg / retdev

@@ -20,6 +20,7 @@
 ###############################################################################
 
 import math
+import numpy as np
 
 import backtest as bt
 from .returns import Returns
@@ -141,13 +142,11 @@ class VWR(bt.TimeFrameAnalyzerBase):
             dt = pn / (pi * math.exp(ravg * n)) - 1.0
             dts.append(dt)
 
-        sdev_p = standarddev(dts, bessel=True)
+        # sdev_p = standarddev(dts, bessel=True)
+        sdev_p = np.std(dts)
 
         vwr = rnorm100 * (1.0 - pow(sdev_p / self.p.sdev_max, self.p.tau))
         self.rets['vwr'] = vwr
-
-    def notify_fund(self):
-        self._pns[-1] = self.strat.getvalue()[0] # annotate last pn for current period
 
 
 VariabilityWeightedReturn = VWR

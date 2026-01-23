@@ -19,7 +19,7 @@
 #
 ###############################################################################
 import datetime
-
+import numpy as np
 import backtest as bt
 from backtest.observer import Observer
 
@@ -67,10 +67,10 @@ class Benchmark(Observer):
     def __init__(self, **kwargs):
         super(Benchmark, self).__init__()  # kwargs = self.p._getkwargs()
         self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self.rbench.dtkey
-        if dtkey > self.dtkey:
+        dtcmp = self.rbench.dtcmp
+        if dtcmp > self.dtcmp:
             self.lines.benchmark[0] = self.rbench.rets.get(self.rbench.dtkey1, float('NaN')) 
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp

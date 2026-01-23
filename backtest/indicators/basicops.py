@@ -166,7 +166,8 @@ class SumN(OperationN):
       - sumn = sum(data, period)
     '''
     lines = ('sumn',)
-    func = math.fsum
+    # func = math.fsum
+    func = np.sum
 
 
 class AnyN(OperationN):
@@ -349,8 +350,10 @@ class Average(PeriodN):
     lines = ('av',)
 
     def next(self):
+        # self.line[0] = \
+        #     math.fsum(self.data.get(size=self.p.period)) / self.p.period
         self.line[0] = \
-            math.fsum(self.data.get(size=self.p.period)) / self.p.period
+            np.sum(self.data.get(size=self.p.period)) / self.p.period
 
     # def once(self, start, end):
     #     src = self.data.array
@@ -450,5 +453,6 @@ class WeightedAverage(PeriodN):
     def next(self):
         data = self.data.get(size=self.p.period)
         dataweighted = map(operator.mul, data, self.p.weights)
-        self.line[0] = self.p.coef * math.fsum(dataweighted)
+        # self.line[0] = self.p.coef * math.fsum(dataweighted)
+        self.line[0] = self.p.coef * np.sum(dataweighted)
 

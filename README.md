@@ -182,8 +182,7 @@ def is_sorted_ascending(a):
     return (np.fmax.accumulate(a) <= a).all()
 
 
-ta-lib
-
+# ta-lib
 tar -xzf ta-lib-0.6.4-src.tar.gz
 cd ta-lib-0.6.4
 
@@ -192,3 +191,13 @@ chmod +x autogen.sh  # ensure the permissions are set to generate the configure 
 ./configure
 make
 sudo make install
+
+# line_profiler
+
+@profile
+kernprof -l -v my_script.py
+python -m line_profiler my_script.py.lprof # metrics on line 
+
+
+python -m cProfile -o output.prof myscript.py # locate function
+python -m snakeviz output.prof 

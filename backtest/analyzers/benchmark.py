@@ -98,7 +98,6 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         super(Benchmark, self).start()
         rawtable = self._owner.store.get_benchmark()
 
-        # close = rawtable.column("close").to_numpy 
         close = rawtable["close"].to_numpy() # concat memory not sequence so zero_copy_only=True valueError
         rets = close[1:] / close[:-1]
         padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
@@ -107,10 +106,8 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         self.dts = rawtable["date"].to_numpy()
 
     def on_dt_over(self):
-        dtkey1 = int(self.dtkey1.strftime("%Y%m%d")) 
-        loc = np.searchsorted(self.dts, dtkey1)
-        # print("loc: ", loc, " dtkey1: ", dtkey1)
+        loc = np.searchsorted(self.dts, self.dtcmp)
         loc_ret = self.returns[loc] if loc < len(self.dts) else np.nan
-        self.rets[self.dtkey1] = loc_ret
+        self.rets[self.dtcmp] = loc_ret
 
           

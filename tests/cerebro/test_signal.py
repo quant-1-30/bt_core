@@ -27,7 +27,7 @@ class WeekPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             import pdb; pdb.set_trace()
-        print("WeekPriceSignal delta: ", signal)
+        # print("WeekPriceSignal delta: ", signal)
 
 
 class DailyPriceSignal(btind.Indicator): 
@@ -43,7 +43,7 @@ class DailyPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             import pdb; pdb.set_trace()
-        print("DailyPriceSignal ", signal )
+        # print("DailyPriceSignal ", signal)
 
 
 class MACDSignal(btind.Indicator): 
@@ -60,7 +60,7 @@ class MACDSignal(btind.Indicator):
 
     def next(self):
         signal = self.lines.signal[0]
-        print("MACDSignal ", signal )
+        # print("MACDSignal ", signal)
 
 
 class VolSignal(btind.Indicator):
@@ -77,7 +77,7 @@ class VolSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             import pdb; pdb.set_trace()
-        print("VolSignal ", signal )
+        # print("VolSignal ", signal)
 
 
 class SellSignal(btind.Indicator): 
@@ -94,7 +94,7 @@ class SellSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             import pdb; pdb.set_trace()
-        print("SellSignal ", signal )
+        # print("SellSignal ", signal)
 
 
 class DrawDownSignal(btind.Indicator): 
@@ -106,7 +106,7 @@ class DrawDownSignal(btind.Indicator):
         obs = self._owner.stats.getbyname("drawdown") # lowercase
         signal = self.p.thres - obs.lines.drawdown[0]
         self.lines.signal[0] = signal
-        print("DrawDownSignal ", signal )
+        # print("DrawDownSignal ", signal)
 
 
 if __name__ == '__main__':
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     load_dotenv()
     
     # cerebro = bt.Cerebro(client_id="1001fe63-3d5d-42b3-89d5-d96218617219") # local
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) # ssh 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) # ssh 
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
@@ -128,3 +128,7 @@ if __name__ == '__main__':
 
     cerebro.addrisk("tl", thres=0.75) # tl means tolerance 
     cerebro.run(cash=100000, sid=[b"300308"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")
+
+    # writer on 1299s
+    # writer off 1185s
+    #  

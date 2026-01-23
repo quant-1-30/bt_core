@@ -50,7 +50,7 @@ class Orders(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         _ords = self._owner._orders
-        self.rets[self.dtkey1] = _ords
+        self.rets[self.dtcmp] = _ords
 
     def stop(self):
         super(Orders, self).stop()

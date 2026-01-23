@@ -63,7 +63,6 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 
         # Either set by subclass or the parameter or use the dataname (ticker)
         _obj._name = _obj.plotinfo.plotname or _obj.__class__.__name__
-        _obj.extra_info = ""
 
         _obj._compression = _obj.p.compression
         _obj._timeframe = _obj.p.timeframe
@@ -78,10 +77,13 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
 
         _obj._barstack = collections.deque()  # for filter operations
         _obj._barstash = collections.deque()  # for filter operations
+
         _obj._filters = list()
         _obj.adj_factors = {} # default
-        _obj._record_adj = None
+        _obj._record_adj_dt = 0
+        _obj.extra_info = ""
         _obj.bench = None # benchmark
+        _obj.sid = b''
         return _obj, args, kwargs
 
 
@@ -285,7 +287,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     
     def _add2stack(self, bar, stash=False):
         '''Saves given bar (list of values) to the stack for later retrieval'''
-        print("_add2stack ", self, bar)
+        # print("_add2stack ",bar)
         if not stash:
             self._barstack.append(bar)
         else:
@@ -364,7 +366,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         current_dt = int(num2date(self.lines.datetime[0]).strftime("%Y%m%d"))
 
-        if current_dt in self.adj_factors and current_dt != self._record_adj:
+        if current_dt in self.adj_factors and current_dt != self._record_adj_dt:
             factor = self.adj_factors[current_dt]
         
             adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
@@ -378,7 +380,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self.volume.apply_factor(1.0 / factor)
             self.volume[0] = _v * factor
 
-            self._record_adj = current_dt
+            self._record_adj_dt = current_dt
 
     def on_dt_over(self):
         delta = self.lines.datetime[0] - self.lines.datetime[-1]

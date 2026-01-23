@@ -30,7 +30,7 @@ from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import sizers
 from .risks import _rctl
-from .timer import Timer, SESSION_START
+from .timer import Timer, Session
 from .errors import *
 from .stores import _stores
 from .utils.wrapper import consume_time
@@ -437,7 +437,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         # Prepare timers
         if not self._pretimers:
-            self._pretimers.append(Timer(when=SESSION_START))  # add default timer to adjust T+1
+            self._pretimers.append(Timer(when=Session.SESSION_START))  # add default timer to adjust T+1
 
         for timer in itertools.chain(self._pretimers, self._mcstimers):
             timer.start(self.datas[0]) # preprocess tzdata if needed
@@ -575,6 +575,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         return runstrats
 
+    # @profile
     def _runnext(self, runstrats):
         '''
         Actual implementation of run in full next mode. All objects have its

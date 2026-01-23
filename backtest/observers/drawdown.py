@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import datetime
+import numpy as np
 
 import backtest as bt
 from backtest.observer import Observer
@@ -55,15 +56,15 @@ class DrawDown(Observer):
     def __init__(self, **kwargs):
         # kwargs = self.p._getkwargs()
         self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self._dd.dtkey
-        if dtkey > self.dtkey:
-            dd, _ = self._dd.rets[self._dd.dtkey1]
+        dtcmp = self._dd.dtcmp
+        if dtcmp > self.dtcmp:
+            dd, _ = self._dd.rets[self._dd.dtcmp]
             self.lines.drawdown[0] = dd # update drawdown
             self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp
 
 
 class DrawDownLength(Observer):
@@ -85,12 +86,12 @@ class DrawDownLength(Observer):
     def __init__(self, **kwargs):
         # kwargs = self.p._getkwargs()
         self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
-        self.dtkey = datetime.datetime.min
+        self.dtcmp = np.iinfo(np.int_).min
 
     def next(self):
-        dtkey = self._dd.dtkey
-        if dtkey > self.dtkey:
-            _, ddlen = self._dd.rets[self._dd.dtkey1]
+        dtcmp = self._dd.dtcmp
+        if dtcmp > self.dtcmp:
+            _, ddlen = self._dd.rets[self._dd.dtcmp]
             self.lines.len[0] = ddlen  
             self.lines.maxlen[0] = self._dd.rets["maxDrawdownLength"]
-            self.dtkey = dtkey
+            self.dtcmp = dtcmp
