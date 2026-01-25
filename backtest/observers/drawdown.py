@@ -61,7 +61,7 @@ class DrawDown(Observer):
     def next(self):
         dtcmp = self._dd.dtcmp
         if dtcmp > self.dtcmp:
-            dd, _ = self._dd.rets[self._dd.dtcmp]
+            dd, _ = self._dd.rets[dtcmp]
             self.lines.drawdown[0] = dd # update drawdown
             self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
             self.dtcmp = dtcmp
@@ -91,7 +91,7 @@ class DrawDownLength(Observer):
     def next(self):
         dtcmp = self._dd.dtcmp
         if dtcmp > self.dtcmp:
-            _, ddlen = self._dd.rets[self._dd.dtcmp]
+            _, ddlen = self._dd.rets[dtcmp]
             self.lines.len[0] = ddlen  
             self.lines.maxlen[0] = self._dd.rets["maxDrawdownLength"]
             self.dtcmp = dtcmp

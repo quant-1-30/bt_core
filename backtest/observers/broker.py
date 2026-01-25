@@ -58,7 +58,7 @@ class Broker(Observer):
     def next(self):
         dtcmp = self.vb.dtcmp
         if dtcmp > self.dtcmp:
-            v = self.vb.rets.get(self.vb.dtcmp, None)
+            v = self.vb.rets.get(dtcmp, None)
             if v:
                 self.lines.cash[0] = v.cash
                 self.lines.netvalue[0] = v.portfolio_value + v.cash

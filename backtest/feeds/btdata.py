@@ -50,7 +50,7 @@ class Calendar:
         self._allocated_buf = np.empty(max_expected_size, dtype=np.int32)
 
     def _fill_buffer(self, table: pa.Table):
-        num_rows = table.num_columns
+        num_rows = table.num_rows
         self._allocated_buf[self._current_idx: num_rows + self._current_idx] = table["date"].to_numpy()
         self._current_idx += num_rows
 
@@ -101,9 +101,7 @@ class Instrument(object):
             obs.run() # run block api
             
             table = pa.concat_tables(datas)
-            # df = table.to_pandas()  # Arrow → Pandas
-            # self.assets = df.to_dict('records')  # row_dict
-            self.assets = table.to_pylist() # row-wise dict list
+            self.assets = table.to_pylist() # row-wise dict list / table.to_pandas() and df.to_dict('records') # Arrow --> Pandas
         return self.assets
 
 
@@ -173,7 +171,6 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             if self._row_iter is not None:
                 try:
                     row = next(self._row_iter)
-                    # print("row :", row)
                     if self.p.rtbar:
                         self._load_rtbar(row)
                     else:
@@ -188,10 +185,10 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             if isinstance(msg, Exception):
                 raise msg
 
-            self._row_iter = self._make_iter(msg) # self._row_iter = iter(msg.to_pylist()) 
+            self._row_iter = self._make_iter(msg)
 
     def _make_iter(self, table):
-        cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']]
+        cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
         return zip(*cols)
 
     def _load_bar(self, row):

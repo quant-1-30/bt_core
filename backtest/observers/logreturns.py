@@ -79,7 +79,7 @@ class LogReturns(Observer):
     def next(self):
         dtcmp = self.logret1.dtcmp
         if dtcmp > self.dtcmp:
-            self.lines.logret1[0] = self.logret1.rets[self.logret1.dtcmp]
+            self.lines.logret1[0] = self.logret1.rets[dtcmp]
             self.dtcmp = dtcmp
 
 
@@ -102,5 +102,5 @@ class LogReturns2(LogReturns):
         super(LogReturns2, self).next()
         dtcmp = self.logret2.dtcmp
         if dtcmp > self.dtcmp:
-            self.lines.logret2[0] = self.logret2.rets.get(self.logret2.dtkey1, float('NaN'))
+            self.lines.logret2[0] = self.logret2.rets.get(dtcmp, float('NaN'))
             self.dtcmp = dtcmp

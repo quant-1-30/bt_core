@@ -111,6 +111,12 @@ cerebro.run(exactbars=-1) # 低内存模式
     optimize to implement 9:30 timer_event and monitor data with timer
 
 
+# 涉及 linebuffer __init__ /  具体值计算比较 next  __getitem__
+# basciops to implement next method and use linebuffer instead of __getitem__
+# self define need to addminpeeriod and define dmaster
+# PeriodN __init__ already addimperiod self.p.period
+# signal scale to 0 - 1 / bool(self.delta[0] > 0) # np.False_ ---> bool 
+
 find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;
 
 # Profile

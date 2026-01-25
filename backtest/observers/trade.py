@@ -53,7 +53,7 @@ class Trades(Observer):
 
     def next(self):
         dtcmp = self.preturn.dtcmp
-        pnl_obj = self.preturn.rets.get(self.preturn.dtcmp, None)
+        pnl_obj = self.preturn.rets.get(dtcmp, None)
         if dtcmp > self.dtcmp:
             pnl = np.sum([p.pnl for p in pnl_obj]) if pnl_obj else np.nan
 

@@ -31,8 +31,6 @@ class MetaStore(MetaParams):
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaStore, cls).donew(*args, **kwargs)
         _obj.owner = env =  findowner(_obj, bt.cerebro.Cerebro)
-        _obj.calendar = _obj.owner._tradingcal 
-
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -62,8 +60,7 @@ class Store(with_metaclass(MetaStore, object)):
     DataCls = None  # data class will auto register
 
     params = (
-        ("timeout", -1),
-        ("checksum", "eof"),
+        ("timeout", 10),
     )
     
     def _start(self, *args, **kwargs):
@@ -72,17 +69,6 @@ class Store(with_metaclass(MetaStore, object)):
     def on_dt_over(self, last=False):
         # determin whether T + 0 or T + 1
         pass
-    
-    @staticmethod
-    def iter_data(self, q): # queue.Empty
-        data = []
-        while True:
-            msg = q.get(self.p.timeout)
-            if msg == self.p.checksum:  # EOF
-                q.recycle()
-                break
-            data.append(msg)
-        return data 
     
     def stop(self):
         self._feed.stop()

@@ -239,7 +239,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self.tick_last = getattr(self.lines, alias0)[0]
 
     def next(self, datamaster=None, ticks=False):
-    #     if len(self) >= self.buflen():
+        # if len(self) >= self.buflen():
         if ticks:
             self._tick_nullify()
 

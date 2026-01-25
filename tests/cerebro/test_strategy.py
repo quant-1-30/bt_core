@@ -62,5 +62,6 @@ if __name__ == '__main__':
     cerebro.addstrategy(TestStrategy, ddata)
 
     # configure risk management
-    cerebro.addrisk("tl", thres=0.75)
+    cerebro.addsizer() # default fixed 
+    cerebro.addrisk(thres=0.75) # default tl
     cerebro.run(cash=100000, sid=[b"300308"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="strategy.csv") 

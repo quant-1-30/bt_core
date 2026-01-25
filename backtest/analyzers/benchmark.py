@@ -101,8 +101,8 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         close = rawtable["close"].to_numpy() # concat memory not sequence so zero_copy_only=True valueError
         rets = close[1:] / close[:-1]
         padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
+        
         self.returns = padded
-
         self.dts = rawtable["date"].to_numpy()
 
     def on_dt_over(self):

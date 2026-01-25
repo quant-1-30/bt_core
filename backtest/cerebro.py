@@ -35,6 +35,7 @@ from .errors import *
 from .stores import _stores
 from .utils.wrapper import consume_time
 from .plot import Plot
+from .tradingcal import TradingCalendarBase, TradingCalendar
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -82,23 +83,21 @@ class Cerebro(with_metaclass(MetaParams, object)):
     '''
     params = (
         ("client_id", ""),
-        ("calendar", ""),
         ('savemem', 1),
         ("store", "bt"),
-        ("store_p", {}),
-        ("sizer", "fixed"),
-        ("sizer_p", {}),
-        ('stdstats', True),
         ('tz', None),
+        ("timeout", 10),
+        ('stdstats', True),
+        ("isplot", False),
         ('writer', True),
-        ("isplot", False)
     )
 
     def __init__(self):
         self.cash = 0.0
+        self.calendar_days = list()
+        self.market_sids = list()
         self.datas = list()
         self.strats = list()
-        self.risks = list()
         self.observers = list()
         self.indicators = list()
         self.signals = list()
@@ -111,45 +110,24 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._pretimers = list()
         self._mcstimers = list()
         
+        self._r = None
+        self.sizer = None
+        
         self._plot = Plot()
         self._start()
 
     def _start(self):
-        self.addcalendar()
-        
         self.addstore() 
-        self.addsizer()
-
-    def addcalendar(self):
-        '''Adds a global trading calendar to the system. Individual data feeds
-        may have separate calendars which override the global one
-
-        ``cal`` can be an instance of ``TradingCalendar`` a string or an
-        instance of ``pandas_market_calendars``. A string will be will be
-        instantiated as a ``PandasMarketCalendar`` (which needs the module
-        ``pandas_market_calendar`` installed in the system.
-
-        If a subclass of `TradingCalendarBase` is passed (not an instance) it
-        will be instantiated
-        '''
-        from .tradingcal import TradingCalendarBase, TradingCalendar
-
-        cal = self.p.calendar
-        if cal and issubclass(cal, TradingCalendarBase): 
-            self._tradingcal = cal
-        else:
-            self._tradingcal = TradingCalendar()
+        self._preload()
 
     def addstore(self):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[self.p.store]
-        self.store = storecls(client_id=self.p.client_id, **self.p.store_p)
-
-    def addsizer(self):
-        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
-        strategy added to cerebro
-        '''
-        self.sizer = sizers[self.p.sizer](**self.p.sizer_p)
+        self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout)
+    
+    def _preload(self):
+        self.calendar_days = self.store.get_calendar()
+        self.market_sids = self.store.get_instrument()
 
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
@@ -179,6 +157,23 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
+    def addcalendar(self, cal=None):
+        '''Adds a global trading calendar to the system. Individual data feeds
+        may have separate calendars which override the global one
+
+        ``cal`` can be an instance of ``TradingCalendar`` a string or an
+        instance of ``pandas_market_calendars``. A string will be will be
+        instantiated as a ``PandasMarketCalendar`` (which needs the module
+        ``pandas_market_calendar`` installed in the system.
+
+        If a subclass of `TradingCalendarBase` is passed (not an instance) it
+        will be instantiated
+        '''
+        if cal and issubclass(cal, TradingCalendarBase): 
+            self._tradingcal = cal
+        else:
+            self._tradingcal = TradingCalendar()
+
     def addtz(self, tz):
         '''
         This can also be done with the parameter ``tz``
@@ -358,12 +353,17 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
-    def addrisk(self, risk_name, **kwargs):
+    def addsizer(self, sizer="fixed", **sizer_p):
+        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
+        strategy added to cerebro
+        '''
+        self.sizer = sizers[sizer](**sizer_p)
+
+    def addrisk(self, risk="tl", **kwargs):
         '''Adds a ``RiskControl`` class (and args) which is the default risk for any
         strategy added to cerebro
         '''
-        _r = _rctl[risk_name](**kwargs)
-        self.risks.append(_r)
+        self._r = _rctl[risk](**kwargs)
 
     def addstrategy(self, strategy, *args, **kwargs):
         '''

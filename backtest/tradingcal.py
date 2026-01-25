@@ -137,9 +137,10 @@ class TradingCalendar(TradingCalendarBase):
     params = (
         ('open', time(hour=9, minute=30)),
         ('close', time(hour=15, minute=0)),
-        ('holidays', []),  # list of non trading days (date)
-        ('earlydays', [(datetime(2016, 1, 4), time(hour=9, minute=30), time(hour=13, minute=34)), (datetime(2016, 1, 7), time(hour=9, minute=30), time(hour=10, minute=0))]),  # list of tuples (date, opentime, closetime)
-        ('offdays', ISOWEEKEND),  # list of non trading (isoweekdays)
+        ('holidays', []),
+        ('earlydays', [(datetime(2016, 1, 4), time(hour=9, minute=30), time(hour=13, minute=34)), 
+                        (datetime(2016, 1, 7), time(hour=9, minute=30), time(hour=10, minute=0))]),  
+        ('offdays', ISOWEEKEND), # soweekdays
     )
 
     def __init__(self):

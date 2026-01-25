@@ -24,24 +24,6 @@ class TestResample(bt.Strategy):
         sma0 = btind.SMA(self.data.close, period=25)  # 15 days sma
 
 
-    # data.addfilter(btfilters.SessionFiller, fill_vol=args.fvol)
-
-    # frompackages = (
-    #     ('math', ('factorial')),
-    # )
-
-    # if not args.dual:
-    #     data0.addfilter(bt.filters.Renko, **fkwargs)
-    #     cerebro.adddata(data0)
-    # else:
-    #     cerebro.adddata(data0)
-    #     data1 = data0.clone()
-    #     data1.addfilter(bt.filters.Renko, **fkwargs)
-    #     cerebro.adddata(data1)
-
-
-
-
 if __name__ == '__main__':
     
     load_dotenv()
@@ -59,6 +41,10 @@ if __name__ == '__main__':
     data3 = cerebro.resampledata(timeframe=bt.TimeFrame.Months, adjbartime=False, compression=1)
 
     data4 = cerebro.resampledata(timeframe=bt.TimeFrame.Years, adjbartime=False, compression=1)
+
+    # data1 = data0.clone()
+    # data1.addfilter(bt.filters.Renko, **fkwargs) 
+    # data.addfilter(btfilters.SessionFiller, fill_vol=args.fvol)
 
     cerebro.run(cash=10000, sid=["603676"], fromdate=20200101, todate=20210101, benchmark="000001", out="resample.csv") # localhost
     

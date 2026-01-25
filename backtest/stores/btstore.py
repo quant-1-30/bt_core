@@ -53,7 +53,6 @@ class BTStore(Store):
         ("md_addr", ("127.0.0.1:9000")),
         ("td_addr", ("127.0.0.1:8888")),
         ("client_id", b""),
-        ("timeout", 10)
     )
 
     def __init__(self): 

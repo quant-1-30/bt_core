@@ -75,3 +75,5 @@ class RiskBase(with_metaclass(MetaRisk, object)):
         The method has to return bool to indicator whether violate risk control.
         '''
         return self._check(self)
+
+        # ignore = np.all([_r.check_risk() for _r in self._r])

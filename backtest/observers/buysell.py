@@ -69,7 +69,7 @@ class BuySell(Observer):
             comm = 0.0
             buy,sell = [], []
 
-            trades = self.txns.rets.get(self.txns.dtcmp, [])
+            trades = self.txns.rets.get(dtcmp, [])
             if trades:
                 for trade in trades:
                     if not trade.executed_size:

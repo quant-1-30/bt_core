@@ -25,7 +25,6 @@ import itertools
 import operator
 import json
 from collections import defaultdict
-# from bt_sdk.core.tdapi import OrderType, ExecType
 from bt_sdk.core.protocol import OrderBody
 
 import backtest as bt
@@ -59,9 +58,7 @@ class MetaStrategy(StrategyBase.__class__):
 
         # Find the owner and store it
         _obj.env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
-        _obj.sizer = cerebro.sizer # add sizing to strategy
         _obj.store = cerebro.store # add store to strategy
-        _obj.risk_control = cerebro.risks # add risk control to strategy
 
         return _obj, args, kwargs
 
@@ -77,6 +74,8 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.writers = list()
         _obj._orders = list()
         _obj._trades = list()
+        _obj.sizer = None
+        _obj._r = None
 
         return _obj, args, kwargs
 
@@ -85,7 +84,7 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
 
         _obj._periodset()
-        _obj.register() # generate experiment_id
+        _obj.auto_reg() # generate experiment_id
 
         return _obj, args, kwargs
 
@@ -98,8 +97,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     _ltype = LineIterator.StratType
 
-    # lines = ('datetime',)
-    lines = ('datetime', 'buy', 'sell')
+    lines = ('datetime', 'buy', 'sell') # lines = ('datetime',)
+
+    def auto_reg(self) -> str: # generate unique experiment_id
+        extra_info = json.dumps(self.p._getkwargs())
+        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -166,20 +168,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         super().qbuffer(savemem=savemem)
         self.minbuffer()
-
-    def set_cash(self, **kwargs):
-        cash = kwargs.pop("cash", 100000)
-        session = kwargs["fromdate"]
-        self.store.set_cash(self.experiment_id, session, cash)
-
+    
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
         self.qbuffer(savemem=savemem)
         self._periodrecalc()
 
-        self.set_cash(**kwargs)
-        # for analyzer in itertools.chain(self.analyzers, self._slave_analyzers):
-        for analyzer in self.analyzers:
+        self.on_setup(**kwargs)
+
+        for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
             analyzer._start()
 
         for obs in self.observers:
@@ -190,17 +187,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 o._start()
 
         self._minperstatus = MAXINT  # start in prenext
-
         self._dlens = [len(data) for data in self.datas]
-
         self.on_dt_over = False
 
-    def register(self) -> str:
-        """
-            Return experiment_id: str 
-        """
-        extra_info = json.dumps(self.p._getkwargs())
-        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
+    def on_setup(self, **kwargs): # setup sizer / risk / cash
+        env = self.env
+        self.sizer = env.sizer # add sizing to strategy
+        self._r = env._r
+        
+        cash = kwargs.pop("cash", 100000)
+        session = kwargs["fromdate"]
+        self.store.set_cash(self.experiment_id, session, cash)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -263,7 +260,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     
     def _rcheck(self):
         '''Check risk control rules before sending orders'''
-        ignore = np.all([_r.check_risk() for _r in self.risk_control])
+        ignore = _r.check_risk()
         return ignore
 
     # @profile
@@ -557,10 +554,7 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         ('_accumulate', True),
     )
     
-    def register(self) -> str:
-        """
-            Return experiment_id: str 
-        """
+    def auto_reg(self) -> str: # generate unique experiment_id
         extra_infos = []
         for sig_type, sigs in self._signals.items():
             _info = [f"{sig.__class__.__name__}({json.dumps(sig.p._getkwargs())})" for sig in sigs]

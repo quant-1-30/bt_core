@@ -72,5 +72,5 @@ class Benchmark(Observer):
     def next(self):
         dtcmp = self.rbench.dtcmp
         if dtcmp > self.dtcmp:
-            self.lines.benchmark[0] = self.rbench.rets.get(self.rbench.dtkey1, float('NaN')) 
+            self.lines.benchmark[0] = self.rbench.rets.get(dtcmp, float('NaN')) 
             self.dtcmp = dtcmp

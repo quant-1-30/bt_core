@@ -173,11 +173,11 @@ class Or(MultiLogicReduce):
 
 
 class Max(MultiLogic):
-    flogic = max
+    flogic = np.max
 
 
 class Min(MultiLogic):
-    flogic = min
+    flogic = np.min
 
 
 class Sum(MultiLogic):
@@ -186,8 +186,8 @@ class Sum(MultiLogic):
 
 
 class Any(MultiLogic):
-    flogic = any
+    flogic = np.any
 
 
 class All(MultiLogic):
-    flogic = all
+    flogic = np.all

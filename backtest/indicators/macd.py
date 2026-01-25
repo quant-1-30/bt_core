@@ -56,12 +56,9 @@ class MACD(Indicator):
         super(MACD, self).__init__()
         me1 = self.p.movav(self.data, period=self.p.period_me1)
         me2 = self.p.movav(self.data, period=self.p.period_me2)
-        self.lines.macd = me1 - me2
-        self.lines.signal = self.p.movav(self.lines.macd,
+        self.lines.macd = me1 - me2 # dif
+        self.lines.signal = self.p.movav(self.lines.macd, # dea
                                          period=self.p.period_signal)
-        # dif = me1 - me2
-        # dea = self.p.movav(self.lines.macd, period=self.p.period_signal)
-        # self.lines.macd = 2 * (dif - dea)
 
 
 class MACDHisto(MACD):
@@ -82,5 +79,4 @@ class MACDHisto(MACD):
 
     def __init__(self):
         super(MACDHisto, self).__init__()
-        # self.lines.histo = self.lines.macd - self.lines.signal
-        self.lines.histo = 2 * (self.lines.macd - self.lines.signal)
+        self.lines.histo = self.lines.macd - self.lines.signal # 2 * (dif - dea) 

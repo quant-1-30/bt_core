@@ -57,7 +57,6 @@ class Plot(with_metaclass(MetaParams, object)):
         self.bt_tooltips.append(_tooltip)
         # self.sharex = Range1d(data.index[0], data.index[-1]) # 同步x轴
         
-        # 创建主图表
         p_main = figure(
             width=self.p.scheme.figure_width,
             height=self.p.scheme.figure_height[0],
@@ -77,18 +76,18 @@ class Plot(with_metaclass(MetaParams, object)):
             'red'
         )
         
-        # 归一化成交量，使其显示在图表底部
+        # normalize
         volume_max = max(dmaster.data['volume'])
         price_min = min(dmaster.data['low'])
         
-        # 将成交量缩放到合适的高度（例如占图表高度的10%）
+        # scale volume to suitable height
         scaling_factor = self.p.scheme.scaling_factor
         price_range = max(dmaster.data['high']) - price_min
         volume_height = price_range * scaling_factor
         
         dmaster.data['volume_scaled'] = price_min + (dmaster.data['volume'] / volume_max) * volume_height
         
-        # 添加成交量柱状图
+        # add volume hist
         p_main.vbar(
             x='datetime',
             top='volume_scaled',
@@ -114,7 +113,7 @@ class Plot(with_metaclass(MetaParams, object)):
 
         self.bt_renderers.append(close_line)
 
-        # 设置颜色
+        # set color
         dmaster.data['color'] = np.where(
             dmaster.data['close'] >= dmaster.data['open'],
             '#FF5252',   # 'red'  # 亮红色
@@ -129,24 +128,19 @@ class Plot(with_metaclass(MetaParams, object)):
         
         # ------------------------------------------------------------- price candle -----------------------------------------------------------            
         if candle:
-            # 计算实体顶部和底部
             dmaster.data['top_body'] = np.maximum(dmaster.data['open'], dmaster.data['close'])
             dmaster.data['bottom_body'] = np.minimum(dmaster.data['open'], dmaster.data['close'])
 
-            # 计算影线长度和实体高度
             dmaster.data['body_height'] = dmaster.data['top_body'] - dmaster.data['bottom_body']
             dmaster.data['upper_shadow'] = dmaster.data['high'] - dmaster.data['top_body']
             dmaster.data['lower_shadow'] = dmaster.data['bottom_body'] - dmaster.data['low']
     
-            # 绘制上影线：从实体顶部到最高价
             p_main.segment(x0='datetime', y0='top_body', x1='datetime', y1='high', 
                     color='line_color', line_width=1.5, source=dmaster, legend_label="上影线")
 
-            # 绘制下影线：从实体底部到最低价
             p_main.segment(x0='datetime', y0='bottom_body', x1='datetime', y1='low', 
                     color='line_color', line_width=1.5, source=dmaster, legend_label="下影线")
 
-            # 绘制实体
             p_main.vbar(
                 x='datetime', 
                 width=self.p.scheme.vbar_width, # self.p.scheme.vbar_width * 100  # 增加宽度，比如2倍
@@ -162,7 +156,6 @@ class Plot(with_metaclass(MetaParams, object)):
         
         # ------------------------------------------------------------- strategy -----------------------------------------------------------            
     
-        # 绘制 策略买入与卖出点
         price_range = (dmaster.data['high'] - dmaster.data['low']).mean()
         dmaster.data['buy_price'] = dmaster.data['low'] - price_range * 0.05
         dmaster.data['sell_price'] = dmaster.data['high'] + price_range * 0.05
@@ -193,7 +186,6 @@ class Plot(with_metaclass(MetaParams, object)):
                 legend_label="倒三角形",
                 )
 
-        # 将成交量图例添加到图表中
         p_main.legend.location = "top_left"
         self.figures.append(p_main)
 
@@ -364,7 +356,6 @@ class Plot(with_metaclass(MetaParams, object)):
             self.savefig(grid_plot, filename)
 
     def savefig(self, fig, filename):
-        # 保存为 HTML 文件
         output_file(f"{filename}.html")
         save(grid)
 
