@@ -245,8 +245,6 @@ class LineBuffer(LineSingle):
             for i in range(size):
                 self.array.pop()
 
-        # reset to nan with size
-        
     def rewind(self, size=1):
         self.idx -= size
         self.lencount -= size

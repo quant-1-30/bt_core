@@ -95,7 +95,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def __init__(self):
         self.cash = 0.0
         self.calendar_days = list()
-        self.market_sids = list()
+        self.markets = list()
         self.datas = list()
         self.strats = list()
         self.observers = list()
@@ -127,7 +127,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     
     def _preload(self):
         self.calendar_days = self.store.get_calendar()
-        self.market_sids = self.store.get_instrument()
+        self.markets = self.store.get_instrument()
 
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 

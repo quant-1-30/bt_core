@@ -245,17 +245,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     bind2lines = bindlines
     bind2line = bind2lines
 
-    # def _clk_update(self):
-    #     clock_len = len(self._clock)
-    #     if clock_len != len(self):
-    #         self.forward()
-    #     return clock_len
-
-    # @profile
     def _clk_update(self):
-        self.forward() # push strategy forward
-        clock_len = len(self._clock)
-        return clock_len
+        # clock_len = len(self._clock)
+        # if clock_len != len(self):
+        #     self.forward()
+        self.forward() # strategy line forward 
+        return len(self._clock)
 
     # @profile
     def _next(self):

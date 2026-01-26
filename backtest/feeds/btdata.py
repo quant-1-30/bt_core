@@ -221,7 +221,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
 
     def calc_adjfactor(self, body: QueryBody):
         adj = self.mdapi.get_factor(body)
-        factors = adj.raw_factors # adj_factors
+        factors = adj.raw_factors if adj else {} # adj_factors
         if factors:
             factors = dict(sorted(factors.items())) # sort by key
             self.adj_factors = factors

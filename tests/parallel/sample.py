@@ -1,9 +1,3 @@
-# Import the backtrader platform
-
-import uuid
-import numpy as np
-from dotenv import load_dotenv
-
 import backtest as bt
 import backtest.indicators as btind
 
@@ -99,26 +93,3 @@ class DrawDownSignal(btind.Indicator):
         obs = self._owner.stats.getbyname("drawdown") # lowercase
         signal = self.p.thres - obs.lines.drawdown[0]
         self.lines.signal[0] = signal
-
-
-if __name__ == '__main__':
-    
-    load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes)  
-
-    ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
-    wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
-
-    cerebro.add_signal(bt.SIGNAL_LONG, WeekPriceSignal, wdata, ddata)
-    cerebro.add_signal(bt.SIGNAL_LONG_INV, DailyPriceSignal, ddata)
-    cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, ddata)
-    cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, ddata)
-    cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
-    cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
-
-    cerebro.addsizer() # default fixed 
-    cerebro.addrisk(thres=0.75) # default tl
-    cerebro.run(cash=100000, sid=[b"000413"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")
-
-    # writer on 931 6y
-    # writer off 835s 6y

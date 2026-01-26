@@ -206,4 +206,22 @@ python -m line_profiler my_script.py.lprof # metrics on line
 
 
 python -m cProfile -o output.prof myscript.py # locate function
-python -m snakeviz output.prof 
+python -m snakeviz output.prof
+
+# Ray Scale
+RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1 ray start --address='172.20.10.3:6379' / --head --object-store-memory=****
+
+ray stop 
+
+ray status
+
+127.0.0.1:8265 # dashboard
+
+
+Ray can't initialize sys standard streams due to fd restricted
+
+Mac ulimit -n 256 default to adapt old select program 
+
+select / epoll / kqueue , select traverse / epoll notify (epoll_create / epoll_ctl / epoll_wait) / kqueue (kevent register / wait)
+
+epoll (red-black tree) io callback linux / kqueue macos trigger by lt and et

@@ -254,7 +254,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.forward()
 
         self.lines.datetime[0] = max(d.datetime[0]
-                                     for d in self.datas if len(d))        
+                                     for d in self.datas if len(d))      
+          
         self._dlens = newdlens
         return len(self)
     
