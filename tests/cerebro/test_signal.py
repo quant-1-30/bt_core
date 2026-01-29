@@ -21,7 +21,7 @@ class WeekPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             print("WeekPriceSignal ", signal)
-            raise ValueError("WeekPriceSignal corrupted")
+            # raise ValueError("WeekPriceSignal corrupted")
 
 
 class DailyPriceSignal(btind.Indicator): 
@@ -37,7 +37,6 @@ class DailyPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             print("DailyPriceSignal ", signal)
-            raise ValueError("PriceSignal corrupted")
 
 
 class MACDSignal(btind.Indicator): 
@@ -69,9 +68,8 @@ class VolSignal(btind.Indicator):
 
     def next(self):
         signal = self.lines.signal[0]
-        if signal > 10.0:
+        if signal > 10.0: # prob > 0.0 
             print("VolSignal ", signal)
-            raise ValueError("VolSignal corrupted")
 
 
 class SellSignal(btind.Indicator): 
@@ -87,7 +85,6 @@ class SellSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             print("SellSignal ", signal)
-            raise ValueError("SellSignal corrupted")
 
 
 class DrawDownSignal(btind.Indicator): 

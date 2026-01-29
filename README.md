@@ -225,3 +225,16 @@ Mac ulimit -n 256 default to adapt old select program
 select / epoll / kqueue , select traverse / epoll notify (epoll_create / epoll_ctl / epoll_wait) / kqueue (kevent register / wait)
 
 epoll (red-black tree) io callback linux / kqueue macos trigger by lt and et
+
+Ray:
+** StoreAgent **基础设施服务（Infrastructure Service）** Detached 模式 (`lifetime="detached"`) **机制**：**全局注册（Pinned by GCS） 引用数 = 0 (来自脚本) + 1 (来自 GCS) = 1 **
+
+1.  **持久化连接**：它持有的 TCP/ZMQ 连接非常昂贵，不能因为你跑了一次 `backtest.py` 脚本结束了，连接就断开。下次跑还得重新连。
+2.  **共享复用**：你可能同时起 5 个不同的回测脚本（Driver），它们都要连接同一个 `StoreAgent`。如果是默认模式，谁创建谁负责销毁，很难共享。
+3.  **服务发现**：因为它是 Detached 且有名字（Name），任何后来的脚本只要知道名字 `StoreAgent_NodeID`，就能通过 `ray.get_actor()` 连上它，而不需要重新创建
+
+1.  `self.chan.put`  Actor 无法访问你本地进程的 Queue
+
+*   **原则** **Rx 流操作 (pipe/subscribe)**、**复杂中间态处理** 的逻辑，都应该 **留在 Actor 内部**
+*   **接口** Actor 对外只暴露 **“请求 -> 响应”** 的粗粒度接口
+

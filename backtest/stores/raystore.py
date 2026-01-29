@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import os
+import ray
 import numpy as np
 import pyarrow as pa
 from typing import Union, List, Mapping, Any, Generator, Tuple
@@ -31,7 +32,7 @@ from typing import List
 __all__ = ["BTStore"]
 
 
-class BTStore(Store):
+class RayBtStore(Store):
     '''Singleton class wrapping to control the connections.
 
     Params:
@@ -46,8 +47,8 @@ class BTStore(Store):
         value/cash refresh
     '''
     # autoregister when metaclass init 
-    BrokerCls = None  
-    DataCls = None  
+    RayBrokerCls = None  
+    RayDataCls = None 
 
     params = (
         ("md_addr", ("127.0.0.1:9000")),
@@ -57,16 +58,26 @@ class BTStore(Store):
     )
 
     def __init__(self): 
-        md_addr = os.getenv("MD_ADDR", self.p.md_addr).split(":")
-        mdapi = MdApi(addr=(md_addr[0], int(md_addr[1])))
-        self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
+        agent = self._start()
 
-        td_addr = os.getenv("TD_ADDR", self.p.td_addr).split(":")
-        tdapi = TdApi(client_id=self.p.client_id, addr=(td_addr[0], int(td_addr[1])), timeout=self.p.timeout)
-        self.broker = self.BrokerCls(tdapi=tdapi)
+        self._feed = self.RayDataCls(agent=agent, timeout=self.p.timeout) 
+        self.broker = self.RayBrokerCls(agent=agent)
 
     def _start(self):
-        pass
+        super().__init__()
+        agent_handle = self._connect_to_agent()
+        return agent_handle
+
+    def _connect_to_agent(self):
+        try:
+            current_node_id = ray.get_runtime_context().get_node_id()
+            
+            actor_name = f"StoreAgent_{current_node_id}"
+            agent = ray.get_actor(actor_name, namespace="backtest")
+            return agent
+        except Exception as e:
+            raise RuntimeError(f"Failed to connect to local StoreAgent. "
+                               f"Make sure agents are started! Error: {e}")
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it

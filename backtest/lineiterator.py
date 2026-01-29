@@ -48,8 +48,7 @@ class MetaLineIterator(LineSeries.__class__):
         lastarg = 0
         _obj.datas = []
         for arg in args:
-            print("lineiterator arg ", arg)
-            # import pdb; pdb.set_trace()
+            # print("lineiterator arg ", arg)
             if isinstance(arg, LineRoot):
                 _obj.datas.append(LineSeriesMaker(arg)) # line to LineSeries
 

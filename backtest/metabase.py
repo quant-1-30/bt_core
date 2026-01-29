@@ -316,13 +316,13 @@ class MetaParams(MetaBase):
 
         # Create params and set the values from the kwargs
         params = cls.params()
-        print('before kwargs ', kwargs)
+        # print('before kwargs ', kwargs)
         for pname, pdef in cls.params._getitems():
             # kwargs 覆盖 params默认值
             setattr(params, pname, kwargs.pop(pname, pdef)) # pop ---> kwargs in-place
 
         # Create the object and set the params in place
-        print("after kwargs ", kwargs)
+        # print("after kwargs ", kwargs)
         _obj, args, kwargs = super(MetaParams, cls).donew(*args, **kwargs)
         _obj.params = params
         _obj.p = params  # shorter alias
