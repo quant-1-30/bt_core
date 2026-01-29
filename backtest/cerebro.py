@@ -433,10 +433,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
             Strategy classes added with ``addstrategy``
         ''' 
         # Prepare feed
+        print("cerebro run data start")
         self.adddata(dmaster=True)
         for data in self.datas:
             data._start(**kwargs)
 
+        print("cerebro run data._start finish")
         # Prepare timers
         if not self._pretimers:
             self._pretimers.append(Timer(when=Session.SESSION_START))  # add default timer to adjust T+1
@@ -507,6 +509,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                              **skwargs)
 
         # strategy cartesian product
+        print("cerebro run runstrategies")
         iterstrats = itertools.product(*self.strats)
         for iterstrat in iterstrats: # let's skip process "spawning" when mp
             runstrat = self.runstrategies(iterstrat, **kwargs)

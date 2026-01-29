@@ -18,6 +18,7 @@ from tests.sample.ind import *
 def run_backtest(rq_config, sid_map):
     cerebro = bt.Cerebro(client_id=uuid.UUID(rq_config["client_id"]).bytes, writer=False)  
     cerebro.addstore("ray") # RayBtStore() light proxy store
+    print("run_backtest 1", cerebro.calendar_days, cerebro.markets)
     sid = sid_map["sid"]
     # try:
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
@@ -33,6 +34,7 @@ def run_backtest(rq_config, sid_map):
     cerebro.addsizer() # default fixed 
     cerebro.addrisk(thres=0.75) # default tl
 
+    print("run_backtest 2")
     # Parallel(n_jobs=pool_size)(delayed(rpc)(meta) for meta in batches) # Parallel(n_jobs=2, return_as="generator")
     cerebro.run(
         cash = rq_config["cash"],
@@ -42,14 +44,15 @@ def run_backtest(rq_config, sid_map):
         benchmark = rq_config["benchmark"],
         out="%s.csv" % sid
     )
-    result =  {"sid": sid, "status": 0}
-    # except Exception as e:
-    #     result = {
-    #             "sid": sid,
-    #             "status": 1,
-    #             "error": str(e)
-    #         }
-    return result
+    print("run_backtest 3")
+    # result =  {"sid": sid, "status": 0}
+    # # except Exception as e:
+    # #     result = {
+    # #             "sid": sid,
+    # #             "status": 1,
+    # #             "error": str(e)
+    # #         }
+    # return result
 
 
 def get_avaiable(rq_config):
@@ -116,6 +119,8 @@ def main(): # distribute on driver script
     print(f"Submitted {len(jobs)} tasks. Waiting for results...")
 
     pending = jobs
+
+    print("All jobs submitted")
     
     while pending:
         done, pending = ray.wait(pending, num_returns=min(10, len(pending)))
@@ -130,7 +135,7 @@ def main(): # distribute on driver script
                 print(f"Task failed: {e}")
 
     print("All done!")
-    ray.shutdown()
+    # ray.shutdown()
 
 
 if __name__ == '__main__':

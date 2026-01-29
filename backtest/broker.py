@@ -31,7 +31,6 @@ class MetaBroker(MetaParams):
         '''Class has already been created ... register'''
         # Initialize the class
         super(MetaBroker, cls).__init__(name, bases, dct)
-        BTStore.BrokerCls = cls
     
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaBroker, cls).donew(*args, **kwargs) 

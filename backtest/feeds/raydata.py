@@ -50,7 +50,7 @@ class CalendarRemote:
         
         agent = getattr(instance, 'agent', None) 
         if self._calendar:
-            self._calendar = agent.get_calendar.remote()
+            self._calendar = ray.get(agent.get_calendar.remote())
         return self._calendar
 
 
@@ -63,12 +63,13 @@ class InstrumentRemote:
         raise AttributeError("not allowed to set")
     
     def __get__(self, instance, owner):
+        print("instrument __Get__")
         if instance is None: return self
         
         agent = getattr(instance, 'agent', None)
 
         if len(self.assets) == 0:
-            self.assets = agent.get_instrument.remote()
+            self.assets = ray.get(agent.get_instrument.remote())
         return self.assets
 
 
@@ -118,20 +119,21 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
         # -------------------------------------------------------------
         # 启动数据拉取线程
         # -------------------------------------------------------------
-        self._streaming_thread = threading.Thread(
-            target=self._fetch_remote,
-            args=(body,) # must be tuple / kwargs
-        )
-        self._streaming_thread.daemon = True
-        self._streaming_thread.start()
 
-            
+        print("_streaming_thread ", self.agent)
         index = kwargs.get("benchmark", b"000001")
         bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index])
         self.bench = ray.get(self.agent.get_benchmark.remote(bench_body))
-        
-        self.adj_factors = ray.get(self.agent.get_factor.remote(body)) # sync 
-        
+        print("_start benchmark")
+        # self.adj_factors = ray.get(self.agent.get_factor.remote(body)) # sync 
+        # print("_start adj_Factors")
+
+        self._streaming_thread = threading.Thread(
+        target=self._fetch_remote,
+        args=(body,) # must be tuple / kwargs
+        )
+        self._streaming_thread.daemon = True
+        self._streaming_thread.start()
         self.sid = sids
         sid_str = [sid.decode("utf-8") for sid in sids]
         self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed

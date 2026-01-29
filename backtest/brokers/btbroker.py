@@ -19,15 +19,37 @@
 #
 ###############################################################################
 import threading
+from backtest.metabase import with_metaclass
 from typing import List, Union, Generator
 
 from backtest.broker import BrokerBase
+from backtest.stores.btstore import BTStore
 from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp
 
 __all__ = ["BTBroker"]
 
 
-class BTBroker(BrokerBase):
+class MetaBtBroker(BrokerBase.__class__):
+    
+    def __init__(cls, name, bases, dct):
+        super(MetaBtBroker, cls).__init__(name, bases, dct)
+        BTStore.BrokerCls = cls # auto Register with the store when type class __import__
+
+    def donew(cls, *args, **kwargs):
+        print("MetaBtBroker donew kwargs ", kwargs)
+        _obj, args, kwargs = super(MetaBtBroker, cls).donew(*args, **kwargs)
+        print("MetaBtBroker donew kwargs after", kwargs)
+        return _obj, args, kwargs
+    
+    def dopostinit(cls, _obj, *args, **kwargs):
+        print("MetaBtBroker dopostinit kwargs ", kwargs)
+        _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
+        print("MetaBtBroker dopostinit kwargs ", kwargs)
+        _obj.tdapi = _obj.p.tdapi
+        return _obj, args, kwargs
+
+
+class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
     '''Broker implementation for Interactive Brokers.
 
     This class maps the orders/positions from Interactive Brokers to the

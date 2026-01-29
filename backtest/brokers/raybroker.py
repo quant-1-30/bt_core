@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import threading
+import ray
 from typing import List, Union, Generator
 
 from backtest.broker import BrokerBase
@@ -82,32 +83,32 @@ class RayBtBroker(with_metaclass(MetaRayBtBroker, BrokerBase)):
         return [r.body for r in data]
     
     def register(self, body: RegisterBody) -> List[Resp]:
-        data = self.agent.register.remote(body)
+        data = ray.get(self.agent.register.remote(body))
         body = self.get_body(data) # body=ExperimentBody
         return body[0].experiment_id
     
     def set_cash(self, body: CashBody, experiment_id: bytes) -> List[Resp]:
-        data = self.agent.set_cash.remote(experiment_id, body)
+        data = ray.get(self.agent.set_cash.remote(experiment_id, body))
         body = self.get_body(data) # None
         return body
 
     def getvalue(self, topic: int, experiment_id='') -> List[Resp]:
-        data = self.agent.getvalue.remote(experiment_id, topic) 
+        data = ray.get(self.agent.getvalue.remote(experiment_id, topic)) 
         body = self.get_body(data) # PositionBody / AccountBody 
         return body
     
     def subscribe(self, topic:int, body: QueryBody, experiment_id:str) -> List[Resp]: 
-        data = self.agent.subscribe.remote(experiment_id, topic, body)
+        data = ray.get(self.agent.subscribe.remote(experiment_id, topic, body))
         body = self.get_body(data) # TradeBody / PositionBody / AccountBody 
         return body
 
     def submit(self, body: OrderBody, experiment_id:str) -> List[Resp]:
-        data = self.agent.submit.remote(experiment_id, body) 
+        data = ray.get(self.agent.submit.remote(experiment_id, body)) 
         body = self.get_body(data) # TradeBody 
         return body
 
     def on_dt_over(self, body: QueryBody, experiment_id:str) -> List[Resp]:
-        data = self.agent.on_dt_over.remote(experiment_id, body)
+        data = ray.get(self.agent.on_dt_over.remote(experiment_id, body))
         body = self.get_body(data) # None 
         return body
     

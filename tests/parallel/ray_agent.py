@@ -1,5 +1,6 @@
 import ray
 import os
+import asyncio
 import reactivex.operators as ops
 import ray.util.scheduling_strategies
 
@@ -8,9 +9,10 @@ from bt_sdk.core.protocol import *
 from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
 
 
-@ray.remote
+@ray.remote(max_concurrency=1000) 
 class StoreAgent:
     def __init__(self, config={}):
+
         print(f"StoreAgent initialized on Node: {ray.get_runtime_context().get_node_id()}")
         # md_addr = os.getenv("MD_ADDR").split(":")
         self.batch_size = 1000
@@ -21,62 +23,70 @@ class StoreAgent:
         td_addr = "127.0.0.1:8888"
         client_id = b"e9f8cd38-e73c-453f-8a47-55beda640ae6"
         self.tdapi = TdApi(client_id=client_id, addr=(td_addr[0], int(td_addr[1])))
+
+        self._calendar = {} 
+        self._instrument = {} 
         self._benchmark_cache = {} 
-
-    def get_calendar(self):
-
-        def process_batch(table):
-            datas.append(table.to_numpy()) 
-
-        datas = []
-        obs = mdapi.get_calendar()
-        obs.subscribe( 
-            on_next=process_batch,
-            on_completed=lambda: print("Calendar Loaded")
-        )
-        obs.run() 
-        calendar = np.concatenate(datas)
-        return calendar
     
-    def get_instrument(self):
-        
-        def process_batch(table):
-            datas.extend(table)
+    async def get_calendar(self):
+        if self._calendar:
+            return self._calendar
+        print(f"Agent: Fetching Calendar")
 
-        datas = []
-        obs = mdapi.get_instrument().pipe( # ops.buffer_with_count(self.batch_size) # ops.to_list()
-            ops.buffer_with_time_or_count(
-                timespan=0.5,            
-                count=self.batch_size    
-                )
-            )
-        obs.subscribe(
-            on_next=process_batch
-        )
-        obs.run() 
-        
-        table = pa.concat_tables(datas)
-        assets = table.to_pylist() 
+        calendar = await self.mdapi.async_get_calendar(body)
+        # calendar = np.concatenate(data_chunks)
+        if calendar:
+            self._instrument = assets
+        return 
+
+    async def get_instrument(self):
+        if self._instrument:
+            return self._instrument
+        print(f"Agent: Fetching Instrument")
+
+        assets = await self.mdapi.async_get_instrument(body)
+        if assets:
+            self._instrument = assets
         return assets
 
-    def get_stream(self, body: QueryBody):
-        """
-        Queue as bridge between rx callback and Generator
-        """
-        q = queue.Queue(maxsize=5) 
-            
-        def on_batch_ready(batch_table):
-            ref = ray.put(batch_table)
-            q.put(ref) # ref via plasma zero_copy
+    async def get_benchmark(self, body: QueryBody):
+        cache_key = (tuple(body.sid), body.start_date, body.end_date)
+        if cache_key in self._benchmark_cache:
+            return self._benchmark_cache[cache_key]
 
-        # body = QueryBody(sid=[sid], start_date=start_date, end_date=end_date) # 
-            
-        observable = self.mdapi.subscribe(body)
-        observable.subscribe( # nonblocking and let rx run in daemon thread
-            on_next=on_batch_ready, # buffer_with_count
-            on_error=lambda e: q.put(e),
-            on_completed=lambda: q.put(StopIteration) 
-        )
+        print(f"Agent: Fetching benchmark for {body.sid}...")
+
+        bench_table = await self.mdapi.async_get_benchmark(body)
+        # bench_table = pa.concat_tables(data_chunks, promote_options="permissive")
+        
+        self._benchmark_cache[cache_key] = bench_table
+        return bench_table 
+
+    async def get_adjfactor(self, body: QueryBody):
+         
+        factors = await self.mdapi.async_get_factor(body)
+        return factors
+
+    async def get_stream(self, body: QueryBody):
+        print(f"Agent: Start streaming {body}")
+        
+        q = asyncio.Queue(maxsize=5)
+
+        def on_next(table):
+            print("on_next :", table)
+            loop = asyncio.get_running_loop()
+            # ray.put 是耗时操作，尽量放在回调里做，但要注意线程安全
+            # 如果 ray.put 非线程安全，需要用 loop.call_soon_threadsafe 包装
+            try:
+                ref = ray.put(table)
+                asyncio.run_coroutine_threadsafe(q.put(ref), loop)
+            except Exception as e:
+                print(f"Error in on_next: {e}")
+
+        def on_complete():
+            asyncio.run_coroutine_threadsafe(q.put(None), loop)
+
+        self.sdk.mdapi.subscribe(body, on_next=on_next, on_completed=on_complete)
         try:
             while True:
                 ref = q.get()
@@ -87,72 +97,34 @@ class StoreAgent:
             if hasattr(subscription, 'dispose'):
                 subscription.dispose()
 
-    def get_adjfactor(self, body: QueryBody):
-        adj = self.mdapi.get_factor(body) 
-
-        factors = adj.raw_factors if adj else {} 
-        if factors:
-            factors = dict(sorted(factors.items())) 
-        return factors
-
-    def get_benchmark(self, body: QueryBody):
-
-        def process_batch(batch_list):
-            data_chunks.extend(batch_list)
-
-        cache_key = (tuple(body.sid), body.start_date, body.end_date)
-        if cache_key in self._benchmark_cache:
-            return self._benchmark_cache[cache_key]
-
-        data_chunks = []
-        obs = self.mdapi.get_benchmark(body).pipe( 
-            ops.buffer_with_time_or_count( # ops.do_action(on_next=process_batch)
-                timespan=0.5,            
-                count=self.batch_size    
-                ),
-            )
-        obs.subscribe(
-            on_next=process_batch
-        )
-        obs.run() 
-
-        if not data_chunks:
-            return None 
-
-        bench_table = pa.concat_tables(data_chunks)
-        self._benchmark_cache[cache_key] = bench_table
-        return bench_table 
-
-    def register(self, body: RegisterBody) -> List[Resp]:
+    async def register(self, body: RegisterBody) -> List[Resp]:
         fut = self.tdapi.register(body)
-        data = fut.result()
-        body = self.get_body(data) 
-        print("register body ", body)
-        return body[0].experiment_id
-    
-    def set_cash(self, body: CashBody, experiment_id: bytes) -> List[Resp]:
+        data = await asyncio.wrap_future(fut) # await asyncio.to_thread(submit)
+        return data
+
+    async def set_cash(self, body: CashBody, experiment_id: bytes) -> List[Resp]:
         fut = self.tdapi.set_cash(experiment_id, body)
-        data = fut.result()
+        data = await asyncio.wrap_future(fut)
         return data
 
-    def getvalue(self, topic: int, experiment_id='') -> List[Resp]:
+    async def getvalue(self, topic: int, experiment_id='') -> List[Resp]:
         fut = self.tdapi.getvalue.remote(experiment_id, topic) 
-        data = fut.result()
+        data = await asyncio.wrap_future(fut)
         return data
     
-    def subscribe(self, topic:int, body: QueryBody, experiment_id:str) -> List[Resp]: 
+    async def subscribe(self, topic:int, body: QueryBody, experiment_id:str) -> List[Resp]: 
         fut = self.tdapi.subscribe.remote(experiment_id, topic, body)
-        data = fut.result()
+        data = await asyncio.wrap_future(fut)
         return data
 
-    def submit(self, body: OrderBody, experiment_id:str) -> List[Resp]:
+    async def submit(self, body: OrderBody, experiment_id:str) -> List[Resp]:
         fut = self.tdapi.submit.remote(experiment_id, body) 
-        data = fut.result()
+        data = await asyncio.wrap_future(fut)
         return data
 
-    def on_dt_over(self, body: QueryBody, experiment_id:str) -> List[Resp]:
+    async def on_dt_over(self, body: QueryBody, experiment_id:str) -> List[Resp]:
         fut = self.tdapi.on_dt_over.remote(experiment_id, body)
-        data = fut.result()
+        data = await asyncio.wrap_future(fut)
         return data
     
     def stop(self):
