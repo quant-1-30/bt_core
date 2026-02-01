@@ -80,40 +80,33 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
     def get_body(data: list):
         return [r.body for r in data]
     
-    def register(self, body: RegisterBody) -> List[Resp]:
-        fut = self.tdapi.register(body)
-        data = fut.result()
+    def register(self, body:RegisterBody) -> List[Resp]:
+        data = self.tdapi.register(body)
         body = self.get_body(data) # body=ExperimentBody
-        print("register body ", body)
         return body[0].experiment_id
     
-    def set_cash(self, body: CashBody, experiment_id: bytes) -> List[Resp]:
-        fut = self.tdapi.set_cash(experiment_id, body)
-        data = fut.result()
+    def set_cash(self, experiment_id:bytes, body:CashBody) -> List[Resp]:
+        data = self.tdapi.set_cash(experiment_id, body)
         body = self.get_body(data) # None
         return body
 
-    def getvalue(self, topic: int, experiment_id='') -> List[Resp]:
-        fut = self.tdapi.getvalue(experiment_id, topic) 
-        data = fut.result()
+    def getvalue(self, topic:int, experiment_id:bytes) -> List[Resp]:
+        data = self.tdapi.getvalue(topic, experiment_id) 
         body = self.get_body(data) # PositionBody / AccountBody 
         return body
     
-    def subscribe(self, topic:int, body: QueryBody, experiment_id:str) -> List[Resp]: 
-        fut = self.tdapi.subscribe(experiment_id, topic, body)
-        data = fut.result()
+    def subscribe(self, topic:int, experiment_id:bytes) -> List[Resp]: 
+        data = self.tdapi.subscribe(topic, experiment_id, body)
         body = self.get_body(data) # TradeBody / PositionBody / AccountBody 
         return body
 
-    def submit(self, body: OrderBody, experiment_id:str) -> List[Resp]:
-        fut = self.tdapi.submit(experiment_id, body) 
-        data = fut.result()
+    def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
+        data = self.tdapi.submit(experiment_id, body) 
         body = self.get_body(data) # TradeBody 
         return body
 
-    def on_dt_over(self, body: QueryBody, experiment_id:str) -> List[Resp]:
-        fut = self.tdapi.on_dt_over(experiment_id, body)
-        data = fut.result()
+    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[Resp]:
+        data = self.tdapi.on_dt_over(experiment_id, body)
         body = self.get_body(data) # None 
         return body
     

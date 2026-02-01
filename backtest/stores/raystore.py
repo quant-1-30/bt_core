@@ -88,57 +88,69 @@ class RayBtStore(Store):
         '''Returns a feed with the given parameters'''
         return self._feed
 
+    @staticmethod
+    def get_body(data: list):
+        return [r.body for r in data]
+
 # ------------------------------------------------------------------- data api ---------------------------------------------------------------------
 
     def get_calendar(self) -> np.array:
         '''Returns the calendar data'''
-        return self._feed.calendar
+        return self._feed.get_calendar()
     
     def get_instrument(self) -> Dict[str, Any]:
         '''Returns the assets data'''
-        return self._feed.instrument
+        return self._feed.get_instrument()
     
     def get_benchmark(self) -> pa.Table:
-        table = self._feed.bench
-        return table
-    
-# ------------------------------------------------------------------- broker api --------------------------------------------------------------------
+        return self._feed.bench
 
-    def register(self, strategy, strat_info) -> List[Resp]:
-        extra_info = f"Strategy: {strat_info}; Feed: {self._feed.extra_info}"
-        body = RegisterBody(strategy=strategy, extra_info=extra_info, client_id=self.p.client_id)
-        resp = self.broker.register(body)
-        return resp
-    
-    def set_cash(self, experiment_id, session, cash) -> List[Resp]:
-        body = CashBody(cash=cash, session=session)
-        self.broker.set_cash(body, experiment_id)
-    
-    def getaccount(self, experiment_id) -> List[Resp]:
-        acct = self.broker.getvalue(SubTopic.Account, experiment_id)
-        return acct[0]
-    
-    def getposition(self, experiment_id) -> List[Resp]:
-        o = self.broker.getvalue(SubTopic.Position, experiment_id)
-        return o
-    
-    def subscribe(self, experiment_id, topic, body: QueryBody) -> List[Resp]:
-        return self.broker.subscribe(topic, body, experiment_id)
-    
-    def submit(self, experiment_id, body: OrderBody) -> List[Resp]:
-        trades = self.broker.submit(body, experiment_id)
-        return trades
-
-    def on_dt_over(self, experiment_id) -> List[Resp]:
+    def on_dt_over(self, experiment_id:bytes) -> List[Resp]:
         body = self._feed.on_dt_over()
         if body:
-            self.broker.on_dt_over(body, experiment_id)
-        return []
+            ray.get(self.broker.on_dt_over(experiment_id, body))
+        return [] 
+# ------------------------------------------------------------------- broker api --------------------------------------------------------------------
+
+    def register(self, strategy:str, strat_info:str) -> List[Resp]:
+        extra_info = f"Strategy: {strat_info}; Feed: {self._feed.extra_info}"
+        body = RegisterBody(strategy=strategy, extra_info=extra_info, client_id=self.p.client_id)
+
+        resp = ray.get(self.broker.register(body)) # block until finish
+        data = self.get_body(resp) 
+        print("register resp ", data)
+        return data[0].experiment_id # body=ExperimentBody
     
-    def cancel(self, order_id):
+    def set_cash(self, experiment_id:bytes, session:int, cash:float) -> List[Resp]:
+        body = CashBody(cash=cash, session=session)
+
+        resp = ray.get(self.broker.set_cash(experiment_id, body))
+        return resp
+    
+    def getaccount(self, experiment_id:bytes) -> List[Resp]:
+        resp = ray.get(self.broker.getvalue(SubTopic.Account, experiment_id))
+        acct = self.get_body(resp)# PositionBody / AccountBody 
+        return acct[0]
+    
+    def getposition(self, experiment_id:bytes) -> List[Resp]:
+        resp = ray.get(self.broker.getvalue(SubTopic.Position, experiment_id))
+        positions = self.get_body(resp) # PositionBody / AccountBody 
+        return positions
+    
+    def subscribe(self, topic:int, experiment_id:bytes, body:QueryBody) -> List[Resp]:
+        resp = ray.get(self.broker.subscribe(topic, experiment_id, body))
+        data = self.get_body(resp) # TradeBody / PositionBody / AccountBody 
+        return data
+    
+    def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
+        resp = ray.get(self.broker.submit(experiment_id, body))
+        trades = self.get_body(resp) # TradeBody 
+        return trades
+
+    def cancel(self, order_id:bytes):
         raise NotImplementedError("cancel not implemented in BTStore")
     
-    def stop(self, experiment_id):
+    def stop(self, experiment_id:bytes):
         '''Stops and tells the store to stop'''
         self.on_dt_over(experiment_id) # sync last 
         super().stop()

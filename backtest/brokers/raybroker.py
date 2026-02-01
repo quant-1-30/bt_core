@@ -78,37 +78,27 @@ class RayBtBroker(with_metaclass(MetaRayBtBroker, BrokerBase)):
         ("tdapi", ""),
     )
     
-    @staticmethod
-    def get_body(data: list):
-        return [r.body for r in data]
+    def register(self, body:RegisterBody) -> List[Resp]:
+        resp = self.agent.register.remote(body)
+        return resp # ObjectRef
     
-    def register(self, body: RegisterBody) -> List[Resp]:
-        data = ray.get(self.agent.register.remote(body))
-        body = self.get_body(data) # body=ExperimentBody
-        return body[0].experiment_id
+    def set_cash(self, experiment_id:bytes, body:CashBody) -> List[Resp]:
+        resp = self.agent.set_cash.remote(experiment_id, body)
+        return resp
+
+    def getvalue(self, topic:int, experiment_id:bytes) -> List[Resp]:
+        resp = self.agent.getvalue.remote(topic, experiment_id)
+        return resp
     
-    def set_cash(self, body: CashBody, experiment_id: bytes) -> List[Resp]:
-        data = ray.get(self.agent.set_cash.remote(experiment_id, body))
-        body = self.get_body(data) # None
-        return body
+    def subscribe(self, topic:int, experiment_id:bytes, body:QueryBody) -> List[Resp]: 
+        resp = self.agent.subscribe.remote(topic, experiment_id, body)
+        return resp
 
-    def getvalue(self, topic: int, experiment_id='') -> List[Resp]:
-        data = ray.get(self.agent.getvalue.remote(experiment_id, topic)) 
-        body = self.get_body(data) # PositionBody / AccountBody 
-        return body
-    
-    def subscribe(self, topic:int, body: QueryBody, experiment_id:str) -> List[Resp]: 
-        data = ray.get(self.agent.subscribe.remote(experiment_id, topic, body))
-        body = self.get_body(data) # TradeBody / PositionBody / AccountBody 
-        return body
+    def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
+        resp = self.agent.submit.remote(experiment_id, body)
+        return resp
 
-    def submit(self, body: OrderBody, experiment_id:str) -> List[Resp]:
-        data = ray.get(self.agent.submit.remote(experiment_id, body)) 
-        body = self.get_body(data) # TradeBody 
-        return body
-
-    def on_dt_over(self, body: QueryBody, experiment_id:str) -> List[Resp]:
-        data = ray.get(self.agent.on_dt_over.remote(experiment_id, body))
-        body = self.get_body(data) # None 
-        return body
+    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[Resp]:
+        resp = self.agent.on_dt_over.remote(experiment_id, body)
+        return resp
     

@@ -93,41 +93,41 @@ class BTStore(Store):
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
 
-    def register(self, strategy, strat_info) -> List[Resp]:
+    def register(self, strategy: str, strat_info: str) -> List[Resp]:
         extra_info = f"Strategy: {strat_info}; Feed: {self._feed.extra_info}"
         body = RegisterBody(strategy=strategy, extra_info=extra_info, client_id=self.p.client_id)
         resp = self.broker.register(body)
         return resp
     
-    def set_cash(self, experiment_id, session, cash) -> List[Resp]:
+    def set_cash(self, experiment_id: bytes, session: int, cash: float) -> List[Resp]:
         body = CashBody(cash=cash, session=session)
-        self.broker.set_cash(body, experiment_id)
+        self.broker.set_cash(experiment_id, body)
     
-    def getaccount(self, experiment_id) -> List[Resp]:
+    def getaccount(self, experiment_id: bytes) -> List[Resp]:
         acct = self.broker.getvalue(SubTopic.Account, experiment_id)
         return acct[0]
     
-    def getposition(self, experiment_id) -> List[Resp]:
-        o = self.broker.getvalue(SubTopic.Position, experiment_id)
-        return o
+    def getposition(self, experiment_id: bytes) -> List[Resp]:
+        positions = self.broker.getvalue(SubTopic.Position, experiment_id)
+        return positions
     
-    def subscribe(self, experiment_id, topic, body: QueryBody) -> List[Resp]:
-        return self.broker.subscribe(topic, body, experiment_id)
+    def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Resp]:
+        return self.broker.subscribe(topic, experiment_id, body)
     
-    def submit(self, experiment_id, body: OrderBody) -> List[Resp]:
-        trades = self.broker.submit(body, experiment_id)
+    def submit(self, experiment_id: bytes, body: OrderBody) -> List[Resp]:
+        trades = self.broker.submit(experiment_id, body)
         return trades
 
-    def on_dt_over(self, experiment_id) -> List[Resp]:
+    def on_dt_over(self, experiment_id: bytes) -> List[Resp]:
         body = self._feed.on_dt_over()
         if body:
-            self.broker.on_dt_over(body, experiment_id)
+            self.broker.on_dt_over(experiment_id, body)
         return []
     
-    def cancel(self, order_id):
+    def cancel(self, order_id: bytes):
         raise NotImplementedError("cancel not implemented in BTStore")
     
-    def stop(self, experiment_id):
+    def stop(self, experiment_id: bytes):
         '''Stops and tells the store to stop'''
         self.on_dt_over(experiment_id) # sync last 
         super().stop()

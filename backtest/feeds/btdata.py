@@ -40,27 +40,17 @@ __all__ = ["BtData"]
 class Calendar:
     '''Descriptor calendar'''
     def __init__(self, max_expected_size=100000):
-        self._current_idx = 0
-        self._allocated_buf = np.empty(max_expected_size, dtype=np.int32)
-
-    def _fill_buffer(self, table: pa.Table):
-        num_rows = table.num_rows
-        self._allocated_buf[self._current_idx: num_rows + self._current_idx] = table["date"].to_numpy()
-        self._current_idx += num_rows
+        self._calendar = []
 
     def __get__(self, instance, owner):
         if instance is None: return self
         
         mdapi = getattr(instance, 'mdapi', None)
-        
-        if self._current_idx == 0:
-            obs = mdapi.get_calendar()
-            obs.subscribe( # Disposable 
-                on_next=self._fill_buffer,
-                on_completed=lambda: print("Calendar Loaded")
-            )
-            obs.run() # block api
-        return self._allocated_buf[:self._current_idx]
+        if not self._calendar:
+            datas = mdapi.get_calendar()
+            from itertools import chain
+            self._calendar = list(chain(*datas))
+        return self._calendar
 
 
 class Instrument(object):
@@ -76,25 +66,8 @@ class Instrument(object):
         if instance is None: return self
         
         mdapi = getattr(instance, 'mdapi', None)
-
-        def process_batch(batch_list):
-            datas.extend(batch_list)
-
         if len(self.assets) == 0:
-            datas = []
-            # ops.buffer_with_count(self.batch_size) # ops.to_list()
-            obs = mdapi.get_instrument().pipe(
-                ops.buffer_with_time_or_count(
-                    timespan=0.5,            
-                    count=self.batch_size    
-                    )
-                )
-            obs.subscribe(
-                on_next=process_batch
-            )
-            obs.run() # run block api
-            
-            table = pa.concat_tables(datas)
+            table = mdapi.get_instrument() 
             # ctable = pa.concat_tables(tables, promote_options="permissive") # zero_copy , but combine_chunk is heavy memory ops
             self.assets = table.to_pylist() # row-wise dict list / table.to_pandas() and df.to_dict('records') # Arrow --> Pandas
         return self.assets
@@ -149,14 +122,14 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             on_error=lambda e: self.chan.put(e),
             on_completed=lambda: self.chan.put(StopIteration) 
         )
-        self.calc_adjfactor(body)
+        # self.calc_adjfactor(body)
 
         # calculate benchmark
         index = kwargs.get("benchmark", b"000001")
         body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
         self.calc_benchmark(body)
 
-        self.sid = sids
+        self.sids = sids
         sid_str = [sid.decode("utf-8") for sid in sids]
         self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
 
@@ -165,6 +138,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             if self._row_iter is not None:
                 try:
                     row = next(self._row_iter)
+                    print("_load row ", row)
                     if self.p.rtbar:
                         self._load_rtbar(row)
                     else:
@@ -221,23 +195,7 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             self.adj_factors = factors
 
     def calc_benchmark(self, body: QueryBody):
-
-        def process_batch(batch_list):
-            data.extend(batch_list)
-
-        data = []
-        obs = self.mdapi.get_benchmark(body).pipe( # pipe return observal
-            ops.buffer_with_time_or_count(
-                timespan=0.5,            
-                count=self.p.batch_size    
-                ),
-            # ops.do_action(on_next=process_batch)
-            )
-        obs.subscribe(
-            on_next=process_batch
-        )
-        obs.run() 
-        self.bench = pa.concat_tables(data)
+        self.bench = self.mdapi.get_benchmark(body)
 
     def stop(self):
         super().stop()

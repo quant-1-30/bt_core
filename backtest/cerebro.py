@@ -128,7 +128,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._preload()
     
     def _preload(self):
-        self.calendar_days = self.store.get_calendar()
+        # self.calendar_days = self.store.get_calendar()
         self.markets = self.store.get_instrument()
 
 # ------------------------------------------------------------------ callback --------------------------------------------------------------

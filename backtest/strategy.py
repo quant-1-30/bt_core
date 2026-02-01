@@ -57,9 +57,11 @@ class MetaStrategy(StrategyBase.__class__):
         _obj, args, kwargs = super(MetaStrategy, cls).donew(*args, **kwargs)
 
         # Find the owner and store it
-        _obj.env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
+        _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.store = cerebro.store # add store to strategy
-
+        
+        _obj.sizer = env.sizer # add sizing to strategy
+        _obj._r = env._r # add risk_control to strategy
         return _obj, args, kwargs
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -74,9 +76,6 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.writers = list()
         _obj._orders = list()
         _obj._trades = list()
-        _obj.sizer = None
-        _obj._r = None
-
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -84,8 +83,6 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
 
         _obj._periodset()
-        _obj.auto_reg() # generate experiment_id
-
         return _obj, args, kwargs
 
 
@@ -98,10 +95,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     _ltype = LineIterator.StratType
 
     lines = ('datetime', 'buy', 'sell') # lines = ('datetime',)
-
-    def auto_reg(self) -> str: # generate unique experiment_id
-        extra_info = json.dumps(self.p._getkwargs())
-        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -168,13 +161,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         super().qbuffer(savemem=savemem)
         self.minbuffer()
-    
+
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
+        self._init_env()
+        self.set_cash(**kwargs)
         self.qbuffer(savemem=savemem)
         self._periodrecalc()
-
-        self.on_setup(**kwargs)
 
         for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
             analyzer._start()
@@ -190,11 +183,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = [len(data) for data in self.datas]
         self.on_dt_over = False
 
-    def on_setup(self, **kwargs): # setup sizer / risk / cash
-        env = self.env
-        self.sizer = env.sizer # add sizing to strategy
-        self._r = env._r
-        
+    def _init_env(self): # setup sizer / risk / cash
+        extra_info = json.dumps(self.p._getkwargs())
+        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
+
+    def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
         self.store.set_cash(self.experiment_id, session, cash)
@@ -320,7 +313,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         _sizer = int(self.sizer.getsizing(self.datas))
 
         order = OrderBody(
-                    sid=self.datas[0].sid[0],
+                    sid=self.datas[0].sids[0],
                     pricelimit=plimit,
                     sizer_ratio=_sizer, 
                     order_type=0,
@@ -345,7 +338,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
 
         order = OrderBody(
-                      sid=self.datas[0].sid[0],
+                      sid=self.datas[0].sids[0],
                       sizer_ratio=_sizer, 
                       pricelimit=plimit,     
                       order_type=1,
@@ -555,18 +548,18 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         ('_accumulate', True),
     )
     
-    def auto_reg(self) -> str: # generate unique experiment_id
+    def _start(self, savemem, **kwargs):
+        # self._sentinel = None  # sentinel for order concurrency
+        super(SignalStrategy, self)._start(savemem, **kwargs)
+
+    def _init_env(self):
         extra_infos = []
         for sig_type, sigs in self._signals.items():
             _info = [f"{sig.__class__.__name__}({json.dumps(sig.p._getkwargs())})" for sig in sigs]
             extra_infos.extend(_info)
-        
         extra_info = ','.join(extra_infos)
+        
         self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
-
-    def _start(self, savemem, **kwargs):
-        # self._sentinel = None  # sentinel for order concurrency
-        super(SignalStrategy, self)._start(savemem, **kwargs)
 
     def signal_add(self, sigtype, signal):
         self._signals[sigtype].append(signal)

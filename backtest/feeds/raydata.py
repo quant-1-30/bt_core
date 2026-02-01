@@ -40,37 +40,39 @@ from bt_sdk.core.protocol import QueryBody
 __all__ = ["RayBtData"]
 
 
-class CalendarRemote:
-    '''Descriptor calendar'''
-    def __init__(self):
-        self._calendar = []
+# class CalendarRemote:
+#     '''Descriptor calendar'''
+#     def __init__(self):
+#         self._calendar = []
 
-    def __get__(self, instance, owner):
-        if instance is None: return self
+#     def __get__(self, instance, owner):
+#         if instance is None: return self
         
-        agent = getattr(instance, 'agent', None) 
-        if self._calendar:
-            self._calendar = ray.get(agent.get_calendar.remote())
-        return self._calendar
+#         agent = getattr(instance, 'agent', None) 
+#         if self._calendar:
+#             self._calendar = ray.get(agent.get_calendar.remote())
+#         return self._calendar
 
 
-class InstrumentRemote:
-    '''Descriptor instrument'''
-    def __init__(self):
-        self.assets = {}
+# class InstrumentRemote:
+#     '''Descriptor instrument'''
+#     def __init__(self):
+#         self.assets = {}
     
-    def __set__(self, instance, value):
-        raise AttributeError("not allowed to set")
+#     def __set__(self, instance, value):
+#         raise AttributeError("not allowed to set")
     
-    def __get__(self, instance, owner):
-        print("instrument __Get__")
-        if instance is None: return self
+#     def __get__(self, instance, owner):
+#         print("instrument __Get__")
+#         if instance is None: return self
         
-        agent = getattr(instance, 'agent', None)
+#         agent = getattr(instance, 'agent', None)
 
-        if len(self.assets) == 0:
-            self.assets = ray.get(agent.get_instrument.remote())
-        return self.assets
+#         if len(self.assets) == 0:
+#             self.assets = ray.get(agent.get_instrument.remote())
+#             print("self.assets ", self.assets)
+#         return self.assets
+
 
 
 class MetaRayBtData(DataBase.__class__):
@@ -103,40 +105,37 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
         ("timeout", 10)
     )
 
-    calendar = CalendarRemote() 
-    instrument = InstrumentRemote()
-
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
         self._row_iter = None 
 
-        sids = kwargs["sid"]
+        self.sids = kwargs["sid"]
+        index = kwargs.get("benchmark", b"000001")
         start_date = kwargs["fromdate"]
         end_date = kwargs["todate"]
         
-        body = QueryBody(start_date=start_date, end_date=end_date, sid=sids)
-            
-        # -------------------------------------------------------------
-        # 启动数据拉取线程
-        # -------------------------------------------------------------
+        str_sid = [sid.decode("utf-8") for sid in self.sids]
+        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(str_sid)}" 
 
-        print("_streaming_thread ", self.agent)
-        index = kwargs.get("benchmark", b"000001")
+        body = QueryBody(start_date=start_date, end_date=end_date, sid=self.sids)
         bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index])
-        self.bench = ray.get(self.agent.get_benchmark.remote(bench_body))
-        print("_start benchmark")
-        # self.adj_factors = ray.get(self.agent.get_factor.remote(body)) # sync 
-        # print("_start adj_Factors")
-
+        self.preload(body, bench_body) 
+            
+        print("_streaming_thread ", self.agent)
         self._streaming_thread = threading.Thread(
         target=self._fetch_remote,
-        args=(body,) # must be tuple / kwargs
-        )
-        self._streaming_thread.daemon = True
+        daemon=True,
+        args=(body,))
         self._streaming_thread.start()
-        self.sid = sids
-        sid_str = [sid.decode("utf-8") for sid in sids]
-        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+        print("finish feed _start")
+
+    def preload(self, body: QueryBody, benh_body: QueryBody):
+        fut_factor = self.agent.get_adjfactor.remote(body)
+        fut_bench = self.agent.get_benchmark.remote(benh_body)
+
+        self.bench = ray.get(fut_bench, timeout=20)
+        self.adj_factors = ray.get(fut_factor, timeout=20)
+        print(f"[_start] Benchmark and {self.sids} Factors received.", len(self.adj_factors), len(self.bench))
 
     def _fetch_remote(self, body: QueryBody):
         """
@@ -147,7 +146,8 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
             remote_gen = self.agent.get_stream.remote(body) # Actor generator
             
             for data_ref in remote_gen:
-                batch_table = ray.get(data_ref) # fetch ObjectRef and Zero_copy
+                inner_ref = ray.get(data_ref) # deref twice 
+                batch_table = ray.get(inner_ref)
                 self.chan.put(batch_table)
 
             self.chan.put(StopIteration)
@@ -206,3 +206,11 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
         self.lines.volume[0] = row[2]
         self.lines.amount[0] = row[3]
         return True
+
+    def get_instrument(self):
+        assets = ray.get(self.agent.get_instrument.remote())
+        return assets
+
+    def get_calendar(self):
+        _calendar = ray.get(self.agent.get_calendar.remote())
+        return _calendar

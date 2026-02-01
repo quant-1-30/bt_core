@@ -83,7 +83,7 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._record_adj_dt = 0
         _obj.extra_info = ""
         _obj.bench = None # benchmark
-        _obj.sid = b''
+        _obj.sids = [] # b''
         print("MetaAbstractDataBase dopostinit finish ")
         return _obj, args, kwargs
 

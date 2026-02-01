@@ -17,8 +17,8 @@ from tests.sample.ind import *
 @ray.remote
 def run_backtest(rq_config, sid_map):
     cerebro = bt.Cerebro(client_id=uuid.UUID(rq_config["client_id"]).bytes, writer=False)  
-    cerebro.addstore("ray") # RayBtStore() light proxy store
-    print("run_backtest 1", cerebro.calendar_days, cerebro.markets)
+    cerebro.addstore("ray") 
+    print("run_backtest calendar and markets ", len(cerebro.calendar_days), len(cerebro.markets))
     sid = sid_map["sid"]
     # try:
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
@@ -34,8 +34,7 @@ def run_backtest(rq_config, sid_map):
     cerebro.addsizer() # default fixed 
     cerebro.addrisk(thres=0.75) # default tl
 
-    print("run_backtest 2")
-    # Parallel(n_jobs=pool_size)(delayed(rpc)(meta) for meta in batches) # Parallel(n_jobs=2, return_as="generator")
+    print("run_backtest")
     cerebro.run(
         cash = rq_config["cash"],
         sid = [sid],
@@ -44,7 +43,6 @@ def run_backtest(rq_config, sid_map):
         benchmark = rq_config["benchmark"],
         out="%s.csv" % sid
     )
-    print("run_backtest 3")
     # result =  {"sid": sid, "status": 0}
     # # except Exception as e:
     # #     result = {
@@ -55,23 +53,35 @@ def run_backtest(rq_config, sid_map):
     # return result
 
 
-def get_avaiable(rq_config):
+def submit_task(nodes, rq_config, sid_map):
+    node_count = len(nodes)
+    # dispatcher_node = nodes[i % node_count]
+    # strategy = ray.util.scheduling_strategies.NodeAffinitySchedulingStrategy( # force binding / local unneccessary
+    #     node_id=dispatcher_node,
+    #     soft=True # wait util node is avaiable 
+    # )
+    job = run_backtest.options(
+        # scheduling_strategy=strategy,
+        num_cpus=1 
+    ).remote(rq_config, sid_map) 
+    return job
+
+
+def get_avail(rq_config):
     cerebro = bt.Cerebro(client_id=uuid.UUID(rq_config["client_id"]).bytes, writer=False)  
     cerebro.addstore()
 
-    ranges = [rq_config["fromdate"], rq_config["todate"]]
     market_assets = cerebro.markets
-
     if not market_assets:
         return []
 
     delist = [m['delist'] if m['delist'] else np.inf for m in market_assets]
     first = [m['first_trading'] for m in market_assets]
-
     arr_delist = np.array(delist) # dtype='datetime64[D]'
     arr_first = np.array(first)
 
-    keep_mask = (arr_first <= ranges[1]) & (arr_delist >= ranges[0])
+    intervals = [rq_config["fromdate"], rq_config["todate"]]
+    keep_mask = (arr_first <= intervals[1]) & (arr_delist >= intervals[0])
     avaiables = list(compress(market_assets, keep_mask))
     print("avaiables :", len(avaiables))
     del cerebro
@@ -86,53 +96,37 @@ def main(): # distribute on driver script
         "todate": 20260101,
         "benchmark": b"000001"
     }
-    jobs = []
-    results = []
-    assets = get_avaiable(rq_config)
+    pending = results = []
+    ray_window = 6 # to avoid put all tasks
+    assets = get_avail(rq_config)
     
     ray.init(address="auto", namespace="backtest", ignore_reinit_error=True) # --address auto # connect exist cluster
-
     active_nodes = [
         n for n in ray.nodes() 
         # if n["Alive"] and "node:127.0.0.1" not in n["Resources"] 
         if n["Alive"] 
     ]
-    
     node_ids = [n["NodeID"] for n in active_nodes]
-    node_count = len(node_ids)
-    print(f"Found {node_count} worker nodes ready for dispatch.")
 
+    submit = partial(submit_task, nodes=node_ids, rq_config=rq_config)
     
-    for i, sid_map in enumerate(assets): # Round-Robin
-        dispatcher_node = node_ids[i % node_count]
-        strategy = ray.util.scheduling_strategies.NodeAffinitySchedulingStrategy( # force binding
-            node_id=dispatcher_node,
-            soft=False # wait util node is avaiable 
-        )
-        job = run_backtest.options(
-            scheduling_strategy=strategy,
-            num_cpus=1 
-        ).remote(rq_config, sid_map)
-        
-        jobs.append(job)
+    for _ in range(ray_window): # initialize
+        if assets:
+            pending.append(submit(sid_map=assets.pop()))
 
-    print(f"Submitted {len(jobs)} tasks. Waiting for results...")
-
-    pending = jobs
-
-    print("All jobs submitted")
-    
     while pending:
-        done, pending = ray.wait(pending, num_returns=min(10, len(pending)))
+        done, pending = ray.wait(pending, num_returns=1)
         
         for ref in done:
             try:
                 res = ray.get(ref)
                 results.append(res)
-                if len(results) % 100 == 0:
-                    print(f"Progress: {len(results)}/{len(all_sids)}")
+                if len(results) % ray_window == 0:
+                    print(f"Progress: {len(results)}/{len(assets)}")
             except Exception as e:
                 print(f"Task failed: {e}")
+        if assets:
+            pending.append(submit(sid_map=assets.pop()))
 
     print("All done!")
     # ray.shutdown()
