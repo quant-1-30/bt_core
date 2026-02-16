@@ -73,5 +73,5 @@ class Broker(bt.TimeFrameAnalyzerBase):
         self._usedate = tf >= bt.TimeFrame.Days
 
     def on_dt_over(self):
-        v, _ = self._owner.getvalue()
-        self.rets[self.dtcmp] = v
+        snap = self._owner.get_snapshot()
+        self.rets[self.dtcmp] = snap.account

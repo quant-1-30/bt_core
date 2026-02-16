@@ -128,7 +128,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         for dline in self.lines:
             dline.updateminperiod(minperiod)
-            print("feed updateminperiod line ", dline, dline._minperiod)
+            # print("feed updateminperiod line ", dline, dline._minperiod)
 
     def _start(self, *args, **kwargs):
         self.start(*args, **kwargs)

@@ -114,17 +114,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.sizer = None
         
         self._plot = Plot()
-        # self._start()
 
-    # def _start(self):
-    #     self.addstore() 
-    #     self._preload()
-
-    def addstore(self, store: str=''):
+    def addstore(self, store: str='', agent=None):
         '''Adds an ``Store`` instance to the if not already present'''
         store = store if store else self.p.store
         storecls = _stores[store]
-        self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout)
+        self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, agent=agent)
         self._preload()
     
     def _preload(self):

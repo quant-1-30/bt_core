@@ -76,6 +76,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.writers = list()
         _obj._orders = list()
         _obj._trades = list()
+        _obj.snapshot = None
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -190,7 +191,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
-        self.store.set_cash(self.experiment_id, session, cash)
+        self.snapshot = self.store.set_cash(self.experiment_id, session, cash)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -266,8 +267,23 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
-        return self._sizer.getsizing()[self._id]
+        data = self.datas[0]
+        pos_snap = self.snapshot.positions
+        acct_snap = self.snapshot.account
+        ratio = self.sizer.getsizing(data)
+        if isbuy:
+            price = data.lines.low[0]
+            cash = acct_snap.cash * ratio / 100
+            is_submit = True if price * 100 <= cash else False
+        else:
+            is_submit = pos_snap[0].available > 0 
+        return ratio, is_submit
 
+    def get_snapshot(self):
+        '''Returns the portfolio value and positions of strategy
+        '''
+        return self.snapshot
+    
     def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
@@ -310,22 +326,25 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        _sizer = int(self.sizer.getsizing(self.datas))
+        _sizer, is_allowed = self.getsizing()
+        if is_allowed:
+            order = OrderBody(
+                        sid=self.datas[0].sids[0],
+                        pricelimit=plimit,
+                        sizer_ratio=_sizer, 
+                        order_type=0,
+                        exec_type=0, 
+                        created_dt=int(self.lines.datetime[0]),
+                        filler=filler)
 
-        order = OrderBody(
-                    sid=self.datas[0].sids[0],
-                    pricelimit=plimit,
-                    sizer_ratio=_sizer, 
-                    order_type=0,
-                    exec_type=0, 
-                    created_dt=int(self.lines.datetime[0]),
-                    filler=filler)
+            snapshot = self.store.submit(self.experiment_id, order)
+            trades = snapshot.order
+            if trades:
+                print("buy trades ", trades)
+                self.lines.buy[0] = 1 
 
-        trades = self.store.submit(self.experiment_id, order)
-        if trades:
-            self.lines.buy[0] = 1 
-
-        self.notify_trade(order, trades)
+            self.notify_trade(order, trades)
+            self.snapshot = snapshot
         
     def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''
@@ -335,26 +354,30 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        _sizer = int(self.sizer.getsizing(self.datas, isbuy=False))
+        _sizer, is_allowed = self.getsizing(isbuy=False)
 
-        order = OrderBody(
-                      sid=self.datas[0].sids[0],
-                      sizer_ratio=_sizer, 
-                      pricelimit=plimit,     
-                      order_type=1,
-                      exec_type=execType, 
-                      created_dt=int(self.lines.datetime[0]),
-                      filler=filler)
+        if is_allowed:
+            order = OrderBody(
+                          sid=self.datas[0].sids[0],
+                          sizer_ratio=_sizer, 
+                          pricelimit=plimit,     
+                          order_type=1,
+                          exec_type=execType, 
+                          created_dt=int(self.lines.datetime[0]),
+                          filler=filler)
         
-        trades = self.store.submit(self.experiment_id, order)
-        if trades:
-            self.lines.sell[0] = -1
-            self.sizer.restore() # reset sizing pyramid 
+            snapshot = self.store.submit(self.experiment_id, order)
+            trades = snapshot.order
+            if trades:
+                print("sell trades ", trades)
+                self.lines.sell[0] = -1
+                self.sizer.restore() # reset sizing pyramid 
         
-        self.notify_trade(order, trades)
+            self.notify_trade(order, trades)
+            self.snapshot = snapshot
     
     def notify_timer(self, dts): # trigger on sessionstart due to T + 1 policy
-        self.store.on_dt_over(self.experiment_id) 
+        _ = self.store.on_dt_over(self.experiment_id) 
         self.on_dt_over = True
         
         # if self._rcheck():
@@ -428,7 +451,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ainfo = wrinfo.Analyzers
 
         # Internal Value Analyzer
-        acct, _ = self.getvalue()
+        snapshot = self.get_snapshot()
+        acct = snapshot.account
         ainfo.Value.End = acct.portfolio_value if acct else 0
 
         # no slave analyzers for writer
@@ -437,13 +461,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             ainfo[aname].Analysis = analyzer.get_analysis()
 
         return wrinfo
-    
-    def getvalue(self):
-        '''Returns the portfolio value and positions of strategy
-        '''
-        acct = self.store.getaccount(self.experiment_id)
-        postn = self.store.getposition(self.experiment_id) # vector
-        return (acct, postn)
     
     def clear(self):
         if self.on_dt_over:

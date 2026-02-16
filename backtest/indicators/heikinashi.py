@@ -20,7 +20,7 @@
 ###############################################################################
 
 import backtest as bt
-from backtest.operator import Max, Min
+from backtest.logic import Max, Min
 
 
 __all__ = ['HeikinAshi']

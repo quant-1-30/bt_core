@@ -75,15 +75,15 @@ class Calmar(bt.TimeFrameAnalyzerBase):
                                    compression=self.p.compression)
 
     def start(self):
-        v, _ = self._owner.getvalue()
+        snap = self._owner.getvalue()
         self._mdd = float('-inf')
         self._values = collections.deque([float('Nan')] * self.p.maxlen,
                                          maxlen=self.p.maxlen)
-        self._values.append(v)
+        self._values.append(snap.account)
 
     def on_dt_over(self):
-        v, _ = self._owner.getvalue()
-        self._values.append(v)
+        snap= self._owner.get_snapshot()
+        self._values.append(snap.account)
         rann = math.log(self._values[-1].portfolio_value / self._values[0].portfolio_value) / len(self._values)
         self._mdd = max(self._mdd, self._maxdd.maxdd)
         self.calmar = calmar = rann / (self._mdd or float('Inf'))

@@ -20,7 +20,7 @@
 ###############################################################################
 
 from backtest.indicator import Indicator
-from backtest.operator import And
+from backtest.logic import And
 
 
 class NonZeroDifference(Indicator):

@@ -121,13 +121,13 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
         bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index])
         self.preload(body, bench_body) 
             
-        print("_streaming_thread ", self.agent)
+        # print("_streaming_thread ", self.agent)
         self._streaming_thread = threading.Thread(
         target=self._fetch_remote,
         daemon=True,
         args=(body,))
         self._streaming_thread.start()
-        print("finish feed _start")
+        # print("finish feed _start")
 
     def preload(self, body: QueryBody, benh_body: QueryBody):
         fut_factor = self.agent.get_adjfactor.remote(body)

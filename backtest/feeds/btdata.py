@@ -116,29 +116,37 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
 
         # calculate tick and adj
         body = QueryBody(start_date=start_date, end_date=end_date, sid=sids)
+        index = kwargs.get("benchmark", b"000001")
+        bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
+        self.preload(body, bench_body)
+
         observable = self.mdapi.subscribe(body)
         observable.subscribe( # nonblocking 
             on_next=self.chan.put,
             on_error=lambda e: self.chan.put(e),
             on_completed=lambda: self.chan.put(StopIteration) 
         )
-        # self.calc_adjfactor(body)
-
-        # calculate benchmark
-        index = kwargs.get("benchmark", b"000001")
-        body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
-        self.calc_benchmark(body)
 
         self.sids = sids
         sid_str = [sid.decode("utf-8") for sid in sids]
         self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+
+    def preload(self, body: QueryBody, bench_body: QueryBody):
+        self.bench = self.mdapi.get_benchmark(bench_body)
+        
+        adj = self.mdapi.get_factor(body)
+        factors = adj.raw_factors if adj else {} # adj_factors
+        if factors:
+            factors = dict(sorted(factors.items())) # sort by key
+            self.adj_factors = factors
+        print(f"[_start] Benchmark and {self.sids} Factors received.", len(self.adj_factors), len(self.bench))
 
     def _load(self):
         while True:
             if self._row_iter is not None:
                 try:
                     row = next(self._row_iter)
-                    print("_load row ", row)
+                    # print("_load row ", row)
                     if self.p.rtbar:
                         self._load_rtbar(row)
                     else:

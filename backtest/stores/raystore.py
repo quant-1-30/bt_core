@@ -51,22 +51,19 @@ class RayBtStore(Store):
     RayDataCls = None 
 
     params = (
-        ("md_addr", ("127.0.0.1:9000")),
-        ("td_addr", ("127.0.0.1:8888")),
-        ("timeout", 10),
         ("client_id", b""),
     )
 
     def __init__(self): 
-        agent = self._start()
+        agent = self._resolve_agent()
 
         self._feed = self.RayDataCls(agent=agent, timeout=self.p.timeout) 
         self.broker = self.RayBrokerCls(agent=agent)
 
-    def _start(self):
-        super().__init__()
-        agent_handle = self._connect_to_agent()
-        return agent_handle
+    def _resolve_agent(self):
+            if self.p.agent is not None: # local Round-Robin
+                return self.p.agent
+            return self._connect_to_local_agent() # cluster Local Affinity 
 
     def _connect_to_agent(self):
         try:

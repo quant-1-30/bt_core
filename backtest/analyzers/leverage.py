@@ -44,9 +44,10 @@ class GrossLeverage(bt.TimeFrameAnalyzerBase):
         super(GrossLeverage, self).start()
         
     def on_dt_over(self):
-        v, _ = self._owner.getvalue()
+        snap = self._owner.get_snapshot()
+        acct = snap.account
         # Updates the leverage for "dtkey" (see base class) for each cycle
         # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
-        lev = (v.portfolio_value - v.cash) / v.portfolio_value
+        lev = (acct.portfolio_value - acct.cash) / acct.portfolio_value
         # self.rets[self.dtkey] = lev
         self.rets[self.dtcmp] = lev

@@ -81,7 +81,8 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         
-        acct, _ = self._owner.getvalue()
+        snap = self._owner.get_snapshot()
+        acct = snap.account
         value = acct.portfolio_value + acct.cash
 
         # update the maximum seen peak

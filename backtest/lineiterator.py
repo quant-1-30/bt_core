@@ -195,7 +195,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         indicators = self._lineiterators[LineIterator.IndType]
         indperiods = [ind._minperiod for ind in indicators]
         indminperiod = max(indperiods or [self._minperiod])
-        print("_periodrecalc ", indminperiod)
+        # print("_periodrecalc ", indminperiod)
         self.updateminperiod(indminperiod)
 
     def getindicators(self):

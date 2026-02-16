@@ -9,15 +9,16 @@ from bt_sdk.core.protocol import *
 from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
 
 
-@ray.remote(max_concurrency=100, num_cpus=1)  # signal thread max_concurrency ---> asyncio concurrent 
+@ray.remote(num_cpus=2, max_concurrency=1000) # default 0.1 used for socket light service
 class StoreAgent:
     def __init__(self, config={}):
+        load_dotenv()
         print(f"StoreAgent initialized on Node: {ray.get_runtime_context().get_node_id()}")
         # md_addr = os.getenv("MD_ADDR").split(":")
         self.mdapi = None
         self.tdapi = None
 
-        self.batch_size = 2 
+        self.batch_size = 10 
         self._calendar = {} 
         self._instrument = {} 
         self._benchmark_cache = {}
@@ -28,7 +29,7 @@ class StoreAgent:
             print(f"[Agent] Initializing APIs on Node {ray.get_runtime_context().get_node_id()}...")
 
             md_host = os.getenv("md_host", "127.0.0.1") # "172.20.10.3" 
-            md_port = os.getenv("md_port", 9000)
+            md_port = os.getenv("md_port", 50051)
             self.mdapi = MdApi(addr=(md_host, int(md_port)))
 
             td_host = os.getenv("td_host", "127.0.0.1") 
@@ -135,35 +136,56 @@ class StoreAgent:
         self.tdapi.disconnect()
 
 
-def start_agents(store_config={}):
-    ray.init(
-        address="auto", 
-        namespace="backtest")
-        # object_store_memory=20 * 1024 * 1024 * 1024) # ray init overwrite ray start --object_store_memory
+def start_agents(store_config={}, iscluster=False, pool_size=2):
+    """
+        local and cluster
+    """
+    if not ray.is_initialized():
+        ray.init(address="auto", namespace="backtest") # object_store_memory= **B # ray.init overwrite ray start command
 
-    nodes = [n for n in ray.nodes() if n["Alive"]]
-    for node in nodes:
-        node_id = node["NodeID"]
-        actor_name = f"StoreAgent_{node_id}"
-        try:
-            ray.get_actor(actor_name)
-            print(f"Agent {actor_name} already exists.")
-        except ValueError:
-            strategy = ray.util.scheduling_strategies.NodeAffinitySchedulingStrategy( # force deploy node 
-                node_id=node_id, soft=True
-            )
-            StoreAgent.options(
-                name=actor_name, 
-                lifetime="detached", # gcs regiter despite script exit
-                scheduling_strategy=strategy,
-                num_cpus=0.1 
-            ).remote(store_config)
-            print(f"Started {actor_name}")
+    if iscluster:
+        print("Starting agents in Node Binding mode...")
+
+        active_nodes = [
+            n for n in ray.nodes() 
+            if n["Alive"] and "node:127.0.0.1" not in n["Resources"] 
+            if n["Alive"] 
+        ]
+
+        for node in active_nodes:
+            node_id = node["NodeID"]
+            actor_name = f"StoreAgent_{node_id}"
+            try:
+                ray.get_actor(actor_name)
+            except ValueError:
+                strategy = ray.util.scheduling_strategies.NodeAffinitySchedulingStrategy( # force binding
+                    node_id=node_id, soft=True # wait util node is avaiable 
+                )
+                StoreAgent.options(
+                    name=actor_name,
+                    lifetime="detached",
+                    scheduling_strategy=strategy,
+                    # num_cpus=0.2,
+                    # max_concurrency=1000
+                ).remote()
+                print(f"Started {actor_name} on node {node_id}")
+    else:
+        print(f"Starting {pool_size} agents in Local mode...")
+        for i in range(pool_size):
+            actor_name = f"StoreAgent_Local_{i}" 
+            try:
+                ray.get_actor(actor_name)
+                print(f"Agent {actor_name} exists.")
+            except ValueError:
+                StoreAgent.options(
+                    name=actor_name,
+                    lifetime="detached",
+                    # num_cpus=0.2, 
+                    # max_concurrency=1000
+                ).remote()
+                print(f"Started {actor_name}")
 
 
 if __name__ == "__main__":
 
-    load_dotenv()
-    start_agents()
-    # agent = ray.get_actor("StoreAgent_xxxxx")
-    # ray.kill(agent) # ray stop 
+    start_agents(pool_size=2)

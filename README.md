@@ -247,3 +247,16 @@ ValueError: The configured object store size (25.0GiB) exceeds the optimal size 
 
 # Parallel(n_jobs=pool_size)(delayed(rpc)(meta) for meta in batches) # Parallel(n_jobs=2, return_as="generator")
 # export RAY_record_ref_creation_sites=1
+
+ray start --head --object-store-memory 21474836480 # 20G 
+
+ray service struck reason:
+1\  allocate memory and cpus
+2\ ray start memory = ray actor + 
+3\ Ray 的 CPU 资源是「并发上限约束」，而非「任务总数约束」
+
+export RAY_OBJECT_STORE_ALLOW_SLOW_STORAGE=0 # avoid swap to ssd
+
+
+ray start --head --num-cpus 8 --memory 34359738368 
+

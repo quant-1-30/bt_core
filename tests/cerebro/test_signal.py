@@ -21,7 +21,7 @@ class WeekPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             print("WeekPriceSignal ", signal)
-            # raise ValueError("WeekPriceSignal corrupted")
+            raise ValueError("WeekPriceSignal corrupted")
 
 
 class DailyPriceSignal(btind.Indicator): 
@@ -37,6 +37,7 @@ class DailyPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             print("DailyPriceSignal ", signal)
+            raise
 
 
 class MACDSignal(btind.Indicator): 
@@ -70,6 +71,7 @@ class VolSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0: # prob > 0.0 
             print("VolSignal ", signal)
+            raise
 
 
 class SellSignal(btind.Indicator): 
@@ -85,6 +87,7 @@ class SellSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0:
             print("SellSignal ", signal)
+            raise
 
 
 class DrawDownSignal(btind.Indicator): 
@@ -101,7 +104,7 @@ class DrawDownSignal(btind.Indicator):
 if __name__ == '__main__':
     
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
     cerebro.addstore() 
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
@@ -116,7 +119,7 @@ if __name__ == '__main__':
 
     cerebro.addsizer() # default fixed 
     cerebro.addrisk(thres=0.75) # default tl
-    cerebro.run(cash=100000, sid=[b"000413"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20210101, todate=20220101, benchmark=b"000001", out="signal.csv")
 
     # writer on 931 6y
     # writer off 835s 6y

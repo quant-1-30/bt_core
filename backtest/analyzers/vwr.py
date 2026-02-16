@@ -112,7 +112,7 @@ class VWR(bt.TimeFrameAnalyzerBase):
         super(VWR, self).start()
         # Add an initial placeholder for [-1] operation
             
-        self._pis, _ = self.strat.getvalue()  # keep initial value
+        self._pis = self.strat.get_snapshot()  # keep initial value
 
         self._pns = [None]  # keep final prices (value)
     

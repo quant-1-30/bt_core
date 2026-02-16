@@ -50,9 +50,8 @@ class BTStore(Store):
     DataCls = None  
 
     params = (
-        ("md_addr", ("127.0.0.1:9000")),
+        ("md_addr", ("127.0.0.1:50051")),
         ("td_addr", ("127.0.0.1:8888")),
-        ("timeout", 10),
         ("client_id", b""),
     )
 
@@ -64,9 +63,6 @@ class BTStore(Store):
         td_addr = os.getenv("TD_ADDR", self.p.td_addr).split(":")
         tdapi = TdApi(client_id=self.p.client_id, addr=(td_addr[0], int(td_addr[1])), timeout=self.p.timeout)
         self.broker = self.BrokerCls(tdapi=tdapi)
-
-    def _start(self):
-        pass
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
@@ -101,33 +97,31 @@ class BTStore(Store):
     
     def set_cash(self, experiment_id: bytes, session: int, cash: float) -> List[Resp]:
         body = CashBody(cash=cash, session=session)
-        self.broker.set_cash(experiment_id, body)
+        resp = self.broker.set_cash(experiment_id, body)
+        return resp[0]
     
-    def getaccount(self, experiment_id: bytes) -> List[Resp]:
-        acct = self.broker.getvalue(SubTopic.Account, experiment_id)
-        return acct[0]
-    
-    def getposition(self, experiment_id: bytes) -> List[Resp]:
-        positions = self.broker.getvalue(SubTopic.Position, experiment_id)
-        return positions
+    def getvalue(self, experiment_id: bytes) -> List[Resp]:
+        resp = self.broker.getvalue(SubTopic.Position, experiment_id)
+        return resp[0]
     
     def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Resp]:
         return self.broker.subscribe(topic, experiment_id, body)
     
     def submit(self, experiment_id: bytes, body: OrderBody) -> List[Resp]:
-        trades = self.broker.submit(experiment_id, body)
-        return trades
+        resp = self.broker.submit(experiment_id, body)
+        return resp[0]
 
     def on_dt_over(self, experiment_id: bytes) -> List[Resp]:
         body = self._feed.on_dt_over()
         if body:
-            self.broker.on_dt_over(experiment_id, body)
-        return []
+            resp = self.broker.on_dt_over(experiment_id, body)
+            return resp[0]
+        return None
     
     def cancel(self, order_id: bytes):
         raise NotImplementedError("cancel not implemented in BTStore")
     
     def stop(self, experiment_id: bytes):
         '''Stops and tells the store to stop'''
-        self.on_dt_over(experiment_id) # sync last 
+        _ = self.on_dt_over(experiment_id) # sync last 
         super().stop()

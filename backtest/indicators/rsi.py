@@ -20,7 +20,7 @@
 ###############################################################################
 
 from backtest.indicator import Indicator
-from backtest.operator import Max, DivZeroByZero
+from backtest.logic import Max, DivZeroByZero
 from . import MovAv
 
 

@@ -21,7 +21,7 @@ warnings.filterwarnings('ignore')
 #         sma3 = btind.SMA(sma2, period=10) 
 #         ema = btind.EMA(sma2, period=5)
 #         self.macd = btind.MACDHisto(self.data.close)
-#         self.buysig = bt.operator.Cmp(sma1, ema)
+#         self.buysig = bt.logic.Cmp(sma1, ema)
     
 #     def next(self):
 #         if self.buysig[0] < 0.0 and self.macd.histo[0] > 0:

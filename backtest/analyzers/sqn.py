@@ -68,7 +68,8 @@ class SQN(bt.TimeFrameAnalyzerBase):
         self.count = 0
 
     def on_dt_over(self):
-        _, p = self._owner.getvalue()
+        snap = self._owner.get_snapshot()
+        p = snap.positions
         # if pobj.status == trade.Closed:
         self.pnl.append(p.pnl)
         self.count += 1

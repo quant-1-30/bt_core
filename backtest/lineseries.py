@@ -62,7 +62,7 @@ class LineAlias(object):
         # index too early and breaking the functionality (all in next mode)
         # Hence the need to transform it into a LineDelay object of null delay
         if not isinstance(value, LineActions): # LineBuffer __call__
-            print("__Set__ LineActions ", value)
+            # print("__Set__ LineActions ", value)
             value = value(0) # __call__ ---> Linedelay
 
         value.addbinding(obj.lines[self.line]) # when indicator value change sync with line 

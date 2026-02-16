@@ -103,7 +103,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
         
         self.returns = padded
-        self.dts = rawtable["date"].to_numpy()
+        self.dts = rawtable["tick"].to_numpy()
 
     def on_dt_over(self):
         loc = np.searchsorted(self.dts, self.dtcmp)

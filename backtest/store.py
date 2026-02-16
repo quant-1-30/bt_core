@@ -60,11 +60,15 @@ class Store(with_metaclass(MetaStore, object)):
     DataCls = None  # data class will auto register
 
     params = (
+        ("agent", None),
         ("timeout", 10),
     )
     
     def _start(self, *args, **kwargs):
         self.start(*args, **kwargs)
+    
+    def start(self, *args, **kwargs):
+        pass
     
     def on_dt_over(self, last=False):
         # determin whether T + 0 or T + 1

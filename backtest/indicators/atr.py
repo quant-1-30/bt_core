@@ -20,7 +20,7 @@
 ###############################################################################
 
 from . import MovAv
-from backtest.operator import Max, Min
+from backtest.logic import Max, Min
 from backtest.indicator import Indicator
 
 

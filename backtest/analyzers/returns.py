@@ -93,15 +93,17 @@ class Returns(bt.TimeFrameAnalyzerBase):
     def start(self):
         super(Returns, self).start()
 
-        v, _ = self._owner.getvalue()
-        self._value_start = v.portofolio_value + v.cash
+        v = self._owner.get_snapshot()
+        acct = v.account
+        self._value_start = acct.portofolio_value + acct.cash
         self._tcount = 0
 
     def stop(self):
         super(Returns, self).stop()
         
-        v = self._owner.getvalue()
-        self._value_end = v.portofolio_value + v.cash
+        v = self._owner.get_snapshot()
+        acct = v.account
+        self._value_end = acct.portofolio_value + acct.cash
         
         # Compound return
         try:

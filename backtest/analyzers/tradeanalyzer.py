@@ -62,7 +62,8 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         self.rets.total.total = 0
 
     def on_dt_over(self):
-        _, p = self._owner.getvalue()
+        snap = self._owner.get_snapshot()
+        p = snap.positions
         for p_obj in p:
             pnl = p_obj.pnl
 
