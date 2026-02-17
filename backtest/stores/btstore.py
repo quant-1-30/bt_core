@@ -100,17 +100,17 @@ class BTStore(Store):
         resp = self.broker.set_cash(experiment_id, body)
         return resp[0]
     
+    def submit(self, experiment_id: bytes, body: OrderBody) -> List[Resp]:
+        resp = self.broker.submit(experiment_id, body)
+        return resp[0]
+    
     def getvalue(self, experiment_id: bytes) -> List[Resp]:
-        resp = self.broker.getvalue(SubTopic.Position, experiment_id)
+        resp = self.broker.getvalue(experiment_id)
         return resp[0]
     
     def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Resp]:
         return self.broker.subscribe(topic, experiment_id, body)
     
-    def submit(self, experiment_id: bytes, body: OrderBody) -> List[Resp]:
-        resp = self.broker.submit(experiment_id, body)
-        return resp[0]
-
     def on_dt_over(self, experiment_id: bytes) -> List[Resp]:
         body = self._feed.on_dt_over()
         if body:

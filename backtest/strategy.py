@@ -61,7 +61,6 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.store = cerebro.store # add store to strategy
         
         _obj.sizer = env.sizer # add sizing to strategy
-        _obj._r = env._r # add risk_control to strategy
         return _obj, args, kwargs
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -180,7 +179,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             for o in obs:
                 o._start()
 
-        self._minperstatus = MAXINT  # start in prenext
+        # self._minperstatus = MAXINT  # start in prenext
         self._dlens = [len(data) for data in self.datas]
         self.on_dt_over = False
 
@@ -198,7 +197,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
-        self._minperstatus = minperstatus = max(dlens)
+        # self._minperstatus = minperstatus = np.max(dlens)
+        minperstatus = max(dlens)
         return minperstatus
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
@@ -229,18 +229,32 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for data in self.datas:
             obs = obscls(data, *obsargs, **obskwargs)
             l.append(obs)
- 
+
+    # def _next_observers(self, minperstatus):
+    #     for observer in self.observers:
+    #         for analyzer in observer._analyzers:
+    #             if minperstatus < 0:
+    #                 analyzer._next()
+    #             elif minperstatus == 0:
+    #                 analyzer._nextstart()  # only called for the 1st value
+    #             else:
+    #                 analyzer._prenext()
+    #         else:
+    #             observer._next()
+
     def _next_observers(self, minperstatus):
+        if minperstatus < 0:
+            for analyzer in self.analyzers:
+                analyzer._next()
+        elif minperstatus == 0 :
+            for analyzer in self.analyzers:
+                analyzer._nextstart()
+        else:
+            for analyzer in self.analyzers:
+                analyzer._prenext()
+
         for observer in self.observers:
-            for analyzer in observer._analyzers:
-                if minperstatus < 0:
-                    analyzer._next()
-                elif minperstatus == 0:
-                    analyzer._nextstart()  # only called for the 1st value
-                else:
-                    analyzer._prenext()
-            else:
-                observer._next()
+            observer._next()
 
     def _clk_update(self):
         newdlens = [len(d) for d in self.datas]
@@ -253,37 +267,50 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = newdlens
         return len(self)
     
-    def _rcheck(self):
-        '''Check risk control rules before sending orders'''
-        ignore = _r.check_risk()
-        return ignore
+    def notify_timer(self, dts):
+        self.on_dt_over = True
+        snapshot = self.store.on_dt_over(self.experiment_id) 
+        if snapshot:
+            self.snapshot = snapshot
+        self.reset()
 
+    # # @profile
+    # def _next(self):
+    #     minperstatus = self._getminperstatus() # datas already next 
+    #     self._next_observers(minperstatus)
+    #     super(Strategy, self)._next() # lineiterator _next
+    
     # @profile
     def _next(self):
         minperstatus = self._getminperstatus() # datas already next 
         self._next_observers(minperstatus)
-        self.clear()
         super(Strategy, self)._next() # lineiterator _next
+
+        if minperstatus < 0:
+            self.next()
+        elif minperstatus == 0:
+            self.nextstart()  # only called for the 1st value
+        else:
+            self.prenext()
 
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
-        data = self.datas[0]
-        pos_snap = self.snapshot.positions
-        acct_snap = self.snapshot.account
-        ratio = self.sizer.getsizing(data)
-        if isbuy:
-            price = data.lines.low[0]
-            cash = acct_snap.cash * ratio / 100
-            is_submit = True if price * 100 <= cash else False
-        else:
-            is_submit = pos_snap[0].available > 0 
-        return ratio, is_submit
+        ratio = self.sizer.getsizing(isbuy)
 
-    def get_snapshot(self):
-        '''Returns the portfolio value and positions of strategy
-        '''
-        return self.snapshot
-    
+        if isbuy:
+            acct_snap = self.snapshot.account
+            
+            if acct_snap.cash < 10000:
+                return 0, False
+
+            total_value = acct_snap.portfolio_value + acct_snap.cash
+            cash_buffer = acct_snap.cash / total_value
+            is_submit = False if cash_buffer < 0.10 else True
+        else:
+            pos_snap = self.snapshot.positions
+            is_submit = pos_snap[0].available > 0 if pos_snap else False 
+        return ratio, is_submit
+ 
     def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
@@ -340,11 +367,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.order
             if trades:
-                print("buy trades ", trades)
                 self.lines.buy[0] = 1 
-
-            self.notify_trade(order, trades)
-            self.snapshot = snapshot
+                self.notify_trade(order, trades)
+                self.snapshot = snapshot
         
     def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''
@@ -369,23 +394,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.order
             if trades:
-                print("sell trades ", trades)
                 self.lines.sell[0] = -1
-                self.sizer.restore() # reset sizing pyramid 
-        
-            self.notify_trade(order, trades)
-            self.snapshot = snapshot
-    
-    def notify_timer(self, dts): # trigger on sessionstart due to T + 1 policy
-        _ = self.store.on_dt_over(self.experiment_id) 
-        self.on_dt_over = True
-        
-        # if self._rcheck():
-        #     # _input = input(f"TimerRiskCheck on {dts}. Please enter Y or N to continue: ").strip()
-        #     # if _input.lower() != 'y':
-        #         print("Risk control triggered. Stopping strategy execution.")
-        #         return 
-    
+                self.notify_trade(order, trades)
+                self.snapshot = snapshot
+                self.sizer.reset() 
+
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders
         # and pendingtrades, which have to exist for things like observers
@@ -393,7 +406,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._orders.append(qorder)
         if qtrades:
             self._trades.extend(qtrades)
- 
+
+    def get_snapshot(self):
+        '''Returns the portfolio value and positions of strategy
+        '''
+        return self.snapshot
+
+    def getvalue(self): 
+        snapshot = self.store.getvalue(self.experiment_id) 
+        return snapshot
+  
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
         self.store.cancel(order_id)
@@ -462,11 +484,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         return wrinfo
     
-    def clear(self):
-        if self.on_dt_over:
-            self._orders.clear()
-            self._trades.clear()
-            self.on_dt_over = False
+    def reset(self):
+        self._orders.clear()
+        self._trades.clear()
+        self.on_dt_over = False
     
     def _stop(self):
         self.stop()

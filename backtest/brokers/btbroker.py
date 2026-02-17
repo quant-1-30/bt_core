@@ -24,7 +24,7 @@ from typing import List, Union, Generator
 
 from backtest.broker import BrokerBase
 from backtest.stores.btstore import BTStore
-from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp
+from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp, SnapshotBody, AccountBody, PositionBody
 
 __all__ = ["BTBroker"]
 
@@ -85,27 +85,27 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
         body = self.get_body(data) # body=ExperimentBody
         return body[0].experiment_id
     
-    def set_cash(self, experiment_id:bytes, body:CashBody) -> List[Resp]:
+    def set_cash(self, experiment_id:bytes, body:CashBody) -> List[SnapshotBody]:
         data = self.tdapi.set_cash(experiment_id, body)
-        body = self.get_body(data) # None
-        return body
-
-    def getvalue(self, topic:int, experiment_id:bytes) -> List[Resp]:
-        data = self.tdapi.getvalue(topic, experiment_id) 
-        body = self.get_body(data) # PositionBody / AccountBody 
+        body = self.get_body(data) 
         return body
     
-    def subscribe(self, topic:int, experiment_id:bytes) -> List[Resp]: 
-        data = self.tdapi.subscribe(topic, experiment_id, body)
-        body = self.get_body(data) # TradeBody / PositionBody / AccountBody 
-        return body
-
-    def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
+    def submit(self, experiment_id:bytes, body:OrderBody) -> List[SnapshotBody]:
         data = self.tdapi.submit(experiment_id, body) 
-        body = self.get_body(data) # TradeBody 
+        body = self.get_body(data) 
         return body
 
-    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[Resp]:
+    def getvalue(self, experiment_id:bytes) -> List[SnapshotBody]:
+        data = self.tdapi.getvalue(experiment_id) 
+        body = self.get_body(data) 
+        return body
+    
+    def subscribe(self, topic:int, experiment_id:bytes) -> List[Union[AccountBody, PositionBody]]: 
+        data = self.tdapi.subscribe(topic, experiment_id, body)
+        body = self.get_body(data) 
+        return body
+
+    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[SnapshotBody]:
         data = self.tdapi.on_dt_over(experiment_id, body)
         body = self.get_body(data) # None 
         return body

@@ -32,6 +32,18 @@ extensions = [
         # "-Wno-unused-parameter",
         # "-Wno-sign-compare" 
     ),
+    Extension(
+        name="backtest.sizer", 
+        sources=["backtest/sizer.pyx"],
+        include_dirs=[np.get_include(), current_dir],
+        language="c++", # vector/map
+        extra_compile_args=["-O3", "-std=c++11"],
+        # "-Wno-unused-function",
+        # "-Wno-unused-variable",
+        # "-Wno-unused-but-set-variable",
+        # "-Wno-unused-parameter",
+        # "-Wno-sign-compare" 
+    ),
 ]
 
 setup(

@@ -85,17 +85,17 @@ class RayBtBroker(with_metaclass(MetaRayBtBroker, BrokerBase)):
     def set_cash(self, experiment_id:bytes, body:CashBody) -> List[Resp]:
         resp = self.agent.set_cash.remote(experiment_id, body)
         return resp
+    
+    def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
+        resp = self.agent.submit.remote(experiment_id, body)
+        return resp
 
-    def getvalue(self, topic:int, experiment_id:bytes) -> List[Resp]:
-        resp = self.agent.getvalue.remote(topic, experiment_id)
+    def getvalue(self, experiment_id:bytes) -> List[Resp]:
+        resp = self.agent.getvalue.remote(experiment_id)
         return resp
     
     def subscribe(self, topic:int, experiment_id:bytes, body:QueryBody) -> List[Resp]: 
         resp = self.agent.subscribe.remote(topic, experiment_id, body)
-        return resp
-
-    def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
-        resp = self.agent.submit.remote(experiment_id, body)
         return resp
 
     def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[Resp]:

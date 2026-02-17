@@ -111,17 +111,17 @@ class StoreAgent:
         data = await self.tdapi.set_cash_async(experiment_id, body)
         return data
 
-    async def getvalue(self, topic:int, experiment_id:bytes) -> List[Resp]:
+    async def getvalue(self, experiment_id:bytes) -> List[Resp]:
         self._ensure_initialized()
-        data = await self.tdapi.getvalue_async(topic, experiment_id) 
+        data = await self.tdapi.getvalue_async(experiment_id) 
         return data
     
-    async def subscribe(self, topic:int, experiment_id:bytes, body: QueryBody, ) -> List[Resp]: 
+    async def subscribe(self, topic:int, experiment_id:bytes, body: QueryBody) -> List[Resp]: 
         self._ensure_initialized()
         data = await self.tdapi.subscribe_async(topic, experiment_id, body)
         return data
 
-    async def submit(self, experiment_id:bytes, body: OrderBody, ) -> List[Resp]:
+    async def submit(self, experiment_id:bytes, body: OrderBody) -> List[Resp]:
         self._ensure_initialized()
         data = await self.tdapi.submit_async(experiment_id, body) 
         return data

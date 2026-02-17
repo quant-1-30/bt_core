@@ -71,7 +71,7 @@ class VolSignal(btind.Indicator):
         signal = self.lines.signal[0]
         if signal > 10.0: # prob > 0.0 
             print("VolSignal ", signal)
-            raise
+            # raise
 
 
 class SellSignal(btind.Indicator): 
@@ -117,9 +117,7 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-    cerebro.addsizer() # default fixed 
-    cerebro.addrisk(thres=0.75) # default tl
-    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20210101, todate=20220101, benchmark=b"000001", out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20150101, todate=20260101, benchmark=b"000001", out="signal.csv")
 
-    # writer on 931 6y
-    # writer off 835s 6y
+    # 11年 2008s
+    # 11年 157s

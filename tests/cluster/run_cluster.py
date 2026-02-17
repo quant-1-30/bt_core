@@ -49,9 +49,6 @@ def run_backtest(config_ref, sid_map, store_agent=None):
         cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
         cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-        cerebro.addsizer() # default fixed 
-        cerebro.addrisk(thres=0.75) # default tl
-
         print("run_backtest")
         cerebro.run(
             cash = config_ref["cash"],
@@ -93,12 +90,12 @@ def get_assets(rq_config):
     print("avaiables :", len(avaiables))
     if cerebro:
         del cerebro
-    return avaiables[:]
+    return avaiables[500:600]
 
 
 def main():
     rq_config = {
-        "cash": 10000,
+        "cash": 100000,
         "client_id": "e9f8cd38-e73c-453f-8a47-55beda640ae6", 
         "fromdate": 20000101,
         "todate": 20260101,

@@ -384,8 +384,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self._record_adj_dt = current_dt
 
     def on_dt_over(self):
-        delta = self.lines.datetime[0] - self.lines.datetime[-1]
-        if delta >= HalfDaySeconds: # nan --> np.inf 
+        if not np.isnan(self.lines.datetime[-1]): # nan ---> np.inf
             body = QueryBody(
                     start_date=int(self.lines.datetime[-1]), 
                     end_date=int(self.lines.datetime[0]), 

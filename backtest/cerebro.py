@@ -28,8 +28,7 @@ from . import observers
 from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
-from .sizers import sizers
-from .risks import _rctl
+from .sizer import Fixed, Pyramid
 from .timer import Timer, Session
 from .errors import *
 from .stores import _stores
@@ -111,7 +110,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._mcstimers = list()
         
         self._r = None
-        self.sizer = None
+        self.sizer = Fixed()
         
         self._plot = Plot()
 
@@ -307,7 +306,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if not t.check(dt0):
                     continue
                 
-                print("_check_timer ", dt0)
+                print("_check_timer", dt0)
                 for strat in runstrats:
                     strat.notify_timer(dt0)
 
@@ -350,17 +349,17 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
-    def addsizer(self, sizer="fixed", **sizer_p):
+    def addsizer(self, sizer="Pyramid", kwargs=None):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
         strategy added to cerebro
         '''
-        self.sizer = sizers[sizer](**sizer_p)
+        self.sizer = Pyramid(**kargs)
 
-    def addrisk(self, risk="tl", **kwargs):
-        '''Adds a ``RiskControl`` class (and args) which is the default risk for any
-        strategy added to cerebro
-        '''
-        self._r = _rctl[risk](**kwargs)
+    # def addrisk(self, risk="tl", **kwargs):
+    #     '''Adds a ``RiskControl`` class (and args) which is the default risk for any
+    #     strategy added to cerebro
+    #     '''
+    #     self._r = _rctl[risk](**kwargs)
 
     def addstrategy(self, strategy, *args, **kwargs):
         '''
@@ -436,8 +435,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         print("cerebro run data._start finish")
         # Prepare timers
         if not self._pretimers:
-            self._pretimers.append(Timer(when=Session.SESSION_START))  # add default timer to adjust T+1
-
+            # add default timer to adjust T+1 
+            self._pretimers.append(Timer(when=Session.SESSION_START))  
         for timer in itertools.chain(self._pretimers, self._mcstimers):
             timer.start(self.datas[0]) # preprocess tzdata if needed
 
