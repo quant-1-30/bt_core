@@ -146,8 +146,9 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
             remote_gen = self.agent.get_stream.remote(body) # Actor generator
             
             for data_ref in remote_gen:
-                inner_ref = ray.get(data_ref) # deref twice 
-                batch_table = ray.get(inner_ref)
+                # inner_ref = ray.get(data_ref) # deref twice 
+                # batch_table = ray.get(inner_ref)
+                batch_table = ray.get(data_ref)  
                 self.chan.put(batch_table)
 
             self.chan.put(StopIteration)

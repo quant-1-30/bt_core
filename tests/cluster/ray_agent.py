@@ -9,7 +9,7 @@ from bt_sdk.core.protocol import *
 from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
 
 
-@ray.remote(num_cpus=2, max_concurrency=1000) # default 0.1 used for socket light service
+@ray.remote(num_cpus=1, max_concurrency=1000) # default 0.1 used for socket light service
 class StoreAgent:
     def __init__(self, config={}):
         load_dotenv()
@@ -78,10 +78,12 @@ class StoreAgent:
         loop = asyncio.get_running_loop()
 
         def on_next(table):
-            print("on_next :", table)
+            # print("on_next :", table)
             try:
-                ref = ray.put(table) # zero_copy
-                fut = asyncio.run_coroutine_threadsafe(q.put(ref), loop) # call_soon_threadsafe sync method
+                # ref = ray.put(table) # zero_copy
+                # # call_soon_threadsafe sync method
+                # fut = asyncio.run_coroutine_threadsafe(q.put(ref), loop) 
+                fut = asyncio.run_coroutine_threadsafe(q.put(table), loop) 
             except Exception as e:
                 print(f"Error in on_next: {e}")
 

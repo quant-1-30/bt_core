@@ -116,7 +116,7 @@ class RayBtStore(Store):
         body = CashBody(cash=cash, session=session)
         resp = ray.get(self.broker.set_cash(experiment_id, body))
         data = self.get_body(resp) 
-        return resp[0]
+        return data[0]
     
     def getvalue(self, experiment_id:bytes) -> List[SnapshotBody]:
         resp = ray.get(self.broker.getvalue(experiment_id))
@@ -126,7 +126,7 @@ class RayBtStore(Store):
     def subscribe(self, topic:int, experiment_id:bytes, body:QueryBody) -> List[Union[TradeBody, PositionBody, AccountBody]]:
         resp = ray.get(self.broker.subscribe(topic, experiment_id, body))
         data = self.get_body(resp) 
-        return data
+        return data[0]
     
     def submit(self, experiment_id:bytes, body:OrderBody) -> List[Resp]:
         resp = ray.get(self.broker.submit(experiment_id, body))
@@ -136,7 +136,9 @@ class RayBtStore(Store):
     def on_dt_over(self, experiment_id:bytes) -> List[Resp]:
         body = self._feed.on_dt_over()
         if body:
-            ray.get(self.broker.on_dt_over(experiment_id, body))
+            resp = ray.get(self.broker.on_dt_over(experiment_id, body))
+            data = self.get_body(resp)
+            return data[0]
         return [] 
 
     def cancel(self, order_id:bytes):

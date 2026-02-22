@@ -691,7 +691,8 @@ class LinesOperation(LineActions):
 
     def next(self):
         if self.bline:
-            self[0] = self.operation(self.a[0], self.b[0])
+            # RuntimeWarning: divide by zero encountered in scalar divide
+            self[0] = self.operation(self.a[0], self.b[0]) 
         elif not self.r:
             if not self.btime:
                 self[0] = self.operation(self.a[0], self.b)

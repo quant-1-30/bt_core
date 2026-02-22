@@ -260,3 +260,4 @@ export RAY_OBJECT_STORE_ALLOW_SLOW_STORAGE=0 # avoid swap to ssd
 
 ray start --head --num-cpus 8 --memory 34359738368 
 
+✅ ray.put + yield ObjectRef:  The object has already been deleted by the reference counting protocol. This should not happen.
