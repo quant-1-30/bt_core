@@ -32,7 +32,7 @@ import numpy as np
 agent_counter = 0 # used to locate rayagent
 
 
-@ray.remote(num_cpus=1) # max_calls --- delete python process after finish
+@ray.remote(num_cpus=0.2, max_calls=1) # max_calls --- delete python process after finish
 def run_backtest(config_ref, sid_map, store_agent=None):
     sid = sid_map["sid"]
     print("run_backtest sid ", sid)
@@ -80,15 +80,17 @@ def submit(assets: dict, rq_config: dict, agents):
         return None
     
     current_agent = agents[agent_counter % len(agents)]
+    print(f"Found Using Round-Robin distribution.")
     agent_counter += 1
-
+    sid = assets.pop()
     return run_backtest.remote(
-        ray.put(rq_config),
-        assets.pop(), 
-        store_agent=current_agent)
+            rq_config,
+            sid, 
+            store_agent=current_agent
+    )
 
 
-def get_assets(rq_config):
+def retrieve_assets(rq_config):
     cerebro = bt.Cerebro(client_id=uuid.UUID(rq_config["client_id"]).bytes, writer=False)  
     cerebro.addstore()
 
@@ -110,22 +112,10 @@ def get_assets(rq_config):
     if cerebro:
         del cerebro
         gc.collect()
-    return avaiables[4000:4015]
+    return avaiables[2000:3000]
 
 
-def main():
-    rq_config = {
-        "cash": 100000,
-        "client_id": "e9f8cd38-e73c-453f-8a47-55beda640ae6", 
-        "fromdate": 20000101,
-        "todate": 20260101,
-        "benchmark": b"000001"
-    }
-    pending = []
-    results = []
-    ray_window = 6 # to avoid put all tasks
-    assets = get_assets(rq_config)
-    
+def main(rq_config):
     ray.init(address="auto", 
              namespace="backtest", 
              ignore_reinit_error=True,
@@ -143,16 +133,18 @@ def main():
             break
     
     if not agents:
+        # use_explicit_agent = True
         raise ValueError("No Global Pool agents found. Switching to Binding/Auto mode (store_agent=None).")
-    #     use_explicit_agent = False
-    # else:
-    #     print(f"Found {len(agents)} Global Pool agents. Using Round-Robin distribution.")
-    #     use_explicit_agent = True
-    
-    ray_submit = partial(submit, assets=assets, rq_config=rq_config, agents=agents)
+    print(f"Agent Num {len(agents)}") 
 
+    assets = retrieve_assets(rq_config)
+    ray_submit = partial(submit, assets=assets, rq_config=rq_config, agents=agents)
+    
+    pending = []
+    results = []
+    ray_window = 100 # to avoid put all tasks
     for _ in range(ray_window): 
-        pending.append(ray_submit()) # partial(submit_task, nodes=node_ids, rq_config=rq_config) 
+        pending.append(ray_submit()) 
 
     while pending:
         done, pending = ray.wait(pending, num_returns=1)
@@ -174,4 +166,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    rq_config = {
+        "cash": 100000,
+        "client_id": "e9f8cd38-e73c-453f-8a47-55beda640ae6", 
+        "fromdate": 20200101,
+        "todate": 20260101,
+        "benchmark": b"000001"
+    }
+
+    main(rq_config)

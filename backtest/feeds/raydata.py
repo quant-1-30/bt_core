@@ -36,43 +36,7 @@ from backtest.stores.raystore import RayBtStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-
 __all__ = ["RayBtData"]
-
-
-# class CalendarRemote:
-#     '''Descriptor calendar'''
-#     def __init__(self):
-#         self._calendar = []
-
-#     def __get__(self, instance, owner):
-#         if instance is None: return self
-        
-#         agent = getattr(instance, 'agent', None) 
-#         if self._calendar:
-#             self._calendar = ray.get(agent.get_calendar.remote())
-#         return self._calendar
-
-
-# class InstrumentRemote:
-#     '''Descriptor instrument'''
-#     def __init__(self):
-#         self.assets = {}
-    
-#     def __set__(self, instance, value):
-#         raise AttributeError("not allowed to set")
-    
-#     def __get__(self, instance, owner):
-#         print("instrument __Get__")
-#         if instance is None: return self
-        
-#         agent = getattr(instance, 'agent', None)
-
-#         if len(self.assets) == 0:
-#             self.assets = ray.get(agent.get_instrument.remote())
-#             print("self.assets ", self.assets)
-#         return self.assets
-
 
 
 class MetaRayBtData(DataBase.__class__):
@@ -121,13 +85,11 @@ class RayBtData(with_metaclass(MetaRayBtData, DataBase)):
         bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index])
         self.preload(body, bench_body) 
             
-        # print("_streaming_thread ", self.agent)
         self._streaming_thread = threading.Thread(
         target=self._fetch_remote,
         daemon=True,
         args=(body,))
         self._streaming_thread.start()
-        # print("finish feed _start")
 
     def preload(self, body: QueryBody, benh_body: QueryBody):
         fut_factor = self.agent.get_adjfactor.remote(body)

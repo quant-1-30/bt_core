@@ -261,3 +261,12 @@ export RAY_OBJECT_STORE_ALLOW_SLOW_STORAGE=0 # avoid swap to ssd
 ray start --head --num-cpus 8 --memory 34359738368 
 
 ✅ ray.put + yield ObjectRef:  The object has already been deleted by the reference counting protocol. This should not happen.
+
+
+CPU 使用率从 20% 提升到 30% 说明之前的优化（如 Async StoreAgent）生效了，消除了死锁和部分阻塞，但**系统的并发度（Concurrency）依然不足以填满 CPU**。
+
+这通常是因为：**Ray 的 Worker 申请了 CPU 资源（比如 `num_cpus=1`），但大部分时间在等待数据（IO Wait）或等待 Actor 响应，导致物理 CPU 并没有真正在计算。**
+
+要将 CPU 压榨到 80%-90% 以上，你需要实施 **“超额订阅（Oversubscription）”** 和 **“去中心化（Sharding）”**
+
+StoreAgent 占用的 CPU 100% 计入 ray start / ray.init() 启动的 Ray 节点资源池里，它不会是“额外”的系统进程资源

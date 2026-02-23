@@ -9,16 +9,15 @@ from bt_sdk.core.protocol import *
 from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
 
 
-@ray.remote(num_cpus=1, max_concurrency=1000) # default 0.1 used for socket light service
+@ray.remote(num_cpus=0.20, max_concurrency=10000) # default 0.1 used for socket light service
 class StoreAgent:
     def __init__(self, config={}):
         load_dotenv()
         print(f"StoreAgent initialized on Node: {ray.get_runtime_context().get_node_id()}")
-        # md_addr = os.getenv("MD_ADDR").split(":")
         self.mdapi = None
         self.tdapi = None
 
-        self.batch_size = 10 
+        self.batch_size = 10000 
         self._calendar = {} 
         self._instrument = {} 
         self._benchmark_cache = {}
@@ -78,7 +77,6 @@ class StoreAgent:
         loop = asyncio.get_running_loop()
 
         def on_next(table):
-            # print("on_next :", table)
             try:
                 # ref = ray.put(table) # zero_copy
                 # # call_soon_threadsafe sync method
@@ -190,4 +188,4 @@ def start_agents(store_config={}, iscluster=False, pool_size=2):
 
 if __name__ == "__main__":
 
-    start_agents(pool_size=2)
+    start_agents(pool_size=10)
