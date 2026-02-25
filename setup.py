@@ -44,7 +44,70 @@ extensions = [
         # "-Wno-unused-parameter",
         # "-Wno-sign-compare" 
     ),
+    Extension(
+        name="backtest.execution.utils.util", 
+        sources=["backtest/execution/utils/util.pyx"],
+        include_dirs=[np.get_include(), "."],  
+        language="c++",                         # vector/map
+        extra_compile_args=["-O3", "-std=c++11"]
+        # "-Wno-unused-function",
+        # "-Wno-unused-variable",
+        # "-Wno-unused-but-set-variable",
+        # "-Wno-unused-parameter",
+        # "-Wno-sign-compare"
+    ),
+    Extension(
+        name="backtest.execution.core.gateway.interface", 
+        sources=["backtest/execution/core/gateway/interface.pyx"],
+        include_dirs=[np.get_include(), current_dir, "."], # . root 
+        language="c++",
+        extra_compile_args=["-O3", "-std=c++11"]
+    ),
+    Extension(
+        name="backtest.execution.core.gateway.rpc.client", 
+        sources=["backtest/execution/core/gateway/rpc/client.pyx"],
+        include_dirs=[np.get_include(), current_dir, "."],
+        language="c++",
+        extra_compile_args=["-O3", "-std=c++11"],
+    ),
+    Extension(
+        name="backtest.execution.core.simulator.util", 
+        sources=["backtest/execution/core/simulator/util.pyx"],
+        include_dirs=[np.get_include(), current_dir, "."],
+        language="c++",
+    ),
+    Extension(
+        name="backtest.execution.core.simulator.engine", 
+        sources=["backtest/execution/core/simulator/engine.pyx"],
+        include_dirs=[np.get_include(), current_dir, "."],
+        language="c++",
+    ),
+    Extension(
+        name="backtest.execution.trade_api", 
+        sources=["backtest/execution/trade_api.pyx"],
+        include_dirs=[np.get_include(), current_dir, "."],
+        language="c++",
+    ),
+
 ]
+
+# finance 
+finance_sources = glob.glob("backtest/execution/core/finance/*.pyx")
+
+for src in finance_sources:
+    # "core/finance/account.pyx" -> "core.finance.account"
+    module_name = src.replace("/", ".").replace(".pyx", "")
+    
+    extensions.append(
+        Extension(
+            name=module_name,
+            sources=[src],
+            include_dirs=[np.get_include(), current_dir],
+            language="c++",
+            extra_compile_args=["-O3", "-std=c++11"]
+        )
+    )
+
 
 setup(
     name="backtest_lib",

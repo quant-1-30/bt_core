@@ -24,15 +24,14 @@ import pyarrow as pa
 from typing import Union, List, Mapping, Any, Generator, Tuple
 
 from backtest.store import Store
-from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
-from bt_sdk.core.client import MdApi 
+from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
 from bt_sdk.core.protocol import *
 from typing import List
 
 __all__ = ["BTStore"]
 
 
-class BTStore(Store):
+class LocalStore(Store):
     '''Singleton class wrapping to control the connections.
 
     Params:
@@ -61,7 +60,8 @@ class BTStore(Store):
         mdapi = MdApi(addr=(md_addr[0], int(md_addr[1])))
         self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
-        tdapi = TdApi(client_id=self.p.client_id)
+        td_addr = os.getenv("TD_ADDR", self.p.td_addr).split(":")
+        tdapi = TdApi(client_id=self.p.client_id, addr=(td_addr[0], int(td_addr[1])), timeout=self.p.timeout)
         self.broker = self.BrokerCls(tdapi=tdapi)
 
     def setenvironment(self, env):

@@ -117,7 +117,7 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-    cerebro.run(cash=100000, sid=[b"300386"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"301366"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")
 
     # 11年 2008s
     # 11年 157s / 240s 
