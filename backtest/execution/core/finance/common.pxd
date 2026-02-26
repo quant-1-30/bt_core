@@ -20,7 +20,7 @@ cdef struct RightData:
 cdef struct EventItem:
     int event_type  # 0 为 adjustment, 1 为 right
     AdjustmentData adj
-    RightData right
+    RightData rgt
 
 
 cdef enum FillerType:

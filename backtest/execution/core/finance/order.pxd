@@ -14,10 +14,9 @@
 # -------------------------------------------------------------------------------------------------
 from libc.stdint cimport int64_t
 from libcpp.string cimport string as cpp_string
-cimport numpy as cnp
 
 from backtest.execution.core.finance.trade cimport OrderExecutionBit, OrderExbitData
-from backtest.execution.core.finance.cache cimport AssetInfo
+from backtest.execution.core.finance.cache cimport AssetCore
 
 cdef enum ExecType:
     Open = 0
@@ -63,7 +62,7 @@ cdef struct OrderCoreData:
 cdef class Order:
     cdef readonly OrderCoreData core
     cdef readonly bytes filler
-    cdef AssetInfo info
+    cdef AssetCore info
     cdef int status
     cdef int _exchange
     cdef object _exbits

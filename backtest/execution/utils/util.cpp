@@ -1633,8 +1633,6 @@ struct __pyx_opt_args_8backtest_9execution_5utils_4util_market_utc {
  * cdef MarketTime market_utc(int64_t ts, bint native=?) nogil
  * 
  * cdef int64_t ts2intdt(int64_t ts, bint native=?) nogil # only cdef nogil             # <<<<<<<<<<<<<<
- * 
- * cdef dict _aggregate_by_sid(list batches)
 */
 struct __pyx_opt_args_8backtest_9execution_5utils_4util_ts2intdt {
   int __pyx_n;
@@ -1923,111 +1921,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_FastCallDict(PyObject *func, PyObj
 static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *args, size_t nargsf);
 #endif
 
-/* RaiseUnexpectedTypeError.proto */
-static int __Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj);
-
-/* PyDictContains.proto */
-static CYTHON_INLINE int __Pyx_PyDict_ContainsTF(PyObject* item, PyObject* dict, int eq) {
-    int result = PyDict_Contains(dict, item);
-    return unlikely(result < 0) ? result : (result == (eq == Py_EQ));
-}
-
-/* DictGetItem.proto */
-#if !CYTHON_COMPILING_IN_PYPY
-static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key);
-#define __Pyx_PyObject_Dict_GetItem(obj, name)\
-    (likely(PyDict_CheckExact(obj)) ?\
-     __Pyx_PyDict_GetItem(obj, name) : PyObject_GetItem(obj, name))
-#else
-#define __Pyx_PyDict_GetItem(d, key) PyObject_GetItem(d, key)
-#define __Pyx_PyObject_Dict_GetItem(obj, name)  PyObject_GetItem(obj, name)
-#endif
-
-/* ListAppend.proto */
-#if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
-static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
-    PyListObject* L = (PyListObject*) list;
-    Py_ssize_t len = Py_SIZE(list);
-    if (likely(L->allocated > len) & likely(len > (L->allocated >> 1))) {
-        Py_INCREF(x);
-        #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030d0000
-        L->ob_item[len] = x;
-        #else
-        PyList_SET_ITEM(list, len, x);
-        #endif
-        __Pyx_SET_SIZE(list, len + 1);
-        return 0;
-    }
-    return PyList_Append(list, x);
-}
-#else
-#define __Pyx_PyList_Append(L,x) PyList_Append(L,x)
-#endif
-
-/* IterFinish.proto (used by dict_iter) */
-static CYTHON_INLINE int __Pyx_IterFinish(void);
-
-/* PyObjectCallNoArg.proto (used by PyObjectCallMethod0) */
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
-
-/* PyObjectCallOneArg.proto (used by PyObjectCallMethod0) */
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
-
-/* PyObjectGetMethod.proto (used by PyObjectCallMethod0) */
-#if !(CYTHON_VECTORCALL && (__PYX_LIMITED_VERSION_HEX >= 0x030C0000 || (!CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x03090000)))
-static int __Pyx_PyObject_GetMethod(PyObject *obj, PyObject *name, PyObject **method);
-#endif
-
-/* PyObjectCallMethod0.proto (used by dict_iter) */
-static PyObject* __Pyx_PyObject_CallMethod0(PyObject* obj, PyObject* method_name);
-
-/* RaiseNeedMoreValuesToUnpack.proto (used by UnpackTuple2) */
-static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index);
-
-/* RaiseTooManyValuesToUnpack.proto (used by UnpackItemEndCheck) */
-static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected);
-
-/* UnpackItemEndCheck.proto (used by UnpackTuple2) */
-static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
-
-/* RaiseNoneIterError.proto (used by UnpackTupleError) */
-static CYTHON_INLINE void __Pyx_RaiseNoneNotIterableError(void);
-
-/* UnpackTupleError.proto (used by UnpackTuple2) */
-static void __Pyx_UnpackTupleError(PyObject *, Py_ssize_t index);
-
-/* UnpackTuple2.proto (used by dict_iter) */
-static CYTHON_INLINE int __Pyx_unpack_tuple2(
-    PyObject* tuple, PyObject** value1, PyObject** value2, int is_tuple, int has_known_size, int decref_tuple);
-static CYTHON_INLINE int __Pyx_unpack_tuple2_exact(
-    PyObject* tuple, PyObject** value1, PyObject** value2, int decref_tuple);
-static int __Pyx_unpack_tuple2_generic(
-    PyObject* tuple, PyObject** value1, PyObject** value2, int has_known_size, int decref_tuple);
-
-/* dict_iter.proto */
-static CYTHON_INLINE PyObject* __Pyx_dict_iterator(PyObject* dict, int is_dict, PyObject* method_name,
-                                                   Py_ssize_t* p_orig_length, int* p_is_dict);
-static CYTHON_INLINE int __Pyx_dict_iter_next(PyObject* dict_or_iter, Py_ssize_t orig_length, Py_ssize_t* ppos,
-                                              PyObject** pkey, PyObject** pvalue, PyObject** pitem, int is_dict);
-
-/* PyObjectVectorCallKwBuilder.proto */
-CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n);
-#if CYTHON_VECTORCALL
-#if PY_VERSION_HEX >= 0x03090000
-#define __Pyx_Object_Vectorcall_CallFromBuilder PyObject_Vectorcall
-#else
-#define __Pyx_Object_Vectorcall_CallFromBuilder _PyObject_Vectorcall
-#endif
-#define __Pyx_MakeVectorcallBuilderKwds(n) PyTuple_New(n)
-static int __Pyx_VectorcallBuilder_AddArg(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n);
-static int __Pyx_VectorcallBuilder_AddArgStr(const char *key, PyObject *value, PyObject *builder, PyObject **args, int n);
-#else
-#define __Pyx_Object_Vectorcall_CallFromBuilder __Pyx_PyObject_FastCallDict
-#define __Pyx_MakeVectorcallBuilderKwds(n) __Pyx_PyDict_NewPresized(n)
-#define __Pyx_VectorcallBuilder_AddArg(key, value, builder, args, n) PyDict_SetItem(builder, key, value)
-#define __Pyx_VectorcallBuilder_AddArgStr(key, value, builder, args, n) PyDict_SetItemString(builder, key, value)
-#endif
-
 /* VoidPtrExport.proto */
 static int __Pyx_ExportVoidPtr(PyObject *api_dict, const char *name, void *p, const char *sig);
 
@@ -2043,6 +1936,9 @@ static int __Pyx_ExportFunction(PyObject *api_dict, const char *name, void (*f)(
 #else
 static CYTHON_INLINE int __Pyx_HasAttr(PyObject *, PyObject *);
 #endif
+
+/* PyObjectCallOneArg.proto (used by ImportImpl) */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
 
 /* ImportImpl.export */
 static PyObject *__Pyx__Import(PyObject *name, PyObject *const *imported_names, Py_ssize_t len_imported_names, PyObject *qualname, PyObject *moddict, int level);
@@ -2299,6 +2195,24 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 #define __Pyx_HAS_GCC_DIAGNOSTIC
 #endif
 
+/* PyObjectVectorCallKwBuilder.proto (used by CIntToPy) */
+CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n);
+#if CYTHON_VECTORCALL
+#if PY_VERSION_HEX >= 0x03090000
+#define __Pyx_Object_Vectorcall_CallFromBuilder PyObject_Vectorcall
+#else
+#define __Pyx_Object_Vectorcall_CallFromBuilder _PyObject_Vectorcall
+#endif
+#define __Pyx_MakeVectorcallBuilderKwds(n) PyTuple_New(n)
+static int __Pyx_VectorcallBuilder_AddArg(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n);
+static int __Pyx_VectorcallBuilder_AddArgStr(const char *key, PyObject *value, PyObject *builder, PyObject **args, int n);
+#else
+#define __Pyx_Object_Vectorcall_CallFromBuilder __Pyx_PyObject_FastCallDict
+#define __Pyx_MakeVectorcallBuilderKwds(n) __Pyx_PyDict_NewPresized(n)
+#define __Pyx_VectorcallBuilder_AddArg(key, value, builder, args, n) PyDict_SetItem(builder, key, value)
+#define __Pyx_VectorcallBuilder_AddArgStr(key, value, builder, args, n) PyDict_SetItemString(builder, key, value)
+#endif
+
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value);
 
@@ -2463,7 +2377,7 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
   PyObject *__pyx_codeobj_tab[2];
-  PyObject *__pyx_string_tab[43];
+  PyObject *__pyx_string_tab[36];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
 PyTypeObject *__pyx_CommonTypesMetaclassType;
@@ -2510,43 +2424,36 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_asyncio_coroutines __pyx_string_tab[3]
 #define __pyx_n_u_backtest_execution_utils_util __pyx_string_tab[4]
 #define __pyx_n_u_cline_in_traceback __pyx_string_tab[5]
-#define __pyx_n_u_concat_tables __pyx_string_tab[6]
-#define __pyx_n_u_datetime __pyx_string_tab[7]
-#define __pyx_n_u_day __pyx_string_tab[8]
-#define __pyx_n_u_default __pyx_string_tab[9]
-#define __pyx_n_u_fast_uuid4_bytes __pyx_string_tab[10]
-#define __pyx_n_u_fast_uuid4_str __pyx_string_tab[11]
-#define __pyx_n_u_fromordinal __pyx_string_tab[12]
-#define __pyx_n_u_fromtimestamp __pyx_string_tab[13]
-#define __pyx_n_u_func __pyx_string_tab[14]
-#define __pyx_n_u_get __pyx_string_tab[15]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[16]
-#define __pyx_n_u_isnan __pyx_string_tab[17]
-#define __pyx_n_u_items __pyx_string_tab[18]
-#define __pyx_n_u_main __pyx_string_tab[19]
-#define __pyx_n_u_metadata __pyx_string_tab[20]
-#define __pyx_n_u_min __pyx_string_tab[21]
-#define __pyx_n_u_module __pyx_string_tab[22]
-#define __pyx_n_u_month __pyx_string_tab[23]
-#define __pyx_n_u_name __pyx_string_tab[24]
-#define __pyx_n_u_np __pyx_string_tab[25]
-#define __pyx_n_u_numpy __pyx_string_tab[26]
-#define __pyx_n_u_pa __pyx_string_tab[27]
-#define __pyx_n_u_promote_options __pyx_string_tab[28]
-#define __pyx_n_u_pyarrow __pyx_string_tab[29]
-#define __pyx_n_u_pyx_capi __pyx_string_tab[30]
-#define __pyx_n_u_qualname __pyx_string_tab[31]
-#define __pyx_n_u_schema __pyx_string_tab[32]
-#define __pyx_n_u_set_name __pyx_string_tab[33]
-#define __pyx_n_u_setdefault __pyx_string_tab[34]
-#define __pyx_n_u_test __pyx_string_tab[35]
-#define __pyx_n_u_values __pyx_string_tab[36]
-#define __pyx_n_u_year __pyx_string_tab[37]
-#define __pyx_kp_b_PyObject_PyObject_PyObject_doubl __pyx_string_tab[38]
-#define __pyx_kp_b_int64_t_const_HOURS_PER_DAY __pyx_string_tab[39]
-#define __pyx_kp_b_iso88591_G3b __pyx_string_tab[40]
-#define __pyx_kp_b_iso88591_Qa_4q_3b_7_1 __pyx_string_tab[41]
-#define __pyx_n_b_sid __pyx_string_tab[42]
+#define __pyx_n_u_datetime __pyx_string_tab[6]
+#define __pyx_n_u_day __pyx_string_tab[7]
+#define __pyx_n_u_fast_uuid4_bytes __pyx_string_tab[8]
+#define __pyx_n_u_fast_uuid4_str __pyx_string_tab[9]
+#define __pyx_n_u_fromordinal __pyx_string_tab[10]
+#define __pyx_n_u_fromtimestamp __pyx_string_tab[11]
+#define __pyx_n_u_func __pyx_string_tab[12]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[13]
+#define __pyx_n_u_isnan __pyx_string_tab[14]
+#define __pyx_n_u_items __pyx_string_tab[15]
+#define __pyx_n_u_main __pyx_string_tab[16]
+#define __pyx_n_u_min __pyx_string_tab[17]
+#define __pyx_n_u_module __pyx_string_tab[18]
+#define __pyx_n_u_month __pyx_string_tab[19]
+#define __pyx_n_u_name __pyx_string_tab[20]
+#define __pyx_n_u_np __pyx_string_tab[21]
+#define __pyx_n_u_numpy __pyx_string_tab[22]
+#define __pyx_n_u_pa __pyx_string_tab[23]
+#define __pyx_n_u_pyarrow __pyx_string_tab[24]
+#define __pyx_n_u_pyx_capi __pyx_string_tab[25]
+#define __pyx_n_u_qualname __pyx_string_tab[26]
+#define __pyx_n_u_set_name __pyx_string_tab[27]
+#define __pyx_n_u_setdefault __pyx_string_tab[28]
+#define __pyx_n_u_test __pyx_string_tab[29]
+#define __pyx_n_u_values __pyx_string_tab[30]
+#define __pyx_n_u_year __pyx_string_tab[31]
+#define __pyx_kp_b_PyObject_double_struct___pyx_opt __pyx_string_tab[32]
+#define __pyx_kp_b_int64_t_const_HOURS_PER_DAY __pyx_string_tab[33]
+#define __pyx_kp_b_iso88591_G3b __pyx_string_tab[34]
+#define __pyx_kp_b_iso88591_Qa_4q_3b_7_1 __pyx_string_tab[35]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -2562,7 +2469,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   __Pyx_State_RemoveModule(NULL);
   #endif
   for (int i=0; i<2; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<43; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<36; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
 Py_CLEAR(clear_module_state->__pyx_CommonTypesMetaclassType);
@@ -2586,7 +2493,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_bytes);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_unicode);
   for (int i=0; i<2; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<43; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<36; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
 Py_VISIT(traverse_module_state->__pyx_CommonTypesMetaclassType);
@@ -3565,7 +3472,6 @@ static CYTHON_INLINE int64_t __pyx_f_8backtest_9execution_5utils_4util_ts2intdt(
  *     cdef tm* info = gmtime(&rawtime)
  *     return (info.tm_year + 1900) * 10000 + (info.tm_mon + 1) * 100 + info.tm_mday             # <<<<<<<<<<<<<<
  * 
- * 
 */
   __pyx_r = ((((__pyx_v_info->tm_year + 0x76C) * 0x2710) + ((__pyx_v_info->tm_mon + 1) * 0x64)) + __pyx_v_info->tm_mday);
   goto __pyx_L0;
@@ -3580,291 +3486,6 @@ static CYTHON_INLINE int64_t __pyx_f_8backtest_9execution_5utils_4util_ts2intdt(
 
   /* function exit code */
   __pyx_L0:;
-  return __pyx_r;
-}
-
-/* "backtest/execution/utils/util.pyx":100
- * 
- * 
- * cdef inline dict _aggregate_by_sid(list batches): # cdef reduce python overhead             # <<<<<<<<<<<<<<
- *     cdef bytes sid_byte
- *     cdef dict sid_to_batches = {}
-*/
-
-static CYTHON_INLINE PyObject *__pyx_f_8backtest_9execution_5utils_4util__aggregate_by_sid(PyObject *__pyx_v_batches) {
-  PyObject *__pyx_v_sid_byte = 0;
-  PyObject *__pyx_v_sid_to_batches = 0;
-  PyObject *__pyx_v_aligned = 0;
-  PyObject *__pyx_v_sid_batch = 0;
-  PyObject *__pyx_v_batch = 0;
-  PyObject *__pyx_v_bulk_batch = NULL;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  Py_ssize_t __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  PyObject *__pyx_t_6 = NULL;
-  size_t __pyx_t_7;
-  int __pyx_t_8;
-  int __pyx_t_9;
-  Py_ssize_t __pyx_t_10;
-  int __pyx_t_11;
-  int __pyx_t_12;
-  int __pyx_lineno = 0;
-  const char *__pyx_filename = NULL;
-  int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("_aggregate_by_sid", 0);
-
-  /* "backtest/execution/utils/util.pyx":102
- * cdef inline dict _aggregate_by_sid(list batches): # cdef reduce python overhead
- *     cdef bytes sid_byte
- *     cdef dict sid_to_batches = {}             # <<<<<<<<<<<<<<
- *     cdef dict aligned = {}
- *     cdef list sid_batch
-*/
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_sid_to_batches = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "backtest/execution/utils/util.pyx":103
- *     cdef bytes sid_byte
- *     cdef dict sid_to_batches = {}
- *     cdef dict aligned = {}             # <<<<<<<<<<<<<<
- *     cdef list sid_batch
- *     cdef object batch, table
-*/
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_aligned = ((PyObject*)__pyx_t_1);
-  __pyx_t_1 = 0;
-
-  /* "backtest/execution/utils/util.pyx":107
- *     cdef object batch, table
- * 
- *     for batch in batches:             # <<<<<<<<<<<<<<
- *         # print("metadata :", batch.schema.metadata)
- *         sid_byte = batch.schema.metadata.get(b"sid")
-*/
-  if (unlikely(__pyx_v_batches == Py_None)) {
-    PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 107, __pyx_L1_error)
-  }
-  __pyx_t_1 = __pyx_v_batches; __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_2 = 0;
-  for (;;) {
-    {
-      Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
-      #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 107, __pyx_L1_error)
-      #endif
-      if (__pyx_t_2 >= __pyx_temp) break;
-    }
-    __pyx_t_3 = __Pyx_PyList_GetItemRefFast(__pyx_t_1, __pyx_t_2, __Pyx_ReferenceSharing_OwnStrongReference);
-    ++__pyx_t_2;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_XDECREF_SET(__pyx_v_batch, __pyx_t_3);
-    __pyx_t_3 = 0;
-
-    /* "backtest/execution/utils/util.pyx":109
- *     for batch in batches:
- *         # print("metadata :", batch.schema.metadata)
- *         sid_byte = batch.schema.metadata.get(b"sid")             # <<<<<<<<<<<<<<
- *         if sid_byte not in sid_to_batches:
- *             sid_to_batches[sid_byte] = []
-*/
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_batch, __pyx_mstate_global->__pyx_n_u_schema); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 109, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_metadata); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 109, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_4 = __pyx_t_6;
-    __Pyx_INCREF(__pyx_t_4);
-    __pyx_t_7 = 0;
-    {
-      PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_n_b_sid};
-      __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_get, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 109, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-    }
-    if (!(likely(PyBytes_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_3))) __PYX_ERR(0, 109, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_sid_byte, ((PyObject*)__pyx_t_3));
-    __pyx_t_3 = 0;
-
-    /* "backtest/execution/utils/util.pyx":110
- *         # print("metadata :", batch.schema.metadata)
- *         sid_byte = batch.schema.metadata.get(b"sid")
- *         if sid_byte not in sid_to_batches:             # <<<<<<<<<<<<<<
- *             sid_to_batches[sid_byte] = []
- * 
-*/
-    __pyx_t_8 = (__Pyx_PyDict_ContainsTF(__pyx_v_sid_byte, __pyx_v_sid_to_batches, Py_NE)); if (unlikely((__pyx_t_8 < 0))) __PYX_ERR(0, 110, __pyx_L1_error)
-    if (__pyx_t_8) {
-
-      /* "backtest/execution/utils/util.pyx":111
- *         sid_byte = batch.schema.metadata.get(b"sid")
- *         if sid_byte not in sid_to_batches:
- *             sid_to_batches[sid_byte] = []             # <<<<<<<<<<<<<<
- * 
- *         sid_batch = sid_to_batches[sid_byte]
-*/
-      __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      if (unlikely((PyDict_SetItem(__pyx_v_sid_to_batches, __pyx_v_sid_byte, __pyx_t_3) < 0))) __PYX_ERR(0, 111, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
-      /* "backtest/execution/utils/util.pyx":110
- *         # print("metadata :", batch.schema.metadata)
- *         sid_byte = batch.schema.metadata.get(b"sid")
- *         if sid_byte not in sid_to_batches:             # <<<<<<<<<<<<<<
- *             sid_to_batches[sid_byte] = []
- * 
-*/
-    }
-
-    /* "backtest/execution/utils/util.pyx":113
- *             sid_to_batches[sid_byte] = []
- * 
- *         sid_batch = sid_to_batches[sid_byte]             # <<<<<<<<<<<<<<
- *         sid_batch.append(batch) # int.from_bytes()
- * 
-*/
-    __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_sid_to_batches, __pyx_v_sid_byte); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(PyList_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_3))) __PYX_ERR(0, 113, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_sid_batch, ((PyObject*)__pyx_t_3));
-    __pyx_t_3 = 0;
-
-    /* "backtest/execution/utils/util.pyx":114
- * 
- *         sid_batch = sid_to_batches[sid_byte]
- *         sid_batch.append(batch) # int.from_bytes()             # <<<<<<<<<<<<<<
- * 
- *     for sid_byte, bulk_batch in sid_to_batches.items():
-*/
-    if (unlikely(__pyx_v_sid_batch == Py_None)) {
-      PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "append");
-      __PYX_ERR(0, 114, __pyx_L1_error)
-    }
-    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_sid_batch, __pyx_v_batch); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 114, __pyx_L1_error)
-
-    /* "backtest/execution/utils/util.pyx":107
- *     cdef object batch, table
- * 
- *     for batch in batches:             # <<<<<<<<<<<<<<
- *         # print("metadata :", batch.schema.metadata)
- *         sid_byte = batch.schema.metadata.get(b"sid")
-*/
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "backtest/execution/utils/util.pyx":116
- *         sid_batch.append(batch) # int.from_bytes()
- * 
- *     for sid_byte, bulk_batch in sid_to_batches.items():             # <<<<<<<<<<<<<<
- *         aligned[sid_byte] = pa.concat_tables(bulk_batch, promote_options='default') # pa.Table.from_batches(bulk_batch) # to_pydict() No
- *     return aligned
-*/
-  __pyx_t_2 = 0;
-  __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_sid_to_batches, 1, __pyx_mstate_global->__pyx_n_u_items, (&__pyx_t_10), (&__pyx_t_11)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 116, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_1);
-  __pyx_t_1 = __pyx_t_3;
-  __pyx_t_3 = 0;
-  while (1) {
-    __pyx_t_12 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_10, &__pyx_t_2, &__pyx_t_3, &__pyx_t_6, NULL, __pyx_t_11);
-    if (unlikely(__pyx_t_12 == 0)) break;
-    if (unlikely(__pyx_t_12 == -1)) __PYX_ERR(0, 116, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GOTREF(__pyx_t_6);
-    if (!(likely(PyBytes_CheckExact(__pyx_t_3))||((__pyx_t_3) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_3))) __PYX_ERR(0, 116, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_sid_byte, ((PyObject*)__pyx_t_3));
-    __pyx_t_3 = 0;
-    __Pyx_XDECREF_SET(__pyx_v_bulk_batch, __pyx_t_6);
-    __pyx_t_6 = 0;
-
-    /* "backtest/execution/utils/util.pyx":117
- * 
- *     for sid_byte, bulk_batch in sid_to_batches.items():
- *         aligned[sid_byte] = pa.concat_tables(bulk_batch, promote_options='default') # pa.Table.from_batches(bulk_batch) # to_pydict() No             # <<<<<<<<<<<<<<
- *     return aligned
-*/
-    __pyx_t_3 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_pa); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_concat_tables); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_7 = 1;
-    #if CYTHON_UNPACK_METHODS
-    if (unlikely(PyMethod_Check(__pyx_t_5))) {
-      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_5);
-      assert(__pyx_t_3);
-      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
-      __Pyx_INCREF(__pyx_t_3);
-      __Pyx_INCREF(__pyx__function);
-      __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-      __pyx_t_7 = 0;
-    }
-    #endif
-    {
-      PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_3, __pyx_v_bulk_batch};
-      __pyx_t_4 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_promote_options, __pyx_mstate_global->__pyx_n_u_default, __pyx_t_4, __pyx_callargs+2, 0) < (0)) __PYX_ERR(0, 117, __pyx_L1_error)
-      __pyx_t_6 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
-      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 117, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_6);
-    }
-    if (unlikely((PyDict_SetItem(__pyx_v_aligned, __pyx_v_sid_byte, __pyx_t_6) < 0))) __PYX_ERR(0, 117, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "backtest/execution/utils/util.pyx":118
- *     for sid_byte, bulk_batch in sid_to_batches.items():
- *         aligned[sid_byte] = pa.concat_tables(bulk_batch, promote_options='default') # pa.Table.from_batches(bulk_batch) # to_pydict() No
- *     return aligned             # <<<<<<<<<<<<<<
-*/
-  __Pyx_XDECREF(__pyx_r);
-  __Pyx_INCREF(__pyx_v_aligned);
-  __pyx_r = __pyx_v_aligned;
-  goto __pyx_L0;
-
-  /* "backtest/execution/utils/util.pyx":100
- * 
- * 
- * cdef inline dict _aggregate_by_sid(list batches): # cdef reduce python overhead             # <<<<<<<<<<<<<<
- *     cdef bytes sid_byte
- *     cdef dict sid_to_batches = {}
-*/
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("backtest.execution.utils.util._aggregate_by_sid", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XDECREF(__pyx_v_sid_byte);
-  __Pyx_XDECREF(__pyx_v_sid_to_batches);
-  __Pyx_XDECREF(__pyx_v_aligned);
-  __Pyx_XDECREF(__pyx_v_sid_batch);
-  __Pyx_XDECREF(__pyx_v_batch);
-  __Pyx_XDECREF(__pyx_v_bulk_batch);
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 /* #### Code section: module_exttypes ### */
@@ -3945,12 +3566,12 @@ static int __Pyx_modinit_function_export_code(__pyx_mstatetype *__pyx_mstate) {
   {
     __pyx_t_1 = __Pyx_ApiExport_GetApiDict(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    const char * __pyx_export_signature = __Pyx_PyBytes_AsString(__pyx_mstate_global->__pyx_kp_b_PyObject_PyObject_PyObject_doubl);
+    const char * __pyx_export_signature = __Pyx_PyBytes_AsString(__pyx_mstate_global->__pyx_kp_b_PyObject_double_struct___pyx_opt);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (unlikely(!__pyx_export_signature)) __PYX_ERR(0, 1, __pyx_L1_error)
     #endif
-    const char * __pyx_export_name = __pyx_export_signature + 494;
-    void (*const __pyx_export_pointers[])(void) = {(void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util__aggregate_by_sid, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_num2date, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_fast_uuid4_bytes, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_fast_uuid4_str, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_ts2intdt, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_market_utc, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_fast_uuid4_c, (void (*)(void)) NULL};
+    const char * __pyx_export_name = __pyx_export_signature + 471;
+    void (*const __pyx_export_pointers[])(void) = {(void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_num2date, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_fast_uuid4_bytes, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_fast_uuid4_str, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_ts2intdt, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_market_utc, (void (*)(void))&__pyx_f_8backtest_9execution_5utils_4util_fast_uuid4_c, (void (*)(void)) NULL};
     void (*const *__pyx_export_pointer)(void) = __pyx_export_pointers;
     const char *__pyx_export_current_signature = __pyx_export_signature;
     while (*__pyx_export_pointer) {
@@ -4409,31 +4030,31 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 10; } index[] = {{1},{33},{20},{18},{29},{18},{13},{8},{3},{7},{16},{14},{11},{13},{8},{3},{13},{5},{5},{8},{8},{3},{10},{5},{8},{2},{5},{2},{15},{7},{12},{12},{6},{12},{10},{8},{6},{4},{585},{28},{20},{38},{3}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (615 bytes) */
-const char* const cstring = "BZh91AY&SY\031\2220p\000\000B\377\343\355\\\"\020`u\277\340\246\303\376 \277\377\377\340@@@@\000@@\000@\000@\002\016\221@CB\214T\361Oh\243\321\212=M4zC@\007\2504\000\320\3232\236\325\016i\221\220\311\202\0320\230#M\0321\003L\231\030\000\010sL\214\206L\020\321\204\301\032h\321\210\032d\310\300\000A$A4M4i\246\211<I\211\243OP\000\000\000z\206\214\222*4+;>W\237\272\306\014\367j\027\177\013\334\202)\260\230^\020\335\203\3430\020\366L\213\0314U\310\261_7\325\251\210\245K\033\203~%\302\016\365d\350\340H\353\272h\361\007\032(\310\260\025\312\360 \273\021\336p\324\370\314\240\020o\2769\336\213\3433}\217\327\311\230\010PAHF\tt\247\273\230\014\377m\311\004#\035f\352\313!\031=\240\332(\224\220\236\364\022\236\273e\nZ0\300Cz\205\030!l\205\004\304\343\232\250\014\310\207;\355\375\000\361\214\303\253\255\324\206\306\353\250/\315fn\221U\334\243\037\326\210\334\326i\341\343G0h\354g]\025\340a\026\224,\214b\006\276\255\322\373f\013Q\314\3512\nx\014\221\267^\3537\304\3626\326\316:{\332\233z\203\225%\345\250G\007\024!\"B\001\230(\335\231\003\350\252>\364\220\267*\214.\222\222:^=\266\250\024\3607?\226\315\230\t\346%\376b\314-\327\232F\353\356s\214x\244k\246\025\361o\n\264\254\356\227!\2352%\241\241\026\212Q\035\212\354\314\322\222a\335\214\007\234\340\004\223&\225\355d\345\3115I\304\202M\\5GN\374\312\002.f\214\322g\032\371'\226L\266\336\331R\204\367d\021w\237\03256<\020o\320\3223FH\306\245\211\001\220\353-\362\312\3143zZ\005\344@\255\r\023\266\263\220\216\234'\210A\225\030\202\211\000\347\252$Q+\237\005\"\266 \211\274!\304<+\035av\263bU\313%U\211W\241\320Z\026\321\205\235\372\356\324\214\224\026\214\246U\256\263\265\341F\321\372Qi\251)\245\313\r@\261\003\274\206\364\362N\021\340\372\021\007}~h\271\232E\372\255r\326\353\334*\255#\232A\376.\344\212p\241 3$`\340";
-    PyObject *data = __Pyx_DecompressString(cstring, 615, 2);
+    const struct { const unsigned int length: 10; } index[] = {{1},{33},{20},{18},{29},{18},{8},{3},{16},{14},{11},{13},{8},{13},{5},{5},{8},{3},{10},{5},{8},{2},{5},{2},{7},{12},{12},{12},{10},{8},{6},{4},{544},{28},{20},{38}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (573 bytes) */
+const char* const cstring = "BZh91AY&SY)\260\374&\000\000?\177\343\355\\\"\020`u\277\340\246\303\376 \277\377\377\340@@@@\000@@\000@\000@\001\356\242@\206\205O\n\233Sz\247\210\365O\322\232~\251\241\240\000\031\014@2\003OS\332\241\31522\0310CF\023\004i\243F i\223#\000\001\016i\221\220\311\202\0320\230#M\0321\003L\231\030\000\010$\223D\322`\223\320\312M4\332ODz\206\200\000\r\003\324\364\217Q\345'[\223\036,\354\320\274@\306\212\364\212\377\205\222A5\327\230c\303\250>3\010t\231\026\331k\006\3514/\256\037F\035\024\324\333[d\266\274!:\365\355$p\272\204yC\231\024\262*\tuZ\004&\306\222\361\325\212\206U\204\030T\223{ew\241\371\3704<\204\010-\010\3012\244\365\223I\230\354\356j\335\032\253%\335n\032\227Bd\366\227&_\"\346\252\313&\304\330&\320\230\240\220\323\023\020\2622\031\220\374}\200t\320\033\370AM\263[mB\331\220\346\334*<\n\r\246\234\373<h\322_i\323M\345\361\334\360w\003\036H\375\256*F\230$\311x\215\357_-9\355\016\243\276nC1=\370\3307\010\227\303\026\333\006d\002\256\321\023\006\247\373\375\220\323\321A\206\300B\364\020\023\356a\353\252\220J\004U\230\300\371\241qcf\207 \210E\002\025jSoc\2107:\321\004\271\216$\310\226g\213E'\203\025eh\3051\005\235\345c\201$\311\257\240\252\214d\251\224\335&\310\370\307F\274\243\210\2724\t\240_$\362\256\333/\264P\243\226\261\027z\260\241\246\320A\254r\327\2124oX\0162 \254\342\225vA\234\271\300\310\206\211\320\250\0369\257\2438\354\251a\324G\rS\211\024J\330b\244\240.2\247\310@\267\023\221*\343)\211O\212\010*UM\205\226\0340\301\031i\026kmX\3445u#\266Cr,1J\204\271\337\020X\001\354Xa\225\241\316F\t\034\077\077\255\277\331\376\315\377\315\322c%d\204w\221\327\247\037\342\356H\247\n\022\0056\037\204\300";
+    PyObject *data = __Pyx_DecompressString(cstring, 573, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (510 bytes) */
-const char* const cstring = "x\332\255S\261n\023A\020=\013\013E\204&\005\r\325\245\263#\344(\216\201P!\244 h\222\030\003\005\325hnwm/\276\335\275\334\316\006_\227\322\345\225\3764\227|\002\237\300\334\305\347\330HH\010\305\305\354\356x\346\315\2337so\023\0243R\236\216\325\\\211@\332\331c\266\251\257m/+\346\000C6\303\342\\\013\202K5\247\221\032\243/\254\320\256'\\\3568\316*\337\300\36460\275\032\246\266\"\345\020\320\026(G\241\252P\341\254@\002\302$U^\")\322FI,$c\207\224\270\000A\010Z\016 )\030v\353\355)\037\347\316\270\\j\213iu\255R=\241\311\000\306\301\n\200\211\"\320\0366\344\264\267h5)\343\001\0142\r0\212\220\253\242\251\037N\206TU\247\245)\200E\303\017\233\331`\262\"\303\254*F\n\\V5\345\263\002\363\334\375\000\250\224\021\230i\340\337u\300\364.\315\213\2512\310'SX{\024\255\233\002\250\004\002\270\3014(_(\314\207\305U\362]\t\212\217:\367\327n\264\345\226.\260B/b\356:\260\343\256,S\001\314'\036\316\032\325\341\315FvxY\353\016\203\352\000n\242_\311\033\037mR9\006\323:\177\247\222\266\r\274\237\351\014\244\366\031\222\230v\243\210\377y5\000\212;\353\313\377\263!\337g\014I\177a\263\003K\377\200w\201\371L\321\027\236\377\003\22035\030\004\022\017E\257Z\330\223\376Y\334\271qZv#\300\311$W\023\236\006/5x-\243f:\321\237\373\036\355.|\324\010\027\335\223\334\016\021\315\210\370\263\362\024G\037\257\276\216>\303\360\375\010\316\337}\273m\375l\037\224\007\345\341\252\375t\361\241<-\223e\353\266\365\353q\364d\177\265\367\254\374T\342j\357\371\362p9X^\257\332\373\213\323ER>*_\263\343\204)\376\006g\330\225\356";
-    PyObject *data = __Pyx_DecompressString(cstring, 510, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (462 bytes) */
+const char* const cstring = "x\332\255\2221oS1\020\307\035\021\241\212\262t`az\335\222\n\245j\032\240L\010\251\250]\240!\205\201\351t\317v\250\311{\266k\237K\274u\314\370\306|\264\214|\004>\002~\257}i\212\204\204P\227\363\331\276\373\371\177w~\233#\237\221\364\264/\347\222\007RF\357'[\370\306\016l\234\003\214\223\031\307c\305\t>\3129M\344\024}\324\\\231\0017\316\2448-}\213\031\2541\203\006\323X^\244\020P\032\310!\227u\250@\222\244J)0&\030A\010J\214 \217\t\261\261\367\344\246\316\224\306\t\245\261\250\335:\307\023\226\026`\0324\007\000\345a\255By\215Z\221,=@\211\351=(\033cD(d\275j\272\000\320X\246\215\266:\2246Z\264\021\2353?\000\352Z9Z\225\240p\031\260\270\211\003\360\222ns\222'R\361\241 \200\272X\200+,\202\364Q\242\033\307\263\374\273\344\224\355\365\204\ty!_dI~H\0077dc\t\320}\363p\324\266\n\336\254{\005/\233f\301\250^ \t\033\326\r\312\366\326\251)\006\213&\277\3176^R\272\305\373\231\262 \224\267H\374\242\317X\272y5\002\312z\267\316\377\253!?L\014A\177Qs\017K\377\300\373\200n&\351s\032\344\003\210+\033\030\004\342\017%\257\376y\007\303\243\254we\224\350\263v\026\354\317o\312\356\377S\326\266\211\335I\332\014\341\355@\270\321\2362vz\366er\016\343\367\0238~\367\365\272\363\263\273S\355T\273\253\356\323\305IuX\345\313\316u\347\327c\366d{\265\365\254\372T\341j\353\371rw9Z^\256\272\333\213\303E^=\252^\247\203\203\337\205\232q\020";
+    PyObject *data = __Pyx_DecompressString(cstring, 462, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (1055 bytes) */
-const char* const bytes = "?backtest/execution/utils/util.pyx__Pyx_PyDict_NextRefasyncio.coroutinesbacktest.execution.utils.utilcline_in_tracebackconcat_tablesdatetimedaydefaultfast_uuid4_bytesfast_uuid4_strfromordinalfromtimestamp__func__get_is_coroutineisnanitems__main__metadatamin__module__month__name__npnumpypapromote_optionspyarrow__pyx_capi____qualname__schema__set_name__setdefault__test__valuesyearPyObject *(PyObject *)\000PyObject *(double, struct __pyx_opt_args_8backtest_9execution_5utils_4util_num2date *__pyx_optional_args)\000PyObject *(int __pyx_skip_dispatch)\000\000int64_t (int64_t, struct __pyx_opt_args_8backtest_9execution_5utils_4util_ts2intdt *__pyx_optional_args)\000struct __pyx_t_8backtest_9execution_5utils_4util_MarketTime (int64_t, struct __pyx_opt_args_8backtest_9execution_5utils_4util_market_utc *__pyx_optional_args)\000struct __pyx_t_8backtest_9execution_5utils_4util_uuid128 (void)\000_aggregate_by_sid\000num2date\000fast_uuid4_bytes\000fast_uuid4_str\000ts2intdt\000market_utc\000fast_uuid4_cint64_t const \000HOURS_PER_DAY\200\001\340\004\021\220\021\220!\330\004\014\210G\2203\220b\230\001\200\001\360\006\000\n\013\330\010\025\220Q\220a\330\010\032\230!\2304\230q\330\004\013\2103\210b\220\003\2207\230!\2301sid";
+    #else /* compression: none (959 bytes) */
+const char* const bytes = "?backtest/execution/utils/util.pyx__Pyx_PyDict_NextRefasyncio.coroutinesbacktest.execution.utils.utilcline_in_tracebackdatetimedayfast_uuid4_bytesfast_uuid4_strfromordinalfromtimestamp__func___is_coroutineisnanitems__main__min__module__month__name__npnumpypapyarrow__pyx_capi____qualname____set_name__setdefault__test__valuesyearPyObject *(double, struct __pyx_opt_args_8backtest_9execution_5utils_4util_num2date *__pyx_optional_args)\000PyObject *(int __pyx_skip_dispatch)\000\000int64_t (int64_t, struct __pyx_opt_args_8backtest_9execution_5utils_4util_ts2intdt *__pyx_optional_args)\000struct __pyx_t_8backtest_9execution_5utils_4util_MarketTime (int64_t, struct __pyx_opt_args_8backtest_9execution_5utils_4util_market_utc *__pyx_optional_args)\000struct __pyx_t_8backtest_9execution_5utils_4util_uuid128 (void)\000num2date\000fast_uuid4_bytes\000fast_uuid4_str\000ts2intdt\000market_utc\000fast_uuid4_cint64_t const \000HOURS_PER_DAY\200\001\340\004\021\220\021\220!\330\004\014\210G\2203\220b\230\001\200\001\360\006\000\n\013\330\010\025\220Q\220a\330\010\032\230!\2304\230q\330\004\013\2103\210b\220\003\2207\230!\2301";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 38; i++) {
+    for (int i = 0; i < 32; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 2) PyUnicode_InternInPlace(&string);
@@ -4444,7 +4065,7 @@ const char* const bytes = "?backtest/execution/utils/util.pyx__Pyx_PyDict_NextRe
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 38; i < 43; i++) {
+    for (int i = 32; i < 36; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -4455,15 +4076,15 @@ const char* const bytes = "?backtest/execution/utils/util.pyx__Pyx_PyDict_NextRe
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 43; i++) {
+    for (Py_ssize_t i = 0; i < 36; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 38;
-      for (Py_ssize_t i=0; i<5; ++i) {
+      PyObject **table = stringtab + 32;
+      for (Py_ssize_t i=0; i<4; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
         if (_Py_IsOwnedByCurrentThread(table[i]) && Py_REFCNT(table[i]) == 1)
@@ -5207,482 +4828,6 @@ static PyObject *__Pyx_PyObject_FastCallMethod(PyObject *name, PyObject *const *
 }
 #endif
 
-/* RaiseUnexpectedTypeError */
-static int
-__Pyx_RaiseUnexpectedTypeError(const char *expected, PyObject *obj)
-{
-    __Pyx_TypeName obj_type_name = __Pyx_PyType_GetFullyQualifiedName(Py_TYPE(obj));
-    PyErr_Format(PyExc_TypeError, "Expected %s, got " __Pyx_FMT_TYPENAME,
-                 expected, obj_type_name);
-    __Pyx_DECREF_TypeName(obj_type_name);
-    return 0;
-}
-
-/* DictGetItem */
-#if !CYTHON_COMPILING_IN_PYPY
-static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
-    PyObject *value;
-    if (unlikely(__Pyx_PyDict_GetItemRef(d, key, &value) == 0)) { // no value, no error
-        if (unlikely(PyTuple_Check(key))) {
-            PyObject* args = PyTuple_Pack(1, key);
-            if (likely(args)) {
-                PyErr_SetObject(PyExc_KeyError, args);
-                Py_DECREF(args);
-            }
-        } else {
-            PyErr_SetObject(PyExc_KeyError, key);
-        }
-    }
-    return value;
-}
-#endif
-
-/* IterFinish (used by dict_iter) */
-static CYTHON_INLINE int __Pyx_IterFinish(void) {
-    PyObject* exc_type;
-    __Pyx_PyThreadState_declare
-    __Pyx_PyThreadState_assign
-    exc_type = __Pyx_PyErr_CurrentExceptionType();
-    if (unlikely(exc_type)) {
-        if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration)))
-            return -1;
-        __Pyx_PyErr_Clear();
-        return 0;
-    }
-    return 0;
-}
-
-/* PyObjectCallNoArg (used by PyObjectCallMethod0) */
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func) {
-    PyObject *arg[2] = {NULL, NULL};
-    return __Pyx_PyObject_FastCall(func, arg + 1, 0 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET);
-}
-
-/* PyObjectCallOneArg (used by PyObjectCallMethod0) */
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *args[2] = {NULL, arg};
-    return __Pyx_PyObject_FastCall(func, args+1, 1 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET);
-}
-
-/* PyObjectGetMethod (used by PyObjectCallMethod0) */
-#if !(CYTHON_VECTORCALL && (__PYX_LIMITED_VERSION_HEX >= 0x030C0000 || (!CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x03090000)))
-static int __Pyx_PyObject_GetMethod(PyObject *obj, PyObject *name, PyObject **method) {
-    PyObject *attr;
-#if CYTHON_UNPACK_METHODS && CYTHON_COMPILING_IN_CPYTHON && CYTHON_USE_PYTYPE_LOOKUP
-    __Pyx_TypeName type_name;
-    PyTypeObject *tp = Py_TYPE(obj);
-    PyObject *descr;
-    descrgetfunc f = NULL;
-    PyObject **dictptr, *dict;
-    int meth_found = 0;
-    assert (*method == NULL);
-    if (unlikely(tp->tp_getattro != PyObject_GenericGetAttr)) {
-        attr = __Pyx_PyObject_GetAttrStr(obj, name);
-        goto try_unpack;
-    }
-    if (unlikely(tp->tp_dict == NULL) && unlikely(PyType_Ready(tp) < 0)) {
-        return 0;
-    }
-    descr = _PyType_Lookup(tp, name);
-    if (likely(descr != NULL)) {
-        Py_INCREF(descr);
-#if defined(Py_TPFLAGS_METHOD_DESCRIPTOR) && Py_TPFLAGS_METHOD_DESCRIPTOR
-        if (__Pyx_PyType_HasFeature(Py_TYPE(descr), Py_TPFLAGS_METHOD_DESCRIPTOR))
-#else
-        #ifdef __Pyx_CyFunction_USED
-        if (likely(PyFunction_Check(descr) || __Pyx_IS_TYPE(descr, &PyMethodDescr_Type) || __Pyx_CyFunction_Check(descr)))
-        #else
-        if (likely(PyFunction_Check(descr) || __Pyx_IS_TYPE(descr, &PyMethodDescr_Type)))
-        #endif
-#endif
-        {
-            meth_found = 1;
-        } else {
-            f = Py_TYPE(descr)->tp_descr_get;
-            if (f != NULL && PyDescr_IsData(descr)) {
-                attr = f(descr, obj, (PyObject *)Py_TYPE(obj));
-                Py_DECREF(descr);
-                goto try_unpack;
-            }
-        }
-    }
-    dictptr = _PyObject_GetDictPtr(obj);
-    if (dictptr != NULL && (dict = *dictptr) != NULL) {
-        Py_INCREF(dict);
-        attr = __Pyx_PyDict_GetItemStr(dict, name);
-        if (attr != NULL) {
-            Py_INCREF(attr);
-            Py_DECREF(dict);
-            Py_XDECREF(descr);
-            goto try_unpack;
-        }
-        Py_DECREF(dict);
-    }
-    if (meth_found) {
-        *method = descr;
-        return 1;
-    }
-    if (f != NULL) {
-        attr = f(descr, obj, (PyObject *)Py_TYPE(obj));
-        Py_DECREF(descr);
-        goto try_unpack;
-    }
-    if (likely(descr != NULL)) {
-        *method = descr;
-        return 0;
-    }
-    type_name = __Pyx_PyType_GetFullyQualifiedName(tp);
-    PyErr_Format(PyExc_AttributeError,
-                 "'" __Pyx_FMT_TYPENAME "' object has no attribute '%U'",
-                 type_name, name);
-    __Pyx_DECREF_TypeName(type_name);
-    return 0;
-#else
-    attr = __Pyx_PyObject_GetAttrStr(obj, name);
-    goto try_unpack;
-#endif
-try_unpack:
-#if CYTHON_UNPACK_METHODS
-    if (likely(attr) && PyMethod_Check(attr) && likely(PyMethod_GET_SELF(attr) == obj)) {
-        PyObject *function = PyMethod_GET_FUNCTION(attr);
-        Py_INCREF(function);
-        Py_DECREF(attr);
-        *method = function;
-        return 1;
-    }
-#endif
-    *method = attr;
-    return 0;
-}
-#endif
-
-/* PyObjectCallMethod0 (used by dict_iter) */
-static PyObject* __Pyx_PyObject_CallMethod0(PyObject* obj, PyObject* method_name) {
-#if CYTHON_VECTORCALL && (__PYX_LIMITED_VERSION_HEX >= 0x030C0000 || (!CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x03090000))
-    PyObject *args[1] = {obj};
-    (void) __Pyx_PyObject_CallOneArg;
-    (void) __Pyx_PyObject_CallNoArg;
-    return PyObject_VectorcallMethod(method_name, args, 1 | PY_VECTORCALL_ARGUMENTS_OFFSET, NULL);
-#else
-    PyObject *method = NULL, *result = NULL;
-    int is_method = __Pyx_PyObject_GetMethod(obj, method_name, &method);
-    if (likely(is_method)) {
-        result = __Pyx_PyObject_CallOneArg(method, obj);
-        Py_DECREF(method);
-        return result;
-    }
-    if (unlikely(!method)) goto bad;
-    result = __Pyx_PyObject_CallNoArg(method);
-    Py_DECREF(method);
-bad:
-    return result;
-#endif
-}
-
-/* RaiseNeedMoreValuesToUnpack (used by UnpackTuple2) */
-static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index) {
-    PyErr_Format(PyExc_ValueError,
-                 "need more than %" CYTHON_FORMAT_SSIZE_T "d value%.1s to unpack",
-                 index, (index == 1) ? "" : "s");
-}
-
-/* RaiseTooManyValuesToUnpack (used by UnpackItemEndCheck) */
-static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
-    PyErr_Format(PyExc_ValueError,
-                 "too many values to unpack (expected %" CYTHON_FORMAT_SSIZE_T "d)", expected);
-}
-
-/* UnpackItemEndCheck (used by UnpackTuple2) */
-static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected) {
-    if (unlikely(retval)) {
-        Py_DECREF(retval);
-        __Pyx_RaiseTooManyValuesError(expected);
-        return -1;
-    }
-    return __Pyx_IterFinish();
-}
-
-/* RaiseNoneIterError (used by UnpackTupleError) */
-static CYTHON_INLINE void __Pyx_RaiseNoneNotIterableError(void) {
-    PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-}
-
-/* UnpackTupleError (used by UnpackTuple2) */
-static void __Pyx_UnpackTupleError(PyObject *t, Py_ssize_t index) {
-    if (t == Py_None) {
-      __Pyx_RaiseNoneNotIterableError();
-    } else {
-      Py_ssize_t size = __Pyx_PyTuple_GET_SIZE(t);
- #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely(size < 0)) return;
- #endif
-      if (size < index) {
-        __Pyx_RaiseNeedMoreValuesError(size);
-      } else {
-        __Pyx_RaiseTooManyValuesError(index);
-      }
-    }
-}
-
-/* UnpackTuple2 (used by dict_iter) */
-static CYTHON_INLINE int __Pyx_unpack_tuple2(
-        PyObject* tuple, PyObject** value1, PyObject** value2, int is_tuple, int has_known_size, int decref_tuple) {
-    if (likely(is_tuple || PyTuple_Check(tuple))) {
-        Py_ssize_t size;
-        if (has_known_size) {
-            return __Pyx_unpack_tuple2_exact(tuple, value1, value2, decref_tuple);
-        }
-        size = __Pyx_PyTuple_GET_SIZE(tuple);
-        if (likely(size == 2)) {
-            return __Pyx_unpack_tuple2_exact(tuple, value1, value2, decref_tuple);
-        }
-        if (size >= 0) {
-            __Pyx_UnpackTupleError(tuple, 2);
-        }
-        return -1;
-    } else {
-        return __Pyx_unpack_tuple2_generic(tuple, value1, value2, has_known_size, decref_tuple);
-    }
-}
-static CYTHON_INLINE int __Pyx_unpack_tuple2_exact(
-        PyObject* tuple, PyObject** pvalue1, PyObject** pvalue2, int decref_tuple) {
-    PyObject *value1 = NULL, *value2 = NULL;
-#if CYTHON_AVOID_BORROWED_REFS || !CYTHON_ASSUME_SAFE_MACROS
-    value1 = __Pyx_PySequence_ITEM(tuple, 0);  if (unlikely(!value1)) goto bad;
-    value2 = __Pyx_PySequence_ITEM(tuple, 1);  if (unlikely(!value2)) goto bad;
-#else
-    value1 = PyTuple_GET_ITEM(tuple, 0);  Py_INCREF(value1);
-    value2 = PyTuple_GET_ITEM(tuple, 1);  Py_INCREF(value2);
-#endif
-    if (decref_tuple) {
-        Py_DECREF(tuple);
-    }
-    *pvalue1 = value1;
-    *pvalue2 = value2;
-    return 0;
-#if CYTHON_AVOID_BORROWED_REFS || !CYTHON_ASSUME_SAFE_MACROS
-bad:
-    Py_XDECREF(value1);
-    Py_XDECREF(value2);
-    if (decref_tuple) { Py_XDECREF(tuple); }
-    return -1;
-#endif
-}
-static int __Pyx_unpack_tuple2_generic(PyObject* tuple, PyObject** pvalue1, PyObject** pvalue2,
-                                       int has_known_size, int decref_tuple) {
-    Py_ssize_t index;
-    PyObject *value1 = NULL, *value2 = NULL, *iter = NULL;
-    iternextfunc iternext;
-    iter = PyObject_GetIter(tuple);
-    if (unlikely(!iter)) goto bad;
-    if (decref_tuple) { Py_DECREF(tuple); tuple = NULL; }
-    iternext = __Pyx_PyObject_GetIterNextFunc(iter);
-    value1 = iternext(iter); if (unlikely(!value1)) { index = 0; goto unpacking_failed; }
-    value2 = iternext(iter); if (unlikely(!value2)) { index = 1; goto unpacking_failed; }
-    if (!has_known_size && unlikely(__Pyx_IternextUnpackEndCheck(iternext(iter), 2))) goto bad;
-    Py_DECREF(iter);
-    *pvalue1 = value1;
-    *pvalue2 = value2;
-    return 0;
-unpacking_failed:
-    if (!has_known_size && __Pyx_IterFinish() == 0)
-        __Pyx_RaiseNeedMoreValuesError(index);
-bad:
-    Py_XDECREF(iter);
-    Py_XDECREF(value1);
-    Py_XDECREF(value2);
-    if (decref_tuple) { Py_XDECREF(tuple); }
-    return -1;
-}
-
-/* dict_iter */
-#if CYTHON_COMPILING_IN_PYPY
-#include <string.h>
-#endif
-static CYTHON_INLINE PyObject* __Pyx_dict_iterator(PyObject* iterable, int is_dict, PyObject* method_name,
-                                                   Py_ssize_t* p_orig_length, int* p_source_is_dict) {
-    is_dict = is_dict || likely(PyDict_CheckExact(iterable));
-    *p_source_is_dict = is_dict;
-    if (is_dict) {
-#if !CYTHON_COMPILING_IN_PYPY
-        *p_orig_length = PyDict_Size(iterable);
-        Py_INCREF(iterable);
-        return iterable;
-#else
-        static PyObject *py_items = NULL, *py_keys = NULL, *py_values = NULL;
-        PyObject **pp = NULL;
-        if (method_name) {
-            const char *name = PyUnicode_AsUTF8(method_name);
-            if (strcmp(name, "iteritems") == 0) pp = &py_items;
-            else if (strcmp(name, "iterkeys") == 0) pp = &py_keys;
-            else if (strcmp(name, "itervalues") == 0) pp = &py_values;
-            if (pp) {
-                if (!*pp) {
-                    *pp = PyUnicode_FromString(name + 4);
-                    if (!*pp)
-                        return NULL;
-                }
-                method_name = *pp;
-            }
-        }
-#endif
-    }
-    *p_orig_length = 0;
-    if (method_name) {
-        PyObject* iter;
-        iterable = __Pyx_PyObject_CallMethod0(iterable, method_name);
-        if (!iterable)
-            return NULL;
-#if !CYTHON_COMPILING_IN_PYPY
-        if (PyTuple_CheckExact(iterable) || PyList_CheckExact(iterable))
-            return iterable;
-#endif
-        iter = PyObject_GetIter(iterable);
-        Py_DECREF(iterable);
-        return iter;
-    }
-    return PyObject_GetIter(iterable);
-}
-#if !CYTHON_AVOID_BORROWED_REFS
-static CYTHON_INLINE int __Pyx_dict_iter_next_source_is_dict(
-        PyObject* iter_obj, CYTHON_NCP_UNUSED Py_ssize_t orig_length, CYTHON_NCP_UNUSED Py_ssize_t* ppos,
-        PyObject** pkey, PyObject** pvalue, PyObject** pitem) {
-    PyObject *key, *value;
-    if (unlikely(orig_length != PyDict_Size(iter_obj))) {
-        PyErr_SetString(PyExc_RuntimeError, "dictionary changed size during iteration");
-        return -1;
-    }
-    if (unlikely(!PyDict_Next(iter_obj, ppos, &key, &value))) {
-        return 0;
-    }
-    if (pitem) {
-        PyObject* tuple = PyTuple_New(2);
-        if (unlikely(!tuple)) {
-            return -1;
-        }
-        Py_INCREF(key);
-        Py_INCREF(value);
-        #if CYTHON_ASSUME_SAFE_MACROS
-        PyTuple_SET_ITEM(tuple, 0, key);
-        PyTuple_SET_ITEM(tuple, 1, value);
-        #else
-        if (unlikely(PyTuple_SetItem(tuple, 0, key) < 0)) {
-            Py_DECREF(value);
-            Py_DECREF(tuple);
-            return -1;
-        }
-        if (unlikely(PyTuple_SetItem(tuple, 1, value) < 0)) {
-            Py_DECREF(tuple);
-            return -1;
-        }
-        #endif
-        *pitem = tuple;
-    } else {
-        if (pkey) {
-            Py_INCREF(key);
-            *pkey = key;
-        }
-        if (pvalue) {
-            Py_INCREF(value);
-            *pvalue = value;
-        }
-    }
-    return 1;
-}
-#endif
-static CYTHON_INLINE int __Pyx_dict_iter_next(
-        PyObject* iter_obj, CYTHON_NCP_UNUSED Py_ssize_t orig_length, CYTHON_NCP_UNUSED Py_ssize_t* ppos,
-        PyObject** pkey, PyObject** pvalue, PyObject** pitem, int source_is_dict) {
-    PyObject* next_item;
-#if !CYTHON_AVOID_BORROWED_REFS
-    if (source_is_dict) {
-        int result;
-#if PY_VERSION_HEX >= 0x030d0000 && !CYTHON_COMPILING_IN_LIMITED_API
-        Py_BEGIN_CRITICAL_SECTION(iter_obj);
-#endif
-        result = __Pyx_dict_iter_next_source_is_dict(iter_obj, orig_length, ppos, pkey, pvalue, pitem);
-#if PY_VERSION_HEX >= 0x030d0000 && !CYTHON_COMPILING_IN_LIMITED_API
-        Py_END_CRITICAL_SECTION();
-#endif
-        return result;
-    } else if (PyTuple_CheckExact(iter_obj)) {
-        Py_ssize_t pos = *ppos;
-        Py_ssize_t tuple_size = __Pyx_PyTuple_GET_SIZE(iter_obj);
-        #if !CYTHON_ASSUME_SAFE_SIZE
-        if (unlikely(tuple_size < 0)) return -1;
-        #endif
-        if (unlikely(pos >= tuple_size)) return 0;
-        *ppos = pos + 1;
-        #if CYTHON_ASSUME_SAFE_MACROS
-        next_item = PyTuple_GET_ITEM(iter_obj, pos);
-        #else
-        next_item = PyTuple_GetItem(iter_obj, pos);
-        if (unlikely(!next_item)) return -1;
-        #endif
-        Py_INCREF(next_item);
-    } else if (PyList_CheckExact(iter_obj)) {
-        Py_ssize_t pos = *ppos;
-        Py_ssize_t list_size = __Pyx_PyList_GET_SIZE(iter_obj);
-        #if !CYTHON_ASSUME_SAFE_SIZE
-        if (unlikely(list_size < 0)) return -1;
-        #endif
-        if (unlikely(pos >= list_size)) return 0;
-        *ppos = pos + 1;
-        next_item = __Pyx_PyList_GetItemRef(iter_obj, pos);
-        if (unlikely(!next_item)) return -1;
-    } else
-#endif
-    {
-        next_item = PyIter_Next(iter_obj);
-        if (unlikely(!next_item)) {
-            return __Pyx_IterFinish();
-        }
-    }
-    if (pitem) {
-        *pitem = next_item;
-    } else if (pkey && pvalue) {
-        if (__Pyx_unpack_tuple2(next_item, pkey, pvalue, source_is_dict, source_is_dict, 1))
-            return -1;
-    } else if (pkey) {
-        *pkey = next_item;
-    } else {
-        *pvalue = next_item;
-    }
-    return 1;
-}
-
-/* PyObjectVectorCallKwBuilder */
-#if CYTHON_VECTORCALL
-static int __Pyx_VectorcallBuilder_AddArg(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n) {
-    (void)__Pyx_PyObject_FastCallDict;
-    if (__Pyx_PyTuple_SET_ITEM(builder, n, key) != (0)) return -1;
-    Py_INCREF(key);
-    args[n] = value;
-    return 0;
-}
-CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n) {
-    (void)__Pyx_VectorcallBuilder_AddArgStr;
-    if (unlikely(!PyUnicode_Check(key))) {
-        PyErr_SetString(PyExc_TypeError, "keywords must be strings");
-        return -1;
-    }
-    return __Pyx_VectorcallBuilder_AddArg(key, value, builder, args, n);
-}
-static int __Pyx_VectorcallBuilder_AddArgStr(const char *key, PyObject *value, PyObject *builder, PyObject **args, int n) {
-    PyObject *pyKey = PyUnicode_FromString(key);
-    if (!pyKey) return -1;
-    return __Pyx_VectorcallBuilder_AddArg(pyKey, value, builder, args, n);
-}
-#else // CYTHON_VECTORCALL
-CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, CYTHON_UNUSED PyObject **args, CYTHON_UNUSED int n) {
-    if (unlikely(!PyUnicode_Check(key))) {
-        PyErr_SetString(PyExc_TypeError, "keywords must be strings");
-        return -1;
-    }
-    return PyDict_SetItem(builder, key, value);
-}
-#endif
-
 /* VoidPtrExport */
 static int __Pyx_ExportVoidPtr(PyObject *api_dict, const char *name, void *p, const char *sig) {
     PyObject *cobj;
@@ -5754,6 +4899,12 @@ static CYTHON_INLINE int __Pyx_HasAttr(PyObject *o, PyObject *n) {
     }
 }
 #endif
+
+/* PyObjectCallOneArg (used by ImportImpl) */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *args[2] = {NULL, arg};
+    return __Pyx_PyObject_FastCall(func, args+1, 1 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET);
+}
 
 /* ImportImpl (used by Import) */
 static int __Pyx__Import_GetModule(PyObject *qualname, PyObject **module) {
@@ -7895,6 +7046,38 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 bad:
     Py_XDECREF(py_code);
     Py_XDECREF(py_frame);
+}
+#endif
+
+/* PyObjectVectorCallKwBuilder (used by CIntToPy) */
+#if CYTHON_VECTORCALL
+static int __Pyx_VectorcallBuilder_AddArg(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n) {
+    (void)__Pyx_PyObject_FastCallDict;
+    if (__Pyx_PyTuple_SET_ITEM(builder, n, key) != (0)) return -1;
+    Py_INCREF(key);
+    args[n] = value;
+    return 0;
+}
+CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n) {
+    (void)__Pyx_VectorcallBuilder_AddArgStr;
+    if (unlikely(!PyUnicode_Check(key))) {
+        PyErr_SetString(PyExc_TypeError, "keywords must be strings");
+        return -1;
+    }
+    return __Pyx_VectorcallBuilder_AddArg(key, value, builder, args, n);
+}
+static int __Pyx_VectorcallBuilder_AddArgStr(const char *key, PyObject *value, PyObject *builder, PyObject **args, int n) {
+    PyObject *pyKey = PyUnicode_FromString(key);
+    if (!pyKey) return -1;
+    return __Pyx_VectorcallBuilder_AddArg(pyKey, value, builder, args, n);
+}
+#else // CYTHON_VECTORCALL
+CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, CYTHON_UNUSED PyObject **args, CYTHON_UNUSED int n) {
+    if (unlikely(!PyUnicode_Check(key))) {
+        PyErr_SetString(PyExc_TypeError, "keywords must be strings");
+        return -1;
+    }
+    return PyDict_SetItem(builder, key, value);
 }
 #endif
 

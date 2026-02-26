@@ -44,18 +44,16 @@ from cython.operator cimport dereference as deref
 from libc.stdint cimport int32_t, int64_t
 
 from backtest.execution.core.finance.position cimport Position, PositionCoreData
-from backtest.execution.core.finance.order cimport Order, OrderCoreData
+from backtest.execution.core.finance.order cimport OrderCoreData
 from backtest.execution.core.finance.account cimport Account
 from backtest.execution.core.finance.trade cimport OrderExecutionBit
 from backtest.execution.core.finance.common cimport EventItem, AdjustmentData, RightData
 from backtest.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Likehood 
-from backtest.execution.core.finance.cache cimport AssetCache
-from backtest.execution.core.finance.cash cimport AsyncCashManager
-from backtest.execution.core.finance.simulate_types cimport ActorId, MsgType
-from backtest.execution.core.gateway.rpc.client cimport RpcTopic
-from backtest.execution.utils.util cimport ts2intdt, _aggregate_by_sid
+from backtest.execution.core.finance.simulate_types cimport MsgType
+from backtest.execution.core.gateway.interface cimport RpcTopic
+from backtest.execution.utils.util cimport ts2intdt
 from backtest.execution.core.gateway.interface import async_gt
-from backtest.protocol import SnapshotBody, Resp, Event, Resp
+from backtest.protocol import SnapshotBody, Resp, Event, Resp, QueryBody
 
 
 cimport numpy as cnp
@@ -171,7 +169,6 @@ cdef class BatchWriterActor: # CPU Intensive
             
             position_data = list(dedup_positions.values())
             account_data = list(dedup_accounts.values())
-            print("_flush ", position_data, account_data)
 
             if position_data:
                 await self._retry_write("vtposition", position_data)
@@ -425,15 +422,11 @@ cdef class TrackerActor:
             self.cash_manager.add_cash(experiment_id, event_cash)
 
     async def _fetch_from_rpc(self, object event):
-        async def align_rpc(int rpc_type, dict req):
+
+        async def remote_wrap(int rpc_type, object body):
             cdef list batches = []
-            iterator = await async_gt.rpc(rpc_type, req)
-            async for batch in iterator:
-                batches.append(batch) # pa.RecordBatch
-                
-            if not batches:
-                return {}
-            return _aggregate_by_sid(batches) # return pa.Table.from_batches(batches) / np.fromiter
+            sorted_batches = await async_gt.remote(rpc_type, body) 
+            return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
 
         cdef object body = event.body
         cdef list psids = list(self.positions.keys())
@@ -442,12 +435,12 @@ cdef class TrackerActor:
         s_dt = ts2intdt(body.start_date)
         e_dt = ts2intdt(body.end_date)
 
-        close_req = {"start_date": s_dt, "end_date": s_dt, "sid": psids} 
-        event_req = {"start_date": e_dt, "end_date": e_dt, "sid": psids}
+        close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids)
+        event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids)
         
-        close_task = align_rpc(RpcTopic.Close, close_req) 
-        adj_task = align_rpc(RpcTopic.Adjustment, event_req)
-        rgt_task = align_rpc(RpcTopic.Rightment, event_req)
+        close_task = remote_wrap(RpcTopic.Close, close_body) 
+        adj_task = remote_wrap(RpcTopic.Adjustment, event_body)
+        rgt_task = remote_wrap(RpcTopic.Rightment, event_body)
         close_table, adj_table, rgt_table = await asyncio.gather(close_task, adj_task, rgt_task) 
         return (close_table, adj_table, rgt_table)
 

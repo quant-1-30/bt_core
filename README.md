@@ -283,3 +283,25 @@ StoreAgent 占用的 CPU 100% 计入 ray start / ray.init() 启动的 Ray 节点
 
 asyncio.get_running_loop()` 的行为**：
     *   这个函数只有在 **协程内部** 或者已经通过 `asyncio.run()` 启动的上下文中才能调用 
+
+grpc-aio 与 uvloop 冲突
+import asyncio
+asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+
+
+## 1. 为什么不能直接用 `get_running_loop`？（死锁陷阱）
+
+Ray 的 Async Actor 或某些 Worker 环境确实自带一个 Event Loop（运行在主线程）。但是，如果你尝试在这个 Loop 上玩“同步桥接”，会引发死锁。
+
+#### 死锁场景复现：
+1.  **Ray 主线程**：正在运行 Event Loop。
+2.  **你的代码**：调用 `td_api.submit()`（同步接口）。
+3.  **你的操作**：
+    *   获取主线程 Loop：`loop = asyncio.get_running_loop()`。
+    *   提交任务：`fut = asyncio.run_coroutine_threadsafe(coro, loop)`。
+    *   **死锁点**：`result = fut.result()`（阻塞主线程，等待结果）。
+4.  **后果**：
+    *   主线程被 `fut.result()` 卡住了（Block）。
+    *   Event Loop 也就被卡住了（因为它跑在主线程）。
+    *   提交的 `coro` 永远得不到执行机会（因为 Loop 被卡住了）。
+    *   **结果：程序永久挂起（Deadlock）。**

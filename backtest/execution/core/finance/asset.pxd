@@ -16,17 +16,17 @@ from libcpp.string cimport string as cpp_string
 from libc.stdint cimport int64_t
 
 
-cdef struct AssetInfo:
+cdef struct AssetCore:
      int first_trading
      int delist
      int tick_size
      bint increment
 
 cdef class Asset:
-    cdef readonly AssetInfo core
+    cdef readonly AssetCore core
     cdef bytes sid
     cdef str name
 
     cdef double restricted(self, int64_t t)
     
-    cdef AssetInfo serialize(self)
+    cdef AssetCore serialize(self)

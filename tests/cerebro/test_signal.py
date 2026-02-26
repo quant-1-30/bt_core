@@ -1,11 +1,14 @@
 # Import the backtrader platform
-
+import os
 import uuid
 import numpy as np
 from dotenv import load_dotenv
 
 import backtest as bt
 import backtest.indicators as btind
+
+
+os.environ["GRPC_POLL_STRATEGY"] = "poll"
 
 
 class WeekPriceSignal(btind.Indicator): 
@@ -117,7 +120,8 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-    cerebro.run(cash=100000, sid=[b"301366"], fromdate=20200101, todate=20260101, benchmark=b"000001", out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040101, todate=20100101, benchmark=b"000001", out="signal.csv")
 
-    # 11年 2008s
-    # 11年 157s / 240s 
+    # 问题在与 2010之前数据执行异常 
+
+    # 1434360600.0 数据异常 # 2015年6月15号  / 2016 - 2026  223s / 2010 - 20150601  / 2015 116s

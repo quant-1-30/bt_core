@@ -1641,7 +1641,7 @@ struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData {
 struct __pyx_t_8backtest_9execution_4core_7finance_6common_EventItem {
   int event_type;
   struct __pyx_t_8backtest_9execution_4core_7finance_6common_AdjustmentData adj;
-  struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData right;
+  struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData rgt;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData;
 
@@ -1659,16 +1659,16 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData {
   double comm;
   double cash;
 };
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo;
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
 
 /* "backtest/execution/core/finance/asset.pxd":19
  * 
  * 
- * cdef struct AssetInfo:             # <<<<<<<<<<<<<<
+ * cdef struct AssetCore:             # <<<<<<<<<<<<<<
  *      int first_trading
  *      int delist
 */
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo {
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore {
   int first_trading;
   int delist;
   int tick_size;
@@ -1746,13 +1746,13 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit {
  *      bint increment
  * 
  * cdef class Asset:             # <<<<<<<<<<<<<<
- *     cdef readonly AssetInfo core
+ *     cdef readonly AssetCore core
  *     cdef bytes sid
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtab;
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo core;
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore core;
   PyObject *sid;
   PyObject *name;
 };
@@ -1763,13 +1763,13 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
  *     cdef readonly PositionCoreData core
- *     cdef AssetInfo asset_info
+ *     cdef AssetCore asset_info
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position *__pyx_vtab;
   struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData core;
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo asset_info;
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore asset_info;
 };
 
 
@@ -1808,13 +1808,13 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderE
  *      bint increment
  * 
  * cdef class Asset:             # <<<<<<<<<<<<<<
- *     cdef readonly AssetInfo core
+ *     cdef readonly AssetCore core
  *     cdef bytes sid
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset {
   double (*restricted)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *, int64_t);
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo (*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *);
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore (*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset;
 
@@ -1824,7 +1824,7 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset 
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
  *     cdef readonly PositionCoreData core
- *     cdef AssetInfo asset_info
+ *     cdef AssetCore asset_info
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position {

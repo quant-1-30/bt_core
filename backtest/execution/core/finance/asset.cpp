@@ -1555,16 +1555,16 @@ static const char* const __pyx_f[] = {
 
 /*--- Type declarations ---*/
 struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset;
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo;
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
 
 /* "backtest/execution/core/finance/asset.pxd":19
  * 
  * 
- * cdef struct AssetInfo:             # <<<<<<<<<<<<<<
+ * cdef struct AssetCore:             # <<<<<<<<<<<<<<
  *      int first_trading
  *      int delist
 */
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo {
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore {
   int first_trading;
   int delist;
   int tick_size;
@@ -1575,13 +1575,13 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo {
  *      bint increment
  * 
  * cdef class Asset:             # <<<<<<<<<<<<<<
- *     cdef readonly AssetInfo core
+ *     cdef readonly AssetCore core
  *     cdef bytes sid
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtab;
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo core;
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore core;
   PyObject *sid;
   PyObject *name;
 };
@@ -1598,7 +1598,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset {
   double (*restricted)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *, int64_t);
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo (*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *);
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore (*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset;
 /* #### Code section: utility_code_proto ### */
@@ -2252,8 +2252,8 @@ static void __pyx_insert_code_object(int code_line, __Pyx_CachedCodeObjectType* 
 static void __Pyx_AddTraceback(const char *funcname, int c_line,
                                int py_line, const char *filename);
 
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo;
-static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo(struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo s);
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
+static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore(struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore s);
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *);
 
@@ -2388,7 +2388,7 @@ static int __Pyx_State_RemoveModule(void*);
 #define __PYX_TYPE_MODULE_PREFIX __PYX_ABI_MODULE_NAME "."
 
 static double __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_restricted(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_v_self, int64_t __pyx_v_ts); /* proto*/
-static struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_serialize(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_v_self); /* proto*/
+static struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_serialize(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_v_self); /* proto*/
 
 /* Module declarations from "libc.string" */
 
@@ -2947,7 +2947,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5asset_5Asset_9inc
  *     cdef double restricted(self, int64_t ts):
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo(__pyx_v_self->core); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore(__pyx_v_self->core); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3078,7 +3078,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_restrict
  *             thres = 0.1
  *         return thres             # <<<<<<<<<<<<<<
  * 
- *     cdef AssetInfo serialize(self):
+ *     cdef AssetCore serialize(self):
 */
   __pyx_r = __pyx_v_thres;
   goto __pyx_L0;
@@ -3102,17 +3102,17 @@ static double __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_restrict
 /* "backtest/execution/core/finance/asset.pyx":81
  *         return thres
  * 
- *     cdef AssetInfo serialize(self):             # <<<<<<<<<<<<<<
+ *     cdef AssetCore serialize(self):             # <<<<<<<<<<<<<<
  *         return self.core
  * 
 */
 
-static struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_serialize(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_v_self) {
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo __pyx_r;
+static struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore __pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_serialize(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_v_self) {
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore __pyx_r;
 
   /* "backtest/execution/core/finance/asset.pyx":82
  * 
- *     cdef AssetInfo serialize(self):
+ *     cdef AssetCore serialize(self):
  *         return self.core             # <<<<<<<<<<<<<<
  * 
  *     def __repr__(self):
@@ -3123,7 +3123,7 @@ static struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo __pyx
   /* "backtest/execution/core/finance/asset.pyx":81
  *         return thres
  * 
- *     cdef AssetInfo serialize(self):             # <<<<<<<<<<<<<<
+ *     cdef AssetCore serialize(self):             # <<<<<<<<<<<<<<
  *         return self.core
  * 
 */
@@ -3228,7 +3228,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5asset_5Asset_2__r
 /* "backtest/execution/core/finance/asset.pxd":26
  * 
  * cdef class Asset:
- *     cdef readonly AssetInfo core             # <<<<<<<<<<<<<<
+ *     cdef readonly AssetCore core             # <<<<<<<<<<<<<<
  *     cdef bytes sid
  *     cdef str name
 */
@@ -3257,7 +3257,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5asset_5Asset_4cor
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo(__pyx_v_self->core); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 26, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore(__pyx_v_self->core); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3691,7 +3691,7 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   /*--- Type init code ---*/
   __pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset = &__pyx_vtable_8backtest_9execution_4core_7finance_5asset_Asset;
   __pyx_vtable_8backtest_9execution_4core_7finance_5asset_Asset.restricted = (double (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *, int64_t))__pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_restricted;
-  __pyx_vtable_8backtest_9execution_4core_7finance_5asset_Asset.serialize = (struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *))__pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_serialize;
+  __pyx_vtable_8backtest_9execution_4core_7finance_5asset_Asset.serialize = (struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *))__pyx_f_8backtest_9execution_4core_7finance_5asset_5Asset_serialize;
   #if CYTHON_USE_TYPE_SPECS
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_5asset_Asset_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset)) __PYX_ERR(0, 12, __pyx_L1_error)
   if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_5asset_Asset_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset) < (0)) __PYX_ERR(0, 12, __pyx_L1_error)
@@ -8537,7 +8537,7 @@ bad:
         return (target_type) value;\
     }
 
-static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo(struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo s) {
+static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore(struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore s) {
   PyObject* res;
   PyObject* member;
   res = __Pyx_PyDict_NewPresized(4); if (unlikely(!res)) return NULL;

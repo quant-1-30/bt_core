@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import uuid
-cnp.import_array() # 必须调用以初始化 numpy C-API
 import numpy as np
 from backtest.execution.core.gateway.operator.schema import vtOrder
 
@@ -11,7 +10,9 @@ from cpython.object cimport Py_EQ
 
 from backtest.execution.core.finance.common cimport Exchange
 from backtest.execution.utils.util cimport fast_uuid4_bytes
-from backtest.execution.core.finance.trade cimport OrderExbitData
+
+cimport numpy as cnp
+cnp.import_array() # 必须调用以初始化 numpy C-API
 
 
 cdef class Order:
@@ -37,7 +38,7 @@ cdef class Order:
         self.core.created_dt = created_dt
 
         self.filler = filler
-        self.info = AssetInfo(0, 0, 0, False)
+        self.info = AssetCore(0, 0, 0, False)
         
         self.status = 0
         self._exbits = []
@@ -71,7 +72,7 @@ cdef class Order:
         hold custom information in the order
         include: preclose / asset info 
         '''
-        self.info = AssetInfo(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
+        self.info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
     cdef on_fix(self, double price):
         self.core.price = price

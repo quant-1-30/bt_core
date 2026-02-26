@@ -32,12 +32,12 @@
 # except ImportError:
 #     pass  # The user may not have a module installed
 
-from .btstore import BTStore
-from .raystore import RayBtStore
+from .remote import RemoteStore
+# from .raystore import RayBtStore
 # from .ibstore import IBStore
 # from .oandastore import OandaStore
 
 _stores = {
-    "bt": BTStore,
-    "ray": RayBtStore
+    "remote": RemoteStore,
+    # "ray": RayBtStore
 }

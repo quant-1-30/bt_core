@@ -18,7 +18,7 @@ from libc.stdint cimport int64_t, int32_t
 
 from backtest.execution.core.finance.common cimport EventItem
 from backtest.execution.core.finance.trade cimport OrderExecutionBit
-from backtest.execution.core.finance.asset cimport AssetInfo
+from backtest.execution.core.finance.asset cimport AssetCore
 
 
 cdef struct PositionCoreData:
@@ -35,7 +35,7 @@ cdef struct PositionCoreData:
 
 cdef class Position:
     cdef readonly PositionCoreData core
-    cdef AssetInfo asset_info
+    cdef AssetCore asset_info
 
     cdef int get_available(self)
     

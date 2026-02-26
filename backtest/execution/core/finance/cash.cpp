@@ -1378,7 +1378,6 @@ static const char* const __pyx_f[] = {
   "backtest/execution/core/finance/cash.pyx",
   "<stringsource>",
   "backtest/execution/core/finance/account.pxd",
-  "backtest/execution/core/gateway/rpc/client.pxd",
   "backtest/execution/core/gateway/interface.pxd",
 };
 /* #### Code section: utility_code_proto_before_types ### */
@@ -1557,7 +1556,6 @@ static const char* const __pyx_f[] = {
 
 /*--- Type declarations ---*/
 struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account;
-struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient;
 struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway;
 struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
 struct __pyx_obj_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start;
@@ -1640,7 +1638,7 @@ struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData {
 struct __pyx_t_8backtest_9execution_4core_7finance_6common_EventItem {
   int event_type;
   struct __pyx_t_8backtest_9execution_4core_7finance_6common_AdjustmentData adj;
-  struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData right;
+  struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData rgt;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData;
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_cash;
@@ -1673,118 +1671,8 @@ struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_
   int __pyx_n;
   int reset;
 };
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__calendarCall;
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__instrumentCall;
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__indexCall;
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__tickCall;
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__closeCall;
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__adjustmentCall;
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__rightmentCall;
 
-/* "backtest/execution/core/gateway/rpc/client.pxd":17
- * from libc.stdint cimport int64_t
- * 
- * cdef enum RpcTopic:             # <<<<<<<<<<<<<<
- *     Calendar = 0
- *     Instrument = 1
-*/
-enum __pyx_t_8backtest_9execution_4core_7gateway_3rpc_6client_RpcTopic {
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Calendar = 0,
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Instrument = 1,
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Index = 2,
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Tick = 3,
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Close = 4,
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Adjustment = 5,
-  __pyx_e_8backtest_9execution_4core_7gateway_3rpc_6client_Rightment = 6
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":33
- *     cdef int port
- * 
- *     cdef object _calendarCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _instrumentCall(self, object stub_req, bint wait_for_ready=?)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__calendarCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":35
- *     cdef object _calendarCall(self, object stub_req, bint wait_for_ready=?)
- * 
- *     cdef object _instrumentCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _indexCall(self, object stub_req, bint wait_for_ready=?)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__instrumentCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":37
- *     cdef object _instrumentCall(self, object stub_req, bint wait_for_ready=?)
- * 
- *     cdef object _indexCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _tickCall(self, object stub_req, bint wait_for_ready=?)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__indexCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":39
- *     cdef object _indexCall(self, object stub_req, bint wait_for_ready=?)
- * 
- *     cdef object _tickCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _closeCall(self, object stub_req, bint wait_for_ready=?)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__tickCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":41
- *     cdef object _tickCall(self, object stub_req, bint wait_for_ready=?)
- * 
- *     cdef object _closeCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _adjustmentCall(self, object stub_req, bint wait_for_ready=?)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__closeCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":43
- *     cdef object _closeCall(self, object stub_req, bint wait_for_ready=?)
- * 
- *     cdef object _adjustmentCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _rightmentCall(self, object stub_req, bint wait_for_ready=?)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__adjustmentCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":45
- *     cdef object _adjustmentCall(self, object stub_req, bint wait_for_ready=?)
- * 
- *     cdef object _rightmentCall(self, object stub_req, bint wait_for_ready=?)             # <<<<<<<<<<<<<<
- * 
- *     cdef object _dispatch_rpc(self, int rpc_type, dict req_body)
-*/
-struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__rightmentCall {
-  int __pyx_n;
-  int wait_for_ready;
-};
-
-/* "backtest/execution/core/gateway/interface.pxd":4
- * from backtest.execution.core.gateway.rpc.client cimport RpcClient
- * 
+/* "backtest/execution/core/gateway/interface.pxd":1
  * cdef enum SubTopic:             # <<<<<<<<<<<<<<
  *     Order = 0
  *     Position = 1
@@ -1793,6 +1681,23 @@ enum __pyx_t_8backtest_9execution_4core_7gateway_9interface_SubTopic {
   __pyx_e_8backtest_9execution_4core_7gateway_9interface_Order = 0,
   __pyx_e_8backtest_9execution_4core_7gateway_9interface_Position = 1,
   __pyx_e_8backtest_9execution_4core_7gateway_9interface_Account = 2
+};
+
+/* "backtest/execution/core/gateway/interface.pxd":6
+ *     Account = 2
+ * 
+ * cdef enum RpcTopic:             # <<<<<<<<<<<<<<
+ *     Calendar = 0
+ *     Instrument = 1
+*/
+enum __pyx_t_8backtest_9execution_4core_7gateway_9interface_RpcTopic {
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Calendar = 0,
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Instrument = 1,
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Index = 2,
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Tick = 3,
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Close = 4,
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Adjustment = 5,
+  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Rightment = 6
 };
 
 /* "backtest/execution/core/finance/account.pxd":32
@@ -1809,32 +1714,15 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account {
 };
 
 
-/* "backtest/execution/core/gateway/rpc/client.pxd":27
- * 
- * 
- * cdef class RpcClient:             # <<<<<<<<<<<<<<
- *     cdef object _stub
- *     cdef object _channel
-*/
-struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *__pyx_vtab;
-  PyObject *_stub;
-  PyObject *_channel;
-  PyObject *host;
-  int port;
-};
-
-
-/* "backtest/execution/core/gateway/interface.pxd":10
+/* "backtest/execution/core/gateway/interface.pxd":16
  * 
  * 
  * cdef class AsyncGateway:             # <<<<<<<<<<<<<<
- *     cdef RpcClient rpc_gt
+ *     cdef object mdapi
 */
 struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway {
   PyObject_HEAD
-  struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *rpc_gt;
+  PyObject *mdapi;
 };
 
 
@@ -1889,27 +1777,6 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account {
   PyObject *(*to_schema)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *__pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account;
-
-
-/* "backtest/execution/core/gateway/rpc/client.pxd":27
- * 
- * 
- * cdef class RpcClient:             # <<<<<<<<<<<<<<
- *     cdef object _stub
- *     cdef object _channel
-*/
-
-struct __pyx_vtabstruct_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient {
-  PyObject *(*_calendarCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__calendarCall *__pyx_optional_args);
-  PyObject *(*_instrumentCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__instrumentCall *__pyx_optional_args);
-  PyObject *(*_indexCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__indexCall *__pyx_optional_args);
-  PyObject *(*_tickCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__tickCall *__pyx_optional_args);
-  PyObject *(*_closeCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__closeCall *__pyx_optional_args);
-  PyObject *(*_adjustmentCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__adjustmentCall *__pyx_optional_args);
-  PyObject *(*_rightmentCall)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, PyObject *, struct __pyx_opt_args_8backtest_9execution_4core_7gateway_3rpc_6client_9RpcClient__rightmentCall *__pyx_optional_args);
-  PyObject *(*_dispatch_rpc)(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *, int, PyObject *);
-};
-static struct __pyx_vtabstruct_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient *__pyx_vtabptr_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient;
 
 
 /* "backtest/execution/core/finance/cash.pyx":19
@@ -2921,8 +2788,6 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashMa
 
 /* Module declarations from "backtest.execution.core.finance.account" */
 
-/* Module declarations from "backtest.execution.core.gateway.rpc.client" */
-
 /* Module declarations from "backtest.execution.core.gateway.interface" */
 
 /* Module declarations from "backtest.execution.core.finance.cash" */
@@ -2967,7 +2832,6 @@ typedef struct {
   PyObject *__pyx_empty_bytes;
   PyObject *__pyx_empty_unicode;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway;
   PyObject *__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
   PyObject *__pyx_type_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start;
@@ -3132,7 +2996,6 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   __Pyx_State_RemoveModule(NULL);
   #endif
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
@@ -3168,7 +3031,6 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_bytes);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_unicode);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
@@ -5259,20 +5121,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account) __PYX_ERR(2, 32, __pyx_L1_error)
   __pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account)) __PYX_ERR(2, 32, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.gateway.rpc.client"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 27, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.gateway.rpc.client", "RpcClient",
-  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient),
-  #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient),
-  #else
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient),
-  #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient) __PYX_ERR(3, 27, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient = (struct __pyx_vtabstruct_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7gateway_3rpc_6client_RpcClient)) __PYX_ERR(3, 27, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.gateway.interface"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 10, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.gateway.interface"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.gateway.interface", "AsyncGateway",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -5282,7 +5131,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway) __PYX_ERR(4, 10, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway) __PYX_ERR(3, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -5628,25 +5477,25 @@ __Pyx_RefNannySetupContext("PyInit_cash", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":16
+  /* "backtest/execution/core/finance/cash.pyx":14
+ * from libc.stdint cimport int64_t
+ * 
+ * from backtest.execution.core.gateway.interface import async_gt             # <<<<<<<<<<<<<<
  * from backtest.execution.core.finance.common cimport CashData
  * from backtest.execution.core.gateway.interface cimport AsyncGateway
- * from backtest.execution.core.gateway.interface import async_gt             # <<<<<<<<<<<<<<
- * 
- * 
 */
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 16, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
     __pyx_t_3 = 0; {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 16, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 14, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 16, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 14, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }

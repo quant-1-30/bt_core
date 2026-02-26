@@ -30,11 +30,11 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.btstore import BTStore
+from backtest.stores.remote import RemoteStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-__all__ = ["BtData"]
+__all__ = ["RemoteData"]
 
 
 class Calendar:
@@ -78,7 +78,7 @@ class MetaBtData(DataBase.__class__):
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
         super(MetaBtData, cls).__init__(name, bases, dct)
-        BTStore.DataCls = cls
+        RemoteStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
         print("MetaBtData donew kwargs ", kwargs)
@@ -95,7 +95,7 @@ class MetaBtData(DataBase.__class__):
         return _obj, args, kwargs
 
 
-class BtData(with_metaclass(MetaBtData, DataBase)):
+class RemoteData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
         ("mdapi", None),
@@ -106,19 +106,24 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
     calendar = Calendar() 
     instrument = Instrument()
 
+    def _init(self, _loop):
+        self.mdapi.start(_loop)
+
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
         self._row_iter = None # initialize iter buffer
 
-        sids = kwargs["sid"]
+        self.sids = kwargs["sid"]
         start_date = kwargs["fromdate"]
         end_date = kwargs["todate"]
 
         # calculate tick and adj
-        body = QueryBody(start_date=start_date, end_date=end_date, sid=sids)
-        index = kwargs.get("benchmark", b"000001")
-        bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[index]) 
-        self.preload(body, bench_body)
+        body = QueryBody(start_date=start_date, end_date=end_date, sid=self.sids)
+
+        sid_str = [sid.decode("utf-8") for sid in self.sids]
+        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+
+        self.preload(body, kwargs.get("benchmark", b"000001"))
 
         observable = self.mdapi.subscribe(body)
         observable.subscribe( # nonblocking 
@@ -127,14 +132,13 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
             on_completed=lambda: self.chan.put(StopIteration) 
         )
 
-        self.sids = sids
-        sid_str = [sid.decode("utf-8") for sid in sids]
-        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
-
-    def preload(self, body: QueryBody, bench_body: QueryBody):
-        self.bench = self.mdapi.get_benchmark(bench_body)
+    def preload(self, body: QueryBody, benchmark):
+        bench_body = QueryBody(start_date=body.start_date, end_date=body.end_date, sid=[benchmark]) 
+        bench_data = self.mdapi.get_benchmark(bench_body)
+        self.bench = bench_data[benchmark]
         
-        adj = self.mdapi.get_factor(body)
+        adj_data = self.mdapi.get_factor(body)
+        adj = adj_data[self.sids[0]]
         factors = adj.raw_factors if adj else {} # adj_factors
         if factors:
             factors = dict(sorted(factors.items())) # sort by key
@@ -194,16 +198,6 @@ class BtData(with_metaclass(MetaBtData, DataBase)):
         self.lines.volume[0] = row[2]
         self.lines.amount[0] = row[3]
         return True
-
-    def calc_adjfactor(self, body: QueryBody):
-        adj = self.mdapi.get_factor(body)
-        factors = adj.raw_factors if adj else {} # adj_factors
-        if factors:
-            factors = dict(sorted(factors.items())) # sort by key
-            self.adj_factors = factors
-
-    def calc_benchmark(self, body: QueryBody):
-        self.bench = self.mdapi.get_benchmark(body)
 
     def stop(self):
         super().stop()

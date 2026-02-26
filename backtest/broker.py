@@ -20,9 +20,6 @@
 ###############################################################################
 
 from backtest.metabase import with_metaclass, MetaParams
-from backtest.stores.btstore import BTStore
-
-__all__ = ["BTBroker"]
 
 
 class MetaBroker(MetaParams):

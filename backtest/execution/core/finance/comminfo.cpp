@@ -1888,7 +1888,7 @@ struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData {
 struct __pyx_t_8backtest_9execution_4core_7finance_6common_EventItem {
   int event_type;
   struct __pyx_t_8backtest_9execution_4core_7finance_6common_AdjustmentData adj;
-  struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData right;
+  struct __pyx_t_8backtest_9execution_4core_7finance_6common_RightData rgt;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData;
 
@@ -1906,16 +1906,16 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData {
   double comm;
   double cash;
 };
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo;
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
 
 /* "backtest/execution/core/finance/asset.pxd":19
  * 
  * 
- * cdef struct AssetInfo:             # <<<<<<<<<<<<<<
+ * cdef struct AssetCore:             # <<<<<<<<<<<<<<
  *      int first_trading
  *      int delist
 */
-struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo {
+struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore {
   int first_trading;
   int delist;
   int tick_size;
@@ -1943,8 +1943,8 @@ struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData {
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5order_OrderCoreData;
 
-/* "backtest/execution/core/finance/order.pxd":22
- * from backtest.execution.core.finance.cache cimport AssetInfo
+/* "backtest/execution/core/finance/order.pxd":21
+ * from backtest.execution.core.finance.cache cimport AssetCore
  * 
  * cdef enum ExecType:             # <<<<<<<<<<<<<<
  *     Open = 0
@@ -1962,7 +1962,7 @@ enum __pyx_t_8backtest_9execution_4core_7finance_5order_ExecType {
   __pyx_e_8backtest_9execution_4core_7finance_5order_Historical = 8
 };
 
-/* "backtest/execution/core/finance/order.pxd":34
+/* "backtest/execution/core/finance/order.pxd":33
  * 
  * 
  * cdef enum OrderType:             # <<<<<<<<<<<<<<
@@ -1974,7 +1974,7 @@ enum __pyx_t_8backtest_9execution_4core_7finance_5order_OrderType {
   __pyx_e_8backtest_9execution_4core_7finance_5order_Sell = 1
 };
 
-/* "backtest/execution/core/finance/order.pxd":39
+/* "backtest/execution/core/finance/order.pxd":38
  * 
  * 
  * cdef enum OrderStatus:             # <<<<<<<<<<<<<<
@@ -1992,7 +1992,7 @@ enum __pyx_t_8backtest_9execution_4core_7finance_5order_OrderStatus {
   __pyx_e_8backtest_9execution_4core_7finance_5order_Rejected = 7
 };
 
-/* "backtest/execution/core/finance/order.pxd":50
+/* "backtest/execution/core/finance/order.pxd":49
  * 
  * 
  * cdef struct OrderCoreData:             # <<<<<<<<<<<<<<
@@ -2044,13 +2044,13 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit {
  *      bint increment
  * 
  * cdef class Asset:             # <<<<<<<<<<<<<<
- *     cdef readonly AssetInfo core
+ *     cdef readonly AssetCore core
  *     cdef bytes sid
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtab;
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo core;
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore core;
   PyObject *sid;
   PyObject *name;
 };
@@ -2061,13 +2061,13 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
  *     cdef readonly PositionCoreData core
- *     cdef AssetInfo asset_info
+ *     cdef AssetCore asset_info
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position *__pyx_vtab;
   struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData core;
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo asset_info;
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore asset_info;
 };
 
 
@@ -2075,18 +2075,18 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position {
  * 
  * 
  * cdef class AssetCache:             # <<<<<<<<<<<<<<
- *     cdef unordered_map[int, AssetInfo] _c_cache
+ *     cdef unordered_map[int, AssetCore] _c_cache
  *     cdef object _sharded_lock
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetCache *__pyx_vtab;
-  std::unordered_map<int,struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo>  _c_cache;
+  std::unordered_map<int,struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore>  _c_cache;
   PyObject *_sharded_lock;
 };
 
 
-/* "backtest/execution/core/finance/order.pxd":63
+/* "backtest/execution/core/finance/order.pxd":62
  * 
  * 
  * cdef class Order:             # <<<<<<<<<<<<<<
@@ -2098,7 +2098,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order {
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order *__pyx_vtab;
   struct __pyx_t_8backtest_9execution_4core_7finance_5order_OrderCoreData core;
   PyObject *filler;
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo info;
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore info;
   int status;
   int _exchange;
   PyObject *_exbits;
@@ -2167,13 +2167,13 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderE
  *      bint increment
  * 
  * cdef class Asset:             # <<<<<<<<<<<<<<
- *     cdef readonly AssetInfo core
+ *     cdef readonly AssetCore core
  *     cdef bytes sid
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset {
   double (*restricted)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *, int64_t);
-  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetInfo (*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *);
+  struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore (*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset;
 
@@ -2183,7 +2183,7 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset 
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
  *     cdef readonly PositionCoreData core
- *     cdef AssetInfo asset_info
+ *     cdef AssetCore asset_info
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position {
@@ -2205,17 +2205,17 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Pos
  * 
  * 
  * cdef class AssetCache:             # <<<<<<<<<<<<<<
- *     cdef unordered_map[int, AssetInfo] _c_cache
+ *     cdef unordered_map[int, AssetCore] _c_cache
  *     cdef object _sharded_lock
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetCache {
-  void (*_add_to_cache)(struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache *, PyObject *, PyObject *);
+  void (*_add_to_cache)(struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache *, PyObject *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetCache *__pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache;
 
 
-/* "backtest/execution/core/finance/order.pxd":63
+/* "backtest/execution/core/finance/order.pxd":62
  * 
  * 
  * cdef class Order:             # <<<<<<<<<<<<<<
@@ -9790,7 +9790,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache) __PYX_ERR(7, 6, __pyx_L1_error)
   __pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetCache*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache)) __PYX_ERR(7, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.order"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 63, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.order"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.order", "Order",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9800,8 +9800,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order) __PYX_ERR(8, 63, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order)) __PYX_ERR(8, 63, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order) __PYX_ERR(8, 62, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order)) __PYX_ERR(8, 62, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;

@@ -21,8 +21,8 @@
 
 
 from .pandafeed import *
-from .btdata import *
-from .raydata import *
+from .remote import *
+# from .raydata import *
 
 # from .csvgeneric import *
 # from .btcsv import *

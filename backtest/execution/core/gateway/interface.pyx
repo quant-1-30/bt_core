@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+import os
 import uuid
 from typing import Union
 from sqlalchemy import select, func, over, text
@@ -8,7 +10,7 @@ from backtest.execution.core.gateway.operator.schema import Experiment, vtPositi
 from backtest.execution.core.gateway.operator.operator import async_ops
 
 from libc.stdint cimport int64_t
-from backtest.execution.core.gateway.rpc.client cimport RpcClient
+from bt_sdk.core.client import GetMdApi 
 
 
 cdef const int64_t BatchSize = 100
@@ -16,9 +18,9 @@ cdef const int64_t BatchSize = 100
 
 cdef class AsyncGateway:
     
-    def __init__(self, str host="127.0.0.1", int port=50051):
-        # self.rpc_gt = <RpcClient>rpc_client # cast to cdef class type
-        self.rpc_gt = RpcClient(host=host, port=port)
+    def __init__(self):
+        md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
+        self.mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
 
     async def register(self, object event): 
         cdef object body = event.body
@@ -194,13 +196,18 @@ cdef class AsyncGateway:
 
 # ------------------------------------------------------------------- rpc api -------------------------------------------------------------------
     
-    async def rpc(self, int rpc_type, dict req):
+    async def remote(self, int rpc_type, object body):
         """
             rpc request
             rpc_type: adjustment / rightment
         """
-        response_iterator = self.rpc_gt.on_request(rpc_type, req) # with cause channel is closed
-        return response_iterator
+        if rpc_type == RpcTopic.Close:
+            results = await self.mdapi.get_close_async(body)
+        elif rpc_type == RpcTopic.Instrument:
+            results = await self.mdapi.get_instrument_async()
+        else:
+            results = await self.mdapi.get_event_async(rpc_type, body)
+        return results 
 
     async def __call__(self, object objs, bint return_obj=False):
         async with async_ops as ctx:

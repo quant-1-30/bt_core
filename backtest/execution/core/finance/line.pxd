@@ -1,9 +1,9 @@
-
-cimport numpy as cnp
+import numpy as np
 from libcpp.vector cimport vector
 from libc.stdint cimport int64_t
 from libcpp.string cimport string as cpp_string
 
+cimport numpy as cnp
 cnp.import_array() # 必须调用以初始化 numpy C-API
 
 

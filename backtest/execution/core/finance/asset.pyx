@@ -6,7 +6,7 @@ Created on Tue Mar 12 15:37:47 2019
 @author: python
 """
 
-cdef const int64_t CYB_CKPT = 1598232600 # # 2020年8月24日 创业板ST由5% 变为 20% 
+cdef const int64_t CYB_CKPT = 1598232600 # 2020年8月24日 创业板ST由5% 变为 20% 
 
 
 cdef class Asset:
@@ -78,7 +78,7 @@ cdef class Asset:
             thres = 0.1
         return thres
 
-    cdef AssetInfo serialize(self):
+    cdef AssetCore serialize(self):
         return self.core
     
     def __repr__(self):

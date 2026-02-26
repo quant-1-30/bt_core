@@ -35,5 +35,3 @@ cdef uuid128 fast_uuid4_c() nogil
 cdef MarketTime market_utc(int64_t ts, bint native=?) nogil 
 
 cdef int64_t ts2intdt(int64_t ts, bint native=?) nogil # only cdef nogil
-
-cdef dict _aggregate_by_sid(list batches)

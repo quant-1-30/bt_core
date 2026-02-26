@@ -27,24 +27,25 @@ import pyarrow as pa
 import numpy as np
 from functools import partial
 
-cimport numpy as cnp
-cnp.import_array() # 必须调用以初始化 numpy C-API
 from libc.math cimport floor 
 
 from backtest.execution.core.gateway.interface import async_gt # cimport the async wrapper
-from backtest.execution.core.gateway.interface cimport AsyncGateway  # cimport the enum type
+from backtest.execution.core.gateway.interface cimport AsyncGateway, RpcTopic  # cimport the enum type
 
-from backtest.execution.core.gateway.rpc.client cimport RpcTopic
 from backtest.execution.utils.util cimport ts2intdt # cdef func differ from cdef class
 from backtest.execution.core.finance.order cimport OrderCoreData
 from backtest.execution.core.finance.position cimport Position
 from backtest.execution.core.finance.comminfo cimport CommInfo_Stocks, CommInfo_Futures
 from backtest.execution.core.finance.trade cimport OrderExecutionBit
+from backtest.protocol import QueryBody
+
+cimport numpy as cnp
+cnp.import_array() # 必须调用以初始化 numpy C-API
 
 
 cdef inline int calculate(Order order, Position p_sid, double cash, double price):
     '''Returns the size for a given order'''
-    cdef AssetInfo info = order.info
+    cdef AssetCore info = order.info
     cdef OrderCoreData core = order.core
     cdef double tick_value, sizer_cash
     cdef int sizer_size
@@ -97,9 +98,9 @@ cdef class PseudoFiller:
         cdef Lines lines = Lines() 
         cdef OrderCoreData core = ord.core 
         cdef int int_dt = ts2intdt(core.created_dt)
-        cdef dict request = {"start_date": int_dt, "end_date": int_dt, "sid": [core.sid]}
+        cdef object request = QueryBody(int_dt, int_dt, [core.sid])
 
-        async def loader(dict req):
+        async def loader(object req):
             cdef object batch
             cdef double[:, ::1] np_view
             # cdef double[:, ::1] buffer_view = np.empty((self.batch_size, cols), dtype=np.float64) # C-Row / Fortan-Col
@@ -109,15 +110,22 @@ cdef class PseudoFiller:
             ])
 
             try:
-                iterator = await async_gt.rpc(RpcTopic.Tick, req)
-                async for batch in iterator:
-                    select_batch = batch.select(float_column) # batch.drop(["sid"])
-                    cast_batch = select_batch.cast(float_schema) # ).to_tensor().to_numpy() despercated 
-                    arrays = [col.to_numpy() for col in cast_batch.columns] # Arrow to Numpy C-order
-                    np_view = np.column_stack(arrays) # C-Contiguous
-                    lines.batch_load(np_view)
+                # iterator = await async_gt.rpc(RpcTopic.Tick, req)
+                # async for batch in iterator:
+                #     select_batch = batch.select(float_column) # batch.drop(["sid"])
+                #     cast_batch = select_batch.cast(float_schema) # ).to_tensor().to_numpy() despercated 
+                #     arrays = [col.to_numpy() for col in cast_batch.columns] # Arrow to Numpy C-order
+                #     np_view = np.column_stack(arrays) # C-Contiguous
+                #     lines.batch_load(np_view)
+                data = await async_gt.remote(RpcTopic.Tick, req) # sid: table
+                table = data[req.sid[0]]
+                select_table = table.select(float_column) # batch.drop(["sid"])
+                cast_table = select_table.cast(float_schema) # ).to_tensor().to_numpy() despercated 
+                arrays = [col.to_numpy() for col in cast_table.columns] # Arrow to Numpy C-order
+                np_view = np.column_stack(arrays) # C-Contiguous
+                lines.batch_load(np_view)
             except GeneratorExit:
-                print("GeneratorExit Error means error during async for")
+                print("GeneratorExit Error means error during line batch_load")
                 pass
             except Exception as e:
                 print(f"Loader Error: {e}")

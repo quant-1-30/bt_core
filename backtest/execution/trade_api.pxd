@@ -42,13 +42,9 @@ cdef class AsyncApi:
 cdef class TdApi:
     cdef AsyncApi _async_api
     cdef object _loop
-    cdef object _thread
-    cdef object _ready_event   
     
-    cpdef start(self)
+    cpdef start(self, object _loop)
     
-    cdef _run_loop(self)
-
     cpdef object register(self, object body)
 
     cpdef object set_cash(self, bytes experiment_id, object body)

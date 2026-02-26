@@ -96,23 +96,3 @@ cdef inline int64_t ts2intdt(int64_t ts, bint native=True) nogil: # only cdef no
     cdef tm* info = gmtime(&rawtime)
     return (info.tm_year + 1900) * 10000 + (info.tm_mon + 1) * 100 + info.tm_mday
 
-
-cdef inline dict _aggregate_by_sid(list batches): # cdef reduce python overhead
-    cdef bytes sid_byte
-    cdef dict sid_to_batches = {} 
-    cdef dict aligned = {}
-    cdef list sid_batch
-    cdef object batch, table
-    
-    for batch in batches:
-        # print("metadata :", batch.schema.metadata)
-        sid_byte = batch.schema.metadata.get(b"sid")
-        if sid_byte not in sid_to_batches:
-            sid_to_batches[sid_byte] = []
-
-        sid_batch = sid_to_batches[sid_byte]
-        sid_batch.append(batch) # int.from_bytes()
- 
-    for sid_byte, bulk_batch in sid_to_batches.items():
-        aligned[sid_byte] = pa.concat_tables(bulk_batch, promote_options='default') # pa.Table.from_batches(bulk_batch) # to_pydict() No 
-    return aligned 

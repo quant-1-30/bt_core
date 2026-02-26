@@ -96,28 +96,14 @@ cdef class TdApi:
 
     def __init__(self, bytes client_id):
         self._async_api = AsyncApi(client_id)
-        self._loop = asyncio.new_event_loop()
-        self._ready_event = threading.Event()
-        self._thread = threading.Thread(target=self._run_loop, name="EngineLoop", daemon=True)
+        self._loop = None
 
-    cpdef start(self):
-        if not self._thread.is_alive():
-            self._thread.start()
-            self._ready_event.wait() 
-            print("AsyncApi started in background thread.")
+    cpdef start(self, object _loop):
+        self._loop = _loop
+        self._async_api.start(_loop)
     
     def __enter__(self):
         return self 
-
-    cdef _run_loop(self):
-        asyncio.set_event_loop(self._loop)
-        # self._loop.run_until_complete(self._async_api.start())
-        self._async_api.start(self._loop)
-        self._ready_event.set()
-        try:
-            self._loop.run_forever()
-        finally:
-            self._loop.close()
 
     # ------------------------------------------------------------------
     # Blocking Methods
@@ -163,9 +149,6 @@ cdef class TdApi:
         if self._loop and self._loop.is_running():
             asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
         
-        if self._thread.is_alive():
-            self._thread.join(timeout=2)
-
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             print(f"Error: {exc_type}, {exc_val}, {exc_tb}")

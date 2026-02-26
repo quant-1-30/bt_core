@@ -6,7 +6,7 @@ from backtest.execution.core.finance.position cimport Position
 from backtest.execution.core.finance.line cimport Lines    
 from backtest.execution.core.finance.comminfo cimport CommInfoBase
 from backtest.execution.core.finance.slippage cimport Slippage
-from backtest.execution.core.finance.cache cimport AssetInfo
+from backtest.execution.core.finance.asset cimport AssetCore
 
 
 cdef class PseudoFiller:

@@ -1157,7 +1157,15 @@ static int __Pyx_init_co_variables(void) {
 #define __PYX_HAVE__backtest__execution__core__finance__line
 #define __PYX_HAVE_API__backtest__execution__core__finance__line
 /* Early includes */
+#include "ios"
+#include "new"
+#include "stdexcept"
+#include "typeinfo"
+#include <vector>
+#include <stdint.h>
 #include <string.h>
+#include <string_view>
+#include <string>
 #include <stdio.h>
 
     /* Using NumPy API declarations from "numpy/__init__.cython-30.pxd" */
@@ -1167,14 +1175,6 @@ static int __Pyx_init_co_variables(void) {
 #include "numpy/ndarraytypes.h"
 #include "numpy/arrayscalars.h"
 #include "numpy/ufuncobject.h"
-#include "ios"
-#include "new"
-#include "stdexcept"
-#include "typeinfo"
-#include <vector>
-#include <stdint.h>
-#include <string_view>
-#include <string>
 #include <utility>
 
     #if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600)
@@ -3640,7 +3640,15 @@ static double __pyx_f_8backtest_9execution_4core_7finance_4line_5Lines_max(struc
 static double __pyx_f_8backtest_9execution_4core_7finance_4line_5Lines_min(struct __pyx_obj_8backtest_9execution_4core_7finance_4line_Lines *__pyx_v_self); /* proto*/
 static int __pyx_f_8backtest_9execution_4core_7finance_4line_5Lines_is_in(struct __pyx_obj_8backtest_9execution_4core_7finance_4line_Lines *__pyx_v_self, int64_t __pyx_v_tick); /* proto*/
 
+/* Module declarations from "libcpp.vector" */
+
+/* Module declarations from "libc.stdint" */
+
 /* Module declarations from "libc.string" */
+
+/* Module declarations from "libcpp.string_view" */
+
+/* Module declarations from "libcpp.string" */
 
 /* Module declarations from "libc.stdio" */
 
@@ -3658,14 +3666,6 @@ static int __pyx_f_8backtest_9execution_4core_7finance_4line_5Lines_is_in(struct
 
 /* Module declarations from "numpy" */
 static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
-
-/* Module declarations from "libcpp.vector" */
-
-/* Module declarations from "libc.stdint" */
-
-/* Module declarations from "libcpp.string_view" */
-
-/* Module declarations from "libcpp.string" */
 
 /* Module declarations from "libcpp" */
 

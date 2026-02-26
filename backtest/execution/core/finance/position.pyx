@@ -68,7 +68,7 @@ cdef class Position:
         self.core.pval = 0.0
         self.core.cash = 0.0
         
-        self.asset_info = AssetInfo(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
+        self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
     property closed:
         def __get__(self):
@@ -186,8 +186,8 @@ cdef class Position:
             # print("_process_event", origin_size, sizer_ratio, bonus_ratio)
             return event_bonus
         else: 
-            sizer_ratio = item.right.ratio / 10
-            right_price = cost_basis + item.right.price * sizer_ratio
+            sizer_ratio = item.rgt.ratio / 10
+            right_price = cost_basis + item.rgt.price * sizer_ratio
             self.core.cost_basis = right_price / (1 + sizer_ratio)
             return 0.0
 

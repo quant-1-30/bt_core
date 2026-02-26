@@ -64,13 +64,6 @@ extensions = [
         extra_compile_args=["-O3", "-std=c++11"]
     ),
     Extension(
-        name="backtest.execution.core.gateway.rpc.client", 
-        sources=["backtest/execution/core/gateway/rpc/client.pyx"],
-        include_dirs=[np.get_include(), current_dir, "."],
-        language="c++",
-        extra_compile_args=["-O3", "-std=c++11"],
-    ),
-    Extension(
         name="backtest.execution.core.simulator.util", 
         sources=["backtest/execution/core/simulator/util.pyx"],
         include_dirs=[np.get_include(), current_dir, "."],

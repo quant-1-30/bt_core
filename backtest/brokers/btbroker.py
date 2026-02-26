@@ -20,10 +20,10 @@
 ###############################################################################
 import threading
 from backtest.metabase import with_metaclass
-from typing import List, Union, Generator
+from typing import List, Union
 
 from backtest.broker import BrokerBase
-from backtest.stores.btstore import BTStore
+from backtest.stores.remote import RemoteStore
 from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp, SnapshotBody, AccountBody, PositionBody
 
 __all__ = ["BTBroker"]
@@ -33,7 +33,7 @@ class MetaBtBroker(BrokerBase.__class__):
     
     def __init__(cls, name, bases, dct):
         super(MetaBtBroker, cls).__init__(name, bases, dct)
-        BTStore.BrokerCls = cls # auto Register with the store when type class __import__
+        RemoteStore.BrokerCls = cls # auto Register with the store when type class __import__
 
     def donew(cls, *args, **kwargs):
         print("MetaBtBroker donew kwargs ", kwargs)
@@ -76,43 +76,34 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
         ("tdapi", ""),
     )
 
-    def start(self):
-        self.tdapi.start()
-    
-    @staticmethod
-    def get_body(data: list):
-        return [r.body for r in data]
+    def _init(self, _loop):
+        self.tdapi.start(_loop)
     
     def register(self, body:RegisterBody) -> List[Resp]:
         data = self.tdapi.register(body)
-        body = self.get_body(data) # body=ExperimentBody
-        return body[0].experiment_id
+        return data.body.experiment_id
     
     def set_cash(self, experiment_id:bytes, body:CashBody) -> List[SnapshotBody]:
         data = self.tdapi.set_cash(experiment_id, body)
-        body = self.get_body(data) 
-        return body
+        return data.body
     
     def submit(self, experiment_id:bytes, body:OrderBody) -> List[SnapshotBody]:
         data = self.tdapi.submit(experiment_id, body) 
-        body = self.get_body(data) 
-        return body
+        return data.body
 
     def getvalue(self, experiment_id:bytes) -> List[SnapshotBody]:
         data = self.tdapi.getvalue(experiment_id) 
-        body = self.get_body(data) 
-        return body
+        return data.body
     
     def subscribe(self, topic:int, experiment_id:bytes) -> List[Union[AccountBody, PositionBody]]: 
         data = self.tdapi.subscribe(topic, experiment_id, body)
-        body = self.get_body(data) 
+        body = [r.body for r in data] 
         return body
 
     def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[SnapshotBody]:
         data = self.tdapi.on_dt_over(experiment_id, body)
-        body = self.get_body(data) # None 
-        return body
+        return data.body
     
     def stop(self):
         super().stop()
-        self.tdapi.disconnect()
+        self.tdapi.stop()

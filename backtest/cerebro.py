@@ -83,7 +83,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
     params = (
         ("client_id", ""),
         ('savemem', 1),
-        ("store", "bt"),
+        ("store", "remote"),
         ('tz', None),
         ("timeout", 10),
         ('stdstats', True),
