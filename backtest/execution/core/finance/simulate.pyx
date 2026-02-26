@@ -101,7 +101,7 @@ cdef class BatchWriterActor: # CPU Intensive
                     await self._flush()
 
             except Exception as e:
-                logger.error(f"Writer error: {e}")
+                logger.error(f"BatchWriterActor running error: {e}")
 
     async def _flush(self):
         cdef Account acct_obj
@@ -240,7 +240,6 @@ cdef class TrackerActor:
         self.asset_cache = asset_cache
         self._writer = writer
         self._queue = asyncio.Queue(maxsize=max_size)
-        # self._ready_event = asyncio.Event() 
 
         self._fillers = {
             b"oco": PseudoFiller(),

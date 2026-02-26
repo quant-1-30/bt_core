@@ -46,7 +46,6 @@ cdef class BackEngine:
         batch_size = int(os.getenv("BatchSize")) 
         self.simulator = Simulator(max_size=max_size, batch_size=batch_size)
         self.gt = <AsyncGateway>async_gt # cast to cdef class type
-        self._active_tasks = set()
 
     async def __aenter__(self):
         self._start()
@@ -114,19 +113,16 @@ cdef class BackEngine:
         return resp
 
     async def stop(self):
-        """停止回测代理"""
         logger.info("Stopping back broker...")
         self._shutdown = True
         try:
-            if self._active_tasks:
-                await asyncio.gather(*self._active_tasks, return_exceptions=True)
-            logger.info("Back broker stopped successfully")
+            await self.simulator.shutdown()
+            # if self._active_tasks:
+            #     await asyncio.gather(*self._active_tasks, return_exceptions=True)
+            logger.info("BackEngine stopped successfully")
             
         except Exception as e:
             logger.exception(f"Error stopping back broker: {e}")
-        # finally:
-        #     self._loop = None
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """异步上下文管理器退出"""
         await self.stop()

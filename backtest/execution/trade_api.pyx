@@ -71,6 +71,9 @@ cdef class AsyncApi:
         #     yield item
         return await self.engine.subscribe(event)
 
+    async def close(self):
+        await self.engine.stop()
+
 
 cdef class TdApi:
     """
@@ -159,7 +162,6 @@ cdef class TdApi:
     cpdef stop(self):
         if self._loop and self._loop.is_running():
             asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
-            self._loop.call_soon_threadsafe(self._loop.stop)
         
         if self._thread.is_alive():
             self._thread.join(timeout=2)

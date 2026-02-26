@@ -63,6 +63,9 @@ class BTStore(Store):
 
         tdapi = TdApi(client_id=self.p.client_id)
         self.broker = self.BrokerCls(tdapi=tdapi)
+    
+    def start(self, *args, **kwargs):
+        self.broker.start()
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it

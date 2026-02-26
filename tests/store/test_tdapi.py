@@ -10,32 +10,24 @@ from backtest.execution.trade_api import TdApi, SubTopic
 from backtest.protocol import RegisterBody, CashBody, OrderBody, QueryBody
 
 
-def get_data(q):
-    data = []
-    while True:
-        msg = q.get()
-        if msg == "eof":
-            break
-        data.append(msg)
-    return data
-
-
 class TestTdApi:
 
-    @pytest.fixture
+    @pytest.fixture(scope="session")
     def client_id(self): # \x16 --> 2
         return uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes
     
-    @pytest.fixture
+    @pytest.fixture(scope="session")
     def experiment_id(self): # bytes.fromhex()
-        return b'\x0e\x93\x01\xac\xe4WF\xe5\xa3\xdc1"\x03\x8cx\xd1'
+        return b'!\xa9\x95\xb2\xf0gCT\xa1\xbf\xa9)<\xca\xab\xb3'
 
-    @pytest.fixture
+    @pytest.fixture(scope="session")
     def td_api(self, client_id):
         load_dotenv()
         api = TdApi(client_id=client_id)
         api.start()
-        return api
+        yield api     
+        # ===== teardown =====
+        api.stop()    
     
     @pytest.fixture
     def register(self, client_id):
@@ -95,32 +87,32 @@ class TestTdApi:
     #         print("test_submit: ", resp)
     #         assert resp is not None
 
-    # def test_getValue(self, td_api, experiment_id):
-    #     with td_api as client:
-    #         resp = client.getvalue(experiment_id)
-    #         print("test get_position: ", resp)
-    #         assert resp is not None
-
-    # def test_subscribe_position(self, td_api, experiment_id, query):
-    #     with td_api as client:
-    #         resp = client.subscribe(SubTopic.Position, experiment_id, query)
-    #         print("test_reqPosition: ", resp)
-    #         assert resp is not None
-
-    # def test_subscribe_account(self, td_api, experiment_id, query):
-    #     with td_api as client:
-    #         resp = client.subscribe(SubTopic.Account, experiment_id, query)
-    #         print("test_reqAccount: ", resp)
-    #         assert resp is not None
-    
-    # def test_subscirbe_order(self, td_api, experiment_id, query):
-    #     with td_api as client:
-    #         resp = client.subscribe(SubTopic.Order, experiment_id, query)
-    #         print("test_reqOrder: ", resp)
-    #         assert resp is not None
-    
-    def test_on_dt_over(self, td_api, experiment_id, dt_over_query):
+    def test_getValue(self, td_api, experiment_id):
         with td_api as client:
-            resp = client.on_dt_over(experiment_id, dt_over_query)
-            print("test_on_dt_over: ", resp)
+            resp = client.getvalue(experiment_id)
+            print("test getValue: ", resp)
             assert resp is not None
+
+    def test_subscribe_position(self, td_api, experiment_id, query):
+        with td_api as client:
+            resp = client.subscribe(SubTopic.Position, experiment_id, query)
+            print("test_reqPosition: ", resp)
+            assert resp is not None
+
+    def test_subscribe_account(self, td_api, experiment_id, query):
+        with td_api as client:
+            resp = client.subscribe(SubTopic.Account, experiment_id, query)
+            print("test_reqAccount: ", resp)
+            assert resp is not None
+    
+    def test_subscirbe_order(self, td_api, experiment_id, query):
+        with td_api as client:
+            resp = client.subscribe(SubTopic.Order, experiment_id, query)
+            print("test_reqOrder: ", resp)
+            assert resp is not None
+    
+    # def test_on_dt_over(self, td_api, experiment_id, dt_over_query):
+    #     with td_api as client:
+    #         resp = client.on_dt_over(experiment_id, dt_over_query)
+    #         print("test_on_dt_over: ", resp)
+    #         assert resp is not None

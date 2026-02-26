@@ -75,6 +75,9 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
     params = (
         ("tdapi", ""),
     )
+
+    def start(self):
+        self.tdapi.start()
     
     @staticmethod
     def get_body(data: list):
