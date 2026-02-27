@@ -2270,7 +2270,7 @@ struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struc
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True
+ *         try:
 */
 struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop {
   PyObject_HEAD
@@ -2282,7 +2282,7 @@ struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struc
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":127
+/* "backtest/execution/core/simulator/engine.pyx":126
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -3146,22 +3146,6 @@ static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
 #define __Pyx_PyList_Append(L,x) PyList_Append(L,x)
 #endif
 
-/* PyObjectDelAttr.proto (used by PyObjectSetAttrStr) */
-#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
-#define __Pyx_PyObject_DelAttr(o, n) PyObject_SetAttr(o, n, NULL)
-#else
-#define __Pyx_PyObject_DelAttr(o, n) PyObject_DelAttr(o, n)
-#endif
-
-/* PyObjectSetAttrStr.proto */
-#if CYTHON_USE_TYPE_SLOTS
-#define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o, n, NULL)
-static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value);
-#else
-#define __Pyx_PyObject_DelAttrStr(o,n)   __Pyx_PyObject_DelAttr(o,n)
-#define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
-#endif
-
 /* PyObjectFormatSimple.proto */
 #if CYTHON_COMPILING_IN_PYPY
     #define __Pyx_PyObject_FormatSimple(s, f) (\
@@ -3280,6 +3264,22 @@ static CYTHON_INLINE PyObject *__Pyx_GetAttr(PyObject *, PyObject *);
 
 /* Globals.proto */
 static PyObject* __Pyx_Globals(void);
+
+/* PyObjectDelAttr.proto (used by PyObjectSetAttrStr) */
+#if CYTHON_COMPILING_IN_LIMITED_API && __PYX_LIMITED_VERSION_HEX < 0x030d0000
+#define __Pyx_PyObject_DelAttr(o, n) PyObject_SetAttr(o, n, NULL)
+#else
+#define __Pyx_PyObject_DelAttr(o, n) PyObject_DelAttr(o, n)
+#endif
+
+/* PyObjectSetAttrStr.proto */
+#if CYTHON_USE_TYPE_SLOTS
+#define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o, n, NULL)
+static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value);
+#else
+#define __Pyx_PyObject_DelAttrStr(o,n)   __Pyx_PyObject_DelAttr(o,n)
+#define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
+#endif
 
 /* PyMethodNew.proto (used by CythonFunctionShared) */
 static PyObject *__Pyx_PyMethod_New(PyObject *func, PyObject *self, PyObject *typ);
@@ -3683,7 +3683,7 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
   PyObject *__pyx_tuple[1];
   PyObject *__pyx_codeobj_tab[13];
-  PyObject *__pyx_string_tab[146];
+  PyObject *__pyx_string_tab[145];
   PyObject *__pyx_number_tab[1];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
@@ -3906,30 +3906,29 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_setstate __pyx_string_tab[119]
 #define __pyx_n_u_setstate_cython __pyx_string_tab[120]
 #define __pyx_n_u_shutdown __pyx_string_tab[121]
-#define __pyx_n_u_shutdown_2 __pyx_string_tab[122]
-#define __pyx_n_u_sid __pyx_string_tab[123]
-#define __pyx_n_u_sizer_ratio __pyx_string_tab[124]
-#define __pyx_n_u_start __pyx_string_tab[125]
-#define __pyx_n_u_start_2 __pyx_string_tab[126]
-#define __pyx_n_u_state __pyx_string_tab[127]
-#define __pyx_n_u_stop __pyx_string_tab[128]
-#define __pyx_n_u_submit __pyx_string_tab[129]
-#define __pyx_n_u_subscribe __pyx_string_tab[130]
-#define __pyx_n_u_test __pyx_string_tab[131]
-#define __pyx_n_u_throw __pyx_string_tab[132]
-#define __pyx_n_u_time __pyx_string_tab[133]
-#define __pyx_n_u_typing __pyx_string_tab[134]
-#define __pyx_n_u_update __pyx_string_tab[135]
-#define __pyx_n_u_use_setstate __pyx_string_tab[136]
-#define __pyx_n_u_value __pyx_string_tab[137]
-#define __pyx_n_u_values __pyx_string_tab[138]
-#define __pyx_n_u_warnings __pyx_string_tab[139]
-#define __pyx_n_u_weakref __pyx_string_tab[140]
-#define __pyx_kp_b_iso88591_A_Zwaq __pyx_string_tab[141]
-#define __pyx_kp_b_iso88591_T_U_a_G1F_a_vWE_Q_q_t_c_T_SPTT __pyx_string_tab[142]
-#define __pyx_kp_b_iso88591__3 __pyx_string_tab[143]
-#define __pyx_kp_b_iso88591_q __pyx_string_tab[144]
-#define __pyx_kp_b_iso88591_q_0_kQR_XQa_7_A_1 __pyx_string_tab[145]
+#define __pyx_n_u_sid __pyx_string_tab[122]
+#define __pyx_n_u_sizer_ratio __pyx_string_tab[123]
+#define __pyx_n_u_start __pyx_string_tab[124]
+#define __pyx_n_u_start_2 __pyx_string_tab[125]
+#define __pyx_n_u_state __pyx_string_tab[126]
+#define __pyx_n_u_stop __pyx_string_tab[127]
+#define __pyx_n_u_submit __pyx_string_tab[128]
+#define __pyx_n_u_subscribe __pyx_string_tab[129]
+#define __pyx_n_u_test __pyx_string_tab[130]
+#define __pyx_n_u_throw __pyx_string_tab[131]
+#define __pyx_n_u_time __pyx_string_tab[132]
+#define __pyx_n_u_typing __pyx_string_tab[133]
+#define __pyx_n_u_update __pyx_string_tab[134]
+#define __pyx_n_u_use_setstate __pyx_string_tab[135]
+#define __pyx_n_u_value __pyx_string_tab[136]
+#define __pyx_n_u_values __pyx_string_tab[137]
+#define __pyx_n_u_warnings __pyx_string_tab[138]
+#define __pyx_n_u_weakref __pyx_string_tab[139]
+#define __pyx_kp_b_iso88591_A_Zwaq __pyx_string_tab[140]
+#define __pyx_kp_b_iso88591_T_U_a_G1F_a_vWE_Q_q_t_c_T_SPTT __pyx_string_tab[141]
+#define __pyx_kp_b_iso88591__3 __pyx_string_tab[142]
+#define __pyx_kp_b_iso88591_q __pyx_string_tab[143]
+#define __pyx_kp_b_iso88591_q_0_kQR_XQa_7_A_1 __pyx_string_tab[144]
 #define __pyx_int_216610769 __pyx_number_tab[0]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
@@ -3981,7 +3980,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<13; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<146; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<145; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
@@ -4045,7 +4044,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<13; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<146; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<145; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
@@ -6382,7 +6381,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True
+ *         try:
 */
 
 /* Python wrapper */
@@ -6511,8 +6510,8 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  * 
  *     async def stop(self):
  *         logger.info("Stopping back broker...")             # <<<<<<<<<<<<<<
- *         self._shutdown = True
  *         try:
+ *             await self.simulator.shutdown()
 */
   __pyx_t_2 = NULL;
   __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 116, __pyx_L1_error)
@@ -6545,15 +6544,6 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   /* "backtest/execution/core/simulator/engine.pyx":117
  *     async def stop(self):
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True             # <<<<<<<<<<<<<<
- *         try:
- *             await self.simulator.shutdown()
-*/
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_cur_scope->__pyx_v_self), __pyx_mstate_global->__pyx_n_u_shutdown, Py_True) < (0)) __PYX_ERR(0, 117, __pyx_L1_error)
-
-  /* "backtest/execution/core/simulator/engine.pyx":118
- *         logger.info("Stopping back broker...")
- *         self._shutdown = True
  *         try:             # <<<<<<<<<<<<<<
  *             await self.simulator.shutdown()
  *             # if self._active_tasks:
@@ -6565,8 +6555,8 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __Pyx_XGOTREF(__pyx_t_8);
     /*try:*/ {
 
-      /* "backtest/execution/core/simulator/engine.pyx":119
- *         self._shutdown = True
+      /* "backtest/execution/core/simulator/engine.pyx":118
+ *         logger.info("Stopping back broker...")
  *         try:
  *             await self.simulator.shutdown()             # <<<<<<<<<<<<<<
  *             # if self._active_tasks:
@@ -6577,9 +6567,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
       __pyx_t_5 = 0;
       {
         PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
-        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_shutdown_2, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+        __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_shutdown, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 119, __pyx_L4_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -6608,16 +6598,16 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
         __pyx_t_8 = __pyx_cur_scope->__pyx_t_2;
         __pyx_cur_scope->__pyx_t_2 = 0;
         __Pyx_XGOTREF(__pyx_t_8);
-        if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 119, __pyx_L4_error)
+        if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 118, __pyx_L4_error)
       } else if (likely(__pyx_t_9 == PYGEN_RETURN)) {
         __Pyx_GOTREF(__pyx_r);
         __Pyx_DECREF(__pyx_r); __pyx_r = 0;
       } else {
         __Pyx_XGOTREF(__pyx_r);
-        __PYX_ERR(0, 119, __pyx_L4_error)
+        __PYX_ERR(0, 118, __pyx_L4_error)
       }
 
-      /* "backtest/execution/core/simulator/engine.pyx":122
+      /* "backtest/execution/core/simulator/engine.pyx":121
  *             # if self._active_tasks:
  *             #     await asyncio.gather(*self._active_tasks, return_exceptions=True)
  *             logger.info("BackEngine stopped successfully")             # <<<<<<<<<<<<<<
@@ -6625,9 +6615,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  *         except Exception as e:
 */
       __pyx_t_4 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 122, __pyx_L4_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 121, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_5 = 1;
@@ -6647,14 +6637,14 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
         __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L4_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 121, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "backtest/execution/core/simulator/engine.pyx":118
+      /* "backtest/execution/core/simulator/engine.pyx":117
+ *     async def stop(self):
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True
  *         try:             # <<<<<<<<<<<<<<
  *             await self.simulator.shutdown()
  *             # if self._active_tasks:
@@ -6670,7 +6660,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "backtest/execution/core/simulator/engine.pyx":124
+    /* "backtest/execution/core/simulator/engine.pyx":123
  *             logger.info("BackEngine stopped successfully")
  * 
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -6680,7 +6670,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_t_10 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
     if (__pyx_t_10) {
       __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.stop", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_4) < 0) __PYX_ERR(0, 124, __pyx_L6_except_error)
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_4) < 0) __PYX_ERR(0, 123, __pyx_L6_except_error)
       __Pyx_XGOTREF(__pyx_t_1);
       __Pyx_XGOTREF(__pyx_t_3);
       __Pyx_XGOTREF(__pyx_t_4);
@@ -6689,7 +6679,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
       __pyx_cur_scope->__pyx_v_e = __pyx_t_3;
       /*try:*/ {
 
-        /* "backtest/execution/core/simulator/engine.pyx":125
+        /* "backtest/execution/core/simulator/engine.pyx":124
  * 
  *         except Exception as e:
  *             logger.exception(f"Error stopping back broker: {e}")             # <<<<<<<<<<<<<<
@@ -6697,14 +6687,14 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):
 */
         __pyx_t_11 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 125, __pyx_L16_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 124, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_exception); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 125, __pyx_L16_error)
+        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_exception); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 124, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __pyx_t_12 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_e, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 125, __pyx_L16_error)
+        __pyx_t_12 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_e, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 124, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_14 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Error_stopping_back_broker, __pyx_t_12); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 125, __pyx_L16_error)
+        __pyx_t_14 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Error_stopping_back_broker, __pyx_t_12); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 124, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_14);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __pyx_t_5 = 1;
@@ -6725,13 +6715,13 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
           __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L16_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L16_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       }
 
-      /* "backtest/execution/core/simulator/engine.pyx":124
+      /* "backtest/execution/core/simulator/engine.pyx":123
  *             logger.info("BackEngine stopped successfully")
  * 
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -6787,9 +6777,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     }
     goto __pyx_L6_except_error;
 
-    /* "backtest/execution/core/simulator/engine.pyx":118
+    /* "backtest/execution/core/simulator/engine.pyx":117
+ *     async def stop(self):
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True
  *         try:             # <<<<<<<<<<<<<<
  *             await self.simulator.shutdown()
  *             # if self._active_tasks:
@@ -6814,7 +6804,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True
+ *         try:
 */
 
   /* function exit code */
@@ -6845,7 +6835,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 }
 static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_30generator8(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":127
+/* "backtest/execution/core/simulator/engine.pyx":126
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -6893,38 +6883,38 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_exc_type,&__pyx_mstate_global->__pyx_n_u_exc_val,&__pyx_mstate_global->__pyx_n_u_exc_tb,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 127, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 126, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 127, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 126, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 127, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 126, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 127, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 126, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__aexit__", 0) < (0)) __PYX_ERR(0, 127, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__aexit__", 0) < (0)) __PYX_ERR(0, 126, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, i); __PYX_ERR(0, 127, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, i); __PYX_ERR(0, 126, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 127, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 126, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 127, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 126, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 127, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 126, __pyx_L3_error)
     }
     __pyx_v_exc_type = values[0];
     __pyx_v_exc_val = values[1];
@@ -6932,7 +6922,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 127, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 126, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6965,7 +6955,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 127, __pyx_L1_error)
+    __PYX_ERR(0, 126, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -6982,7 +6972,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_exc_tb);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_exc_tb);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_30generator8, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 127, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_30generator8, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 126, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -7021,10 +7011,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 127, __pyx_L1_error)
+    __PYX_ERR(0, 126, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":128
+  /* "backtest/execution/core/simulator/engine.pyx":127
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):
  *         await self.stop()             # <<<<<<<<<<<<<<
@@ -7036,7 +7026,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_stop, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 128, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_4 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -7050,17 +7040,17 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 128, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 127, __pyx_L1_error)
   } else if (likely(__pyx_t_4 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __Pyx_DECREF(__pyx_r); __pyx_r = 0;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 128, __pyx_L1_error)
+    __PYX_ERR(0, 127, __pyx_L1_error)
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":127
+  /* "backtest/execution/core/simulator/engine.pyx":126
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -9770,15 +9760,15 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__)) __PYX_ERR(0, 127, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__)) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 126, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 126, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
@@ -10853,7 +10843,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
  *         logger.info("Stopping back broker...")
- *         self._shutdown = True
+ *         try:
 */
   __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_stop, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
@@ -10863,18 +10853,18 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_stop, __pyx_t_5) < (0)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":127
+  /* "backtest/execution/core/simulator/engine.pyx":126
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
  *         await self.stop()
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_t_5) < (0)) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_t_5) < (0)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "(tree fragment)":1
@@ -11031,31 +11021,31 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{31},{28},{179},{23},{1},{8},{40},{44},{7},{6},{2},{9},{14},{3},{14},{10},{21},{20},{28},{30},{19},{21},{19},{19},{16},{15},{17},{20},{9},{7},{4},{11},{8},{7},{7},{7},{20},{8},{7},{6},{9},{18},{8},{10},{9},{8},{7},{18},{6},{9},{41},{40},{5},{10},{4},{5},{18},{5},{18},{10},{8},{5},{1},{4},{5},{6},{8},{7},{9},{9},{13},{6},{8},{3},{9},{6},{12},{8},{4},{13},{5},{9},{6},{7},{4},{8},{8},{14},{11},{6},{10},{8},{7},{4},{10},{9},{10},{2},{5},{3},{10},{14},{12},{11},{10},{25},{14},{12},{10},{17},{13},{8},{4},{4},{4},{8},{12},{10},{12},{19},{9},{8},{3},{11},{6},{5},{5},{4},{6},{9},{8},{5},{4},{6},{6},{12},{5},{6},{8},{7},{13},{130},{2},{11},{55}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1179 bytes) */
-const char* const cstring = "BZh91AY&SY\311\366\247\331\000\0009\177\377\346\357\277\200\344\317\344\335\277\247\377\322\277\377\377\374@@@@@@@@@@@@@\000@\000P\004\005\275\\\215\005\000\030AF\247\245<\2154\023\t\345\032\014CF\201\220\003@\0004m&\320L\217H\333S\024\"\220\332C@\323LC@\000\000\000\000\000\000\000\000\000\003SL\232F\220\217D=@\000\003@\000\000\000\000\000\000h\000\341\210\323M\006\2004\000\000\0004\031\006\232\006\200\r\032\000\3044\002SP\010\023&\232h\247\212`F\247\250\365=L\200\320\320\000\000\000\000\310\r\010\235 \001\372\217\301|\006\002P\312\212\002\023\234H\210\306(\353\302\013\201*\224L\257\300\253\007\010T\264\263\270j\327\303Y\300\300\027]\334>4\326\276h\370\3368DL\314\031#\035h%\354B\324\371U\322<\372\240v~\n,\360\244\260`,c\204\006\200\016\007 \001\201\231\002\020\352\3152\245\023A\023$\250S\036IFW(\227\342\"\230\005 \363\243P\215\316:MHW\334\2061H\217\336\214H\337Q2B\242\334Ot8\333\1773\203|\215\265t}\271g\376mt\272\353\304\354\345\330\3217\350\\0\006\244n{\006\207\362\221\200\020s\017Ivu\177\004\200=\366?Q\333F\247\017\270\355\t\031$\372\343D\210\315\241\204\035\022\000\202\302\000\337\232m\024\207D\007&~\016\243\337{\210\014\364X\202I\327Q\325@\261\357&\367\275bT\313\221\301\247\202\330\210\220\202\355\306\036Zs$\315Rug\022t\206@\002\224\270\025\315\031\316\023,\004\226N\264\311\200\230\204\251\3114U\0312qE&c}gJ\275J\230R\236\022\025!\226Z\000\201\212E\"h\240\"\322\250s.\024G9\025a)\352p8\234w\330u\252Vm\240\301K\034\033\210\367!\3437\331S\270\005Mr$Q1 \365^\366\261qr>\374\262+\254~\250\225\306-Xkm\221\227>\017\013\023\010@\260v\315~'9\374\260[\222\225c\326\251Fr\212D\217\204-\211\312J\026\215\010\237M\030'KBE\002\006n\036\323+\210\312W\266E\241\034\240\264F\325\372o\336WM\306t\257M\256\340E\3116;0\315;\030\366kT|V$tN\362\351\014\354\247\373\331\223\301\302I\221T\344\235S\267\253q\323\034\233^\262r\360\313\207\202\030\256\356\311[\215\372&\350\265\320\206&\213&E\\\324f\tM\234\320]5\346\204V$\220\335\324\362\306\273k\227I\200\373%^\310UTY\332f\257`\"\210\027\332\317""\245\357\323\204\322\033G=\256\205M\264\344m\016\272\367W\274{n\212*\0303\025\023\036\313\373\2175\267\"\232M\235#b\336*I4\252\223\224<\330\"\215\005 a\030\320\346\222H\032H\034ls\314\332\000\220\223\216\355$t\324\232s\245\036\014f\234\252\215\036\035\346h\246\00484St\254\351'\310&\242\251\036\r\2448\221Sn5i\360\344i1:j\004\034v\277b\364\037E>w72\2550\272\252\032z\266\364.\034T5\235\241\332\010e\302w\246\355)W\001\345\360\007\321\327Z6\\}}\304.\377~\224\023&I\201f\352\226\020\033v\315\326\315\035\275\017\327\235i\366\02567=.\327\0217\336_[\371\224\3220uZ\334\325@q[p\252\313e\313Q\206\236\030\206J83\267\222:\271\240R\376\213\361\255\220\325O&H0g\336ExP\374T\237\036\302\263\267`?\026\305l\272\033\242;\226\016\203\222mKQH\223R\221\345E\255L\331esS\260A\354%R\266/\231c(`\025L\"\247\2449\230\217N\027\023@\263\272\206:\257:\2210\245\217)+\201,$\342AZw&>*\332\324$f\0301\307\301\236q\307NnO\273m\273\362\303\224\200\366'JL\231\222\237\360\243\317\013\256r\213e\r\361C\2208\022c\235\r\224.\361\336\375U\206\334\031\273\332\202\235\226mLy\306?\237\003e\241M\273w5n9\311\r\344Y\304\017\351=a\254Wkj;5\363\274\336Lo\266\200=\204#\000S\014\256e\326\r\270*K\263\010C\345F*2\002\214xz'\331_\276\210P+\351+\247D\023A\250'\376.\344\212p\241!\223\355O\262";
-    PyObject *data = __Pyx_DecompressString(cstring, 1179, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{31},{28},{179},{23},{1},{8},{40},{44},{7},{6},{2},{9},{14},{3},{14},{10},{21},{20},{28},{30},{19},{21},{19},{19},{16},{15},{17},{20},{9},{7},{4},{11},{8},{7},{7},{7},{20},{8},{7},{6},{9},{18},{8},{10},{9},{8},{7},{18},{6},{9},{41},{40},{5},{10},{4},{5},{18},{5},{18},{10},{8},{5},{1},{4},{5},{6},{8},{7},{9},{9},{13},{6},{8},{3},{9},{6},{12},{8},{4},{13},{5},{9},{6},{7},{4},{8},{8},{14},{11},{6},{10},{8},{7},{4},{10},{9},{10},{2},{5},{3},{10},{14},{12},{11},{10},{25},{14},{12},{10},{17},{13},{8},{4},{4},{4},{8},{12},{10},{12},{19},{8},{3},{11},{6},{5},{5},{4},{6},{9},{8},{5},{4},{6},{6},{12},{5},{6},{8},{7},{13},{130},{2},{11},{55}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1186 bytes) */
+const char* const cstring = "BZh91AY&SY\324,p\021\000\0009\177\377\346\357\277\200\344\317\344\335\277\247\377\322\277\377\377\374@@@@@@@@@@@@@\000@\000P\004\005\2753\032\n\005\016\rSL\236\245<\2435\r\006\215\032\017P\006\201\265\0004\000\003CC&L\217(\333M5A\242\201'\210\217\3216\210\365&\201\264\215\006 \030F\2004\000\006\206@\006\2004\t\24252\246\331)\355Sj\017S\324\031\r\000d\311\223@\006\023 \000d\036\240i\216\030\2154\320h\003@\000\000\003A\220i\240h\000\321\240\014C@%5\023\004\023&\232\nx\200F\247\250\323\324\332\200\320\320\000\000\007\244\000\332\200\320k\224\001\372\237\306\024\030\224\315\241\306\022\026D\301\214d \323f,L\006q\226\244T\256<Am\372\273\r\272P[\247\\Z\026!\330(\216\355\224M\2122\r\035\017!\224\023\262\316\324]\t\37002S\351\002\307\364C\352\026\245\220|\241d$\006\004&\010b4\313,<\2306u\322\027\236\332\316\251\304A\270\2073\031k@\003\230\337\263)\254 \266\243S\306\346\002'3_\315\222d\373\213\232\234\257\222\250S\270\235\013\240\023\312\331N\177\016Z\277\315\216\217Mx\234\031v\263I\371\226\374\001\247\013\236\301\231\374\204*\002\2470\364\334\354\317\321\250\021\216/\344\261\322\353O\366\216I\261N\254*\315B\255\000\214=\014\003\014\327\n\270L\253\223g0C%\314I*\361\0200%13\001\315*\222P\302j\242*\252{\315\261(\332\023\276\207Y\021\031\t]RJ\315\024\275\014\210\264n-\352d\200$G\250\334\005\025\303V\020yM8\224\205\310?\022\323\217-L.\351,\2517\246\277\337\035\021\034\300\206\314\245\234\361|\2353D%|\020h\320s-\363G1\005a\031hp8\2247Xt\251\326l\230\301;\034\033Hw\252\362\033\256\216\336\024k\221\022i\210\207\256\367\265\213\207\215\367\345\221]c\364B\270A\253\r-\256\021\346\301\341ba\010\026\016\327\247\306\347?\222\245\265(\326=h\214%\030$\252\2154\34389\270{+\224t\030\205\353\365\315\300\245V\003\361s\300\324\357\305&\365\321|\035p\265~\233\267\025\317i\252u\347\265\333\3109&\307^\032\223\261\207\005jo\202\304\206i^]\021\235\224\277{2x8I2)(\247Q\333\225\270\347\206M\247I(\366G\177\212\254WV\270\333\215\371\244\3505\325U\211\232\311\020W4\331\2022g5K\242\275HEbI\r\324\237c]""\261\313\240\300}\221\257]T\244\031\331\344\257` \212\213\355g\316\367\347\302I\r\233\232\327UF\330q\266g]{\253\334=\266\301\024\0305\ni\217m\375\347\232[\215I&\325:4y\356\323\272\373\265\347\021R\022\241\205\241C\022\010!\264\302\033\010)B*\250DfI8\352\234N\212&\224\2477\203\032\223\225!7\207}\232\t\201\016\014\323\333\033:%\306&\232\242<[\n\270QF\332h\317\331\221\234\304\350\240 \342\265\372\327\244\371\251s9\271Ui\205\335\240\322\321\263\235o\341\231\244\355\2731V[\345zn\332\215u\017/\250\0377]h\331qt\367\220\274\036\t\314L\231&\005\251\324XT6\335{m\222;\231\237\247Ui\366\024lnz]\276\022O\274\276\267\362\251$`\352isR\241\305m\276\226[\036J\030g\337\210d\241\203;tN\357-D\357\347\277\032\331\rId\311\006\014\373\310.\304?\025\027\303\264\254\356L\005\260\254;\252lP\t\221\221\220\314\255;D\240\"n\343\253\002\274dX0TR\315ea*+`\371\0262\253\000\244\202\nY\303\225\210taq$\013U\3231\321y\335D\202v<\234n\004\260\213\210\205i\334x\370\353kP\221\2500c\213{<\342\206}NO\273e\273\262\303\222\241\354Js\221#%/\341C\232\253\256r\201\225[\240\207 p$\3072\033*\256\362^\375\025\206\314\031\273\372\002|\014\332\030\364\014\177=\346\277\251\237\365\375\235|\375~\036\005\374\246\255\300\254\270\352P\271b\236l8\212(\353]\211U\222\n\242Shg\211+\311\2425\345\323\235Ua}\317\336\246\350m\356\317\003\364A\326\370\242k,\271\230\370:QD\377\342\356H\247\n\022\032\205\216\002 ";
+    PyObject *data = __Pyx_DecompressString(cstring, 1186, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1039 bytes) */
-const char* const cstring = "x\332\225T\315o[E\020'R\252\006\025\250\n\201\036\331HHA\242\274P)RQATi\233T\225\240$\261\371\020\022Z\255w\347=o\275o\367y?l?\340\220c\216>\372\230\243\2179\346\230c\216>\372\230?\201?\201\331\367\374\221\204p@\262g\346\315\316\354\316\307o&y\316xgWgR\003q\336\024\005\010\342\002\347\340\\\032\224*w\2555\266>\221:#-\264&-k:`\237\2227\306\003\361m\346\311\213\322\267\215&\322\021\001J\266\3002\017\252D7+\271\007\033\2154\331\337\335\377r\373\353m\302\264 \026\336\002\367\016\237jq\305\234\003GLJZA*/5\361e\001.!\257SR\232@4`L\336\220\002\355\256:\3706h\342\300G\201l2\255\215g^\032M\321\035c\335$BZ|D\366 z\3571\345 i\334\222H\222$\317\230\020\024\375!\252=8\237\300\000x\210\267%\334XH\234\314\203b\336\330\004\252Z\315\355\266\026v[\321nka\267U\333%E9\020\322\261\226\002\320\221f\\\272Z\022\337\306\362\350\314\231`9|\267\243\313\035Wj\376\nt,\237\261\313\306,\245\204R\006\032+J\351\r\345@\372\033:\013\"p\240\274j\315\2153\254\232\303b\335z\232\201\3571\025\256\276\212\026\302S\323\203+A%\0262\351\3745\025^K9s\355\253*\317\254\277\366m\212\253\237\241\225K\177]\341\270E\010=g\236\267\033\362\017x\311\312\037\361\345\227\210\244\332\246i\n\211e\362?\307(_k\324\206\034\331\236b\331\017l\020](\335/\007\370\217>\364\r\014\374!\244\207\263p\033\340_`\210\215\352\341\306\374\265f\333\002\023\373\306\250\335\252\241\3062\216\276\246\365vY\361E\231Y\354\023\315|\305\245\231\261\010\024\203P\320\340\260\262\265a\237E\366_\240\312\320\256\317\312D\306\373S\306\377\007\372\2606\025\241\016\323m\031Q\3626\223\232+<\244\022'\300\316n\343\3128\340F\363`-\246\221\244\301\007\013\2303\340\333\"v\225\212X\244\232!FC\016\275\230\357\200S\337\252(\316b\344\210\tdP\304\250bx\263\203\002\254\314\321\201J\221J\245b\235\322\200\325\241\010#\374}o\262\014,\n\240{\225\256\206\035\235\203L\352\324P\351\350\242v\322C\356\220X\217\275p\252r\217\024\007E\031SP\232c\236\221\016\252\324i\0169\256\033\252Y\016\016\263\250?Q\312\215\010\n\226\234V&\025\207~$\003\277D\265\261\002\357\300f\327B\314\314""\270\"*\n\\\027\270\303p\251\345\261\2238\315\224\267\201w\\\310\353/,fP\263\223YnQ\214W\324R\320\210\326\016\206\260\004y}\320\363q\013\304\210\272\201\251yt\263\251\245\377\232\337\205\002\006Q\254\301\214\257\027\016T\212+E\314\207\257\232\356Y\266(\tHY\025\341b\346\351-\363O];xa\372z\301\245\210\365\265\324\306\235J\2531\236\223\010QS\324\243\273\230WJ\243\032i\333\232\276GL\324[8\024\002\355\203\203\305\233U\337+\342\372\314\352\270\001\373\300:\026\322\243\235\313w\337?\376m\330\037\261Q\367h\345\357\265w\356|p\334\234<\3308Y?\371i\374\331\230MW\337;~5|<\334\033=:\301\217\273G\275\343_\206\273\243\365\321\301t\355\303\341\306t\355\341\260{\211\304\217\236\2157O?>\345g\353g\315\363\207\027w.\032\223\375\346\244I'4\235\244Y\364\354N\327\356O\356\1771\336\036wO\357\236\376y\276y\361\340\362\272f\343x\343he\272\372\371xe\374\311\030\303\271\\\375t\324\235\220\257N\357\235}s\336\231\034\034NW?\032>\035\375zrP\307\362\327\360\311\010Cx4\336\031\377~\226\\\240\353\275\343\307\377\000\307\200\360\317";
-    PyObject *data = __Pyx_DecompressString(cstring, 1039, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1037 bytes) */
+const char* const cstring = "x\332\225T\315o[E\020'R\252\006\025\250\n\201\036\331HHA\242\274P)RQATi\233T\225\240$\261\371\020\022Z\255w\347=o\275o\367y?l?\340\220c\216>\372\230\243\2179\346\230c\216>\372\230?\201?\201\331\367\374\221\204p@\262g\346\315\316\354\316\374\346#y\316xgWgR\003q\336\024\005\010\342\002\347\340\\\032\224*w\2555\266>\221:#-\264&-k:`\237\2227\306\003\361m\346\311\213\322\267\215&\322\021\001J\266\3002\017\252D7+\271\007\033\2154\331\337\335\377r\373\353m\302\264 \026\336\002\367\016\237jq\305\234\003GLJZA*/5\361e\001.!\257SR\232@4`L\336\220\002\355\256:\3706h\342\300G\201l2\255\215g^\032M\321\035c\335$BZ|D\366 z\3571\345 i\334\222H\222$\317\230\020\024\375!\252=8\237\300\000x\210\267%\334XH\234\314\203b\336\330\004*\254\346v[\013\273\255h\267\265\260\333\252\355\222\242\034\010\351XK\001\350H3.]-\211o#<:s&X\016\337\355\350r\307\225\232\277\002\035\3413vY\230\245\224P\312@#\242\224\336P\016\244\277\241\263 \002\007\312\253\322\3348C\324\034\202u\353i\006\276\307T\270\372*Z\010OM\017\256\004\225X\310\244\363\327Tx-\345\314\265\257\252<\263\376\332\267)\256~\206V.\375u\205\343\026[\3509\363\274\335\220\177\300KV\376\210/\277\304N\252m\232\246\220\010\223\3779F\371Z\2436\344\310\366\024\313~`\203\350B\351~9\300\177\364\241o`\340\017!=\234\205\333\000\377\002ClT\0177\346\2575\333\026\230\3307F\355V\0055\226q\3645\255\267K\304\0270\263X'\232\371\212K3c\261Q\014\266\202\006\207\310\326\206}\026\331\1775U\206v}V&2\336\2372\376?\272\017\261\251\010u\230n\313\210\222\267\231\324\\\341!\2258\001vv\033W\306\0017\232\007k1\215$\r>X\300\234\001\337\026\261\252TD\220j\206=\032r\350\305|\007\234\372VEq\026#\307\236@\006E\214*\2067;(\300\312\034\035\250\024\251T*\342\224\006D\207b\033\341\357{\223e`Q\000\335\253tu\333\321y\223I\235\032*\035]`'=\344\016\211\365X\013\247*\367HqP\2241\005\2459\346\031\351\240J\235\346\220\343\272\241\232\345\3400\213\372\023\245\334\210\240`\311ieRq\350G2\360\313\2566V\340\035X\354Z\210\231\031WDE\201\353\002w\030.\265<V\022\247\231\3626\360\216\013y\375""\205`\0065;\231\345\026\305xE-\005\215\335\332\301\020\226M^\037\364|\334\0021\242n`j\036\335lj\351\277\346w\241\200A\024\353f\306\327\013\007*\305\225\"\346\303WM\367,[\224\004\244\254\212p1\363\364\226\371w\355\340\205\351k'E\204\325R\033W)\255\246wNbg\232\242\236\330\305\230R\032\325H\333\326\364=\266B\275|C!\320>8X<U\225\273\"\256\317\254\216\213\257\017\254c!=\332\271|\367\375\343\337\206\375\021\033u\217V\376^{\347\316\007\307\315\311\203\215\223\365\223\237\306\237\215\331t\365\275\343W\303\307\303\275\321\243\023\374\270{\324;\376e\270;Z\037\035L\327>\034nL\327\036\016\273\227H\374\350\331x\363\364\343S~\266~\326<\177xq\347\2421\331oN\232tB\323I\232E\317\356t\355\376\344\376\027\343\355q\367\364\356\351\237\347\233\027\017.\257k6\2167\216V\246\253\237\217W\306\237\2141\234\313\325OG\335\t\371\352\364\336\3317\347\235\311\301\341t\365\243\341\323\321\257'\007u,\177\r\237\2140\204G\343\235\361\357g\311\005\272\336;~\374\0170\277\354\364";
+    PyObject *data = __Pyx_DecompressString(cstring, 1037, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (1887 bytes) */
-const char* const bytes = ".BackEngine stopped successfullyError stopping back broker: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Stopping back broker...?add_notebacktest.execution.core.simulator.enginebacktest/execution/core/simulator/engine.pyxdisableenablegcisenabled<stringsource>AnyAsyncGeneratorBackEngineBackEngine.__aenter__BackEngine.__aexit__BackEngine.__reduce_cython__BackEngine.__setstate_cython__BackEngine.getvalueBackEngine.on_dt_overBackEngine.registerBackEngine.set_cashBackEngine.startBackEngine.stopBackEngine.submitBackEngine.subscribeBatchSizeDayOverDictEngineTopicGetValueIntEnumIntFlagMaxSize__Pyx_PyDict_NextRefRegisterSetCashSubmitSubscribeThreadPoolExecutoracct_obj__aenter____aexit__async_gtasyncioasyncio.coroutinesatexit__await__backtest.execution.core.gateway.interfacebacktest.execution.core.simulator.enginebatchbatch_sizebodychaincline_in_tracebackcloseconcurrent.futurescreated_dt__dict___dicteenumeventexc_tbexc_typeexc_valexceptionexec_typeexperiment_idfiller__func__getgetLoggergetenv__getstate__getvalueinfo_is_coroutineitemsitertoolsloggerloggingloop__main__max_size_member_names___members__module__module____name____new__nexton_dt_overorder_objorder_typeosp_objpoppricelimit__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_BackEngine__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerrespselfsendset_cash__set_name__setdefault__setstate____setstate_cython___shutdownshutdownsidsizer_ratio_startstartstatestopsubmitsubscribe__test__throwtimetypingupdateuse_setstatevaluevalueswarningsweakref\200A\340\t\r\210Z\220w\230a\230q\200\001\360\010\000\005\016\210T\320\021!\240\024\240U\250$\250a\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230?\250'\260\025\260c\270\024\270T\300\027\310\005\310S\320PT\320T_\320_f\320fg\330\004\007\200q""\330\010\017\320\017+\2504\250q\260\007\260{\300'\310\021\340\010\017\320\017+\2504\250q\260\007\260{\300!\210!\200\001\330\004(\250\001\250\026\250q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220:\230X\240Q\240a\330\004\007\200|\2207\230!\330\010,\250A\250]\270.\310\001\330\004\013\2101";
+    #else /* compression: none (1878 bytes) */
+const char* const bytes = ".BackEngine stopped successfullyError stopping back broker: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Stopping back broker...?add_notebacktest.execution.core.simulator.enginebacktest/execution/core/simulator/engine.pyxdisableenablegcisenabled<stringsource>AnyAsyncGeneratorBackEngineBackEngine.__aenter__BackEngine.__aexit__BackEngine.__reduce_cython__BackEngine.__setstate_cython__BackEngine.getvalueBackEngine.on_dt_overBackEngine.registerBackEngine.set_cashBackEngine.startBackEngine.stopBackEngine.submitBackEngine.subscribeBatchSizeDayOverDictEngineTopicGetValueIntEnumIntFlagMaxSize__Pyx_PyDict_NextRefRegisterSetCashSubmitSubscribeThreadPoolExecutoracct_obj__aenter____aexit__async_gtasyncioasyncio.coroutinesatexit__await__backtest.execution.core.gateway.interfacebacktest.execution.core.simulator.enginebatchbatch_sizebodychaincline_in_tracebackcloseconcurrent.futurescreated_dt__dict___dicteenumeventexc_tbexc_typeexc_valexceptionexec_typeexperiment_idfiller__func__getgetLoggergetenv__getstate__getvalueinfo_is_coroutineitemsitertoolsloggerloggingloop__main__max_size_member_names___members__module__module____name____new__nexton_dt_overorder_objorder_typeosp_objpoppricelimit__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_BackEngine__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerrespselfsendset_cash__set_name__setdefault__setstate____setstate_cython__shutdownsidsizer_ratio_startstartstatestopsubmitsubscribe__test__throwtimetypingupdateuse_setstatevaluevalueswarningsweakref\200A\340\t\r\210Z\220w\230a\230q\200\001\360\010\000\005\016\210T\320\021!\240\024\240U\250$\250a\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230?\250'\260\025\260c\270\024\270T\300\027\310\005\310S\320PT\320T_\320_f\320fg\330\004\007\200q\330\010""\017\320\017+\2504\250q\260\007\260{\300'\310\021\340\010\017\320\017+\2504\250q\260\007\260{\300!\210!\200\001\330\004(\250\001\250\026\250q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220:\230X\240Q\240a\330\004\007\200|\2207\230!\330\010,\250A\250]\270.\310\001\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 141; i++) {
+    for (int i = 0; i < 140; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 14) PyUnicode_InternInPlace(&string);
@@ -11066,7 +11056,7 @@ const char* const bytes = ".BackEngine stopped successfullyError stopping back b
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 141; i < 146; i++) {
+    for (int i = 140; i < 145; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -11077,14 +11067,14 @@ const char* const bytes = ".BackEngine stopped successfullyError stopping back b
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 146; i++) {
+    for (Py_ssize_t i = 0; i < 145; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 141;
+      PyObject **table = stringtab + 140;
       for (Py_ssize_t i=0; i<5; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
@@ -11197,7 +11187,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_stop, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 127};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 126};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_exc_type, __pyx_mstate->__pyx_n_u_exc_val, __pyx_mstate->__pyx_n_u_exc_tb};
     __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_aexit, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
   }
@@ -15026,16 +15016,6 @@ bad:
       return __Pyx_Coroutine_AsyncIterNext_Fail(obj);
   }
   
-/* PyObjectSetAttrStr */
-  #if CYTHON_USE_TYPE_SLOTS
-  static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
-      PyTypeObject* tp = Py_TYPE(obj);
-      if (likely(tp->tp_setattro))
-          return tp->tp_setattro(obj, attr_name, value);
-      return PyObject_SetAttr(obj, attr_name, value);
-  }
-  #endif
-  
 /* GetAttr3 */
   #if __PYX_LIMITED_VERSION_HEX < 0x030d0000
   static PyObject *__Pyx_GetAttr3Default(PyObject *d) {
@@ -15899,6 +15879,16 @@ bad:
   static PyObject* __Pyx_Globals(void) {
       return __Pyx_NewRef(__pyx_mstate_global->__pyx_d);
   }
+  
+/* PyObjectSetAttrStr */
+  #if CYTHON_USE_TYPE_SLOTS
+  static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
+      PyTypeObject* tp = Py_TYPE(obj);
+      if (likely(tp->tp_setattro))
+          return tp->tp_setattro(obj, attr_name, value);
+      return PyObject_SetAttr(obj, attr_name, value);
+  }
+  #endif
   
 /* PyMethodNew (used by CythonFunctionShared) */
   #if CYTHON_COMPILING_IN_LIMITED_API

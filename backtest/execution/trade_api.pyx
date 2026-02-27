@@ -147,7 +147,8 @@ cdef class TdApi:
 
     cpdef stop(self):
         if self._loop and self._loop.is_running():
-            asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
+            future = asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
+            future.result()
         
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:

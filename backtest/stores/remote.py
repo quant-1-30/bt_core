@@ -71,8 +71,8 @@ class RemoteStore(Store):
         self._runner.start() # new_event_loop
         _loop = self._runner.get_loop()
 
-        self._feed._init(_loop)
-        self.broker._init(_loop)
+        self._feed._prepare(_loop)
+        self.broker._prepare(_loop)
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it

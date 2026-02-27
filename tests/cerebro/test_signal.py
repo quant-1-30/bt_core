@@ -100,11 +100,12 @@ class DrawDownSignal(btind.Indicator):
 
     def __init__(self):
         self.stats = self._owner.stats
+        self.thres = self.p.thres
 
     def next(self):
-        obs = self.stats["drawdown"] # lowercase
-        signal = self.p.thres - obs.lines.drawdown[0]
-        self.lines.signal[0] = signal
+        dd_obs = self.stats["drawdown"] # lowercase
+        signal = self.thres - dd_obs.lines.drawdown[0]
+        self.lines.signal[0] = np.nan_to_num(signal)
 
 
 if __name__ == '__main__':
@@ -125,4 +126,4 @@ if __name__ == '__main__':
 
     cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040101, todate=20260201, benchmark=b"000001", out="signal.csv")
 
-    # 20040101 - 20260201 474s
+    # 20040101 - 20260201 370s

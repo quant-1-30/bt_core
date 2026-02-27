@@ -76,7 +76,7 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
         ("tdapi", ""),
     )
 
-    def _init(self, _loop):
+    def _prepare(self, _loop):
         self.tdapi.start(_loop)
     
     def register(self, body:RegisterBody) -> List[Resp]:

@@ -114,7 +114,6 @@ cdef class BackEngine:
 
     async def stop(self):
         logger.info("Stopping back broker...")
-        self._shutdown = True
         try:
             await self.simulator.shutdown()
             # if self._active_tasks:

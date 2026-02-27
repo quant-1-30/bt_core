@@ -2702,7 +2702,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator {
 
 
 /* "backtest/execution/core/finance/simulate.pyx":86
- *         self._queue.put_nowait(snapshot) # cause oom
+ *         self._queue.put_nowait(snapshot) # may cause oom
  * 
  *     async def run(self):             # <<<<<<<<<<<<<<
  *         logger.info("BatchWriterActor started.")
@@ -3074,13 +3074,19 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate___pyx_scope_struc
  *         return self._actors[experiment_id]
  * 
  *     async def shutdown(self):             # <<<<<<<<<<<<<<
- *             logger.info("Simulator shutting down...")
- *             for actor in self._actors.values():
+ *         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate___pyx_scope_struct_17_shutdown {
   PyObject_HEAD
+  PyObject *__pyx_v__sentinel;
   PyObject *__pyx_v_actor;
+  struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage *__pyx_v_msg;
   struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator *__pyx_v_self;
+  PyObject *__pyx_t_0;
+  Py_ssize_t __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  int __pyx_t_3;
 };
 
 
@@ -4422,6 +4428,12 @@ static PyObject *__Pyx__Coroutine_GetAwaitableIter(PyObject *o);
 /* CoroutineYieldFrom.proto */
 static CYTHON_INLINE __Pyx_PySendResult __Pyx_Coroutine_Yield_From(__pyx_CoroutineObject *gen, PyObject *source, PyObject **retval);
 
+/* PyDictContains.proto */
+static CYTHON_INLINE int __Pyx_PyDict_ContainsTF(PyObject* item, PyObject* dict, int eq) {
+    int result = PyDict_Contains(dict, item);
+    return unlikely(result < 0) ? result : (result == (eq == Py_EQ));
+}
+
 /* ListAppend.proto */
 #if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
 static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
@@ -4445,12 +4457,6 @@ static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
 
 /* pep479.proto */
 static void __Pyx_Generator_Replace_StopIteration(int in_async_gen);
-
-/* PyDictContains.proto */
-static CYTHON_INLINE int __Pyx_PyDict_ContainsTF(PyObject* item, PyObject* dict, int eq) {
-    int result = PyDict_Contains(dict, item);
-    return unlikely(result < 0) ? result : (result == (eq == Py_EQ));
-}
 
 /* DictGetItem.proto */
 #if !CYTHON_COMPILING_IN_PYPY
@@ -5644,296 +5650,296 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u_Out_of_bounds_on_buffer_access_a __pyx_string_tab[26]
 #define __pyx_kp_u_Pickling_of_struct_members_such __pyx_string_tab[27]
 #define __pyx_kp_u_Simulator_shutdown_complete __pyx_string_tab[28]
-#define __pyx_kp_u_Simulator_shutting_down __pyx_string_tab[29]
-#define __pyx_kp_u_Step_may_not_be_zero_axis_d __pyx_string_tab[30]
-#define __pyx_kp_u_Unable_to_convert_item_to_object __pyx_string_tab[31]
-#define __pyx_kp_u_Write __pyx_string_tab[32]
-#define __pyx_kp_u__2 __pyx_string_tab[33]
-#define __pyx_kp_u__3 __pyx_string_tab[34]
-#define __pyx_kp_u__4 __pyx_string_tab[35]
-#define __pyx_kp_u__5 __pyx_string_tab[36]
-#define __pyx_kp_u__6 __pyx_string_tab[37]
-#define __pyx_kp_u__9 __pyx_string_tab[38]
-#define __pyx_kp_u_add_note __pyx_string_tab[39]
-#define __pyx_kp_u_and __pyx_string_tab[40]
-#define __pyx_kp_u_at_0x __pyx_string_tab[41]
-#define __pyx_kp_u_backtest_execution_core_finance_2 __pyx_string_tab[42]
-#define __pyx_kp_u_collections_abc __pyx_string_tab[43]
-#define __pyx_kp_u_contiguous_and_direct __pyx_string_tab[44]
-#define __pyx_kp_u_contiguous_and_indirect __pyx_string_tab[45]
-#define __pyx_kp_u_disable __pyx_string_tab[46]
-#define __pyx_kp_u_dump_fallback_2 __pyx_string_tab[47]
-#define __pyx_kp_u_enable __pyx_string_tab[48]
-#define __pyx_kp_u_failed_attempt __pyx_string_tab[49]
-#define __pyx_kp_u_failed_permanently_Dumping_to_d __pyx_string_tab[50]
-#define __pyx_kp_u_gc __pyx_string_tab[51]
-#define __pyx_kp_u_got __pyx_string_tab[52]
-#define __pyx_kp_u_got_differing_extents_in_dimensi __pyx_string_tab[53]
-#define __pyx_kp_u_isenabled __pyx_string_tab[54]
-#define __pyx_kp_u_itemsize_0_for_cython_array __pyx_string_tab[55]
-#define __pyx_kp_u_json __pyx_string_tab[56]
-#define __pyx_kp_u_no_default___reduce___due_to_non __pyx_string_tab[57]
-#define __pyx_kp_u_numpy__core_multiarray_failed_to __pyx_string_tab[58]
-#define __pyx_kp_u_numpy__core_umath_failed_to_impo __pyx_string_tab[59]
-#define __pyx_kp_u_object __pyx_string_tab[60]
-#define __pyx_kp_u_process_error __pyx_string_tab[61]
-#define __pyx_kp_u_ready __pyx_string_tab[62]
-#define __pyx_kp_u_retrying_Error __pyx_string_tab[63]
-#define __pyx_kp_u_start_failed __pyx_string_tab[64]
-#define __pyx_kp_u_strided_and_direct __pyx_string_tab[65]
-#define __pyx_kp_u_strided_and_direct_or_indirect __pyx_string_tab[66]
-#define __pyx_kp_u_strided_and_indirect __pyx_string_tab[67]
-#define __pyx_kp_u_stringsource __pyx_string_tab[68]
-#define __pyx_kp_u_unable_to_allocate_array_data __pyx_string_tab[69]
-#define __pyx_kp_u_unable_to_allocate_shape_and_str __pyx_string_tab[70]
-#define __pyx_kp_u_utf_8 __pyx_string_tab[71]
-#define __pyx_n_u_ASCII __pyx_string_tab[72]
-#define __pyx_n_u_ActorMessage __pyx_string_tab[73]
-#define __pyx_n_u_ActorMessage___reduce_cython __pyx_string_tab[74]
-#define __pyx_n_u_ActorMessage___setstate_cython __pyx_string_tab[75]
-#define __pyx_n_u_BatchWriterActor __pyx_string_tab[76]
-#define __pyx_n_u_BatchWriterActor___reduce_cython __pyx_string_tab[77]
-#define __pyx_n_u_BatchWriterActor___setstate_cyth __pyx_string_tab[78]
-#define __pyx_n_u_BatchWriterActor__dump_fallback __pyx_string_tab[79]
-#define __pyx_n_u_BatchWriterActor__flush __pyx_string_tab[80]
-#define __pyx_n_u_BatchWriterActor__retry_write __pyx_string_tab[81]
-#define __pyx_n_u_BatchWriterActor__sync_write_fil __pyx_string_tab[82]
-#define __pyx_n_u_BatchWriterActor_run __pyx_string_tab[83]
-#define __pyx_n_u_BatchWriterActor_wait_until_fini __pyx_string_tab[84]
-#define __pyx_n_u_Ellipsis __pyx_string_tab[85]
-#define __pyx_n_u_Event __pyx_string_tab[86]
-#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[87]
-#define __pyx_n_u_QueryBody __pyx_string_tab[88]
-#define __pyx_n_u_Queue __pyx_string_tab[89]
-#define __pyx_n_u_QueueFull __pyx_string_tab[90]
-#define __pyx_n_u_Resp __pyx_string_tab[91]
-#define __pyx_n_u_Sequence __pyx_string_tab[92]
-#define __pyx_n_u_Simulator __pyx_string_tab[93]
-#define __pyx_n_u_Simulator___reduce_cython __pyx_string_tab[94]
-#define __pyx_n_u_Simulator___setstate_cython __pyx_string_tab[95]
-#define __pyx_n_u_Simulator_getvalue __pyx_string_tab[96]
-#define __pyx_n_u_Simulator_on_dt_over __pyx_string_tab[97]
-#define __pyx_n_u_Simulator_set_cash __pyx_string_tab[98]
-#define __pyx_n_u_Simulator_shutdown __pyx_string_tab[99]
-#define __pyx_n_u_Simulator_submit __pyx_string_tab[100]
-#define __pyx_n_u_SnapshotBody __pyx_string_tab[101]
-#define __pyx_n_u_TrackerActor __pyx_string_tab[102]
-#define __pyx_n_u_TrackerActor___reduce_cython __pyx_string_tab[103]
-#define __pyx_n_u_TrackerActor___setstate_cython __pyx_string_tab[104]
-#define __pyx_n_u_TrackerActor__fail_pending_messa __pyx_string_tab[105]
-#define __pyx_n_u_TrackerActor__fetch_from_rpc __pyx_string_tab[106]
-#define __pyx_n_u_TrackerActor__start __pyx_string_tab[107]
-#define __pyx_n_u_TrackerActor_on_dt_over __pyx_string_tab[108]
-#define __pyx_n_u_TrackerActor_process_order __pyx_string_tab[109]
-#define __pyx_n_u_TrackerActor_push __pyx_string_tab[110]
-#define __pyx_n_u_TrackerActor_run __pyx_string_tab[111]
-#define __pyx_n_u_View_MemoryView __pyx_string_tab[112]
-#define __pyx_n_u__7 __pyx_string_tab[113]
-#define __pyx_n_u_abc __pyx_string_tab[114]
-#define __pyx_n_u_account __pyx_string_tab[115]
-#define __pyx_n_u_account_data __pyx_string_tab[116]
-#define __pyx_n_u_acct __pyx_string_tab[117]
-#define __pyx_n_u_acct_obj __pyx_string_tab[118]
-#define __pyx_n_u_actor __pyx_string_tab[119]
-#define __pyx_n_u_addinfo __pyx_string_tab[120]
-#define __pyx_n_u_adj_table __pyx_string_tab[121]
-#define __pyx_n_u_adj_task __pyx_string_tab[122]
-#define __pyx_n_u_allocate_buffer __pyx_string_tab[123]
-#define __pyx_n_u_as_py __pyx_string_tab[124]
-#define __pyx_n_u_asset_cache __pyx_string_tab[125]
-#define __pyx_n_u_asset_info __pyx_string_tab[126]
-#define __pyx_n_u_async_gt __pyx_string_tab[127]
-#define __pyx_n_u_asyncio __pyx_string_tab[128]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[129]
-#define __pyx_n_u_available __pyx_string_tab[130]
-#define __pyx_n_u_await __pyx_string_tab[131]
-#define __pyx_n_u_backtest_execution_core_finance __pyx_string_tab[132]
-#define __pyx_n_u_backtest_execution_core_gateway __pyx_string_tab[133]
-#define __pyx_n_u_backtest_protocol __pyx_string_tab[134]
-#define __pyx_n_u_base __pyx_string_tab[135]
-#define __pyx_n_u_batch_size __pyx_string_tab[136]
-#define __pyx_n_u_batches __pyx_string_tab[137]
-#define __pyx_n_u_body __pyx_string_tab[138]
-#define __pyx_n_u_bonus __pyx_string_tab[139]
-#define __pyx_n_u_bonus_share __pyx_string_tab[140]
-#define __pyx_n_u_bulk_insert __pyx_string_tab[141]
-#define __pyx_n_u_c __pyx_string_tab[142]
-#define __pyx_n_u_chain __pyx_string_tab[143]
-#define __pyx_n_u_class __pyx_string_tab[144]
-#define __pyx_n_u_class_getitem __pyx_string_tab[145]
-#define __pyx_n_u_clear __pyx_string_tab[146]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[147]
-#define __pyx_n_u_close __pyx_string_tab[148]
-#define __pyx_n_u_close_body __pyx_string_tab[149]
-#define __pyx_n_u_close_dt __pyx_string_tab[150]
-#define __pyx_n_u_close_price __pyx_string_tab[151]
-#define __pyx_n_u_close_table __pyx_string_tab[152]
-#define __pyx_n_u_close_task __pyx_string_tab[153]
-#define __pyx_n_u_collections __pyx_string_tab[154]
-#define __pyx_n_u_column __pyx_string_tab[155]
-#define __pyx_n_u_compute __pyx_string_tab[156]
-#define __pyx_n_u_core __pyx_string_tab[157]
-#define __pyx_n_u_cost_basis __pyx_string_tab[158]
-#define __pyx_n_u_count __pyx_string_tab[159]
-#define __pyx_n_u_create_future __pyx_string_tab[160]
-#define __pyx_n_u_create_task __pyx_string_tab[161]
-#define __pyx_n_u_critical __pyx_string_tab[162]
-#define __pyx_n_u_d __pyx_string_tab[163]
-#define __pyx_n_u_data __pyx_string_tab[164]
-#define __pyx_n_u_datas __pyx_string_tab[165]
-#define __pyx_n_u_datetime __pyx_string_tab[166]
-#define __pyx_n_u_day __pyx_string_tab[167]
-#define __pyx_n_u_dedup_accounts __pyx_string_tab[168]
-#define __pyx_n_u_dedup_positions __pyx_string_tab[169]
-#define __pyx_n_u_default __pyx_string_tab[170]
-#define __pyx_n_u_defaultdict __pyx_string_tab[171]
-#define __pyx_n_u_dict __pyx_string_tab[172]
-#define __pyx_n_u_dict_2 __pyx_string_tab[173]
-#define __pyx_n_u_done __pyx_string_tab[174]
-#define __pyx_n_u_dtype_is_object __pyx_string_tab[175]
-#define __pyx_n_u_dump __pyx_string_tab[176]
-#define __pyx_n_u_dump_dir __pyx_string_tab[177]
-#define __pyx_n_u_dump_fallback __pyx_string_tab[178]
-#define __pyx_n_u_e __pyx_string_tab[179]
-#define __pyx_n_u_e_dt __pyx_string_tab[180]
-#define __pyx_n_u_empty __pyx_string_tab[181]
-#define __pyx_n_u_encode __pyx_string_tab[182]
-#define __pyx_n_u_end_date __pyx_string_tab[183]
-#define __pyx_n_u_enter __pyx_string_tab[184]
-#define __pyx_n_u_enumerate __pyx_string_tab[185]
-#define __pyx_n_u_error __pyx_string_tab[186]
-#define __pyx_n_u_event __pyx_string_tab[187]
-#define __pyx_n_u_event_body __pyx_string_tab[188]
-#define __pyx_n_u_exbits __pyx_string_tab[189]
-#define __pyx_n_u_exc_info __pyx_string_tab[190]
-#define __pyx_n_u_exception __pyx_string_tab[191]
-#define __pyx_n_u_exist_ok __pyx_string_tab[192]
-#define __pyx_n_u_exists __pyx_string_tab[193]
-#define __pyx_n_u_exit __pyx_string_tab[194]
-#define __pyx_n_u_experiment_id __pyx_string_tab[195]
-#define __pyx_n_u_f __pyx_string_tab[196]
-#define __pyx_n_u_fail_pending_messages __pyx_string_tab[197]
-#define __pyx_n_u_fetch_from_rpc __pyx_string_tab[198]
-#define __pyx_n_u_fetch_from_rpc_locals_remote_wr __pyx_string_tab[199]
-#define __pyx_n_u_filepath __pyx_string_tab[200]
-#define __pyx_n_u_flags __pyx_string_tab[201]
-#define __pyx_n_u_flush __pyx_string_tab[202]
-#define __pyx_n_u_flush_crash __pyx_string_tab[203]
-#define __pyx_n_u_format __pyx_string_tab[204]
-#define __pyx_n_u_fortran __pyx_string_tab[205]
-#define __pyx_n_u_func __pyx_string_tab[206]
-#define __pyx_n_u_future __pyx_string_tab[207]
-#define __pyx_n_u_gather __pyx_string_tab[208]
-#define __pyx_n_u_get __pyx_string_tab[209]
-#define __pyx_n_u_getLogger __pyx_string_tab[210]
-#define __pyx_n_u_get_nowait __pyx_string_tab[211]
-#define __pyx_n_u_get_position __pyx_string_tab[212]
-#define __pyx_n_u_get_running_loop __pyx_string_tab[213]
-#define __pyx_n_u_getstate __pyx_string_tab[214]
-#define __pyx_n_u_getvalue __pyx_string_tab[215]
-#define __pyx_n_u_i __pyx_string_tab[216]
-#define __pyx_n_u_id __pyx_string_tab[217]
-#define __pyx_n_u_import __pyx_string_tab[218]
-#define __pyx_n_u_index __pyx_string_tab[219]
-#define __pyx_n_u_info __pyx_string_tab[220]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[221]
-#define __pyx_n_u_item __pyx_string_tab[222]
-#define __pyx_n_u_items __pyx_string_tab[223]
-#define __pyx_n_u_itemsize __pyx_string_tab[224]
-#define __pyx_n_u_itertools __pyx_string_tab[225]
-#define __pyx_n_u_json_2 __pyx_string_tab[226]
-#define __pyx_n_u_key __pyx_string_tab[227]
-#define __pyx_n_u_keys __pyx_string_tab[228]
-#define __pyx_n_u_logger __pyx_string_tab[229]
-#define __pyx_n_u_logging __pyx_string_tab[230]
-#define __pyx_n_u_loop __pyx_string_tab[231]
-#define __pyx_n_u_main __pyx_string_tab[232]
-#define __pyx_n_u_makedirs __pyx_string_tab[233]
-#define __pyx_n_u_max_size __pyx_string_tab[234]
-#define __pyx_n_u_maxsize __pyx_string_tab[235]
-#define __pyx_n_u_memview __pyx_string_tab[236]
-#define __pyx_n_u_mode __pyx_string_tab[237]
-#define __pyx_n_u_module __pyx_string_tab[238]
-#define __pyx_n_u_msg __pyx_string_tab[239]
-#define __pyx_n_u_name __pyx_string_tab[240]
-#define __pyx_n_u_name_2 __pyx_string_tab[241]
-#define __pyx_n_u_ndim __pyx_string_tab[242]
-#define __pyx_n_u_new __pyx_string_tab[243]
-#define __pyx_n_u_next __pyx_string_tab[244]
-#define __pyx_n_u_np __pyx_string_tab[245]
-#define __pyx_n_u_numpy __pyx_string_tab[246]
-#define __pyx_n_u_obj __pyx_string_tab[247]
-#define __pyx_n_u_on_dt_over __pyx_string_tab[248]
-#define __pyx_n_u_on_writer __pyx_string_tab[249]
-#define __pyx_n_u_open __pyx_string_tab[250]
-#define __pyx_n_u_ordbit __pyx_string_tab[251]
-#define __pyx_n_u_order __pyx_string_tab[252]
-#define __pyx_n_u_order_bit __pyx_string_tab[253]
-#define __pyx_n_u_order_bits __pyx_string_tab[254]
-#define __pyx_n_u_order_data __pyx_string_tab[255]
-#define __pyx_n_u_order_obj __pyx_string_tab[256]
-#define __pyx_n_u_orderbit_data __pyx_string_tab[257]
-#define __pyx_n_u_os __pyx_string_tab[258]
-#define __pyx_n_u_p __pyx_string_tab[259]
-#define __pyx_n_u_p_obj __pyx_string_tab[260]
-#define __pyx_n_u_p_sid __pyx_string_tab[261]
-#define __pyx_n_u_pa __pyx_string_tab[262]
-#define __pyx_n_u_pack __pyx_string_tab[263]
-#define __pyx_n_u_path __pyx_string_tab[264]
-#define __pyx_n_u_payload __pyx_string_tab[265]
-#define __pyx_n_u_pc __pyx_string_tab[266]
-#define __pyx_n_u_pnl __pyx_string_tab[267]
-#define __pyx_n_u_pop __pyx_string_tab[268]
-#define __pyx_n_u_pos_obj __pyx_string_tab[269]
-#define __pyx_n_u_position_data __pyx_string_tab[270]
-#define __pyx_n_u_positions __pyx_string_tab[271]
-#define __pyx_n_u_positions_map __pyx_string_tab[272]
-#define __pyx_n_u_prefix __pyx_string_tab[273]
-#define __pyx_n_u_price __pyx_string_tab[274]
-#define __pyx_n_u_process_order __pyx_string_tab[275]
-#define __pyx_n_u_psids __pyx_string_tab[276]
-#define __pyx_n_u_push __pyx_string_tab[277]
-#define __pyx_n_u_put __pyx_string_tab[278]
-#define __pyx_n_u_put_nowait __pyx_string_tab[279]
-#define __pyx_n_u_pyarrow __pyx_string_tab[280]
-#define __pyx_n_u_pyarrow_compute __pyx_string_tab[281]
-#define __pyx_n_u_pyx_checksum __pyx_string_tab[282]
-#define __pyx_n_u_pyx_result __pyx_string_tab[283]
-#define __pyx_n_u_pyx_state __pyx_string_tab[284]
-#define __pyx_n_u_pyx_type __pyx_string_tab[285]
-#define __pyx_n_u_pyx_unpickle_BatchWriterActor __pyx_string_tab[286]
-#define __pyx_n_u_pyx_unpickle_Enum __pyx_string_tab[287]
-#define __pyx_n_u_pyx_unpickle_Simulator __pyx_string_tab[288]
-#define __pyx_n_u_pyx_unpickle_TrackerActor __pyx_string_tab[289]
-#define __pyx_n_u_pyx_vtable __pyx_string_tab[290]
-#define __pyx_n_u_qualname __pyx_string_tab[291]
-#define __pyx_n_u_ratio __pyx_string_tab[292]
-#define __pyx_n_u_raw_exp __pyx_string_tab[293]
-#define __pyx_n_u_raw_sid __pyx_string_tab[294]
-#define __pyx_n_u_reduce __pyx_string_tab[295]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[296]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[297]
-#define __pyx_n_u_register __pyx_string_tab[298]
-#define __pyx_n_u_remote __pyx_string_tab[299]
-#define __pyx_n_u_remote_wrap __pyx_string_tab[300]
-#define __pyx_n_u_reply_future __pyx_string_tab[301]
-#define __pyx_n_u_result __pyx_string_tab[302]
-#define __pyx_n_u_retries __pyx_string_tab[303]
-#define __pyx_n_u_retry_write __pyx_string_tab[304]
-#define __pyx_n_u_rgt_table __pyx_string_tab[305]
-#define __pyx_n_u_rgt_task __pyx_string_tab[306]
-#define __pyx_n_u_row __pyx_string_tab[307]
-#define __pyx_n_u_rpc_type __pyx_string_tab[308]
-#define __pyx_n_u_run __pyx_string_tab[309]
-#define __pyx_n_u_run_2 __pyx_string_tab[310]
-#define __pyx_n_u_run_in_executor __pyx_string_tab[311]
-#define __pyx_n_u_s_dt __pyx_string_tab[312]
-#define __pyx_n_u_safe_dt __pyx_string_tab[313]
-#define __pyx_n_u_safe_exp_id __pyx_string_tab[314]
-#define __pyx_n_u_safe_sid __pyx_string_tab[315]
-#define __pyx_n_u_schema_obj __pyx_string_tab[316]
-#define __pyx_n_u_self __pyx_string_tab[317]
-#define __pyx_n_u_send __pyx_string_tab[318]
+#define __pyx_kp_u_Step_may_not_be_zero_axis_d __pyx_string_tab[29]
+#define __pyx_kp_u_Unable_to_convert_item_to_object __pyx_string_tab[30]
+#define __pyx_kp_u_Write __pyx_string_tab[31]
+#define __pyx_kp_u__2 __pyx_string_tab[32]
+#define __pyx_kp_u__3 __pyx_string_tab[33]
+#define __pyx_kp_u__4 __pyx_string_tab[34]
+#define __pyx_kp_u__5 __pyx_string_tab[35]
+#define __pyx_kp_u__6 __pyx_string_tab[36]
+#define __pyx_kp_u__9 __pyx_string_tab[37]
+#define __pyx_kp_u_add_note __pyx_string_tab[38]
+#define __pyx_kp_u_and __pyx_string_tab[39]
+#define __pyx_kp_u_at_0x __pyx_string_tab[40]
+#define __pyx_kp_u_backtest_execution_core_finance_2 __pyx_string_tab[41]
+#define __pyx_kp_u_collections_abc __pyx_string_tab[42]
+#define __pyx_kp_u_contiguous_and_direct __pyx_string_tab[43]
+#define __pyx_kp_u_contiguous_and_indirect __pyx_string_tab[44]
+#define __pyx_kp_u_disable __pyx_string_tab[45]
+#define __pyx_kp_u_dump_fallback_2 __pyx_string_tab[46]
+#define __pyx_kp_u_enable __pyx_string_tab[47]
+#define __pyx_kp_u_failed_attempt __pyx_string_tab[48]
+#define __pyx_kp_u_failed_permanently_Dumping_to_d __pyx_string_tab[49]
+#define __pyx_kp_u_gc __pyx_string_tab[50]
+#define __pyx_kp_u_got __pyx_string_tab[51]
+#define __pyx_kp_u_got_differing_extents_in_dimensi __pyx_string_tab[52]
+#define __pyx_kp_u_isenabled __pyx_string_tab[53]
+#define __pyx_kp_u_itemsize_0_for_cython_array __pyx_string_tab[54]
+#define __pyx_kp_u_json __pyx_string_tab[55]
+#define __pyx_kp_u_no_default___reduce___due_to_non __pyx_string_tab[56]
+#define __pyx_kp_u_numpy__core_multiarray_failed_to __pyx_string_tab[57]
+#define __pyx_kp_u_numpy__core_umath_failed_to_impo __pyx_string_tab[58]
+#define __pyx_kp_u_object __pyx_string_tab[59]
+#define __pyx_kp_u_process_error __pyx_string_tab[60]
+#define __pyx_kp_u_ready __pyx_string_tab[61]
+#define __pyx_kp_u_retrying_Error __pyx_string_tab[62]
+#define __pyx_kp_u_start_failed __pyx_string_tab[63]
+#define __pyx_kp_u_strided_and_direct __pyx_string_tab[64]
+#define __pyx_kp_u_strided_and_direct_or_indirect __pyx_string_tab[65]
+#define __pyx_kp_u_strided_and_indirect __pyx_string_tab[66]
+#define __pyx_kp_u_stringsource __pyx_string_tab[67]
+#define __pyx_kp_u_unable_to_allocate_array_data __pyx_string_tab[68]
+#define __pyx_kp_u_unable_to_allocate_shape_and_str __pyx_string_tab[69]
+#define __pyx_kp_u_utf_8 __pyx_string_tab[70]
+#define __pyx_n_u_ASCII __pyx_string_tab[71]
+#define __pyx_n_u_ActorMessage __pyx_string_tab[72]
+#define __pyx_n_u_ActorMessage___reduce_cython __pyx_string_tab[73]
+#define __pyx_n_u_ActorMessage___setstate_cython __pyx_string_tab[74]
+#define __pyx_n_u_BatchWriterActor __pyx_string_tab[75]
+#define __pyx_n_u_BatchWriterActor___reduce_cython __pyx_string_tab[76]
+#define __pyx_n_u_BatchWriterActor___setstate_cyth __pyx_string_tab[77]
+#define __pyx_n_u_BatchWriterActor__dump_fallback __pyx_string_tab[78]
+#define __pyx_n_u_BatchWriterActor__flush __pyx_string_tab[79]
+#define __pyx_n_u_BatchWriterActor__retry_write __pyx_string_tab[80]
+#define __pyx_n_u_BatchWriterActor__sync_write_fil __pyx_string_tab[81]
+#define __pyx_n_u_BatchWriterActor_run __pyx_string_tab[82]
+#define __pyx_n_u_BatchWriterActor_wait_until_fini __pyx_string_tab[83]
+#define __pyx_n_u_Ellipsis __pyx_string_tab[84]
+#define __pyx_n_u_Event __pyx_string_tab[85]
+#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[86]
+#define __pyx_n_u_QueryBody __pyx_string_tab[87]
+#define __pyx_n_u_Queue __pyx_string_tab[88]
+#define __pyx_n_u_QueueFull __pyx_string_tab[89]
+#define __pyx_n_u_Resp __pyx_string_tab[90]
+#define __pyx_n_u_Sequence __pyx_string_tab[91]
+#define __pyx_n_u_Simulator __pyx_string_tab[92]
+#define __pyx_n_u_Simulator___reduce_cython __pyx_string_tab[93]
+#define __pyx_n_u_Simulator___setstate_cython __pyx_string_tab[94]
+#define __pyx_n_u_Simulator_getvalue __pyx_string_tab[95]
+#define __pyx_n_u_Simulator_on_dt_over __pyx_string_tab[96]
+#define __pyx_n_u_Simulator_set_cash __pyx_string_tab[97]
+#define __pyx_n_u_Simulator_shutdown __pyx_string_tab[98]
+#define __pyx_n_u_Simulator_submit __pyx_string_tab[99]
+#define __pyx_n_u_SnapshotBody __pyx_string_tab[100]
+#define __pyx_n_u_TrackerActor __pyx_string_tab[101]
+#define __pyx_n_u_TrackerActor___reduce_cython __pyx_string_tab[102]
+#define __pyx_n_u_TrackerActor___setstate_cython __pyx_string_tab[103]
+#define __pyx_n_u_TrackerActor__fail_pending_messa __pyx_string_tab[104]
+#define __pyx_n_u_TrackerActor__fetch_from_rpc __pyx_string_tab[105]
+#define __pyx_n_u_TrackerActor__start __pyx_string_tab[106]
+#define __pyx_n_u_TrackerActor_on_dt_over __pyx_string_tab[107]
+#define __pyx_n_u_TrackerActor_process_order __pyx_string_tab[108]
+#define __pyx_n_u_TrackerActor_push __pyx_string_tab[109]
+#define __pyx_n_u_TrackerActor_run __pyx_string_tab[110]
+#define __pyx_n_u_View_MemoryView __pyx_string_tab[111]
+#define __pyx_n_u__7 __pyx_string_tab[112]
+#define __pyx_n_u_abc __pyx_string_tab[113]
+#define __pyx_n_u_account __pyx_string_tab[114]
+#define __pyx_n_u_account_data __pyx_string_tab[115]
+#define __pyx_n_u_acct __pyx_string_tab[116]
+#define __pyx_n_u_acct_obj __pyx_string_tab[117]
+#define __pyx_n_u_actor __pyx_string_tab[118]
+#define __pyx_n_u_addinfo __pyx_string_tab[119]
+#define __pyx_n_u_adj_table __pyx_string_tab[120]
+#define __pyx_n_u_adj_task __pyx_string_tab[121]
+#define __pyx_n_u_allocate_buffer __pyx_string_tab[122]
+#define __pyx_n_u_as_py __pyx_string_tab[123]
+#define __pyx_n_u_asset_cache __pyx_string_tab[124]
+#define __pyx_n_u_asset_info __pyx_string_tab[125]
+#define __pyx_n_u_async_gt __pyx_string_tab[126]
+#define __pyx_n_u_asyncio __pyx_string_tab[127]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[128]
+#define __pyx_n_u_available __pyx_string_tab[129]
+#define __pyx_n_u_await __pyx_string_tab[130]
+#define __pyx_n_u_backtest_execution_core_finance __pyx_string_tab[131]
+#define __pyx_n_u_backtest_execution_core_gateway __pyx_string_tab[132]
+#define __pyx_n_u_backtest_protocol __pyx_string_tab[133]
+#define __pyx_n_u_base __pyx_string_tab[134]
+#define __pyx_n_u_batch_size __pyx_string_tab[135]
+#define __pyx_n_u_batches __pyx_string_tab[136]
+#define __pyx_n_u_body __pyx_string_tab[137]
+#define __pyx_n_u_bonus __pyx_string_tab[138]
+#define __pyx_n_u_bonus_share __pyx_string_tab[139]
+#define __pyx_n_u_bulk_insert __pyx_string_tab[140]
+#define __pyx_n_u_c __pyx_string_tab[141]
+#define __pyx_n_u_chain __pyx_string_tab[142]
+#define __pyx_n_u_class __pyx_string_tab[143]
+#define __pyx_n_u_class_getitem __pyx_string_tab[144]
+#define __pyx_n_u_clear __pyx_string_tab[145]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[146]
+#define __pyx_n_u_close __pyx_string_tab[147]
+#define __pyx_n_u_close_body __pyx_string_tab[148]
+#define __pyx_n_u_close_dt __pyx_string_tab[149]
+#define __pyx_n_u_close_price __pyx_string_tab[150]
+#define __pyx_n_u_close_table __pyx_string_tab[151]
+#define __pyx_n_u_close_task __pyx_string_tab[152]
+#define __pyx_n_u_collections __pyx_string_tab[153]
+#define __pyx_n_u_column __pyx_string_tab[154]
+#define __pyx_n_u_compute __pyx_string_tab[155]
+#define __pyx_n_u_core __pyx_string_tab[156]
+#define __pyx_n_u_cost_basis __pyx_string_tab[157]
+#define __pyx_n_u_count __pyx_string_tab[158]
+#define __pyx_n_u_create_future __pyx_string_tab[159]
+#define __pyx_n_u_create_task __pyx_string_tab[160]
+#define __pyx_n_u_critical __pyx_string_tab[161]
+#define __pyx_n_u_d __pyx_string_tab[162]
+#define __pyx_n_u_data __pyx_string_tab[163]
+#define __pyx_n_u_datas __pyx_string_tab[164]
+#define __pyx_n_u_datetime __pyx_string_tab[165]
+#define __pyx_n_u_day __pyx_string_tab[166]
+#define __pyx_n_u_dedup_accounts __pyx_string_tab[167]
+#define __pyx_n_u_dedup_positions __pyx_string_tab[168]
+#define __pyx_n_u_default __pyx_string_tab[169]
+#define __pyx_n_u_defaultdict __pyx_string_tab[170]
+#define __pyx_n_u_dict __pyx_string_tab[171]
+#define __pyx_n_u_dict_2 __pyx_string_tab[172]
+#define __pyx_n_u_done __pyx_string_tab[173]
+#define __pyx_n_u_dtype_is_object __pyx_string_tab[174]
+#define __pyx_n_u_dump __pyx_string_tab[175]
+#define __pyx_n_u_dump_dir __pyx_string_tab[176]
+#define __pyx_n_u_dump_fallback __pyx_string_tab[177]
+#define __pyx_n_u_e __pyx_string_tab[178]
+#define __pyx_n_u_e_dt __pyx_string_tab[179]
+#define __pyx_n_u_empty __pyx_string_tab[180]
+#define __pyx_n_u_encode __pyx_string_tab[181]
+#define __pyx_n_u_end_date __pyx_string_tab[182]
+#define __pyx_n_u_enter __pyx_string_tab[183]
+#define __pyx_n_u_enumerate __pyx_string_tab[184]
+#define __pyx_n_u_error __pyx_string_tab[185]
+#define __pyx_n_u_event __pyx_string_tab[186]
+#define __pyx_n_u_event_body __pyx_string_tab[187]
+#define __pyx_n_u_exbits __pyx_string_tab[188]
+#define __pyx_n_u_exc_info __pyx_string_tab[189]
+#define __pyx_n_u_exception __pyx_string_tab[190]
+#define __pyx_n_u_exist_ok __pyx_string_tab[191]
+#define __pyx_n_u_exists __pyx_string_tab[192]
+#define __pyx_n_u_exit __pyx_string_tab[193]
+#define __pyx_n_u_experiment_id __pyx_string_tab[194]
+#define __pyx_n_u_f __pyx_string_tab[195]
+#define __pyx_n_u_fail_pending_messages __pyx_string_tab[196]
+#define __pyx_n_u_fetch_from_rpc __pyx_string_tab[197]
+#define __pyx_n_u_fetch_from_rpc_locals_remote_wr __pyx_string_tab[198]
+#define __pyx_n_u_filepath __pyx_string_tab[199]
+#define __pyx_n_u_flags __pyx_string_tab[200]
+#define __pyx_n_u_flush __pyx_string_tab[201]
+#define __pyx_n_u_flush_crash __pyx_string_tab[202]
+#define __pyx_n_u_format __pyx_string_tab[203]
+#define __pyx_n_u_fortran __pyx_string_tab[204]
+#define __pyx_n_u_func __pyx_string_tab[205]
+#define __pyx_n_u_future __pyx_string_tab[206]
+#define __pyx_n_u_gather __pyx_string_tab[207]
+#define __pyx_n_u_get __pyx_string_tab[208]
+#define __pyx_n_u_getLogger __pyx_string_tab[209]
+#define __pyx_n_u_get_nowait __pyx_string_tab[210]
+#define __pyx_n_u_get_position __pyx_string_tab[211]
+#define __pyx_n_u_get_running_loop __pyx_string_tab[212]
+#define __pyx_n_u_getstate __pyx_string_tab[213]
+#define __pyx_n_u_getvalue __pyx_string_tab[214]
+#define __pyx_n_u_i __pyx_string_tab[215]
+#define __pyx_n_u_id __pyx_string_tab[216]
+#define __pyx_n_u_import __pyx_string_tab[217]
+#define __pyx_n_u_index __pyx_string_tab[218]
+#define __pyx_n_u_info __pyx_string_tab[219]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[220]
+#define __pyx_n_u_item __pyx_string_tab[221]
+#define __pyx_n_u_items __pyx_string_tab[222]
+#define __pyx_n_u_itemsize __pyx_string_tab[223]
+#define __pyx_n_u_itertools __pyx_string_tab[224]
+#define __pyx_n_u_json_2 __pyx_string_tab[225]
+#define __pyx_n_u_key __pyx_string_tab[226]
+#define __pyx_n_u_keys __pyx_string_tab[227]
+#define __pyx_n_u_logger __pyx_string_tab[228]
+#define __pyx_n_u_logging __pyx_string_tab[229]
+#define __pyx_n_u_loop __pyx_string_tab[230]
+#define __pyx_n_u_main __pyx_string_tab[231]
+#define __pyx_n_u_makedirs __pyx_string_tab[232]
+#define __pyx_n_u_max_size __pyx_string_tab[233]
+#define __pyx_n_u_maxsize __pyx_string_tab[234]
+#define __pyx_n_u_memview __pyx_string_tab[235]
+#define __pyx_n_u_mode __pyx_string_tab[236]
+#define __pyx_n_u_module __pyx_string_tab[237]
+#define __pyx_n_u_msg __pyx_string_tab[238]
+#define __pyx_n_u_name __pyx_string_tab[239]
+#define __pyx_n_u_name_2 __pyx_string_tab[240]
+#define __pyx_n_u_ndim __pyx_string_tab[241]
+#define __pyx_n_u_new __pyx_string_tab[242]
+#define __pyx_n_u_next __pyx_string_tab[243]
+#define __pyx_n_u_np __pyx_string_tab[244]
+#define __pyx_n_u_numpy __pyx_string_tab[245]
+#define __pyx_n_u_obj __pyx_string_tab[246]
+#define __pyx_n_u_on_dt_over __pyx_string_tab[247]
+#define __pyx_n_u_on_writer __pyx_string_tab[248]
+#define __pyx_n_u_open __pyx_string_tab[249]
+#define __pyx_n_u_ordbit __pyx_string_tab[250]
+#define __pyx_n_u_order __pyx_string_tab[251]
+#define __pyx_n_u_order_bit __pyx_string_tab[252]
+#define __pyx_n_u_order_bits __pyx_string_tab[253]
+#define __pyx_n_u_order_data __pyx_string_tab[254]
+#define __pyx_n_u_order_obj __pyx_string_tab[255]
+#define __pyx_n_u_orderbit_data __pyx_string_tab[256]
+#define __pyx_n_u_os __pyx_string_tab[257]
+#define __pyx_n_u_p __pyx_string_tab[258]
+#define __pyx_n_u_p_obj __pyx_string_tab[259]
+#define __pyx_n_u_p_sid __pyx_string_tab[260]
+#define __pyx_n_u_pa __pyx_string_tab[261]
+#define __pyx_n_u_pack __pyx_string_tab[262]
+#define __pyx_n_u_path __pyx_string_tab[263]
+#define __pyx_n_u_payload __pyx_string_tab[264]
+#define __pyx_n_u_pc __pyx_string_tab[265]
+#define __pyx_n_u_pnl __pyx_string_tab[266]
+#define __pyx_n_u_pop __pyx_string_tab[267]
+#define __pyx_n_u_pos_obj __pyx_string_tab[268]
+#define __pyx_n_u_position_data __pyx_string_tab[269]
+#define __pyx_n_u_positions __pyx_string_tab[270]
+#define __pyx_n_u_positions_map __pyx_string_tab[271]
+#define __pyx_n_u_prefix __pyx_string_tab[272]
+#define __pyx_n_u_price __pyx_string_tab[273]
+#define __pyx_n_u_process_order __pyx_string_tab[274]
+#define __pyx_n_u_psids __pyx_string_tab[275]
+#define __pyx_n_u_push __pyx_string_tab[276]
+#define __pyx_n_u_put __pyx_string_tab[277]
+#define __pyx_n_u_put_nowait __pyx_string_tab[278]
+#define __pyx_n_u_pyarrow __pyx_string_tab[279]
+#define __pyx_n_u_pyarrow_compute __pyx_string_tab[280]
+#define __pyx_n_u_pyx_checksum __pyx_string_tab[281]
+#define __pyx_n_u_pyx_result __pyx_string_tab[282]
+#define __pyx_n_u_pyx_state __pyx_string_tab[283]
+#define __pyx_n_u_pyx_type __pyx_string_tab[284]
+#define __pyx_n_u_pyx_unpickle_BatchWriterActor __pyx_string_tab[285]
+#define __pyx_n_u_pyx_unpickle_Enum __pyx_string_tab[286]
+#define __pyx_n_u_pyx_unpickle_Simulator __pyx_string_tab[287]
+#define __pyx_n_u_pyx_unpickle_TrackerActor __pyx_string_tab[288]
+#define __pyx_n_u_pyx_vtable __pyx_string_tab[289]
+#define __pyx_n_u_qualname __pyx_string_tab[290]
+#define __pyx_n_u_ratio __pyx_string_tab[291]
+#define __pyx_n_u_raw_exp __pyx_string_tab[292]
+#define __pyx_n_u_raw_sid __pyx_string_tab[293]
+#define __pyx_n_u_reduce __pyx_string_tab[294]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[295]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[296]
+#define __pyx_n_u_register __pyx_string_tab[297]
+#define __pyx_n_u_remote __pyx_string_tab[298]
+#define __pyx_n_u_remote_wrap __pyx_string_tab[299]
+#define __pyx_n_u_reply_future __pyx_string_tab[300]
+#define __pyx_n_u_result __pyx_string_tab[301]
+#define __pyx_n_u_retries __pyx_string_tab[302]
+#define __pyx_n_u_retry_write __pyx_string_tab[303]
+#define __pyx_n_u_rgt_table __pyx_string_tab[304]
+#define __pyx_n_u_rgt_task __pyx_string_tab[305]
+#define __pyx_n_u_row __pyx_string_tab[306]
+#define __pyx_n_u_rpc_type __pyx_string_tab[307]
+#define __pyx_n_u_run __pyx_string_tab[308]
+#define __pyx_n_u_run_2 __pyx_string_tab[309]
+#define __pyx_n_u_run_in_executor __pyx_string_tab[310]
+#define __pyx_n_u_s_dt __pyx_string_tab[311]
+#define __pyx_n_u_safe_dt __pyx_string_tab[312]
+#define __pyx_n_u_safe_exp_id __pyx_string_tab[313]
+#define __pyx_n_u_safe_sid __pyx_string_tab[314]
+#define __pyx_n_u_schema_obj __pyx_string_tab[315]
+#define __pyx_n_u_self __pyx_string_tab[316]
+#define __pyx_n_u_send __pyx_string_tab[317]
+#define __pyx_n_u_sentinel __pyx_string_tab[318]
 #define __pyx_n_u_set __pyx_string_tab[319]
 #define __pyx_n_u_set_cash __pyx_string_tab[320]
 #define __pyx_n_u_set_exception __pyx_string_tab[321]
@@ -22358,7 +22364,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_8simulate_16BatchWriterA
  *         self._finished_event = asyncio.Event()
  * 
  *     cdef void push(self, dict snapshot):             # <<<<<<<<<<<<<<
- *         self._queue.put_nowait(snapshot) # cause oom
+ *         self._queue.put_nowait(snapshot) # may cause oom
  * 
 */
 
@@ -22375,7 +22381,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_8simulate_16BatchWriterA
   /* "backtest/execution/core/finance/simulate.pyx":84
  * 
  *     cdef void push(self, dict snapshot):
- *         self._queue.put_nowait(snapshot) # cause oom             # <<<<<<<<<<<<<<
+ *         self._queue.put_nowait(snapshot) # may cause oom             # <<<<<<<<<<<<<<
  * 
  *     async def run(self):
 */
@@ -22395,7 +22401,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_8simulate_16BatchWriterA
  *         self._finished_event = asyncio.Event()
  * 
  *     cdef void push(self, dict snapshot):             # <<<<<<<<<<<<<<
- *         self._queue.put_nowait(snapshot) # cause oom
+ *         self._queue.put_nowait(snapshot) # may cause oom
  * 
 */
 
@@ -22411,7 +22417,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_8simulate_16BatchWriterA
 static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchWriterActor_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
 /* "backtest/execution/core/finance/simulate.pyx":86
- *         self._queue.put_nowait(snapshot) # cause oom
+ *         self._queue.put_nowait(snapshot) # may cause oom
  * 
  *     async def run(self):             # <<<<<<<<<<<<<<
  *         logger.info("BatchWriterActor started.")
@@ -22595,7 +22601,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  *         while self._running:
  *             try:             # <<<<<<<<<<<<<<
  *                 data = await self._queue.get()
- *                 if data == MsgType.Sentinel:
+ *                 if MsgType.Sentinel in data:
 */
     {
       __Pyx_ExceptionSave(&__pyx_t_6, &__pyx_t_7, &__pyx_t_8);
@@ -22608,7 +22614,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  *         while self._running:
  *             try:
  *                 data = await self._queue.get()             # <<<<<<<<<<<<<<
- *                 if data == MsgType.Sentinel:
+ *                 if MsgType.Sentinel in data:
  *                     await self._flush()
 */
         __pyx_t_4 = __pyx_cur_scope->__pyx_v_self->_queue;
@@ -22665,37 +22671,39 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
         /* "backtest/execution/core/finance/simulate.pyx":93
  *             try:
  *                 data = await self._queue.get()
- *                 if data == MsgType.Sentinel:             # <<<<<<<<<<<<<<
+ *                 if MsgType.Sentinel in data:             # <<<<<<<<<<<<<<
  *                     await self._flush()
  *                     self._running = False
 */
         __pyx_t_1 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_7finance_14simulate_types_MsgType(__pyx_e_8backtest_9execution_4core_7finance_14simulate_types_Sentinel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L6_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_4 = PyObject_RichCompare(__pyx_cur_scope->__pyx_v_data, __pyx_t_1, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 93, __pyx_L6_error)
+        if (unlikely(__pyx_cur_scope->__pyx_v_data == Py_None)) {
+          PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
+          __PYX_ERR(0, 93, __pyx_L6_error)
+        }
+        __pyx_t_10 = (__Pyx_PyDict_ContainsTF(__pyx_t_1, __pyx_cur_scope->__pyx_v_data, Py_EQ)); if (unlikely((__pyx_t_10 < 0))) __PYX_ERR(0, 93, __pyx_L6_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-        __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_10 < 0))) __PYX_ERR(0, 93, __pyx_L6_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         if (__pyx_t_10) {
 
           /* "backtest/execution/core/finance/simulate.pyx":94
  *                 data = await self._queue.get()
- *                 if data == MsgType.Sentinel:
+ *                 if MsgType.Sentinel in data:
  *                     await self._flush()             # <<<<<<<<<<<<<<
  *                     self._running = False
  *                     break
 */
-          __pyx_t_1 = ((PyObject *)__pyx_cur_scope->__pyx_v_self);
-          __Pyx_INCREF(__pyx_t_1);
+          __pyx_t_4 = ((PyObject *)__pyx_cur_scope->__pyx_v_self);
+          __Pyx_INCREF(__pyx_t_4);
           __pyx_t_5 = 0;
           {
-            PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
-            __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_flush, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-            __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L6_error)
-            __Pyx_GOTREF(__pyx_t_4);
+            PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
+            __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_flush, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L6_error)
+            __Pyx_GOTREF(__pyx_t_1);
           }
-          __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_4, &__pyx_r);
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
+          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
           if (likely(__pyx_t_9 == PYGEN_NEXT)) {
             __Pyx_GOTREF(__pyx_r);
             __Pyx_XGIVEREF(__pyx_t_6);
@@ -22730,7 +22738,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
           }
 
           /* "backtest/execution/core/finance/simulate.pyx":95
- *                 if data == MsgType.Sentinel:
+ *                 if MsgType.Sentinel in data:
  *                     await self._flush()
  *                     self._running = False             # <<<<<<<<<<<<<<
  *                     break
@@ -22750,7 +22758,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
           /* "backtest/execution/core/finance/simulate.pyx":93
  *             try:
  *                 data = await self._queue.get()
- *                 if data == MsgType.Sentinel:             # <<<<<<<<<<<<<<
+ *                 if MsgType.Sentinel in data:             # <<<<<<<<<<<<<<
  *                     await self._flush()
  *                     self._running = False
 */
@@ -22776,14 +22784,14 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  *                     await self._flush()
  * 
 */
-        __pyx_t_4 = __pyx_cur_scope->__pyx_v_self->_buffer;
-        __Pyx_INCREF(__pyx_t_4);
-        if (unlikely(__pyx_t_4 == Py_None)) {
+        __pyx_t_1 = __pyx_cur_scope->__pyx_v_self->_buffer;
+        __Pyx_INCREF(__pyx_t_1);
+        if (unlikely(__pyx_t_1 == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
           __PYX_ERR(0, 99, __pyx_L6_error)
         }
-        __pyx_t_12 = __Pyx_PyList_GET_SIZE(__pyx_t_4); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 99, __pyx_L6_error)
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+        __pyx_t_12 = __Pyx_PyList_GET_SIZE(__pyx_t_1); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 99, __pyx_L6_error)
+        __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
         __pyx_t_10 = (__pyx_t_12 >= __pyx_cur_scope->__pyx_v_self->batch_size);
         if (__pyx_t_10) {
 
@@ -22794,18 +22802,18 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  * 
  *             except Exception as e:
 */
-          __pyx_t_1 = ((PyObject *)__pyx_cur_scope->__pyx_v_self);
-          __Pyx_INCREF(__pyx_t_1);
+          __pyx_t_4 = ((PyObject *)__pyx_cur_scope->__pyx_v_self);
+          __Pyx_INCREF(__pyx_t_4);
           __pyx_t_5 = 0;
           {
-            PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
-            __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_flush, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-            __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-            if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L6_error)
-            __Pyx_GOTREF(__pyx_t_4);
+            PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
+            __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_flush, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L6_error)
+            __Pyx_GOTREF(__pyx_t_1);
           }
-          __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_4, &__pyx_r);
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
+          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
           if (likely(__pyx_t_9 == PYGEN_NEXT)) {
             __Pyx_GOTREF(__pyx_r);
             __Pyx_XGIVEREF(__pyx_t_6);
@@ -22853,7 +22861,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  *         while self._running:
  *             try:             # <<<<<<<<<<<<<<
  *                 data = await self._queue.get()
- *                 if data == MsgType.Sentinel:
+ *                 if MsgType.Sentinel in data:
 */
       }
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -22876,13 +22884,13 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
       __pyx_t_13 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
       if (__pyx_t_13) {
         __Pyx_AddTraceback("backtest.execution.core.finance.simulate.BatchWriterActor.run", __pyx_clineno, __pyx_lineno, __pyx_filename);
-        if (__Pyx_GetException(&__pyx_t_4, &__pyx_t_1, &__pyx_t_2) < 0) __PYX_ERR(0, 102, __pyx_L8_except_error)
-        __Pyx_XGOTREF(__pyx_t_4);
+        if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_4, &__pyx_t_2) < 0) __PYX_ERR(0, 102, __pyx_L8_except_error)
         __Pyx_XGOTREF(__pyx_t_1);
+        __Pyx_XGOTREF(__pyx_t_4);
         __Pyx_XGOTREF(__pyx_t_2);
-        __Pyx_INCREF(__pyx_t_1);
-        __Pyx_GIVEREF(__pyx_t_1);
-        __pyx_cur_scope->__pyx_v_e = __pyx_t_1;
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_GIVEREF(__pyx_t_4);
+        __pyx_cur_scope->__pyx_v_e = __pyx_t_4;
         /*try:*/ {
 
           /* "backtest/execution/core/finance/simulate.pyx":103
@@ -22976,8 +22984,8 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
           }
           __pyx_L25:;
         }
-        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
         goto __pyx_L7_exception_handled;
       }
@@ -22988,7 +22996,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  *         while self._running:
  *             try:             # <<<<<<<<<<<<<<
  *                 data = await self._queue.get()
- *                 if data == MsgType.Sentinel:
+ *                 if MsgType.Sentinel in data:
 */
       __pyx_L8_except_error:;
       __Pyx_XGIVEREF(__pyx_t_6);
@@ -23019,13 +23027,13 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  *         logger.info("BatchWriterActor stopped.")
  * 
 */
-  __pyx_t_1 = __pyx_cur_scope->__pyx_v_self->_finished_event;
-  __Pyx_INCREF(__pyx_t_1);
+  __pyx_t_4 = __pyx_cur_scope->__pyx_v_self->_finished_event;
+  __Pyx_INCREF(__pyx_t_4);
   __pyx_t_5 = 0;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_1, NULL};
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
     __pyx_t_2 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_set, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
@@ -23038,28 +23046,28 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
  * 
  *     async def _flush(self):
 */
-  __pyx_t_1 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 106, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_4 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_5 = 1;
   #if CYTHON_UNPACK_METHODS
   if (unlikely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
-    assert(__pyx_t_1);
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    assert(__pyx_t_4);
     PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
-    __Pyx_INCREF(__pyx_t_1);
+    __Pyx_INCREF(__pyx_t_4);
     __Pyx_INCREF(__pyx__function);
     __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
     __pyx_t_5 = 0;
   }
   #endif
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_mstate_global->__pyx_kp_u_BatchWriterActor_stopped};
+    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_BatchWriterActor_stopped};
     __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -23068,7 +23076,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_16BatchW
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
   /* "backtest/execution/core/finance/simulate.pyx":86
- *         self._queue.put_nowait(snapshot) # cause oom
+ *         self._queue.put_nowait(snapshot) # may cause oom
  * 
  *     async def run(self):             # <<<<<<<<<<<<<<
  *         logger.info("BatchWriterActor started.")
@@ -36075,8 +36083,8 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_9Simulat
  *         return self._actors[experiment_id]
  * 
  *     async def shutdown(self):             # <<<<<<<<<<<<<<
- *             logger.info("Simulator shutting down...")
- *             for actor in self._actors.values():
+ *         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}
 */
 
 /* Python wrapper */
@@ -36164,15 +36172,13 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_9Simulat
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  size_t __pyx_t_5;
+  size_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
   Py_ssize_t __pyx_t_6;
-  Py_ssize_t __pyx_t_7;
+  int __pyx_t_7;
   int __pyx_t_8;
-  int __pyx_t_9;
+  __Pyx_PySendResult __pyx_t_9;
   PyObject *__pyx_t_10 = NULL;
-  PyObject *__pyx_t_11 = NULL;
-  __Pyx_PySendResult __pyx_t_12;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -36181,6 +36187,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_9Simulat
   switch (__pyx_generator->resume_label) {
     case 0: goto __pyx_L3_first_run;
     case 1: goto __pyx_L6_resume_from_await;
+    case 2: goto __pyx_L7_resume_from_await;
     default: /* CPython raises the right error here */
     __Pyx_RefNannyFinishContext();
     return NULL;
@@ -36194,212 +36201,229 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_9Simulat
   /* "backtest/execution/core/finance/simulate.pyx":569
  * 
  *     async def shutdown(self):
- *             logger.info("Simulator shutting down...")             # <<<<<<<<<<<<<<
- *             for actor in self._actors.values():
- *                 actor.push(ActorMessage(MsgType.Sentinel, b"", None))
+ *         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)             # <<<<<<<<<<<<<<
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}
+ * 
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 569, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_7finance_14simulate_types_MsgType(__pyx_e_8backtest_9execution_4core_7finance_14simulate_types_Sentinel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 569, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 569, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = 1;
-  #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_4))) {
-    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_4);
-    assert(__pyx_t_2);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
-    __Pyx_INCREF(__pyx_t_2);
-    __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
-    __pyx_t_5 = 0;
-  }
-  #endif
+  __pyx_t_4 = 1;
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_Simulator_shutting_down};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    PyObject *__pyx_callargs[4] = {__pyx_t_2, __pyx_t_3, __pyx_mstate_global->__pyx_kp_b__8, Py_None};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage, __pyx_callargs+__pyx_t_4, (4-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 569, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_GIVEREF((PyObject *)__pyx_t_1);
+  __pyx_cur_scope->__pyx_v_msg = ((struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage *)__pyx_t_1);
+  __pyx_t_1 = 0;
 
   /* "backtest/execution/core/finance/simulate.pyx":570
  *     async def shutdown(self):
- *             logger.info("Simulator shutting down...")
- *             for actor in self._actors.values():             # <<<<<<<<<<<<<<
- *                 actor.push(ActorMessage(MsgType.Sentinel, b"", None))
- *             # if self._actor_tasks:
+ *         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}             # <<<<<<<<<<<<<<
+ * 
+ *         for actor in self._actors.values():
 */
-  __pyx_t_6 = 0;
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 570, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_7finance_14simulate_types_MsgType(__pyx_e_8backtest_9execution_4core_7finance_14simulate_types_Sentinel); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 570, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_t_1, __pyx_t_3, __pyx_mstate_global->__pyx_int_0) < (0)) __PYX_ERR(0, 570, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_cur_scope->__pyx_v__sentinel = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "backtest/execution/core/finance/simulate.pyx":572
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}
+ * 
+ *         for actor in self._actors.values():             # <<<<<<<<<<<<<<
+ *             await actor.push(msg)
+ *         # if self._actor_tasks:
+*/
+  __pyx_t_5 = 0;
   if (unlikely(__pyx_cur_scope->__pyx_v_self->_actors == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "values");
-    __PYX_ERR(0, 570, __pyx_L1_error)
+    __PYX_ERR(0, 572, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_dict_iterator(__pyx_cur_scope->__pyx_v_self->_actors, 1, __pyx_mstate_global->__pyx_n_u_values, (&__pyx_t_7), (&__pyx_t_8)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 570, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = __Pyx_dict_iterator(__pyx_cur_scope->__pyx_v_self->_actors, 1, __pyx_mstate_global->__pyx_n_u_values, (&__pyx_t_6), (&__pyx_t_7)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 572, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_1);
-  __pyx_t_1 = __pyx_t_4;
-  __pyx_t_4 = 0;
+  __pyx_t_1 = __pyx_t_3;
+  __pyx_t_3 = 0;
   while (1) {
-    __pyx_t_9 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_7, &__pyx_t_6, NULL, &__pyx_t_4, NULL, __pyx_t_8);
-    if (unlikely(__pyx_t_9 == 0)) break;
-    if (unlikely(__pyx_t_9 == -1)) __PYX_ERR(0, 570, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_8 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_6, &__pyx_t_5, NULL, &__pyx_t_3, NULL, __pyx_t_7);
+    if (unlikely(__pyx_t_8 == 0)) break;
+    if (unlikely(__pyx_t_8 == -1)) __PYX_ERR(0, 572, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
     __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_actor);
-    __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_actor, __pyx_t_4);
-    __Pyx_GIVEREF(__pyx_t_4);
-    __pyx_t_4 = 0;
+    __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_actor, __pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_3);
+    __pyx_t_3 = 0;
 
-    /* "backtest/execution/core/finance/simulate.pyx":571
- *             logger.info("Simulator shutting down...")
- *             for actor in self._actors.values():
- *                 actor.push(ActorMessage(MsgType.Sentinel, b"", None))             # <<<<<<<<<<<<<<
- *             # if self._actor_tasks:
- *             #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+    /* "backtest/execution/core/finance/simulate.pyx":573
+ * 
+ *         for actor in self._actors.values():
+ *             await actor.push(msg)             # <<<<<<<<<<<<<<
+ *         # if self._actor_tasks:
+ *         #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
 */
     __pyx_t_2 = __pyx_cur_scope->__pyx_v_actor;
     __Pyx_INCREF(__pyx_t_2);
-    __pyx_t_10 = NULL;
-    __pyx_t_11 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_7finance_14simulate_types_MsgType(__pyx_e_8backtest_9execution_4core_7finance_14simulate_types_Sentinel); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 571, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_11);
-    __pyx_t_5 = 1;
+    __pyx_t_4 = 0;
     {
-      PyObject *__pyx_callargs[4] = {__pyx_t_10, __pyx_t_11, __pyx_mstate_global->__pyx_kp_b__8, Py_None};
-      __pyx_t_3 = __Pyx_PyObject_FastCall((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage, __pyx_callargs+__pyx_t_5, (4-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 571, __pyx_L1_error)
-      __Pyx_GOTREF((PyObject *)__pyx_t_3);
-    }
-    __pyx_t_5 = 0;
-    {
-      PyObject *__pyx_callargs[2] = {__pyx_t_2, ((PyObject *)__pyx_t_3)};
-      __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_push, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+      PyObject *__pyx_callargs[2] = {__pyx_t_2, ((PyObject *)__pyx_cur_scope->__pyx_v_msg)};
+      __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_push, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_DECREF((PyObject *)__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 571, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
+      if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 573, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
     }
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_3, &__pyx_r);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (likely(__pyx_t_9 == PYGEN_NEXT)) {
+      __Pyx_GOTREF(__pyx_r);
+      __Pyx_XGIVEREF(__pyx_t_1);
+      __pyx_cur_scope->__pyx_t_0 = __pyx_t_1;
+      __pyx_cur_scope->__pyx_t_1 = __pyx_t_5;
+      __pyx_cur_scope->__pyx_t_2 = __pyx_t_6;
+      __pyx_cur_scope->__pyx_t_3 = __pyx_t_7;
+      __Pyx_XGIVEREF(__pyx_r);
+      __Pyx_RefNannyFinishContext();
+      __Pyx_Coroutine_ResetAndClearException(__pyx_generator);
+      /* return from generator, awaiting value */
+      __pyx_generator->resume_label = 1;
+      return __pyx_r;
+      __pyx_L6_resume_from_await:;
+      __pyx_t_1 = __pyx_cur_scope->__pyx_t_0;
+      __pyx_cur_scope->__pyx_t_0 = 0;
+      __Pyx_XGOTREF(__pyx_t_1);
+      __pyx_t_5 = __pyx_cur_scope->__pyx_t_1;
+      __pyx_t_6 = __pyx_cur_scope->__pyx_t_2;
+      __pyx_t_7 = __pyx_cur_scope->__pyx_t_3;
+      if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 573, __pyx_L1_error)
+    } else if (likely(__pyx_t_9 == PYGEN_RETURN)) {
+      __Pyx_GOTREF(__pyx_r);
+      __Pyx_DECREF(__pyx_r); __pyx_r = 0;
+    } else {
+      __Pyx_XGOTREF(__pyx_r);
+      __PYX_ERR(0, 573, __pyx_L1_error)
+    }
   }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "backtest/execution/core/finance/simulate.pyx":574
- *             # if self._actor_tasks:
- *             #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
- *             logger.info("All TrackerActors stopped.")             # <<<<<<<<<<<<<<
- *             self._writer.push(MsgType.Sentinel)
- *             await self._writer.wait_until_finished()
-*/
-  __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 574, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 574, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = 1;
-  #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
-    assert(__pyx_t_4);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
-    __Pyx_INCREF(__pyx_t_4);
-    __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
-    __pyx_t_5 = 0;
-  }
-  #endif
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_4, __pyx_mstate_global->__pyx_kp_u_All_TrackerActors_stopped};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 574, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "backtest/execution/core/finance/simulate.pyx":575
- *             #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
- *             logger.info("All TrackerActors stopped.")
- *             self._writer.push(MsgType.Sentinel)             # <<<<<<<<<<<<<<
- *             await self._writer.wait_until_finished()
- *             logger.info("Simulator shutdown complete.")
-*/
-  __pyx_t_1 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_7finance_14simulate_types_MsgType(__pyx_e_8backtest_9execution_4core_7finance_14simulate_types_Sentinel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 575, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(PyDict_CheckExact(__pyx_t_1)) || __Pyx_RaiseUnexpectedTypeError("dict", __pyx_t_1))) __PYX_ERR(0, 575, __pyx_L1_error)
-  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *)__pyx_cur_scope->__pyx_v_self->_writer->__pyx_vtab)->push(__pyx_cur_scope->__pyx_v_self->_writer, ((PyObject*)__pyx_t_1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 575, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "backtest/execution/core/finance/simulate.pyx":576
- *             logger.info("All TrackerActors stopped.")
- *             self._writer.push(MsgType.Sentinel)
- *             await self._writer.wait_until_finished()             # <<<<<<<<<<<<<<
- *             logger.info("Simulator shutdown complete.")
+ *         # if self._actor_tasks:
+ *         #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+ *         logger.info("All TrackerActors stopped.")             # <<<<<<<<<<<<<<
+ *         self._writer.push(_sentinel)
+ *         await self._writer.wait_until_finished()
 */
-  __pyx_t_2 = ((PyObject *)__pyx_cur_scope->__pyx_v_self->_writer);
-  __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_5 = 0;
+  __pyx_t_3 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 576, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 576, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_10);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_4 = 1;
+  #if CYTHON_UNPACK_METHODS
+  if (unlikely(PyMethod_Check(__pyx_t_10))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_10);
+    assert(__pyx_t_3);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_10);
+    __Pyx_INCREF(__pyx_t_3);
+    __Pyx_INCREF(__pyx__function);
+    __Pyx_DECREF_SET(__pyx_t_10, __pyx__function);
+    __pyx_t_4 = 0;
+  }
+  #endif
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_wait_until_finished, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_mstate_global->__pyx_kp_u_All_TrackerActors_stopped};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_10, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 576, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_12 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (likely(__pyx_t_12 == PYGEN_NEXT)) {
+
+  /* "backtest/execution/core/finance/simulate.pyx":577
+ *         #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+ *         logger.info("All TrackerActors stopped.")
+ *         self._writer.push(_sentinel)             # <<<<<<<<<<<<<<
+ *         await self._writer.wait_until_finished()
+ *         logger.info("Simulator shutdown complete.")
+*/
+  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *)__pyx_cur_scope->__pyx_v_self->_writer->__pyx_vtab)->push(__pyx_cur_scope->__pyx_v_self->_writer, __pyx_cur_scope->__pyx_v__sentinel); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 577, __pyx_L1_error)
+
+  /* "backtest/execution/core/finance/simulate.pyx":578
+ *         logger.info("All TrackerActors stopped.")
+ *         self._writer.push(_sentinel)
+ *         await self._writer.wait_until_finished()             # <<<<<<<<<<<<<<
+ *         logger.info("Simulator shutdown complete.")
+*/
+  __pyx_t_10 = ((PyObject *)__pyx_cur_scope->__pyx_v_self->_writer);
+  __Pyx_INCREF(__pyx_t_10);
+  __pyx_t_4 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_10, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_wait_until_finished, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 578, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (likely(__pyx_t_9 == PYGEN_NEXT)) {
     __Pyx_GOTREF(__pyx_r);
     __Pyx_XGIVEREF(__pyx_r);
     __Pyx_RefNannyFinishContext();
     __Pyx_Coroutine_ResetAndClearException(__pyx_generator);
     /* return from generator, awaiting value */
-    __pyx_generator->resume_label = 1;
+    __pyx_generator->resume_label = 2;
     return __pyx_r;
-    __pyx_L6_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 576, __pyx_L1_error)
-  } else if (likely(__pyx_t_12 == PYGEN_RETURN)) {
+    __pyx_L7_resume_from_await:;
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 578, __pyx_L1_error)
+  } else if (likely(__pyx_t_9 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __Pyx_DECREF(__pyx_r); __pyx_r = 0;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 576, __pyx_L1_error)
+    __PYX_ERR(0, 578, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/finance/simulate.pyx":577
- *             self._writer.push(MsgType.Sentinel)
- *             await self._writer.wait_until_finished()
- *             logger.info("Simulator shutdown complete.")             # <<<<<<<<<<<<<<
+  /* "backtest/execution/core/finance/simulate.pyx":579
+ *         self._writer.push(_sentinel)
+ *         await self._writer.wait_until_finished()
+ *         logger.info("Simulator shutdown complete.")             # <<<<<<<<<<<<<<
 */
-  __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 577, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 577, __pyx_L1_error)
+  __pyx_t_10 = NULL;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 579, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = 1;
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 579, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_4 = 1;
   #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
-    assert(__pyx_t_2);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
-    __Pyx_INCREF(__pyx_t_2);
+  if (unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_2);
+    assert(__pyx_t_10);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+    __Pyx_INCREF(__pyx_t_10);
     __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
-    __pyx_t_5 = 0;
+    __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+    __pyx_t_4 = 0;
   }
   #endif
   {
-    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_Simulator_shutdown_complete};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 577, __pyx_L1_error)
+    PyObject *__pyx_callargs[2] = {__pyx_t_10, __pyx_mstate_global->__pyx_kp_u_Simulator_shutdown_complete};
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_4, (2-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 579, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -36409,8 +36433,8 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_9Simulat
  *         return self._actors[experiment_id]
  * 
  *     async def shutdown(self):             # <<<<<<<<<<<<<<
- *             logger.info("Simulator shutting down...")
- *             for actor in self._actors.values():
+ *         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}
 */
 
   /* function exit code */
@@ -36420,9 +36444,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_8simulate_9Simulat
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_XDECREF(__pyx_t_11);
   if (__Pyx_PyErr_Occurred()) {
     __Pyx_Generator_Replace_StopIteration(0);
     __Pyx_AddTraceback("shutdown", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -41880,8 +41902,11 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_7finance_8simulate___pyx
   }
   #endif
   PyObject_GC_UnTrack(o);
+  Py_CLEAR(p->__pyx_v__sentinel);
   Py_CLEAR(p->__pyx_v_actor);
+  Py_CLEAR(p->__pyx_v_msg);
   Py_CLEAR(p->__pyx_v_self);
+  Py_CLEAR(p->__pyx_t_0);
   #if CYTHON_USE_FREELISTS
   if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_7finance_8simulate___pyx_scope_struct_17_shutdown < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate___pyx_scope_struct_17_shutdown, sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate___pyx_scope_struct_17_shutdown))))
   {
@@ -41911,11 +41936,20 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_7finance_8simulate___pyx
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
   }
+  if (p->__pyx_v__sentinel) {
+    e = (*v)(p->__pyx_v__sentinel, a); if (e) return e;
+  }
   if (p->__pyx_v_actor) {
     e = (*v)(p->__pyx_v_actor, a); if (e) return e;
   }
+  if (p->__pyx_v_msg) {
+    e = (*v)(((PyObject *)p->__pyx_v_msg), a); if (e) return e;
+  }
   if (p->__pyx_v_self) {
     e = (*v)(((PyObject *)p->__pyx_v_self), a); if (e) return e;
+  }
+  if (p->__pyx_t_0) {
+    e = (*v)(p->__pyx_t_0, a); if (e) return e;
   }
   return 0;
 }
@@ -44998,7 +45032,7 @@ __Pyx_RefNannySetupContext("PyInit_simulate", 0);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "backtest/execution/core/finance/simulate.pyx":86
- *         self._queue.put_nowait(snapshot) # cause oom
+ *         self._queue.put_nowait(snapshot) # may cause oom
  * 
  *     async def run(self):             # <<<<<<<<<<<<<<
  *         logger.info("BatchWriterActor started.")
@@ -45310,8 +45344,8 @@ __Pyx_RefNannySetupContext("PyInit_simulate", 0);
  *         return self._actors[experiment_id]
  * 
  *     async def shutdown(self):             # <<<<<<<<<<<<<<
- *             logger.info("Simulator shutting down...")
- *             for actor in self._actors.values():
+ *         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
+ *         cdef dict _sentinel = {MsgType.Sentinel: 0}
 */
   __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_7finance_8simulate_9Simulator_15shutdown, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_Simulator_shutdown, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[17])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 568, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -45550,25 +45584,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 9; } index[] = {{2},{6},{26},{68},{32},{25},{25},{35},{54},{37},{60},{24},{52},{41},{14},{26},{34},{33},{39},{29},{33},{45},{22},{15},{4},{179},{37},{101},{28},{26},{30},{32},{6},{1},{1},{1},{1},{1},{1},{8},{5},{6},{44},{15},{23},{25},{7},{15},{6},{17},{45},{2},{6},{35},{9},{30},{5},{50},{39},{34},{8},{16},{7},{22},{15},{20},{32},{22},{14},{30},{37},{5},{5},{12},{30},{32},{16},{34},{36},{31},{23},{29},{33},{20},{36},{8},{5},{20},{9},{5},{9},{4},{8},{9},{27},{29},{18},{20},{18},{18},{16},{12},{12},{30},{32},{35},{28},{19},{23},{26},{17},{16},{15},{1},{3},{7},{12},{4},{8},{5},{7},{9},{8},{15},{5},{11},{10},{8},{7},{18},{9},{9},{40},{41},{17},{4},{10},{7},{4},{5},{11},{11},{1},{5},{9},{17},{5},{18},{5},{10},{8},{11},{11},{10},{11},{6},{7},{4},{10},{5},{13},{11},{8},{1},{4},{5},{8},{3},{14},{15},{7},{11},{8},{5},{4},{15},{4},{8},{14},{1},{4},{5},{6},{8},{9},{9},{5},{5},{10},{6},{8},{9},{8},{6},{8},{13},{1},{22},{15},{36},{8},{5},{6},{11},{6},{7},{8},{6},{6},{3},{9},{10},{12},{16},{12},{8},{1},{2},{10},{5},{4},{13},{4},{5},{8},{9},{4},{3},{4},{6},{7},{4},{8},{8},{8},{7},{7},{4},{10},{3},{4},{8},{4},{7},{4},{2},{5},{3},{10},{9},{4},{6},{5},{9},{10},{10},{9},{13},{2},{1},{5},{5},{2},{4},{4},{7},{2},{3},{3},{7},{13},{9},{13},{6},{5},{13},{5},{4},{3},{10},{7},{15},{14},{12},{11},{10},{31},{19},{24},{27},{14},{12},{5},{7},{7},{10},{17},{13},{8},{6},{11},{12},{6},{7},{12},{9},{8},{3},{8},{3},{4},{15},{4},{7},{11},{8},{10},{4},{4},{3},{8},{13},{12},{10},{10},{12},{19},{5},{8},{3},{9},{4},{5},{14},{5},{6},{10},{5},{4},{4},{6},{6},{9},{16},{5},{8},{9},{5},{4},{9},{7},{7},{8},{4},{6},{6},{12},{5},{6},{7},{10},{1},{4},{19},{7},{5},{6},{1},{0},{28},{113},{11},{58},{9},{141},{161},{389},{2},{2},{11},{58},{55},{55},{11},{1},{8},{3},{3},{6}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (3133 bytes) */
-const char* const cstring = "BZh91AY&SY\324\204-\264\000\001v\377\377\377\375\377\230\357\377\377\377\377\377\377\372\377\377\377\375\300@@@@@@@@@@@@\000@\000`\014\n\357\270\367\275\001n0zh\034\264P\220\000\223E\231\240\323\322\363\347a\242M\006\210a\rO\023\"aLi\036)\350\236\241\352\000d\032\003\3222h\000\032\03244\323& \006\203A4\000I\220D\201\246\214\324\014\200\323@\320\000\000\000\320\365\000\000\r\000\030\200\032&\020\247\240\246\325\017B4\006\2322\000\001\240\000\000\000\000\000\000\000\000\000$H\020\020\032)\211\221\221\241\021\221\204\320\300\206\232d\036\241\241\240\000\000\000\0004\3654d\"T\321\241\202d\323\000\214#&\002`\00210\010\300\000\010\321\200\004\300F\214\214\230\r\n\232'\251\35126\210\320\r4=FM\000\032h\001\2404\000\000\000\031\0324\031\003&M\r7\310\200\n$\020\250`\001\250dFf\014\355 \206\327\317g\371\371\336\"A\226\327G@b\323\357b\341\313\207\341\372>\336\177\245\361^\342\227\275\353{\336\367\276?;\373>\337\273o\233\354\347\376=\016\217HR\224\245)JR\277\351\020\033\344e\347\325o[]\307?\326~\252R\224\245*\331d_ \034\027J\203\246ffDdeup\344My\213\335\247\274*\212\017I\360\273\323\355\301:\253`M\326\252K\324\370\336\365\302\302\026B\313\024\352s\350\023C\301\360\031\2766O\316\002\241\244Tj\003&kL5\2144\326E\270I\021\002\222\333\313\2008Rq\t\207\2303\370\024Z\036\014\320\250\023\366DYO\277Z\216J\271\233\370\202`\360G\316\207g\016cV3n\034\336\251\253<3{\357\256\331>\341\250\025'l\203\265!\246\275\022\016<\007\227J\213G\031\234\035t\013\221\313[\274XF\020\307\326\335\035\220\266\232i<g\010<bH j\317<G)E\216\010\352\005\260\020\252\024\016\266\244\250\367_\215Go\373Y\223\243,\242\347\250\322`\0014\270\021\321\\\014\207\005\367R\th\355M\013\006\303WE\034\274\266Z\352\325\242[\222O\020N\023=\202\006\347>\305\243WcLU\273T*\373`\3311\245\216\254\0133\273\231qk\210\205'\034\320\002\014\3536\264qB\345\006\324\036!\031V(\252\210\207\211\025^\024.7\257\253\357+\263\254\20348\037#S\245yK1\234\ru\010\205kh\334\215\001|\242\200Y\255)\254a\315\212+\304\202\023k5\275&v\212^ A\232{\253\000\231""\320]\212\\q\334Z\243M)\301rZ\002\242E\270Z\350i\237wF\242\367\206k\3116\034@p\3066Nh\244\353,\262\025\\\010\343\177Q\201M\202\370\256)\213\305PL\232#b\266)\3032\232\031v\322#\333\212\232x\226\353Z$\265,\350\323?w\212\250wZQ\230\276\013\013\225\354\343\203\023LF\363\307K\263C\033?x\006!\221\374Y\365\242\251\214!E\313\213%\326\034p\232\\[\300\312Cr1/\313(\254\216\0140\311\245O\002c9\251;\021\266\260\243\001\002t\252\331\235}\232\353O}2X\322^\0035\360\217\2624\245!Z\307o\213\322A\325\335r\335\353\321M\215\241\330(\302H\264\3119\267\323/bU\246\212*\370\371\017\253de\002{6J{\031TQ\014A\247\222\005\227\232J\002\"^\246RZ\016T\020S2\233\024\306:\267\202\017\201\326I\021\343\325\212\002G9@,^\252v\177*E\232\316\003\001V\345&>>\373(\215\357G^H\347\367\2317\220\3614\010P2\315\002\033\251D\355]\254(B\314Q\037F\221\020\020l\335\264\227'\221@\333d\235\256s\222&\257\020\271\326\256\351H\226F\232\266\343)@Pu8\320t\366\3729\256\017+\204m\316\3515\30255&\\\362\254v9;4\361\004\220\271!\017-7\227\377\253K\262\333\350\332\006\334\317\270\321\317\247@\237\374\335\305\330\262\342v\275\232z\365\013\006\374\275M\344\314\020g0\365\250X\344\270%*\305\324\322\275\223v;\271N\331\222S\306;;\244\342A\227\020\266wr\225\215G\256w\000\361!b\256\310x\337VM\242d\363)6>\366\203\326Rn\251\036\2178x\273E\016\306\025\013\232(\r\332\006\324\2309\014\001u\010\2418tb\225\004\010j(\240;ah\034\223\327+\264]\252< \274J\363\214\307\323\210I\345o/\310\350\357r\364\276\363z\3342X\3570\201\255\2351\010\251\275\356\002E\215o\023\252\345[\320\022\266\033\346F\005\376\372\260\300\030\236,&\316\341.\332\346\203\260\265q\223\261\263\201\351\341\203\n,<\252\"\315h${\037\021g\327b\r\240\321\\8\033_\024\022\3408\244\341\027\027\210\374\034}G\350\351a4\177k\307\323)\271\270D\314\310Jc\237nY\031I\252\263~\373\271\251\213\340`\271\256\226<d\342\344\0253\007\225\031I\264g\224\214i\005\023L\237\206\"\2062\270l\276v l\225\311Z\030\025\263\325C\226\265(\357\262;\376\215\376U\337\365\222}:\022\210\3376\374\331.\315gY\317H\265:""\316*;P2R\245\270\262\222\006\334\341\227G|\221\214\022\302u\030\333m\306\377*nk\013\252M\223Y+\233\331\001t\3356L\244\225\335\210l\214\021\211\250D\310 \313a$.1cH\315'E\026\246;aV\000\250I\225\032[d\002$\367F\372\337\017-)\212=f\220\035\300e\"B\020jN\232\013\367\302\273\013p\373Q\263\031<\267=\370N\017J}\211\263\\\003m\261\215\264\333\033bcZ\230\016\256\372\272\007\277\242[)2l\243\344\017\251,\252\3324\345\025\331\324<3\n\216/\035\224\331\263\233\210r\256\005\265\212\036\266pQ\315\263[\023\033\313r\224J\327E\301B\030\231q\252\260\312lKc\223{N^l#O\030\352\361N\306\034\3629\333\037\345\211\314\367:\361G\207_\036\234\267\346d\206\246\027\256Dn\232\340\034#\213\341\302\013\371y\262\234>\001 \274\254\325\2133\003\2708\020*M\372\213\246\006%\241\301\"\"{J\022~\255(9\223\025z\030E\223\371&},\301\215B\023h\210CP@\340c\201\241c\020\330\321\335\215\254\302\033\216(\366}.\312\253\256\247\253\002\210\2346\243\003\326m\215\332x\254\257\203`\337;C#\236\321\234#\031\032f\361<d\210S\300\241\2012\030cC\307\302\203\227\014J\313y\327J\234\226\211bq\303\326\313\227\304s\324\336\265\202cl,\252\001D\rD\324\016E\260V\301\360h\215\330\250\314\204k\275\031\321\344D\343\020\346\222\007\021ba\214E$\375p\005\333\367U\022\002\274t \375}\245\345\313>[\335\270\320\314d\234c\022\357q\350\220\265;4\273\307\240\264\363s\3176\333\314T\270:\320\250\265Ew\367\030|\007|\004\024e\316\342\210\215Q\003\267\0258\274\371\267a~\036x\352\262<0\032z6Ytu\365\346.\35776:=Z\305&H%\304*\272\270\2761F]q%,\315M\317\\\363y\005\322\024\241*X\203\2617:wkuDQ,.R\277\204L\242\264\225P\272p%R\352F\021\003\224\367\316s\2121_\016\004Nn\004\3448+#\347\304\255\207\007c\307\273\2200/\201\367\244\202<\313+\244JAbX\311\352\213;M\302\002\030q4\205.\r^;\"\267_\020\332le\352\250\342\371.K\013\367\340(\2315\"\255\220CrR |\"\373\362\251\250g_Wk\273\337\337z74\265\276\206\371\034\265p\037a\205j\035\373\324\273|\243\333\036\251\322\255\236H\372\230\231`\260y\003Z\213y\260l\202\020\3206\372\217\004Y\374=Pu\337\355\021 1\r\243\214t\330i""\260\316g;\334g\032\024\224\202\032\004\301\244a\276\263\236\256\235\362\243\326*\341\004\214U\316fiB\324&\225p\224u\344\233M\206\306ir\333\237'\312\320\3005\367\013d\006\204u\033\200B\351\373+\361\247\201G\001\311\332\273\373\255i\340\370\273r\001\245]\223#\026\260\314al\301\346mp\"\351$/\243\367\230T\3178W:\270\355\304\\\013\233\243\031\032\306r\350\326\351\273\236e\372\2347\n\271g#Fw\245\234\232E{\374\267\236w\252xW\037i{4V\360m/b\032i\t\266\20146\323Mn\210\326}\000R\200\332O\030\306\013\237\027\014\006\315\273\021\026(\3049\200\262g\254\020\274\n\320\312\222\303\245N\025\335\236\246O\t\254FX\252PZ5{\r4&\035\335s\251}\361z\357\204\031\211\271P\203\271\273Z\312\327\203<\226\333p]\017|\245(l\207\003p\310\214\226\233\316\251\351\211\005\303e\223]\025\343\327\221\327\325\007(\310\276R\302\347X\327\245\256\212\370\033\233\014\374\022pF\213\264]\232-b\t\275\032b\216A\260\215\326q\224\222b\243(\230c\227[\035\370\3241\351M\313\254-\320\206\206\261\35300b\204\361`\256\342\"5\263HT\304\343nl\\\t\322\256dG\023>=u\342\000-\371\033\247\264im\321\300~\212(FDhs\320\244\204\363\214\366c\244\211Hm\023l\244\314\245\036Zcd\247\006\225\212\256\324GgU0 \2368O]\014\373|\"\303\253&5\243+\022{H\231\203\255\220\270\230\022\233`\272k\023\211\251\232\235\003Vo\"6tC*I\353%'\314\211\013\020\375\nk\014p\256\r4\234\302\351\010\327\205\020\256Mc|\265\030f\246Fv\275\215\331\311\252\264\240d\307*a\202\231U\263\030[<\273]4,\261pM\232#f'#Ut\325\032\344C/\340\211\026Bwn\335bX#\003\003\252\2627o\272K\007\302R\2026\266\324\257\224\260\337v\260W_\206\312nX\031\r66\003\032\032hlmbp\213\241\313f7\027F\270\026\267\3445\013f7tS\260R\267bQ@\022[\331l\204\301\267\263\rz\232M\027\220_\336\207\220\016\000\033\311\016\203\001\275\027\020?$\362\231\324\205\205\362\360\351\223U\205\303\245\341p\2759-a\354W\301\2313n\360\211(\037J\300\356v\365R\024\341d_\250\344c\330S\317\227\214\231\263\350\373\225:C\213\255\264W\354_e\341\000|XM\345\204\362a{\002\331R\222*\231\205kA\376\035\002\024\014\007\212H\0228UX}9\243Y&""\211t\314\3233n\252\233\333\rM/\275 \206\226\371\204 \341\020\274\355\267uPcrv{c\240\241\036\264L\221FQH\235bw\3171W}\222\246N\n\340\022\212s@\0279\342\r\232\356\312K\277K\233\373z\004\013\232\207\351\033\004\003;?B\332-\262\302QU\311.\322\364)E\030{\347\022\345?\346[\243\230\t\3348 F'\020\312\017\320\257&\363x\361\334\225\\\202\324\313\237\366\333\300,\030\217&Il\364\325\t\005\035\351\260\037T\331\236\340\235\022x:\014\001\2603\312U\330~\324\254&\010\031O\202\336\324\202X\021\201 T>\026\232\2128[8n5\000*\270-\356q\264Mq\266\2561\216\2453\210)V\374>\300Hz\227\212\252\356\021\212\r\tB\032\204\354q\340(\036\035fp\3731\241\350\017\317\025\246P\314\352pj\240\345$%\376\327\260\337\357\234\177\033\232\242\226J\313\250^\244O\335\366\354\024\260_\351\352\202\0348\"\033\210@\021\021\021\020\314\317\022%\005K\374]\311\024\341BCR\020\266\320";
-    PyObject *data = __Pyx_DecompressString(cstring, 3133, 2);
+    const struct { const unsigned int length: 9; } index[] = {{2},{6},{26},{68},{32},{25},{25},{35},{54},{37},{60},{24},{52},{41},{14},{26},{34},{33},{39},{29},{33},{45},{22},{15},{4},{179},{37},{101},{28},{30},{32},{6},{1},{1},{1},{1},{1},{1},{8},{5},{6},{44},{15},{23},{25},{7},{15},{6},{17},{45},{2},{6},{35},{9},{30},{5},{50},{39},{34},{8},{16},{7},{22},{15},{20},{32},{22},{14},{30},{37},{5},{5},{12},{30},{32},{16},{34},{36},{31},{23},{29},{33},{20},{36},{8},{5},{20},{9},{5},{9},{4},{8},{9},{27},{29},{18},{20},{18},{18},{16},{12},{12},{30},{32},{35},{28},{19},{23},{26},{17},{16},{15},{1},{3},{7},{12},{4},{8},{5},{7},{9},{8},{15},{5},{11},{10},{8},{7},{18},{9},{9},{40},{41},{17},{4},{10},{7},{4},{5},{11},{11},{1},{5},{9},{17},{5},{18},{5},{10},{8},{11},{11},{10},{11},{6},{7},{4},{10},{5},{13},{11},{8},{1},{4},{5},{8},{3},{14},{15},{7},{11},{8},{5},{4},{15},{4},{8},{14},{1},{4},{5},{6},{8},{9},{9},{5},{5},{10},{6},{8},{9},{8},{6},{8},{13},{1},{22},{15},{36},{8},{5},{6},{11},{6},{7},{8},{6},{6},{3},{9},{10},{12},{16},{12},{8},{1},{2},{10},{5},{4},{13},{4},{5},{8},{9},{4},{3},{4},{6},{7},{4},{8},{8},{8},{7},{7},{4},{10},{3},{4},{8},{4},{7},{4},{2},{5},{3},{10},{9},{4},{6},{5},{9},{10},{10},{9},{13},{2},{1},{5},{5},{2},{4},{4},{7},{2},{3},{3},{7},{13},{9},{13},{6},{5},{13},{5},{4},{3},{10},{7},{15},{14},{12},{11},{10},{31},{19},{24},{27},{14},{12},{5},{7},{7},{10},{17},{13},{8},{6},{11},{12},{6},{7},{12},{9},{8},{3},{8},{3},{4},{15},{4},{7},{11},{8},{10},{4},{4},{9},{3},{8},{13},{12},{10},{10},{12},{19},{5},{8},{3},{9},{4},{5},{14},{5},{6},{10},{5},{4},{4},{6},{6},{9},{16},{5},{8},{9},{5},{4},{9},{7},{7},{8},{4},{6},{6},{12},{5},{6},{7},{10},{1},{4},{19},{7},{5},{6},{1},{0},{28},{113},{11},{58},{9},{141},{161},{389},{2},{2},{11},{58},{55},{55},{11},{1},{8},{3},{3},{6}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (3142 bytes) */
+const char* const cstring = "BZh91AY&SYc\363\336y\000\001t\177\377\377\375\377\230\357\377\377\377\377\377\377\372\377\377\377\375\300@@@@@@@@@@@@\000@\000`\014\n}\216\357@[\207qM\003\266\256\201\240\000\223\242\330\323Us \241\222M\023\010142\000\215\006\201\246\212yM\251\223\312=\023\312zA\355H\362\236\246\217SG\224z\236D\364`C$x\243\332\240\320@\001\004\322L\246\322~\242\017\325\014@\000=@\r\000\001\204=C@\0004\000b\000h\247\204&\202\223\3244\310\320\r\014\201\202\006\200\000\000\003 `CM\000\000\000\000\221 @Bf\210@d\302SC'\224\365=&\217I\241\247\251\220hz\206\200\000\000\000\0004h\020`\000\230\000\t\202`\000\000\000\000\230\004\300C\000\000F\000\000\004S(\321\037\251\0314\323\t\246 \310\323\000\021\241\202\0314`\004\311\210\300\230 \006\0020FC\001 \007\n\210\250\200\001\270\204\242 D\266\242:y\271\377\336\316\262T\207\247\350\330\027\366\377\033\3748p\374?G\333\322\365\276+XN\326\265-kZ\326\277\347n\177\271\357W\346\373:_\217O\251\325\023\234\3479\316s\247\372D\014\005\016\367\003\276\2367\236\357\303\3678\343\2168\343\227\016-\342\003\3030\315\234\210\210\204\241C\230\310\021\2249\307\275\234\000\264\n\207\211(7\362\330P[FS\241h\323E\203\247\251\201\260]Q\226\010B\262\241\027xd\r\220\371\002\367\304a`\227h\001\253#8\000`\262b\021\004\006\243\214\235\305\014c\0038N\307h`\234\240\022\3560g\321QW\370\322B\230O\331\021c/\021h9j\306\267\370z\\\356G\320\177m\3372\217\224\270rr\2469]\255\370\035Mqu\203f\025%\\\0031CMY\243\330w\016.\254\326l37\262\310\027\003\216\246yO\203\337\177\255\275M\037\\\363\316W\311\357u\342\201\346\306\274\257\034\243\006:\021\324\013h\024UD\303\255\251\031\275\315$*;\177\330x\027\345\202]\225\033;\260\027\026$\223\331\003\025\341zr\301bKu\250\264\2157\230'\344dJo\313^y\367\323\230!\226+?\241\013\253_\036\256=1U\356QwA\262CK\rZ\212\263\2432\342\327\021\nN;\020\020\337u\326$\216\213\320\272\340|\211\r\203\035q\030\335Uw\304\334\267x\370?\243\231/\014\")\341\001G'\033\2560\327\214#.\010\305\213\212\367\310\240\3169\204a\330\252\214 {\226{1\250\212\336\226\372\351\370\374""\313|\202%P\352`\005\313\2072:\266G\336\305F\333q\341\227Vh\250\261r\213z\273i\370y\2523tg\276\264i\345\007\220R\306\317\021N\225*Pr\320\022I\006\343B\203G\330\310\240.\232\202\262\347\216[\027\345\214\352\n\225:\332\244\366\307A\177\025\313\026\312\333\253.E\314\352\321r\217Sn\"\013\300\351=k\016\310AZ\261G\337H\276\331\264\274\235`5F\234\027\374\226*Q\024\025\227\226\302\346\324y\342\333\"\346\204\245\207i\265W\223\034\341\214\2324i\355P\320\\\211Z)\321\243\254\t\360\220g\032\370r\357J\264\304\310\027O\013i\230Q\031\322\037\005mU!\246\225b\212E \347\350r\333\353QM\215\241\330(\302H\264\3119\267\315/^U\247z\323\257GUp\231\031@\226\365\222~\306U\023C\0244\260\000\262\226\212\200\210\224\317\005-\007)\210!\231I\245!~;\201\007<\351\024\200\363(\322x\211\312/\013\007*\235]\332\304\262Y<\\*\330\242\323\3547Z\242\026\264\331h\243\035\340\340\336c\204\220!<\313$\010l\234\323\270f\240\241\013!4t\333\022 \036\334\231\254\227\n\274\212\006\355$\315S\234\2211\362K\240\367QT-\006\253c5T\001\240\3345\264\033\177\235\375\350\001\333\350\230\326\ne\242X\311L@\350\344\245\035F{\000`\203\032\210IqO\016|%1Q\021+@\000\202`\335B*\305X\024\355\206\212X\262\340w<\324\365\252\026\r\331z\233\211\230 \316a\345\241c\222\340\224\253\027SJ\366M\270\355\345;\246IO\030\354\355\223\211\006\\\002\331\335\312V5\036\261\336\003\332B\305]\220\361\276\254\233D\311\346Rl}Z\017YI\272\210\362v\203\332\356\0248\360\251\265\304\304\244\2412_\307\251\210\005\337\001\360A\022\t\312\031:\253Z\302d\014Q<\332\237\013P\274\253\004\007\0017\234&>lBO+x}\337o\253\227\231\3657\255\303%\216\343\010\032\331\315\020\212\233\236\320$X\326\3619\356U\275\001+a\272d`_\356k\014\001\211\342\305M\272\210\263uI\007iZ_\006_M\256O \030QQ\347M\026K1\023\321\320\025u4@f@h\256\034\r\257H\022\3368\244\341\027\027\210\373\274=G\344\322\302h\376w\217\232Ssp\211\231\220\224\307>\353\226FSj\254\335\272\356\3051{\314\027b\351c\302N.AS0yQ\224\233FyH\306\220Q4\311\373\021\0241\225\301|\354@J\344\255\014\n\331\352\241\313Z\224w\331\035~K""\374\027{l\223\346\320\224F\351\267\342\222\354\326u\234\364\213S\244\340\243\271\003%*[\203) m\316\031tu\2221\202XN\243\033m\270\335\340\233\232\302\352\223d\326J\346\366@]7M\223))\326\264G\242\3021%\010\233\"\014\266\022Qp\305\215\0234\224\324Z\233\026\272\254\001P\213*4x\010\003\311\331?\026b\034\310m17\324\325\007D\031D\224\2026r\236\314W\022x,\201\361\222z\361\233\313k\335\204\340\364\347\3076k\200m\2661\266\233cl\304\322L\031]\325c\317w4\2561ji7D\037\030\260\243sl\243\005\323}\301\255\024\0335\340\3340\336\326\016U\274\266\261C\326\315\352;\0335\2611\274\266\251D\255t\\\024!\211\227\032\232R\006_%\364a\022\001%7U\0268\265\330\271A\332\254\n\250\2018\024\265\216\353o\021\365\316\243g-\331\231!\251\205\353\221\033f\267\206\370\340\367\357\202\376^\306S\207\274$K\320\333*-\254=\363\260,p\257\022\354\214\277s\264\\\\\370+_^-\330\236\377\003*\301\204Y?\214g\314\314\030\324!6\210\2045\004\016\0068\032\0261\r\214:#\211\230Cq\301\036oO\262\252\353\251\352\300\242'\r\250\300\362\266\306\355<VW\301\260o\264\320\310\355Z3\204c#L\336'\270\021\nx\0240&C\014h\274\354(=\370\225\256\343\246\2259-\022\304\341\207\227._h\355T\334\265\202cl[2\005pbM\230b-B\266\347\2674o%FD!N$%7\021\023\014?\200\2200\212\362\r2\350\276\272X^/K\"\360\313\252\021]<\032\257\361\277\035g\306\341\263dw\230\227W\016\334\205\251\331\245\324|\025\247\213<\363m\274\305K\203\244\025\026\250\256\356\363\017A\337\001\005\031s\270\242#T@\355\301N/>U\330_\207\300\035VG\261\001\247\222\313.\337ONb\350\354v1\321\351\257`\246\311\204\270\005\227=\237\010\243.\270\222\226f\246\347\256y\274\202\351\nP\225,A\3077:tV\352\210\242X\\\245~\370\231Ei*\202\346\300\225K\251\030D\016S\3359\316\022\276\256\004Nn\004\3448+#\346D\255\206\367c\316\273\2200/\201\365I\004\036\366\312\351\022\220X\306\036\250,\3557\000\020\303\201\244)oj\341\331\025\273\010\206\323c/UG\007\311rX_\273\001D\311\251\025l\202\033\222\221\t\357\213\357\312\246\241\235<\375\316\216\275\327\243kK[\355\267\310\345\253x\370\330V\241\327z\227w\224|Q\352""\234\312\331\344\217\243\211\226\013\007\2205\250\267\212\r\220B\032\006\3379\337\213?GT\0357\373$H\014C\210q\216\233\r6\031\314\355=\246q\241IIC@\2304\2147Vs\325\315\272Tz\305\\ \221\212\271\314\315(Z\204\322\256\022\216\234\223i\260\330\315.\\Y\362|}\014\003_yo\261\271<\2162B\342\362\255\310\225\304\330\007/Z\356\356V\262\271\354\327\200\r\2154\221\030\255FB\353V\207\031\266\300A\221G\3337q\032(g\223\351\225\030u\336[\213\033!\010\232\301\213\277sn\\V\010\352p\334*\345\234\215\031\325,\344\322+\327\313y\343\365Oap\366W\232\212\335\376\"\366\201\246\220\233h\023Cm4\326\330\215g\315\005(\016\"}\246p\333^^0\246\245\330\210\257E\341\310\005\213=`\205 \255\014\251\035D\352p\256\354v\030ZT\246\014\261T\240\264j\365\332hL:5\316\245\367\305\353\254 \314M\312\204\035\355\272\326V\274\031\347\266\333\202\350{\245)Cd8\033\206Dd\264\334s\317LH.\033,\232\355\327\207NGO<\034\243\"\371K\013\235c^\226\272+\337ut;\261+\342T\203\264\035\232\rb\t<\332BnA\256\215\326P\214RB\243(\030c\225\374onJ\260\343\316\233\212\340\265B\031\232\303\256\270\271\211\223\205B\263y\021\265\311\371\030\224-\300\366\002e\371nI\334\337V<Z\354\022\325\327\307\207\003v|wk+\272F)\244\320\347\241I\t\347\031\354\307I\022\220\332&\331I\231J<)\215\222\234\032V*\273\221\035\235T\300\202x\341=t3\356\357\213\016\254\230\326\214\254I\361\0213\007[#j\240\246\351\303l\226\007\003S59\206\254\336$l\350\206S\213\326JO\246\021\026\020=\373Z\004\351|\032i9\205\322\021\257\n!\\\232\306\371j0\315L\214\355{\033\263\223Ui@\311\216T\303\0052\253f0\266xmt\320\262\305\3016h\215\230\234\215U\322\311u\010b:\020P\362\004p\313'\205\221\t\t\016;\225\207\233\320\242z*\240L\033jW\312V\333v\240W_\246\312mX\0314\330\330\014hi\241\261\262\230\321 \206\270N\002\tt\005s\345\031!a8o\267p5\320\230\232\200\"\266JT\250S\223iMY8\302%\326\275\275\317`L\007U\017\023YO3\210\037\236x\031\316\005(\257\243\252\206NB\323a\312\000\270\024\256\0071\333j\0301\314\004R@{\nC\221\326\331\252+Q\226\034\232#@\217\206t\230\307(\037\331\356hY\002\2125\021\275""\205y\247\304\"\001\204\273\254\te\246p\205\303\0258\352g\033{\020f\315\"j\000\371\222\025\214\252\355@Q`N\014!\014YY\246g\026\252\233\233\rM/\267 \206\226\351\204 \337\020\274|Ws\320crv|Q\332(G\226&H\243(\244N\261;\347\230\253\272\311S\277\343\346\005z\312\340_\021\362\035FgU,\301\026\247s\360\250e\356'\3569H\022\271\372\017I\366\235#\374\267\363\036#\314z\017\010\367k\030OwW\\I\360\006\226\256\210\034&\rS\243\375\212\346o\371\273\247<\323\365\237\263W\273\266g\030tbz\271\371\317\335\277 \365\237U\244\304\030\361\333M\261\331\261\334\023\006 \027\306\271\350\315\027\036<\027\006\277E\201{\027\030\346\215\221\2147\254\016\035#|qS\223g\316!\316\034X4\373\316\2277\213\370V\207nV\343\331Wu\207P6\253g\235\374\346\025\223\031\311\265\275;\201\257c\343\303\205K\223\365\320\363\356\215j\360\372\037\245\271\350\362\357\331na\317\332\327D\344Z\271\233B\311c%e\316/R'\377\177\305\202\226\013\376\026\250!\303\202!\270\210\010\210\210\210m\277\016\306\006\317\376.\344\212p\241 \307\347\274\362";
+    PyObject *data = __Pyx_DecompressString(cstring, 3142, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (2885 bytes) */
-const char* const cstring = "x\332\235X\313s\034\305\031\267V\233\340\204\024` P\025\016\264+$\262\301\036c0`\024\307\211\320\303\030\360C\017\313\030\027\325\351\235\351\335\035\355\354\364h\272g\037\204\n>\372\270\307=\352\250\343\036u\324Q\3079\356\321\177\002\177B~_\367\354K\253\220T\252\264\363}\323\317\357\361\373\036\243e\266\342\033\225\262\225(b;\251\360\0332\265\003\232i\243\222D\006\036\315\004aS\306:T\261fI*}\031\204qm2\310\376\024\260f\246\r\253H\026\306\201\354\310\200\2118`\2612LG!\226\177!\214_\177\234\206\2468\235\245Y\034\323\0312MU\272\314\346\346\265\021\251\301\345gL8\251\276\310\252U\231\262V(\333,PR\333\313d'QZbM\032\006R\257\212\230\2518\3522?\225\302H&X\305m2uaX\250\231\257b\023\3262\225i\210\315\232\262\251\322\256\207]t\224\320:\254\305\314(\206\315\301U{\216[AW\026\213\212\203\333\220OT\"Y,pBUS\325\374\245\275\326P\254\035\232:3\335D\262\245b\334\244\"\326V\215\311\026\267\014;B\030\337Lyc\0257\207\276\210\234\035Y\220\245d\324j\224\351:9*\021\2510X\267\314\326\204\021L\213\026<\003\225\326\246=\027:\333\271\263\327\233\211\3512]\027\220\310d\tt\252\342\\\277k\352*\366D\232\212\356\272\275\311\372\207\356\202\244!]Ar\023x\226\331\306\312\316\3127\313lUe\221\203@\2205\023\026@\200\213N\214Hi\343\261\273V\177\225\031\246\252\254\242\2628\320\354\222\350@\232?\005\227\357\316\253\352\320\224%\211\"`\334\215[\"\n\001;\025\310+\344w,\206nK\376\022\203tK\020\232\354\270t\205\325\260k\264\330\251\005W\333kn\335\263\366\335%\373B\204\373*\226\367\025\274i\321\261j5&\333\0042\n+\022v\224\360\"!\013\027Y\010\305\354\341\372\303\2537n\336\260XO\345\036D@\324d\025?\002x\200H\322+\013#\230\311zXC\347*\353\252\214\305\322\271!\301\272\351\r\246.c\246\245!\206-Y8X\367ql\207\255\227\n\037\205-I\2737D\244\245\367`\306\200\020\271\300\270\360}\251G\026}\030\372\215\210\274\205\225P!\203a\001.hE\327\373u\200\035\327FUOP\210\361p\022\3150,\34274P=\225\373\231\324dd\013\306\277\213\314(\236\320\301\362\322N\232\311\313\333a3\213\204\215\321zf\002\325\216\021`M@\310Hov\316\002\207\026x""\236\267md\302\232\242k\335\213\033\177\220\251\232\340\340Ql\343\n\332\"V[2E\330\030\331\244wU!{\333\314\300\274\333K\227\257\375M\004\001\217\311\201\344\016\006\037~\330\251\000\222\006B_CJ\36232\3455_\245\362Z5\214E\354\313k\332\211%\275\244\333\361U\024\221q\0015OT\374[S\311\201\016t\246\277}zx\024\223\267\203P\223\250\3365B;\257\212(\242\313\245\223\277*\302\010\206\273$\014\244O\014\033\r$2m\212X\306\260\257\307\326\260\221\014\003\345pX\303c\353.7\326|v\211P\\\263AJ\316\265\211\263c\260\317&\256I\036\016\265\2730 +\351\360\007\311n\375\225}8\027\302\336\236V\000\027\240]\025Yd\030\347\251\0142_r\216X\265\326\216U|\025Po\205H-\234\373a\034\032\316c\010\330\3658Y\320\203\335Lh\017\033\351\202]a\223\202szY\326\024\300\312\351\025\205\363n#E)\213\322\242\n\330t\331\365._\001c\322.\324\004@Ffp)\2478k\231\335rI>\230q\316\374\030e\203\261\217f\346gG\343\232VY\352\313\333\331\030qp\241\362m\335\260jR\002\363\316\230uI\205N,\312\216\227\231\352\325\233+\333\253w\357\332\222u\017\032\212\232\234\346\275\261\305\235[8?5\213$\000u\315d\376t\035<\375>\177\342\031+\376\353\251\036\237A\357\374\264\255,\363\303\326]\234\312\240\234\237\324\335\330ws\274\n\337\315-@+07\326\026\000\\\206H\213\260'\016u]\006\353Q\024&:\324\353-\340\236\363\207\335\016~k\310\306\374>baKV73\231v\277PA\027L&\355c#\213\242-\251\223m\312]\010\370q\032\0323\363v\233\236\2323\330d\262&\r\212J69\322\303|`\270B\226\232\214\341\000\356\013]\237\032)r\343\324HVi\206f;\026\211\256+C\nL\367a\323\374\274\260\247f\347\344\235\235\247\330\341\211\214\251{\343M\0076}j\211\204'8\365.<M\374\3319\033\2003C\023\225g\206\213\260\346*\rN\317\000>3\003p>\025`oR\2139\222/\212\027\352\231)\010\247\320\003O\357\270\255\262g\313\024\322}\030W\225\010\366\270m\276\034\243\033\243\300\344\256\020\n\315\223.\225Wr\204_\227\216\265;-0k\306\322P\025\304C\336BS\022\306\022\335\022\354EGs., \371\250\236x\343z\342\3314W\324\023oTO\376\323\272\032\346\332\310\277a\014\244W\205?Y\010\223\031\205\022T\021\032\203\344\003J\337\226""\223\272\002LTT\234i\373\340\3108\251\254dQ\003jh\324D\337\257\213\020\316\266m\004\347#\006\010\2452@\257R\244>\352\277\304\006N}\232\275\327G\037&\355\203\323\005\216\013\214\243\t\372\234b\322Zw\304\352\306T\235\004\2335c*\362\231\221\244\240\217\316\016FB\224Z\307\271\366\230W3\223a\316\275\330#\212\2565 \307\322O\343\001i\2332\020]\344\347,\341\205\353\265{\0335\231\272\250X#B\321\317\335\323\222\000=\\@\275\026\0175wE\206\022\232Mj\310\366\263\331M\222\266T\216\273H\rh#\021\027\2044x[\222{\210dM\333\370\331\362$)\357\330\2075\227\354TB\243e\307\267X\002\225\tI(\321\270\000\243\rK\341\014PCOTz\252\322@^P=;\016O\205\336\251W\357\026\241:\322\267\275\024\221\002!\333\251H(\235&(\260\325H\324\264\313\315\366\301}\300\276\216\252\217\352[t\302\034^\000\332\013_\000\207u\231\002 \370\373F\325j\226G\363D('ndo\342\213/5\036)\225p\002\225\3130|\224\000\3030\340\334\325uPj\352\311 \344\200q$\021\014]GR\264%\224\350\215R\221\246F\244!\273\370\323\221\225\203\236\270\315]\326\264\260n\212\006\032\232T7E\307\006\005\250%\262I\237F\364\001\2005*\310(N\233\272\026\213&\230\342\211\326\010O$\025<:&Nlo\002`L\022\0278[\233R\005\207 a\301\2536m\331\007\037\275\021\243\035Gxu\034\235C\014\346\334\250N\022\032L f\220\210\004\030#\357$\242\033!M%~\022G\t>^\225\205\346\310\304v\347\030\337c\006Z'\370\200\253\206\035\033\2113\031\025U0\320\224I\021v\370+\374\206,\007\230\266\013\342\025Q\311\221\375:\034I\304o\350\254\351\336R\251\021<\216/\234I\254\215\033\313e\261\353\353\347\372\203S\323\353\361\350\310\361\320\270\254\235\032\237N\372n\252e\\j\345|?\023\221\363\227\375ZME\233\002\206\210&l\215z\323\271\3427\036\220\035bk\2108D\252\r\217\251 \301Wp\324-p\3574\247n%D\300Mu-i\315\270<\347\030\335\200\t)\010\311&\010\000\n\002\"\200\243\313\350*\325\000\220\026U9\"\220\030\261mYr\017,\336\024\344g\372\256BW\036Pi.\232\001\242\343\204a\213v\001W\342\234\210\340\212\0347U\324\371\031\005\336v\237\243\236\202.\206\305\254\"\024\":\2222\321\366{\231\027\245\304\326pW\311\035K\031\317""\036\t\343%\364\317\025\367}\350\232\022[!\221\252\033\247\233\270\302w\264\013\317:\365\355\210Z0\252Mi\234~8\024\271U\331\274lT\245Kk\351_\033\250\311dU \003\210\310\022\272?Ci\031ifs\212}\350\226\213\275\226\031EE\233p~Fk\330\026)\245(+\236s'r\220\371\364\0067\364\331\210/\331s_>x\264\265\315\037\256o\361\265\225'\243\271K\005se\364M\354\200\251\022\303E\212\204zsT\235\371\347\343:\316?\001\2114\277A\204\033\375\021\316\010\014{\177\274\025kDd\367_>7\232~\2660,\277\177x\361\360\323\301\205g+\303\363\277\031^\370}o\263W\355\177y\2602|\355\315\336z\377B\377\317\007\213\0077\017\257\017_}m\370\372[=\321k\365\277=\330\034\276v\241\367Vo\277\277\330\277\336_\241C~\373\374\203\336\346\263\205\237\317\237\373\325+\317wz\177\350\337\310\337\275>xs\360\344(8\376\340d'\337\334\032\226\177\367\374N\357zo\243\177\345@\014\313/=k=\177\214\013\336\354o\016\317\277\336\2738<\377vo\377\005\036\246\377\371\301\235\303O\006\213\203\033\371g_\236\274t\222\345;\217\363\307O\363\247~\356\357\345{\r\332\273?<\377j\376*]\2609\250\035=\305*\354\235\031Y\230\021\246\377\323a0\270t\364\336\321\336I\371d\345\377\020e\360\257\343\307'\353\371\346N\276\363m\376-\317y5\2576\362F\234\307i\236\376\363\347s\347~\\X-\201\254\226\326J\023\001\337?|\357P\034\266\007\215\343\267O\026^\314\216\\\230\010\370N\177-g\037\343\222\356q\371\370A\276\ruE.d.u\256\3338\264\263p\207\316\276S\372\232\310\327\245\247D\236\2268\021^\372G\351\177\327g\371\340\361\341\372\340\215\301Z~\363\253\223\245|s7\337}\222?\371>\377\036\227Ey\264\237\357\233\334tplwt\345}\"\367K\333D\266K\273DvK\337\021\371\256\344\023\361K{D\366J\212\210*\245D\322R\213H\253\264\272HFY\374\212\310W\213\017\210<X\334\"\262\265\270Kdw1 \022,6\2104\026\023\"\311\242&\242\027\333D\332\213\033e\220\215\362=\"\367\312[D\266\312\217\210<*?!\362\244\034\020\t\312\r\"\215rT\2368\341\352\341\316\340\302`\351\350\235\343;'\327_\314\216\254<\277\370\\\020~=x\2455\000\202_\224\337\355\357\347\354\303\301\313G\1779nX\334\276\221\277\361G\n\201\303\025:""\364\307\336g}\230\364\243\301\305\374\343\215\3438\337y4,\277\374\374\372\331;{\237S(!^&\033?\300A\337\034\275r,~i\333\255~\347`\377paj\033\t\370\323QL\340\265\333\206\345%\254\370\365\241x\020\205\rYW*PhL\321\3466\2252\365\177\003\247O\rW";
-    PyObject *data = __Pyx_DecompressString(cstring, 2885, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (2882 bytes) */
+const char* const cstring = "x\332\235XKw\034\305\025\266F\223\340\204\034\300@\340\234\260\240|B\"\033\3546\006\003Fq\234\010=\214\001?\364\260\214\361\341Tj\272kfZ\323\323\325\352\252\236\007\341\004/\275\234\345,\265\324r\226Zj\251e/g\351\237\300O\310w\253z^\032\205\344\344\034M\337\333\365\270u\353\336\357>Z\313l\3057*e+Q\304vR\3417dj\0074\323F%\211\014<\232\t\302\246\214u\250b\315\222T\3722\010\343\332d\220\375)`\315L\033V\221,\214\003\331\221\001\023q\300be\230\216B,\377B\030\277\3768\rM!\235\245Y\034\223\014\231\246*]fs\363\332\210\324\340\3603&\234V_d\325\252LY+\224m\026(\251\355a\262\223(-\261&\r\003\251WE\314T\034u\231\237Ja$\023\254\3426\231\2720,\324\314W\261\tk\231\3124\324fM\331Ti\327\303.\022%\264\016k13\212asp\325\312q+\350\310bQ!\270\r\375D%\222\305\002\247T5U\315_\332k\r\305\332\241\2513\323M$[*\306M*bm\2571\331\342\226aG\010\343\233)o\254\342\344\320\027\221\263#\013\262\224\214Z\2152]'G%\"\025\006\353\226\331\2320\202i\321\202gp\245\265i\317\205\316vN\366z31]\246\353\002\032\231,\301\235\252\220\353wM]\305\236HS\321]\267'Y\377\320Y\3204\244#Ho\002\3172\333X\331Y\371f\231\255\252,r\020\010\262f\302\002(p\321\251\021)m<v\327\336_e\206\251*\253\250,\0164\273$:\320\346O\301\345\273\363Wuh\312\222D\0210\356\306-\021\205\200\235\n\344\025\362;\026\343nK\376\022\203vKP\232\354\270t\205\325\260k\264\330]\013\256\266\307\334\272g\355\273K\366\205\n\367U,\357+x\323\242c\325\336\230l\023\310(\254H\330Q\302\213\204,\034d!\024\263\207\353\017\257\336\270y\303b=\225{P\001Q\223U\374\010\340\001\"\351^Y\030\301L\326\303\032w\256\262\256\312X,\235\033\022\254\233\336`\3522fZ\032b\330\222\205\203u\037\307v\330z\251\360Q\330\222\264{CDZz\017f\014\010\225\013\214\013\337\227zd\321\207\241\337\210\310[X\211+d0,\300\205[\321\361~\035`\307\261Q\325\023\024b<\234D3\014\213\370\r\r\256\236\312\375Lj2\262\005\343\337Ef\024OH\260\274\264\223f\362\362v\330\314\"ac\264\236\231@\265c\004X\023\0202\322\33362aM\321\265N\204\334\037d\252&\336~\024\333\350\301\235\020\221-\231\"8\214l\322\273\252\220Um\3743""\357\366\322\345k\177\023A\300cr\023\031\235\301S\037v*\000\236\201j\327\220x\374\214\014v\315W\251\274V\rc\021\373\362\232v\212I/\351v|\025EdB\000\312\023\025\377\326T\n \201\316\300\267O\017\217\"\357v\020jR\325\273F\230\346U\021Et\270t\372WE\030\301<\227\204\201\366\211a\243\201D\246M\021\313\030V\364\330\0326\222'p9\010kxl\335e\300\232\317.\021Vk6\024\311\2056=v\014\366\331\3644\311\266\241v\007\006d%\035\376 \331\255\277\262\017\347\002\325\333\323\n\020\002\200\253\"\213\014\343<\225A\346K\316\021\221\326\332\261\212\257\002\320\255\020\t\204s?\214C\303y\014\005\273\036'\013z\260\233\t\255\260\321]\260+lR\010N/\313\232\002\2108\275\242p\336m$\"e\261X\344z\233\024\273\336\345+`L\332\3055=ol\006\227X\nY\313\354\226K\345\301\214s\346\307(\346\307>\232\231\237\035\215kZe\251/ogc\304\301\205\312\267\325\301^\223\322\224w\306\254K\035$\261(.^f\252Wo\256l\257\336\275k\013\323=\334P\324\3444\357\215-\356\334\302\371\251Y\204:\256k&\363\247\253\335\351\367y\211g\254\370\257R=>\203\336\371i[?\346\207\255\2738\025;9?\251\273\261\357\346x\025\276\233[\200\202?7\326\026\000\\\206H\213\260'\016u]\006\353Q\024&:\324\353-\340\236\363\207\335\016~k\310\271\374>baKV73\231v\277PA\027L&\355c#\213\242-\251\223m\312P\010\370q\"\0323\363v\233\236\2323\330d\262&\rJG6\021\351a>0\\!KM\306 \200\373B\327\247F\212\01485\222U\232\241\331\216E\242\353\312\320\005\246\273\255i~^\331S\263s\372\316\316S\354\360D\306\324\243\361\246\003\233>\265D\302\023\234:\024\236&\376\354\234\r\300\231\241\311\225g\206\213\260\346*\rN\317\000>3\003p>\225YoRq9\222/J\024\252\226)\010\247\320\003O\3578\255\262g\213\021\322}\030W\225\010\366\270m\261\034\243\033\243\300\344\256\334\t\315\223.\025Qr\204_\227\216\265;-0k\306\322P\025\304C\336B\353\021\306\022=\021\354E\2429\027\026\220|TO\274q=\361l\232+\352\2117\252'\377i]\rsm\344\3370\006\322\253\302\237,\204\311\214B\t\252\010\215A\362\001\245o\313I]\001&**\316\264}pd\234TV\262\250\201kh\324D\337\257\213\020\316\266\315\002\347#\006\010\2452@\257R\244>\252""\274\304\006N\335\230=\327G\267%\355\203\323\001\216\013\214\243\t\272\231b\322Zw\304\352\306T\235\004\2335c*\345\231\221tA\037\375\033\214\204(\265\216sM0\257f&\303\234{\261\"\212\3364 \307\322O\343\001m\2332\020]\344\347,\341\205\353\265{\033\265\222\272\250X#B\321\317\335\323\222\000\235Z@\035\025\0175wE\206\022\232Mj\310\366\263\331M\322m\251\034w\221\032\320,\".\010i\360\266$\367\020\311\232\266\275\263\345IR\336\261\017k.\331\251\204F\313\216o\261\004*\023\322P\242q\001F\033\226\302\031\240\206\236\250\364T\245\201\274\240zv\034\236\n\275S\257\336-Bu\244o{)\"\005J\266S\221P:MP`\253\221\250i\227\233\355\203\373\200}\035U\037\325\267\350w9\274\000\264\027\276\000\016\3532\005@\360\367\215\252\325,\217\346\211PN\334\310\336\304\027\337c<R*\341\004*\227a\370(\001\206a\300\271\253\353\240\324\272\223A\310\001\343H\"\030\272\216\244hK(\321\033\245\"M\215HCv\361\247#\253\007=q\232;\254ia\335\024\r44\251n\212\216\r\nPKd\223>\200\250\315\307\032\025d\024\247M]\213E\023L\361Dk\204'\222\n\036\035\023'\2667\0010&\211\013\234\255M\251\202C\220\260\340U\233\266\354\203\217\336\210\321\216#\274:\216\344\020\20397\252\223\204\006\023\250\031$\"\001\306\310;\211\350FHS\211\237\304Q\202OTe\24192\261\3359\306\367\230\301\255\023|\246U\303\216\215\304\231\214\212*\030h\312\244\010;\374\025~C\226\003L\333\005\361\212\250\344\310~\035\216$\3427t\326to\251\324\010\036\307\027\316$\326\306\215\345\262\330u\357s\375\301\251\351\365x$r<4.k\247\306\247\223\276\233j\031\227Z9\337\317D\344\374e\277IS\321\246\200!\242\t[\243\336t\256\370\215\007d\207\330\032\"\016\221j\303c*H\360\255\033u\013\334\273\233S\267\022\"\340\246\272\226\264f\\\236s\214n\300\204\024\204d\023\004\000\005\001\021\300\321et\225j\000H\213\252\034\021h\214\330\266,\271\007\026o\n\3623}=iJ-xP,DT\243\213\256\200\3508s\330\352]\340\2268\247+\270\"\331MUw~F\245\267m\350\250\271 \r`:{#\212\025\035I\231h\373y\314\213\232b\213\271+\351\216\245\324gE\302\212\t\375/\305}\016\272\356\304\226J\344\354\306\351n\256p\"\355\302""\263N\r<\302\027\214jS>\247\037\204\"\311*\233\240\215\252ti-\375'\003\305\231\314\013\210\000\032YB\347g\2501\243\233\331\344b\037\272\345\202\260eF\341\321&\300\237\321#\266EJ\271\312\252\347\374\212dd>\275\301\r}?\342\303\365\334\227\017\036mm\363\207\353[|m\345\311h\356R\301\\\031}\002;\204\252\304p\221\"\263\336\034\225i\376\371\270\240\363O@\"\315o\020\341F\177\004\031\201a\357\217\267b\215\210\354\376\313\347F\323\317\026\206\345\367\017/\036~:\270\360lex\3767\303\013\277\357m\366\252\375/\017V\206\257\275\331[\357_\350\377\371`\361\340\346\341\365\341\253\257\r_\177\253'z\255\376\267\007\233\303\327.\364\336\352\355\367\027\373\327\373+$\344\267\317?\350m>[\370\371\374\271_\275\362|\247\367\207\376\215\374\335\353\2037\007O\216\202\343\017Nv\362\315\255a\371w\317\357\364\256\3676\372W\016\304\260\374\322\263\326\363\3078\340\315\376\346\360\374\353\275\213\303\363o\367\366_\340a\372\237\037\3349\374d\2608\270\221\177\366\345\311K'Y\276\3638\177\3744\177\352\347\376^\276\327\240\275\373\303\363\257\346\257\322\001\233\203\332\321S\254\302\336\231\221\205\031e\372?\035\006\203KG\357\035\355\235\224OV\376\017U\006\377:~|\262\236o\356\344;\337\346\337\362\234W\363j#o\304y\234\346\351?\177>w\356\307\205\325\022\310ji\2554Q\360\375\303\367\016\305a{\3208~\373d\341\305\354\310\205\211\202\357\364\327r\3661\016\351\036\227\217\037\344\333\270\256\310\205\314\245\316u\033B;\013wH\366\235\322\327D\276.=%\362\264\304\211\360\322?J\377\373}\226\017\036\037\256\017\336\030\254\3457\277:Y\3127w\363\335'\371\223\357\363\357qX\224G\373\371\276\311M\007b\273\243#\357\023\271_\332&\262]\332%\262[\372\216\310w%\237\210_\332#\262WRDT)%\222\226ZDZ\245\325E2\312\342WD\276Z|@\344\301\342\026\221\255\305]\"\273\213\001\221`\261A\244\261\230\020I\0265\021\275\330&\322^\334(\203l\224\357\021\271W\336\"\262U~D\344Q\371\t\221'\345\200HPn\020i\224\243\362\304\tW\017w\006\027\006KG\357\034\3379\271\376bvd\345\371\305\347\202\360\353\301+\255\001\020\374\242\374n\177?g\037\016^>\372\313q""\303\342\366\215\374\215?R\010\034\256\220\320\037{\237\365a\322\217\006\027\363\2177\216\343|\347\321\260\374\362\363\353g\357\354}N\241\204x\231l\374\000\202\2769z\345X\374\322\266[\375\316\301\376\341\302\3246R\360\247\243\230\300k\267\r\313KX\361\353C\361 \n\033\262\256T\240\320\241\242\337m*e\352\377\006\2751\007`";
+    PyObject *data = __Pyx_DecompressString(cstring, 2882, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (5948 bytes) */
-const char* const bytes = ": Actor All TrackerActors stopped.All dimensions preceding dimension %d must be indexed and not slicedBatchWriterActor running error: BatchWriterActor started.BatchWriterActor stopped.Buffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsCritical error during flush preparation: Data saved to Dimension %d is not directEmpty shape tuple for cython.arrayError starting position tracker: FATAL: Could not dump data! Data lost. Index out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of NoneNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Pickling of struct members such as self.actor_id must be explicitly requested with @auto_pickle(True)Simulator shutdown complete.Simulator shutting down...Step may not be zero (axis %d)Unable to convert item to objectWrite .>')/?add_note and  at 0xbacktest/execution/core/finance/simulate.pyxcollections.abc<contiguous and direct><contiguous and indirect>disable./dump_fallbackenable failed (attempt  failed permanently. Dumping to disk. Error: gc (got got differing extents in dimension isenableditemsize <= 0 for cython.array.jsonno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object> process error:  ready.), retrying... Error:  start failed: <strided and direct><strided and direct or indirect><strided and indirect><stringsource>unable to allocate array data.unable to allocate shape and strides.utf-8ASCIIActorMessageActorMessage.__reduce_cython__ActorMessage.__setstate_cython__BatchWriterActorBatchWriterActor.__reduce""_cython__BatchWriterActor.__setstate_cython__BatchWriterActor._dump_fallbackBatchWriterActor._flushBatchWriterActor._retry_writeBatchWriterActor._sync_write_fileBatchWriterActor.runBatchWriterActor.wait_until_finishedEllipsisEvent__Pyx_PyDict_NextRefQueryBodyQueueQueueFullRespSequenceSimulatorSimulator.__reduce_cython__Simulator.__setstate_cython__Simulator.getvalueSimulator.on_dt_overSimulator.set_cashSimulator.shutdownSimulator.submitSnapshotBodyTrackerActorTrackerActor.__reduce_cython__TrackerActor.__setstate_cython__TrackerActor._fail_pending_messagesTrackerActor._fetch_from_rpcTrackerActor._startTrackerActor.on_dt_overTrackerActor.process_orderTrackerActor.pushTrackerActor.runView.MemoryView_abcaccountaccount_dataacctacct_objactoraddinfoadj_tableadj_taskallocate_bufferas_pyasset_cacheasset_infoasync_gtasyncioasyncio.coroutinesavailable__await__backtest.execution.core.finance.simulatebacktest.execution.core.gateway.interfacebacktest.protocolbasebatch_sizebatchesbodybonusbonus_sharebulk_insertcchain__class____class_getitem__clearcline_in_tracebackcloseclose_bodyclose_dtclose_priceclose_tableclose_taskcollectionscolumncomputecorecost_basiscountcreate_futurecreate_taskcriticalddatadatasdatetimedaydedup_accountsdedup_positionsdefaultdefaultdict__dict___dictdonedtype_is_objectdumpdump_dir_dump_fallbackee_dtemptyencodeend_date__enter__enumerateerroreventevent_bodyexbitsexc_infoexceptionexist_okexists__exit__experiment_idf_fail_pending_messages_fetch_from_rpc_fetch_from_rpc.<locals>.remote_wrapfilepathflags_flushflush_crashformatfortran__func__futuregathergetgetLoggerget_nowaitget_positionget_running_loop__getstate__getvalueiid__import__indexinfo_is_coroutineitemitemsitemsizeitertoolsjsonkeykeysloggerloggingloop__main__makedirsmax_sizemaxsizememviewmode__module__msgname__name__ndim__new__nextnpnumpyobjon_dt_overon_writeropenordbitorderorder_bitorder_bitsorder_dataorder_objorderbit_dataospp_objp_sidpapackpathpayloadpcpnlpoppos_objposition_datapositionspositions_mapprefi""xpriceprocess_orderpsidspushputput_nowaitpyarrowpyarrow.compute__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_BatchWriterActor__pyx_unpickle_Enum__pyx_unpickle_Simulator__pyx_unpickle_TrackerActor__pyx_vtable____qualname__ratioraw_expraw_sid__reduce____reduce_cython____reduce_ex__registerremoteremote_wrapreply_futureresultretries_retry_writergt_tablergt_taskrowrpc_typerun_runrun_in_executors_dtsafe_dtsafe_exp_idsafe_sidschema_objselfsendsetset_cashset_exception__set_name__set_resultsetdefault__setstate____setstate_cython__shapeshutdownsidsid_tablesizesleepsorted_batchesstart_startstart_datestatestepstopstructsubmitsync_tick_sync_write_filetable__test__threadingthrowtimetimestampto_dicttobytestransfertypeunpackupdateuse_setstatevaluevaluesvtordervtpositionwwaitwait_until_finishedwarningwritewriterxint64_t const \000HOURS_PER_DAYint64_t (int64_t, struct __pyx_opt_args_8backtest_9execution_5utils_4util_ts2intdt *__pyx_optional_args)\000ts2intdt\200\001\330\004*\250!\2506\260\021\200A\330\010\t\330\021\025\220Q\220f\230H\240A\330\020\024\220E\230\021\230&\240\003\2408\2501\330\017\020\330\022\026\220a\220v\230X\240Q\330\020\021\220\026\220q\230\003\2301\230A\200\001\330\004\n\210+\220Q\200\001\360\010\000\005\016\210T\220\032\2304\320\0371\260\024\260Y\270d\300+\310T\320QR\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\3207H\310\007\310u\320TW\320W[\320[c\320cj\320jk\330\004\007\200q\330\010\017\320\0171\260\024\260Q\260g\270[\310\007\310q\340\010\017\320\0171\260\024\260Q\260g\270[\310\001\200\001\360\010\000\005\016\210T\220\032\2304\230\177\250d\260(\270$\270j\310\004\310A\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260~\300W\310E\320QT\320TX\320X_\320_f\320fk\320kn\320nr\320r{\360\000\000|\001C\002\360\000\000C\002D\002\330\004\007""\200q\330\010\017\320\017*\250$\250a\250w\260k\300\027\310\001\340\010\017\320\017*\250$\250a\250w\260k\300\021\200\001\360\010\000\005\016\210T\220\033\230D\320 3\2604\260y\300\004\300O\320SW\320Wa\320ae\320es\320sw\360\000\000x\001G\002\360\000\000G\002K\002\360\000\000K\002[\002\360\000\000[\002_\002\360\000\000_\002`\002\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230:\240W\250E\260\023\260D\3208J\310'\320QV\320VY\320Y]\320]e\320el\320lq\320qt\320tx\360\000\000y\001G\002\360\000\000G\002N\002\360\000\000N\002S\002\360\000\000S\002V\002\360\000\000V\002Z\002\360\000\000Z\002c\002\360\000\000c\002j\002\360\000\000j\002o\002\360\000\000o\002r\002\360\000\000r\002v\002\360\000\000v\002C\003\360\000\000C\003J\003\360\000\000J\003O\003\360\000\000O\003R\003\360\000\000R\003V\003\360\000\000V\003d\003\360\000\000d\003k\003\360\000\000k\003p\003\360\000\000p\003s\003\360\000\000s\003w\003\360\000\000w\003F\004\360\000\000F\004M\004\360\000\000M\004R\004\360\000\000R\004U\004\360\000\000U\004Y\004\360\000\000Y\004d\004\360\000\000d\004k\004\360\000\000k\004l\004\330\004\007\200q\330\010\017\320\017-\250T\260\021\260'\270\033\300G\3101\340\010\017\320\017-\250T\260\021\260'\270\033\300A\210!\210a\200\001\330\004.\250a\250v\260Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\320\023#\2408\2501\250A\330\004\007\200|\2207\230!\330\0102\260!\3203F\300n\320TU\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2209\230H\240A\240Q\330\004\007\200|\2207\230!\330\010+\2501\250L\270\016\300a\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220<\230x\240q\250\001\330\004\007\200|\2207\230!\330\010.\250a\250\177\270n\310A\330\004\013\2101\200\001\330\004'\240q\250\006\250aOlikehoodoccocosmooth";
+    #else /* compression: none (5931 bytes) */
+const char* const bytes = ": Actor All TrackerActors stopped.All dimensions preceding dimension %d must be indexed and not slicedBatchWriterActor running error: BatchWriterActor started.BatchWriterActor stopped.Buffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsCritical error during flush preparation: Data saved to Dimension %d is not directEmpty shape tuple for cython.arrayError starting position tracker: FATAL: Could not dump data! Data lost. Index out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of NoneNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Pickling of struct members such as self.actor_id must be explicitly requested with @auto_pickle(True)Simulator shutdown complete.Step may not be zero (axis %d)Unable to convert item to objectWrite .>')/?add_note and  at 0xbacktest/execution/core/finance/simulate.pyxcollections.abc<contiguous and direct><contiguous and indirect>disable./dump_fallbackenable failed (attempt  failed permanently. Dumping to disk. Error: gc (got got differing extents in dimension isenableditemsize <= 0 for cython.array.jsonno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object> process error:  ready.), retrying... Error:  start failed: <strided and direct><strided and direct or indirect><strided and indirect><stringsource>unable to allocate array data.unable to allocate shape and strides.utf-8ASCIIActorMessageActorMessage.__reduce_cython__ActorMessage.__setstate_cython__BatchWriterActorBatchWriterActor.__reduce_cython__BatchWriterActor.""__setstate_cython__BatchWriterActor._dump_fallbackBatchWriterActor._flushBatchWriterActor._retry_writeBatchWriterActor._sync_write_fileBatchWriterActor.runBatchWriterActor.wait_until_finishedEllipsisEvent__Pyx_PyDict_NextRefQueryBodyQueueQueueFullRespSequenceSimulatorSimulator.__reduce_cython__Simulator.__setstate_cython__Simulator.getvalueSimulator.on_dt_overSimulator.set_cashSimulator.shutdownSimulator.submitSnapshotBodyTrackerActorTrackerActor.__reduce_cython__TrackerActor.__setstate_cython__TrackerActor._fail_pending_messagesTrackerActor._fetch_from_rpcTrackerActor._startTrackerActor.on_dt_overTrackerActor.process_orderTrackerActor.pushTrackerActor.runView.MemoryView_abcaccountaccount_dataacctacct_objactoraddinfoadj_tableadj_taskallocate_bufferas_pyasset_cacheasset_infoasync_gtasyncioasyncio.coroutinesavailable__await__backtest.execution.core.finance.simulatebacktest.execution.core.gateway.interfacebacktest.protocolbasebatch_sizebatchesbodybonusbonus_sharebulk_insertcchain__class____class_getitem__clearcline_in_tracebackcloseclose_bodyclose_dtclose_priceclose_tableclose_taskcollectionscolumncomputecorecost_basiscountcreate_futurecreate_taskcriticalddatadatasdatetimedaydedup_accountsdedup_positionsdefaultdefaultdict__dict___dictdonedtype_is_objectdumpdump_dir_dump_fallbackee_dtemptyencodeend_date__enter__enumerateerroreventevent_bodyexbitsexc_infoexceptionexist_okexists__exit__experiment_idf_fail_pending_messages_fetch_from_rpc_fetch_from_rpc.<locals>.remote_wrapfilepathflags_flushflush_crashformatfortran__func__futuregathergetgetLoggerget_nowaitget_positionget_running_loop__getstate__getvalueiid__import__indexinfo_is_coroutineitemitemsitemsizeitertoolsjsonkeykeysloggerloggingloop__main__makedirsmax_sizemaxsizememviewmode__module__msgname__name__ndim__new__nextnpnumpyobjon_dt_overon_writeropenordbitorderorder_bitorder_bitsorder_dataorder_objorderbit_dataospp_objp_sidpapackpathpayloadpcpnlpoppos_objposition_datapositionspositions_mapprefixpriceprocess_orderpsidspu""shputput_nowaitpyarrowpyarrow.compute__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_BatchWriterActor__pyx_unpickle_Enum__pyx_unpickle_Simulator__pyx_unpickle_TrackerActor__pyx_vtable____qualname__ratioraw_expraw_sid__reduce____reduce_cython____reduce_ex__registerremoteremote_wrapreply_futureresultretries_retry_writergt_tablergt_taskrowrpc_typerun_runrun_in_executors_dtsafe_dtsafe_exp_idsafe_sidschema_objselfsend_sentinelsetset_cashset_exception__set_name__set_resultsetdefault__setstate____setstate_cython__shapeshutdownsidsid_tablesizesleepsorted_batchesstart_startstart_datestatestepstopstructsubmitsync_tick_sync_write_filetable__test__threadingthrowtimetimestampto_dicttobytestransfertypeunpackupdateuse_setstatevaluevaluesvtordervtpositionwwaitwait_until_finishedwarningwritewriterxint64_t const \000HOURS_PER_DAYint64_t (int64_t, struct __pyx_opt_args_8backtest_9execution_5utils_4util_ts2intdt *__pyx_optional_args)\000ts2intdt\200\001\330\004*\250!\2506\260\021\200A\330\010\t\330\021\025\220Q\220f\230H\240A\330\020\024\220E\230\021\230&\240\003\2408\2501\330\017\020\330\022\026\220a\220v\230X\240Q\330\020\021\220\026\220q\230\003\2301\230A\200\001\330\004\n\210+\220Q\200\001\360\010\000\005\016\210T\220\032\2304\320\0371\260\024\260Y\270d\300+\310T\320QR\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\3207H\310\007\310u\320TW\320W[\320[c\320cj\320jk\330\004\007\200q\330\010\017\320\0171\260\024\260Q\260g\270[\310\007\310q\340\010\017\320\0171\260\024\260Q\260g\270[\310\001\200\001\360\010\000\005\016\210T\220\032\2304\230\177\250d\260(\270$\270j\310\004\310A\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260~\300W\310E\320QT\320TX\320X_\320_f\320fk\320kn\320nr\320r{\360\000\000|\001C\002\360\000\000C\002D\002\330\004\007\200q\330\010\017""\320\017*\250$\250a\250w\260k\300\027\310\001\340\010\017\320\017*\250$\250a\250w\260k\300\021\200\001\360\010\000\005\016\210T\220\033\230D\320 3\2604\260y\300\004\300O\320SW\320Wa\320ae\320es\320sw\360\000\000x\001G\002\360\000\000G\002K\002\360\000\000K\002[\002\360\000\000[\002_\002\360\000\000_\002`\002\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230:\240W\250E\260\023\260D\3208J\310'\320QV\320VY\320Y]\320]e\320el\320lq\320qt\320tx\360\000\000y\001G\002\360\000\000G\002N\002\360\000\000N\002S\002\360\000\000S\002V\002\360\000\000V\002Z\002\360\000\000Z\002c\002\360\000\000c\002j\002\360\000\000j\002o\002\360\000\000o\002r\002\360\000\000r\002v\002\360\000\000v\002C\003\360\000\000C\003J\003\360\000\000J\003O\003\360\000\000O\003R\003\360\000\000R\003V\003\360\000\000V\003d\003\360\000\000d\003k\003\360\000\000k\003p\003\360\000\000p\003s\003\360\000\000s\003w\003\360\000\000w\003F\004\360\000\000F\004M\004\360\000\000M\004R\004\360\000\000R\004U\004\360\000\000U\004Y\004\360\000\000Y\004d\004\360\000\000d\004k\004\360\000\000k\004l\004\330\004\007\200q\330\010\017\320\017-\250T\260\021\260'\270\033\300G\3101\340\010\017\320\017-\250T\260\021\260'\270\033\300A\210!\210a\200\001\330\004.\250a\250v\260Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\320\023#\2408\2501\250A\330\004\007\200|\2207\230!\330\0102\260!\3203F\300n\320TU\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2209\230H\240A\240Q\330\004\007\200|\2207\230!\330\010+\2501\250L\270\016\300a\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220<\230x\240q\250\001\330\004\007\200|\2207\230!\330\010.\250a\250\177\270n\310A\330\004\013\2101\200\001\330\004'\240q\250\006\250aOlikehoodoccocosmooth";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -45577,7 +45611,7 @@ const char* const bytes = ": Actor All TrackerActors stopped.All dimensions prec
     for (int i = 0; i < 368; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
-      if (likely(string) && i >= 72) PyUnicode_InternInPlace(&string);
+      if (likely(string) && i >= 71) PyUnicode_InternInPlace(&string);
       if (unlikely(!string)) {
         Py_XDECREF(data);
         __PYX_ERR(0, 1, __pyx_L1_error)
@@ -45763,8 +45797,8 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[16] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_finance_2, __pyx_mstate->__pyx_n_u_getvalue, __pyx_mstate->__pyx_kp_b_iso88591__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[16])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 568};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_actor};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 568};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_msg, __pyx_mstate->__pyx_n_u_sentinel, __pyx_mstate->__pyx_n_u_actor};
     __pyx_mstate_global->__pyx_codeobj_tab[17] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_finance_2, __pyx_mstate->__pyx_n_u_shutdown, __pyx_mstate->__pyx_kp_b_iso88591__10, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[17])) goto bad;
   }
   {

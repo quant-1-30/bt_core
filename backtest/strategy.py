@@ -258,7 +258,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         minperstatus = max(dlens)
         return minperstatus
 
-    # # @profile
     # def _clk_update(self):
     #     newdlens = np.array([len(d) for d in self.datas])
     #     if any(nl > l for l, nl in zip(self._dlens, newdlens)):
@@ -268,16 +267,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     #                                  for d in self.datas if len(d)])      
     #     self._dlens = newdlens
  
-
-    def clk_update(self):
-        newdlens = np.array([len(d) for d in self.datas])
-        if any(nl > l for l, nl in zip(self._dlens, newdlens)):
-            self.forward()
-
-        self.lines.datetime[0] = np.max([d.datetime[0]
-                                     for d in self.datas if len(d)])      
-        self._dlens = newdlens
-
     # def _next_observers(self, minperstatus, once=False):
     #         for observer in self._lineiterators[LineIterator.ObsType]:
     #             for analyzer in observer._analyzers:
@@ -297,8 +286,22 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     #                 analyzer._nextstart()  # only called for the 1st value
     #             else:
     #                 analyzer._prenext()
+    
+    # def _next(self):
+    #     minperstatus = self._getminperstatus() # datas already next 
+    #     self._next_observers(minperstatus)
+    #     super(Strategy, self)._next() # lineiterator _next
 
-    # @profile
+    def clk_update(self):
+        newdlens = np.array([len(d) for d in self.datas])
+        if any(nl > l for l, nl in zip(self._dlens, newdlens)):
+            self.forward()
+
+        self.lines.datetime[0] = np.max([d.datetime[0]
+                                     for d in self.datas if len(d)])      
+        self._dlens = newdlens
+
+    @profile
     def _next_observers(self, minperstatus):
         if minperstatus < 0:
             for analyzer in self.analyzers:
@@ -313,6 +316,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for observer in self.observers:
             observer._next()
 
+    @profile
     def _next_observers_fast(self):
         for analyzer in self.analyzers:
             analyzer._next()
@@ -320,14 +324,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for observer in self.observers:
             observer._next()
 
-    # # @profile
-    # def _next(self):
-    #     minperstatus = self._getminperstatus() # datas already next 
-    #     self._next_observers(minperstatus)
-    #     super(Strategy, self)._next() # lineiterator _next
-    
+    @profile
     def _next(self):
-        self.clk_update()
+        self.clk_update() # differ from lineiterator _clk_update 
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
         super(Strategy, self)._next() # lineiterator _next
@@ -340,8 +339,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         else:
             self.prenext()
     
+    @profile
     def _next_flat_fast(self):
-        self.clk_update()
+        # self.clk_update()
+        self.forward()
+        self.lines.datetime[0] = np.max([d.datetime[0]
+                                     for d in self.datas if len(d)])      
         self._next_observers_fast()
 
         for indicactor in self._flat_fast:
@@ -366,7 +369,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             is_submit = pos_snap[0].available > 0 if pos_snap else False 
         return ratio, is_submit
  
-    # @profile
+    @profile
     def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
@@ -428,7 +431,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
         
-    # @profile
+    @profile
     def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''
         To create a selll (short) order and send it to the broker

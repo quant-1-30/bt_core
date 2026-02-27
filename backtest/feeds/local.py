@@ -30,47 +30,11 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.remote import RemoteStore
+from backtest.stores.local import LocalStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-__all__ = ["RemoteData"]
-
-
-class Calendar:
-    '''Descriptor calendar'''
-    def __init__(self, max_expected_size=100000):
-        self._calendar = []
-
-    def __get__(self, instance, owner):
-        if instance is None: return self
-        
-        mdapi = getattr(instance, 'mdapi', None)
-        if not self._calendar:
-            datas = mdapi.get_calendar()
-            from itertools import chain
-            self._calendar = list(chain(*datas))
-        return self._calendar
-
-
-class Instrument(object):
-    '''Descriptor instrument'''
-    def __init__(self, batch_size=10):
-        self.batch_size = batch_size
-        self.assets = {}
-    
-    def __set__(self, instance, value):
-        raise AttributeError("not allowed to set")
-    
-    def __get__(self, instance, owner):
-        if instance is None: return self
-        
-        mdapi = getattr(instance, 'mdapi', None)
-        if len(self.assets) == 0:
-            table = mdapi.get_instrument() 
-            # ctable = pa.concat_tables(tables, promote_options="permissive") # zero_copy , but combine_chunk is heavy memory ops
-            self.assets = table.to_pylist() # row-wise dict list / table.to_pandas() and df.to_dict('records') # Arrow --> Pandas
-        return self.assets
+__all__ = ["LocalData"]
 
 
 class MetaBtData(DataBase.__class__):
@@ -78,7 +42,7 @@ class MetaBtData(DataBase.__class__):
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
         super(MetaBtData, cls).__init__(name, bases, dct)
-        RemoteStore.DataCls = cls
+        LocalStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
         print("MetaBtData donew kwargs ", kwargs)
@@ -90,24 +54,28 @@ class MetaBtData(DataBase.__class__):
         print("MetaBtData dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
         print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj.mdapi = _obj.p.mdapi
-        _obj.chan = queue.Queue()
+        _obj.ref = None
         return _obj, args, kwargs
 
 
-class RemoteData(with_metaclass(MetaBtData, DataBase)):
+class LocalData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
-        ("mdapi", None),
+        ("ref", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
         ("batch_size", 10)
     )
 
-    calendar = Calendar() 
-    instrument = Instrument()
+    def _prepare(self, data_ref):
+        se
 
-    def _prepare(self, _loop): 
-        self.mdapi.start(_loop)
+        #     datas = mdapi.get_calendar()
+        #     from itertools import chain
+        #     self._calendar = list(chain(*datas))
+        #     table = mdapi.get_instrument() 
+        #     # ctable = pa.concat_tables(tables, promote_options="permissive") # zero_copy , but combine_chunk is heavy memory ops
+        #     self.assets = table.to_pylist() # row-wise dict list / table.to_pandas() and df.to_dict('records') # Arrow --> Pandas
+        pass
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
@@ -118,19 +86,12 @@ class RemoteData(with_metaclass(MetaBtData, DataBase)):
         end_date = kwargs["todate"]
 
         # calculate tick and adj
-        body = QueryBody(start_date=start_date, end_date=end_date, sid=self.sids)
+        # body = QueryBody(start_date=start_date, end_date=end_date, sid=self.sids)
 
         sid_str = [sid.decode("utf-8") for sid in self.sids]
         self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
 
-        self.preload(body, kwargs.get("benchmark", b"000001"))
 
-        observable = self.mdapi.subscribe(body)
-        observable.subscribe( # nonblocking 
-            on_next=self.chan.put,
-            on_error=lambda e: self.chan.put(e),
-            on_completed=lambda: self.chan.put(StopIteration) 
-        )
 
     def preload(self, body: QueryBody, benchmark):
         bench_body = QueryBody(start_date=body.start_date, end_date=body.end_date, sid=[benchmark]) 
@@ -147,25 +108,19 @@ class RemoteData(with_metaclass(MetaBtData, DataBase)):
 
     def _load(self):
         while True:
-            if self._row_iter is not None:
-                try:
-                    row = next(self._row_iter)
-                    # print("_load row ", row)
-                    if self.p.rtbar:
-                        self._load_rtbar(row)
-                    else:
-                        self._load_bar(row)
-                    return True
-                except StopIteration:
-                    self._row_iter = None
+            try:
+                row = next(self._row_iter)
+                # print("_load row ", row)
+                if self.p.rtbar:
+                    self._load_rtbar(row)
+                else:
+                    self._load_bar(row)
+                return True
+            except StopIteration:
+                self._row_iter = None
 
-            msg = self.chan.get() # next pa.Table
-            if msg is StopIteration:
-                return False
-            if isinstance(msg, Exception):
-                raise msg
 
-            self._row_iter = self._make_iter(msg)
+            # self._row_iter = self._make_iter(msg)
 
     def _make_iter(self, table):
         cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
@@ -201,4 +156,3 @@ class RemoteData(with_metaclass(MetaBtData, DataBase)):
 
     def stop(self):
         super().stop()
-        self.mdapi.disconnect()

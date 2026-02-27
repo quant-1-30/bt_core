@@ -81,7 +81,7 @@ cdef class BatchWriterActor: # CPU Intensive
         self._finished_event = asyncio.Event()
 
     cdef void push(self, dict snapshot):
-        self._queue.put_nowait(snapshot) # cause oom
+        self._queue.put_nowait(snapshot) # may cause oom
 
     async def run(self):
         logger.info("BatchWriterActor started.")
@@ -90,7 +90,7 @@ cdef class BatchWriterActor: # CPU Intensive
         while self._running:
             try:
                 data = await self._queue.get()
-                if data == MsgType.Sentinel: 
+                if MsgType.Sentinel in data: 
                     await self._flush()
                     self._running = False
                     break
@@ -566,12 +566,14 @@ cdef class Simulator:
         return self._actors[experiment_id]
 
     async def shutdown(self):
-            logger.info("Simulator shutting down...")
-            for actor in self._actors.values():
-                actor.push(ActorMessage(MsgType.Sentinel, b"", None))
-            # if self._actor_tasks:
-            #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
-            logger.info("All TrackerActors stopped.")
-            self._writer.push(MsgType.Sentinel)
-            await self._writer.wait_until_finished()
-            logger.info("Simulator shutdown complete.")
+        cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
+        cdef dict _sentinel = {MsgType.Sentinel: 0}
+
+        for actor in self._actors.values():
+            await actor.push(msg)
+        # if self._actor_tasks:
+        #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+        logger.info("All TrackerActors stopped.")
+        self._writer.push(_sentinel)
+        await self._writer.wait_until_finished()
+        logger.info("Simulator shutdown complete.")
