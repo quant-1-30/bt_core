@@ -281,9 +281,8 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             self.prenext()
     
     def _next_fast(self): # cpu soft
-        self.forward()
-        for indicator in self._lineiterators[LineIterator.IndType]:
-            indicator._next_fast()
+        self._clk_update()
+        # self.forward()
         self.next()
 
     def prenext(self):

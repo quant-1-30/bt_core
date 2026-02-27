@@ -599,6 +599,9 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
 
         self.next()
 
+    def _next_recursive(self):
+        return []
+
 
 def LineDelay(a, ago=0, **kwargs):
     if ago <= 0:

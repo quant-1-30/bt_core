@@ -187,6 +187,25 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = np.array([len(data) for data in self.datas])
         self.on_dt_over = False
 
+        self._flat_fast = self._flat_collect()
+
+    def _flat_collect(self):
+        _flat_chain = []
+        
+        for ind in self._lineiterators[LineIterator.IndType]:
+            _flat_chain.extend(self._next_recursive(ind))
+        return _flat_chain
+        
+    def _next_recursive(self, indicator):
+        recur = []
+        for c_ind in indicator._lineiterators[LineIterator.IndType]:
+            recur.extend(self._next_recursive(c_ind))
+        if hasattr(self, '_next_fast'):
+            recur.append(self._next_fast)
+        # elif hasattr(self, '_next_fast'):
+        #     recur.append(self._next_fast)
+        return recur
+
     def _add_experimentId(self): # setup sizer / risk / cash
         extra_info = json.dumps(self.p._getkwargs())
         self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
@@ -315,16 +334,18 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         if minperstatus < 0:
             self.next()
-            self._next = self._next_fast
+            self._next = self._next_flat_fast
         elif minperstatus == 0:
             self.nextstart()  # only called for the 1st value
         else:
             self.prenext()
     
-    def _next_fast(self):
+    def _next_flat_fast(self):
         self.clk_update()
         self._next_observers_fast()
-        super(Strategy, self)._next_fast() # lineiterator _next
+
+        for indicactor in self._flat_fast:
+            indicactor() # _next_fast
         self.next()
 
     def getsizing(self, isbuy=True):
