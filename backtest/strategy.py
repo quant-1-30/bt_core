@@ -30,7 +30,8 @@ from bt_sdk.core.protocol import OrderBody
 import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
 from .lineseries import LineSeriesStub
-from .metabase import with_metaclass, ItemCollection, findowner
+# from .metabase import with_metaclass, ItemCollection, findowner
+from .metabase import with_metaclass, findowner
 from .utils.autodict import AutoOrderedDict
 
 MAXINT = np.iinfo(np.int_).max
@@ -69,9 +70,12 @@ class MetaStrategy(StrategyBase.__class__):
         
         _obj._minperiods = list()
 
-        _obj.stats = _obj.observers = ItemCollection()
-        _obj.analyzers = ItemCollection()
-        _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
+        # _obj.stats = _obj.observers = ItemCollection()
+        # _obj.analyzers = ItemCollection()
+        # _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
+        _obj.stats = {}
+        _obj.analyzers = list()
+        _obj.observers = list()
         _obj.writers = list()
         _obj._orders = list()
         _obj._trades = list()
@@ -164,7 +168,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
-        self._init_env()
+        self._add_experimentId()
         self.set_cash(**kwargs)
         self.qbuffer(savemem=savemem)
         self._periodrecalc()
@@ -180,10 +184,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 o._start()
 
         # self._minperstatus = MAXINT  # start in prenext
-        self._dlens = [len(data) for data in self.datas]
+        self._dlens = np.array([len(data) for data in self.datas])
         self.on_dt_over = False
 
-    def _init_env(self): # setup sizer / risk / cash
+    def _add_experimentId(self): # setup sizer / risk / cash
         extra_info = json.dumps(self.p._getkwargs())
         self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
@@ -195,21 +199,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
     
-    def _getminperstatus(self):
-        dlens = map(operator.sub, self._minperiods, map(len, self.datas))
-        # self._minperstatus = minperstatus = np.max(dlens)
-        minperstatus = max(dlens)
-        return minperstatus
-
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
 
     def _addanalyzer(self, ancls, *anargs, **ankwargs):
-        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
-        nsuffix = next(self._alnames[anname])
-        anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
+        # anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
+        # nsuffix = next(self._alnames[anname])
+        # anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
         analyzer = ancls(*anargs, **ankwargs)
-        self.analyzers.append(analyzer, anname)
+        # self.analyzers.append(analyzer, anname)
+        self.analyzers.append(analyzer)
         return analyzer
 
     def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
@@ -220,28 +219,67 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         if not multi:
             newargs = list(itertools.chain(self.datas, obsargs))
             obs = obscls(*newargs, **obskwargs)
-            self.stats.append(obs, obsname)
+            # self.stats.append(obs, obsname)
+            self.observers.append(obs)
+            self.stats[obsname] = obs
             return
 
-        setattr(self.stats, obsname, list())
-        l = getattr(self.stats, obsname)
+        # setattr(self.stats, obsname, list())
+        # l = getattr(self.stats, obsname)
 
         for data in self.datas:
             obs = obscls(data, *obsargs, **obskwargs)
-            l.append(obs)
+            # l.append(obs)
+            self.observers.append(obs)
+            self.stats[obsname] = obs
+    
+    def _getminperstatus(self):
+        dlens = map(operator.sub, self._minperiods, map(len, self.datas))
+        # self._minperstatus = minperstatus = np.max(dlens)
+        minperstatus = max(dlens)
+        return minperstatus
 
-    # def _next_observers(self, minperstatus):
-    #     for observer in self.observers:
-    #         for analyzer in observer._analyzers:
+    # # @profile
+    # def _clk_update(self):
+    #     newdlens = np.array([len(d) for d in self.datas])
+    #     if any(nl > l for l, nl in zip(self._dlens, newdlens)):
+    #         self.forward()
+
+    #     self.lines.datetime[0] = np.max([d.datetime[0]
+    #                                  for d in self.datas if len(d)])      
+    #     self._dlens = newdlens
+ 
+
+    def clk_update(self):
+        newdlens = np.array([len(d) for d in self.datas])
+        if any(nl > l for l, nl in zip(self._dlens, newdlens)):
+            self.forward()
+
+        self.lines.datetime[0] = np.max([d.datetime[0]
+                                     for d in self.datas if len(d)])      
+        self._dlens = newdlens
+
+    # def _next_observers(self, minperstatus, once=False):
+    #         for observer in self._lineiterators[LineIterator.ObsType]:
+    #             for analyzer in observer._analyzers:
+    #                 if minperstatus < 0:
+    #                     analyzer._next()
+    #                 elif minperstatus == 0:
+    #                     analyzer._nextstart()  # only called for the 1st value
+    #                 else:
+    #                     analyzer._prenext()
+    #             observer._next()
+
+    #     def _next_analyzers(self, minperstatus, once=False):
+    #         for analyzer in self.analyzers:
     #             if minperstatus < 0:
     #                 analyzer._next()
     #             elif minperstatus == 0:
     #                 analyzer._nextstart()  # only called for the 1st value
     #             else:
     #                 analyzer._prenext()
-    #         else:
-    #             observer._next()
 
+    # @profile
     def _next_observers(self, minperstatus):
         if minperstatus < 0:
             for analyzer in self.analyzers:
@@ -256,23 +294,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for observer in self.observers:
             observer._next()
 
-    def _clk_update(self):
-        newdlens = [len(d) for d in self.datas]
-        if any(nl > l for l, nl in zip(self._dlens, newdlens)):
-            self.forward()
+    def _next_observers_fast(self):
+        for analyzer in self.analyzers:
+            analyzer._next()
 
-        self.lines.datetime[0] = max(d.datetime[0]
-                                     for d in self.datas if len(d))      
-          
-        self._dlens = newdlens
-        return len(self)
-    
-    def notify_timer(self, dts):
-        self.on_dt_over = True
-        snapshot = self.store.on_dt_over(self.experiment_id) 
-        if snapshot:
-            self.snapshot = snapshot
-        self.reset()
+        for observer in self.observers:
+            observer._next()
 
     # # @profile
     # def _next(self):
@@ -280,18 +307,25 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     #     self._next_observers(minperstatus)
     #     super(Strategy, self)._next() # lineiterator _next
     
-    # @profile
     def _next(self):
-        minperstatus = self._getminperstatus() # datas already next 
+        self.clk_update()
+        minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
         super(Strategy, self)._next() # lineiterator _next
 
         if minperstatus < 0:
             self.next()
+            self._next = self._next_fast
         elif minperstatus == 0:
             self.nextstart()  # only called for the 1st value
         else:
             self.prenext()
+    
+    def _next_fast(self):
+        self.clk_update()
+        self._next_observers_fast()
+        super(Strategy, self)._next_fast() # lineiterator _next
+        self.next()
 
     def getsizing(self, isbuy=True):
         '''Get the current sizing for the strategy'''
@@ -311,6 +345,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             is_submit = pos_snap[0].available > 0 if pos_snap else False 
         return ratio, is_submit
  
+    # @profile
     def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
@@ -353,15 +388,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
+        created_dt = np.nan_to_num(self.lines.datetime[0], nan=0.0)
         _sizer, is_allowed = self.getsizing()
-        if is_allowed:
+        if created_dt > 0 and is_allowed:
             order = OrderBody(
                         sid=self.datas[0].sids[0],
                         pricelimit=plimit,
                         sizer_ratio=_sizer, 
                         order_type=0,
                         exec_type=0, 
-                        created_dt=int(self.lines.datetime[0]),
+                        created_dt=int(created_dt),
                         filler=filler)
 
             snapshot = self.store.submit(self.experiment_id, order)
@@ -371,6 +407,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
         
+    # @profile
     def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''
         To create a selll (short) order and send it to the broker
@@ -379,17 +416,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
+        created_dt = np.nan_to_num(self.lines.datetime[0], nan=0.0)
         _sizer, is_allowed = self.getsizing(isbuy=False)
-
-        if is_allowed:
+        if created_dt > 0 and is_allowed:
             order = OrderBody(
-                          sid=self.datas[0].sids[0],
-                          sizer_ratio=_sizer, 
-                          pricelimit=plimit,     
-                          order_type=1,
-                          exec_type=execType, 
-                          created_dt=int(self.lines.datetime[0]),
-                          filler=filler)
+                        sid=self.datas[0].sids[0],
+                        sizer_ratio=_sizer, 
+                        pricelimit=plimit,     
+                        order_type=1,
+                        exec_type=execType, 
+                        created_dt=int(created_dt),
+                        filler=filler)
         
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.order
@@ -398,6 +435,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
                 self.sizer.reset() 
+    
+    def notify_timer(self, dts):
+        self.on_dt_over = True
+        snapshot = self.store.on_dt_over(self.experiment_id) 
+        if snapshot:
+            self.snapshot = snapshot
+        self.reset()
 
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders
@@ -407,6 +451,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         if qtrades:
             self._trades.extend(qtrades)
 
+    def cancel(self, order_id):
+        '''Cancels the order in the broker'''
+        self.store.cancel(order_id)
+
     def get_snapshot(self):
         '''Returns the portfolio value and positions of strategy
         '''
@@ -415,10 +463,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def getvalue(self): 
         snapshot = self.store.getvalue(self.experiment_id) 
         return snapshot
-  
-    def cancel(self, order_id):
-        '''Cancels the order in the broker'''
-        self.store.cancel(order_id)
          
     def getwriterheaders(self):
         self.indobscsv = [self]
@@ -478,7 +522,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         ainfo.Value.End = acct.portfolio_value if acct else 0
 
         # no slave analyzers for writer
-        for aname, analyzer in self.analyzers.getitems():
+        # for aname, analyzer in self.analyzers.getitems():
+        for analyzer in self.analyzers:
+            aname = analyzer.__class__.__name__.lower()
             ainfo[aname].Params = analyzer.p._getkwargs() or None
             ainfo[aname].Analysis = analyzer.get_analysis()
 
@@ -590,13 +636,12 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # self._sentinel = None  # sentinel for order concurrency
         super(SignalStrategy, self)._start(savemem, **kwargs)
 
-    def _init_env(self):
+    def _add_experimentId(self):
         extra_infos = []
         for sig_type, sigs in self._signals.items():
             _info = [f"{sig.__class__.__name__}({json.dumps(sig.p._getkwargs())})" for sig in sigs]
             extra_infos.extend(_info)
         extra_info = ','.join(extra_infos)
-        
         self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
     def signal_add(self, sigtype, signal):

@@ -1871,7 +1871,7 @@ struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_
 };
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot;
 
-/* "backtest/execution/core/finance/simulate.pxd":41
+/* "backtest/execution/core/finance/simulate.pxd":42
  *     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table)
  * 
  *     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*)             # <<<<<<<<<<<<<<
@@ -2080,10 +2080,11 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor 
   int _running;
   PyObject *_queue;
   PyObject *_buffer;
+  PyObject *_finished_event;
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":26
+/* "backtest/execution/core/finance/simulate.pxd":27
  * 
  * 
  * cdef class TrackerActor:             # <<<<<<<<<<<<<<
@@ -2105,7 +2106,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor {
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":46
+/* "backtest/execution/core/finance/simulate.pxd":47
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2434,7 +2435,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWrite
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":26
+/* "backtest/execution/core/finance/simulate.pxd":27
  * 
  * 
  * cdef class TrackerActor:             # <<<<<<<<<<<<<<
@@ -2451,7 +2452,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerAct
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":46
+/* "backtest/execution/core/finance/simulate.pxd":47
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -9944,8 +9945,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor) __PYX_ERR(10, 26, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor)) __PYX_ERR(10, 26, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor) __PYX_ERR(10, 27, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor)) __PYX_ERR(10, 27, __pyx_L1_error)
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.simulate", "Simulator",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator),
@@ -9954,8 +9955,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 46, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 46, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 47, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 47, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(11, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

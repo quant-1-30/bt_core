@@ -78,6 +78,7 @@ cdef class BatchWriterActor: # CPU Intensive
         self._running = True
         self.batch_size = batch_size
         self._queue = asyncio.Queue(maxsize=max_size)
+        self._finished_event = asyncio.Event()
 
     cdef void push(self, dict snapshot):
         self._queue.put_nowait(snapshot) # cause oom
@@ -100,6 +101,9 @@ cdef class BatchWriterActor: # CPU Intensive
 
             except Exception as e:
                 logger.error(f"BatchWriterActor running error: {e}")
+        
+        self._finished_event.set()
+        logger.info("BatchWriterActor stopped.")
 
     async def _flush(self):
         cdef Account acct_obj
@@ -225,6 +229,9 @@ cdef class BatchWriterActor: # CPU Intensive
         except TypeError:
              with open(path, 'w') as f:
                 f.write(str(data))
+
+    async def wait_until_finished(self):
+        await self._finished_event.wait()
 
 
 cdef class TrackerActor:
@@ -559,6 +566,12 @@ cdef class Simulator:
         return self._actors[experiment_id]
 
     async def shutdown(self):
-        for actor in self._actors.values():
-            actor.push(ActorMessage(MsgType.Sentinel, b"", None))
-        self._writer.push(MsgType.Sentinel)
+            logger.info("Simulator shutting down...")
+            for actor in self._actors.values():
+                actor.push(ActorMessage(MsgType.Sentinel, b"", None))
+            # if self._actor_tasks:
+            #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+            logger.info("All TrackerActors stopped.")
+            self._writer.push(MsgType.Sentinel)
+            await self._writer.wait_until_finished()
+            logger.info("Simulator shutdown complete.")

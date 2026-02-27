@@ -559,18 +559,9 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
     '''
     _ltype = LineBuffer.IndType # indicator
 
-    notification = collections.defaultdict(collections.deque)
-
     def getindicators(self):
         return []
     
-    def extra_nested_info(self):
-        extra_info = f"{self.__class__.__name__}("
-        for data in self.datas:
-            extra_info += f"{data.extra_info}," if not isinstance(data, DataSeries) else f"{data._name},"
-        extra_info += f"{str(self.p)})"
-        return extra_info
-
     def qbuffer(self, savemem=1):
         super(LineActions, self).qbuffer(savemem=savemem)
         for data in self._datas:
@@ -600,6 +591,14 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         else:
             self.prenext()
     
+    def _next_fast(self):
+        # print("LineActions _next foward")
+        clock_len = len(self._clock)
+        if clock_len > len(self):
+            self.forward()
+
+        self.next()
+
 
 def LineDelay(a, ago=0, **kwargs):
     if ago <= 0:

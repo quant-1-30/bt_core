@@ -19,6 +19,7 @@ cdef class BatchWriterActor:
     cdef bint _running
     cdef object _queue
     cdef list _buffer
+    cdef object _finished_event 
     
     cdef void push(self, dict snapshot)
 

@@ -54,6 +54,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
         If set to ``True`` a default WriterFile will be created which will
         print to stdout. It will be added to the strategy (in addition to any
         other writers added by the user code)
+    
+      - ``oldsync`` (default: ``False``)
+
+        Starting with release 1.9.0.99 the synchronization of multiple datas
+        (same or different timeframes) has been changed to allow datas of
+        different lengths.
+
+        If the old behavior with data0 as the master of the system is wished,
+        set this parameter to true
 
       - ``tz`` (default: ``None``)
 
@@ -84,6 +93,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("client_id", ""),
         ('savemem', 1),
         ("store", "remote"),
+        ('oldsync', False),
         ('tz', None),
         ("timeout", 10),
         ('stdstats', True),

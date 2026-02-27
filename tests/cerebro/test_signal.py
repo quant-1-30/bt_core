@@ -98,8 +98,11 @@ class DrawDownSignal(btind.Indicator):
     lines = ('signal',)
     params = (("thres", 0.25),)
 
+    def __init__(self):
+        self.stats = self._owner.stats
+
     def next(self):
-        obs = self._owner.stats.getbyname("drawdown") # lowercase
+        obs = self.stats["drawdown"] # lowercase
         signal = self.p.thres - obs.lines.drawdown[0]
         self.lines.signal[0] = signal
 
@@ -120,8 +123,6 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040101, todate=20100101, benchmark=b"000001", out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040101, todate=20260201, benchmark=b"000001", out="signal.csv")
 
-    # 问题在与 2010之前数据执行异常 
-
-    # 1434360600.0 数据异常 # 2015年6月15号  / 2016 - 2026  223s / 2010 - 20150601  / 2015 116s
+    # 20040101 - 20260201 474s

@@ -140,8 +140,7 @@ class MetaLineIterator(LineSeries.__class__):
         if _obj._owner is not None: # Strategy继承自 LineIterator → LineSeries → LineRoot → LineMultiple
             _obj._owner.addindicator(_obj)
 
-        _obj.extra_info = _obj.extra_nested_info() # intended to indicator
-        
+        _obj.extra_info = _obj._add_extra_info() 
         return _obj, args, kwargs
 
 
@@ -181,7 +180,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
                 o = o._owner  # move up the hierarchy
 
-    def extra_nested_info(self):
+    def _add_extra_info(self):
         extra_info = f"{self.__class__.__name__}("
         for data in self.datas:
             extra_info += f"{data.extra_info}," if not isinstance(data, DataSeries) else f"{data._name},"
@@ -197,17 +196,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         indminperiod = max(indperiods or [self._minperiod])
         # print("_periodrecalc ", indminperiod)
         self.updateminperiod(indminperiod)
-
-    def getindicators(self):
-        return self._lineiterators[LineIterator.IndType]
-
-    def getindicators_lines(self):
-        return [x for x in self._lineiterators[LineIterator.IndType]
-                if hasattr(x.lines, 'getlinealiases')] # filter LineAction
-
-    def getobservers(self):
-        return self._lineiterators[LineIterator.ObsType]
-    
+ 
     def bindlines(self, owner=None, own=None):
         if not owner:
             owner = 0
@@ -244,12 +233,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     bind2lines = bindlines
     bind2line = bind2lines
 
+    # @profile
     def _clk_update(self):
-        # clock_len = len(self._clock)
-        # if clock_len != len(self):
-        #     self.forward()
-        self.forward() # strategy line forward 
-        return len(self._clock)
+        clock_len = len(self._clock)
+        if clock_len != len(self):
+            self.forward()
+        return clock_len
 
     # # @profile
     # def _next(self):
@@ -281,6 +270,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
 
         for indicator in self._lineiterators[LineIterator.IndType]:
             indicator._next()
+
         # assume indicators and others operate on same length datas
         # although the above operation can be generalized
         if clock_len > self._minperiod:
@@ -289,6 +279,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             self.nextstart()  # only called for the 1st value
         elif clock_len:
             self.prenext()
+    
+    def _next_fast(self): # cpu soft
+        self.forward()
+        for indicator in self._lineiterators[LineIterator.IndType]:
+            indicator._next_fast()
+        self.next()
 
     def prenext(self):
         '''
@@ -334,6 +330,16 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         
         for data in self.datas:
             data.minbuffer(_minperiod)
+
+    def getindicators(self):
+        return self._lineiterators[LineIterator.IndType]
+
+    def getindicators_lines(self):
+        return [x for x in self._lineiterators[LineIterator.IndType]
+                if hasattr(x.lines, 'getlinealiases')] # filter LineAction
+
+    def getobservers(self):
+        return self._lineiterators[LineIterator.ObsType]
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)
