@@ -37,7 +37,7 @@ from backtest.execution.core.finance.order cimport OrderCoreData
 from backtest.execution.core.finance.position cimport Position
 from backtest.execution.core.finance.comminfo cimport CommInfo_Stocks, CommInfo_Futures
 from backtest.execution.core.finance.trade cimport OrderExecutionBit
-from backtest.protocol import QueryBody
+from bt_sdk.core.protocol import QueryBody
 
 cimport numpy as cnp
 cnp.import_array() # 必须调用以初始化 numpy C-API

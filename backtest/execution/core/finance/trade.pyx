@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from backtest.execution.core.gateway.operator.schema import OrderBit
-from backtest.protocol import TradeBody, Resp
+from bt_sdk.core.protocol import TradeBody, Resp
 
 
 cdef class OrderExecutionBit:

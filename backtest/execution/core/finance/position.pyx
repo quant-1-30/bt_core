@@ -27,7 +27,7 @@ Created on Tue Mar 12 15:37:47 2019
 # cython: language_level=3
 import uuid
 
-from backtest.protocol import PositionBody, Resp
+from bt_sdk.core.protocol import PositionBody, Resp
 from backtest.execution.core.gateway.operator.schema import vtPosition
 
 from backtest.execution.utils.util cimport ts2intdt, num2date

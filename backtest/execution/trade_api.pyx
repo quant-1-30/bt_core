@@ -6,7 +6,7 @@ import asyncio
 import threading
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor
-from backtest.protocol import Event
+from bt_sdk.core.protocol import Event
 from backtest.execution.core.simulator.engine cimport BackEngine, EngineTopic
 
 

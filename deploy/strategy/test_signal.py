@@ -1,15 +1,5 @@
-# Import the backtrader platform
-import os
-import uuid
 import numpy as np
-
-from dotenv import load_dotenv
-
-import backtest as bt
 import backtest.indicators as btind
-
-
-os.environ["GRPC_POLL_STRATEGY"] = "poll"
 
 
 class WeekPriceSignal(btind.Indicator): 
@@ -106,25 +96,4 @@ class DrawDownSignal(btind.Indicator):
     def next(self):
         dd_obs = self.stats["drawdown"] # lowercase
         signal = self.thres - dd_obs.lines.drawdown[0]
-        # self.lines.signal[0] = np.nan_to_num(signal) # used for array not scalar
         self.lines.signal[0] = 0.0 if np.isnan(signal) else signal
-
-
-if __name__ == '__main__':
-    
-    load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
-    cerebro.addstore() 
-
-    ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
-    wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
-
-    cerebro.add_signal(bt.SIGNAL_LONG, WeekPriceSignal, wdata, ddata)
-    cerebro.add_signal(bt.SIGNAL_LONG_INV, DailyPriceSignal, ddata)
-    cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, ddata)
-    cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, ddata)
-    cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
-    cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
-
-    # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20040101, todate=20260201, benchmark=b"000001", out="signal.csv")

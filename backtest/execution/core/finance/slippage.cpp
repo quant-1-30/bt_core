@@ -1562,7 +1562,9 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8slippage_Slippage {
 
 
 
-/* "backtest/execution/core/finance/slippage.pyx":1
+/* "backtest/execution/core/finance/slippage.pyx":4
+ * # cython: language_level=3
+ * 
  * cdef class Slippage:             # <<<<<<<<<<<<<<
  * 
  *     def __init__(self,
@@ -2545,7 +2547,7 @@ return 0;
 #endif
 /* #### Code section: module_code ### */
 
-/* "backtest/execution/core/finance/slippage.pyx":3
+/* "backtest/execution/core/finance/slippage.pyx":6
  * cdef class Slippage:
  * 
  *     def __init__(self,             # <<<<<<<<<<<<<<
@@ -2576,50 +2578,50 @@ static int __pyx_pw_8backtest_9execution_4core_7finance_8slippage_8Slippage_1__i
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_slip_perc,&__pyx_mstate_global->__pyx_n_u_slip_fixed,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 3, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 6, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 3, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 6, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 3, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 6, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 3, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 6, __pyx_L3_error)
     } else {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 3, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 6, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 3, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 6, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
     }
     if (values[0]) {
-      __pyx_v_slip_perc = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_slip_perc == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 4, __pyx_L3_error)
+      __pyx_v_slip_perc = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_slip_perc == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 7, __pyx_L3_error)
     } else {
       __pyx_v_slip_perc = ((double)0.0);
     }
     if (values[1]) {
-      __pyx_v_slip_fixed = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_slip_fixed == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
+      __pyx_v_slip_fixed = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_slip_fixed == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 8, __pyx_L3_error)
     } else {
       __pyx_v_slip_fixed = ((double)0.0);
     }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 0, 2, __pyx_nargs); __PYX_ERR(0, 3, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 0, 2, __pyx_nargs); __PYX_ERR(0, 6, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -2643,7 +2645,7 @@ static int __pyx_pw_8backtest_9execution_4core_7finance_8slippage_8Slippage_1__i
 static int __pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippage___init__(struct __pyx_obj_8backtest_9execution_4core_7finance_8slippage_Slippage *__pyx_v_self, double __pyx_v_slip_perc, double __pyx_v_slip_fixed) {
   int __pyx_r;
 
-  /* "backtest/execution/core/finance/slippage.pyx":6
+  /* "backtest/execution/core/finance/slippage.pyx":9
  *                 double slip_perc=0.0,
  *                 double slip_fixed=0.0):
  *         self.slip_fixed = slip_fixed             # <<<<<<<<<<<<<<
@@ -2652,7 +2654,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippage___in
 */
   __pyx_v_self->slip_fixed = __pyx_v_slip_fixed;
 
-  /* "backtest/execution/core/finance/slippage.pyx":7
+  /* "backtest/execution/core/finance/slippage.pyx":10
  *                 double slip_fixed=0.0):
  *         self.slip_fixed = slip_fixed
  *         self.slip_perc = slip_perc             # <<<<<<<<<<<<<<
@@ -2661,7 +2663,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippage___in
 */
   __pyx_v_self->slip_perc = __pyx_v_slip_perc;
 
-  /* "backtest/execution/core/finance/slippage.pyx":3
+  /* "backtest/execution/core/finance/slippage.pyx":6
  * cdef class Slippage:
  * 
  *     def __init__(self,             # <<<<<<<<<<<<<<
@@ -2674,7 +2676,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippage___in
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/slippage.pyx":9
+/* "backtest/execution/core/finance/slippage.pyx":12
  *         self.slip_perc = slip_perc
  * 
  *     cdef double _slip_up(self, double pmax, double price):             # <<<<<<<<<<<<<<
@@ -2688,7 +2690,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   int __pyx_t_1;
   double __pyx_t_2;
 
-  /* "backtest/execution/core/finance/slippage.pyx":10
+  /* "backtest/execution/core/finance/slippage.pyx":13
  * 
  *     cdef double _slip_up(self, double pmax, double price):
  *         cdef double pslip = 0.0             # <<<<<<<<<<<<<<
@@ -2697,7 +2699,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
 */
   __pyx_v_pslip = 0.0;
 
-  /* "backtest/execution/core/finance/slippage.pyx":11
+  /* "backtest/execution/core/finance/slippage.pyx":14
  *     cdef double _slip_up(self, double pmax, double price):
  *         cdef double pslip = 0.0
  *         if self.slip_perc > 0.0:             # <<<<<<<<<<<<<<
@@ -2707,7 +2709,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   __pyx_t_1 = (__pyx_v_self->slip_perc > 0.0);
   if (__pyx_t_1) {
 
-    /* "backtest/execution/core/finance/slippage.pyx":12
+    /* "backtest/execution/core/finance/slippage.pyx":15
  *         cdef double pslip = 0.0
  *         if self.slip_perc > 0.0:
  *             pslip = price * (1 + self.slip_perc)             # <<<<<<<<<<<<<<
@@ -2716,7 +2718,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
 */
     __pyx_v_pslip = (__pyx_v_price * (1.0 + __pyx_v_self->slip_perc));
 
-    /* "backtest/execution/core/finance/slippage.pyx":11
+    /* "backtest/execution/core/finance/slippage.pyx":14
  *     cdef double _slip_up(self, double pmax, double price):
  *         cdef double pslip = 0.0
  *         if self.slip_perc > 0.0:             # <<<<<<<<<<<<<<
@@ -2726,7 +2728,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
     goto __pyx_L3;
   }
 
-  /* "backtest/execution/core/finance/slippage.pyx":13
+  /* "backtest/execution/core/finance/slippage.pyx":16
  *         if self.slip_perc > 0.0:
  *             pslip = price * (1 + self.slip_perc)
  *         elif self.slip_fixed > 0.0:             # <<<<<<<<<<<<<<
@@ -2736,7 +2738,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   __pyx_t_1 = (__pyx_v_self->slip_fixed > 0.0);
   if (__pyx_t_1) {
 
-    /* "backtest/execution/core/finance/slippage.pyx":14
+    /* "backtest/execution/core/finance/slippage.pyx":17
  *             pslip = price * (1 + self.slip_perc)
  *         elif self.slip_fixed > 0.0:
  *             pslip = price + self.slip_fixed             # <<<<<<<<<<<<<<
@@ -2745,7 +2747,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
 */
     __pyx_v_pslip = (__pyx_v_price + __pyx_v_self->slip_fixed);
 
-    /* "backtest/execution/core/finance/slippage.pyx":13
+    /* "backtest/execution/core/finance/slippage.pyx":16
  *         if self.slip_perc > 0.0:
  *             pslip = price * (1 + self.slip_perc)
  *         elif self.slip_fixed > 0.0:             # <<<<<<<<<<<<<<
@@ -2755,7 +2757,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
     goto __pyx_L3;
   }
 
-  /* "backtest/execution/core/finance/slippage.pyx":16
+  /* "backtest/execution/core/finance/slippage.pyx":19
  *             pslip = price + self.slip_fixed
  *         else:
  *             pslip = price             # <<<<<<<<<<<<<<
@@ -2767,7 +2769,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   }
   __pyx_L3:;
 
-  /* "backtest/execution/core/finance/slippage.pyx":18
+  /* "backtest/execution/core/finance/slippage.pyx":21
  *             pslip = price
  * 
  *         pslip = pslip if pslip < pmax else pmax             # <<<<<<<<<<<<<<
@@ -2782,7 +2784,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   }
   __pyx_v_pslip = __pyx_t_2;
 
-  /* "backtest/execution/core/finance/slippage.pyx":19
+  /* "backtest/execution/core/finance/slippage.pyx":22
  * 
  *         pslip = pslip if pslip < pmax else pmax
  *         return pslip # no price can be returned             # <<<<<<<<<<<<<<
@@ -2792,7 +2794,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   __pyx_r = __pyx_v_pslip;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/slippage.pyx":9
+  /* "backtest/execution/core/finance/slippage.pyx":12
  *         self.slip_perc = slip_perc
  * 
  *     cdef double _slip_up(self, double pmax, double price):             # <<<<<<<<<<<<<<
@@ -2805,7 +2807,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/slippage.pyx":21
+/* "backtest/execution/core/finance/slippage.pyx":24
  *         return pslip # no price can be returned
  * 
  *     cdef double _slip_down(self, double pmin, double price):             # <<<<<<<<<<<<<<
@@ -2819,7 +2821,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   int __pyx_t_1;
   double __pyx_t_2;
 
-  /* "backtest/execution/core/finance/slippage.pyx":23
+  /* "backtest/execution/core/finance/slippage.pyx":26
  *     cdef double _slip_down(self, double pmin, double price):
  *         cdef double pslip
  *         if self.slip_perc > 0.0:             # <<<<<<<<<<<<<<
@@ -2829,7 +2831,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   __pyx_t_1 = (__pyx_v_self->slip_perc > 0.0);
   if (__pyx_t_1) {
 
-    /* "backtest/execution/core/finance/slippage.pyx":24
+    /* "backtest/execution/core/finance/slippage.pyx":27
  *         cdef double pslip
  *         if self.slip_perc > 0.0:
  *             pslip = price * (1 - self.slip_perc)             # <<<<<<<<<<<<<<
@@ -2838,7 +2840,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
 */
     __pyx_v_pslip = (__pyx_v_price * (1.0 - __pyx_v_self->slip_perc));
 
-    /* "backtest/execution/core/finance/slippage.pyx":23
+    /* "backtest/execution/core/finance/slippage.pyx":26
  *     cdef double _slip_down(self, double pmin, double price):
  *         cdef double pslip
  *         if self.slip_perc > 0.0:             # <<<<<<<<<<<<<<
@@ -2848,7 +2850,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
     goto __pyx_L3;
   }
 
-  /* "backtest/execution/core/finance/slippage.pyx":25
+  /* "backtest/execution/core/finance/slippage.pyx":28
  *         if self.slip_perc > 0.0:
  *             pslip = price * (1 - self.slip_perc)
  *         elif self.slip_fixed > 0.0:             # <<<<<<<<<<<<<<
@@ -2858,7 +2860,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   __pyx_t_1 = (__pyx_v_self->slip_fixed > 0.0);
   if (__pyx_t_1) {
 
-    /* "backtest/execution/core/finance/slippage.pyx":26
+    /* "backtest/execution/core/finance/slippage.pyx":29
  *             pslip = price * (1 - self.slip_perc)
  *         elif self.slip_fixed > 0.0:
  *             pslip = price - self.slip_fixed             # <<<<<<<<<<<<<<
@@ -2867,7 +2869,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
 */
     __pyx_v_pslip = (__pyx_v_price - __pyx_v_self->slip_fixed);
 
-    /* "backtest/execution/core/finance/slippage.pyx":25
+    /* "backtest/execution/core/finance/slippage.pyx":28
  *         if self.slip_perc > 0.0:
  *             pslip = price * (1 - self.slip_perc)
  *         elif self.slip_fixed > 0.0:             # <<<<<<<<<<<<<<
@@ -2877,7 +2879,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
     goto __pyx_L3;
   }
 
-  /* "backtest/execution/core/finance/slippage.pyx":28
+  /* "backtest/execution/core/finance/slippage.pyx":31
  *             pslip = price - self.slip_fixed
  *         else:
  *             pslip = price             # <<<<<<<<<<<<<<
@@ -2889,7 +2891,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   }
   __pyx_L3:;
 
-  /* "backtest/execution/core/finance/slippage.pyx":30
+  /* "backtest/execution/core/finance/slippage.pyx":33
  *             pslip = price
  * 
  *         pslip = pslip if pslip > pmin else pmin             # <<<<<<<<<<<<<<
@@ -2904,7 +2906,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   }
   __pyx_v_pslip = __pyx_t_2;
 
-  /* "backtest/execution/core/finance/slippage.pyx":31
+  /* "backtest/execution/core/finance/slippage.pyx":34
  * 
  *         pslip = pslip if pslip > pmin else pmin
  *         return pslip             # <<<<<<<<<<<<<<
@@ -2914,7 +2916,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   __pyx_r = __pyx_v_pslip;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/slippage.pyx":21
+  /* "backtest/execution/core/finance/slippage.pyx":24
  *         return pslip # no price can be returned
  * 
  *     cdef double _slip_down(self, double pmin, double price):             # <<<<<<<<<<<<<<
@@ -2927,7 +2929,7 @@ static double __pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__s
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/slippage.pyx":33
+/* "backtest/execution/core/finance/slippage.pyx":36
  *         return pslip
  * 
  *     def __call__(self, double price, double pmax, double pmin, bint isbuy):             # <<<<<<<<<<<<<<
@@ -2960,53 +2962,53 @@ static PyObject *__pyx_pw_8backtest_9execution_4core_7finance_8slippage_8Slippag
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_price,&__pyx_mstate_global->__pyx_n_u_pmax,&__pyx_mstate_global->__pyx_n_u_pmin,&__pyx_mstate_global->__pyx_n_u_isbuy,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 33, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 36, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  4:
         values[3] = __Pyx_ArgRef_VARARGS(__pyx_args, 3);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 33, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 36, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  3:
         values[2] = __Pyx_ArgRef_VARARGS(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 33, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 36, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 33, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 36, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 33, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 36, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__call__", 0) < (0)) __PYX_ERR(0, 33, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__call__", 0) < (0)) __PYX_ERR(0, 36, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 4; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__call__", 1, 4, 4, i); __PYX_ERR(0, 33, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__call__", 1, 4, 4, i); __PYX_ERR(0, 36, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 4)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 33, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 36, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 33, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 36, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_VARARGS(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 33, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 36, __pyx_L3_error)
       values[3] = __Pyx_ArgRef_VARARGS(__pyx_args, 3);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 33, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 36, __pyx_L3_error)
     }
-    __pyx_v_price = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_price == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
-    __pyx_v_pmax = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_pmax == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
-    __pyx_v_pmin = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_pmin == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
-    __pyx_v_isbuy = __Pyx_PyObject_IsTrue(values[3]); if (unlikely((__pyx_v_isbuy == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L3_error)
+    __pyx_v_price = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_price == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_pmax = __Pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_pmax == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_pmin = __Pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_pmin == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
+    __pyx_v_isbuy = __Pyx_PyObject_IsTrue(values[3]); if (unlikely((__pyx_v_isbuy == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__call__", 1, 4, 4, __pyx_nargs); __PYX_ERR(0, 33, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__call__", 1, 4, 4, __pyx_nargs); __PYX_ERR(0, 36, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3037,7 +3039,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippag
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__call__", 0);
 
-  /* "backtest/execution/core/finance/slippage.pyx":34
+  /* "backtest/execution/core/finance/slippage.pyx":37
  * 
  *     def __call__(self, double price, double pmax, double pmin, bint isbuy):
  *         if isbuy:             # <<<<<<<<<<<<<<
@@ -3046,7 +3048,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippag
 */
   if (__pyx_v_isbuy) {
 
-    /* "backtest/execution/core/finance/slippage.pyx":35
+    /* "backtest/execution/core/finance/slippage.pyx":38
  *     def __call__(self, double price, double pmax, double pmin, bint isbuy):
  *         if isbuy:
  *             return self._slip_up(pmax, price)             # <<<<<<<<<<<<<<
@@ -3054,14 +3056,14 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippag
  *             return self._slip_down(pmin, price)
 */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8slippage_Slippage *)__pyx_v_self->__pyx_vtab)->_slip_up(__pyx_v_self, __pyx_v_pmax, __pyx_v_price); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 35, __pyx_L1_error)
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
+    __pyx_t_1 = ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8slippage_Slippage *)__pyx_v_self->__pyx_vtab)->_slip_up(__pyx_v_self, __pyx_v_pmax, __pyx_v_price); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_r = __pyx_t_2;
     __pyx_t_2 = 0;
     goto __pyx_L0;
 
-    /* "backtest/execution/core/finance/slippage.pyx":34
+    /* "backtest/execution/core/finance/slippage.pyx":37
  * 
  *     def __call__(self, double price, double pmax, double pmin, bint isbuy):
  *         if isbuy:             # <<<<<<<<<<<<<<
@@ -3070,22 +3072,22 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_8slippage_8Slippag
 */
   }
 
-  /* "backtest/execution/core/finance/slippage.pyx":37
+  /* "backtest/execution/core/finance/slippage.pyx":40
  *             return self._slip_up(pmax, price)
  *         else:
  *             return self._slip_down(pmin, price)             # <<<<<<<<<<<<<<
 */
   /*else*/ {
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8slippage_Slippage *)__pyx_v_self->__pyx_vtab)->_slip_down(__pyx_v_self, __pyx_v_pmin, __pyx_v_price); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 37, __pyx_L1_error)
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 37, __pyx_L1_error)
+    __pyx_t_1 = ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8slippage_Slippage *)__pyx_v_self->__pyx_vtab)->_slip_down(__pyx_v_self, __pyx_v_pmin, __pyx_v_price); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 40, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_r = __pyx_t_2;
     __pyx_t_2 = 0;
     goto __pyx_L0;
   }
 
-  /* "backtest/execution/core/finance/slippage.pyx":33
+  /* "backtest/execution/core/finance/slippage.pyx":36
  *         return pslip
  * 
  *     def __call__(self, double price, double pmax, double pmin, bint isbuy):             # <<<<<<<<<<<<<<
@@ -3991,15 +3993,15 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_vtable_8backtest_9execution_4core_7finance_8slippage_Slippage._slip_up = (double (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_8slippage_Slippage *, double, double))__pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__slip_up;
   __pyx_vtable_8backtest_9execution_4core_7finance_8slippage_Slippage._slip_down = (double (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_8slippage_Slippage *, double, double))__pyx_f_8backtest_9execution_4core_7finance_8slippage_8Slippage__slip_down;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_8slippage_Slippage_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_8slippage_Slippage_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_8slippage_Slippage_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage)) __PYX_ERR(0, 4, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_8slippage_Slippage_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage = &__pyx_type_8backtest_9execution_4core_7finance_8slippage_Slippage;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage);
@@ -4009,10 +4011,10 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage, __pyx_vtabptr_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_Slippage, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage, __pyx_vtabptr_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_Slippage, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8slippage_Slippage) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4356,9 +4358,9 @@ __Pyx_RefNannySetupContext("PyInit_slippage", 0);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "backtest/execution/core/finance/slippage.pyx":1
- * cdef class Slippage:             # <<<<<<<<<<<<<<
+ * # distutils: language = c++             # <<<<<<<<<<<<<<
+ * # cython: language_level=3
  * 
- *     def __init__(self,
 */
   __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);

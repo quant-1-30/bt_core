@@ -39,7 +39,7 @@ __all__ = ["RemoteData"]
 
 class Calendar:
     '''Descriptor calendar'''
-    def __init__(self, max_expected_size=100000):
+    def __init__(self):
         self._calendar = []
 
     def __get__(self, instance, owner):
@@ -55,8 +55,7 @@ class Calendar:
 
 class Instrument(object):
     '''Descriptor instrument'''
-    def __init__(self, batch_size=10):
-        self.batch_size = batch_size
+    def __init__(self):
         self.assets = {}
     
     def __set__(self, instance, value):
@@ -100,7 +99,6 @@ class RemoteData(with_metaclass(MetaBtData, DataBase)):
     params = (
         ("mdapi", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
-        ("batch_size", 10)
     )
 
     calendar = Calendar() 
@@ -111,18 +109,9 @@ class RemoteData(with_metaclass(MetaBtData, DataBase)):
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
-        self._row_iter = None # initialize iter buffer
-
-        self.sids = kwargs["sid"]
-        start_date = kwargs["fromdate"]
-        end_date = kwargs["todate"]
 
         # calculate tick and adj
-        body = QueryBody(start_date=start_date, end_date=end_date, sid=self.sids)
-
-        sid_str = [sid.decode("utf-8") for sid in self.sids]
-        self.extra_info = f"FeedInfo: {start_date}:{end_date}@{','.join(sid_str)}" # any extra info to relate with feed
-
+        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["sid"])
         self.preload(body, kwargs.get("benchmark", b"000001"))
 
         observable = self.mdapi.subscribe(body)
@@ -133,16 +122,23 @@ class RemoteData(with_metaclass(MetaBtData, DataBase)):
         )
 
     def preload(self, body: QueryBody, benchmark):
+        sid_list = body.sid
+        sid_str = [sid.decode("utf-8") for sid in sid_list]
+
         bench_body = QueryBody(start_date=body.start_date, end_date=body.end_date, sid=[benchmark]) 
         bench_data = self.mdapi.get_benchmark(bench_body)
-        self.bench = bench_data[benchmark]
         
         adj_data = self.mdapi.get_factor(body)
-        adj = adj_data[self.sids[0]]
+        adj = adj_data[sid_list[0]]
         factors = adj.raw_factors if adj else {} # adj_factors
         if factors:
             factors = dict(sorted(factors.items())) # sort by key
             self.adj_factors = factors
+
+        self.sids = sid_list
+        self.extra_info = f"FeedInfo: {body.start_date}:{body.end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+        self.bench = bench_data[benchmark]
+        self._row_iter = None # initialize iter buffer
         print(f"[_start] Benchmark and {self.sids} Factors received.", len(self.adj_factors), len(self.bench))
 
     def _load(self):

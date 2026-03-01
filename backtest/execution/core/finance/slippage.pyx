@@ -1,3 +1,6 @@
+# distutils: language = c++
+# cython: language_level=3
+
 cdef class Slippage:
 
     def __init__(self, 

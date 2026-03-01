@@ -30,11 +30,11 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.local import LocalStore
+from backtest.stores.remote import RemoteStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-__all__ = ["LocalData"]
+__all__ = ["RayData"]
 
 
 class MetaBtData(DataBase.__class__):
@@ -42,7 +42,7 @@ class MetaBtData(DataBase.__class__):
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
         super(MetaBtData, cls).__init__(name, bases, dct)
-        LocalStore.DataCls = cls
+        RemoteStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
         print("MetaBtData donew kwargs ", kwargs)
@@ -54,32 +54,89 @@ class MetaBtData(DataBase.__class__):
         print("MetaBtData dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
         print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj.ref = None
+        _obj.mdapi = _obj.p.mdapi
+        _obj.agent = _obj.p.agent
+        _obj.chan = queue.Queue()
         return _obj, args, kwargs
 
 
-class LocalData(with_metaclass(MetaBtData, DataBase)):
+class RayData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
-        ("ref", None),
+        ("mdapi", None),
+        ("agent", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
     )
 
-    def _prepare(self, data_ref):
-        self.ref = data_ref
-        # self._row_iter = self._make_iter(msg)
+    calendar = Calendar() 
+    instrument = Instrument()
+
+    def _prepare(self, _loop): 
+        self.mdapi.start(_loop)
+
+    def _start(self, *args, **kwargs):
+        super()._start(*args,**kwargs)
+        # calculate tick and adj
+        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["sid"])
+        self.preload(body)
+
+        observable = self.mdapi.subscribe(body)
+        observable.subscribe( # nonblocking 
+            on_next=self.chan.put,
+            on_error=lambda e: self.chan.put(e),
+            on_completed=lambda: self.chan.put(StopIteration) 
+        )
+
+    def preload(self, body: QueryBody, benchmark):
+        sid_list = body.sid
+        sid_str = [sid.decode("utf-8") for sid in sid_list]
+
+        self.bench = ray.get(self.data_ref["benchmark"])
+        self.calendar =  ray.get(self.data_ref["calendar"])
+        self.instrument =  ray.get(self.data_ref["instrument"])
+        
+        fut_calendar = self.agent.get_calendar.remote(body)
+        fut_instrument = self.agent.get_instrument.remote(body)
+        fut_bench = self.agent.get_benchmark.remote(benh_body)
+        
+        self.calendar = ray.get(fut_calendar, timeout=20)
+        self.instrument = ray.get(fut_instrument, timeout=20)
+        self.bench = ray.get(fut_bench, timeout=20)
+
+        adj_data = self.mdapi.get_factor(body)
+        adj = adj_data[sid_list[0]]
+        factors = adj.raw_factors if adj else {} # adj_factors
+        if factors:
+            factors = dict(sorted(factors.items())) # sort by key
+            self.adj_factors = factors
+        
+        self.extra_info = f"FeedInfo: {body.start_date}:{body.end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+        self.sids = sid_list
+        self._row_iter = None # initialize iter buffer
+        
+        print(f"[_start] Benchmark and {self.sids} Factors received.", len(self.adj_factors), len(self.bench))
 
     def _load(self):
         while True:
-            try:
-                row = next(self._row_iter)
-                if self.p.rtbar:
-                    self._load_rtbar(row)
-                else:
-                    self._load_bar(row)
-                return True
-            except StopIteration:
+            if self._row_iter is not None:
+                try:
+                    row = next(self._row_iter)
+                    # print("_load row ", row)
+                    if self.p.rtbar:
+                        self._load_rtbar(row)
+                    else:
+                        self._load_bar(row)
+                    return True
+                except StopIteration:
+                    self._row_iter = None
+
+            msg = self.chan.get() # next pa.Table
+            if msg is StopIteration:
                 return False
+            if isinstance(msg, Exception):
+                raise msg
+
+            self._row_iter = self._make_iter(msg)
 
     def _make_iter(self, table):
         cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
@@ -115,3 +172,4 @@ class LocalData(with_metaclass(MetaBtData, DataBase)):
 
     def stop(self):
         super().stop()
+        self.mdapi.disconnect()

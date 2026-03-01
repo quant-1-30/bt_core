@@ -53,7 +53,6 @@ class RemoteStore(Store):
 
     params = (
         ("md_addr", ("127.0.0.1:50051")),
-        ("td_addr", ("127.0.0.1:8888")),
         ("client_id", b""),
     )
 

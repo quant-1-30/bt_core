@@ -1740,7 +1740,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager {
 };
 
 
-/* "backtest/execution/core/finance/cash.pyx":24
+/* "backtest/execution/core/finance/cash.pyx":25
  *         self.acct = {}
  * 
  *     async def _start(self):             # <<<<<<<<<<<<<<
@@ -1779,7 +1779,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account {
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *__pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account;
 
 
-/* "backtest/execution/core/finance/cash.pyx":19
+/* "backtest/execution/core/finance/cash.pyx":20
  * 
  * 
  * cdef class AsyncCashManager:             # <<<<<<<<<<<<<<
@@ -2924,8 +2924,8 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_await __pyx_string_tab[19]
 #define __pyx_n_u_backtest_execution_core_finance __pyx_string_tab[20]
 #define __pyx_n_u_backtest_execution_core_gateway __pyx_string_tab[21]
-#define __pyx_n_u_backtest_protocol __pyx_string_tab[22]
-#define __pyx_n_u_body __pyx_string_tab[23]
+#define __pyx_n_u_body __pyx_string_tab[22]
+#define __pyx_n_u_bt_sdk_core_protocol __pyx_string_tab[23]
 #define __pyx_n_u_cash __pyx_string_tab[24]
 #define __pyx_n_u_cash_data __pyx_string_tab[25]
 #define __pyx_n_u_cline_in_traceback __pyx_string_tab[26]
@@ -3056,7 +3056,7 @@ return 0;
 #endif
 /* #### Code section: module_code ### */
 
-/* "backtest/execution/core/finance/cash.pyx":21
+/* "backtest/execution/core/finance/cash.pyx":22
  * cdef class AsyncCashManager:
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -3098,14 +3098,14 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":22
+  /* "backtest/execution/core/finance/cash.pyx":23
  * 
  *     def __init__(self):
  *         self.acct = {}             # <<<<<<<<<<<<<<
  * 
  *     async def _start(self):
 */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->acct);
@@ -3113,7 +3113,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   __pyx_v_self->acct = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":21
+  /* "backtest/execution/core/finance/cash.pyx":22
  * cdef class AsyncCashManager:
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -3134,7 +3134,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
 }
 static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/finance/cash.pyx":24
+/* "backtest/execution/core/finance/cash.pyx":25
  *         self.acct = {}
  * 
  *     async def _start(self):             # <<<<<<<<<<<<<<
@@ -3196,7 +3196,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 24, __pyx_L1_error)
+    __PYX_ERR(0, 25, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -3204,7 +3204,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_4generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_start, __pyx_mstate_global->__pyx_n_u_AsyncCashManager__start, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance); if (unlikely(!gen)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_4generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_start, __pyx_mstate_global->__pyx_n_u_AsyncCashManager__start, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance); if (unlikely(!gen)) __PYX_ERR(0, 25, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -3252,10 +3252,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 24, __pyx_L1_error)
+    __PYX_ERR(0, 25, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/finance/cash.pyx":29
+  /* "backtest/execution/core/finance/cash.pyx":30
  *         cdef list cash_data
  * 
  *         cash_data = await async_gt.get_account()             # <<<<<<<<<<<<<<
@@ -3263,9 +3263,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
  *             body = row.body
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_get_account); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_get_account); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_5 = 1;
@@ -3285,7 +3285,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 29, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_6 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -3299,21 +3299,21 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 29, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 30, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_6 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 29, __pyx_L1_error)
+    __PYX_ERR(0, 30, __pyx_L1_error)
   }
-  if (!(likely(PyList_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_1))) __PYX_ERR(0, 29, __pyx_L1_error)
+  if (!(likely(PyList_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("list", __pyx_t_1))) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_cash_data = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":30
+  /* "backtest/execution/core/finance/cash.pyx":31
  * 
  *         cash_data = await async_gt.get_account()
  *         for row in cash_data: # row             # <<<<<<<<<<<<<<
@@ -3322,7 +3322,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
 */
   if (unlikely(__pyx_cur_scope->__pyx_v_cash_data == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-    __PYX_ERR(0, 30, __pyx_L1_error)
+    __PYX_ERR(0, 31, __pyx_L1_error)
   }
   __pyx_t_1 = __pyx_cur_scope->__pyx_v_cash_data; __Pyx_INCREF(__pyx_t_1);
   __pyx_t_7 = 0;
@@ -3330,49 +3330,49 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
     {
       Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
       #if !CYTHON_ASSUME_SAFE_SIZE
-      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 30, __pyx_L1_error)
+      if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 31, __pyx_L1_error)
       #endif
       if (__pyx_t_7 >= __pyx_temp) break;
     }
     __pyx_t_4 = __Pyx_PyList_GetItemRefFast(__pyx_t_1, __pyx_t_7, __Pyx_ReferenceSharing_OwnStrongReference);
     ++__pyx_t_7;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_row);
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_row, __pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "backtest/execution/core/finance/cash.pyx":31
+    /* "backtest/execution/core/finance/cash.pyx":32
  *         cash_data = await async_gt.get_account()
  *         for row in cash_data: # row
  *             body = row.body             # <<<<<<<<<<<<<<
  *             experiment_id = body.experiment_id
  * 
 */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_row, __pyx_mstate_global->__pyx_n_u_body); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 31, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_row, __pyx_mstate_global->__pyx_n_u_body); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 32, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_body);
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_body, __pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "backtest/execution/core/finance/cash.pyx":32
+    /* "backtest/execution/core/finance/cash.pyx":33
  *         for row in cash_data: # row
  *             body = row.body
  *             experiment_id = body.experiment_id             # <<<<<<<<<<<<<<
  * 
  *             self.acct[experiment_id] = Account(experiment_id=experiment_id,
 */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_experiment_id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 32, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_experiment_id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 33, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (!(likely(PyBytes_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_4))) __PYX_ERR(0, 32, __pyx_L1_error)
+    if (!(likely(PyBytes_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_4))) __PYX_ERR(0, 33, __pyx_L1_error)
     __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_experiment_id);
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_experiment_id, ((PyObject*)__pyx_t_4));
     __Pyx_GIVEREF(__pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "backtest/execution/core/finance/cash.pyx":34
+    /* "backtest/execution/core/finance/cash.pyx":35
  *             experiment_id = body.experiment_id
  * 
  *             self.acct[experiment_id] = Account(experiment_id=experiment_id,             # <<<<<<<<<<<<<<
@@ -3381,77 +3381,77 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
 */
     __pyx_t_2 = NULL;
 
-    /* "backtest/execution/core/finance/cash.pyx":35
+    /* "backtest/execution/core/finance/cash.pyx":36
  * 
  *             self.acct[experiment_id] = Account(experiment_id=experiment_id,
  *                                                 datetime=body.datetime,             # <<<<<<<<<<<<<<
  *                                                 portfolio_value=body.portfolio_value,
  *                                                 cash=body.cash,
 */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 35, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
 
-    /* "backtest/execution/core/finance/cash.pyx":36
+    /* "backtest/execution/core/finance/cash.pyx":37
  *             self.acct[experiment_id] = Account(experiment_id=experiment_id,
  *                                                 datetime=body.datetime,
  *                                                 portfolio_value=body.portfolio_value,             # <<<<<<<<<<<<<<
  *                                                 cash=body.cash,
  *                                                 pnl=body.pnl,
 */
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_portfolio_value); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 36, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_portfolio_value); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
 
-    /* "backtest/execution/core/finance/cash.pyx":37
+    /* "backtest/execution/core/finance/cash.pyx":38
  *                                                 datetime=body.datetime,
  *                                                 portfolio_value=body.portfolio_value,
  *                                                 cash=body.cash,             # <<<<<<<<<<<<<<
  *                                                 pnl=body.pnl,
  *                                                 leverage=body.leverage,
 */
-    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_cash); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 37, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_cash); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
 
-    /* "backtest/execution/core/finance/cash.pyx":38
+    /* "backtest/execution/core/finance/cash.pyx":39
  *                                                 portfolio_value=body.portfolio_value,
  *                                                 cash=body.cash,
  *                                                 pnl=body.pnl,             # <<<<<<<<<<<<<<
  *                                                 leverage=body.leverage,
  *                                                 margin=body.margin)
 */
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_pnl); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_pnl); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 39, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
 
-    /* "backtest/execution/core/finance/cash.pyx":39
+    /* "backtest/execution/core/finance/cash.pyx":40
  *                                                 cash=body.cash,
  *                                                 pnl=body.pnl,
  *                                                 leverage=body.leverage,             # <<<<<<<<<<<<<<
  *                                                 margin=body.margin)
  *         # print("AsyncCashManager _start acct ", self.acct)
 */
-    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_leverage); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 39, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_leverage); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 40, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
 
-    /* "backtest/execution/core/finance/cash.pyx":40
+    /* "backtest/execution/core/finance/cash.pyx":41
  *                                                 pnl=body.pnl,
  *                                                 leverage=body.leverage,
  *                                                 margin=body.margin)             # <<<<<<<<<<<<<<
  *         # print("AsyncCashManager _start acct ", self.acct)
  * 
 */
-    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_margin); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 40, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_margin); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 41, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
     __pyx_t_5 = 1;
     {
       PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 7 : 0)] = {__pyx_t_2, NULL};
-      __pyx_t_13 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 34, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 35, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_cur_scope->__pyx_v_experiment_id, __pyx_t_13, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_3, __pyx_t_13, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_8, __pyx_t_13, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_9, __pyx_t_13, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_10, __pyx_t_13, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_11, __pyx_t_13, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_12, __pyx_t_13, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 34, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_cur_scope->__pyx_v_experiment_id, __pyx_t_13, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_3, __pyx_t_13, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_8, __pyx_t_13, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_9, __pyx_t_13, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_10, __pyx_t_13, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_11, __pyx_t_13, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_12, __pyx_t_13, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
       __pyx_t_4 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_13);
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3461,21 +3461,21 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 34, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 35, __pyx_L1_error)
       __Pyx_GOTREF((PyObject *)__pyx_t_4);
     }
 
-    /* "backtest/execution/core/finance/cash.pyx":34
+    /* "backtest/execution/core/finance/cash.pyx":35
  *             experiment_id = body.experiment_id
  * 
  *             self.acct[experiment_id] = Account(experiment_id=experiment_id,             # <<<<<<<<<<<<<<
  *                                                 datetime=body.datetime,
  *                                                 portfolio_value=body.portfolio_value,
 */
-    if (unlikely((PyObject_SetItem(__pyx_cur_scope->__pyx_v_self->acct, __pyx_cur_scope->__pyx_v_experiment_id, ((PyObject *)__pyx_t_4)) < 0))) __PYX_ERR(0, 34, __pyx_L1_error)
+    if (unlikely((PyObject_SetItem(__pyx_cur_scope->__pyx_v_self->acct, __pyx_cur_scope->__pyx_v_experiment_id, ((PyObject *)__pyx_t_4)) < 0))) __PYX_ERR(0, 35, __pyx_L1_error)
     __Pyx_DECREF((PyObject *)__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "backtest/execution/core/finance/cash.pyx":30
+    /* "backtest/execution/core/finance/cash.pyx":31
  * 
  *         cash_data = await async_gt.get_account()
  *         for row in cash_data: # row             # <<<<<<<<<<<<<<
@@ -3486,7 +3486,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/finance/cash.pyx":24
+  /* "backtest/execution/core/finance/cash.pyx":25
  *         self.acct = {}
  * 
  *     async def _start(self):             # <<<<<<<<<<<<<<
@@ -3523,7 +3523,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_4cash_16AsyncCashM
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/cash.pyx":43
+/* "backtest/execution/core/finance/cash.pyx":44
  *         # print("AsyncCashManager _start acct ", self.acct)
  * 
  *     cdef Account get_account(self, bytes experiment_id):             # <<<<<<<<<<<<<<
@@ -3546,7 +3546,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_account", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":44
+  /* "backtest/execution/core/finance/cash.pyx":45
  * 
  *     cdef Account get_account(self, bytes experiment_id):
  *         acct = self.acct.setdefault(experiment_id, Account(experiment_id=experiment_id))             # <<<<<<<<<<<<<<
@@ -3559,13 +3559,13 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_5 = 1;
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_4, NULL};
-    __pyx_t_6 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 44, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_v_experiment_id, __pyx_t_6, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_v_experiment_id, __pyx_t_6, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
     __pyx_t_3 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 44, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_3);
   }
   __pyx_t_5 = 0;
@@ -3574,13 +3574,13 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_setdefault, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF((PyObject *)__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 45, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_acct = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":45
+  /* "backtest/execution/core/finance/cash.pyx":46
  *     cdef Account get_account(self, bytes experiment_id):
  *         acct = self.acct.setdefault(experiment_id, Account(experiment_id=experiment_id))
  *         return acct             # <<<<<<<<<<<<<<
@@ -3588,12 +3588,12 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
  *     cdef Account set_cash(self, object event):
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
-  if (!(likely(((__pyx_v_acct) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_acct, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account))))) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (!(likely(((__pyx_v_acct) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_acct, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account))))) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_INCREF(__pyx_v_acct);
   __pyx_r = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct);
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/cash.pyx":43
+  /* "backtest/execution/core/finance/cash.pyx":44
  *         # print("AsyncCashManager _start acct ", self.acct)
  * 
  *     cdef Account get_account(self, bytes experiment_id):             # <<<<<<<<<<<<<<
@@ -3617,7 +3617,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/cash.pyx":47
+/* "backtest/execution/core/finance/cash.pyx":48
  *         return acct
  * 
  *     cdef Account set_cash(self, object event):             # <<<<<<<<<<<<<<
@@ -3640,79 +3640,79 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_cash", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":51
+  /* "backtest/execution/core/finance/cash.pyx":52
  *         cdef CashData meta
  *         cdef Account acct
  *         cdef bytes experiment_id = event.experiment_id             # <<<<<<<<<<<<<<
  *         cdef object body = event.body
  * 
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_event, __pyx_mstate_global->__pyx_n_u_experiment_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_event, __pyx_mstate_global->__pyx_n_u_experiment_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(0, 51, __pyx_L1_error)
+  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(0, 52, __pyx_L1_error)
   __pyx_v_experiment_id = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":52
+  /* "backtest/execution/core/finance/cash.pyx":53
  *         cdef Account acct
  *         cdef bytes experiment_id = event.experiment_id
  *         cdef object body = event.body             # <<<<<<<<<<<<<<
  * 
  *         meta.cash = body.cash
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_event, __pyx_mstate_global->__pyx_n_u_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_event, __pyx_mstate_global->__pyx_n_u_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_body = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":54
+  /* "backtest/execution/core/finance/cash.pyx":55
  *         cdef object body = event.body
  * 
  *         meta.cash = body.cash             # <<<<<<<<<<<<<<
  *         meta.session = body.session
  * 
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_body, __pyx_mstate_global->__pyx_n_u_cash); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_body, __pyx_mstate_global->__pyx_n_u_cash); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_2 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_meta.cash = __pyx_t_2;
 
-  /* "backtest/execution/core/finance/cash.pyx":55
+  /* "backtest/execution/core/finance/cash.pyx":56
  * 
  *         meta.cash = body.cash
  *         meta.session = body.session             # <<<<<<<<<<<<<<
  * 
  *         acct = self.get_account(experiment_id)
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_body, __pyx_mstate_global->__pyx_n_u_session); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_body, __pyx_mstate_global->__pyx_n_u_session); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 55, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_As_int(__pyx_t_1); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_meta.session = __pyx_t_3;
 
-  /* "backtest/execution/core/finance/cash.pyx":57
+  /* "backtest/execution/core/finance/cash.pyx":58
  *         meta.session = body.session
  * 
  *         acct = self.get_account(experiment_id)             # <<<<<<<<<<<<<<
  *         acct.set_cash(meta)
  * 
 */
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_acct = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":58
+  /* "backtest/execution/core/finance/cash.pyx":59
  * 
  *         acct = self.get_account(experiment_id)
  *         acct.set_cash(meta)             # <<<<<<<<<<<<<<
  * 
  *     cdef void add_cash(self, bytes experiment_id, double cash):
 */
-  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->set_cash(__pyx_v_acct, __pyx_v_meta, NULL); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L1_error)
+  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->set_cash(__pyx_v_acct, __pyx_v_meta, NULL); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 59, __pyx_L1_error)
 
-  /* "backtest/execution/core/finance/cash.pyx":47
+  /* "backtest/execution/core/finance/cash.pyx":48
  *         return acct
  * 
  *     cdef Account set_cash(self, object event):             # <<<<<<<<<<<<<<
@@ -3736,7 +3736,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/cash.pyx":60
+/* "backtest/execution/core/finance/cash.pyx":61
  *         acct.set_cash(meta)
  * 
  *     cdef void add_cash(self, bytes experiment_id, double cash):             # <<<<<<<<<<<<<<
@@ -3753,28 +3753,28 @@ static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("add_cash", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":63
+  /* "backtest/execution/core/finance/cash.pyx":64
  *         cdef Account acct
  * 
  *         acct = self.get_account(experiment_id)             # <<<<<<<<<<<<<<
  *         acct.add_cash(cash)
  * 
 */
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_acct = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":64
+  /* "backtest/execution/core/finance/cash.pyx":65
  * 
  *         acct = self.get_account(experiment_id)
  *         acct.add_cash(cash)             # <<<<<<<<<<<<<<
  * 
  *     cdef void sync(self, bytes experiment_id, dict pobjs):
 */
-  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->add_cash(__pyx_v_acct, __pyx_v_cash); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 64, __pyx_L1_error)
+  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->add_cash(__pyx_v_acct, __pyx_v_cash); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 65, __pyx_L1_error)
 
-  /* "backtest/execution/core/finance/cash.pyx":60
+  /* "backtest/execution/core/finance/cash.pyx":61
  *         acct.set_cash(meta)
  * 
  *     cdef void add_cash(self, bytes experiment_id, double cash):             # <<<<<<<<<<<<<<
@@ -3792,7 +3792,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   __Pyx_RefNannyFinishContext();
 }
 
-/* "backtest/execution/core/finance/cash.pyx":66
+/* "backtest/execution/core/finance/cash.pyx":67
  *         acct.add_cash(cash)
  * 
  *     cdef void sync(self, bytes experiment_id, dict pobjs):             # <<<<<<<<<<<<<<
@@ -3809,28 +3809,28 @@ static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("sync", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":70
+  /* "backtest/execution/core/finance/cash.pyx":71
  *         cdef Account acct
  * 
  *         acct = self.get_account(experiment_id)             # <<<<<<<<<<<<<<
  *         acct.update(pobjs)
  * 
 */
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_acct = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":71
+  /* "backtest/execution/core/finance/cash.pyx":72
  * 
  *         acct = self.get_account(experiment_id)
  *         acct.update(pobjs)             # <<<<<<<<<<<<<<
  * 
  *     cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick):
 */
-  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->update(__pyx_v_acct, __pyx_v_pobjs); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 71, __pyx_L1_error)
+  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->update(__pyx_v_acct, __pyx_v_pobjs); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L1_error)
 
-  /* "backtest/execution/core/finance/cash.pyx":66
+  /* "backtest/execution/core/finance/cash.pyx":67
  *         acct.add_cash(cash)
  * 
  *     cdef void sync(self, bytes experiment_id, dict pobjs):             # <<<<<<<<<<<<<<
@@ -3848,7 +3848,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   __Pyx_RefNannyFinishContext();
 }
 
-/* "backtest/execution/core/finance/cash.pyx":73
+/* "backtest/execution/core/finance/cash.pyx":74
  *         acct.update(pobjs)
  * 
  *     cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick):             # <<<<<<<<<<<<<<
@@ -3865,30 +3865,30 @@ static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("sync_no_sids", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":74
+  /* "backtest/execution/core/finance/cash.pyx":75
  * 
  *     cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick):
  *         acct = self.get_account(experiment_id)             # <<<<<<<<<<<<<<
  *         acct.sync_dt(sync_tick)
  * 
 */
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *)__pyx_v_self->__pyx_vtab)->get_account(__pyx_v_self, __pyx_v_experiment_id)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_acct = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":75
+  /* "backtest/execution/core/finance/cash.pyx":76
  *     cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick):
  *         acct = self.get_account(experiment_id)
  *         acct.sync_dt(sync_tick)             # <<<<<<<<<<<<<<
  * 
  *     cdef remove_client(self, bytes experiment_id):
 */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->sync_dt(__pyx_v_acct, __pyx_v_sync_tick); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *)__pyx_v_acct->__pyx_vtab)->sync_dt(__pyx_v_acct, __pyx_v_sync_tick); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":73
+  /* "backtest/execution/core/finance/cash.pyx":74
  *         acct.update(pobjs)
  * 
  *     cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick):             # <<<<<<<<<<<<<<
@@ -3906,7 +3906,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager
   __Pyx_RefNannyFinishContext();
 }
 
-/* "backtest/execution/core/finance/cash.pyx":77
+/* "backtest/execution/core/finance/cash.pyx":78
  *         acct.sync_dt(sync_tick)
  * 
  *     cdef remove_client(self, bytes experiment_id):             # <<<<<<<<<<<<<<
@@ -3924,7 +3924,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashMa
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("remove_client", 0);
 
-  /* "backtest/execution/core/finance/cash.pyx":78
+  /* "backtest/execution/core/finance/cash.pyx":79
  * 
  *     cdef remove_client(self, bytes experiment_id):
  *         self.acct.pop(experiment_id, None)             # <<<<<<<<<<<<<<
@@ -3936,12 +3936,12 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashMa
     PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_v_experiment_id, Py_None};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_pop, __pyx_callargs+__pyx_t_3, (3-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":77
+  /* "backtest/execution/core/finance/cash.pyx":78
  *         acct.sync_dt(sync_tick)
  * 
  *     cdef remove_client(self, bytes experiment_id):             # <<<<<<<<<<<<<<
@@ -5051,15 +5051,15 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.sync_no_sids = (void (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, int64_t))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_sync_no_sids;
   __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.remove_client = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_remove_client;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager)) __PYX_ERR(0, 19, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager)) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = &__pyx_type_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
@@ -5069,20 +5069,20 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager, __pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 19, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 19, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AsyncCashManager, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 19, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager, __pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_AsyncCashManager, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start)) __PYX_ERR(0, 24, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start)) __PYX_ERR(0, 25, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start) < (0)) __PYX_ERR(0, 25, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start = &__pyx_type_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start) < (0)) __PYX_ERR(0, 25, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___start);
@@ -5432,7 +5432,7 @@ __Pyx_RefNannySetupContext("PyInit_cash", 0);
  * """
  * import asyncio             # <<<<<<<<<<<<<<
  * import warnings
- * from backtest.protocol import Event
+ * #from backtest.protocol import Event
 */
   __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_asyncio, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 8, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
@@ -5444,8 +5444,8 @@ __Pyx_RefNannySetupContext("PyInit_cash", 0);
  * """
  * import asyncio
  * import warnings             # <<<<<<<<<<<<<<
- * from backtest.protocol import Event
- * 
+ * #from backtest.protocol import Event
+ * from bt_sdk.core.protocol import Event
 */
   __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_warnings, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
@@ -5453,31 +5453,31 @@ __Pyx_RefNannySetupContext("PyInit_cash", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_warnings, __pyx_t_2) < (0)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":10
- * import asyncio
+  /* "backtest/execution/core/finance/cash.pyx":11
  * import warnings
- * from backtest.protocol import Event             # <<<<<<<<<<<<<<
+ * #from backtest.protocol import Event
+ * from bt_sdk.core.protocol import Event             # <<<<<<<<<<<<<<
  * 
  * from libc.stdint cimport int64_t
 */
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Event};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_protocol, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_bt_sdk_core_protocol, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_Event};
     __pyx_t_3 = 0; {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 10, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 11, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 10, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 11, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":14
+  /* "backtest/execution/core/finance/cash.pyx":15
  * from libc.stdint cimport int64_t
  * 
  * from backtest.execution.core.gateway.interface import async_gt             # <<<<<<<<<<<<<<
@@ -5486,34 +5486,34 @@ __Pyx_RefNannySetupContext("PyInit_cash", 0);
 */
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
     __pyx_t_3 = 0; {
-      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 14, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 15, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 14, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_4) < (0)) __PYX_ERR(0, 15, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/execution/core/finance/cash.pyx":24
+  /* "backtest/execution/core/finance/cash.pyx":25
  *         self.acct = {}
  * 
  *     async def _start(self):             # <<<<<<<<<<<<<<
  *         cdef object row, body # resp
  *         cdef bytes experiment_id
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_3_start, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_AsyncCashManager__start, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_3_start, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_AsyncCashManager__start, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager, __pyx_mstate_global->__pyx_n_u_start, __pyx_t_2) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager, __pyx_mstate_global->__pyx_n_u_start, __pyx_t_2) < (0)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -5629,25 +5629,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{179},{1},{8},{40},{7},{6},{2},{9},{14},{16},{34},{36},{23},{5},{20},{8},{7},{18},{9},{36},{41},{17},{4},{4},{9},{18},{5},{8},{8},{5},{13},{8},{11},{12},{13},{5},{8},{8},{6},{10},{8},{7},{4},{3},{3},{15},{14},{12},{11},{10},{31},{14},{12},{10},{17},{13},{3},{4},{4},{7},{12},{10},{12},{19},{6},{5},{8},{5},{6},{12},{5},{6},{8},{97},{2},{11},{58}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (806 bytes) */
-const char* const cstring = "BZh91AY&SY\315\031\252\335\000\000-\177\377\346\315\274\200\350\207\375\315\257\243v\210\277\377\377\344@@@@@@@@@@@@@\000@\000@\002\255p\034\244\254\032Jy\021\243S\023\023\321\033\3252d\323 \000\323Fjb1\017S\320&\2314\366\215Ph\221\201\rM\244\236\200\232h\320\000\000\001\240\320\000\000\000*\2175OP=\t\243M\006F\200\000\320\000\003@\000\000\000\032hA\002h\r\n6F\220h\r\0004\032\000\006\200\017I\345\006-\221A\373\250\241\005\021\243\264L\255\206\010\306B\214\332\303b\003FB\231\010\020\243#:\364\362i\351{\254\260\354F\273\003\320\013\271\306 \312W\037\035\244\224\256\023\311\234\306\254\203!\234$]\010\202D|_\201@f\335\233_\230&\235\337\n\021\323R$\313\252\345\241|\323~\310O\244\227& \327\250\237\200\204\235\314h8\243X\234\225\360zy\r\302h\006Im`\006\220\312\210\350\030\261]\366g\317s\263\304m^X(\346\343\252O\007\2330Q\n\234\014\216\024\245Qf\001Me\022E\003\315X\212\024\236q\223RaW\007\345\004}\257\024\026\337\352|v\244\023\027\321\002\215\316\032(\254]\310\200\246\315\203\r\321\263:\204\302\241{&7W\301\323\334zTe\034\274\240[\222\344O|\367z\262\200\305H\014+q\205\253\261@\322\016\313\253\027\251\\\324\001B\007\002\245\r\225\3335Y\261@\035TH\013\0069i\325{ $\345\032\tX\205\273+`u\201$\331B\206\252\235\226\245\266N\000P\332\361\253<\036\221KL\337\262\027\3206v\277\020jVAV\006\231\016T\242\261\262+\217(\314\332\341v\271`\030\3069\315J\254\202\2141!\032\001\344M\006\016\311\221:\036\365\334m\241q\234\265Sx9!\313|\363(\324O9\260\344Bf\202\216\"/\343\024\335\242\300\022\254)MED,]A)\254\014\034\225v\222\272\242\020IP\310=\027\343\021\251\004\314A\006O\200\211\311J\256\022\345K\232f\270P\020Gr\211\241[\021d`\030|d\016\207\3348UU1\001$\023\212k9\335%k4\202:\372x0lZ\005!\212\216*[!\210!V\330\203C\330\023^8\215\253^EF\030+\227I\363\310i\275`\026\233\020\010nn\262^\t\001h$\t\376\310}\343\255\004\222e\251\003F\215:N\025\270FLz48\244\242]\002\341\t\235\023\260\014\020\001\354\264\013\244\022\347\330 \306,K;\036\022\321!\224k;l\375`\260\004\305y\021Lv\232\313g)\027\221\330c\357\253ou""\232\252\226\201\221J!\tl8\255\220\003\026\204\341\276\004w\321/}\270\250x\236\372\177-\217L\360.'\377\005Uz\322\327\261[\177\232\321)\332\360\034+y\260\221\277pC9b\246\301\266\337\035\333\326'\272\265\276\303S\244\203\234\033\374]\311\024\341BC4f\253t";
-    PyObject *data = __Pyx_DecompressString(cstring, 806, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{179},{1},{8},{40},{7},{6},{2},{9},{14},{16},{34},{36},{23},{5},{20},{8},{7},{18},{9},{36},{41},{4},{20},{4},{9},{18},{5},{8},{8},{5},{13},{8},{11},{12},{13},{5},{8},{8},{6},{10},{8},{7},{4},{3},{3},{15},{14},{12},{11},{10},{31},{14},{12},{10},{17},{13},{3},{4},{4},{7},{12},{10},{12},{19},{6},{5},{8},{5},{6},{12},{5},{6},{8},{97},{2},{11},{58}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (810 bytes) */
+const char* const cstring = "BZh91AY&SYdq>\004\000\000-\177\377\346\315\274\200\350\207\375\315\257\243v\210\277\377\377\344@@@@@@@@@@@@@\000@\000@\002\243;M\315%pi\004&OH\233C\"6\246LF\215\0004\014\232\003C5\014\001<MA\242S\30145\036\211\246\247\244\310\320\000\000\000\003@\000\000\000hi#T\336\251\243\3241\030\200\000\000\000\000\000\000\000\320\032h\204\310\230\202m\0216\010\203#\000C \321\243 \310d\320\323i\031k\204P\352\314Q\202\330f\031%\344Yb1\223\021\225 P\204\307LK\204\210\323\201}\0317\362ra\321i:P\304\t\205#SjA\327]\250\334\241C\203\037\032>\024\256\271\244v\306w'\004\207\r\226\231\330X\355\271:\305\260\375K\267(\260\375]\217\314\254\367\010\3626\326b\023\351>\354\324\232\363\310\333 \323x\022\200\365rv]\257K\275k\010\240\025g\264@\030 \262#\240*U\261\211z\365\234\274\302\323}A\205\232\222\235\340\361$0\204\234\n\256\031RS\022\003-\272\242N\245@x\263\250\266buL\032r\3725\277`C\346\350 \256\337\233\243\271\036\227\272P(\323\333\224\255\013>\310\ng\316.\272\273t\316\t\303\203\364\231wUk\212\242Z;\302\030@E\267^\"\305*\265\tK\t\362\300@RE\326\246\225L`\357\331i*\235p\310\t p\024(l\016l4a\274\360sf\236 T/\307$*\276\204\233\006\"V\001l\300\327\034\257$\232d\254h\237=i]1x\022n\315\005g\203\310R1Z)\302\204\006\271\242`\262b\004\256\214T:\262\243\025\2473T\275\027\307\345V\276$\200kZ\347D\245\324\t!\252\010\317\017\"\210\030:\214\211\320\367\245\307\024\314I\311:\261C\224\034\307\330\225f\262y\313r4*X,\322\220_\306(\303\233\000\t\032\026\267\"\272\0302*A\251\014\034J\271\246W*!\004\225\014\203\222\334 3 \211\200 \314\353\2045\210)\354\262E:#6Bp\202;\263K\013XL#\000\303\322\010\346}\323\204\353\242\260\021\301W\215\207a\321\332\252\200GN\225\373\372\366\301Fb\273\200\242(\314A\013\301j\r\017hU)c)\246\276\250\302k\226\243\254\375\030\214uH\n\315(\003\364\3622T\201\342\260H\021\376\020\354\247\261\004\311\022\323\246,X\361\233\253`\204\314r\370\347x\240\242`\201pBe<\252K\257\001/\260\005\342\nuz\2105\254\022A\257\n\210Fd\226\035\306\376\264T\004\245e\025\245;r\217\200\332\"\244s\r\017B\266]\206""\242\205\220\276\245\020\204\255\3745\314\000\275\2116\255\201\rD)\231{\331\302XqA\367g\307\366\0316A\234U\213\322\226\2151k\376g\034\273\325\341@\212\212\205AO\264F\344\203wH\327r\307\205\3333\357I$\0132\343A\010\006\377\027rE8P\220dq>\004";
+    PyObject *data = __Pyx_DecompressString(cstring, 810, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (703 bytes) */
-const char* const cstring = "x\332}R1oS1\020&RP#\025QA+u\304\025C\027x!PA%\020\250*-b\240j\252\"\006\006\313\261//&\216\375b\373%y\022C\306\214\0313v\314\230\261c\307\216\0313\366'\360\0238\347\245\001Z`xw\367|\337\371\374\335}\321\221\361@|\203y\262\237\371\206\321D:\"@\311\032X\346Ae\304y+\271\007\033@\232\034\037\034?\335\331\335!L\013b\341\033p\357\210Kk\\1\347\300\021S'\265T*/5\361Y\002.\"\037\353$3)\321\000\202xC\022\304\375^\340\033\240\211\003\037\002\262\315\2646\236yi4\305r\251\343m\"\244\305&\262\003\241\372\220)\007\321;&\004E \324\030ozp\276\014=\340i(+sc\241\\\227\232i\016e\316\\#J\262\236\220\216\325\024\200\0166\346\322\345\221x\023\270\351\330\231\324rx\273\3472\315\367\261\344\023\323,\006{\363?\242\324\202H9P>\237\024\245\177A \025\207\014\376\207\301\274\365\007\035\320\236\322\343\254\207\337{\0340=\202\236?\201:\013x\032\373\271\227f\341\"\344e\220\241\006G)\3532\211\265\327\354\243%\373\200\202h\301>\n\354\377\205\211\361\211]\226ER\343f\353\214/G\031%\326x\303\215\252\031\221\205\033\302G\005\363\214+\354N%n\306.\360\\\031\007\230\002/[@\251\010,r\007\275\004,\036\"E)(\255\247H\211\306\340)\343\334\244\201x|='J\245\243Kv\322C\313)\350\240\370b\314\265\030\366Ck\343\2717\"U\241\202j\326\312=t\203\351\371D\253\304$\211\261\276n\2244\264\303T\212\010\334=\345\r\340M\227\266\362?\013.U>\217\027\017\010a\020k\036\245:\221\274\211mn..Ow|PN\350\335N\231\272~\307B\027\364\226B\226\007\320\303\320t\035\250:\252O\240\364]Py\320\313\202\rF\002\327?\177\235\3735\235\333\212\312\005\264\310\207\235\241m\340\335i\022v\221:X\226\314\24707\256\313\254\016R\357\027~\224\356\334\275?8\035>\230\025\357\r>\014+\303\303\321\22336+\256\364;\203/\303\203\321\306\250:+=\034n\315J\233\303\366\025\032?zy\2669.\004D{VZ\233\256U&\033\223\352$>\377z\271r\211\210?N\n\203\255>B\2431\033w&\325~\341\252\370h\324\236\222g\223\325\363\327\027\315i\365dV\\\237\256?>\333\035W\306{\341\312\357\303W#\354\365|\2625}qx\241\247\247\237g\305\325A\345'i\031\322\255";
-    PyObject *data = __Pyx_DecompressString(cstring, 703, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (708 bytes) */
+const char* const cstring = "x\332}R1oS1\020&RP#\025QA+u\304\025C\027x!PA%\020\250*-b\240j\252\"\006\006\313\261//&\216\375b\373%y\022C\306\214\0313v\314\230\261c\307\216\0313\366'\360\0238\347\245\001Z`xw\367\354\357|\367\335}\321\221\361@|\203y\262\237\371\206\321D:\"@\311\032X\346Ae\304y+\271\007\033@\232\034\037\034?\335\331\335!L\013b\341\033p\357\210Kk\\1\347\300\021S'\265T*/5\361Y\002.\"\037\353$3)\321\000\202xC\022\304\375\236\340\033\240\211\003\037\002\262\315\2646\236yi4\305t\251\343m\"\244\305\"\262\003!\373\220)\007\321;&\004E \324\030ozp\276\014=\340iH+sc\241\\\227\232i\016e\316\\#J\262\236\220\216\325\024\200\0166\346\322\345\221x\023\270\351\330\231\324rx\273\3472\315\3671\345\023\323,\006{\363?\242\324\202H9P>\237\024\245\177A \025\207\014\376\207\301{\353\017:\240=\245\307Y\017\277\3678`z\004=\177\002u\026\3604\366s/\315\302E\310\313 C\r\216R\326e\022s\257\331GK\366\001\005\321\202}\024\330\377\013\023c\213]\226ER\343f\353\214C\315\210\254\346\251\023\315\034\220X\343\r7*<\022>*\230g\\a\003T\342rlH\301\267\2712\016\360\n\274l\001\245\"\020\311\035\364\022\260x\210,\245\240\264\236\"+\032\203\247\214s\223\006\356\361\365\250(\225\216.\tJ\017-\247\240\203\372\213\361\256\305\260\036Z\033\317\275\021\251\n\031T\263V\356\241\033L\317'Z%&I\214\365u\243\244\241\035\246RD\340\372)o\000o\272\264\225\377Yp\251\362y\274h \204A\257y\224\352D\362&\226\271\271\273\374\272\343\203xB\355v\312\324u\037\013i\320[\"Y\036@\017C\323u\240\352(@\201\352wA\350A2\0136\030\tT\300\274;\367k:\267E\225khq\037\366\213\266\201o\247I\330E\352`\2312\237\302\334\270.\263:\250\275_\370Q\272s\367\376\340t\370`V\2747\3700\254\014\017GO\316\330\254\270\322\357\014\276\014\017F\033\243\352\254\364p\2705+m\016\333Wh\374\350\345\331\346\270\020\020\355Yim\272V\231lL\252\223\370\374\353\345\312%\"\3768)\014\266\372\010\215\306l\334\231T\373\205\253\342\243Q{J\236MV\317__4\247\325\223Yq}\272\376\370lw\\\031\357\205'\277\017_\215\260\326\363\311\326\364\305\341\205\236\236~\236\025W\007\225\237M\342\323\252";
+    PyObject *data = __Pyx_DecompressString(cstring, 708, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (1176 bytes) */
-const char* const bytes = ".Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.?add_notebacktest/execution/core/finance/cash.pyxdisableenablegcisenabled<stringsource>AsyncCashManagerAsyncCashManager.__reduce_cython__AsyncCashManager.__setstate_cython__AsyncCashManager._startEvent__Pyx_PyDict_NextRefasync_gtasyncioasyncio.coroutines__await__backtest.execution.core.finance.cashbacktest.execution.core.gateway.interfacebacktest.protocolbodycashcash_datacline_in_tracebackclosedatetime__dict___dictexperiment_id__func__get_account__getstate___is_coroutineitemsleverage__main__margin__module____name____new__nextpnlpopportfolio_value__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AsyncCashManager__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__rowselfsendsession__set_name__setdefault__setstate____setstate_cython___startstate__test__throwupdateuse_setstatevaluevalueswarnings\200\001\360\010\000\005\016\210T\220\021\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2306\240\027\250\001\330\004\007\200q\330\010\017\320\0171\260\024\260Q\260g\270[\310\007\310q\340\010\017\320\0171\260\024\260Q\260g\270[\310\001\210!\200\001\330\004.\250a\250v\260Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\320\023#\2408\2501\250A\330\004\007\200|\2207\230!\330\0102\260!\3203F\300n\320TU\330\004\013\2101";
+    #else /* compression: none (1179 bytes) */
+const char* const bytes = ".Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.?add_notebacktest/execution/core/finance/cash.pyxdisableenablegcisenabled<stringsource>AsyncCashManagerAsyncCashManager.__reduce_cython__AsyncCashManager.__setstate_cython__AsyncCashManager._startEvent__Pyx_PyDict_NextRefasync_gtasyncioasyncio.coroutines__await__backtest.execution.core.finance.cashbacktest.execution.core.gateway.interfacebodybt_sdk.core.protocolcashcash_datacline_in_tracebackclosedatetime__dict___dictexperiment_id__func__get_account__getstate___is_coroutineitemsleverage__main__margin__module____name____new__nextpnlpopportfolio_value__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AsyncCashManager__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__rowselfsendsession__set_name__setdefault__setstate____setstate_cython___startstate__test__throwupdateuse_setstatevaluevalueswarnings\200\001\360\010\000\005\016\210T\220\021\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2306\240\027\250\001\330\004\007\200q\330\010\017\320\0171\260\024\260Q\260g\270[\310\007\310q\340\010\017\320\0171\260\024\260Q\260g\270[\310\001\210!\200\001\330\004.\250a\250v\260Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\320\023#\2408\2501\250A\330\004\007\200|\2207\230!\330\0102\260!\3203F\300n\320TU\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -5755,7 +5755,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 24};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 25};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_row, __pyx_mstate->__pyx_n_u_body, __pyx_mstate->__pyx_n_u_experiment_id, __pyx_mstate->__pyx_n_u_cash_data};
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_finance_2, __pyx_mstate->__pyx_n_u_start, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }

@@ -233,7 +233,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     bind2lines = bindlines
     bind2line = bind2lines
 
-    @profile
+    # @profile
     def _clk_update(self):
         clock_len = len(self._clock)
         if clock_len != len(self):
@@ -264,7 +264,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     #         elif clock_len:
     #             self.prenext()
 
-    @profile
+    # @profile
     def _next(self):
         clock_len = self._clk_update()
 
@@ -280,7 +280,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         elif clock_len:
             self.prenext()
     
-    @profile
+    # @profile
     def _next_fast(self): # cpu soft
         # self._clk_update()
         self.forward()

@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import numpy as np
+import math
 import warnings
 import collections
 import itertools
@@ -175,6 +176,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
             analyzer._start()
+        self._fast_analyzers = [ analyzer._next for analyzer in self.analyzers]
 
         for obs in self.observers:
             if not isinstance(obs, list):
@@ -182,6 +184,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
             for o in obs:
                 o._start()
+        self._fast_observers = [observer._next for observer in self.observers]
 
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
@@ -301,7 +304,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                      for d in self.datas if len(d)])      
         self._dlens = newdlens
 
-    @profile
+    # @profile
     def _next_observers(self, minperstatus):
         if minperstatus < 0:
             for analyzer in self.analyzers:
@@ -316,15 +319,14 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for observer in self.observers:
             observer._next()
 
-    @profile
-    def _next_observers_fast(self):
-        for analyzer in self.analyzers:
-            analyzer._next()
+    # @profile
+    def _next_observers_fast(self): # avoid attr
+        for aly in self._fast_analyzers:
+            aly()
+        for obs in self._fast_observers:
+            obs()
 
-        for observer in self.observers:
-            observer._next()
-
-    @profile
+    # @profile
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
         minperstatus = self._getminperstatus()
@@ -339,7 +341,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         else:
             self.prenext()
     
-    @profile
+    # @profile
     def _next_flat_fast(self):
         # self.clk_update()
         self.forward()
@@ -367,9 +369,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         else:
             pos_snap = self.snapshot.positions
             is_submit = pos_snap[0].available > 0 if pos_snap else False 
+        
         return ratio, is_submit
  
-    @profile
     def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
@@ -412,7 +414,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
-        created_dt = np.nan_to_num(self.lines.datetime[0], nan=0.0)
+        created_dt = self.lines.datetime[0]
+        created_dt = 0.0 if np.isnan(created_dt) else created_dt
+
         _sizer, is_allowed = self.getsizing()
         if created_dt > 0 and is_allowed:
             order = OrderBody(
@@ -431,7 +435,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
         
-    @profile
     def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
         '''
         To create a selll (short) order and send it to the broker
@@ -440,7 +443,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
-        created_dt = np.nan_to_num(self.lines.datetime[0], nan=0.0)
+        created_dt = self.lines.datetime[0]
+        created_dt = 0.0 if np.isnan(created_dt) else created_dt
+
         _sizer, is_allowed = self.getsizing(isbuy=False)
         if created_dt > 0 and is_allowed:
             order = OrderBody(
@@ -730,6 +735,7 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         if l_enter:
             if self.p._accumulate:
                 self.buy()
-        elif l_exit or l_rev or l_leave:
+        # elif l_exit or l_rev or l_leave:
+        else:
             # closing position - not relevant for concurrency
             self.sell() # sell means close

@@ -19,7 +19,6 @@ scipy = "^1.16.1"
 patsy = "^1.0.1"
 httpx = "^0.28.1"
 matplotlib = "^3.10.5"
-pydantic = "2.6.4"
 pydantic-core = "2.16.3"
 dotenv = "^0.9.9"
 twine = "^6.2.0"
@@ -45,12 +44,14 @@ numba = "^0.64.0"
 sqlalchemy = "^2.0.47"
 asyncpg = "^0.31.0"
 greenlet = "^3.3.2"
+grpcio = "^1.78.0"
+fsspec = "^2026.2.0"
 
 [[tool.poetry.source]]
 name = "tuna"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
 # optional: make this your default source for all installs
-priority = "default"
+priority = "primary"
 
 [[tool.poetry.source]]
 name = "devpi"

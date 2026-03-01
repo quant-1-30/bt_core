@@ -53,7 +53,7 @@ from backtest.execution.core.finance.simulate_types cimport MsgType
 from backtest.execution.core.gateway.interface cimport RpcTopic
 from backtest.execution.utils.util cimport ts2intdt
 from backtest.execution.core.gateway.interface import async_gt
-from backtest.protocol import SnapshotBody, Resp, Event, Resp, QueryBody
+from bt_sdk.core.protocol import SnapshotBody, Resp, Event, Resp, QueryBody
 
 
 cimport numpy as cnp
@@ -127,9 +127,11 @@ cdef class BatchWriterActor: # CPU Intensive
                 if "order" in item and item["order"] is not None:
                     order_obj = <Order>item["order"]
                     schema_obj = order_obj.to_schema()
+                    schema_bit = [d.to_dict() for d in schema_obj.order_bits]
 
                     order_data.append(schema_obj.to_dict())
-                    orderbit_data = [d.to_dict() for d in schema_obj.order_bits]
+                    # orderbit_data = [d.to_dict() for d in schema_obj.order_bits]
+                    orderbit_data.extend(schema_bit)
 
                 if "positions" in item and item["positions"] is not None:
                     positions_map = item["positions"]
