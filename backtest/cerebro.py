@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import numpy as np
 import datetime
 import itertools
 from collections import OrderedDict
@@ -104,7 +104,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def __init__(self):
         self.cash = 0.0
         self.calendar_days = list()
-        self.markets = list()
         self.datas = list()
         self.strats = list()
         self.observers = list()
@@ -129,11 +128,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         store = store if store else self.p.store
         storecls = _stores[store]
         self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
-        self._preload()
-    
-    def _preload(self):
-        # self.calendar_days = self.store.get_calendar()
-        self.markets = self.store.get_instrument()
 
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
@@ -439,6 +433,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # Prepare feed
         print("cerebro run data start")
         self.adddata(dmaster=True)
+        
         for data in self.datas:
             data._start(**kwargs)
 
@@ -527,7 +522,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
                             num_ind=len(dstrat._lineiterators[0]), 
                             num_obs=len(dstrat._lineiterators[2]),
                             out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
-        return self.runstrats
+        
+        # metrics
+        return {"sharpe": np.random.randn(), "pnl": np.random.randn()}
+
      
     def runstrategies(self, iterstrat, **kwargs):
         '''

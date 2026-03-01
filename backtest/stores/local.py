@@ -23,12 +23,14 @@ import numpy as np
 import pyarrow as pa
 from typing import Union, List, Mapping, Any, Generator, Tuple
 
-from backtest.store import Store
-from bt_sdk.core.client import MdApi, TdApi, SubTopic, OrderType, ExecType
 from bt_sdk.core.protocol import *
-from typing import List
+from bt_sdk.core.client import GetMdApi
+from backtest.store import Store
+from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
+from backtest.runner.async_runner import AsyncRunner
 
-__all__ = ["BTStore"]
+
+__all__ = ["LocalStore"]
 
 
 class LocalStore(Store):
@@ -51,18 +53,29 @@ class LocalStore(Store):
 
     params = (
         ("md_addr", ("127.0.0.1:50051")),
-        ("td_addr", ("127.0.0.1:8888")),
         ("client_id", b""),
+        ("ref", None),
+        ("config", {})
     )
 
-    def __init__(self): 
-        md_addr = os.getenv("MD_ADDR", self.p.md_addr).split(":")
-        mdapi = MdApi(addr=(md_addr[0], int(md_addr[1])))
-        self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
+    def __init__(self):
+        self._feed = self.DataCls(ref=self.p.ref, config=self.p.config) 
 
-        td_addr = os.getenv("TD_ADDR", self.p.td_addr).split(":")
-        tdapi = TdApi(client_id=self.p.client_id, addr=(td_addr[0], int(td_addr[1])), timeout=self.p.timeout)
+        max_size = int(os.getenv("MaxSize")) 
+        batch_size = int(os.getenv("BatchSize")) 
+        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, batch_size=batch_size)
         self.broker = self.BrokerCls(tdapi=tdapi)
+        
+        self._runner = AsyncRunner()
+
+    def start(self, *args, **kwargs):
+        self._runner.start() # new_event_loop
+        _loop = self._runner.get_loop()
+        
+        md_addr = os.getenv("MD_ADDR", self.p.md_addr).split(":")
+        mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
+        mdapi.start(_loop) # ensure simulator mdapi is binding
+        self.broker._prepare(_loop)
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it
@@ -98,15 +111,15 @@ class LocalStore(Store):
     def set_cash(self, experiment_id: bytes, session: int, cash: float) -> List[Resp]:
         body = CashBody(cash=cash, session=session)
         resp = self.broker.set_cash(experiment_id, body)
-        return resp[0]
+        return resp
     
     def submit(self, experiment_id: bytes, body: OrderBody) -> List[Resp]:
         resp = self.broker.submit(experiment_id, body)
-        return resp[0]
+        return resp
     
     def getvalue(self, experiment_id: bytes) -> List[Resp]:
         resp = self.broker.getvalue(experiment_id)
-        return resp[0]
+        return resp
     
     def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Resp]:
         return self.broker.subscribe(topic, experiment_id, body)
@@ -115,7 +128,7 @@ class LocalStore(Store):
         body = self._feed.on_dt_over()
         if body:
             resp = self.broker.on_dt_over(experiment_id, body)
-            return resp[0]
+            return resp
         return None
     
     def cancel(self, order_id: bytes):

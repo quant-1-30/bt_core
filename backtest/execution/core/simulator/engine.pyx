@@ -35,15 +35,15 @@ from backtest.execution.core.finance.position cimport Position
 from backtest.execution.core.gateway.interface import async_gt # singleton cast to cdef class type 
 from backtest.execution.core.finance.simulate cimport Simulator
 
+from libc.stdint cimport int32_t
+
 
 logger = logging.getLogger(__name__)
 
 
 cdef class BackEngine:
 
-    def __init__(self):
-        max_size = int(os.getenv("MaxSize")) 
-        batch_size = int(os.getenv("BatchSize")) 
+    def __init__(self, int32_t max_size, int32_t batch_size):
         self.simulator = Simulator(max_size=max_size, batch_size=batch_size)
         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 

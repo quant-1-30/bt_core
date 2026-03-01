@@ -28,7 +28,6 @@ from bt_sdk.core.protocol import *
 from backtest.runner.async_runner import AsyncRunner
 from backtest.store import Store
 from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
-from typing import List
 
 __all__ = ["BTStore"]
 
@@ -61,7 +60,9 @@ class RemoteStore(Store):
         mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
         self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
-        tdapi = TdApi(client_id=self.p.client_id)
+        max_size = int(os.getenv("MaxSize")) 
+        batch_size = int(os.getenv("BatchSize")) 
+        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, batch_size=batch_size)
         self.broker = self.BrokerCls(tdapi=tdapi)
 
         self._runner = AsyncRunner()

@@ -24,6 +24,7 @@ from typing import List, Union
 
 from backtest.broker import BrokerBase
 from backtest.stores.remote import RemoteStore
+from backtest.stores.local import LocalStore
 from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp, SnapshotBody, AccountBody, PositionBody
 
 __all__ = ["BTBroker"]
@@ -33,7 +34,9 @@ class MetaBtBroker(BrokerBase.__class__):
     
     def __init__(cls, name, bases, dct):
         super(MetaBtBroker, cls).__init__(name, bases, dct)
-        RemoteStore.BrokerCls = cls # auto Register with the store when type class __import__
+        # auto Register with the store when type class __import__
+        RemoteStore.BrokerCls = cls 
+        LocalStore.BrokerCls = cls 
 
     def donew(cls, *args, **kwargs):
         print("MetaBtBroker donew kwargs ", kwargs)

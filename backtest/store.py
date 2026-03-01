@@ -60,7 +60,6 @@ class Store(with_metaclass(MetaStore, object)):
     DataCls = None  # data class will auto register
 
     params = (
-        ("agent", None),
         ("timeout", 10),
     )
     

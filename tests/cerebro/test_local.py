@@ -1,10 +1,9 @@
 import os
-import ray
 import uuid
 import backtest as bt
 from itertools import chain
+from dotenv import load_dotenv
 from typing import List, Any, Dict
-from ray import tune
 
 from bt_sdk.core.client import GetMdApi
 from bt_sdk.core.protocol import QueryBody
@@ -96,30 +95,6 @@ def run_backtest(config: Dict[str, Any], data_ref: Dict[str, Any]):
 
 
 def train_hpo():
-    # --- 启动 Ray ---
-    env_config = {
-                "PGHOST": "localhost",
-                "PGPORT": "5432",
-                "PGUSER": "postgres",
-                "PGPWD": "20210718",
-                "PGDB": "bt_trade",
-                "PGENGINE": "asyncpg",
-                "PGPOOLSIZE": "20",
-                "PGMAXOVERFLOW": "10",
-                "PGPOOLRECYCLE": "3600",
-                "PGTIMEOUT": "30",
-                "PGPREPING": "1",
-                "PGECHO": "0",
-
-                "MaxSize": "10000", 
-                "BatchSize": "1000"}
-
-    ray.init(address="auto", 
-            namespace="backtest", 
-            runtime_env={"env_vars": env_config},
-            ignore_reinit_error=True)
-    # --- 数据预加载 (在 Driver 端执行一次) ---
-    
     print("Preloading data...")
     data = preload(
         start_date=20100101, 
@@ -127,10 +102,8 @@ def train_hpo():
         sid=[b"600036"], 
         benchmark=b"000001"
     )
-    data_ref = ray.put(data) # Object store and publish to worker
 
     search_space = {
-        # 通用回测配置
         "client_id": "e9f8cd38-e73c-453f-8a47-55beda640ae6",
         "cash": 100000,
         "sid": [b"600036"], 
@@ -139,64 +112,30 @@ def train_hpo():
         "benchmark": b"000001", 
         
         # WeekPriceSignal
-        "week": tune.randint(5, 15),
+        "week": 10,
 
         # DailyPriceSignal
-        "daily": tune.randint(100, 150),
+        "daily": 120,
 
         # MACDSignal
-        "macd_me1": tune.randint(5, 15),
-        "macd_me2": tune.randint(20, 35),
-        "macd": tune.randint(5, 15),
+        "macd_me1": 12,
+        "macd_me2": 26,
+        "macd": 10,
 
         # VolSignal
-        "vol": tune.randint(5, 20),
-        "vol_thres": tune.uniform(1.0, 1.3),
+        "vol": 10,
+        "vol_thres": 1.1,
         
         # VolSignal
-        "sell": tune.randint(5, 15),
-        "sell_thres": tune.uniform(0.80, 1.2),
+        "sell": 10,
+        "sell_thres": 0.85 ,
 
         # DrawDownSignal
-        "dd_thres": tune.uniform(0.1, 0.2),
+        "dd_thres": 0.2,
     }
-
-    # --- 配置 ASHA 算法 (早停) ---
-    # metric: 优化目标, mode: 最大化, grace_period: 至少跑多久才开始判断
-    # reduction_factor: 每轮淘汰比例（例如淘汰后 1/4 的 Trial）
-    asha_scheduler = tune.schedulers.ASHAScheduler(
-        metric="sharpe",
-        mode="max",
-        grace_period=1, 
-        reduction_factor=4
-    )
-    
-    # --- 启动 Tuner ---
-    tuner = tune.Tuner(
-        tune.with_parameters(run_backtest, data_ref=data_ref), # big data ref
-        
-        param_space=search_space,
-        
-        tune_config=tune.TuneConfig(
-            num_samples=200,             # 尝试 200 组参数
-            max_concurrent_trials=12,    # 最大并发数
-            scheduler=asha_scheduler     # 启用 ASHA 剪枝
-        ),
-        
-        run_config=tune.RunConfig(
-            name="my_strategy_hpo",
-            storage_path="/tmp/ray_tune_results"
-        )
-    )
-
-    results = tuner.fit()
-
-    # --- 分析结果 ---
-    best_trial = results.get_best_result(metric="sharpe", mode="max")
-    print("="*30)
-    print("Best trial config: {}".format(best_trial.config))
-    print("Best trial final sharpe: {}".format(best_trial.metrics["sharpe"]))
+    run_backtest(search_space, data)
 
 
 if __name__ == '__main__':
+    load_dotenv()
     train_hpo()

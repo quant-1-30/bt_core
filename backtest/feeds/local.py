@@ -54,7 +54,7 @@ class MetaBtData(DataBase.__class__):
         print("MetaBtData dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
         print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj.ref = None
+        _obj.ref = _obj.p.ref
         return _obj, args, kwargs
 
 
@@ -62,12 +62,38 @@ class LocalData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
         ("ref", None),
+        ("config", {}),
         ("rtbar", False,), # use RealTime 5 seconds bars
     )
 
-    def _prepare(self, data_ref):
-        self.ref = data_ref
-        # self._row_iter = self._make_iter(msg)
+    # def _start(self, *args, **kwargs):
+    #     super()._start(*args,**kwargs)
+
+    #     self.bench = ray.get(self.ref["benchmark"])
+    #     self.adj_factors = ray.get(self.ref["adj"])
+
+    #     tick_table = ray.get(self.ref["tick"])
+    #     self._row_iter = self._make_iter(tick_table)
+        
+    #     self.extra_info = ", ".join([f"{k}={v}" for k, v in self.p.config.items()]) # any extra info to relate with feed
+        
+    #     # print(f"[_start] Benchmark and Factors received.", len(self.adj_factors), len(self.bench))
+
+    def _start(self, *args, **kwargs):
+        super()._start(*args,**kwargs)
+
+        self.calendar = self.ref["calendar"]
+        self.instrument = self.ref["instrument"]
+        self.bench = self.ref["benchmark"]
+        self.adj_factors = self.ref["adj"]
+
+        tick_table = self.ref["tick"]
+        self._row_iter = self._make_iter(tick_table)
+        
+        self.sids = self.ref["sid"]
+        self.extra_info = ", ".join([f"{k}={v}" for k, v in self.p.config.items()]) # any extra info to relate with feed
+        
+        # print(f"[_start] Benchmark and Factors received.", len(self.adj_factors), len(self.bench))
 
     def _load(self):
         while True:
