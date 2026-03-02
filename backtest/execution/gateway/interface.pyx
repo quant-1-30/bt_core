@@ -6,8 +6,8 @@ import uuid
 from typing import Union
 from sqlalchemy import select, func, over, text
 from sqlalchemy.orm import joinedload, subqueryload, selectinload, load_only, aliased
-from backtest.execution.core.gateway.operator.schema import Experiment, vtPosition, vtOrder, vtAccount
-from backtest.execution.core.gateway.operator.operator import async_ops
+from backtest.execution.gateway.operator.schema import Experiment, vtPosition, vtOrder, vtAccount
+from backtest.execution.gateway.operator.operator import async_ops
 
 from libc.stdint cimport int64_t
 from bt_sdk.core.client import GetMdApi 

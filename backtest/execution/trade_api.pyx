@@ -5,17 +5,20 @@ import asyncio
 import threading
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor
-from bt_sdk.core.protocol import Event
-from backtest.execution.core.simulator.engine cimport BackEngine, EngineTopic
-
 from libc.stdint cimport int32_t
+
+from bt_sdk.core.protocol import Event
+from backtest.execution.core.engine.engine cimport BackEngine, EngineTopic
+from backtest.execution.actor.writer_actor cimport BatchWriterActor
+
 
 
 cdef class AsyncApi:
 
-    def __init__(self, bytes client_id, int32_t max_size, int32_t batch_size):
+    # def __init__(self, bytes client_id, int32_t max_size, int32_t batch_size):
+    def __init__(self, bytes client_id, int32_t max_size, BatchWriterActor actor):
         self.client_id = client_id
-        self.engine = BackEngine(max_size, batch_size)
+        self.engine = BackEngine(max_size, actor)
         self._loop = None
 
     cdef start(self, object _loop):
@@ -95,8 +98,8 @@ cdef class TdApi:
     before passing that data into on_xxxx
     """
 
-    def __init__(self, bytes client_id, int32_t max_size, int32_t batch_size):
-        self._async_api = AsyncApi(client_id, max_size, batch_size)
+    def __init__(self, bytes client_id, int32_t max_size, BatchWriterActor actor):
+        self._async_api = AsyncApi(client_id, max_size, actor)
         self._loop = None
 
     cpdef start(self, object _loop):

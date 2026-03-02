@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from backtest.execution.core.gateway.operator.schema import OrderBit
+from backtest.execution.gateway.operator.schema import OrderBit
 from bt_sdk.core.protocol import TradeBody, Resp
 
 

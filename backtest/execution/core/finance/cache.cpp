@@ -1432,7 +1432,7 @@ static const char* const __pyx_f[] = {
   "<stringsource>",
   "../../Library/Caches/pypoetry/virtualenvs/bt-backtest-SanfxVYc-py3.11/lib/python3.11/site-packages/numpy/__init__.cython-30.pxd",
   "backtest/execution/core/finance/asset.pxd",
-  "backtest/execution/core/gateway/interface.pxd",
+  "backtest/execution/gateway/interface.pxd",
   "cpython/type.pxd",
 };
 /* #### Code section: utility_code_proto_before_types ### */
@@ -1878,7 +1878,7 @@ static CYTHON_INLINE __pyx_t_long_double_complex __pyx_t_long_double_complex_fro
 
 /*--- Type declarations ---*/
 struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset;
-struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway;
+struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5cache___pyx_scope_struct___fetch_from_rpc;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5cache___pyx_scope_struct_1_addinfo;
@@ -1902,32 +1902,32 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore {
   int increment;
 };
 
-/* "backtest/execution/core/gateway/interface.pxd":1
+/* "backtest/execution/gateway/interface.pxd":1
  * cdef enum SubTopic:             # <<<<<<<<<<<<<<
  *     Order = 0
  *     Position = 1
 */
-enum __pyx_t_8backtest_9execution_4core_7gateway_9interface_SubTopic {
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Order = 0,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Position = 1,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Account = 2
+enum __pyx_t_8backtest_9execution_7gateway_9interface_SubTopic {
+  __pyx_e_8backtest_9execution_7gateway_9interface_Order = 0,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Position = 1,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Account = 2
 };
 
-/* "backtest/execution/core/gateway/interface.pxd":6
+/* "backtest/execution/gateway/interface.pxd":6
  *     Account = 2
  * 
  * cdef enum RpcTopic:             # <<<<<<<<<<<<<<
  *     Calendar = 0
  *     Instrument = 1
 */
-enum __pyx_t_8backtest_9execution_4core_7gateway_9interface_RpcTopic {
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Calendar = 0,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Instrument = 1,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Index = 2,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Tick = 3,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Close = 4,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Adjustment = 5,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Rightment = 6
+enum __pyx_t_8backtest_9execution_7gateway_9interface_RpcTopic {
+  __pyx_e_8backtest_9execution_7gateway_9interface_Calendar = 0,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Instrument = 1,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Index = 2,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Tick = 3,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Close = 4,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Adjustment = 5,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Rightment = 6
 };
 
 /* "backtest/execution/core/finance/asset.pxd":25
@@ -1946,13 +1946,13 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
 };
 
 
-/* "backtest/execution/core/gateway/interface.pxd":16
+/* "backtest/execution/gateway/interface.pxd":16
  * 
  * 
  * cdef class AsyncGateway:             # <<<<<<<<<<<<<<
  *     cdef object mdapi
 */
-struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway {
+struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway {
   PyObject_HEAD
   PyObject *mdapi;
 };
@@ -3681,7 +3681,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_5cache_10AssetCache__add
 
 /* Module declarations from "backtest.execution.core.finance.asset" */
 
-/* Module declarations from "backtest.execution.core.gateway.interface" */
+/* Module declarations from "backtest.execution.gateway.interface" */
 
 /* Module declarations from "libc.stdio" */
 
@@ -3835,7 +3835,7 @@ typedef struct {
   PyObject *__pyx_empty_bytes;
   PyObject *__pyx_empty_unicode;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway;
   PyTypeObject *__pyx_ptype_7cpython_4type_type;
   PyTypeObject *__pyx_ptype_5numpy_dtype;
   PyTypeObject *__pyx_ptype_5numpy_flatiter;
@@ -4009,7 +4009,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_asyncio_coroutines __pyx_string_tab[68]
 #define __pyx_n_u_await __pyx_string_tab[69]
 #define __pyx_n_u_backtest_execution_core_finance __pyx_string_tab[70]
-#define __pyx_n_u_backtest_execution_core_gateway __pyx_string_tab[71]
+#define __pyx_n_u_backtest_execution_gateway_inter __pyx_string_tab[71]
 #define __pyx_n_u_base __pyx_string_tab[72]
 #define __pyx_n_u_bt_sdk_core_protocol __pyx_string_tab[73]
 #define __pyx_n_u_c __pyx_string_tab[74]
@@ -4120,7 +4120,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   __Pyx_State_RemoveModule(NULL);
   #endif
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway);
   Py_CLEAR(clear_module_state->__pyx_ptype_7cpython_4type_type);
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_dtype);
   Py_CLEAR(clear_module_state->__pyx_ptype_5numpy_flatiter);
@@ -4183,7 +4183,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_bytes);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_unicode);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway);
   Py_VISIT(traverse_module_state->__pyx_ptype_7cpython_4type_type);
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_dtype);
   Py_VISIT(traverse_module_state->__pyx_ptype_5numpy_flatiter);
@@ -19494,7 +19494,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_7finance_5cache_10AssetCach
  * 
  *         table = await async_gt.remote(rpc_type, None) # complete
 */
-  __pyx_cur_scope->__pyx_v_rpc_type = __pyx_e_8backtest_9execution_4core_7gateway_9interface_Instrument;
+  __pyx_cur_scope->__pyx_v_rpc_type = __pyx_e_8backtest_9execution_7gateway_9interface_Instrument;
 
   /* "backtest/execution/core/finance/cache.pyx":26
  *         cdef int32_t rpc_type = RpcTopic.Instrument
@@ -22592,17 +22592,17 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset) __PYX_ERR(3, 25, __pyx_L1_error)
   __pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset)) __PYX_ERR(3, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.gateway.interface"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 16, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.gateway.interface"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.gateway.interface", "AsyncGateway",
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.gateway.interface", "AsyncGateway",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
+  sizeof(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway),
   #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
+  sizeof(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway),
   #else
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
+  sizeof(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway) __PYX_ERR(4, 16, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway) __PYX_ERR(4, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule(__Pyx_BUILTIN_MODULE_NAME); if (unlikely(!__pyx_t_1)) __PYX_ERR(5, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -23582,14 +23582,14 @@ __Pyx_RefNannySetupContext("PyInit_cache", 0);
 
   /* "backtest/execution/core/finance/cache.pyx":7
  * from backtest.execution.core.finance.asset cimport Asset
- * from backtest.execution.core.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info
- * from backtest.execution.core.gateway.interface import async_gt  # load.so used for cast cdef type             # <<<<<<<<<<<<<<
+ * from backtest.execution.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info
+ * from backtest.execution.gateway.interface import async_gt  # load.so used for cast cdef type             # <<<<<<<<<<<<<<
  * from bt_sdk.core.protocol import QueryBody
  * 
 */
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_gateway_inter, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_4);
@@ -23605,8 +23605,8 @@ __Pyx_RefNannySetupContext("PyInit_cache", 0);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "backtest/execution/core/finance/cache.pyx":8
- * from backtest.execution.core.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info
- * from backtest.execution.core.gateway.interface import async_gt  # load.so used for cast cdef type
+ * from backtest.execution.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info
+ * from backtest.execution.gateway.interface import async_gt  # load.so used for cast cdef type
  * from bt_sdk.core.protocol import QueryBody             # <<<<<<<<<<<<<<
  * 
  * from libc.stdint cimport int32_t
@@ -23839,25 +23839,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{2},{68},{35},{54},{37},{60},{24},{52},{26},{34},{29},{33},{45},{22},{15},{179},{37},{30},{32},{1},{1},{1},{1},{1},{8},{5},{6},{41},{15},{23},{25},{7},{6},{2},{6},{35},{9},{30},{50},{39},{34},{8},{20},{32},{22},{14},{30},{37},{5},{5},{10},{28},{30},{26},{18},{8},{4},{20},{9},{8},{15},{3},{7},{10},{9},{15},{8},{7},{18},{9},{37},{41},{4},{20},{1},{5},{4},{9},{17},{18},{5},{6},{5},{4},{6},{8},{15},{6},{9},{5},{15},{13},{5},{6},{7},{8},{12},{2},{10},{9},{5},{5},{13},{5},{8},{8},{7},{4},{10},{4},{8},{4},{7},{4},{2},{8},{5},{3},{2},{4},{3},{7},{14},{11},{10},{19},{14},{12},{10},{17},{13},{8},{6},{8},{4},{4},{12},{10},{12},{19},{5},{3},{4},{5},{4},{4},{6},{5},{8},{5},{9},{10},{8},{9},{6},{6},{5},{6},{1},{14},{9},{2},{1}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1299 bytes) */
-const char* const cstring = "BZh91AY&SY\252P\225\254\000\000|_\342d\020b\357\334W\277'\373\000\277\377\377\360@@@\000\000@P\0053mb\020)ljJE\tD\t\223F\223i145)\262\203@y \033SM\001\246\332\240\320\211\344\214\205\003\321\r\r\250\000\0311\r\032d\320d\002SB\t\241\rI\342O(\236\241\350\324\000\000\r\000\3654\365\0074d\304\300\004\304`F\230\020b0L\230\004a\315\03110\0011\030\021\246\004\030\214\023&\001\031\330\000\327\3757\206a\244d\016\322\355\007\345o\303>\327.\372e\212\350|#\000\222S\006|n\013d\350(\t\225!>\265\210G=\371\240\224\235$w\265]\265\360\317-\236h3T&\2509!]\"w\272\177\352\260\264(x\3420J\213\350\210/\302=\265\242\361\275\263|]<X\235a1\255\007\013c,{\250\333#t\341\305}5\016=|f\340+\201d[\356\265\345\225\307\014$H\r\34703\032\267\030<)\201y\221\246J\206\007a\357\276y\324Ya\014\\\223\202\216\010\305\276\004\274\353\247\363j\031]\251\316\350\277\237(\337\013\277VG\0326\332\322N\362o\233\\o\332\236\333\341{\363Wf\036\275\360\301\035\307\275\000z\266\353V\252\347\225\026\213\301\025\257(xA=e<\n\274w^\226\233\304j\031\305\241\242\246t\t\024k\340M79U\370\273\261\204\332,[g\2007\265]\214\266\335\006\372E!\316\023\303g\243!h\251\267.\201\204\277\357\324\250\271\036w\276\351a\370\370\334e\217\303\320\304\217\217\360\343\210u\316\203H\2404>wg\000|\362:e\255\231\005\231\333\322\307L\352Kh\213\004b\221\037\345\250\356F\277\261r\304\206\314'\005\335Y\344t$iPr\003H)\005\246\265\317c\213?}\237\245\351\312\222*\270\240\323\034o\277Q\350\225b\304\234^\253\025\007\357A\236\250\3078\372\315\0132\025W\212\275\344Uf5\020\223l\232J\205!\204\307\262\251\307P\320o\034\231\345m\273)f\336;*QL\226\014K\246.eY%\223#\347\237TI{\321\211\301\237w\375\251\013\243\363}%.\370n\312\315v\266A\323\250:t\235d\227s\334\322\364\2418x\212\244\227e2\010\311b!\335\274\220\220Q\357\017\325\262\315\236\207f(\242\314f\366\247\265\310\245\026rU\243S\304L\360\317\272\271\355H\240\336u\024G\325\353t%<b8\216W\2269\346s\340l\347\034\203\0342\2736\202\357\243\272&\275Y\260\235L\347\271\334\323>\247\301eP\366O=\2400\252\027\230\006\030a""\306\264-+\363Q\263:\255[\033\243\3271\255\217\203\225-F\303n\026\240\231\300I\001\325j.\276=9\320\306P\302\271\344\222\022\254d\332\234\347\t\216\030AZ\307h\244\224\0329V\323We<3aD\260\024U\215\202\023\260-G\314{a\252\302\374\257\204\363\224\376\221\320h_%5\254\020\242U\270\016\r\246\003\250\3546\335\010Q\022\210\241_\327\206X\230\005&H\226nW\213a;\223F\203\267\2629\\\023\023Q\255ByR@\243iP\206\363\331\360egHO\036x\211`N\351X\362\251\2776\251M\256U\305\341I`\216\370k;\205\205\242$@f\026c*l\222\022\021[\035l\030\032\371Q\254r0\341\311\221\216\214\274\263\213\302\345\022\335\2069F\320\216\030\247\306\0255_\217Y\003\2336\314\217\205\3678\354\201G\346n\200\260q\321\353\300X\201\241\024\0075fs\r\257EQTO[\343^\342\3356K\340\207.s\373^\364\205\260E;\324e\214s;\3571[\243\016\223\3714\301\321E\226\255\025\010}\020\202\252(/$\030\230\204\334$\314\211\3341\236\022\025)|\2602^\372\304\035\032\231\310\371z\025W qj\365\0322r\023\022z|\316p\021Wz\362UzVHB\244C\2722\271\350\303\326\233\254l\220\210W\243\221\245\217\230\230\346\230B\314\245d\250\207\202\013V\2430g\025\310\232\243\233K\276\226By\203\242\246Lq\344\274\311\273D\023\251\270\231,\236\255\301\306\226\027E\241A\357\030\232\372_:xm\023\3051\255\311\325\336\020\2236\2329\206#_\227(\310\273qN21R\322\250n\210\374\265\2321b\204n\340\270p\230\203\251v\014\274\201\006\242z\226\353d\020c\241\242\307f0\267\264\007\241\025olM\217\225G\324\336\\\016\365\212\207\261\275\3647\340\315\323\253\255pM}\322a\242\\jn\305\324\346\222\244\000\212\325`*\264r\2511\374\247b\200\206\327\315\002\026\367\350u%\375\217\333\004\265\232_K\215\367\366\010\353\022L\022\334H\3670\247_N\335\277\361w$S\205\t\n\245\tZ\300";
-    PyObject *data = __Pyx_DecompressString(cstring, 1299, 2);
+    const struct { const unsigned int length: 8; } index[] = {{2},{68},{35},{54},{37},{60},{24},{52},{26},{34},{29},{33},{45},{22},{15},{179},{37},{30},{32},{1},{1},{1},{1},{1},{8},{5},{6},{41},{15},{23},{25},{7},{6},{2},{6},{35},{9},{30},{50},{39},{34},{8},{20},{32},{22},{14},{30},{37},{5},{5},{10},{28},{30},{26},{18},{8},{4},{20},{9},{8},{15},{3},{7},{10},{9},{15},{8},{7},{18},{9},{37},{36},{4},{20},{1},{5},{4},{9},{17},{18},{5},{6},{5},{4},{6},{8},{15},{6},{9},{5},{15},{13},{5},{6},{7},{8},{12},{2},{10},{9},{5},{5},{13},{5},{8},{8},{7},{4},{10},{4},{8},{4},{7},{4},{2},{8},{5},{3},{2},{4},{3},{7},{14},{11},{10},{19},{14},{12},{10},{17},{13},{8},{6},{8},{4},{4},{12},{10},{12},{19},{5},{3},{4},{5},{4},{4},{6},{5},{8},{5},{9},{10},{8},{9},{6},{6},{5},{6},{1},{14},{9},{2},{1}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1297 bytes) */
+const char* const cstring = "BZh91AY&SY\036\010\200#\000\000{\337\342d\020b\357\334W\277'\373\000\277\377\377\360@@@\000\000@P\0053f\3067p\272KZ\033me\tD&\023I\224\360M5Oi# d\036D\000\310\006\231\25051\t\352\014\250\362L\324z\215\036\240\0002\003\324\311\223\324\r\032\r4\321\t\241\rI\211\232\232hd\365\000\000\001\2404\323@\221 \206\204\t\204\312\003@\000\000\000\000\0074d\304\300\004\304`F\230\020b0L\230\004gP\003V\267e\316/\036!/M%\347o\304\215\265\037a\335;\364\265gPt<\201\027\n\007\341\224\304\300\3565\227S\347\006\215nu8\024\030[\277\225\332\325\321E<\213$\221\016\210C]\210\010\326\345\377TG!#\246\352\342\n\266D!m\213\252\222zm\\^\366.\252#4X\326\203\205\203!C\253l#T\337\202\370d\030i\276n\002\353\010E\275\224\320B\353l\262H\301\\\264\n\275\330@s\236\300\333\006:\206Voo\017o\215{^c\212\035|\362\022{\347\024\342\022\346\253\025\3630`\242\261e\n\3536\326\017\242\343Zb\223U\031[\2213#F=q\365\203\340|&\314\301\351\314\230\005\312;\250\001\317\246\3325\017\016\022r;\210\2458\023\242\004m\202\350\032o\352\264\326,\226`b\252\231Pc @+=\302'S\212\037\213\273\013\226\310\336\272:\000kj;\0144\324\206\271R\234l\215\232<\261\007#:pq\201r\177\275*\213y\365\325ER\263\337\276\242\373{\274\013H\357\3748\3004\306\261\244P\032\036wb\360\242w\233o\312\027\2041\247l\0353BY\304W\243\024\211G\014\207l2\373\025,G\346\302o]\312\316\006\322F\273\201\310\r\036\243\326\274\256\3073\006v\347F\275I\262\271\027-\254\010)\246\020\2549\214\250\311D\352\342% \035\216 \355U\302\274\343\020\223\001\021m\021\254\307T\214\3066\265\2652\241I!\243\343W\0049)\032H'=\327k\3315ma\330\314\230\201P/\016XXaH\020\305\210\363\307:\201kK\010\270\307\227\375\230G\215\370_('\2316\365\"\232W\0008\366\263\227%\316\004\362\275\206V\231\021wJ\204\223\2758\000\2607I\335\272\310$\t{'\332\330b\317#z\362UXb\365\236\247\nd\343\002\214\263\035 \263\246}T\307IR\033\210\251#\325\337r\t\215\262\226\322\n\356\266\374M\372\215pm\300-\253\013\322\310}\212D2u\344\225\234<N[\216V\230\350w,\256\016\251\343\233\306\027!\250\260,\262\314.\254\244\273\315[fh""\257JtK\2659gq\334\335K\250\254\264\0170j\000m\201\311\346>_\236;\350[\t!\336\177[cu\226\0133|\354\321\252\314+Yp\034\311\260\312\n\254\263\210\321\330\305\205i\000QV0\020\234\002\224\242e\r~J\375W\352|\361\224\372\007=\241\343G\253\354\020\246\253\032\032]\000\350\\V\033\006$\312\246R\367t\360\253\256\000\364\203&\223a]\252\316 \235\024\216\033%\272\360h\235Eu\t\356\244\300\242\312\241%\317tX\302\256H.\270\222\206\000\273\223Q\327A\257\026\240\235,(\340\356\230`\0272j\304\005\303\311\223\030\030\205\310\302\232\333cc+q\312\340\260\257\302\222\211\243\016M\214\214u\263Q\014(\n\224Js\030\345\033Y\033-N\367\334d\275\372H\034\223LIwcD\020\2309{\315\022\013\203nQ]C\264\221&P \315(4\361\31566.\355/\331\325-\277\212\316\250\347\345\217\212\224U\265S:\031\027D\343\2433[\312\372\364\261\353o\323;\323\303\204\206\212\367+V\323\007\316\210Z\303\031\243\023\230\307!\030\331\261\322\227\341a7\320\355#\212\2463#\016\223\253\334\020<\342\242\226\020I\241\003\223\260\343`\"\216\364\3404y\244\004A\224\235\310\302\303\265w\244\352\250\320\260\260]\265\310\322\024LKqK\037\013\345\tV\207:\013sQ\2263\005\274\232\243\233]\\\021G\023\221\305\323\004m\334\371\232\3400\236f\202s.qU\252\0054>/\"\203\331^)\310\370\316\355\024o\226\031\330Fn\350\202Y\262\311\305\330,\374\270,\005\226\215\267\003[,lGQ*sp\305C\275\027\345\251\351\325\210\211\350\313LfT\254\222\353\274\251\220=\216~\265\216laO\027\224!\025o\033L\317*\224\\n\227!\314\261P\352o5f\356FnM\035K\202k\331&\032\322\243#s\027#\304\222\255\340EnW\212\255\030=\264}\234\"\200\305\2374\206=1\304\344N>1\302D\325\312q\225\342\365\354\024\340\222`\224\332G\225\205zxq\343\377\027rE8P\220\036\010\200#";
+    PyObject *data = __Pyx_DecompressString(cstring, 1297, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
     #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1172 bytes) */
-const char* const cstring = "x\332}V\313n\3346\024E\201\256\372\025\354\"\230\004\215\345\240\315\"(\\\027\211\343\002\003\244\211S\243\335\022\034\362J\303\216D2|xFYu\231e?\257\237\323s)\215g\374h\r\214H\211\367y\356\271\227\376Q\274\356{a\354@.Y\357\222\010\2214\031\353\272\303G\361\304\210\241\244,V$\2543\264##\2243\302\371,Ro!\376\246\264-Eqci+\214\247T\217h\027|\"\221r\264\206\322\205r\302\273~\024:\222\312$\224XMJy\255\262\260Ih\357\262\355\212/\tN\304@\203\217c\003-6\245R\262\235\023\331\013(\233\223jg\222`\227\263\320lx\033mV\253\236f\201)\2506\372\341\377tkZbk\363Z\3441\220X\314\337sT.\3254\016*\223\0304,\240\312G\330\275=\006\314N LB\227C\310\243Hk\005\323\271\004\004\327\372(\364\230\327\3365*F5.k\000\276d\341[\261\362\305\231$\236\252\035\254<1\317\226\017}M\340\227\020|\314d\226\356F\365\026U\362\206\2363\360\020F\221\026z!\340g\001g\234\310\342\271\350\240\265\027\236\302\001\326\325\315\331\2575\301?8A\204\360\336\003\312Z\232\213\032%\347c\250\267+\212\000\031\020rY\341\244\326\317\211\253\313\253\223\227\257^VZD\372\023\356\023\242[\351\036\225\003\0358\247b\373\014g\014oj\304\262\025\243/\302\021\302DY\003\344\216\025\362\232\234H\224y#\026\265\026*#o\tups1\343jo\210\265\177Q}\242\346\303\035\360\020\362L0\2455\245=\232\327\231\202\030\324X\361\003\237?S\364\007\240\177w\22590\t6\336P\00412\r\374\356W\234Ts\276x\366\2632F:\206\207\223\025@\350\305n\245\364&S\312\247\350\r]8\320S\355#\235\266\326)\247\351T+\275\246&\214;\355\373\236\343F\005\033\265\322gG\244gkSV\347\367?\357\271vnl\342\000\251\206\331i\361\224\353\331U\232q\252\334\265\264\313\344r\355\241C\003\3334\251\030N'\331\317$\316~\022/\036\220\320y\324\270U\245\317B\312H\246h\222R\230R\021q\336\235\240\3467V\3658\325\326\331,\245+C\030\033\311\3116\003\364l\265#Ze\373\251\260v`\206\036\213\225A\241}\356K\314\000\237\237M\343\302\334\201\343\3417\246\365-*w\316\357~u]\362%j:/\267\225U}\357u\235@5T\243\262j\0369\235\272\203-\316\003\254)\271=y\365\372\372b\271|\r\216\346\013\256\351a\327\334\"6!*\345\2353l\023(\374\370i""KY\257%\317(\031\203>:\001\325\254k\375e\337\333\220lz\347\365F\312\253q\207\337[t\237|\217j\377F\355\307Bq|\343\315xM\237\n\201p\334\305\315\241\241\301\264\331\222\224\n\354\240(%\357v\\\302}\306rj\027\225F\247e\227\353j\375\2744(\035\206\223u\224\240\261U\254\270'}sK\372\246\026x&}SI\377_B\035<n\325\330X\216\246U\032\202\211VY&\263\231\004B\364\331\243]\264\226\311\032\255\022<\326\351\300\241O\233\2162\363\231_\021\230\264\230\016\261Z\322\033\335cfC\273\014Nc\036d\2562\217/\266b\0309ix\020I\233\344D<\240\206\331I j\035p\024\243\217\367\352\322\332\010u\270\340\333\261\355U\227\320? \363<]\245l\013\220\303_\267\257\265\264\006\277\312o\254\016\027\024\0322\327\273\006y\377\360=\273\277\005vj\315\271?\245\034\024\362\221\270u\370\312\341\271\216\027oJ\217\325\251\341\360D\223\343I[~\354\262\013\310@F\277M\265\345\220[P\001x\004\037\302\010\302{\310a\014ITFo\022D\353\333\034-o+*uW\\\260z\003\177\227n/wS/VN\361SQ\375\024\300aP<h\200\333\017\264\343m\007\364\201+X\211%\350\352*Q\337b6\231\332 sJ\330\315S\350\250m\344#-T[\024\344`\300p\022qL!e\217_,:\317\3012\373\360\\#\367\214\204$Kg\017\366\242\2668\362\323\014\303\032F\346\007\322\006^%\2001\204{\262L\217\264\343\213\002\305\n\243\344\377 \376\372\352\237\257\277\371\362\335\337\037\277|\373\341_\223\344\221\210";
+const char* const cstring = "x\332}V\313n\3346\024E\201\256\372\025\354\"\230\004\215\345\240\315\"(\\\027\216\343\002\003\264\211S\243\335\022\034\362J\303\216D2|xFYu\231e?\257\237\323s)\215g\374@\r\214H\211\367y\356\271\227\376Q\\\364\2750v \227\254wI\204H\232\214u\335\341\243xf\304PR\026+\022\326\031\332\221\021\312\031\341|\026\251\267\020\177[\332\226\242\270\265\264\025\306S\252G\264\013>\221H9ZC\351R9\341]?\n\035Ie\022J\254&\245\274VY\330$\264w\331v\305\227\004'b\240\301\307\261\201\026\233R)\331\316\211\354\005\224\315I\2653I\260\313Yh6\274\2156\253UO\263\300\024T\033\375\360\177\2725-\261\265y-\362\030H,\346\3579*\227j\032\007\225I\014\032\026P\345#\354\336\035\003f'\020&\241\253!\344Q\244\265\202\351\\\002\202k}\024z\314k\357\032\025\243\032\2275\000_\262\360\255X\371\342L\022\317\325\016V\236\231\027\313\307\276&\360K\010>f2Kw\253z\213*yC/\031x\010\243H\013\275\020\360\263\2003Nd\361Rt\320\332\013O\341\000\353\352\346\354\267\232\340\237\234 Bx\357\001e-\315e\215\222\3631\324\333\025E\200\014\010\271\254pR\353\347\304\365\325\365\311\3537\257+-\"\375\005\367\t\321\255t\217\312\201\016\234S\261}\2063\20675b\331\212\321\027\341\010a\242\254\001r\307\nyMN$\312\274\021\213Z\013\225\221\267\204:\270\271\230q\265\267\304\332\277\250>Q\363\341\036x\010y&\230\322\232\322\036\315\233LA\014j\254\370\201\317\237)\372\003\320\177\270\312\034\230\004\033o)\202\030\231\006~\367+N\2529_\274\370Y\031#\035\303\303\311\n \364j\267Rz\223)\345S\364\206.\034\350\251\366\221N[\353\224\323t\252\225^S\023\306\235\366}\317q\243\202\215Z\351\263#\322\263\265)\253\363\207\237\367\\;76q\200T\303\354\264x\316\365\354*\3158U\356Z\332er\271\366\320\241\201m\232T\014\247\223\354g\022g?\211W\217H\350<j\334\252\322g!e$S4I)L\251\2108\357NP\363[\253z\234j\353l\226\322\225!\214\215\344d\233\001z\266\332\021\255\262\375TX;0C\217\305\312\240\320>\017%f\200\317\317\246qa\356\301\361\370\033\323\372\016\225{\347\367\277\272.\371\0225\235\227\273\312\252\276\367\272N\240\032\252QY5O\234N\335\301\026\347\001\326\224\334\236""\274\271\270\271\\./\300\321|\3115=\354\232;\304&D\245\274w\206m\002\205\237>m)\353\265\344\031%c\320G'\240\232u\255\277\352{\033\222M\277z\275\221\362z\334\341\367\016\335'\337\243\332\277S\373\261P\034\337z3\336\320\247B \034wqshh0m\266$\245\002;(J\311\273\035\227p\237\261\234\332E\245\321i\331\345\272Z?/\rJ\207\341d\035%hl\025+\356I\337\334\221\276\251\005\236I\337T\322?!\324\301\331V\215\215\345@Z\245!\223h\225e2\233\311@\210>{t\212\3262Y\243U\202\263:\0308\352i\323Qf*\363+b\222\026\203!VKz\243{\214kh\227\301i\214\202\314\005\346\311\305V\014\203&\r\317 i\223\2348\007\30006\t\034\255\263\215b\364\361AIZ\033\241\016\027|1\266\275\352\022Z\007<\236\007\253\224m\001h\370\353\366e\226\326\340W\251\215\325\341nB/\346z\315 \357\037\276g\367w\230N]9\267\246\224\203B>\022\027\016\3376<\322\361\342M\351\261:5\034\236\350o<i\313\217]v\001\031\310\350\267\251v\033r\013*\000\217\340C\030\301u\0179L \211\242\350M\202h}\233\243\345mE\245\356\212\013Vo\340\357\312\355\345n\353\235\312)~*\252\237\0028\314\210G\334\277\373@;\336v@\037\270\202\220X\202\256\256\022\365-\306\222\251\2751\247\204\335<\200\216:F>\321=\265;A\016\006\014'\021\307\024R\366\370\305\242\363\034,\023\017\3175r\317HH\262t\366 .j\213#?\215/\254ad~ m\340U\002\030C\270\"\313\364H;\276#P\2540J\376\347\341\357\257\376\375\372\233/\337\375\363\361\313\267\037\376\003[k\217\261";
     PyObject *data = __Pyx_DecompressString(cstring, 1172, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (2371 bytes) */
-const char* const bytes = ": All dimensions preceding dimension %d must be indexed and not slicedBuffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayIndex out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Step may not be zero (axis %d)Unable to convert item to object.>')?add_note and  at 0xbacktest/execution/core/finance/cache.pyxcollections.abc<contiguous and direct><contiguous and indirect>disableenablegc (got got differing extents in dimension isenableditemsize <= 0 for cython.arrayno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect><stringsource>unable to allocate array data.unable to allocate shape and strides.utf-8ASCIIAssetCacheAssetCache.__reduce_cython__AssetCache.__setstate_cython__AssetCache._fetch_from_rpcAssetCache.addinfoEllipsisLock__Pyx_PyDict_NextRefQueryBodySequenceView.MemoryViewabcaddinfo__aenter____aexit__allocate_bufferasync_gtasyncioasyncio.coroutines__await__backtest.execution.core.finance.cachebacktest.execution.core.gateway.interfacebasebt_sdk.core.protocolcc_sidcast__class____class_getitem__cline_in_tracebackclosecolumncountdatadelist__dict__dtype_is_objectencodeenumerateerror_fetch_from_rpcfirst_tradingflagsformatfortran__func____getstate__id__import__incrementindexint32_is_coroutineitemsitemsize__main__memviewmode__module__name__name__ndim__new__nextn""pnum_rowsnumpyobjpapackpoppyarrow__pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerremoterpc_typeselfsend__set_name__setdefault__setstate____setstate_cython__shapesidsizestartstepstopstructtable__test__throwtick_sizeto_batchesto_numpyto_pylistunpackupdatevaluevaluesxzero_copy_only\200\001\330\004\n\210+\220Q\210!O";
+    #else /* compression: none (2366 bytes) */
+const char* const bytes = ": All dimensions preceding dimension %d must be indexed and not slicedBuffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayIndex out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Step may not be zero (axis %d)Unable to convert item to object.>')?add_note and  at 0xbacktest/execution/core/finance/cache.pyxcollections.abc<contiguous and direct><contiguous and indirect>disableenablegc (got got differing extents in dimension isenableditemsize <= 0 for cython.arrayno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect><stringsource>unable to allocate array data.unable to allocate shape and strides.utf-8ASCIIAssetCacheAssetCache.__reduce_cython__AssetCache.__setstate_cython__AssetCache._fetch_from_rpcAssetCache.addinfoEllipsisLock__Pyx_PyDict_NextRefQueryBodySequenceView.MemoryViewabcaddinfo__aenter____aexit__allocate_bufferasync_gtasyncioasyncio.coroutines__await__backtest.execution.core.finance.cachebacktest.execution.gateway.interfacebasebt_sdk.core.protocolcc_sidcast__class____class_getitem__cline_in_tracebackclosecolumncountdatadelist__dict__dtype_is_objectencodeenumerateerror_fetch_from_rpcfirst_tradingflagsformatfortran__func____getstate__id__import__incrementindexint32_is_coroutineitemsitemsize__main__memviewmode__module__name__name__ndim__new__nextnpnum_""rowsnumpyobjpapackpoppyarrow__pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerremoterpc_typeselfsend__set_name__setdefault__setstate____setstate_cython__shapesidsizestartstepstopstructtable__test__throwtick_sizeto_batchesto_numpyto_pylistunpackupdatevaluevaluesxzero_copy_only\200\001\330\004\n\210+\220Q\210!O";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif

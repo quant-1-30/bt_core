@@ -3,8 +3,8 @@ import numpy as np
 import pyarrow as pa
 
 from backtest.execution.core.finance.asset cimport Asset
-from backtest.execution.core.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info 
-from backtest.execution.core.gateway.interface import async_gt  # load.so used for cast cdef type     
+from backtest.execution.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info 
+from backtest.execution.gateway.interface import async_gt  # load.so used for cast cdef type     
 from bt_sdk.core.protocol import QueryBody
 
 from libc.stdint cimport int32_t

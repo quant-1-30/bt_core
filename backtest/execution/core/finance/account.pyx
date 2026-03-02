@@ -11,7 +11,7 @@ Created on Tue Mar 12 15:37:47 2019
 @author: python
 """
 import uuid
-from backtest.execution.core.gateway.operator.schema import vtAccount
+from backtest.execution.gateway.operator.schema import vtAccount
 from bt_sdk.core.protocol import AccountBody, Resp
 
 from backtest.execution.core.finance.position cimport Position

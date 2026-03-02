@@ -10,12 +10,12 @@
             "."
         ],
         "language": "c++",
-        "name": "backtest.execution.core.simulator.engine",
+        "name": "backtest.execution.core.engine.engine",
         "sources": [
-            "backtest/execution/core/simulator/engine.pyx"
+            "backtest/execution/core/engine/engine.pyx"
         ]
     },
-    "module_name": "backtest.execution.core.simulator.engine"
+    "module_name": "backtest.execution.core.engine.engine"
 }
 END: Cython Metadata */
 
@@ -1145,8 +1145,8 @@ static int __Pyx_init_co_variables(void) {
     #define __PYX_EXTERN_C extern "C++"
 #endif
 
-#define __PYX_HAVE__backtest__execution__core__simulator__engine
-#define __PYX_HAVE_API__backtest__execution__core__simulator__engine
+#define __PYX_HAVE__backtest__execution__core__engine__engine
+#define __PYX_HAVE_API__backtest__execution__core__engine__engine
 /* Early includes */
 #include <stdint.h>
 #include <string.h>
@@ -1387,16 +1387,16 @@ static const char *__pyx_filename;
 /* #### Code section: filename_table ### */
 
 static const char* const __pyx_f[] = {
-  "backtest/execution/core/simulator/engine.pyx",
+  "backtest/execution/core/engine/engine.pyx",
   "<stringsource>",
-  "backtest/execution/core/simulator/util.pxd",
-  "backtest/execution/core/gateway/interface.pxd",
+  "backtest/execution/gateway/interface.pxd",
   "backtest/execution/core/finance/trade.pxd",
   "backtest/execution/core/finance/asset.pxd",
   "backtest/execution/core/finance/cache.pxd",
   "backtest/execution/core/finance/order.pxd",
   "backtest/execution/core/finance/account.pxd",
   "backtest/execution/core/finance/cash.pxd",
+  "backtest/execution/actor/writer_actor.pxd",
   "backtest/execution/core/finance/simulate.pxd",
   "backtest/execution/core/finance/position.pxd",
 };
@@ -1575,57 +1575,55 @@ static const char* const __pyx_f[] = {
 /* #### Code section: type_declarations ### */
 
 /*--- Type declarations ---*/
-struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper;
-struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway;
+struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order;
 struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account;
 struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
+struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor;
 struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage;
-struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor;
 struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
 struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator;
 struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop;
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__;
 
-/* "backtest/execution/core/gateway/interface.pxd":1
+/* "backtest/execution/gateway/interface.pxd":1
  * cdef enum SubTopic:             # <<<<<<<<<<<<<<
  *     Order = 0
  *     Position = 1
 */
-enum __pyx_t_8backtest_9execution_4core_7gateway_9interface_SubTopic {
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Order = 0,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Position = 1,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Account = 2
+enum __pyx_t_8backtest_9execution_7gateway_9interface_SubTopic {
+  __pyx_e_8backtest_9execution_7gateway_9interface_Order = 0,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Position = 1,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Account = 2
 };
 
-/* "backtest/execution/core/gateway/interface.pxd":6
+/* "backtest/execution/gateway/interface.pxd":6
  *     Account = 2
  * 
  * cdef enum RpcTopic:             # <<<<<<<<<<<<<<
  *     Calendar = 0
  *     Instrument = 1
 */
-enum __pyx_t_8backtest_9execution_4core_7gateway_9interface_RpcTopic {
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Calendar = 0,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Instrument = 1,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Index = 2,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Tick = 3,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Close = 4,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Adjustment = 5,
-  __pyx_e_8backtest_9execution_4core_7gateway_9interface_Rightment = 6
+enum __pyx_t_8backtest_9execution_7gateway_9interface_RpcTopic {
+  __pyx_e_8backtest_9execution_7gateway_9interface_Calendar = 0,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Instrument = 1,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Index = 2,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Tick = 3,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Close = 4,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Adjustment = 5,
+  __pyx_e_8backtest_9execution_7gateway_9interface_Rightment = 6
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData;
 
@@ -1871,7 +1869,7 @@ struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_
 };
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot;
 
-/* "backtest/execution/core/finance/simulate.pxd":42
+/* "backtest/execution/core/finance/simulate.pxd":43
  *     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table)
  * 
  *     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*)             # <<<<<<<<<<<<<<
@@ -1903,54 +1901,29 @@ struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData {
   double cash;
 };
 
-/* "backtest/execution/core/simulator/engine.pxd":6
+/* "backtest/execution/core/engine/engine.pxd":5
  * from backtest.execution.core.finance.simulate cimport Simulator
  * 
  * cpdef enum EngineTopic:             # <<<<<<<<<<<<<<
  *     Register = 0
  *     SetCash = 1
 */
-enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic {
-  __pyx_e_8backtest_9execution_4core_9simulator_6engine_Register = 0,
-  __pyx_e_8backtest_9execution_4core_9simulator_6engine_SetCash = 1,
-  __pyx_e_8backtest_9execution_4core_9simulator_6engine_Submit = 2,
-  __pyx_e_8backtest_9execution_4core_9simulator_6engine_DayOver = 3,
-  __pyx_e_8backtest_9execution_4core_9simulator_6engine_GetValue = 4,
-  __pyx_e_8backtest_9execution_4core_9simulator_6engine_Subscribe = 5
+enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic {
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_Register = 0,
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_SetCash = 1,
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_Submit = 2,
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_DayOver = 3,
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_GetValue = 4,
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_Subscribe = 5
 };
 
-/* "backtest/execution/core/simulator/util.pxd":1
- * cdef class Distributor:             # <<<<<<<<<<<<<<
- *     cdef public object queue
- *     cdef public object event
-*/
-struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_4util_Distributor *__pyx_vtab;
-  PyObject *queue;
-  PyObject *event;
-};
-
-
-/* "backtest/execution/core/simulator/util.pxd":8
- * 
- * 
- * cdef class AsyncSemaphoreWrapper:             # <<<<<<<<<<<<<<
- *     cdef object _sem
-*/
-struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper {
-  PyObject_HEAD
-  PyObject *_sem;
-};
-
-
-/* "backtest/execution/core/gateway/interface.pxd":16
+/* "backtest/execution/gateway/interface.pxd":16
  * 
  * 
  * cdef class AsyncGateway:             # <<<<<<<<<<<<<<
  *     cdef object mdapi
 */
-struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway {
+struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway {
   PyObject_HEAD
   PyObject *mdapi;
 };
@@ -2050,7 +2023,25 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager {
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":10
+/* "backtest/execution/actor/writer_actor.pxd":4
+ * 
+ * 
+ * cdef class BatchWriterActor:             # <<<<<<<<<<<<<<
+ *     cdef int32_t batch_size
+ *     cdef bint _running
+*/
+struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_vtab;
+  int32_t batch_size;
+  int _running;
+  PyObject *_queue;
+  PyObject *_buffer;
+  PyObject *_finished_event;
+};
+
+
+/* "backtest/execution/core/finance/simulate.pxd":11
  * 
  * 
  * cdef class ActorMessage:             # <<<<<<<<<<<<<<
@@ -2066,25 +2057,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage {
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":17
- * 
- * 
- * cdef class BatchWriterActor:             # <<<<<<<<<<<<<<
- *     cdef int32_t batch_size
- *     cdef bint _running
-*/
-struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *__pyx_vtab;
-  int32_t batch_size;
-  int _running;
-  PyObject *_queue;
-  PyObject *_buffer;
-  PyObject *_finished_event;
-};
-
-
-/* "backtest/execution/core/finance/simulate.pxd":27
+/* "backtest/execution/core/finance/simulate.pxd":28
  * 
  * 
  * cdef class TrackerActor:             # <<<<<<<<<<<<<<
@@ -2096,7 +2069,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor {
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor *__pyx_vtab;
   PyObject *experiment_id;
   PyObject *_queue;
-  struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *_writer;
+  struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *_writer;
   PyObject *_ready_event;
   struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *cash_manager;
   struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache *asset_cache;
@@ -2106,7 +2079,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor {
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":47
+/* "backtest/execution/core/finance/simulate.pxd":48
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2118,7 +2091,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator {
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator *__pyx_vtab;
   int32_t max_size;
   PyObject *_actors;
-  struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *_writer;
+  struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *_writer;
   PyObject *_loop;
   PyObject *_asset_cache;
 };
@@ -2139,175 +2112,163 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position {
 };
 
 
-/* "backtest/execution/core/simulator/engine.pxd":15
+/* "backtest/execution/core/engine/engine.pxd":14
  * 
  * 
  * cdef class BackEngine:             # <<<<<<<<<<<<<<
  *     cdef AsyncGateway gt
  *     cdef Simulator simulator
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine {
   PyObject_HEAD
-  struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_vtab;
-  struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway *gt;
+  struct __pyx_vtabstruct_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_vtab;
+  struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway *gt;
   struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator *simulator;
   PyObject *_active_tasks;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":50
+/* "backtest/execution/core/engine/engine.pyx":52
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
  * 
  *     async def __aenter__(self):             # <<<<<<<<<<<<<<
  *         self._start()
  *         return self
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ {
   PyObject_HEAD
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":62
+/* "backtest/execution/core/engine/engine.pyx":64
  *     # -----------------------------------------------------------
  * 
  *     async def register(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object resp
  * 
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register {
   PyObject_HEAD
   PyObject *__pyx_v_event;
   PyObject *__pyx_v_resp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":68
+/* "backtest/execution/core/engine/engine.pyx":70
  *         return resp
  * 
  *     async def set_cash(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object resp
  * 
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash {
   PyObject_HEAD
   PyObject *__pyx_v_event;
   PyObject *__pyx_v_resp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":74
+/* "backtest/execution/core/engine/engine.pyx":76
  *         return resp
  * 
  *     async def submit(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object body = event.body
  *         cdef bytes experiment_id = event.experiment_id
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit {
   PyObject_HEAD
   PyObject *__pyx_v_body;
   PyObject *__pyx_v_event;
   PyObject *__pyx_v_experiment_id;
   struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *__pyx_v_order_obj;
   PyObject *__pyx_v_resp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":92
+/* "backtest/execution/core/engine/engine.pyx":94
  *         return resp
  * 
  *     async def on_dt_over(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object resp
  * 
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over {
   PyObject_HEAD
   PyObject *__pyx_v_event;
   PyObject *__pyx_v_resp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":98
+/* "backtest/execution/core/engine/engine.pyx":100
  *         return resp
  * 
  *     async def getvalue(self, object event): # macht case in suited for cython             # <<<<<<<<<<<<<<
  *         cdef Position p_obj
  *         cdef Account acct_obj
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue {
   PyObject_HEAD
   struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_v_acct_obj;
   PyObject *__pyx_v_event;
   struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *__pyx_v_p_obj;
   PyObject *__pyx_v_resp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":106
+/* "backtest/execution/core/engine/engine.pyx":108
  *         return resp
  * 
  *     async def subscribe(self, object event):             # <<<<<<<<<<<<<<
  *         cdef list resp = []
  * 
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe {
   PyObject_HEAD
   PyObject *__pyx_v_batch;
   PyObject *__pyx_v_event;
   PyObject *__pyx_v_resp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
   PyObject *__pyx_t_0;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":115
+/* "backtest/execution/core/engine/engine.pyx":117
  *         return resp
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
  *         logger.info("Stopping back broker...")
  *         try:
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop {
   PyObject_HEAD
   PyObject *__pyx_v_e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
   PyObject *__pyx_t_0;
   PyObject *__pyx_t_1;
   PyObject *__pyx_t_2;
 };
 
 
-/* "backtest/execution/core/simulator/engine.pyx":126
+/* "backtest/execution/core/engine/engine.pyx":128
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
  *         await self.stop()
 */
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ {
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ {
   PyObject_HEAD
   PyObject *__pyx_v_exc_tb;
   PyObject *__pyx_v_exc_type;
   PyObject *__pyx_v_exc_val;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self;
 };
 
-
-
-/* "backtest/execution/core/simulator/util.pxd":1
- * cdef class Distributor:             # <<<<<<<<<<<<<<
- *     cdef public object queue
- *     cdef public object event
-*/
-
-struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_4util_Distributor {
-  void (*put)(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor *, PyObject *, int __pyx_skip_dispatch);
-};
-static struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_4util_Distributor *__pyx_vtabptr_8backtest_9execution_4core_9simulator_4util_Distributor;
 
 
 /* "backtest/execution/core/finance/trade.pxd":25
@@ -2421,7 +2382,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManag
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":17
+/* "backtest/execution/actor/writer_actor.pxd":4
  * 
  * 
  * cdef class BatchWriterActor:             # <<<<<<<<<<<<<<
@@ -2429,13 +2390,13 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCa
  *     cdef bint _running
 */
 
-struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor {
-  void (*push)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *, PyObject *);
+struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor {
+  void (*push)(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *, PyObject *);
 };
-static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor;
+static struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_BatchWriterActor;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":27
+/* "backtest/execution/core/finance/simulate.pxd":28
  * 
  * 
  * cdef class TrackerActor:             # <<<<<<<<<<<<<<
@@ -2452,7 +2413,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerAct
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":47
+/* "backtest/execution/core/finance/simulate.pxd":48
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2490,18 +2451,18 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position {
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position *__pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position;
 
 
-/* "backtest/execution/core/simulator/engine.pyx":44
+/* "backtest/execution/core/engine/engine.pyx":45
  * 
  * 
  * cdef class BackEngine:             # <<<<<<<<<<<<<<
  * 
- *     def __init__(self, int32_t max_size, int32_t batch_size):
+ *     # def __init__(self, int32_t max_size, int32_t batch_size):
 */
 
-struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_6engine_BackEngine {
-  void (*start)(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *, PyObject *, int __pyx_skip_dispatch);
+struct __pyx_vtabstruct_8backtest_9execution_4core_6engine_6engine_BackEngine {
+  void (*start)(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *, PyObject *, int __pyx_skip_dispatch);
 };
-static struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_vtabptr_8backtest_9execution_4core_9simulator_6engine_BackEngine;
+static struct __pyx_vtabstruct_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_vtabptr_8backtest_9execution_4core_6engine_6engine_BackEngine;
 /* #### Code section: utility_code_proto ### */
 
 /* --- Runtime support code (head) --- */
@@ -2777,6 +2738,14 @@ static CYTHON_INLINE int __Pyx_ParseKeywords(
 /* RaiseArgTupleInvalid.proto */
 static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
     Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
+
+/* ArgTypeTestFunc.export */
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
+
+/* ArgTypeTest.proto */
+#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
+    ((likely(__Pyx_IS_TYPE(obj, type) | (none_allowed && (obj == Py_None)))) ? 1 :\
+        __Pyx__ArgTypeTest(obj, type, name, exact))
 
 /* PyObjectVectorCallKwBuilder.proto */
 CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyObject *value, PyObject *builder, PyObject **args, int n);
@@ -3166,14 +3135,6 @@ static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
 /* GetAttr3.proto */
 static CYTHON_INLINE PyObject *__Pyx_GetAttr3(PyObject *, PyObject *, PyObject *);
 
-/* ArgTypeTestFunc.export */
-static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
-
-/* ArgTypeTest.proto */
-#define __Pyx_ArgTypeTest(obj, type, none_allowed, name, exact)\
-    ((likely(__Pyx_IS_TYPE(obj, type) | (none_allowed && (obj == Py_None)))) ? 1 :\
-        __Pyx__ArgTypeTest(obj, type, name, exact))
-
 /* ExtTypeTest.proto */
 static CYTHON_INLINE int __Pyx_TypeTest(PyObject *obj, PyTypeObject *type);
 
@@ -3440,7 +3401,7 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int32_t(int32_t value);
 static CYTHON_INLINE PyObject* __Pyx_PyLong_From_long(long value);
 
 /* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic value);
+static CYTHON_INLINE PyObject* __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic value);
 
 /* UpdateUnpickledDict.proto */
 static int __Pyx_UpdateUnpickledDict(PyObject *obj, PyObject *state, Py_ssize_t index);
@@ -3551,13 +3512,11 @@ static int __Pyx_State_RemoveModule(void*);
 #define __PYX_ABI_MODULE_NAME "_cython_" CYTHON_ABI
 #define __PYX_TYPE_MODULE_PREFIX __PYX_ABI_MODULE_NAME "."
 
-static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_start(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_8backtest_9execution_4core_6engine_6engine_10BackEngine_start(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop, int __pyx_skip_dispatch); /* proto*/
 
 /* Module declarations from "libc.stdint" */
 
-/* Module declarations from "backtest.execution.core.simulator.util" */
-
-/* Module declarations from "backtest.execution.core.gateway.interface" */
+/* Module declarations from "backtest.execution.gateway.interface" */
 
 /* Module declarations from "libc.string" */
 
@@ -3585,51 +3544,53 @@ static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_s
 
 /* Module declarations from "backtest.execution.core.finance.cash" */
 
+/* Module declarations from "backtest.execution.actor.writer_actor" */
+
 /* Module declarations from "backtest.execution.core.finance.simulate" */
 
 /* Module declarations from "libcpp.vector" */
 
 /* Module declarations from "backtest.execution.core.finance.position" */
 
-/* Module declarations from "backtest.execution.core.simulator.engine" */
+/* Module declarations from "backtest.execution.core.engine.engine" */
 static PyObject *__Pyx_EnumBase = 0;
 static PyObject *__Pyx_FlagBase = 0;
-static PyObject *__pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine__set_state(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *, PyObject *); /*proto*/
+static PyObject *__pyx_f_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine__set_state(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *, PyObject *); /*proto*/
 /* #### Code section: typeinfo ### */
 /* #### Code section: before_global_var ### */
-#define __Pyx_MODULE_NAME "backtest.execution.core.simulator.engine"
-extern int __pyx_module_is_main_backtest__execution__core__simulator__engine;
-int __pyx_module_is_main_backtest__execution__core__simulator__engine = 0;
+#define __Pyx_MODULE_NAME "backtest.execution.core.engine.engine"
+extern int __pyx_module_is_main_backtest__execution__core__engine__engine;
+int __pyx_module_is_main_backtest__execution__core__engine__engine = 0;
 
-/* Implementation of "backtest.execution.core.simulator.engine" */
+/* Implementation of "backtest.execution.core.engine.engine" */
 /* #### Code section: global_var ### */
 /* #### Code section: string_decls ### */
 static const char __pyx_k_active_tasks_gt_simulator[] = "_active_tasks, gt, simulator";
 /* #### Code section: decls ### */
-static int __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_max_size, int32_t __pyx_v_batch_size); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_2__aenter__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_5start(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_7register(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_10set_cash(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_13submit(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_16on_dt_over(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_19getvalue(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_22subscribe(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_25stop(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_28__aexit__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_exc_type, CYTHON_UNUSED PyObject *__pyx_v_exc_val, CYTHON_UNUSED PyObject *__pyx_v_exc_tb); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_31__reduce_cython__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_33__setstate_cython__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine_BackEngine(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_max_size, struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_v_actor); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_2__aenter__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_5start(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_7register(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_10set_cash(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_13submit(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_16on_dt_over(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_19getvalue(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_22subscribe(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_25stop(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_28__aexit__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_exc_type, CYTHON_UNUSED PyObject *__pyx_v_exc_val, CYTHON_UNUSED PyObject *__pyx_v_exc_tb); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_31__reduce_cython__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_33__setstate_cython__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine_BackEngine(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 /* #### Code section: late_includes ### */
 /* #### Code section: module_state ### */
 /* SmallCodeConfig */
@@ -3650,40 +3611,38 @@ typedef struct {
   PyObject *__pyx_empty_tuple;
   PyObject *__pyx_empty_bytes;
   PyObject *__pyx_empty_unicode;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_4util_Distributor;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop;
-  PyObject *__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop;
+  PyObject *__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
@@ -3711,48 +3670,48 @@ PyObject *__Pyx_CachedCoroType;
 
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop;
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__[8];
-int __pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__;
+struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__[8];
+int __pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__;
 #endif
 /* CachedMethodType.module_state_decls */
 #if CYTHON_COMPILING_IN_LIMITED_API
@@ -3797,8 +3756,8 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u_Stopping_back_broker __pyx_string_tab[4]
 #define __pyx_kp_u__2 __pyx_string_tab[5]
 #define __pyx_kp_u_add_note __pyx_string_tab[6]
-#define __pyx_kp_u_backtest_execution_core_simulato __pyx_string_tab[7]
-#define __pyx_kp_u_backtest_execution_core_simulato_2 __pyx_string_tab[8]
+#define __pyx_kp_u_backtest_execution_core_engine_e __pyx_string_tab[7]
+#define __pyx_kp_u_backtest_execution_core_engine_e_2 __pyx_string_tab[8]
 #define __pyx_kp_u_disable __pyx_string_tab[9]
 #define __pyx_kp_u_enable __pyx_string_tab[10]
 #define __pyx_kp_u_gc __pyx_string_tab[11]
@@ -3832,17 +3791,17 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_Subscribe __pyx_string_tab[39]
 #define __pyx_n_u_ThreadPoolExecutor __pyx_string_tab[40]
 #define __pyx_n_u_acct_obj __pyx_string_tab[41]
-#define __pyx_n_u_aenter __pyx_string_tab[42]
-#define __pyx_n_u_aexit __pyx_string_tab[43]
-#define __pyx_n_u_async_gt __pyx_string_tab[44]
-#define __pyx_n_u_asyncio __pyx_string_tab[45]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[46]
-#define __pyx_n_u_atexit __pyx_string_tab[47]
-#define __pyx_n_u_await __pyx_string_tab[48]
-#define __pyx_n_u_backtest_execution_core_gateway __pyx_string_tab[49]
-#define __pyx_n_u_backtest_execution_core_simulato __pyx_string_tab[50]
-#define __pyx_n_u_batch __pyx_string_tab[51]
-#define __pyx_n_u_batch_size __pyx_string_tab[52]
+#define __pyx_n_u_actor __pyx_string_tab[42]
+#define __pyx_n_u_aenter __pyx_string_tab[43]
+#define __pyx_n_u_aexit __pyx_string_tab[44]
+#define __pyx_n_u_async_gt __pyx_string_tab[45]
+#define __pyx_n_u_asyncio __pyx_string_tab[46]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[47]
+#define __pyx_n_u_atexit __pyx_string_tab[48]
+#define __pyx_n_u_await __pyx_string_tab[49]
+#define __pyx_n_u_backtest_execution_core_engine_e __pyx_string_tab[50]
+#define __pyx_n_u_backtest_execution_gateway_inter __pyx_string_tab[51]
+#define __pyx_n_u_batch __pyx_string_tab[52]
 #define __pyx_n_u_body __pyx_string_tab[53]
 #define __pyx_n_u_chain __pyx_string_tab[54]
 #define __pyx_n_u_cline_in_traceback __pyx_string_tab[55]
@@ -3947,40 +3906,38 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   __Pyx_State_RemoveModule(NULL);
   #endif
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_Distributor);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__);
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<13; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<142; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
@@ -4011,40 +3968,38 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_tuple);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_bytes);
   __Pyx_VISIT_CONST(traverse_module_state->__pyx_empty_unicode);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_Distributor);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__);
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<13; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<142; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
@@ -4066,19 +4021,19 @@ return 0;
 #endif
 /* #### Code section: module_code ### */
 
-/* "backtest/execution/core/simulator/engine.pyx":46
- * cdef class BackEngine:
+/* "backtest/execution/core/engine/engine.pyx":48
  * 
- *     def __init__(self, int32_t max_size, int32_t batch_size):             # <<<<<<<<<<<<<<
- *         self.simulator = Simulator(max_size=max_size, batch_size=batch_size)
+ *     # def __init__(self, int32_t max_size, int32_t batch_size):
+ *     def __init__(self, int32_t max_size, BatchWriterActor actor):             # <<<<<<<<<<<<<<
+ *         self.simulator = Simulator(max_size=max_size, actor=actor)
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 */
 
 /* Python wrapper */
-static int __pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int32_t __pyx_v_max_size;
-  int32_t __pyx_v_batch_size;
+  struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_v_actor = 0;
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject* values[2] = {0,0};
@@ -4095,100 +4050,106 @@ static int __pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_1
   #endif
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_max_size,&__pyx_mstate_global->__pyx_n_u_batch_size,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_max_size,&__pyx_mstate_global->__pyx_n_u_actor,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 46, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 48, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 46, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 48, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 46, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 48, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 46, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__init__", 0) < (0)) __PYX_ERR(0, 48, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 46, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, i); __PYX_ERR(0, 48, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_VARARGS(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 46, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 48, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_VARARGS(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 46, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 48, __pyx_L3_error)
     }
-    __pyx_v_max_size = __Pyx_PyLong_As_int32_t(values[0]); if (unlikely((__pyx_v_max_size == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
-    __pyx_v_batch_size = __Pyx_PyLong_As_int32_t(values[1]); if (unlikely((__pyx_v_batch_size == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
+    __pyx_v_max_size = __Pyx_PyLong_As_int32_t(values[0]); if (unlikely((__pyx_v_max_size == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L3_error)
+    __pyx_v_actor = ((struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *)values[1]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 46, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 48, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine___init__(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_max_size, __pyx_v_batch_size);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_actor), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor, 1, "actor", 0))) __PYX_ERR(0, 48, __pyx_L1_error)
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_max_size, __pyx_v_actor);
 
   /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = -1;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
+  goto __pyx_L7_cleaned_up;
+  __pyx_L0:;
+  for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+    Py_XDECREF(values[__pyx_temp]);
+  }
+  __pyx_L7_cleaned_up:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_max_size, int32_t __pyx_v_batch_size) {
+static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_max_size, struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_v_actor) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  size_t __pyx_t_5;
-  PyObject *__pyx_t_6 = NULL;
+  size_t __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "backtest/execution/core/simulator/engine.pyx":47
- * 
- *     def __init__(self, int32_t max_size, int32_t batch_size):
- *         self.simulator = Simulator(max_size=max_size, batch_size=batch_size)             # <<<<<<<<<<<<<<
+  /* "backtest/execution/core/engine/engine.pyx":49
+ *     # def __init__(self, int32_t max_size, int32_t batch_size):
+ *     def __init__(self, int32_t max_size, BatchWriterActor actor):
+ *         self.simulator = Simulator(max_size=max_size, actor=actor)             # <<<<<<<<<<<<<<
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
  * 
 */
   __pyx_t_2 = NULL;
-  __pyx_t_3 = __Pyx_PyLong_From_int32_t(__pyx_v_max_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int32_t(__pyx_v_max_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyLong_From_int32_t(__pyx_v_batch_size); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = 1;
+  __pyx_t_4 = 1;
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 2 : 0)] = {__pyx_t_2, NULL};
-    __pyx_t_6 = __Pyx_MakeVectorcallBuilderKwds(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 47, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_6);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_max_size, __pyx_t_3, __pyx_t_6, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 47, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_batch_size, __pyx_t_4, __pyx_t_6, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 47, __pyx_L1_error)
-    __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_6);
+    __pyx_t_5 = __Pyx_MakeVectorcallBuilderKwds(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_max_size, __pyx_t_3, __pyx_t_5, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 49, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_actor, ((PyObject *)__pyx_v_actor), __pyx_t_5, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator, __pyx_callargs+__pyx_t_4, (1-__pyx_t_4) | (__pyx_t_4*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_5);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __Pyx_GIVEREF((PyObject *)__pyx_t_1);
@@ -4197,29 +4158,29 @@ static int __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine__
   __pyx_v_self->simulator = ((struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":48
- *     def __init__(self, int32_t max_size, int32_t batch_size):
- *         self.simulator = Simulator(max_size=max_size, batch_size=batch_size)
+  /* "backtest/execution/core/engine/engine.pyx":50
+ *     def __init__(self, int32_t max_size, BatchWriterActor actor):
+ *         self.simulator = Simulator(max_size=max_size, actor=actor)
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type             # <<<<<<<<<<<<<<
  * 
  *     async def __aenter__(self):
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 48, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = __pyx_t_1;
-  __Pyx_INCREF(__pyx_t_6);
+  __pyx_t_5 = __pyx_t_1;
+  __Pyx_INCREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GIVEREF(__pyx_t_6);
+  __Pyx_GIVEREF(__pyx_t_5);
   __Pyx_GOTREF((PyObject *)__pyx_v_self->gt);
   __Pyx_DECREF((PyObject *)__pyx_v_self->gt);
-  __pyx_v_self->gt = ((struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway *)__pyx_t_6);
-  __pyx_t_6 = 0;
+  __pyx_v_self->gt = ((struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway *)__pyx_t_5);
+  __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":46
- * cdef class BackEngine:
+  /* "backtest/execution/core/engine/engine.pyx":48
  * 
- *     def __init__(self, int32_t max_size, int32_t batch_size):             # <<<<<<<<<<<<<<
- *         self.simulator = Simulator(max_size=max_size, batch_size=batch_size)
+ *     # def __init__(self, int32_t max_size, int32_t batch_size):
+ *     def __init__(self, int32_t max_size, BatchWriterActor actor):             # <<<<<<<<<<<<<<
+ *         self.simulator = Simulator(max_size=max_size, actor=actor)
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 */
 
@@ -4230,17 +4191,16 @@ static int __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine__
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":50
+/* "backtest/execution/core/engine/engine.pyx":52
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
  * 
  *     async def __aenter__(self):             # <<<<<<<<<<<<<<
@@ -4249,15 +4209,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_3__aenter__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_3__aenter__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_3__aenter__ = {"__aenter__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_3__aenter__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_3__aenter__(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_3__aenter__ = {"__aenter__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_3__aenter__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_3__aenter__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4283,26 +4243,26 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   const Py_ssize_t __pyx_kwds_len = unlikely(__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
   if (unlikely(__pyx_kwds_len < 0)) return NULL;
   if (unlikely(__pyx_kwds_len > 0)) {__Pyx_RejectKeywords("__aenter__", __pyx_kwds); return NULL;}
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_2__aenter__(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self));
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_2__aenter__(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_2__aenter__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_2__aenter__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__aenter__", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 50, __pyx_L1_error)
+    __PYX_ERR(0, 52, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -4310,7 +4270,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_4generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_aenter, __pyx_mstate_global->__pyx_n_u_BackEngine___aenter, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 50, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_4generator, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_aenter, __pyx_mstate_global->__pyx_n_u_BackEngine___aenter, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 52, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -4318,7 +4278,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__aenter__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__aenter__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -4326,9 +4286,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_4generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4347,10 +4307,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 50, __pyx_L1_error)
+    __PYX_ERR(0, 52, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":51
+  /* "backtest/execution/core/engine/engine.pyx":53
  * 
  *     async def __aenter__(self):
  *         self._start()             # <<<<<<<<<<<<<<
@@ -4364,12 +4324,12 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_start, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":52
+  /* "backtest/execution/core/engine/engine.pyx":54
  *     async def __aenter__(self):
  *         self._start()
  *         return self             # <<<<<<<<<<<<<<
@@ -4382,7 +4342,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":50
+  /* "backtest/execution/core/engine/engine.pyx":52
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
  * 
  *     async def __aenter__(self):             # <<<<<<<<<<<<<<
@@ -4409,7 +4369,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-/* "backtest/execution/core/simulator/engine.pyx":54
+/* "backtest/execution/core/engine/engine.pyx":56
  *         return self
  * 
  *     cpdef void start(self, object loop):             # <<<<<<<<<<<<<<
@@ -4417,14 +4377,14 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  *          self.simulator.attach(loop)
 */
 
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_start(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop, int __pyx_skip_dispatch) {
+static void __pyx_f_8backtest_9execution_4core_6engine_6engine_10BackEngine_start(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop, int __pyx_skip_dispatch) {
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4440,7 +4400,7 @@ static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_s
   /* Check if overridden in Python */
   else if (
   #if !CYTHON_USE_TYPE_SLOTS
-  unlikely(Py_TYPE(((PyObject *)__pyx_v_self)) != __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine &&
+  unlikely(Py_TYPE(((PyObject *)__pyx_v_self)) != __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine &&
   __Pyx_PyType_HasFeature(Py_TYPE(((PyObject *)__pyx_v_self)), Py_TPFLAGS_HAVE_GC))
   #else
   unlikely(Py_TYPE(((PyObject *)__pyx_v_self))->tp_dictoffset != 0 || __Pyx_PyType_HasFeature(Py_TYPE(((PyObject *)__pyx_v_self)), (Py_TPFLAGS_IS_ABSTRACT | Py_TPFLAGS_HEAPTYPE)))
@@ -4451,9 +4411,9 @@ static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_s
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_start_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_start_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start)) {
+      if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start)) {
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
@@ -4474,7 +4434,7 @@ static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_s
           __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4494,16 +4454,16 @@ static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_s
     #endif
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":56
+  /* "backtest/execution/core/engine/engine.pyx":58
  *     cpdef void start(self, object loop):
  *          # self._loop = asyncio.get_running_loop()
  *          self.simulator.attach(loop)             # <<<<<<<<<<<<<<
  * 
  *     # -----------------------------------------------------------
 */
-  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator *)__pyx_v_self->simulator->__pyx_vtab)->attach(__pyx_v_self->simulator, __pyx_v_loop); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 56, __pyx_L1_error)
+  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator *)__pyx_v_self->simulator->__pyx_vtab)->attach(__pyx_v_self->simulator, __pyx_v_loop); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L1_error)
 
-  /* "backtest/execution/core/simulator/engine.pyx":54
+  /* "backtest/execution/core/engine/engine.pyx":56
  *         return self
  * 
  *     cpdef void start(self, object loop):             # <<<<<<<<<<<<<<
@@ -4518,21 +4478,21 @@ static void __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_s
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start = {"start", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start = {"start", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4562,43 +4522,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_loop,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 54, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 56, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 54, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 56, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "start", 0) < (0)) __PYX_ERR(0, 54, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "start", 0) < (0)) __PYX_ERR(0, 56, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("start", 1, 1, 1, i); __PYX_ERR(0, 54, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("start", 1, 1, 1, i); __PYX_ERR(0, 56, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 54, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 56, __pyx_L3_error)
     }
     __pyx_v_loop = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("start", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 54, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("start", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 56, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_5start(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_loop);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_5start(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_loop);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -4608,7 +4568,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_5start(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop) {
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_5start(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4617,8 +4577,8 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("start", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_start(__pyx_v_self, __pyx_v_loop, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_f_8backtest_9execution_4core_6engine_6engine_10BackEngine_start(__pyx_v_self, __pyx_v_loop, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4627,16 +4587,16 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.start", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_9generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_9generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":62
+/* "backtest/execution/core/engine/engine.pyx":64
  *     # -----------------------------------------------------------
  * 
  *     async def register(self, object event):             # <<<<<<<<<<<<<<
@@ -4645,15 +4605,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_8register(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_8register(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_8register = {"register", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_8register, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_8register(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_8register = {"register", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_8register, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_8register(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4683,43 +4643,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_event,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 62, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 64, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 62, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 64, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "register", 0) < (0)) __PYX_ERR(0, 62, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "register", 0) < (0)) __PYX_ERR(0, 64, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("register", 1, 1, 1, i); __PYX_ERR(0, 62, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("register", 1, 1, 1, i); __PYX_ERR(0, 64, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 62, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 64, __pyx_L3_error)
     }
     __pyx_v_event = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("register", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 62, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("register", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 64, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.register", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.register", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_7register(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_7register(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -4729,19 +4689,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_7register(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_7register(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("register", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 62, __pyx_L1_error)
+    __PYX_ERR(0, 64, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -4752,7 +4712,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_event);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_event);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_9generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_register, __pyx_mstate_global->__pyx_n_u_BackEngine_register, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 62, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_9generator1, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_register, __pyx_mstate_global->__pyx_n_u_BackEngine_register, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 64, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -4760,7 +4720,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.register", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.register", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -4768,9 +4728,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_9generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_9generator1(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -4793,10 +4753,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 62, __pyx_L1_error)
+    __PYX_ERR(0, 64, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":65
+  /* "backtest/execution/core/engine/engine.pyx":67
  *         cdef object resp
  * 
  *         resp = await async_gt.register(event)             # <<<<<<<<<<<<<<
@@ -4804,9 +4764,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  * 
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_register); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_register); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_5 = 1;
@@ -4826,7 +4786,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_6 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -4840,20 +4800,20 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 65, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 67, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_6 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 65, __pyx_L1_error)
+    __PYX_ERR(0, 67, __pyx_L1_error)
   }
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_resp = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":66
+  /* "backtest/execution/core/engine/engine.pyx":68
  * 
  *         resp = await async_gt.register(event)
  *         return resp             # <<<<<<<<<<<<<<
@@ -4866,7 +4826,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":62
+  /* "backtest/execution/core/engine/engine.pyx":64
  *     # -----------------------------------------------------------
  * 
  *     async def register(self, object event):             # <<<<<<<<<<<<<<
@@ -4894,9 +4854,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_12generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_12generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":68
+/* "backtest/execution/core/engine/engine.pyx":70
  *         return resp
  * 
  *     async def set_cash(self, object event):             # <<<<<<<<<<<<<<
@@ -4905,15 +4865,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_11set_cash(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_11set_cash(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_11set_cash = {"set_cash", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_11set_cash, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_11set_cash(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_11set_cash = {"set_cash", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_11set_cash, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_11set_cash(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -4943,43 +4903,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_event,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 68, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 70, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 68, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 70, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "set_cash", 0) < (0)) __PYX_ERR(0, 68, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "set_cash", 0) < (0)) __PYX_ERR(0, 70, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("set_cash", 1, 1, 1, i); __PYX_ERR(0, 68, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("set_cash", 1, 1, 1, i); __PYX_ERR(0, 70, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 68, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 70, __pyx_L3_error)
     }
     __pyx_v_event = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("set_cash", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 68, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("set_cash", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 70, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.set_cash", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.set_cash", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_10set_cash(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_10set_cash(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -4989,19 +4949,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_10set_cash(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_10set_cash(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("set_cash", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 68, __pyx_L1_error)
+    __PYX_ERR(0, 70, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -5012,7 +4972,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_event);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_event);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_12generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_set_cash, __pyx_mstate_global->__pyx_n_u_BackEngine_set_cash, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_12generator2, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_set_cash, __pyx_mstate_global->__pyx_n_u_BackEngine_set_cash, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 70, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -5020,7 +4980,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.set_cash", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.set_cash", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -5028,9 +4988,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_12generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_12generator2(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5051,10 +5011,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 68, __pyx_L1_error)
+    __PYX_ERR(0, 70, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":71
+  /* "backtest/execution/core/engine/engine.pyx":73
  *         cdef object resp
  * 
  *         resp = await self.simulator.set_cash(event)             # <<<<<<<<<<<<<<
@@ -5068,7 +5028,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_cur_scope->__pyx_v_event};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_set_cash, __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_4 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -5082,20 +5042,20 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 71, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 73, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_4 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 71, __pyx_L1_error)
+    __PYX_ERR(0, 73, __pyx_L1_error)
   }
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_resp = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":72
+  /* "backtest/execution/core/engine/engine.pyx":74
  * 
  *         resp = await self.simulator.set_cash(event)
  *         return resp             # <<<<<<<<<<<<<<
@@ -5108,7 +5068,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":68
+  /* "backtest/execution/core/engine/engine.pyx":70
  *         return resp
  * 
  *     async def set_cash(self, object event):             # <<<<<<<<<<<<<<
@@ -5134,9 +5094,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_15generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_15generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":74
+/* "backtest/execution/core/engine/engine.pyx":76
  *         return resp
  * 
  *     async def submit(self, object event):             # <<<<<<<<<<<<<<
@@ -5145,15 +5105,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_14submit(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_14submit(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_14submit = {"submit", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_14submit, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_14submit(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_14submit = {"submit", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_14submit, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_14submit(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5183,43 +5143,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_event,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 74, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 76, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 74, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 76, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "submit", 0) < (0)) __PYX_ERR(0, 74, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "submit", 0) < (0)) __PYX_ERR(0, 76, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("submit", 1, 1, 1, i); __PYX_ERR(0, 74, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("submit", 1, 1, 1, i); __PYX_ERR(0, 76, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 74, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 76, __pyx_L3_error)
     }
     __pyx_v_event = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("submit", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 74, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("submit", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 76, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.submit", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.submit", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_13submit(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_13submit(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -5229,19 +5189,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_13submit(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_13submit(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("submit", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 74, __pyx_L1_error)
+    __PYX_ERR(0, 76, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -5252,7 +5212,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_event);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_event);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_15generator3, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_submit, __pyx_mstate_global->__pyx_n_u_BackEngine_submit, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_15generator3, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_submit, __pyx_mstate_global->__pyx_n_u_BackEngine_submit, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -5260,7 +5220,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.submit", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.submit", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -5268,9 +5228,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_15generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_15generator3(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5299,37 +5259,37 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 74, __pyx_L1_error)
+    __PYX_ERR(0, 76, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":75
+  /* "backtest/execution/core/engine/engine.pyx":77
  * 
  *     async def submit(self, object event):
  *         cdef object body = event.body             # <<<<<<<<<<<<<<
  *         cdef bytes experiment_id = event.experiment_id
  *         cdef Order order_obj
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_event, __pyx_mstate_global->__pyx_n_u_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_event, __pyx_mstate_global->__pyx_n_u_body); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_body = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":76
+  /* "backtest/execution/core/engine/engine.pyx":78
  *     async def submit(self, object event):
  *         cdef object body = event.body
  *         cdef bytes experiment_id = event.experiment_id             # <<<<<<<<<<<<<<
  *         cdef Order order_obj
  *         cdef object resp
 */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_event, __pyx_mstate_global->__pyx_n_u_experiment_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_event, __pyx_mstate_global->__pyx_n_u_experiment_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_experiment_id = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":80
+  /* "backtest/execution/core/engine/engine.pyx":82
  *         cdef object resp
  * 
  *         order_obj = Order(experiment_id=experiment_id,             # <<<<<<<<<<<<<<
@@ -5338,88 +5298,88 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
   __pyx_t_2 = NULL;
 
-  /* "backtest/execution/core/simulator/engine.pyx":81
+  /* "backtest/execution/core/engine/engine.pyx":83
  * 
  *         order_obj = Order(experiment_id=experiment_id,
  *                           sid=body.sid,             # <<<<<<<<<<<<<<
  *                           sizer_ratio=body.sizer_ratio,
  *                           pricelimit=body.pricelimit,
 */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_sid); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_sid); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 83, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "backtest/execution/core/simulator/engine.pyx":82
+  /* "backtest/execution/core/engine/engine.pyx":84
  *         order_obj = Order(experiment_id=experiment_id,
  *                           sid=body.sid,
  *                           sizer_ratio=body.sizer_ratio,             # <<<<<<<<<<<<<<
  *                           pricelimit=body.pricelimit,
  *                           order_type=body.order_type,
 */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_sizer_ratio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_sizer_ratio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 84, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "backtest/execution/core/simulator/engine.pyx":83
+  /* "backtest/execution/core/engine/engine.pyx":85
  *                           sid=body.sid,
  *                           sizer_ratio=body.sizer_ratio,
  *                           pricelimit=body.pricelimit,             # <<<<<<<<<<<<<<
  *                           order_type=body.order_type,
  *                           exec_type=body.exec_type,
 */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_pricelimit); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 83, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_pricelimit); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "backtest/execution/core/simulator/engine.pyx":84
+  /* "backtest/execution/core/engine/engine.pyx":86
  *                           sizer_ratio=body.sizer_ratio,
  *                           pricelimit=body.pricelimit,
  *                           order_type=body.order_type,             # <<<<<<<<<<<<<<
  *                           exec_type=body.exec_type,
  *                           created_dt=body.created_dt,
 */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_order_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_order_type); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 86, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
-  /* "backtest/execution/core/simulator/engine.pyx":85
+  /* "backtest/execution/core/engine/engine.pyx":87
  *                           pricelimit=body.pricelimit,
  *                           order_type=body.order_type,
  *                           exec_type=body.exec_type,             # <<<<<<<<<<<<<<
  *                           created_dt=body.created_dt,
  *                           filler=body.filler)
 */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_exec_type); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_exec_type); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
 
-  /* "backtest/execution/core/simulator/engine.pyx":86
+  /* "backtest/execution/core/engine/engine.pyx":88
  *                           order_type=body.order_type,
  *                           exec_type=body.exec_type,
  *                           created_dt=body.created_dt,             # <<<<<<<<<<<<<<
  *                           filler=body.filler)
  *         order_obj.submit()
 */
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_created_dt); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_created_dt); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
 
-  /* "backtest/execution/core/simulator/engine.pyx":87
+  /* "backtest/execution/core/engine/engine.pyx":89
  *                           exec_type=body.exec_type,
  *                           created_dt=body.created_dt,
  *                           filler=body.filler)             # <<<<<<<<<<<<<<
  *         order_obj.submit()
  *         resp = await self.simulator.submit(order_obj)
 */
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_filler); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_v_body, __pyx_mstate_global->__pyx_n_u_filler); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_10 = 1;
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 8 : 0)] = {__pyx_t_2, NULL};
-    __pyx_t_11 = __Pyx_MakeVectorcallBuilderKwds(8); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_MakeVectorcallBuilderKwds(8); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_cur_scope->__pyx_v_experiment_id, __pyx_t_11, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_sid, __pyx_t_3, __pyx_t_11, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_sizer_ratio, __pyx_t_4, __pyx_t_11, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pricelimit, __pyx_t_5, __pyx_t_11, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_order_type, __pyx_t_6, __pyx_t_11, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_exec_type, __pyx_t_7, __pyx_t_11, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_created_dt, __pyx_t_8, __pyx_t_11, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_filler, __pyx_t_9, __pyx_t_11, __pyx_callargs+1, 7) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_cur_scope->__pyx_v_experiment_id, __pyx_t_11, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_sid, __pyx_t_3, __pyx_t_11, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_sizer_ratio, __pyx_t_4, __pyx_t_11, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pricelimit, __pyx_t_5, __pyx_t_11, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_order_type, __pyx_t_6, __pyx_t_11, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_exec_type, __pyx_t_7, __pyx_t_11, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_created_dt, __pyx_t_8, __pyx_t_11, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_filler, __pyx_t_9, __pyx_t_11, __pyx_callargs+1, 7) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
     __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order, __pyx_callargs+__pyx_t_10, (1-__pyx_t_10) | (__pyx_t_10*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5430,23 +5390,23 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF((PyObject *)__pyx_t_1);
   }
   __Pyx_GIVEREF((PyObject *)__pyx_t_1);
   __pyx_cur_scope->__pyx_v_order_obj = ((struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":88
+  /* "backtest/execution/core/engine/engine.pyx":90
  *                           created_dt=body.created_dt,
  *                           filler=body.filler)
  *         order_obj.submit()             # <<<<<<<<<<<<<<
  *         resp = await self.simulator.submit(order_obj)
  *         return resp
 */
-  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order *)__pyx_cur_scope->__pyx_v_order_obj->__pyx_vtab)->submit(__pyx_cur_scope->__pyx_v_order_obj); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 88, __pyx_L1_error)
+  ((struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order *)__pyx_cur_scope->__pyx_v_order_obj->__pyx_vtab)->submit(__pyx_cur_scope->__pyx_v_order_obj); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
 
-  /* "backtest/execution/core/simulator/engine.pyx":89
+  /* "backtest/execution/core/engine/engine.pyx":91
  *                           filler=body.filler)
  *         order_obj.submit()
  *         resp = await self.simulator.submit(order_obj)             # <<<<<<<<<<<<<<
@@ -5460,7 +5420,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_11, ((PyObject *)__pyx_cur_scope->__pyx_v_order_obj)};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_submit, __pyx_callargs+__pyx_t_10, (2-__pyx_t_10) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_12 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -5474,20 +5434,20 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 89, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 91, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_12 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 89, __pyx_L1_error)
+    __PYX_ERR(0, 91, __pyx_L1_error)
   }
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_resp = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":90
+  /* "backtest/execution/core/engine/engine.pyx":92
  *         order_obj.submit()
  *         resp = await self.simulator.submit(order_obj)
  *         return resp             # <<<<<<<<<<<<<<
@@ -5500,7 +5460,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":74
+  /* "backtest/execution/core/engine/engine.pyx":76
  *         return resp
  * 
  *     async def submit(self, object event):             # <<<<<<<<<<<<<<
@@ -5534,9 +5494,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_18generator4(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_18generator4(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":92
+/* "backtest/execution/core/engine/engine.pyx":94
  *         return resp
  * 
  *     async def on_dt_over(self, object event):             # <<<<<<<<<<<<<<
@@ -5545,15 +5505,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_17on_dt_over(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_17on_dt_over(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_17on_dt_over = {"on_dt_over", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_17on_dt_over, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_17on_dt_over(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_17on_dt_over = {"on_dt_over", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_17on_dt_over, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_17on_dt_over(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5583,43 +5543,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_event,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 92, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 94, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 92, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 94, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "on_dt_over", 0) < (0)) __PYX_ERR(0, 92, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "on_dt_over", 0) < (0)) __PYX_ERR(0, 94, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("on_dt_over", 1, 1, 1, i); __PYX_ERR(0, 92, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("on_dt_over", 1, 1, 1, i); __PYX_ERR(0, 94, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 92, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 94, __pyx_L3_error)
     }
     __pyx_v_event = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("on_dt_over", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 92, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("on_dt_over", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 94, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.on_dt_over", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.on_dt_over", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_16on_dt_over(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_16on_dt_over(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -5629,19 +5589,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_16on_dt_over(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_16on_dt_over(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("on_dt_over", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 92, __pyx_L1_error)
+    __PYX_ERR(0, 94, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -5652,7 +5612,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_event);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_event);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_18generator4, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_on_dt_over, __pyx_mstate_global->__pyx_n_u_BackEngine_on_dt_over, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 92, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_18generator4, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_on_dt_over, __pyx_mstate_global->__pyx_n_u_BackEngine_on_dt_over, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -5660,7 +5620,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.on_dt_over", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.on_dt_over", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -5668,9 +5628,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_18generator4(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_18generator4(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5691,10 +5651,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 92, __pyx_L1_error)
+    __PYX_ERR(0, 94, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":95
+  /* "backtest/execution/core/engine/engine.pyx":97
  *         cdef object resp
  * 
  *         resp = await self.simulator.on_dt_over(event)             # <<<<<<<<<<<<<<
@@ -5708,7 +5668,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_cur_scope->__pyx_v_event};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_on_dt_over, __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 97, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_4 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -5722,20 +5682,20 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 95, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 97, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_4 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 95, __pyx_L1_error)
+    __PYX_ERR(0, 97, __pyx_L1_error)
   }
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_resp = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":96
+  /* "backtest/execution/core/engine/engine.pyx":98
  * 
  *         resp = await self.simulator.on_dt_over(event)
  *         return resp             # <<<<<<<<<<<<<<
@@ -5748,7 +5708,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":92
+  /* "backtest/execution/core/engine/engine.pyx":94
  *         return resp
  * 
  *     async def on_dt_over(self, object event):             # <<<<<<<<<<<<<<
@@ -5774,9 +5734,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_21generator5(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_21generator5(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":98
+/* "backtest/execution/core/engine/engine.pyx":100
  *         return resp
  * 
  *     async def getvalue(self, object event): # macht case in suited for cython             # <<<<<<<<<<<<<<
@@ -5785,15 +5745,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_20getvalue(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_20getvalue(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_20getvalue = {"getvalue", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_20getvalue, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_20getvalue(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_20getvalue = {"getvalue", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_20getvalue, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_20getvalue(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -5823,43 +5783,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_event,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 98, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 100, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 98, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 100, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "getvalue", 0) < (0)) __PYX_ERR(0, 98, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "getvalue", 0) < (0)) __PYX_ERR(0, 100, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("getvalue", 1, 1, 1, i); __PYX_ERR(0, 98, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("getvalue", 1, 1, 1, i); __PYX_ERR(0, 100, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 98, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 100, __pyx_L3_error)
     }
     __pyx_v_event = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getvalue", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 98, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getvalue", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 100, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_19getvalue(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_19getvalue(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -5869,19 +5829,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_19getvalue(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_19getvalue(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getvalue", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 98, __pyx_L1_error)
+    __PYX_ERR(0, 100, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -5892,7 +5852,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_event);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_event);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_21generator5, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_getvalue, __pyx_mstate_global->__pyx_n_u_BackEngine_getvalue, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 98, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_21generator5, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_getvalue, __pyx_mstate_global->__pyx_n_u_BackEngine_getvalue, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 100, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -5900,7 +5860,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -5908,9 +5868,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_21generator5(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_21generator5(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5931,10 +5891,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 98, __pyx_L1_error)
+    __PYX_ERR(0, 100, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":103
+  /* "backtest/execution/core/engine/engine.pyx":105
  *         cdef object resp
  * 
  *         resp = await self.simulator.getvalue(event)             # <<<<<<<<<<<<<<
@@ -5948,7 +5908,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_cur_scope->__pyx_v_event};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_getvalue, __pyx_callargs+__pyx_t_3, (2-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_4 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -5962,20 +5922,20 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 103, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 105, __pyx_L1_error)
     __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
   } else if (likely(__pyx_t_4 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __pyx_t_1 = __pyx_r; __pyx_r = NULL;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 103, __pyx_L1_error)
+    __PYX_ERR(0, 105, __pyx_L1_error)
   }
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_resp = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":104
+  /* "backtest/execution/core/engine/engine.pyx":106
  * 
  *         resp = await self.simulator.getvalue(event)
  *         return resp             # <<<<<<<<<<<<<<
@@ -5988,7 +5948,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":98
+  /* "backtest/execution/core/engine/engine.pyx":100
  *         return resp
  * 
  *     async def getvalue(self, object event): # macht case in suited for cython             # <<<<<<<<<<<<<<
@@ -6014,9 +5974,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_24generator6(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_24generator6(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":106
+/* "backtest/execution/core/engine/engine.pyx":108
  *         return resp
  * 
  *     async def subscribe(self, object event):             # <<<<<<<<<<<<<<
@@ -6025,15 +5985,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_23subscribe(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_23subscribe(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_23subscribe = {"subscribe", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_23subscribe, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_23subscribe(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_23subscribe = {"subscribe", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_23subscribe, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_23subscribe(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6063,43 +6023,43 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_event,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 106, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 108, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 106, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 108, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "subscribe", 0) < (0)) __PYX_ERR(0, 106, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "subscribe", 0) < (0)) __PYX_ERR(0, 108, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("subscribe", 1, 1, 1, i); __PYX_ERR(0, 106, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("subscribe", 1, 1, 1, i); __PYX_ERR(0, 108, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 106, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 108, __pyx_L3_error)
     }
     __pyx_v_event = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("subscribe", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 106, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("subscribe", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 108, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.subscribe", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.subscribe", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_22subscribe(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_22subscribe(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_event);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -6109,19 +6069,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_22subscribe(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_22subscribe(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("subscribe", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 106, __pyx_L1_error)
+    __PYX_ERR(0, 108, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -6132,7 +6092,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_event);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_event);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_24generator6, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_subscribe, __pyx_mstate_global->__pyx_n_u_BackEngine_subscribe, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_24generator6, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_subscribe, __pyx_mstate_global->__pyx_n_u_BackEngine_subscribe, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 108, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -6140,7 +6100,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.subscribe", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.subscribe", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -6148,9 +6108,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_24generator6(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_24generator6(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -6174,23 +6134,23 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 106, __pyx_L1_error)
+    __PYX_ERR(0, 108, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":107
+  /* "backtest/execution/core/engine/engine.pyx":109
  * 
  *     async def subscribe(self, object event):
  *         cdef list resp = []             # <<<<<<<<<<<<<<
  * 
  *         async for batch in async_gt.subscribe(event):
 */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_cur_scope->__pyx_v_resp = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":109
+  /* "backtest/execution/core/engine/engine.pyx":111
  *         cdef list resp = []
  * 
  *         async for batch in async_gt.subscribe(event):             # <<<<<<<<<<<<<<
@@ -6198,9 +6158,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  * 
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_async_gt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_subscribe); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_subscribe); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_5 = 1;
@@ -6220,14 +6180,14 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_4 = __Pyx_Coroutine_GetAsyncIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Coroutine_GetAsyncIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
-    __pyx_t_1 = __Pyx_Coroutine_AsyncIterNext(__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Coroutine_AsyncIterNext(__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 111, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_6 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -6251,7 +6211,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
           PyErr_Clear();
           break;
         }
-        __PYX_ERR(0, 109, __pyx_L1_error)
+        __PYX_ERR(0, 111, __pyx_L1_error)
       }
       __pyx_t_1 = __pyx_sent_value; __Pyx_INCREF(__pyx_t_1);
     } else if (likely(__pyx_t_6 == PYGEN_RETURN)) {
@@ -6264,23 +6224,23 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
         break;
       }
       __Pyx_XGOTREF(__pyx_r);
-      __PYX_ERR(0, 109, __pyx_L1_error)
+      __PYX_ERR(0, 111, __pyx_L1_error)
     }
     __Pyx_XGOTREF(__pyx_cur_scope->__pyx_v_batch);
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_batch, __pyx_t_1);
     __Pyx_GIVEREF(__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "backtest/execution/core/simulator/engine.pyx":110
+    /* "backtest/execution/core/engine/engine.pyx":112
  * 
  *         async for batch in async_gt.subscribe(event):
  *             resp.append(batch)             # <<<<<<<<<<<<<<
  * 
  *         resp = list(chain(*resp)) # stack
 */
-    __pyx_t_7 = __Pyx_PyList_Append(__pyx_cur_scope->__pyx_v_resp, __pyx_cur_scope->__pyx_v_batch); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyList_Append(__pyx_cur_scope->__pyx_v_resp, __pyx_cur_scope->__pyx_v_batch); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 112, __pyx_L1_error)
 
-    /* "backtest/execution/core/simulator/engine.pyx":109
+    /* "backtest/execution/core/engine/engine.pyx":111
  *         cdef list resp = []
  * 
  *         async for batch in async_gt.subscribe(event):             # <<<<<<<<<<<<<<
@@ -6290,22 +6250,22 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":112
+  /* "backtest/execution/core/engine/engine.pyx":114
  *             resp.append(batch)
  * 
  *         resp = list(chain(*resp)) # stack             # <<<<<<<<<<<<<<
  *         return resp
  * 
 */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_chain); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_chain); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = PySequence_Tuple(__pyx_cur_scope->__pyx_v_resp); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_1 = PySequence_Tuple(__pyx_cur_scope->__pyx_v_resp); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PySequence_ListKeepNew(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 114, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_GOTREF(__pyx_cur_scope->__pyx_v_resp);
@@ -6313,7 +6273,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_GIVEREF(__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":113
+  /* "backtest/execution/core/engine/engine.pyx":115
  * 
  *         resp = list(chain(*resp)) # stack
  *         return resp             # <<<<<<<<<<<<<<
@@ -6326,7 +6286,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   goto __pyx_L0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":106
+  /* "backtest/execution/core/engine/engine.pyx":108
  *         return resp
  * 
  *     async def subscribe(self, object event):             # <<<<<<<<<<<<<<
@@ -6354,9 +6314,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_27generator7(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_27generator7(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":115
+/* "backtest/execution/core/engine/engine.pyx":117
  *         return resp
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
@@ -6365,15 +6325,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_26stop(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop = {"stop", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_26stop = {"stop", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_26stop, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_26stop(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6399,26 +6359,26 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   const Py_ssize_t __pyx_kwds_len = unlikely(__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
   if (unlikely(__pyx_kwds_len < 0)) return NULL;
   if (unlikely(__pyx_kwds_len > 0)) {__Pyx_RejectKeywords("stop", __pyx_kwds); return NULL;}
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_25stop(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self));
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_25stop(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_25stop(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_25stop(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("stop", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 115, __pyx_L1_error)
+    __PYX_ERR(0, 117, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -6426,7 +6386,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF((PyObject *)__pyx_cur_scope->__pyx_v_self);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_27generator7, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_stop, __pyx_mstate_global->__pyx_n_u_BackEngine_stop, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 115, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_27generator7, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_stop, __pyx_mstate_global->__pyx_n_u_BackEngine_stop, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -6434,7 +6394,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.stop", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.stop", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -6442,9 +6402,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_27generator7(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_27generator7(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -6483,10 +6443,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 115, __pyx_L1_error)
+    __PYX_ERR(0, 117, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":116
+  /* "backtest/execution/core/engine/engine.pyx":118
  * 
  *     async def stop(self):
  *         logger.info("Stopping back broker...")             # <<<<<<<<<<<<<<
@@ -6494,9 +6454,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  *             await self.simulator.shutdown()
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 118, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 118, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_5 = 1;
@@ -6516,12 +6476,12 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 116, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":117
+  /* "backtest/execution/core/engine/engine.pyx":119
  *     async def stop(self):
  *         logger.info("Stopping back broker...")
  *         try:             # <<<<<<<<<<<<<<
@@ -6535,7 +6495,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __Pyx_XGOTREF(__pyx_t_8);
     /*try:*/ {
 
-      /* "backtest/execution/core/simulator/engine.pyx":118
+      /* "backtest/execution/core/engine/engine.pyx":120
  *         logger.info("Stopping back broker...")
  *         try:
  *             await self.simulator.shutdown()             # <<<<<<<<<<<<<<
@@ -6549,7 +6509,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
         PyObject *__pyx_callargs[2] = {__pyx_t_4, NULL};
         __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_shutdown, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L4_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 120, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       __pyx_t_9 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -6578,16 +6538,16 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
         __pyx_t_8 = __pyx_cur_scope->__pyx_t_2;
         __pyx_cur_scope->__pyx_t_2 = 0;
         __Pyx_XGOTREF(__pyx_t_8);
-        if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 118, __pyx_L4_error)
+        if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 120, __pyx_L4_error)
       } else if (likely(__pyx_t_9 == PYGEN_RETURN)) {
         __Pyx_GOTREF(__pyx_r);
         __Pyx_DECREF(__pyx_r); __pyx_r = 0;
       } else {
         __Pyx_XGOTREF(__pyx_r);
-        __PYX_ERR(0, 118, __pyx_L4_error)
+        __PYX_ERR(0, 120, __pyx_L4_error)
       }
 
-      /* "backtest/execution/core/simulator/engine.pyx":121
+      /* "backtest/execution/core/engine/engine.pyx":123
  *             # if self._active_tasks:
  *             #     await asyncio.gather(*self._active_tasks, return_exceptions=True)
  *             logger.info("BackEngine stopped successfully")             # <<<<<<<<<<<<<<
@@ -6595,9 +6555,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  *         except Exception as e:
 */
       __pyx_t_4 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L4_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 121, __pyx_L4_error)
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_info); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 123, __pyx_L4_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_5 = 1;
@@ -6617,12 +6577,12 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
         __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 121, __pyx_L4_error)
+        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L4_error)
         __Pyx_GOTREF(__pyx_t_1);
       }
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-      /* "backtest/execution/core/simulator/engine.pyx":117
+      /* "backtest/execution/core/engine/engine.pyx":119
  *     async def stop(self):
  *         logger.info("Stopping back broker...")
  *         try:             # <<<<<<<<<<<<<<
@@ -6640,7 +6600,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "backtest/execution/core/simulator/engine.pyx":123
+    /* "backtest/execution/core/engine/engine.pyx":125
  *             logger.info("BackEngine stopped successfully")
  * 
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -6649,8 +6609,8 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
     __pyx_t_10 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_Exception))));
     if (__pyx_t_10) {
-      __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.stop", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_4) < 0) __PYX_ERR(0, 123, __pyx_L6_except_error)
+      __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.stop", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_3, &__pyx_t_4) < 0) __PYX_ERR(0, 125, __pyx_L6_except_error)
       __Pyx_XGOTREF(__pyx_t_1);
       __Pyx_XGOTREF(__pyx_t_3);
       __Pyx_XGOTREF(__pyx_t_4);
@@ -6659,7 +6619,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
       __pyx_cur_scope->__pyx_v_e = __pyx_t_3;
       /*try:*/ {
 
-        /* "backtest/execution/core/simulator/engine.pyx":124
+        /* "backtest/execution/core/engine/engine.pyx":126
  * 
  *         except Exception as e:
  *             logger.exception(f"Error stopping back broker: {e}")             # <<<<<<<<<<<<<<
@@ -6667,14 +6627,14 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):
 */
         __pyx_t_11 = NULL;
-        __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 124, __pyx_L16_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_logger); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 126, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_exception); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 124, __pyx_L16_error)
+        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_exception); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 126, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __pyx_t_12 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_e, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 124, __pyx_L16_error)
+        __pyx_t_12 = __Pyx_PyObject_FormatSimple(__pyx_cur_scope->__pyx_v_e, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 126, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_14 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Error_stopping_back_broker, __pyx_t_12); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 124, __pyx_L16_error)
+        __pyx_t_14 = __Pyx_PyUnicode_Concat(__pyx_mstate_global->__pyx_kp_u_Error_stopping_back_broker, __pyx_t_12); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 126, __pyx_L16_error)
         __Pyx_GOTREF(__pyx_t_14);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __pyx_t_5 = 1;
@@ -6695,13 +6655,13 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
           __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
           __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L16_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L16_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       }
 
-      /* "backtest/execution/core/simulator/engine.pyx":123
+      /* "backtest/execution/core/engine/engine.pyx":125
  *             logger.info("BackEngine stopped successfully")
  * 
  *         except Exception as e:             # <<<<<<<<<<<<<<
@@ -6757,7 +6717,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     }
     goto __pyx_L6_except_error;
 
-    /* "backtest/execution/core/simulator/engine.pyx":117
+    /* "backtest/execution/core/engine/engine.pyx":119
  *     async def stop(self):
  *         logger.info("Stopping back broker...")
  *         try:             # <<<<<<<<<<<<<<
@@ -6779,7 +6739,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":115
+  /* "backtest/execution/core/engine/engine.pyx":117
  *         return resp
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
@@ -6813,9 +6773,9 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_30generator8(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_30generator8(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "backtest/execution/core/simulator/engine.pyx":126
+/* "backtest/execution/core/engine/engine.pyx":128
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -6823,15 +6783,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_29__aexit__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__ = {"__aexit__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_29__aexit__ = {"__aexit__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_29__aexit__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_29__aexit__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6863,38 +6823,38 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_exc_type,&__pyx_mstate_global->__pyx_n_u_exc_val,&__pyx_mstate_global->__pyx_n_u_exc_tb,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 126, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 128, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 126, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 128, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 126, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 128, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 126, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 128, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__aexit__", 0) < (0)) __PYX_ERR(0, 126, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__aexit__", 0) < (0)) __PYX_ERR(0, 128, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, i); __PYX_ERR(0, 126, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, i); __PYX_ERR(0, 128, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 126, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 128, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 126, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 128, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 126, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 128, __pyx_L3_error)
     }
     __pyx_v_exc_type = values[0];
     __pyx_v_exc_val = values[1];
@@ -6902,18 +6862,18 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 126, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__aexit__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 128, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__aexit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__aexit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_28__aexit__(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v_exc_type, __pyx_v_exc_val, __pyx_v_exc_tb);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_28__aexit__(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_exc_type, __pyx_v_exc_val, __pyx_v_exc_tb);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -6923,19 +6883,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_28__aexit__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_exc_type, CYTHON_UNUSED PyObject *__pyx_v_exc_val, CYTHON_UNUSED PyObject *__pyx_v_exc_tb) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_28__aexit__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_exc_type, CYTHON_UNUSED PyObject *__pyx_v_exc_val, CYTHON_UNUSED PyObject *__pyx_v_exc_tb) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__aexit__", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 126, __pyx_L1_error)
+    __PYX_ERR(0, 128, __pyx_L1_error)
   } else {
     __Pyx_GOTREF((PyObject *)__pyx_cur_scope);
   }
@@ -6952,7 +6912,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_exc_tb);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_exc_tb);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_30generator8, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato); if (unlikely(!gen)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_30generator8, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e); if (unlikely(!gen)) __PYX_ERR(0, 128, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -6960,7 +6920,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__aexit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__aexit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -6968,9 +6928,9 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   return __pyx_r;
 }
 
-static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEngine_30generator8(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
+static PyObject *__pyx_gb_8backtest_9execution_4core_6engine_6engine_10BackEngine_30generator8(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -6991,10 +6951,10 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L3_first_run:;
   if (unlikely(__pyx_sent_value != Py_None)) {
     if (unlikely(__pyx_sent_value)) PyErr_SetString(PyExc_TypeError, "can't send non-None value to a just-started coroutine");
-    __PYX_ERR(0, 126, __pyx_L1_error)
+    __PYX_ERR(0, 128, __pyx_L1_error)
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":127
+  /* "backtest/execution/core/engine/engine.pyx":129
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):
  *         await self.stop()             # <<<<<<<<<<<<<<
@@ -7006,7 +6966,7 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_stop, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_t_4 = __Pyx_Coroutine_Yield_From(__pyx_generator, __pyx_t_1, &__pyx_r);
@@ -7020,17 +6980,17 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
     __pyx_generator->resume_label = 1;
     return __pyx_r;
     __pyx_L4_resume_from_await:;
-    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 127, __pyx_L1_error)
+    if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 129, __pyx_L1_error)
   } else if (likely(__pyx_t_4 == PYGEN_RETURN)) {
     __Pyx_GOTREF(__pyx_r);
     __Pyx_DECREF(__pyx_r); __pyx_r = 0;
   } else {
     __Pyx_XGOTREF(__pyx_r);
-    __PYX_ERR(0, 127, __pyx_L1_error)
+    __PYX_ERR(0, 129, __pyx_L1_error)
   }
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "backtest/execution/core/simulator/engine.pyx":126
+  /* "backtest/execution/core/engine/engine.pyx":128
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -7065,15 +7025,15 @@ static PyObject *__pyx_gb_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_32__reduce_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_32__reduce_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_32__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_32__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_32__reduce_cython__(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_32__reduce_cython__ = {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_32__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_32__reduce_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7099,14 +7059,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   const Py_ssize_t __pyx_kwds_len = unlikely(__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
   if (unlikely(__pyx_kwds_len < 0)) return NULL;
   if (unlikely(__pyx_kwds_len > 0)) {__Pyx_RejectKeywords("__reduce_cython__", __pyx_kwds); return NULL;}
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_31__reduce_cython__(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self));
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_31__reduce_cython__(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_31__reduce_cython__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self) {
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_31__reduce_cython__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self) {
   PyObject *__pyx_v_state = 0;
   PyObject *__pyx_v__dict = 0;
   int __pyx_v_use_setstate;
@@ -7337,7 +7297,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_state);
@@ -7355,15 +7315,15 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_34__setstate_cython__(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_34__setstate_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_34__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_34__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_34__setstate_cython__(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_34__setstate_cython__ = {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_34__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_34__setstate_cython__(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7425,11 +7385,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_33__setstate_cython__(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v_self), __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_33__setstate_cython__(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v___pyx_state);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -7439,7 +7399,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEngine_33__setstate_cython__(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_33__setstate_cython__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -7461,7 +7421,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
     PyErr_SetString(PyExc_TypeError, "cannot pass None into a C function argument that is declared 'not None'");
     __PYX_ERR(1, 17, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine__set_state(__pyx_v_self, ((PyObject*)__pyx_t_1)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 17, __pyx_L1_error)
+  __pyx_t_2 = __pyx_f_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine__set_state(__pyx_v_self, ((PyObject*)__pyx_t_1)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7479,7 +7439,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.BackEngine.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.BackEngine.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7496,15 +7456,15 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine_10BackEn
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_1__pyx_unpickle_BackEngine(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_1__pyx_unpickle_BackEngine(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_4core_9simulator_6engine_1__pyx_unpickle_BackEngine = {"__pyx_unpickle_BackEngine", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_1__pyx_unpickle_BackEngine, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_4core_9simulator_6engine_1__pyx_unpickle_BackEngine(PyObject *__pyx_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_4core_6engine_6engine_1__pyx_unpickle_BackEngine = {"__pyx_unpickle_BackEngine", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_1__pyx_unpickle_BackEngine, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_4core_6engine_6engine_1__pyx_unpickle_BackEngine(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -7582,12 +7542,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.__pyx_unpickle_BackEngine", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.__pyx_unpickle_BackEngine", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v___pyx_state), (&PyTuple_Type), 1, "__pyx_state", 1))) __PYX_ERR(1, 4, __pyx_L1_error)
-  __pyx_r = __pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   goto __pyx_L0;
@@ -7606,7 +7566,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -7636,7 +7596,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_un
  *     if __pyx_state is not None:
  *         __pyx_unpickle_BackEngine__set_state(<BackEngine> __pyx_result, __pyx_state)
 */
-  __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine);
+  __pyx_t_3 = ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine);
   __Pyx_INCREF(__pyx_t_3);
   __pyx_t_4 = 0;
   {
@@ -7670,7 +7630,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_un
       PyErr_SetString(PyExc_TypeError, "cannot pass None into a C function argument that is declared 'not None'");
       __PYX_ERR(1, 9, __pyx_L1_error)
     }
-    __pyx_t_2 = __pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine__set_state(((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)__pyx_v___pyx_result), __pyx_v___pyx_state); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 9, __pyx_L1_error)
+    __pyx_t_2 = __pyx_f_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine__set_state(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v___pyx_result), __pyx_v___pyx_state); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 9, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
@@ -7707,7 +7667,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_un
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.__pyx_unpickle_BackEngine", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.__pyx_unpickle_BackEngine", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v___pyx_result);
@@ -7724,7 +7684,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_9simulator_6engine___pyx_un
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 3)
 */
 
-static PyObject *__pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unpickle_BackEngine__set_state(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_f_8backtest_9execution_4core_6engine_6engine___pyx_unpickle_BackEngine__set_state(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v___pyx_result, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -7750,11 +7710,11 @@ static PyObject *__pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unp
   __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 1);
   __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway))))) __PYX_ERR(1, 12, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway))))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF((PyObject *)__pyx_v___pyx_result->gt);
   __Pyx_DECREF((PyObject *)__pyx_v___pyx_result->gt);
-  __pyx_v___pyx_result->gt = ((struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway *)__pyx_t_1);
+  __pyx_v___pyx_result->gt = ((struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway *)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 2);
   __Pyx_INCREF(__pyx_t_1);
@@ -7785,7 +7745,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unp
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("backtest.execution.core.simulator.engine.__pyx_unpickle_BackEngine__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.core.engine.engine.__pyx_unpickle_BackEngine__set_state", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -7793,26 +7753,26 @@ static PyObject *__pyx_f_8backtest_9execution_4core_9simulator_6engine___pyx_unp
   return __pyx_r;
 }
 /* #### Code section: module_exttypes ### */
-static struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_6engine_BackEngine __pyx_vtable_8backtest_9execution_4core_9simulator_6engine_BackEngine;
+static struct __pyx_vtabstruct_8backtest_9execution_4core_6engine_6engine_BackEngine __pyx_vtable_8backtest_9execution_4core_6engine_6engine_BackEngine;
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine_BackEngine(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *p;
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine_BackEngine(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *p;
   PyObject *o;
   o = __Pyx_AllocateExtensionType(t, 0);
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)o);
-  p->__pyx_vtab = __pyx_vtabptr_8backtest_9execution_4core_9simulator_6engine_BackEngine;
-  p->gt = ((struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway *)Py_None); Py_INCREF(Py_None);
+  p = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)o);
+  p->__pyx_vtab = __pyx_vtabptr_8backtest_9execution_4core_6engine_6engine_BackEngine;
+  p->gt = ((struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway *)Py_None); Py_INCREF(Py_None);
   p->simulator = ((struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator *)Py_None); Py_INCREF(Py_None);
   p->_active_tasks = ((PyObject*)Py_None); Py_INCREF(Py_None);
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine_BackEngine(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine_BackEngine(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine_BackEngine) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine_BackEngine) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -7835,9 +7795,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine_BackE
   #endif
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine_BackEngine(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine_BackEngine(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -7854,11 +7814,11 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine_BackE
   return 0;
 }
 
-static int __pyx_tp_clear_8backtest_9execution_4core_9simulator_6engine_BackEngine(PyObject *o) {
+static int __pyx_tp_clear_8backtest_9execution_4core_6engine_6engine_BackEngine(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)o;
   tmp = ((PyObject*)p->gt);
-  p->gt = ((struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway *)Py_None); Py_INCREF(Py_None);
+  p->gt = ((struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   tmp = ((PyObject*)p->simulator);
   p->simulator = ((struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator *)Py_None); Py_INCREF(Py_None);
@@ -7869,45 +7829,45 @@ static int __pyx_tp_clear_8backtest_9execution_4core_9simulator_6engine_BackEngi
   return 0;
 }
 
-static PyMethodDef __pyx_methods_8backtest_9execution_4core_9simulator_6engine_BackEngine[] = {
-  {"__aenter__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_3__aenter__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"register", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_8register, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"set_cash", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_11set_cash, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"submit", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_14submit, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"on_dt_over", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_17on_dt_over, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"getvalue", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_20getvalue, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"subscribe", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_23subscribe, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"stop", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__aexit__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_32__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_34__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+static PyMethodDef __pyx_methods_8backtest_9execution_4core_6engine_6engine_BackEngine[] = {
+  {"__aenter__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_3__aenter__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"register", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_8register, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"set_cash", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_11set_cash, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"submit", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_14submit, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"on_dt_over", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_17on_dt_over, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"getvalue", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_20getvalue, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"subscribe", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_23subscribe, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"stop", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_26stop, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__aexit__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_29__aexit__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_32__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_34__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
 };
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine_BackEngine},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine_BackEngine},
-  {Py_tp_clear, (void *)__pyx_tp_clear_8backtest_9execution_4core_9simulator_6engine_BackEngine},
-  {Py_tp_methods, (void *)__pyx_methods_8backtest_9execution_4core_9simulator_6engine_BackEngine},
-  {Py_tp_init, (void *)__pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_1__init__},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine_BackEngine},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine_BackEngine},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine_BackEngine},
+  {Py_tp_clear, (void *)__pyx_tp_clear_8backtest_9execution_4core_6engine_6engine_BackEngine},
+  {Py_tp_methods, (void *)__pyx_methods_8backtest_9execution_4core_6engine_6engine_BackEngine},
+  {Py_tp_init, (void *)__pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__init__},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine_BackEngine},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine_spec = {
-  "backtest.execution.core.simulator.engine.BackEngine",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine_spec = {
+  "backtest.execution.core.engine.engine.BackEngine",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""BackEngine", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""BackEngine", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine_BackEngine, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine_BackEngine, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -7924,13 +7884,13 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine_Bac
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine_BackEngine, /*tp_traverse*/
-  __pyx_tp_clear_8backtest_9execution_4core_9simulator_6engine_BackEngine, /*tp_clear*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine_BackEngine, /*tp_traverse*/
+  __pyx_tp_clear_8backtest_9execution_4core_6engine_6engine_BackEngine, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_8backtest_9execution_4core_9simulator_6engine_BackEngine, /*tp_methods*/
+  __pyx_methods_8backtest_9execution_4core_6engine_6engine_BackEngine, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -7940,9 +7900,9 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine_Bac
   #if !CYTHON_USE_TYPE_SPECS
   0, /*tp_dictoffset*/
   #endif
-  __pyx_pw_8backtest_9execution_4core_9simulator_6engine_10BackEngine_1__init__, /*tp_init*/
+  __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__init__, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine_BackEngine, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine_BackEngine, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -7975,16 +7935,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine_Bac
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -8000,11 +7960,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -8012,9 +7972,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *)o);
   } else
   #endif
   {
@@ -8033,9 +7993,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -8046,27 +8006,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter___slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter___slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter___spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct____aenter__",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter___spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct____aenter__",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter___slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter___slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct____aenter__", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct____aenter__", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8083,7 +8043,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -8101,7 +8061,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8134,16 +8094,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -8159,11 +8119,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -8173,9 +8133,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_resp);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *)o);
   } else
   #endif
   {
@@ -8194,9 +8154,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -8213,27 +8173,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_1_register",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_1_register",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_1_register", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_1_register", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8250,7 +8210,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -8268,7 +8228,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8301,16 +8261,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -8326,11 +8286,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -8340,9 +8300,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_resp);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *)o);
   } else
   #endif
   {
@@ -8361,9 +8321,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -8380,27 +8340,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_2_set_cash",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_2_set_cash",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_2_set_cash", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_2_set_cash", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8417,7 +8377,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -8435,7 +8395,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8468,16 +8428,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -8493,11 +8453,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -8510,9 +8470,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_resp);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *)o);
   } else
   #endif
   {
@@ -8531,9 +8491,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -8556,27 +8516,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_3_submit",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_3_submit",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_3_submit", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_3_submit", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8593,7 +8553,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -8611,7 +8571,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8644,16 +8604,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -8669,11 +8629,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -8683,9 +8643,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_resp);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *)o);
   } else
   #endif
   {
@@ -8704,9 +8664,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -8723,27 +8683,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_4_on_dt_over",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_4_on_dt_over",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_4_on_dt_over", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_4_on_dt_over", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8760,7 +8720,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -8778,7 +8738,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8811,16 +8771,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -8836,11 +8796,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -8852,9 +8812,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_resp);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *)o);
   } else
   #endif
   {
@@ -8873,9 +8833,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -8898,27 +8858,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_5_getvalue",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_5_getvalue",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_5_getvalue", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_5_getvalue", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -8935,7 +8895,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -8953,7 +8913,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -8986,16 +8946,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -9011,11 +8971,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -9027,9 +8987,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_self);
   Py_CLEAR(p->__pyx_t_0);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *)o);
   } else
   #endif
   {
@@ -9048,9 +9008,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -9073,27 +9033,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_6_subscribe",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_6_subscribe",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_6_subscribe", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_6_subscribe", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -9110,7 +9070,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -9128,7 +9088,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -9161,16 +9121,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -9186,11 +9146,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -9202,9 +9162,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_t_1);
   Py_CLEAR(p->__pyx_t_2);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *)o);
   } else
   #endif
   {
@@ -9223,9 +9183,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -9248,27 +9208,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop_spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_7_stop",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop_spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_7_stop",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop_slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_7_stop", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_7_stop", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -9285,7 +9245,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -9303,7 +9263,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -9336,16 +9296,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -9361,11 +9321,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___py
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -9376,9 +9336,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   Py_CLEAR(p->__pyx_v_exc_val);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__, sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__, sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__++] = ((struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__++] = ((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *)o);
   } else
   #endif
   {
@@ -9397,9 +9357,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *p = (struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ *)o;
+  struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *p = (struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -9419,27 +9379,27 @@ static int __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__},
+static PyType_Slot __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit___slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec = {
-  "backtest.execution.core.simulator.engine.__pyx_scope_struct_8___aexit__",
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__),
+static PyType_Spec __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit___spec = {
+  "backtest.execution.core.engine.engine.__pyx_scope_struct_8___aexit__",
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___slots,
+  __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit___slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ = {
+static PyTypeObject __pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.core.simulator.engine.""__pyx_scope_struct_8___aexit__", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__), /*tp_basicsize*/
+  "backtest.execution.core.engine.engine.""__pyx_scope_struct_8___aexit__", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -9456,7 +9416,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -9474,7 +9434,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_4core_9simulator_6engine___p
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -9562,200 +9522,200 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  __pyx_vtabptr_8backtest_9execution_4core_9simulator_6engine_BackEngine = &__pyx_vtable_8backtest_9execution_4core_9simulator_6engine_BackEngine;
-  __pyx_vtable_8backtest_9execution_4core_9simulator_6engine_BackEngine.start = (void (*)(struct __pyx_obj_8backtest_9execution_4core_9simulator_6engine_BackEngine *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_4core_9simulator_6engine_10BackEngine_start;
+  __pyx_vtabptr_8backtest_9execution_4core_6engine_6engine_BackEngine = &__pyx_vtable_8backtest_9execution_4core_6engine_6engine_BackEngine;
+  __pyx_vtable_8backtest_9execution_4core_6engine_6engine_BackEngine.start = (void (*)(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_4core_6engine_6engine_10BackEngine_start;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine)) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine = &__pyx_type_8backtest_9execution_4core_9simulator_6engine_BackEngine;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine = &__pyx_type_8backtest_9execution_4core_6engine_6engine_BackEngine;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_vtabptr_8backtest_9execution_4core_9simulator_6engine_BackEngine) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_BackEngine, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine) < (0)) __PYX_ERR(0, 44, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_vtabptr_8backtest_9execution_4core_6engine_6engine_BackEngine) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_BackEngine, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine) < (0)) __PYX_ERR(0, 45, __pyx_L1_error)
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter___spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__)) __PYX_ERR(0, 50, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter___spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter___spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__)) __PYX_ERR(0, 52, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter___spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__ = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__ = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct____aenter__->tp_getattro = PyObject_GenericGetAttr;
-  }
-  #endif
-  #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register)) __PYX_ERR(0, 62, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
-  #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register;
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  #endif
-  #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
-  #endif
-  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register);
-  #endif
-  #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_1_register->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct____aenter__->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash)) __PYX_ERR(0, 68, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register)) __PYX_ERR(0, 64, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register) < (0)) __PYX_ERR(0, 64, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register) < (0)) __PYX_ERR(0, 64, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_2_set_cash->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_1_register->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit)) __PYX_ERR(0, 74, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash)) __PYX_ERR(0, 70, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_3_submit->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_2_set_cash->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over)) __PYX_ERR(0, 92, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over) < (0)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit)) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit) < (0)) __PYX_ERR(0, 76, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over) < (0)) __PYX_ERR(0, 92, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit) < (0)) __PYX_ERR(0, 76, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_4_on_dt_over->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_3_submit->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue)) __PYX_ERR(0, 98, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue) < (0)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over)) __PYX_ERR(0, 94, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over) < (0)) __PYX_ERR(0, 94, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue) < (0)) __PYX_ERR(0, 98, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over) < (0)) __PYX_ERR(0, 94, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_5_getvalue->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_4_on_dt_over->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe)) __PYX_ERR(0, 106, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe) < (0)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue)) __PYX_ERR(0, 100, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe) < (0)) __PYX_ERR(0, 106, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_6_subscribe->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_5_getvalue->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop)) __PYX_ERR(0, 115, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop) < (0)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe)) __PYX_ERR(0, 108, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe) < (0)) __PYX_ERR(0, 108, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop) < (0)) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe) < (0)) __PYX_ERR(0, 108, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_7_stop->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_6_subscribe->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__)) __PYX_ERR(0, 126, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit___spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop)) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop) < (0)) __PYX_ERR(0, 117, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__ = &__pyx_type_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop) < (0)) __PYX_ERR(0, 117, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine___pyx_scope_struct_8___aexit__->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_7_stop->tp_getattro = PyObject_GenericGetAttr;
+  }
+  #endif
+  #if CYTHON_USE_TYPE_SPECS
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit___spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__)) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit___spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 128, __pyx_L1_error)
+  #else
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__ = &__pyx_type_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__;
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  #endif
+  #if !CYTHON_USE_TYPE_SPECS
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__) < (0)) __PYX_ERR(0, 128, __pyx_L1_error)
+  #endif
+  #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__);
+  #endif
+  #if !CYTHON_COMPILING_IN_LIMITED_API
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8___aexit__->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   __Pyx_RefNannyFinishContext();
@@ -9774,41 +9734,19 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_import_code", 0);
   /*--- Type import code ---*/
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.simulator.util"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 1, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.gateway.interface"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_Distributor = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.simulator.util", "Distributor",
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.gateway.interface", "AsyncGateway",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor),
+  sizeof(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway),
   #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor),
+  sizeof(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway),
   #else
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_Distributor),
+  sizeof(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_Distributor) __PYX_ERR(2, 1, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_9simulator_4util_Distributor = (struct __pyx_vtabstruct_8backtest_9execution_4core_9simulator_4util_Distributor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_Distributor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_9simulator_4util_Distributor)) __PYX_ERR(2, 1, __pyx_L1_error)
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.simulator.util", "AsyncSemaphoreWrapper",
-  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper),
-  #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper),
-  #else
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper),
-  #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_9simulator_4util_AsyncSemaphoreWrapper) __PYX_ERR(2, 8, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway) __PYX_ERR(2, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.gateway.interface"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 16, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.gateway.interface", "AsyncGateway",
-  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
-  #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
-  #else
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7gateway_9interface_AsyncGateway),
-  #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7gateway_9interface_AsyncGateway) __PYX_ERR(3, 16, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.trade"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 25, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.trade"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.trade", "OrderExecutionBit",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9818,10 +9756,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit) __PYX_ERR(4, 25, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) __PYX_ERR(4, 25, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit) __PYX_ERR(3, 25, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) __PYX_ERR(3, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.asset"); if (unlikely(!__pyx_t_1)) __PYX_ERR(5, 25, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.asset"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.asset", "Asset",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9831,10 +9769,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset) __PYX_ERR(5, 25, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset)) __PYX_ERR(5, 25, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset) __PYX_ERR(4, 25, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset)) __PYX_ERR(4, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.cache"); if (unlikely(!__pyx_t_1)) __PYX_ERR(6, 6, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.cache"); if (unlikely(!__pyx_t_1)) __PYX_ERR(5, 6, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.cache", "AssetCache",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9844,10 +9782,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache) __PYX_ERR(6, 6, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetCache*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache)) __PYX_ERR(6, 6, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache) __PYX_ERR(5, 6, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetCache*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5cache_AssetCache); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5cache_AssetCache)) __PYX_ERR(5, 6, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.order"); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 62, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.order"); if (unlikely(!__pyx_t_1)) __PYX_ERR(6, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.order", "Order",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9857,10 +9795,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order) __PYX_ERR(7, 62, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order)) __PYX_ERR(7, 62, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order) __PYX_ERR(6, 62, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5order_Order)) __PYX_ERR(6, 62, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.account"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 32, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.account"); if (unlikely(!__pyx_t_1)) __PYX_ERR(7, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.account", "Account",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9870,10 +9808,10 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account) __PYX_ERR(8, 32, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account)) __PYX_ERR(8, 32, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account) __PYX_ERR(7, 32, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account)) __PYX_ERR(7, 32, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.cash"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 5, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.cash"); if (unlikely(!__pyx_t_1)) __PYX_ERR(8, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.cash", "AsyncCashManager",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9883,10 +9821,23 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) __PYX_ERR(9, 5, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager)) __PYX_ERR(9, 5, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) __PYX_ERR(8, 5, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager)) __PYX_ERR(8, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.simulate"); if (unlikely(!__pyx_t_1)) __PYX_ERR(10, 10, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.actor.writer_actor"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.actor.writer_actor", "BatchWriterActor",
+  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
+  sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor),
+  #elif CYTHON_COMPILING_IN_LIMITED_API
+  sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor),
+  #else
+  sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor),
+  #endif
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor) __PYX_ERR(9, 4, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_BatchWriterActor = (struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_BatchWriterActor)) __PYX_ERR(9, 4, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.simulate"); if (unlikely(!__pyx_t_1)) __PYX_ERR(10, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.simulate", "ActorMessage",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9896,17 +9847,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage) __PYX_ERR(10, 10, __pyx_L1_error)
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.simulate", "BatchWriterActor",
-  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor),
-  #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor),
-  #else
-  sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor),
-  #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor) __PYX_ERR(10, 17, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_BatchWriterActor)) __PYX_ERR(10, 17, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage) __PYX_ERR(10, 11, __pyx_L1_error)
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.simulate", "TrackerActor",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor),
@@ -9915,8 +9856,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor) __PYX_ERR(10, 27, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor)) __PYX_ERR(10, 27, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor) __PYX_ERR(10, 28, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor)) __PYX_ERR(10, 28, __pyx_L1_error)
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.simulate", "Simulator",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator),
@@ -9925,8 +9866,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 47, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 47, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 48, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 48, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(11, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -10221,13 +10162,13 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (__Pyx_InitConstants(__pyx_mstate) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   stringtab_initialized = 1;
   if (__Pyx_InitGlobals() < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
-  if (__pyx_module_is_main_backtest__execution__core__simulator__engine) {
+  if (__pyx_module_is_main_backtest__execution__core__engine__engine) {
     if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_name, __pyx_mstate_global->__pyx_n_u_main) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "backtest.execution.core.simulator.engine")) {
-      if (unlikely((PyDict_SetItemString(modules, "backtest.execution.core.simulator.engine", __pyx_m) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "backtest.execution.core.engine.engine")) {
+      if (unlikely((PyDict_SetItemString(modules, "backtest.execution.core.engine.engine", __pyx_m) < 0))) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   /*--- Builtin init code ---*/
@@ -10311,8 +10252,8 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  * 
  * 
  * EngineTopic = __Pyx_FlagBase('EngineTopic', [             # <<<<<<<<<<<<<<
- *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Register)),
- *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(SetCash)),
+ *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Register)),
+ *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(SetCash)),
 */
   __pyx_t_4 = NULL;
   __Pyx_INCREF(__Pyx_FlagBase);
@@ -10321,11 +10262,11 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   /* "EnumType":24
  * 
  * EngineTopic = __Pyx_FlagBase('EngineTopic', [
- *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Register)),             # <<<<<<<<<<<<<<
- *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(SetCash)),
- *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Submit)),
+ *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Register)),             # <<<<<<<<<<<<<<
+ *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(SetCash)),
+ *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Submit)),
 */
-  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_9simulator_6engine_Register); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 24, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_6engine_6engine_Register); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_Register, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -10333,64 +10274,64 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
 
   /* "EnumType":25
  * EngineTopic = __Pyx_FlagBase('EngineTopic', [
- *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Register)),
- *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(SetCash)),             # <<<<<<<<<<<<<<
- *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Submit)),
- *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(DayOver)),
+ *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Register)),
+ *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(SetCash)),             # <<<<<<<<<<<<<<
+ *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Submit)),
+ *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(DayOver)),
 */
-  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_9simulator_6engine_SetCash); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 25, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_6engine_6engine_SetCash); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_8 = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_SetCash, __pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /* "EnumType":26
- *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Register)),
- *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(SetCash)),
- *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Submit)),             # <<<<<<<<<<<<<<
- *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(DayOver)),
- *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(GetValue)),
+ *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Register)),
+ *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(SetCash)),
+ *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Submit)),             # <<<<<<<<<<<<<<
+ *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(DayOver)),
+ *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(GetValue)),
 */
-  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_9simulator_6engine_Submit); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 26, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_6engine_6engine_Submit); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_9 = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_Submit, __pyx_t_6); if (unlikely(!__pyx_t_9)) __PYX_ERR(1, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /* "EnumType":27
- *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(SetCash)),
- *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Submit)),
- *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(DayOver)),             # <<<<<<<<<<<<<<
- *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(GetValue)),
- *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Subscribe)),
+ *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(SetCash)),
+ *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Submit)),
+ *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(DayOver)),             # <<<<<<<<<<<<<<
+ *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(GetValue)),
+ *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Subscribe)),
 */
-  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_9simulator_6engine_DayOver); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 27, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_6engine_6engine_DayOver); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_10 = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_DayOver, __pyx_t_6); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /* "EnumType":28
- *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Submit)),
- *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(DayOver)),
- *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(GetValue)),             # <<<<<<<<<<<<<<
- *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Subscribe)),
+ *     ('Submit', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Submit)),
+ *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(DayOver)),
+ *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(GetValue)),             # <<<<<<<<<<<<<<
+ *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Subscribe)),
  * 
 */
-  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_9simulator_6engine_GetValue); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 28, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_6engine_6engine_GetValue); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_11 = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_GetValue, __pyx_t_6); if (unlikely(!__pyx_t_11)) __PYX_ERR(1, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
   /* "EnumType":29
- *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(DayOver)),
- *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(GetValue)),
- *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Subscribe)),             # <<<<<<<<<<<<<<
+ *     ('DayOver', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(DayOver)),
+ *     ('GetValue', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(GetValue)),
+ *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Subscribe)),             # <<<<<<<<<<<<<<
  * 
- * ], module=globals().get("__module__", 'backtest.execution.core.simulator.engine'))
+ * ], module=globals().get("__module__", 'backtest.execution.core.engine.engine'))
 */
-  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_9simulator_6engine_Subscribe); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 29, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(__pyx_e_8backtest_9execution_4core_6engine_6engine_Subscribe); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_12 = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_Subscribe, __pyx_t_6); if (unlikely(!__pyx_t_12)) __PYX_ERR(1, 29, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
@@ -10400,8 +10341,8 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  * 
  * 
  * EngineTopic = __Pyx_FlagBase('EngineTopic', [             # <<<<<<<<<<<<<<
- *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Register)),
- *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(SetCash)),
+ *     ('Register', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Register)),
+ *     ('SetCash', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(SetCash)),
 */
   __pyx_t_6 = __Pyx_PyList_Pack(6, __pyx_t_7, __pyx_t_8, __pyx_t_9, __pyx_t_10, __pyx_t_11, __pyx_t_12); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
@@ -10413,9 +10354,9 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
 
   /* "EnumType":31
- *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Subscribe)),
+ *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Subscribe)),
  * 
- * ], module=globals().get("__module__", 'backtest.execution.core.simulator.engine'))             # <<<<<<<<<<<<<<
+ * ], module=globals().get("__module__", 'backtest.execution.core.engine.engine'))             # <<<<<<<<<<<<<<
  * 
  * if PY_VERSION_HEX >= 0x030B0000:
 */
@@ -10446,7 +10387,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "EnumType":33
- * ], module=globals().get("__module__", 'backtest.execution.core.simulator.engine'))
+ * ], module=globals().get("__module__", 'backtest.execution.core.engine.engine'))
  * 
  * if PY_VERSION_HEX >= 0x030B0000:             # <<<<<<<<<<<<<<
  * 
@@ -10475,7 +10416,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
     /* "EnumType":33
- * ], module=globals().get("__module__", 'backtest.execution.core.simulator.engine'))
+ * ], module=globals().get("__module__", 'backtest.execution.core.engine.engine'))
  * 
  * if PY_VERSION_HEX >= 0x030B0000:             # <<<<<<<<<<<<<<
  * 
@@ -10483,7 +10424,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
 */
   }
 
-  /* "backtest/execution/core/simulator/engine.pyx":21
+  /* "backtest/execution/core/engine/engine.pyx":21
  * #
  * ###############################################################################
  * import os             # <<<<<<<<<<<<<<
@@ -10496,7 +10437,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_os, __pyx_t_5) < (0)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":22
+  /* "backtest/execution/core/engine/engine.pyx":22
  * ###############################################################################
  * import os
  * import asyncio             # <<<<<<<<<<<<<<
@@ -10509,7 +10450,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_asyncio, __pyx_t_5) < (0)) __PYX_ERR(0, 22, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":23
+  /* "backtest/execution/core/engine/engine.pyx":23
  * import os
  * import asyncio
  * import warnings             # <<<<<<<<<<<<<<
@@ -10522,7 +10463,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_warnings, __pyx_t_5) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":24
+  /* "backtest/execution/core/engine/engine.pyx":24
  * import asyncio
  * import warnings
  * import atexit             # <<<<<<<<<<<<<<
@@ -10535,7 +10476,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_atexit, __pyx_t_5) < (0)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":25
+  /* "backtest/execution/core/engine/engine.pyx":25
  * import warnings
  * import atexit
  * import weakref             # <<<<<<<<<<<<<<
@@ -10548,7 +10489,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_weakref, __pyx_t_5) < (0)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":26
+  /* "backtest/execution/core/engine/engine.pyx":26
  * import atexit
  * import weakref
  * import time             # <<<<<<<<<<<<<<
@@ -10561,7 +10502,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_time, __pyx_t_5) < (0)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":27
+  /* "backtest/execution/core/engine/engine.pyx":27
  * import weakref
  * import time
  * import logging             # <<<<<<<<<<<<<<
@@ -10574,7 +10515,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_logging, __pyx_t_5) < (0)) __PYX_ERR(0, 27, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":28
+  /* "backtest/execution/core/engine/engine.pyx":28
  * import time
  * import logging
  * from itertools import chain             # <<<<<<<<<<<<<<
@@ -10598,7 +10539,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":29
+  /* "backtest/execution/core/engine/engine.pyx":29
  * import logging
  * from itertools import chain
  * from typing import Dict, Any, AsyncGenerator             # <<<<<<<<<<<<<<
@@ -10622,7 +10563,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":30
+  /* "backtest/execution/core/engine/engine.pyx":30
  * from itertools import chain
  * from typing import Dict, Any, AsyncGenerator
  * from concurrent.futures import ThreadPoolExecutor             # <<<<<<<<<<<<<<
@@ -10646,31 +10587,31 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":35
- * from backtest.execution.core.finance.account cimport Account
+  /* "backtest/execution/core/engine/engine.pyx":36
  * from backtest.execution.core.finance.position cimport Position
- * from backtest.execution.core.gateway.interface import async_gt # singleton cast to cdef class type             # <<<<<<<<<<<<<<
  * from backtest.execution.core.finance.simulate cimport Simulator
+ * from backtest.execution.gateway.interface import async_gt # singleton cast to cdef class type             # <<<<<<<<<<<<<<
+ * from backtest.execution.actor.writer_actor cimport BatchWriterActor
  * 
 */
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_gateway_inter, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
   }
   __pyx_t_5 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_5);
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_async_gt};
     __pyx_t_3 = 0; {
-      __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_5, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 35, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_5, __pyx_imported_names[__pyx_t_3]); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_2) < (0)) __PYX_ERR(0, 35, __pyx_L1_error)
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_3], __pyx_t_2) < (0)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":41
+  /* "backtest/execution/core/engine/engine.pyx":42
  * 
  * 
  * logger = logging.getLogger(__name__)             # <<<<<<<<<<<<<<
@@ -10678,12 +10619,12 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  * 
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_logging); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_logging); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_getLogger); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_getLogger); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_name); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_mstate_global->__pyx_n_u_name); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __pyx_t_13 = 1;
   {
@@ -10692,159 +10633,159 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 41, __pyx_L1_error)
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 42, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
   }
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_logger, __pyx_t_5) < (0)) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_logger, __pyx_t_5) < (0)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":50
+  /* "backtest/execution/core/engine/engine.pyx":52
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
  * 
  *     async def __aenter__(self):             # <<<<<<<<<<<<<<
  *         self._start()
  *         return self
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_3__aenter__, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine___aenter, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_3__aenter__, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine___aenter, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_aenter, __pyx_t_5) < (0)) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_aenter, __pyx_t_5) < (0)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":54
+  /* "backtest/execution/core/engine/engine.pyx":56
  *         return self
  * 
  *     cpdef void start(self, object loop):             # <<<<<<<<<<<<<<
  *          # self._loop = asyncio.get_running_loop()
  *          self.simulator.attach(loop)
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_6start, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_BackEngine_start, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_6start, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_BackEngine_start, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[9])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_start_2, __pyx_t_5) < (0)) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_start_2, __pyx_t_5) < (0)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":62
+  /* "backtest/execution/core/engine/engine.pyx":64
  *     # -----------------------------------------------------------
  * 
  *     async def register(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object resp
  * 
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_8register, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_register, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_8register, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_register, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_register, __pyx_t_5) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_register, __pyx_t_5) < (0)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":68
+  /* "backtest/execution/core/engine/engine.pyx":70
  *         return resp
  * 
  *     async def set_cash(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object resp
  * 
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_11set_cash, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_set_cash, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_11set_cash, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_set_cash, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_set_cash, __pyx_t_5) < (0)) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_set_cash, __pyx_t_5) < (0)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":74
+  /* "backtest/execution/core/engine/engine.pyx":76
  *         return resp
  * 
  *     async def submit(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object body = event.body
  *         cdef bytes experiment_id = event.experiment_id
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_14submit, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_submit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_14submit, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_submit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_submit, __pyx_t_5) < (0)) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_submit, __pyx_t_5) < (0)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":92
+  /* "backtest/execution/core/engine/engine.pyx":94
  *         return resp
  * 
  *     async def on_dt_over(self, object event):             # <<<<<<<<<<<<<<
  *         cdef object resp
  * 
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_17on_dt_over, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_on_dt_over, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_17on_dt_over, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_on_dt_over, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_on_dt_over, __pyx_t_5) < (0)) __PYX_ERR(0, 92, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_on_dt_over, __pyx_t_5) < (0)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":98
+  /* "backtest/execution/core/engine/engine.pyx":100
  *         return resp
  * 
  *     async def getvalue(self, object event): # macht case in suited for cython             # <<<<<<<<<<<<<<
  *         cdef Position p_obj
  *         cdef Account acct_obj
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_20getvalue, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_getvalue, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_20getvalue, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_getvalue, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[5])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_getvalue, __pyx_t_5) < (0)) __PYX_ERR(0, 98, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_getvalue, __pyx_t_5) < (0)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":106
+  /* "backtest/execution/core/engine/engine.pyx":108
  *         return resp
  * 
  *     async def subscribe(self, object event):             # <<<<<<<<<<<<<<
  *         cdef list resp = []
  * 
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_23subscribe, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_subscribe, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_23subscribe, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_subscribe, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[6])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_subscribe, __pyx_t_5) < (0)) __PYX_ERR(0, 106, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_subscribe, __pyx_t_5) < (0)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":115
+  /* "backtest/execution/core/engine/engine.pyx":117
  *         return resp
  * 
  *     async def stop(self):             # <<<<<<<<<<<<<<
  *         logger.info("Stopping back broker...")
  *         try:
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_26stop, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_stop, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_26stop, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine_stop, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_stop, __pyx_t_5) < (0)) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_stop, __pyx_t_5) < (0)) __PYX_ERR(0, 117, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":126
+  /* "backtest/execution/core/engine/engine.pyx":128
  *             logger.exception(f"Error stopping back broker: {e}")
  * 
  *     async def __aexit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
  *         await self.stop()
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_29__aexit__, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_29__aexit__, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_BackEngine___aexit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[8])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_t_5) < (0)) __PYX_ERR(0, 126, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_aexit, __pyx_t_5) < (0)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "(tree fragment)":1
@@ -10852,12 +10793,12 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  *     cdef tuple state
  *     cdef object _dict
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_32__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_BackEngine___reduce_cython, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_32__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_BackEngine___reduce_cython, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_reduce_cython, __pyx_t_5) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_reduce_cython, __pyx_t_5) < (0)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "(tree fragment)":16
@@ -10866,12 +10807,12 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_BackEngine__set_state(self, __pyx_state)
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_10BackEngine_34__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_BackEngine___setstate_cython, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[11])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 16, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_10BackEngine_34__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_BackEngine___setstate_cython, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[11])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_9simulator_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_5) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_6engine_6engine_BackEngine, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_5) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
   /* "(tree fragment)":4
@@ -10881,7 +10822,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  *     cdef object __pyx_result
  *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xce937d1, 0xd65fb9f, 0x02d656d, b'_active_tasks, gt, simulator')
 */
-  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_9simulator_6engine_1__pyx_unpickle_BackEngine, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_BackEngine, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_simulato, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[12])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_6engine_6engine_1__pyx_unpickle_BackEngine, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_BackEngine, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_engine_e, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[12])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_5);
@@ -10889,7 +10830,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_BackEngine, __pyx_t_5) < (0)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "backtest/execution/core/simulator/engine.pyx":1
+  /* "backtest/execution/core/engine/engine.pyx":1
  * #!/usr/bin/env python             # <<<<<<<<<<<<<<
  * # -*- coding: utf-8; py-indent-offset:4 -*-
  * ###############################################################################
@@ -10915,7 +10856,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
   __Pyx_XDECREF(__pyx_t_12);
   if (__pyx_m) {
     if (__pyx_mstate->__pyx_d && stringtab_initialized) {
-      __Pyx_AddTraceback("init backtest.execution.core.simulator.engine", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init backtest.execution.core.engine.engine", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     #if !CYTHON_USE_MODULE_STATE
     Py_CLEAR(__pyx_m);
@@ -10929,7 +10870,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
     }
     #endif
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init backtest.execution.core.simulator.engine");
+    PyErr_SetString(PyExc_ImportError, "init backtest.execution.core.engine.engine");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -10962,13 +10903,13 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
   /* "EnumType":31
- *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(Subscribe)),
+ *     ('Subscribe', __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(Subscribe)),
  * 
- * ], module=globals().get("__module__", 'backtest.execution.core.simulator.engine'))             # <<<<<<<<<<<<<<
+ * ], module=globals().get("__module__", 'backtest.execution.core.engine.engine'))             # <<<<<<<<<<<<<<
  * 
  * if PY_VERSION_HEX >= 0x030B0000:
 */
-  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_module_2, __pyx_mstate_global->__pyx_kp_u_backtest_execution_core_simulato); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(1, 31, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_module_2, __pyx_mstate_global->__pyx_kp_u_backtest_execution_core_engine_e); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(1, 31, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
   #if CYTHON_IMMORTAL_CONSTANTS
@@ -11001,25 +10942,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{31},{28},{179},{23},{1},{8},{40},{44},{7},{6},{2},{9},{14},{3},{14},{10},{21},{20},{28},{30},{19},{21},{19},{19},{16},{15},{17},{20},{7},{4},{11},{8},{7},{7},{20},{8},{7},{6},{9},{18},{8},{10},{9},{8},{7},{18},{6},{9},{41},{40},{5},{10},{4},{5},{18},{5},{18},{10},{8},{5},{1},{4},{5},{6},{8},{7},{9},{9},{13},{6},{8},{3},{9},{12},{8},{4},{13},{5},{9},{6},{7},{4},{8},{8},{14},{11},{6},{10},{8},{7},{4},{10},{9},{10},{2},{5},{3},{10},{14},{12},{11},{10},{25},{14},{12},{10},{17},{13},{8},{4},{4},{4},{8},{12},{10},{12},{19},{8},{3},{11},{6},{5},{5},{4},{6},{9},{8},{5},{4},{6},{6},{12},{5},{6},{8},{7},{13},{130},{2},{11},{55}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1171 bytes) */
-const char* const cstring = "BZh91AY&SYu\367.a\000\0009\177\377\346\357\277\200\344\317\344\335\277\245\377\322\277\377\377\374@@@@@@@@@@@@@\000@\000P\004\004\275\331\216*\t\006p\321F\232L\224\3754\323J~Q\345&\023\364\210\321\350\231\220M\031\030 `\311<&\231'\224\331\350\232\203B\004\311\251\214\246\022\237\242!\352\001\352\000\031\000\000\000\000\001\204\000E3J'\223MO@\023\020\300\000\004\301\r4`\t\200\000\023\000\010p4\006\203F\201\223@\001\240\000\304\320\323@\323@\r\0324\0004h%54\004MM\241\2414&\324\305=G\352\203i\000\032\000\000\000\000\r\001\240\307\330\001\377W\370\246\005\234\331CD\241:RFf\204\035''\016\003if%\233;N\244N\315\246\361\341\257g\r\213\243\000\275\217\344\234\213\267\340\212Y3$0\272\035B\310Ky\337\370O\036\205K+'B\270L]\326O\021\327\312Be{\005\300,^`\206\273X\305\312\353{=k\202\265\236\224\343\013-\356Y\rLo\034\003\244}\247\272jbej\341\233H\"i\232\267'B\323h`\270n\266+\177\2358\267\260&\254(l]~\010\030\256\3251\035H\\ew\016'@*\014J\271\001I}Q\357@\001\t \203b\263\331S\205)\310\251\317i=\277\312\363(\265\330lx\306\316\366\031\023\264B&\351\216\373\023q\036g\246\002\220\341L\247\210\246P0\034$\004H\000\244\205H\362\240`DD<\004D\232\2202DH\217(\357\"# \345\277QqV\365\275\0032\330\274\2663*`3\257\276\325R\206\361\304\350z$\267T,A\350V\214\365\"B\355\222\321Q\206\235\371+\t \016\3202x\343\n*&n\325%\000\301%\241\006\\\225GI%y:i\200@\244\267_\344*\334m\250\301[\340\033\211vG\303o\256\320\345\0136\010\231T\304\303\324wk\327k\235\363\345\221u\303\352\225\322\223\\\032\333l\247\321\213\205\351\204 X\303n\264\241\274\334\224\254:\323)NrIG\301u\333\324\246\246\033:\250v\245\220\214\252\245\240AJ`\333\301\2545\034\234\224\266\247\310\035L\211\375s\347\020\243\021}\022\214t\006!\231O[4\2604\312\3306\2050\346\031S\253\031\032\t-v\3456\250\004320\3674\321\351\234\34392\322\272\340\346\355\267F\322\346|\274\033\031\327S\221\205\221k\230\251\244V\rF`\224\332\r\025\342Y\266\026\022Hn\352|\355\207\034\027\003\021\357\235\333cg\260\222N:\310\000\303\013\025\304\225Ej\225\2163\005W\002(\267\226a""\276*\223%i\004-\321EF\rb\242c\330~\343\2317mQ&\327[4\372\347\033\366c8\346\231Gb\266\211\244r-\002PQ\274\202\211'iQ\336\014\3112P;+3\205\223R\225\253\203\032\324\025\245W\017=\232I\201\020\016*\356\235\374)\274MUe\373m#\332E\233q\253G\177#A\244\341`A\317\231\366\2579\352\251\323\006\350W&\027\217a\251\253\217\255ss\324\326uC\210\216\\\324\316\233\251N\350\216g\210=a\206a\262\337\334\356\241w\273\325\250\231\021\230 w\243\316\305\202\307\014b\343\034*\225u\3605R\362\236E\031\360u\303\225X\256\n\322n3\026#\356Bz\302\010\026\207\323\026\357\336,\226\211\201i\262\302L\355\032\264\254Q_\016\271\301\220\326\246L\220b\317\234\222\357\241\364\251\274\267+\372\357\007\322\332V\334#\311\"\035\021\204`\223jZ\212\310\242\234\316\3116d\315\226X\025\335\027a+,\320\241{'\304-0\222\266\200\351b\\1\300\242\005\263\n\232ug;\021@\255\356Vx\002X\316\004\302\345\016\336\237\005\315\231\t\033\003\0267\3633\233\345\243d\023\341\307\233\227,z\";\024\244\311\231)\377\n]Q\303\010)\031r\305\022A\000I\216\2446Q\321\342\273\352\2708\361\"\337|\n\036\302'\313xT\303\244!\264K\333\357\271\261r\357\024\367\325\331\210M\253\233\222<W\254{q\3012s[\313\222kJ\t\344R\260\rq-\311}\303o>\313\375\263\211\377rQVP\313\277\236\245\371\354\376$\032g\201f\265\244\001\346oQ\377\027rE8P\220u\367.a";
-    PyObject *data = __Pyx_DecompressString(cstring, 1171, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{31},{28},{179},{23},{1},{8},{37},{41},{7},{6},{2},{9},{14},{3},{14},{10},{21},{20},{28},{30},{19},{21},{19},{19},{16},{15},{17},{20},{7},{4},{11},{8},{7},{7},{20},{8},{7},{6},{9},{18},{8},{5},{10},{9},{8},{7},{18},{6},{9},{37},{36},{5},{4},{5},{18},{5},{18},{10},{8},{5},{1},{4},{5},{6},{8},{7},{9},{9},{13},{6},{8},{3},{9},{12},{8},{4},{13},{5},{9},{6},{7},{4},{8},{8},{14},{11},{6},{10},{8},{7},{4},{10},{9},{10},{2},{5},{3},{10},{14},{12},{11},{10},{25},{14},{12},{10},{17},{13},{8},{4},{4},{4},{8},{12},{10},{12},{19},{8},{3},{11},{6},{5},{5},{4},{6},{9},{8},{5},{4},{6},{6},{12},{5},{6},{8},{7},{13},{130},{2},{11},{55}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1167 bytes) */
+const char* const cstring = "BZh91AY&SYo\224\246\371\000\0009\177\377\346\357\277\200\344\317\344\335\277\245\377\322\277\377\377\374@@@@@@@@@@@@@\000@\000P\003\3452x\342t2\016\r\020\232L\244\37556T\336*{\325F\232oD&j\006\324\r\032\000\320\032<\243\304jzG\3514\336\211\252\rL\223\024\364\003)\210\236\232CCQ\240\014\214#\002`&\021\220\r\014\322a4\r\024\375*ze\032\215\003\365@\000\000\000\0004\000\000\000\000\000\007\003@h4h\0314\000\032\000\014M\r4\r4\000\321\243@\003F\202SP\004M14\230Jz\237\220P\366\250\036\220b\032\000\000\030&@4\320\032\016z\300\035-\377\025@\265\033\252x\232+Z\310\314\324\243\263\005b\000o!\312j\324\364+\025\273\201\3723^\277\233\207\030\3122Q\340^t\277\316\2539\364\2548\225B\244)o\352\217~\266M\025\364.k\301v\3773\276\261\255m\001\342\243\002\220\022u\020\003\035& u4lj\322\023~c\212\270\247\243jx|j_\000\007\254?\261h4\270\210\326\247\346\333\004K3OLV\024\212\004\252\177B\372\312{\360\215\351\034\010\337\226\306\3468\344\221\313\317k\206E,\016\246\003\267\010\005a\312R@YN\320\336P\001K \243r\345\251\312@q\260WZ>q\177\333\354\225\222|\321,\320&\001\024:\014\003\n\367\002b\251N\366\273a\"\241\243#\311\243 `\205E\005\001\313$\252\362'\222\034I^\367\264\312\261o@\302DFCL\030`.+\222I+\264\360\344E\006V\200v\357\221\355\202\233!\262\021i\213\177a\004-L\216\311\366\330\244\233\037\227_\232{\202y\005\233\006\003\003I\3638#&\200\341u\336\010#\343\242:\013\025\244\251\241\300\342q\333\351]K\rT\030)k\203a\036\250t\237u]\306\025k\221+\025S\023\017q\357h.M\317\277N\222\313\007\345\033#\026\26056\250\313\233\007\205\242\006X;_\022N\336mJ5\036\264F2\224RP\362Yf\365\031Hv\214\363\227L\010\021\272XV\004)J\206+\213Q$\234\303\211r5\300\245Te\372\254^\004!\265X\252\323\243\216\300\243\"C\357\335u\322;k\205v\222\242xT\254\230H\260\203\241\235QP\220\014\210\220A\254Y\033N\361F\367*\204SHb\361.\316\230\036^\213\213\215\363J\303R$\202\007\211V )\032c1\0313\232\013\246\255\252\242I\r\326O\275\256\330\345\300\300}\262\263\\+U\214\325\340\304\021\002\374\314\371\336\374p\232Cg\350\314\350U\266\034\255""\235\327b\353\034m\202(0\021\013*\240\3268\204[\306UT\213\340\216\274sP\255\250sL\341)@\3700\252\00428\213\224-\034\240F3t\\\314\223$\343\252\2228U4\347J=\231\216$\345X\321\341\331b\"\022\031&C\203=6\312\336\023\336&\242\252\375\265\220\362\321V\332e\217\217I\211\240\341PA\2733\365\256\303\350\247\316\346\346V&^\215X\236[<\325\311\272\207\021\320\354\3444\362N\364\335\nV@y|\001\364u\331\206\323\277\323\353!v\273T\243\t\002C\025F\322\236\004\n\356W\033\010a\2254\325\t&&\241\362$\2133\03413\t\241NQ0\210Nm\244\320\330\001\210Qcb\215x\032'u\217\002\202T\350;\330\rr\341\225\326\220A\0212\332\010\202\366~r+\306\207\342\244\370\354V\371\226\203\361lV\253\241\266#\271`\3509&\311dR$\324\244uE\263&m:n\246\310=\204\252\263:e\254\237\200VA\025\\C\231\210\364\341q4\013U\3244ey\324\211\312\226\300|\256\004\260\223\211\005\211\333\364y,l\310H\324\0301\271\306\350a\304\344\374\332\355\343\312\376X\017bs\221#%/\341G\236\027\\\345\023.8\"(\034\t1\316\206\312\030\360{\362\2605\340\315\330\310)\310\315\221\327\"\314\301.\002N\037\326+\270\261\361W\314\336^\201V\326\2366td\361m\321%K\323\207\253=X\032\027\306\326\345\027E8\251\335\035\375]\330\371k\025\374\347\326oPv\036O\252}\367\371'\033'\225\017w'\tj\266S\377\027rE8P\220o\224\246\371";
+    PyObject *data = __Pyx_DecompressString(cstring, 1167, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1022 bytes) */
-const char* const cstring = "x\332\225T;o\033G\020\216\000\031V\340$\206\023%.\263\002\002(@\234S\014\010p\340\0306\024[2\014\004\216\036\314\003\001\202\305rw\356\270\346\336\356q\037$/I\241\222%K\226*Y\252T\251R%K\226\372\t\371\t\231\275\343CR\224\"\000937\217\335y|\263\311\367\214\267wu&5\020\347MQ\200 .p\016\316\245A\251r\327Zck\213\324\031i\2427iZ\323\006\373\224\2745\036\210o1O^\226\276e4\221\216\010P\262\t\226yP%\206Y\311=\330\350\244\311\376\356\376\327\333\337n\023\246\005\261\360\016\270wxU\223+\346\0348bR\322\014Ry\251\211/\013p\ty\223\222\322\004\242\001s\362\206\024\350w5\300\267@\023\007>\nd\223im<\363\322h\212\341\230\353&\021\322\342%\262\0131z\217)\007\311\321-\205$I\362\202\tA1\036\242\332\203\363\t\364\201\207xZ\302\215\205\304\311<(\346\215M\240\352\325\334ok\341\267\025\375\266\026~[\265_R\224}!\035k*\000\035i\306\245\253%\361,\266Gg\316\004\313\341\371\216.w\\\251\371k\320\261}\306.\007\263\224\022J\031h\354(\2457\224}\351o\350,\210\300\201\362j47l\3305\207\315\272\325\232\201\3572\025\256\336\212\036\302S\323\205+I%\0262\351\3745\025\036K9s\255\253*\317\254\277\366m\212\253\237\241\231K\177]\341\270E\010\275b\345\217x\341+\004Pmj\230Bbw\374\3171\2717\032\265!G\266\247XF\351~\331\307\177t\246o\241\357\017!=\234\245w\004\376%\246tT]t4?\275\321\262\300\304\2761j\267\032\240\261\214c\254i\276[vx\321V\026\347B3_qif,\002\303\340\35058\354d\355\330c\221\375\027\2102\364\353\2612\221\361\374\224\361\377\2016\317[\025\241N\376\001M#J\336bRs\205F*\021\361vv\032W\306\0017\232\007k\261\214$\r>X\300\232\001\357\026q\212T\304&\325\0141\031r\350\306z\373\234\372fEq\367\"G\014 \203\"f\025\323\233\031\n\2602\307\000*E*\225\212}J\003v\207\"l\360\367\203\311\262\250\313\346\000\243s8I\235\032*\035]tMz\310\035\022\353q\nNU\201\221\342J(c\nJs\2540\322~U4\315!\307\207\205j\226\203\303\374\353O\224r#\202\202%\247\225K\305\241\027I\337/\361k\254\3003p\314\265\020k2\256\210\212\002\037\006|\255\360\371\312\343\014qo)o\001o\273\220\327_\330\306\240f\226YmQ\214G\324R\320\010\3206\246\260\204sm\350""\372\270\3571\243N`j\236\335l?\351\2776u\241\200~\024k\030\343\355\205\003\225\342\343!\346kV\355\361\254Z\224\004\244\254\312p\261\335\364\226Mw\255\340\205\351i'El\253\2456>\232\264\332\3239\211\2304E\275\233\213\205\2444\252\221\266\254\351y\004A\375\314\206B\240\177p\260\270\252\032wE\\\217Y\035\237\270\036\260\266\205\364x\347\362\375\017\007\277\r{#6\352\034\257\374\275\366\336\235\217\006\215\311\203\215\223\365\223\237\306_\214\331t\365\203\301\353\341\343\341\336\350\321\t~\334=\356\016~\031\356\216\326G\007\323\265\217\207\033\323\265\207\303\316%\022?z1\336<\375\364\224\237\255\2375\316\037^\334\2718\232\3547&\r:\241\351$\315bdg\272v\177r\377\253\361\366\270sz\367\364\317\363\315\213\007\227\3275\033\203\215\343\225\351\352\227\343\225\361gcL\347r\365\363QgB\2769\275w\366\335y{rp8]\375d\370t\364\353\311A\235\313_\303'#L\341\321xg\374\373Yr\201\241\367\006\217\377\001l\230\344-";
-    PyObject *data = __Pyx_DecompressString(cstring, 1022, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1016 bytes) */
+const char* const cstring = "x\332\225TKo\034E\020\306\222\243\030\005\210\002\206\034iKHF\"\214\211d\t\024\020\221I\354(\022\n~,\017!\241Vow\315lg{\272g\373\261\273\003\034|\334\343\036\367\350\343\036}\364\321G\037\367\270G\377\004~\002\3253\373\262\361\005i\246\252\272\036\335\325_Uu\362\003\343\355}\235I\r\304yS\024 \210\013\234\203siP\252\334\267\326\330\332\"uF\232\350M\232\326\264\301>#o\214\007\342[\314\223\027\245o\031M\244#\002\224l\202e\036T\211aVr\0176:ir\270\177\370\345\3567\273\204iA,\274\005\356\035\036\325\344\2129\007\216\230\2244\203T^j\342\313\002\\B^\247\2444\201h\300\234\274!\005\372\255\006\370\026h\342\300G\201l3\255\215g^\032M1\034s\335&BZ<Dv!F\0370\345 9\271\343\"I\222<gBP\214\207\250\366\340|\002}\340!\356\226pc!\201\n\241\031\233;\355,\234v\242\323Nm\235\261\244(\373B:\326T\000:\322\214KWK\342\273\010\214\316\234\t\226\303\367{\272\334s\245\346\257@G\340\214]\226d)%\2242\320\210%\245\267\224}\351o\351,\210\300\201\362\252(\267l\210\227C\230\356\264f\340\273L\205\325S\321Cxj\272\260\222Tb!\223\316\337P\341\266\2243\327ZUyf\375\215\265)V\227\241\231K\177S\341\270\305\346y\311\312\237\360\300\227\330:\265\251a\n\211\350\370_br\2575jC\216\354@\261\214\322\303\262\217\177t\246o\240\357\217!=\236\245w\002\376\005\246tR\035t2\337\275\321\262\300\304\2411j\277\252\236\261\214c\254i\276e\034\027K\230\027\330\262X\034\232\371\212K3c\261/\014\026_\203C8k\307\036\213\354\177\365\320\212S\206\373\364X\231\310x~\3128\372x\336j\032Q\362\026\223\232+\014\243\022\333\333V6\336\346\3128\340F\363`-&\235\244\301\007\013xM\300\235D,\034\025\021\227\232a\033\206\034\272\361v}N}\263\2428h\221c\331\221A\021\363\210\t\315\014\005X\231c\000\225\"\225JET\322\200XP\354\024\374~4Y\026u\331\274\247\350\274\203\244N\r\225\216.0\222\036r\207\304z\004\336\251*0R\234\002eLAi\2167\214\264O\235\374\023h\0169\276\"T\263\034\034\346_/Q\312\215\010\n\226\234V.\025\207^$}\277lYc\005\356\201\225\255\205x'\343\212\250(\360\025\300\247\t\337\252<V\014G\225\362\026\360\266\013y\275B\030\203\232Yfw\213b\334\242""\226\202\306\236lc\n\313\016\256\r]\037G<f\324\tL\315\263\233\215$\375\317p.\024\320\217b\335\271xz\341@\245\370^\210\371dU\243;\273-J\002RVe\270\030hz\307p\273V\360\302\364\264\223\"\302j\251\215/$\255FsNb\027\232\242\036\307\305\014R\032\325H[\326\364<6A\375\246\206B\240\177p\2608\252*wE\\\217Y\035_\265\036\260\266\205\364t\357\372\335\367\007\277\017{#6\352\234\256\375\263\361\316\275\017\006\215\311\243\255\263\315\263\237\307\237\215\331t\375\275\301\253\341\323\341\301\350\311\031.\356\237v\007\277\016\367G\233\243\243\351\306\207\303\255\351\306\343a\347\032\211\037=\037o\237\177|\316/6/\032\227\217\257\356]\235L\016\033\223\006\235\320t\222f1\2623\335x8y\370\305xw\3349\277\177\376\327\345\366\325\243\353\233\232\255\301\326\351\332t\375\363\361\332\370\2231\246s\275\376\351\2503!_\235?\270\370\366\262=9:\236\256\1774|6\372\355\354\250\316\345\357\341\327#L\341\311xo\374\307Er\205\241\017\006O\377\005\272k\334\025";
+    PyObject *data = __Pyx_DecompressString(cstring, 1016, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (1856 bytes) */
-const char* const bytes = ".BackEngine stopped successfullyError stopping back broker: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Stopping back broker...?add_notebacktest.execution.core.simulator.enginebacktest/execution/core/simulator/engine.pyxdisableenablegcisenabled<stringsource>AnyAsyncGeneratorBackEngineBackEngine.__aenter__BackEngine.__aexit__BackEngine.__reduce_cython__BackEngine.__setstate_cython__BackEngine.getvalueBackEngine.on_dt_overBackEngine.registerBackEngine.set_cashBackEngine.startBackEngine.stopBackEngine.submitBackEngine.subscribeDayOverDictEngineTopicGetValueIntEnumIntFlag__Pyx_PyDict_NextRefRegisterSetCashSubmitSubscribeThreadPoolExecutoracct_obj__aenter____aexit__async_gtasyncioasyncio.coroutinesatexit__await__backtest.execution.core.gateway.interfacebacktest.execution.core.simulator.enginebatchbatch_sizebodychaincline_in_tracebackcloseconcurrent.futurescreated_dt__dict___dicteenumeventexc_tbexc_typeexc_valexceptionexec_typeexperiment_idfiller__func__getgetLogger__getstate__getvalueinfo_is_coroutineitemsitertoolsloggerloggingloop__main__max_size_member_names___members__module__module____name____new__nexton_dt_overorder_objorder_typeosp_objpoppricelimit__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_BackEngine__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerrespselfsendset_cash__set_name__setdefault__setstate____setstate_cython__shutdownsidsizer_ratio_startstartstatestopsubmitsubscribe__test__throwtimetypingupdateuse_setstatevaluevalueswarningsweakref\200A\340\t\r\210Z\220w\230a\230q\200\001\360\010\000\005\016\210T\320\021!\240\024\240U\250$\250a\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230?\250'\260\025\260c\270\024\270T\300\027\310\005\310S\320PT\320T_\320_f\320fg\330\004\007\200q\330\010\017\320\017+\2504\250q""\260\007\260{\300'\310\021\340\010\017\320\017+\2504\250q\260\007\260{\300!\210!\200\001\330\004(\250\001\250\026\250q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220:\230X\240Q\240a\330\004\007\200|\2207\230!\330\010,\250A\250]\270.\310\001\330\004\013\2101";
+    #else /* compression: none (1837 bytes) */
+const char* const bytes = ".BackEngine stopped successfullyError stopping back broker: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Stopping back broker...?add_notebacktest.execution.core.engine.enginebacktest/execution/core/engine/engine.pyxdisableenablegcisenabled<stringsource>AnyAsyncGeneratorBackEngineBackEngine.__aenter__BackEngine.__aexit__BackEngine.__reduce_cython__BackEngine.__setstate_cython__BackEngine.getvalueBackEngine.on_dt_overBackEngine.registerBackEngine.set_cashBackEngine.startBackEngine.stopBackEngine.submitBackEngine.subscribeDayOverDictEngineTopicGetValueIntEnumIntFlag__Pyx_PyDict_NextRefRegisterSetCashSubmitSubscribeThreadPoolExecutoracct_objactor__aenter____aexit__async_gtasyncioasyncio.coroutinesatexit__await__backtest.execution.core.engine.enginebacktest.execution.gateway.interfacebatchbodychaincline_in_tracebackcloseconcurrent.futurescreated_dt__dict___dicteenumeventexc_tbexc_typeexc_valexceptionexec_typeexperiment_idfiller__func__getgetLogger__getstate__getvalueinfo_is_coroutineitemsitertoolsloggerloggingloop__main__max_size_member_names___members__module__module____name____new__nexton_dt_overorder_objorder_typeosp_objpoppricelimit__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_BackEngine__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerrespselfsendset_cash__set_name__setdefault__setstate____setstate_cython__shutdownsidsizer_ratio_startstartstatestopsubmitsubscribe__test__throwtimetypingupdateuse_setstatevaluevalueswarningsweakref\200A\340\t\r\210Z\220w\230a\230q\200\001\360\010\000\005\016\210T\320\021!\240\024\240U\250$\250a\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230?\250'\260\025\260c\270\024\270T\300\027\310\005\310S\320PT\320T_\320_f\320fg\330\004\007\200q\330\010\017\320\017+\2504\250q\260\007\260{\300'""\310\021\340\010\017\320\017+\2504\250q\260\007\260{\300!\210!\200\001\330\004(\250\001\250\026\250q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220:\230X\240Q\240a\330\004\007\200|\2207\230!\330\010,\250A\250]\270.\310\001\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -11110,7 +11051,7 @@ typedef struct {
     unsigned int num_kwonly_args : 1;
     unsigned int nlocals : 3;
     unsigned int flags : 10;
-    unsigned int first_line : 7;
+    unsigned int first_line : 8;
 } __Pyx_PyCode_New_function_description;
 /* NewCodeObj.proto */
 static PyObject* __Pyx_PyCode_New(
@@ -11127,54 +11068,54 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 50};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 52};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_aenter, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_aenter, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 62};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 64};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_event, __pyx_mstate->__pyx_n_u_resp};
-    __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_register, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_register, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 68};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 70};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_event, __pyx_mstate->__pyx_n_u_resp};
-    __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_set_cash, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_set_cash, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 74};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 6, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 76};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_event, __pyx_mstate->__pyx_n_u_body, __pyx_mstate->__pyx_n_u_experiment_id, __pyx_mstate->__pyx_n_u_order_obj, __pyx_mstate->__pyx_n_u_resp};
-    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_submit, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_submit, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 92};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 94};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_event, __pyx_mstate->__pyx_n_u_resp};
-    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_on_dt_over, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_on_dt_over, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 98};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 100};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_event, __pyx_mstate->__pyx_n_u_p_obj, __pyx_mstate->__pyx_n_u_acct_obj, __pyx_mstate->__pyx_n_u_resp};
-    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_getvalue, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_getvalue, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 106};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 108};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_event, __pyx_mstate->__pyx_n_u_resp, __pyx_mstate->__pyx_n_u_batch};
-    __pyx_mstate_global->__pyx_codeobj_tab[6] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_subscribe, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[6])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[6] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_subscribe, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[6])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 115};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 117};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_e};
-    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_stop, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_stop, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 126};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 128};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_exc_type, __pyx_mstate->__pyx_n_u_exc_val, __pyx_mstate->__pyx_n_u_exc_tb};
-    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_aexit, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_aexit, __pyx_mstate->__pyx_kp_b_iso88591__3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 54};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 56};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_loop};
-    __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_simulato_2, __pyx_mstate->__pyx_n_u_start_2, __pyx_mstate->__pyx_kp_b_iso88591_A_Zwaq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_engine_e_2, __pyx_mstate->__pyx_n_u_start_2, __pyx_mstate->__pyx_kp_b_iso88591_A_Zwaq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
@@ -12324,6 +12265,54 @@ static void __Pyx_RaiseArgtupleInvalid(
                  "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
                  func_name, more_or_less, num_expected,
                  (num_expected == 1) ? "" : "s", num_found);
+}
+
+/* ArgTypeTestFunc (used by ArgTypeTest) */
+static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+{
+    __Pyx_TypeName type_name;
+    __Pyx_TypeName obj_type_name;
+    PyObject *extra_info = __pyx_mstate_global->__pyx_empty_unicode;
+    int from_annotation_subclass = 0;
+    if (unlikely(!type)) {
+        PyErr_SetString(PyExc_SystemError, "Missing type object");
+        return 0;
+    }
+    else if (!exact) {
+        if (likely(__Pyx_TypeCheck(obj, type))) return 1;
+    } else if (exact == 2) {
+        if (__Pyx_TypeCheck(obj, type)) {
+            from_annotation_subclass = 1;
+            extra_info = __pyx_mstate_global->__pyx_kp_u_Note_that_Cython_is_deliberately;
+        }
+    }
+    type_name = __Pyx_PyType_GetFullyQualifiedName(type);
+    obj_type_name = __Pyx_PyType_GetFullyQualifiedName(Py_TYPE(obj));
+    PyErr_Format(PyExc_TypeError,
+        "Argument '%.200s' has incorrect type (expected " __Pyx_FMT_TYPENAME
+        ", got " __Pyx_FMT_TYPENAME ")"
+#if __PYX_LIMITED_VERSION_HEX < 0x030C0000
+        "%s%U"
+#endif
+        , name, type_name, obj_type_name
+#if __PYX_LIMITED_VERSION_HEX < 0x030C0000
+        , (from_annotation_subclass ? ". " : ""), extra_info
+#endif
+        );
+#if __PYX_LIMITED_VERSION_HEX >= 0x030C0000
+    if (exact == 2 && from_annotation_subclass) {
+        PyObject *res;
+        PyObject *vargs[2];
+        vargs[0] = PyErr_GetRaisedException();
+        vargs[1] = extra_info;
+        res = PyObject_VectorcallMethod(__pyx_mstate_global->__pyx_kp_u_add_note, vargs, 2, NULL);
+        Py_XDECREF(res);
+        PyErr_SetRaisedException(vargs[0]);
+    }
+#endif
+    __Pyx_DECREF_TypeName(type_name);
+    __Pyx_DECREF_TypeName(obj_type_name);
+    return 0;
 }
 
 /* PyObjectVectorCallKwBuilder */
@@ -15026,54 +15015,6 @@ bad:
       r = PyObject_GetAttr(o, n);
       return (likely(r)) ? r : __Pyx_GetAttr3Default(d);
   #endif
-  }
-  
-/* ArgTypeTestFunc (used by ArgTypeTest) */
-  static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
-  {
-      __Pyx_TypeName type_name;
-      __Pyx_TypeName obj_type_name;
-      PyObject *extra_info = __pyx_mstate_global->__pyx_empty_unicode;
-      int from_annotation_subclass = 0;
-      if (unlikely(!type)) {
-          PyErr_SetString(PyExc_SystemError, "Missing type object");
-          return 0;
-      }
-      else if (!exact) {
-          if (likely(__Pyx_TypeCheck(obj, type))) return 1;
-      } else if (exact == 2) {
-          if (__Pyx_TypeCheck(obj, type)) {
-              from_annotation_subclass = 1;
-              extra_info = __pyx_mstate_global->__pyx_kp_u_Note_that_Cython_is_deliberately;
-          }
-      }
-      type_name = __Pyx_PyType_GetFullyQualifiedName(type);
-      obj_type_name = __Pyx_PyType_GetFullyQualifiedName(Py_TYPE(obj));
-      PyErr_Format(PyExc_TypeError,
-          "Argument '%.200s' has incorrect type (expected " __Pyx_FMT_TYPENAME
-          ", got " __Pyx_FMT_TYPENAME ")"
-  #if __PYX_LIMITED_VERSION_HEX < 0x030C0000
-          "%s%U"
-  #endif
-          , name, type_name, obj_type_name
-  #if __PYX_LIMITED_VERSION_HEX < 0x030C0000
-          , (from_annotation_subclass ? ". " : ""), extra_info
-  #endif
-          );
-  #if __PYX_LIMITED_VERSION_HEX >= 0x030C0000
-      if (exact == 2 && from_annotation_subclass) {
-          PyObject *res;
-          PyObject *vargs[2];
-          vargs[0] = PyErr_GetRaisedException();
-          vargs[1] = extra_info;
-          res = PyObject_VectorcallMethod(__pyx_mstate_global->__pyx_kp_u_add_note, vargs, 2, NULL);
-          Py_XDECREF(res);
-          PyErr_SetRaisedException(vargs[0]);
-      }
-  #endif
-      __Pyx_DECREF_TypeName(type_name);
-      __Pyx_DECREF_TypeName(obj_type_name);
-      return 0;
   }
   
 /* ExtTypeTest */
@@ -17993,30 +17934,30 @@ bad:
   }
   
 /* CIntToPy */
-  static CYTHON_INLINE PyObject* __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic value) {
+  static CYTHON_INLINE PyObject* __Pyx_PyLong_From_enum____pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic value) {
   #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wconversion"
   #endif
-      const enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic neg_one = (enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) -1, const_zero = (enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) 0;
+      const enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic neg_one = (enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) -1, const_zero = (enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) 0;
   #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
   #pragma GCC diagnostic pop
   #endif
       const int is_unsigned = neg_one > const_zero;
       if (is_unsigned) {
-          if (sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) < sizeof(long)) {
+          if (sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) < sizeof(long)) {
               return PyLong_FromLong((long) value);
-          } else if (sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) <= sizeof(unsigned long)) {
+          } else if (sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) <= sizeof(unsigned long)) {
               return PyLong_FromUnsignedLong((unsigned long) value);
   #if !CYTHON_COMPILING_IN_PYPY
-          } else if (sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) <= sizeof(unsigned PY_LONG_LONG)) {
+          } else if (sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) <= sizeof(unsigned PY_LONG_LONG)) {
               return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
   #endif
           }
       } else {
-          if (sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) <= sizeof(long)) {
+          if (sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) <= sizeof(long)) {
               return PyLong_FromLong((long) value);
-          } else if (sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic) <= sizeof(PY_LONG_LONG)) {
+          } else if (sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic) <= sizeof(PY_LONG_LONG)) {
               return PyLong_FromLongLong((PY_LONG_LONG) value);
           }
       }
@@ -18030,7 +17971,7 @@ bad:
           }
   #elif !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX < 0x030d0000
           int one = 1; int little = (int)*(unsigned char *)&one;
-          return _PyLong_FromByteArray(bytes, sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic),
+          return _PyLong_FromByteArray(bytes, sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic),
                                        little, !is_unsigned);
   #else
           int one = 1; int little = (int)*(unsigned char *)&one;
@@ -18038,7 +17979,7 @@ bad:
           PyObject *py_bytes = NULL, *order_str = NULL;
           from_bytes = PyObject_GetAttrString((PyObject*)&PyLong_Type, "from_bytes");
           if (!from_bytes) return NULL;
-          py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(enum __pyx_t_8backtest_9execution_4core_9simulator_6engine_EngineTopic));
+          py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic));
           if (!py_bytes) goto limited_bad;
           order_str = PyUnicode_FromString(little ? "little" : "big");
           if (!order_str) goto limited_bad;

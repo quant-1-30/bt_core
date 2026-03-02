@@ -21,7 +21,7 @@
 
 
 from .remote import *
-from .local import *
+from .rayfeed import *
 # from .raydata import *
 
 # from .pandafeed import *

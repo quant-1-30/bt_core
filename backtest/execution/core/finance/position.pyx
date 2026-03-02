@@ -28,7 +28,7 @@ Created on Tue Mar 12 15:37:47 2019
 import uuid
 
 from bt_sdk.core.protocol import PositionBody, Resp
-from backtest.execution.core.gateway.operator.schema import vtPosition
+from backtest.execution.gateway.operator.schema import vtPosition
 
 from backtest.execution.utils.util cimport ts2intdt, num2date
 from backtest.execution.core.finance.function cimport calc_ratio, cRatio

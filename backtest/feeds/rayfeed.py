@@ -30,11 +30,11 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.local import LocalStore
+from backtest.stores.raystore import RayStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-__all__ = ["LocalData"]
+__all__ = ["RayData"]
 
 
 class MetaBtData(DataBase.__class__):
@@ -42,7 +42,7 @@ class MetaBtData(DataBase.__class__):
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
         super(MetaBtData, cls).__init__(name, bases, dct)
-        LocalStore.DataCls = cls
+        RayStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
         print("MetaBtData donew kwargs ", kwargs)
@@ -58,7 +58,7 @@ class MetaBtData(DataBase.__class__):
         return _obj, args, kwargs
 
 
-class LocalData(with_metaclass(MetaBtData, DataBase)):
+class RayData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
         ("ref", None),

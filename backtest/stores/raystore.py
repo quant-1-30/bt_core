@@ -27,13 +27,13 @@ from bt_sdk.core.protocol import *
 from bt_sdk.core.client import GetMdApi
 from backtest.store import Store
 from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
-from backtest.runner.async_runner import AsyncRunner
+from backtest.execution.actor.runner_actor import AsyncRunner
 
 
-__all__ = ["LocalStore"]
+__all__ = ["RayStore"]
 
 
-class LocalStore(Store):
+class RayStore(Store):
     '''Singleton class wrapping to control the connections.
 
     Params:
@@ -55,6 +55,7 @@ class LocalStore(Store):
         ("md_addr", ("127.0.0.1:50051")),
         ("client_id", b""),
         ("ref", None),
+        ("actor", None),
         ("config", {})
     )
 
@@ -63,7 +64,7 @@ class LocalStore(Store):
 
         max_size = int(os.getenv("MaxSize")) 
         batch_size = int(os.getenv("BatchSize")) 
-        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, batch_size=batch_size)
+        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, actor=self.p.actor)
         self.broker = self.BrokerCls(tdapi=tdapi)
         
         self._runner = AsyncRunner()

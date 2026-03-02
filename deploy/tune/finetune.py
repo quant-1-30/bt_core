@@ -1,6 +1,7 @@
 import os
 import ray
 import uuid
+import asyncio
 import backtest as bt
 from itertools import chain
 from typing import List, Any, Dict
@@ -9,7 +10,7 @@ from ray import tune
 from bt_sdk.core.client import GetMdApi
 from bt_sdk.core.protocol import QueryBody
 from deploy.strategy.test_signal import *
-from backtest.runner.async_runner import AsyncRunner
+from backtest.execution.actor import *
 
 
 def _initialize_mdpai():
@@ -21,6 +22,10 @@ def _initialize_mdpai():
     mdapi.start(_loop)
     return mdapi
 
+def _initialize_actor():
+    batch_size = int(os.getenv("BatchSize"))
+    actor = BatchWriterActor.remote(max_size=max_size, batch_size=batch_size)  # global 
+    return actor
 
 def preload(start_date: int, end_date: int, sid: List[str], benchmark):
     md_api = _initialize_mdpai()
@@ -48,11 +53,31 @@ def preload(start_date: int, end_date: int, sid: List[str], benchmark):
     return {"calendar": calendar, "instrument": instrument, "benchmark": bench, "adj": adj_factors, "tick": tick_data[sid[0]], "sid": sid}
 
 
-def run_backtest(config: Dict[str, Any], data_ref: Dict[str, Any]):
+@ray.remote(num_cpus=1, max_concurrency=5000) # 高并发接收
+class GlobalWriterActor:
+    def __init__(self):
+        max_size = int(os.getenv("MaxSize")) 
+        batch_size = int(os.getenv("BatchSize"))
+        self.actor = BatchWriterActor(max_size=max_size, batch_size=batch_size)   
+        self.start() 
+        print(f"GlobalWriterService started with batch_size={batch_size}")
+
+    def start(self):
+        _loop = asyncio.get_running_loop() # Ray Actor main loop
+        _loop.create_task(self.actor.run())
+
+    def push(self, snapshot: Dict[str, Any]):
+        self.actor.push(snapshot)
+
+    async def wait_until_finished(self):
+        await self.actor.wait_until_finished()
+
+
+def run_backtest(config: Dict[str, Any], data_ref: Dict[str, Any], actor: object):
     # try:
         # --- 初始化 Cerebro ---
         cerebro = bt.Cerebro(client_id=uuid.UUID(config["client_id"]).bytes, writer=False)
-        cerebro.addstore("local", ref=data_ref, config=config) 
+        cerebro.addstore("ray", ref=data_ref, config=config) 
 
         ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
         wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
@@ -111,15 +136,15 @@ def train_hpo():
                 "PGPREPING": "1",
                 "PGECHO": "0",
 
-                "MaxSize": "10000", 
-                "BatchSize": "1000"}
+                "MaxSize": "100", 
+                "BatchSize": "100"}
 
     ray.init(address="auto", 
             namespace="backtest", 
             runtime_env={"env_vars": env_config},
             ignore_reinit_error=True)
     # --- 数据预加载 (在 Driver 端执行一次) ---
-    
+
     print("Preloading data...")
     data = preload(
         start_date=20100101, 
@@ -129,6 +154,8 @@ def train_hpo():
     )
     data_ref = ray.put(data) # Object store and publish to worker
 
+    actor = GlobalWriterActor.remote()
+    
     search_space = {
         # 通用回测配置
         "client_id": "e9f8cd38-e73c-453f-8a47-55beda640ae6",
@@ -173,13 +200,13 @@ def train_hpo():
     
     # --- 启动 Tuner ---
     tuner = tune.Tuner(
-        tune.with_parameters(run_backtest, data_ref=data_ref), # big data ref
+        tune.with_parameters(run_backtest, data_ref=data_ref, actor=actor), # big data ref and actor
         
         param_space=search_space,
         
         tune_config=tune.TuneConfig(
             num_samples=200,             # 尝试 200 组参数
-            max_concurrent_trials=12,    # 最大并发数
+            max_concurrent_trials=4,    # 最大并发数
             scheduler=asha_scheduler     # 启用 ASHA 剪枝
         ),
         

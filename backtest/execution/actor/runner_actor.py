@@ -7,9 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class AsyncRunner:
-    """
-        负责维护一个全局唯一 单例Event Loop
-    """
     _instance = None
     _lock = threading.Lock()
 
@@ -71,34 +68,3 @@ class AsyncRunner:
             self._loop.call_soon_threadsafe(self._loop.stop)
         if self._thread.is_alive():
             self._thread.join(timeout=1)
-
-
-# cdef inline tuple init_event_loop():
-#     try:
-#         loop = asyncio.get_running_loop() # Ray Actor Loop 
-#         print(f"Attached to existing Event Loop: {id(loop)}")
-#         is_background = False
-#     except RuntimeError:
-#         loop = asyncio.new_event_loop()
-#         if hasattr(loop, 'set_debug'):
-#             loop.set_debug(False)
-    
-#         _loop_thread = threading.Thread(
-#             target=_run_event_loop,
-#             args=(loop,),
-#             daemon=True,
-#             name="AsyncClient-EventLoop"
-#         )
-#         _loop_thread.start()
-#         print(f"Started internal background thread.")
-#         is_background = True
-#     return (loop, is_background)
-
-
-# cdef inline void _run_event_loop(object loop):
-#     asyncio.set_event_loop(loop)
-#     try:
-#         loop.run_forever()
-#     except Exception as e:
-#         print(f"Event loop error: {e}")
-

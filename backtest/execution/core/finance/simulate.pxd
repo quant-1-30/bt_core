@@ -5,6 +5,7 @@ from backtest.execution.core.finance.order cimport Order
 from backtest.execution.core.finance.simulate_types cimport ActorId
 from backtest.execution.core.finance.cash cimport AsyncCashManager
 from backtest.execution.core.finance.cache cimport AssetCache
+from backtest.execution.actor.writer_actor cimport BatchWriterActor
 
 
 cdef class ActorMessage:
@@ -14,14 +15,14 @@ cdef class ActorMessage:
     cdef object reply_future  # sync payload
 
 
-cdef class BatchWriterActor:
-    cdef int32_t batch_size
-    cdef bint _running
-    cdef object _queue
-    cdef list _buffer
-    cdef object _finished_event 
-    
-    cdef void push(self, dict snapshot)
+# cdef class BatchWriterActor:
+#     cdef int32_t batch_size
+#     cdef bint _running
+#     cdef object _queue
+#     cdef list _buffer
+#     cdef object _finished_event 
+#     
+#     cdef void push(self, dict snapshot)
 
 
 cdef class TrackerActor:

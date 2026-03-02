@@ -32,8 +32,9 @@ from concurrent.futures import ThreadPoolExecutor
 from backtest.execution.core.finance.order cimport Order
 from backtest.execution.core.finance.account cimport Account
 from backtest.execution.core.finance.position cimport Position 
-from backtest.execution.core.gateway.interface import async_gt # singleton cast to cdef class type 
 from backtest.execution.core.finance.simulate cimport Simulator
+from backtest.execution.gateway.interface import async_gt # singleton cast to cdef class type 
+from backtest.execution.actor.writer_actor cimport BatchWriterActor
 
 from libc.stdint cimport int32_t
 
@@ -43,8 +44,9 @@ logger = logging.getLogger(__name__)
 
 cdef class BackEngine:
 
-    def __init__(self, int32_t max_size, int32_t batch_size):
-        self.simulator = Simulator(max_size=max_size, batch_size=batch_size)
+    # def __init__(self, int32_t max_size, int32_t batch_size):
+    def __init__(self, int32_t max_size, BatchWriterActor actor):
+        self.simulator = Simulator(max_size=max_size, actor=actor)
         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 
     async def __aenter__(self):

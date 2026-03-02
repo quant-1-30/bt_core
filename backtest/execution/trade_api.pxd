@@ -1,5 +1,5 @@
 
-from backtest.execution.core.simulator.engine cimport BackEngine
+from backtest.execution.core.engine.engine cimport BackEngine
 
 cdef enum EngineTopic:
     Register = 0

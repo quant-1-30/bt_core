@@ -33,12 +33,13 @@
 #     pass  # The user may not have a module installed
 
 from .remote import RemoteStore
-from .local import LocalStore
+from .raystore import RayStore
+
 # from .ibstore import IBStore
 # from .oandastore import OandaStore
 # from .raystore import RayBtStore
 
 _stores = {
     "remote": RemoteStore,
-    "local": LocalStore
+    "ray": RayStore
 }

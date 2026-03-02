@@ -29,8 +29,8 @@ from functools import partial
 
 from libc.math cimport floor 
 
-from backtest.execution.core.gateway.interface import async_gt # cimport the async wrapper
-from backtest.execution.core.gateway.interface cimport AsyncGateway, RpcTopic  # cimport the enum type
+from backtest.execution.gateway.interface import async_gt # cimport the async wrapper
+from backtest.execution.gateway.interface cimport AsyncGateway, RpcTopic  # cimport the enum type
 
 from backtest.execution.utils.util cimport ts2intdt # cdef func differ from cdef class
 from backtest.execution.core.finance.order cimport OrderCoreData

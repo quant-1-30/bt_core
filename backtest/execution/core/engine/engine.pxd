@@ -1,6 +1,5 @@
 from libc.stdint cimport int32_t
-from backtest.execution.core.simulator.util cimport Distributor
-from backtest.execution.core.gateway.interface cimport AsyncGateway, SubTopic  # 导入类型信息
+from backtest.execution.gateway.interface cimport AsyncGateway, SubTopic  # 导入类型信息
 from backtest.execution.core.finance.simulate cimport Simulator
 
 cpdef enum EngineTopic:

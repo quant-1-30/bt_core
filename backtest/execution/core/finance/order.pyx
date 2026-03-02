@@ -3,7 +3,7 @@
 
 import uuid
 import numpy as np
-from backtest.execution.core.gateway.operator.schema import vtOrder
+from backtest.execution.gateway.operator.schema import vtOrder
 
 from libcpp.vector cimport vector
 from cpython.object cimport Py_EQ

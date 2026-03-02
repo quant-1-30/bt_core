@@ -2875,7 +2875,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_UUID __pyx_string_tab[15]
 #define __pyx_n_u_asyncio_coroutines __pyx_string_tab[16]
 #define __pyx_n_u_backtest_execution_core_finance __pyx_string_tab[17]
-#define __pyx_n_u_backtest_execution_core_gateway __pyx_string_tab[18]
+#define __pyx_n_u_backtest_execution_gateway_opera __pyx_string_tab[18]
 #define __pyx_n_u_body __pyx_string_tab[19]
 #define __pyx_n_u_bt_sdk_core_protocol __pyx_string_tab[20]
 #define __pyx_n_u_bytes __pyx_string_tab[21]
@@ -5605,7 +5605,7 @@ __Pyx_RefNannySetupContext("PyInit_account", 0);
  * @author: python
  * """
  * import uuid             # <<<<<<<<<<<<<<
- * from backtest.execution.core.gateway.operator.schema import vtAccount
+ * from backtest.execution.gateway.operator.schema import vtAccount
  * from bt_sdk.core.protocol import AccountBody, Resp
 */
   __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_uuid, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
@@ -5617,13 +5617,13 @@ __Pyx_RefNannySetupContext("PyInit_account", 0);
   /* "backtest/execution/core/finance/account.pyx":14
  * """
  * import uuid
- * from backtest.execution.core.gateway.operator.schema import vtAccount             # <<<<<<<<<<<<<<
+ * from backtest.execution.gateway.operator.schema import vtAccount             # <<<<<<<<<<<<<<
  * from bt_sdk.core.protocol import AccountBody, Resp
  * 
 */
   {
     PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_vtAccount};
-    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_core_gateway, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_backtest_execution_gateway_opera, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
@@ -5640,7 +5640,7 @@ __Pyx_RefNannySetupContext("PyInit_account", 0);
 
   /* "backtest/execution/core/finance/account.pyx":15
  * import uuid
- * from backtest.execution.core.gateway.operator.schema import vtAccount
+ * from backtest.execution.gateway.operator.schema import vtAccount
  * from bt_sdk.core.protocol import AccountBody, Resp             # <<<<<<<<<<<<<<
  * 
  * from backtest.execution.core.finance.position cimport Position
@@ -5748,25 +5748,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{156},{179},{1},{8},{43},{7},{6},{2},{9},{7},{11},{18},{20},{4},{4},{18},{39},{47},{4},{20},{5},{4},{18},{10},{8},{13},{6},{8},{13},{5},{8},{8},{6},{10},{8},{3},{3},{15},{14},{12},{10},{4},{12},{10},{8},{4},{6},{9},{53}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (600 bytes) */
-const char* const cstring = "BZh91AY&SY\323g\266\215\000\000 \377\362@P@\021D\347\244B\277!R\000\277\377\377\352@\000@@@\000\000@@\002\006\215m\335\334\303B\010\236\246Sjx\rS\320\312d\310\031\014\230\023\rA\241\032jz!\242\2002h\320\000\0004\003j\tS\321\022\236 '\351F\230M\006@\003\t\246\201\246A\242\232\233A\r\032b\0322\003 \3104\030\020e\240_\331h\n\000Zz\202\341\266}\265\374\360\235|U\006\265\364X\345\034JF\265\335\366>\031\020\026\247;\355\250\341\277\022\302\306#LH\325%\340\264g\243s'8x\245b&a\027\234\333\031:\267\035\335\372\235\363\325\227\213\362A\035\354\005\360\372\213\275\202&\252R2\320\320v\006\261\240\310\020\003\260\235s\031\t\364\372\213/06\2413G\036\300`+LW\355\000\024\225W\016P\262*\213\336uyw\262\246$\303\257\301\014\363I>\367_\314B`\315\201\301LT\212\002\301=\331\013.\274\312\306E0\234\204F\206\371W/\2054By\246p\221\206\017\306\013[\341a\031\343\246\245\274-f\265\246(\355\256\245Y\3042Y\257n\021[\243:\305\022.\345\032\226m H\034\326\323\003\005$(\310\353\026s\215\375\360S&\220O\325\014g\024Q\2259ecr\025`M\0103\260\302a\364c\204\322\240x\"u)v\rL\214/j0\210^\351\245\245vI\334/\242\313\270\303\252x\2343\026.o\245\000\224N\351\232>\3131\031\005X:E\010\3004\030u\311E\030Dh\031\014\235$4\262\304\031#\tp\030\007\247\363\267\334\314[W\003F&RA&\020Mj:%a\022\n\342\24714>\207\275Q\252\t\032o\255r\241\004\002f\2625\274\010 %8\340R\361\274\303\210\256\273\2122+r\270a\245\240\2020L+\n\004\226e>J-II\267\254\254b\201\256}\256b\252\201\270U\001\\\257\316BO!H=Uat\262\220\320&\004\361\2053\330@ZT%<o*A*FEl\333\300\333\r\321~R\337\031\021Q\350\226\235\016\353\327\260.\355\005\256\360_\342\356H\247\n\022\032l\366\321\240";
-    PyObject *data = __Pyx_DecompressString(cstring, 600, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{156},{179},{1},{8},{43},{7},{6},{2},{9},{7},{11},{18},{20},{4},{4},{18},{39},{42},{4},{20},{5},{4},{18},{10},{8},{13},{6},{8},{13},{5},{8},{8},{6},{10},{8},{3},{3},{15},{14},{12},{10},{4},{12},{10},{8},{4},{6},{9},{53}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (592 bytes) */
+const char* const cstring = "BZh91AY&SY\373\241\024\253\000\000 \377\362@P@\021D\347\244B\277!R\000\277\377\377\352@\000@@@\000\000@@\002\014\253Rl\303$\230I\352b\236\230\rS\324bhh\031\006\206\0234A\241\032'\242\032\"\014!\265\017P\000\000\003j\tS\023R\236\236\244<\246\362\241\243OQ\246\324\000\r\031\000mC\230\000&\000\002`\000\000\000\006`:`\265\002\340t\362\007n\312\266]\355\266\245\356\211\332\327\305c|\262D\246\265\374\376\241\034\352\007T\245\347R\313]\221#\033\025\254X\262\340C\246\375\375OD\257\341r\233o\214\301'\245\350\332\223?^\226k\361]\265\366\341\035\212\005\241\363\026i\210dLH\345\325,\031Af\260T\007\004\274\277;\031\032q\367\223/\0006(\263\307v\000b9\220]\346\340,6\347\033\343d\226\237J\233\217fn\027Y\237\275\320/\235\264\327,>\212\320DrC;Z\301\230\246{\216_\035\r\311\003H\250\211\021I\n\027D\326W\032h\245\342v L\216\314\331\257\010\235\226Z\270\005\255\026\265dF\216\332\025$\361\024\253n\353\236\266>Tz#\331\211\364-X\001\000rZ\314\013\224\220\245)p\277\204\260\347\212\311\364\203\rQ\312\222I)\263-\014oi\270\nc\010\227\240V?\006<Pg\000\3421\231\215q\tR\215\016\233\311\340SeH\266\251\271\300\\c=\272\200\3036\226\021\211^\306\330 \020y\331#F\317\030\221\220Us#\320\214\003AwT\024N#\024\210P\206\243\024\316q\017(\033H@\022\374*\307M\247\2720:\372\236\320\032\202#6T\256\206\022\241t\226h-\020\256\020\212X\235;R\027.\205\020\243KY*\340\003\234bz\021[F\305\030BR\334H\271&%\014\265\254\020#\004Q&T\"&\204\311J\261\324\345\035\025Q\357A\033\033s\022\242\201\274T\001X\255\326B\r\00175\025]d2\200\341\022\002W\272z\352 +)\222\235\366\224\334\224#\"\256Q\3578\335\276-\312\032FDSi\246\304\255\374\271`\0176\203\257\240?\342\356H\247\n\022\037t\"\225`";
+    PyObject *data = __Pyx_DecompressString(cstring, 592, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (504 bytes) */
-const char* const cstring = "x\332\215R\301n\0241\014\275\"N\2349\240\034\220\n\022\314\n\251\007.+T(H\275TU\245\236#O\342\331\r\315\304C\354,;ZU\342\0238\366\310g\365spvf\013\255\204\304H\023\2778\317\216\363\354\346\3049*I^\341v\300\034zLb\203_\356\036lo\314\033\017\202\242\373\345\356\200\3249P\226\216b \273\201X\364\354\221C)\016x\275\334\325\265\362STN\212\n#n0\303Jc\016H\235=\344UH\313\335do^\237\223\240\2215\210\3714\312\232\222\tl<\306\320j\200`\034\rK\016N0WR2\027\237/\336\036\277?6\220\274\311\370\025\235\260\341\322\272\010\314\310\206:\323\226\020%$#\343\200\334\230\263\316\214TLB\364F\310\014\312\373;@\326\230\014\243T`\216 %\022\220@\311jxH\253#\343C\326K\302\006k\364\027\210\214\315\007\360\336*\021[p\327\202,\013\334\242+5l\341(\343\242\013\t\222\303\005L\2727\303\270\365\201\241\215\210\251\256+\027xB~n\315l>\222\037g\330X\233\321\027\207V\277\213q\253\377\251\352`\317q+\227\330]\"\017WWg\247\300cr\201\032\275\227\264\202\204|(\252\271/\252\036b3\027\325\314E\375\213\266R\325\277\303\330\320P\033@\271a\267\306\036Z\255\254\025\313\376z\242\r\231\204\034\305v\324$\265\365.\352\3456\250p\031\334^\231\312\233\272|\030\247\007\003\327Q\356A\254\355Jr\372\304\300\366\376\rA\260\347\303\314X\333\203\246\265S*\265\344K\334\253\222\240W\253\2636\320\360h*\325\255\222m\244j\\\251\337\n\304\211\376GV\306\330\325U\346D\212<vP\242\026U\225\261\266\224\340\367\351xs\350\320\217\223\273'\317~>\275}y\213\277\336\335=\177\361?\006~\003:F_y";
-    PyObject *data = __Pyx_DecompressString(cstring, 504, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (503 bytes) */
+const char* const cstring = "x\332\215R\301n\0241\014\275\"N\2349\240\034\220\n\022\314\n\251\007.+T(H\275TU\245\236#O\342\331\r\315\304C\354,;ZU\342\0238\366\310g\365spvf\013\25580Rb\307yv\336<\2739q\216J\222W\270\0350\207\036\223\330\340\227\273\007\307\033\363\306\203\240\350y\271;x\032\034(KG1\220\335@,z\367(\240\020\007\274^\356\352^\361)*&Eu#n0\303Js\016\236\006{\310\253\220\226\273\311\336\274>'A#k\020\363i\2245%\023\330x\214\241\325\004\3018\032\226\034\234`\256\240d.>_\274=~\177l y\223\361+:a\303\245u\021\230\221\ru\246-!JHF\306\001\2711g\235\031\251\230\204\350\215\220\031\024\367w\202\2541\031F\251\2169\202\224H@\002%\253\351!\255\216\214\017Y\037\t\033\254\331_ 26\037\300{\253@l\301]\013\262,p\213\256\324\264\205\243\214\213.$H\016\0270\351\336\014\343\326\007\2066\"\246\272\257\\\340\311\363skf\363\221\3748\273\215\265\031}qh\365\273\030\267\272NU\007{\216[\271\304\356\022y\270\272:;\005\036\223\013\324\350\273\244\014\022\362\201TsO\252^b3\223jfR\377\200\255T\360\357064T\355)7\354\326\330C\253\244Z\261\354\257\247BC&!G\261\0355\277v\335E}\327\006\325,\203\333\213RqS\203\017\223\364`\326:\312=\210\265]IN\377.\260\275\247\037\004{>\214\213\265=hY;\225RK\276\304\275 \tz\265:f\003\r\217\006R\303\252\326F\252\274\025\372\255@\234\340\177\024e\214]\335e.\244\236\307\016JTRU\024kK\t~_\2167\207\346\3748\271{\362\354\347\323\333\227\267\370\353\335\335\363\027\377c\3407\242\357]\242";
+    PyObject *data = __Pyx_DecompressString(cstring, 503, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (897 bytes) */
-const char* const bytes = ".Account(experiment_id={experiment_id} ,datetime={datetime} ,portfolio_value={portfolio_value} ,cash={cash} ,pnl={pnl} ,leverage={leverage} ,margin={margin})Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.?add_notebacktest/execution/core/finance/account.pyxdisableenablegcisenabledAccountAccountBodyAccount.__reduce____Pyx_PyDict_NextRefRespUUIDasyncio.coroutinesbacktest.execution.core.finance.accountbacktest.execution.core.gateway.operator.schemabodybt_sdk.core.protocolbytescashcline_in_tracebackcoremargindatetimeexperiment_idformat__func___is_coroutineitemsleverage__main__margin__module____name__pnlpopportfolio_value__pyx_vtable____qualname____reduce__self__set_name__setdefault__test__uuidvaluesvtAccount\200A\330\010\020\220\n\230$\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230a";
+    #else /* compression: none (892 bytes) */
+const char* const bytes = ".Account(experiment_id={experiment_id} ,datetime={datetime} ,portfolio_value={portfolio_value} ,cash={cash} ,pnl={pnl} ,leverage={leverage} ,margin={margin})Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.?add_notebacktest/execution/core/finance/account.pyxdisableenablegcisenabledAccountAccountBodyAccount.__reduce____Pyx_PyDict_NextRefRespUUIDasyncio.coroutinesbacktest.execution.core.finance.accountbacktest.execution.gateway.operator.schemabodybt_sdk.core.protocolbytescashcline_in_tracebackcoremargindatetimeexperiment_idformat__func___is_coroutineitemsleverage__main__margin__module____name__pnlpopportfolio_value__pyx_vtable____qualname____reduce__self__set_name__setdefault__test__uuidvaluesvtAccount\200A\330\010\020\220\n\230$\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230e\2401\330\032\036\230a";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif

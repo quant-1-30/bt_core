@@ -12,9 +12,9 @@ from bt_sdk.core.protocol import Event
 
 from libc.stdint cimport int64_t
 
-from backtest.execution.core.gateway.interface import async_gt
 from backtest.execution.core.finance.common cimport CashData
-from backtest.execution.core.gateway.interface cimport AsyncGateway
+from backtest.execution.gateway.interface import async_gt
+from backtest.execution.gateway.interface cimport AsyncGateway
 
 
 cdef class AsyncCashManager:

@@ -25,9 +25,11 @@ from typing import Union, List, Mapping, Any, Generator, Tuple
 
 from bt_sdk.core.client import GetMdApi
 from bt_sdk.core.protocol import *
-from backtest.runner.async_runner import AsyncRunner
+from backtest.execution.actor.runner_actor import AsyncRunner
 from backtest.store import Store
 from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
+from backtest.execution.actor.writer_actor import BatchWriterActor
+
 
 __all__ = ["BTStore"]
 
@@ -61,15 +63,18 @@ class RemoteStore(Store):
         self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
         max_size = int(os.getenv("MaxSize")) 
-        batch_size = int(os.getenv("BatchSize")) 
-        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, batch_size=batch_size)
+        batch_size = int(os.getenv("BatchSize"))
+        actor = BatchWriterActor(max_size=max_size, batch_size=batch_size) 
+        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, actor=actor)
         self.broker = self.BrokerCls(tdapi=tdapi)
 
         self._runner = AsyncRunner()
+        self.actor = actor
     
     def start(self, *args, **kwargs):
         self._runner.start() # new_event_loop
         _loop = self._runner.get_loop()
+        _loop.create_task(self.actor.run())
 
         self._feed._prepare(_loop)
         self.broker._prepare(_loop)

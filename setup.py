@@ -7,31 +7,7 @@ from Cython.Build import cythonize
 # sources = glob.glob("**/*.pyx", recursive=True) # **/*.pyx 会搜索当前目录及其所有子目录下的 .pyx 文件
 current_dir = os.path.abspath(os.getcwd())
 
-extensions = [
-    Extension(
-        name="backtest.utils.dateintern", 
-        sources=["backtest/utils/dateintern.pyx"],
-        include_dirs=[np.get_include(), current_dir],
-        language="c++", # vector/map
-        extra_compile_args=["-O3", "-std=c++11"],
-        # "-Wno-unused-function",
-        # "-Wno-unused-variable",
-        # "-Wno-unused-but-set-variable",
-        # "-Wno-unused-parameter",
-        # "-Wno-sign-compare" 
-    ),
-    Extension(
-        name="backtest.utils.dt_cmp", 
-        sources=["backtest/utils/dt_cmp.pyx"],
-        include_dirs=[np.get_include(), current_dir],
-        language="c++", # vector/map
-        extra_compile_args=["-O3", "-std=c++11"],
-        # "-Wno-unused-function",
-        # "-Wno-unused-variable",
-        # "-Wno-unused-but-set-variable",
-        # "-Wno-unused-parameter",
-        # "-Wno-sign-compare" 
-    ),
+extensions = [ 
     Extension(
         name="backtest.timer", 
         sources=["backtest/timer.pyx"],
@@ -50,11 +26,27 @@ extensions = [
         include_dirs=[np.get_include(), current_dir],
         language="c++", # vector/map
         extra_compile_args=["-O3", "-std=c++11"],
-        # "-Wno-unused-function",
-        # "-Wno-unused-variable",
-        # "-Wno-unused-but-set-variable",
-        # "-Wno-unused-parameter",
-        # "-Wno-sign-compare" 
+    ),
+    Extension(
+        name="backtest.utils.dateintern", 
+        sources=["backtest/utils/dateintern.pyx"],
+        include_dirs=[np.get_include(), current_dir],
+        language="c++", # vector/map
+        extra_compile_args=["-O3", "-std=c++11"],
+        ),
+    Extension(
+        name="backtest.utils.dt_cmp", 
+        sources=["backtest/utils/dt_cmp.pyx"],
+        include_dirs=[np.get_include(), current_dir],
+        language="c++", # vector/map
+        extra_compile_args=["-O3", "-std=c++11"],
+    ),
+    Extension(
+        name="backtest.execution.actor.writer_actor", 
+        sources=["backtest/execution/actor/writer_actor.pyx"],
+        include_dirs=[np.get_include(), "."],  
+        language="c++",                         # vector/map
+        extra_compile_args=["-O3", "-std=c++11"]
     ),
     Extension(
         name="backtest.execution.utils.util", 
@@ -62,28 +54,17 @@ extensions = [
         include_dirs=[np.get_include(), "."],  
         language="c++",                         # vector/map
         extra_compile_args=["-O3", "-std=c++11"]
-        # "-Wno-unused-function",
-        # "-Wno-unused-variable",
-        # "-Wno-unused-but-set-variable",
-        # "-Wno-unused-parameter",
-        # "-Wno-sign-compare"
     ),
     Extension(
-        name="backtest.execution.core.gateway.interface", 
-        sources=["backtest/execution/core/gateway/interface.pyx"],
+        name="backtest.execution.gateway.interface", 
+        sources=["backtest/execution/gateway/interface.pyx"],
         include_dirs=[np.get_include(), current_dir, "."], # . root 
         language="c++",
         extra_compile_args=["-O3", "-std=c++11"]
     ),
     Extension(
-        name="backtest.execution.core.simulator.util", 
-        sources=["backtest/execution/core/simulator/util.pyx"],
-        include_dirs=[np.get_include(), current_dir, "."],
-        language="c++",
-    ),
-    Extension(
-        name="backtest.execution.core.simulator.engine", 
-        sources=["backtest/execution/core/simulator/engine.pyx"],
+        name="backtest.execution.core.engine.engine", 
+        sources=["backtest/execution/core/engine/engine.pyx"],
         include_dirs=[np.get_include(), current_dir, "."],
         language="c++",
     ),
