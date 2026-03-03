@@ -15,21 +15,13 @@ cdef class ActorMessage:
     cdef object reply_future  # sync payload
 
 
-# cdef class BatchWriterActor:
-#     cdef int32_t batch_size
-#     cdef bint _running
-#     cdef object _queue
-#     cdef list _buffer
-#     cdef object _finished_event 
-#     
-#     cdef void push(self, dict snapshot)
-
-
 cdef class TrackerActor:
     cdef bytes experiment_id
+    cdef int32_t buffer_size
     cdef object _queue        
-    cdef BatchWriterActor _writer 
-    cdef object _ready_event 
+    cdef object _ready_event
+    cdef object _put_buffer 
+    cdef object _writer 
     
     cdef AsyncCashManager cash_manager      
     cdef AssetCache asset_cache       
@@ -43,16 +35,20 @@ cdef class TrackerActor:
     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*)
 
     cdef object get_snapshot(self)
+    
+    cdef _flush(self)
 
 
 cdef class Simulator:
-    cdef int32_t max_size
-    cdef dict _actors 
-    cdef BatchWriterActor _writer
+    cdef int32_t q_size
+    cdef int32_t buffer_size
+    cdef AssetCache _asset_cache
+    cdef object _writer
     cdef object _loop
-    cdef object _asset_cache
+    cdef dict _actors 
     
     cdef void attach(self, loop)
     
     cdef TrackerActor _get_or_create_actor(self, bytes experiment_id)
+    
     

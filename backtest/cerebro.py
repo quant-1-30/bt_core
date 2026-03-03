@@ -92,7 +92,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     params = (
         ("client_id", ""),
         ('savemem', 1),
-        ("store", "remote"),
         ('oldsync', False),
         ('tz', None),
         ("timeout", 10),
@@ -123,9 +122,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         
         self._plot = Plot()
 
-    def addstore(self, store: str='', **kwargs):
+    def addstore(self, store: str="remote", **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
-        store = store if store else self.p.store
         storecls = _stores[store]
         self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
 

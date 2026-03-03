@@ -62,10 +62,11 @@ class RemoteStore(Store):
         mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
         self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
-        max_size = int(os.getenv("MaxSize")) 
+        q_size = int(os.getenv("QSize")) 
         batch_size = int(os.getenv("BatchSize"))
-        actor = BatchWriterActor(max_size=max_size, batch_size=batch_size) 
-        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, actor=actor)
+        buffer_size = int(os.getenv("BufferSize"))
+        actor = BatchWriterActor(q_size=q_size, batch_size=batch_size) 
+        tdapi = TdApi(client_id=self.p.client_id, q_size=q_size, buffer_size=buffer_size, actor=actor)
         self.broker = self.BrokerCls(tdapi=tdapi)
 
         self._runner = AsyncRunner()

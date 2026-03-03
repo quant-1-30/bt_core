@@ -9,16 +9,14 @@ from libc.stdint cimport int32_t
 
 from bt_sdk.core.protocol import Event
 from backtest.execution.core.engine.engine cimport BackEngine, EngineTopic
-from backtest.execution.actor.writer_actor cimport BatchWriterActor
-
+from backtest.execution.actor.writer_actor cimport IBatchWriter
 
 
 cdef class AsyncApi:
 
-    # def __init__(self, bytes client_id, int32_t max_size, int32_t batch_size):
-    def __init__(self, bytes client_id, int32_t max_size, BatchWriterActor actor):
+    def __init__(self, bytes client_id, int32_t q_size, int32_t buffer_size, object actor):
         self.client_id = client_id
-        self.engine = BackEngine(max_size, actor)
+        self.engine = BackEngine(q_size, buffer_size, actor)
         self._loop = None
 
     cdef start(self, object _loop):
@@ -98,8 +96,8 @@ cdef class TdApi:
     before passing that data into on_xxxx
     """
 
-    def __init__(self, bytes client_id, int32_t max_size, BatchWriterActor actor):
-        self._async_api = AsyncApi(client_id, max_size, actor)
+    def __init__(self, bytes client_id, int32_t q_size, int32_t buffer_size, object actor):
+        self._async_api = AsyncApi(client_id, q_size, buffer_size, actor)
         self._loop = None
 
     cpdef start(self, object _loop):

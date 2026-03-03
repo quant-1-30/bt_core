@@ -258,7 +258,7 @@ ray service struck reason:
 export RAY_OBJECT_STORE_ALLOW_SLOW_STORAGE=0 # avoid swap to ssd
 
 
-ray start --head --num-cpus 8 --memory 34359738368 
+ray start --head --num-cpus 12 --memory 34359738368 
 
 ✅ ray.put + yield ObjectRef:  The object has already been deleted by the reference counting protocol. This should not happen.
 
@@ -313,3 +313,8 @@ loop.create_task() 返回的 asyncio.Task 需用 await 等待，而 run_coroutin
 读写架构分离 （ 分布式读取 / 去中心写入）
    **MdApi** -> **Worker 进程级单例**（Factory Pattern）。因为它是读操作，且连接开销相对较小，分散在 Worker 中可以利用多网卡带宽。
    ***Writer** -> **Cluster 级单例**（Ray Actor）。因为它是写操作，数据库连接是瓶颈，必须中心化管理以利用 Batch Insert 的优势。
+
+proxy for batchwriter
+
+
+Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_parameters 传入了 data_ref 或 actor，控制台可能会显示类似 ObjectRef(xxx) 或 Actor 的字符串表示

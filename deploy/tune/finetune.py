@@ -6,6 +6,7 @@ import backtest as bt
 from itertools import chain
 from typing import List, Any, Dict
 from ray import tune
+from functools import partial
 
 from bt_sdk.core.client import GetMdApi
 from bt_sdk.core.protocol import QueryBody
@@ -53,12 +54,12 @@ def preload(start_date: int, end_date: int, sid: List[str], benchmark):
     return {"calendar": calendar, "instrument": instrument, "benchmark": bench, "adj": adj_factors, "tick": tick_data[sid[0]], "sid": sid}
 
 
-@ray.remote(num_cpus=1, max_concurrency=5000) # 高并发接收
+@ray.remote(num_cpus=1, max_concurrency=5000)
 class GlobalWriterActor:
     def __init__(self):
-        max_size = int(os.getenv("MaxSize")) 
+        q_size = int(os.getenv("QSize")) 
         batch_size = int(os.getenv("BatchSize"))
-        self.actor = BatchWriterActor(max_size=max_size, batch_size=batch_size)   
+        self.actor = BatchWriterActor(q_size=q_size, batch_size=batch_size)   
         self.start() 
         print(f"GlobalWriterService started with batch_size={batch_size}")
 
@@ -73,11 +74,11 @@ class GlobalWriterActor:
         await self.actor.wait_until_finished()
 
 
-def run_backtest(config: Dict[str, Any], data_ref: Dict[str, Any], actor: object):
+def run_backtest(config: Dict[str, Any], data_ref: object, actor: object):
     # try:
         # --- 初始化 Cerebro ---
         cerebro = bt.Cerebro(client_id=uuid.UUID(config["client_id"]).bytes, writer=False)
-        cerebro.addstore("ray", ref=data_ref, config=config) 
+        cerebro.addstore("ray", ref=data_ref, config=config, actor=actor) 
 
         ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
         wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
@@ -136,7 +137,8 @@ def train_hpo():
                 "PGPREPING": "1",
                 "PGECHO": "0",
 
-                "MaxSize": "100", 
+                "QSize": "1000",
+                "BufferSize": "500", 
                 "BatchSize": "100"}
 
     ray.init(address="auto", 
@@ -157,7 +159,7 @@ def train_hpo():
     actor = GlobalWriterActor.remote()
     
     search_space = {
-        # 通用回测配置
+        # universe
         "client_id": "e9f8cd38-e73c-453f-8a47-55beda640ae6",
         "cash": 100000,
         "sid": [b"600036"], 
@@ -199,14 +201,22 @@ def train_hpo():
     )
     
     # --- 启动 Tuner ---
+
+    trainable = partial(
+        run_backtest,
+        data_ref=data_ref,
+        actor=actor
+    )
+
     tuner = tune.Tuner(
-        tune.with_parameters(run_backtest, data_ref=data_ref, actor=actor), # big data ref and actor
+        # tune.with_parameters(run_backtest, data_ref=data_ref, actor=actor), # big data ref and actor
+        trainable, # avoid to log config which contain data_ref 
         
         param_space=search_space,
         
         tune_config=tune.TuneConfig(
             num_samples=200,             # 尝试 200 组参数
-            max_concurrent_trials=4,    # 最大并发数
+            max_concurrent_trials=6,    # 最大并发数
             scheduler=asha_scheduler     # 启用 ASHA 剪枝
         ),
         

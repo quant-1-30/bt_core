@@ -37,6 +37,7 @@ from collections import defaultdict
 from itertools import chain
 
 from bt_sdk.core.protocol import SnapshotBody, Resp, Event, QueryBody
+from backtest.execution.gateway.interface import async_gt
 
 from libcpp.unordered_map cimport unordered_map
 from libcpp.string cimport string as cpp_string
@@ -54,7 +55,7 @@ from backtest.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, L
 from backtest.execution.core.finance.simulate_types cimport MsgType
 from backtest.execution.utils.util cimport ts2intdt
 from backtest.execution.gateway.interface cimport RpcTopic
-from backtest.execution.gateway.interface import async_gt
+from backtest.execution.actor.writer_actor cimport IBatchWriter
 
 
 cimport numpy as cnp
@@ -74,14 +75,17 @@ cdef class ActorMessage:
 
 cdef class TrackerActor:
 
-    def __init__(self, bytes experiment_id, BatchWriterActor writer, object asset_cache, int32_t max_size):
+    def __init__(self, bytes experiment_id, IBatchWriter writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
         
         self.positions = {}
+        self._put_buffer = [] 
+        self.buffer_size = buffer_size
+        self._queue = asyncio.Queue(maxsize=q_size)
         self.experiment_id = experiment_id
         self.cash_manager = AsyncCashManager()
         self.asset_cache = asset_cache
-        self._writer = writer
-        self._queue = asyncio.Queue(maxsize=max_size)
+
+        self._writer = writer 
 
         self._fillers = {
             b"oco": PseudoFiller(),
@@ -96,6 +100,9 @@ cdef class TrackerActor:
             self._queue.put_nowait(msg) # cause oom
         except asyncio.QueueFull:
             await self._queue.put(msg) # backpressure
+    
+    cdef object get_snapshot(self):
+        return Resp(body=self._latest_snapshot)
 
     async def _start(self):
         cdef bytes sid, experiment_id
@@ -137,7 +144,6 @@ cdef class TrackerActor:
             logger.info(f"Actor {self.experiment_id} ready.")
         except Exception as e:
             logger.critical(f"Actor {self.experiment_id} start failed: {e}", exc_info=True)
-            await self._fail_pending_messages(e) # avoid dead lock 
             return 
 
         while True:
@@ -323,27 +329,36 @@ cdef class TrackerActor:
                 positions=posn_body,
             )
 
-        self._latest_snapshot = snapshot_body 
+        self._latest_snapshot = snapshot_body
+
         if writer:
-            self._writer.push(payload)
+            # self._writer.push(payload)
+            self._put_buffer.append(payload)
+            
+            if len(self._put_buffer) >= self.buffer_size:
+                self._flush()
 
-    async def _fail_pending_messages(self, Exception e):
-        while not self._queue.empty():
-            msg = self._queue.get_nowait()
-            if msg.reply_future and not msg.reply_future.done():
-                msg.reply_future.set_exception(e)
+    cdef _flush(self):
+        if not self._put_buffer: return
 
-    cdef object get_snapshot(self):
-        return Resp(body=self._latest_snapshot)
+        self._writer.push(self._put_buffer)
+        self._put_buffer = []
+
+    async def shutdown(self):
+        cdef dict _sentinel = {MsgType.Sentinel: 0}
+        self._put_buffer.append(_sentinel)
+        self._flush()
 
 
 cdef class Simulator:
     
-    def __init__(self, int32_t max_size, BatchWriterActor actor):
+    def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):
         self._loop = None # avoid initialize loop in __init__
         self._actors = {}
-        self.max_size = max_size 
+        self.q_size = q_size 
+        self.buffer_size = buffer_size
         self._asset_cache = AssetCache()
+
         self._writer = actor
 
     cdef void attach(self, loop):
@@ -397,20 +412,20 @@ cdef class Simulator:
         cdef TrackerActor actor
 
         if experiment_id not in self._actors:
-            actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.max_size)
+            actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size)
             self._actors[experiment_id] = actor
             self._loop.create_task(actor.run())
         return self._actors[experiment_id]
 
     async def shutdown(self):
         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
-        cdef dict _sentinel = {MsgType.Sentinel: 0}
 
         for actor in self._actors.values():
             await actor.push(msg)
+            await actor.shutdown()
         # if self._actor_tasks:
         #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+
         logger.info("All TrackerActors stopped.")
-        self._writer.push(_sentinel)
         await self._writer.wait_until_finished()
         logger.info("Simulator shutdown complete.")

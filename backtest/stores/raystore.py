@@ -27,7 +27,7 @@ from bt_sdk.core.protocol import *
 from bt_sdk.core.client import GetMdApi
 from backtest.store import Store
 from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
-from backtest.execution.actor.runner_actor import AsyncRunner
+from backtest.execution.actor import AsyncRunner, RayWriterProxy
 
 
 __all__ = ["RayStore"]
@@ -62,9 +62,10 @@ class RayStore(Store):
     def __init__(self):
         self._feed = self.DataCls(ref=self.p.ref, config=self.p.config) 
 
-        max_size = int(os.getenv("MaxSize")) 
-        batch_size = int(os.getenv("BatchSize")) 
-        tdapi = TdApi(client_id=self.p.client_id, max_size=max_size, actor=self.p.actor)
+        q_size = int(os.getenv("QSize")) 
+        buffer_size = int(os.getenv("BufferSize"))
+        actor = RayWriterProxy(self.p.actor)
+        tdapi = TdApi(client_id=self.p.client_id, q_size=q_size, buffer_size=buffer_size, actor=actor)
         self.broker = self.BrokerCls(tdapi=tdapi)
         
         self._runner = AsyncRunner()

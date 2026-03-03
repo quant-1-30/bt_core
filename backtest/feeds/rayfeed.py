@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import ray
 import warnings
 import numpy as np
 import queue
@@ -45,16 +46,16 @@ class MetaBtData(DataBase.__class__):
         RayStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
-        print("MetaBtData donew kwargs ", kwargs)
+        # print("MetaBtData donew kwargs ", kwargs)
         _obj, args, kwargs = super(MetaBtData, cls).donew(*args, **kwargs)
-        print("MetaBtData donew kwargs after", kwargs)
+        # print("MetaBtData donew kwargs after", kwargs)
         return _obj, args, kwargs
     
     def dopostinit(cls, _obj, *args, **kwargs):
-        print("MetaBtData dopostinit kwargs ", kwargs)
+        # print("MetaBtData dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
-        print("MetaBtData dopostinit kwargs ", kwargs)
-        _obj.ref = _obj.p.ref
+        # print("MetaBtData dopostinit kwargs ", kwargs)
+        _obj.ref = ray.get(_obj.p.ref)
         return _obj, args, kwargs
 
 
@@ -65,19 +66,6 @@ class RayData(with_metaclass(MetaBtData, DataBase)):
         ("config", {}),
         ("rtbar", False,), # use RealTime 5 seconds bars
     )
-
-    # def _start(self, *args, **kwargs):
-    #     super()._start(*args,**kwargs)
-
-    #     self.bench = ray.get(self.ref["benchmark"])
-    #     self.adj_factors = ray.get(self.ref["adj"])
-
-    #     tick_table = ray.get(self.ref["tick"])
-    #     self._row_iter = self._make_iter(tick_table)
-        
-    #     self.extra_info = ", ".join([f"{k}={v}" for k, v in self.p.config.items()]) # any extra info to relate with feed
-        
-    #     # print(f"[_start] Benchmark and Factors received.", len(self.adj_factors), len(self.bench))
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
@@ -93,8 +81,6 @@ class RayData(with_metaclass(MetaBtData, DataBase)):
         self.sids = self.ref["sid"]
         self.extra_info = ", ".join([f"{k}={v}" for k, v in self.p.config.items()]) # any extra info to relate with feed
         
-        # print(f"[_start] Benchmark and Factors received.", len(self.adj_factors), len(self.bench))
-
     def _load(self):
         while True:
             try:

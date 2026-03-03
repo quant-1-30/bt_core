@@ -14,17 +14,24 @@ from backtest.execution.gateway.interface import async_gt
 logger = logging.getLogger(__name__)
 
 
-cdef class BatchWriterActor: # CPU Intensive
+cdef class IBatchWriter:
 
-    def __init__(self, int32_t max_size, int32_t batch_size):
+    cpdef void push(self, list data):
+        raise NotImplementedError
+
+
+cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
+
+    def __init__(self, int32_t q_size, int32_t batch_size):
         self._buffer = []
         self._running = True
         self.batch_size = batch_size
-        self._queue = asyncio.Queue(maxsize=max_size)
+        self._queue = asyncio.Queue(maxsize=q_size)
         self._finished_event = asyncio.Event()
 
-    cdef void push(self, dict snapshot):
-        self._queue.put_nowait(snapshot) # may cause oom
+    cpdef void push(self, list snapshots):
+        for snap in snapshots:
+            self._queue.put_nowait(snap) # may cause oom
 
     async def run(self):
         logger.info("BatchWriterActor started.")
@@ -177,3 +184,15 @@ cdef class BatchWriterActor: # CPU Intensive
 
     async def wait_until_finished(self):
         await self._finished_event.wait()
+
+
+cdef class RayWriterProxy(IBatchWriter):
+    
+    def __init__(self, handle):
+        self._handle = handle
+        
+    cpdef void push(self, list data):
+        self._handle.push.remote(data)
+
+    async def wait_until_finished(self):
+        await self._handle.wait_until_finished()
