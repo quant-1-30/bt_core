@@ -1561,18 +1561,19 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData;
  * 
  * cdef struct OrderExbitData:             # <<<<<<<<<<<<<<
  *     int64_t executed_dt
- *     int executed_size
+ *     int64_t executed_size
 */
 struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData {
   int64_t executed_dt;
-  int executed_size;
+  int64_t executed_size;
   double executed_price;
   double comm;
   double cash;
+  int isbuy;
 };
 
-/* "backtest/execution/core/finance/trade.pxd":25
- *     double cash
+/* "backtest/execution/core/finance/trade.pxd":26
+ *     bint isbuy
  * 
  * cdef class OrderExecutionBit:             # <<<<<<<<<<<<<<
  *     cdef readonly OrderExbitData core
@@ -1583,7 +1584,6 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit {
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_vtab;
   struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData core;
   PyObject *vtorder_id;
-  int isbuy;
 };
 
 
@@ -2053,15 +2053,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_
 static CYTHON_INLINE PyObject* __Pyx_uchar___Pyx_PyUnicode_From_int64_t(int64_t value, Py_ssize_t width, char padding_char);
 static CYTHON_INLINE PyObject* __Pyx____Pyx_PyUnicode_From_int64_t(int64_t value, Py_ssize_t width, char padding_char, char format_char);
 
-/* CIntToPyUnicode.proto */
-#define __Pyx_PyUnicode_From_int(value, width, padding_char, format_char) (\
-    ((format_char) == ('c')) ?\
-        __Pyx_uchar___Pyx_PyUnicode_From_int(value, width, padding_char) :\
-        __Pyx____Pyx_PyUnicode_From_int(value, width, padding_char, format_char)\
-    )
-static CYTHON_INLINE PyObject* __Pyx_uchar___Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char);
-static CYTHON_INLINE PyObject* __Pyx____Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char);
-
 /* CBIntToPyUnicode.proto */
 #define __Pyx_PyUnicode_FromBInt_bint(value)\
     ((value) ? __Pyx_NewRef(__pyx_mstate_global->__pyx_n_u_True) : __Pyx_NewRef(__pyx_mstate_global->__pyx_n_u_False))
@@ -2305,13 +2296,10 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
 struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData;
 static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData(struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData s);
 /* CIntFromPy.proto */
-static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *);
+static CYTHON_INLINE int64_t __Pyx_PyLong_As_int64_t(PyObject *);
 
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int64_t(int64_t value);
-
-/* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value);
 
 /* FormatTypeName.proto */
 #if CYTHON_COMPILING_IN_LIMITED_API
@@ -2335,6 +2323,9 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_From_long(long value);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE long __Pyx_PyLong_As_long(PyObject *);
+
+/* CIntFromPy.proto */
+static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *);
 
 /* FastTypeChecks.proto */
 #if CYTHON_COMPILING_IN_CPYTHON
@@ -2445,7 +2436,7 @@ int __pyx_module_is_main_backtest__execution__core__finance__trade = 0;
 /* #### Code section: global_var ### */
 /* #### Code section: string_decls ### */
 /* #### Code section: decls ### */
-static int __pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit___init__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self, PyObject *__pyx_v_vtorder_id, int __pyx_v_executed_dt, int __pyx_v_executed_size, double __pyx_v_executed_price, double __pyx_v_comm, PyObject *__pyx_v_isbuy); /* proto */
+static int __pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit___init__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self, PyObject *__pyx_v_vtorder_id, int64_t __pyx_v_executed_dt, int64_t __pyx_v_executed_size, double __pyx_v_executed_price, double __pyx_v_comm, PyObject *__pyx_v_isbuy); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit_4cash___get__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit_2__reduce__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit_4__repr__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self); /* proto */
@@ -2571,7 +2562,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_test __pyx_string_tab[50]
 #define __pyx_n_u_values __pyx_string_tab[51]
 #define __pyx_n_u_vtorder_id __pyx_string_tab[52]
-#define __pyx_kp_b_iso88591_A_D_T_nDPUUV_T_a __pyx_string_tab[53]
+#define __pyx_kp_b_iso88591_A_D_T_nDPUUV_d_wdRWWX __pyx_string_tab[53]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -2634,15 +2625,15 @@ return 0;
  *     '''
  *     def __init__(self,             # <<<<<<<<<<<<<<
  *                 bytes vtorder_id,
- *                 int executed_dt=0,
+ *                 int64_t executed_dt=0,
 */
 
 /* Python wrapper */
 static int __pyx_pw_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_vtorder_id = 0;
-  int __pyx_v_executed_dt;
-  int __pyx_v_executed_size;
+  int64_t __pyx_v_executed_dt;
+  int64_t __pyx_v_executed_size;
   double __pyx_v_executed_price;
   double __pyx_v_comm;
   PyObject *__pyx_v_isbuy = 0;
@@ -2740,14 +2731,14 @@ static int __pyx_pw_8backtest_9execution_4core_7finance_5trade_17OrderExecutionB
     }
     __pyx_v_vtorder_id = ((PyObject*)values[0]);
     if (values[1]) {
-      __pyx_v_executed_dt = __Pyx_PyLong_As_int(values[1]); if (unlikely((__pyx_v_executed_dt == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 24, __pyx_L3_error)
+      __pyx_v_executed_dt = __Pyx_PyLong_As_int64_t(values[1]); if (unlikely((__pyx_v_executed_dt == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 24, __pyx_L3_error)
     } else {
-      __pyx_v_executed_dt = ((int)0);
+      __pyx_v_executed_dt = ((int64_t)0);
     }
     if (values[2]) {
-      __pyx_v_executed_size = __Pyx_PyLong_As_int(values[2]); if (unlikely((__pyx_v_executed_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+      __pyx_v_executed_size = __Pyx_PyLong_As_int64_t(values[2]); if (unlikely((__pyx_v_executed_size == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
     } else {
-      __pyx_v_executed_size = ((int)0);
+      __pyx_v_executed_size = ((int64_t)0);
     }
     if (values[3]) {
       __pyx_v_executed_price = __Pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_executed_price == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L3_error)
@@ -2783,7 +2774,7 @@ static int __pyx_pw_8backtest_9execution_4core_7finance_5trade_17OrderExecutionB
  *     '''
  *     def __init__(self,             # <<<<<<<<<<<<<<
  *                 bytes vtorder_id,
- *                 int executed_dt=0,
+ *                 int64_t executed_dt=0,
 */
 
   /* function exit code */
@@ -2803,7 +2794,7 @@ static int __pyx_pw_8backtest_9execution_4core_7finance_5trade_17OrderExecutionB
   return __pyx_r;
 }
 
-static int __pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit___init__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self, PyObject *__pyx_v_vtorder_id, int __pyx_v_executed_dt, int __pyx_v_executed_size, double __pyx_v_executed_price, double __pyx_v_comm, PyObject *__pyx_v_isbuy) {
+static int __pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit___init__(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *__pyx_v_self, PyObject *__pyx_v_vtorder_id, int64_t __pyx_v_executed_dt, int64_t __pyx_v_executed_size, double __pyx_v_executed_price, double __pyx_v_comm, PyObject *__pyx_v_isbuy) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2895,7 +2886,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionB
  *         else:
  *             self.core.cash = executed_price * executed_size - comm             # <<<<<<<<<<<<<<
  * 
- *         self.isbuy = isbuy
+ *         self.core.isbuy = isbuy
 */
   /*else*/ {
     __pyx_v_self->core.cash = ((__pyx_v_executed_price * __pyx_v_executed_size) - __pyx_v_comm);
@@ -2905,19 +2896,19 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExecutionB
   /* "backtest/execution/core/finance/trade.pyx":41
  *             self.core.cash = executed_price * executed_size - comm
  * 
- *         self.isbuy = isbuy             # <<<<<<<<<<<<<<
+ *         self.core.isbuy = isbuy             # <<<<<<<<<<<<<<
  * 
  *     property cash:
 */
   __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_isbuy); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
-  __pyx_v_self->isbuy = __pyx_t_1;
+  __pyx_v_self->core.isbuy = __pyx_t_1;
 
   /* "backtest/execution/core/finance/trade.pyx":22
  * 
  *     '''
  *     def __init__(self,             # <<<<<<<<<<<<<<
  *                 bytes vtorder_id,
- *                 int executed_dt=0,
+ *                 int64_t executed_dt=0,
 */
 
   /* function exit code */
@@ -3010,9 +3001,8 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutio
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int64_t __pyx_t_2;
-  int __pyx_t_3;
-  double __pyx_t_4;
-  int __pyx_t_5;
+  double __pyx_t_3;
+  int __pyx_t_4;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3062,8 +3052,8 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutio
  *         obj.core.executed_price = self.core.executed_price
  *         obj.core.comm = self.core.comm
 */
-  __pyx_t_3 = __pyx_v_self->core.executed_size;
-  __pyx_v_obj->core.executed_size = __pyx_t_3;
+  __pyx_t_2 = __pyx_v_self->core.executed_size;
+  __pyx_v_obj->core.executed_size = __pyx_t_2;
 
   /* "backtest/execution/core/finance/trade.pyx":52
  *         obj.core.executed_dt = self.core.executed_dt
@@ -3072,42 +3062,42 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutio
  *         obj.core.comm = self.core.comm
  *         obj.core.cash = self.core.cash
 */
-  __pyx_t_4 = __pyx_v_self->core.executed_price;
-  __pyx_v_obj->core.executed_price = __pyx_t_4;
+  __pyx_t_3 = __pyx_v_self->core.executed_price;
+  __pyx_v_obj->core.executed_price = __pyx_t_3;
 
   /* "backtest/execution/core/finance/trade.pyx":53
  *         obj.core.executed_size = self.core.executed_size
  *         obj.core.executed_price = self.core.executed_price
  *         obj.core.comm = self.core.comm             # <<<<<<<<<<<<<<
  *         obj.core.cash = self.core.cash
- *         obj.isbuy = self.isbuy
+ *         obj.core.isbuy = self.core.isbuy
 */
-  __pyx_t_4 = __pyx_v_self->core.comm;
-  __pyx_v_obj->core.comm = __pyx_t_4;
+  __pyx_t_3 = __pyx_v_self->core.comm;
+  __pyx_v_obj->core.comm = __pyx_t_3;
 
   /* "backtest/execution/core/finance/trade.pyx":54
  *         obj.core.executed_price = self.core.executed_price
  *         obj.core.comm = self.core.comm
  *         obj.core.cash = self.core.cash             # <<<<<<<<<<<<<<
- *         obj.isbuy = self.isbuy
+ *         obj.core.isbuy = self.core.isbuy
  *         return obj
 */
-  __pyx_t_4 = __pyx_v_self->core.cash;
-  __pyx_v_obj->core.cash = __pyx_t_4;
+  __pyx_t_3 = __pyx_v_self->core.cash;
+  __pyx_v_obj->core.cash = __pyx_t_3;
 
   /* "backtest/execution/core/finance/trade.pyx":55
  *         obj.core.comm = self.core.comm
  *         obj.core.cash = self.core.cash
- *         obj.isbuy = self.isbuy             # <<<<<<<<<<<<<<
+ *         obj.core.isbuy = self.core.isbuy             # <<<<<<<<<<<<<<
  *         return obj
  * 
 */
-  __pyx_t_5 = __pyx_v_self->isbuy;
-  __pyx_v_obj->isbuy = __pyx_t_5;
+  __pyx_t_4 = __pyx_v_self->core.isbuy;
+  __pyx_v_obj->core.isbuy = __pyx_t_4;
 
   /* "backtest/execution/core/finance/trade.pyx":56
  *         obj.core.cash = self.core.cash
- *         obj.isbuy = self.isbuy
+ *         obj.core.isbuy = self.core.isbuy
  *         return obj             # <<<<<<<<<<<<<<
  * 
  *     cdef object to_schema(self):
@@ -3200,16 +3190,16 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
  *             executed_price=self.core.executed_price,
  *             executed_size=self.core.executed_size,             # <<<<<<<<<<<<<<
  *             comm=self.core.comm,
- *             isbuy=self.isbuy
+ *             isbuy=self.core.isbuy
 */
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->core.executed_size); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.executed_size); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
   /* "backtest/execution/core/finance/trade.pyx":64
  *             executed_price=self.core.executed_price,
  *             executed_size=self.core.executed_size,
  *             comm=self.core.comm,             # <<<<<<<<<<<<<<
- *             isbuy=self.isbuy
+ *             isbuy=self.core.isbuy
  *         )
 */
   __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.comm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 64, __pyx_L1_error)
@@ -3218,11 +3208,11 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
   /* "backtest/execution/core/finance/trade.pyx":65
  *             executed_size=self.core.executed_size,
  *             comm=self.core.comm,
- *             isbuy=self.isbuy             # <<<<<<<<<<<<<<
+ *             isbuy=self.core.isbuy             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-  __pyx_t_8 = __Pyx_PyBool_FromLong(__pyx_v_self->isbuy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyBool_FromLong(__pyx_v_self->core.isbuy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_9 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -3321,7 +3311,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
  *     cdef object serialize(self):
  *         cdef object body, resp
  *         body = TradeBody(vtorder_id=self.vtorder_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price,             # <<<<<<<<<<<<<<
- *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.isbuy)
+ *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)
  *         resp = Resp(body=body)
 */
   __pyx_t_2 = NULL;
@@ -3335,15 +3325,15 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
   /* "backtest/execution/core/finance/trade.pyx":71
  *         cdef object body, resp
  *         body = TradeBody(vtorder_id=self.vtorder_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price,
- *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.isbuy)             # <<<<<<<<<<<<<<
+ *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)             # <<<<<<<<<<<<<<
  *         resp = Resp(body=body)
  *         return resp
 */
-  __pyx_t_6 = __Pyx_PyLong_From_int(__pyx_v_self->core.executed_size); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.executed_size); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.comm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_8 = __Pyx_PyBool_FromLong(__pyx_v_self->isbuy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyBool_FromLong(__pyx_v_self->core.isbuy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_9 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -3384,7 +3374,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
 
   /* "backtest/execution/core/finance/trade.pyx":72
  *         body = TradeBody(vtorder_id=self.vtorder_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price,
- *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.isbuy)
+ *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)
  *         resp = Resp(body=body)             # <<<<<<<<<<<<<<
  *         return resp
  * 
@@ -3420,7 +3410,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
   __pyx_t_1 = 0;
 
   /* "backtest/execution/core/finance/trade.pyx":73
- *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.isbuy)
+ *                         executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)
  *         resp = Resp(body=body)
  *         return resp             # <<<<<<<<<<<<<<
  * 
@@ -3464,8 +3454,8 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_5trade_17OrderExecu
  *         return resp
  * 
  *     def __reduce__(self): # class / args             # <<<<<<<<<<<<<<
- *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_price,
- *                                     self.core.executed_size, self.core.comm))
+ *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size,
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
 */
 
 /* Python wrapper */
@@ -3518,6 +3508,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -3526,70 +3517,75 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   /* "backtest/execution/core/finance/trade.pyx":76
  * 
  *     def __reduce__(self): # class / args
- *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_price,             # <<<<<<<<<<<<<<
- *                                     self.core.executed_size, self.core.comm))
+ *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size,             # <<<<<<<<<<<<<<
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
  * 
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.executed_dt); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_self->core.executed_price); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.executed_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
   /* "backtest/execution/core/finance/trade.pyx":77
  *     def __reduce__(self): # class / args
- *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_price,
- *                                     self.core.executed_size, self.core.comm))             # <<<<<<<<<<<<<<
+ *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size,
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))             # <<<<<<<<<<<<<<
  * 
  *     def __repr__(self):
 */
-  __pyx_t_3 = __Pyx_PyLong_From_int(__pyx_v_self->core.executed_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->core.executed_price); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->core.comm); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_self->core.isbuy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
 
   /* "backtest/execution/core/finance/trade.pyx":76
  * 
  *     def __reduce__(self): # class / args
- *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_price,             # <<<<<<<<<<<<<<
- *                                     self.core.executed_size, self.core.comm))
+ *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size,             # <<<<<<<<<<<<<<
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
  * 
 */
-  __pyx_t_5 = PyTuple_New(5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 76, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = PyTuple_New(6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
   __Pyx_INCREF(__pyx_v_self->vtorder_id);
   __Pyx_GIVEREF(__pyx_v_self->vtorder_id);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_self->vtorder_id) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_self->vtorder_id) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_1) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_1) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 2, __pyx_t_2) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 2, __pyx_t_2) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_3);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 3, __pyx_t_3) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 3, __pyx_t_3) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 4, __pyx_t_4) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 4, __pyx_t_4) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  __Pyx_GIVEREF(__pyx_t_5);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_6, 5, __pyx_t_5) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
   __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 76, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = 0;
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit);
   __Pyx_GIVEREF((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 0, ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
-  __Pyx_GIVEREF(__pyx_t_5);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 0, ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  __Pyx_GIVEREF(__pyx_t_6);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_6) != (0)) __PYX_ERR(0, 76, __pyx_L1_error);
+  __pyx_t_6 = 0;
+  __pyx_r = __pyx_t_5;
   __pyx_t_5 = 0;
-  __pyx_r = __pyx_t_4;
-  __pyx_t_4 = 0;
   goto __pyx_L0;
 
   /* "backtest/execution/core/finance/trade.pyx":75
  *         return resp
  * 
  *     def __reduce__(self): # class / args             # <<<<<<<<<<<<<<
- *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_price,
- *                                     self.core.executed_size, self.core.comm))
+ *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size,
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
 */
 
   /* function exit code */
@@ -3599,6 +3595,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("backtest.execution.core.finance.trade.OrderExecutionBit.__reduce__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3608,11 +3605,11 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
 }
 
 /* "backtest/execution/core/finance/trade.pyx":79
- *                                     self.core.executed_size, self.core.comm))
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         return f"OrderExecutionBit(vtorder_id={self.vtorder_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \
- *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.isbuy})"
+ *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.core.isbuy})"
 */
 
 /* Python wrapper */
@@ -3650,20 +3647,20 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
  * 
  *     def __repr__(self):
  *         return f"OrderExecutionBit(vtorder_id={self.vtorder_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \             # <<<<<<<<<<<<<<
- *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.isbuy})"
+ *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.core.isbuy})"
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyObject_FormatSimple(__pyx_v_self->vtorder_id, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = __Pyx_PyUnicode_From_int64_t(__pyx_v_self->core.executed_dt, 0, ' ', 'd'); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyUnicode_From_int(__pyx_v_self->core.executed_size, 0, ' ', 'd'); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyUnicode_From_int64_t(__pyx_v_self->core.executed_size, 0, ' ', 'd'); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "backtest/execution/core/finance/trade.pyx":81
  *     def __repr__(self):
  *         return f"OrderExecutionBit(vtorder_id={self.vtorder_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \
- *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.isbuy})"             # <<<<<<<<<<<<<<
+ *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.core.isbuy})"             # <<<<<<<<<<<<<<
 */
   __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->core.executed_price); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -3675,7 +3672,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_t_4, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyUnicode_FromBInt_bint(__pyx_v_self->isbuy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyUnicode_FromBInt_bint(__pyx_v_self->core.isbuy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_7[0] = __pyx_mstate_global->__pyx_kp_u_OrderExecutionBit_vtorder_id;
   __pyx_t_7[1] = __pyx_t_1;
@@ -3695,7 +3692,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
  * 
  *     def __repr__(self):
  *         return f"OrderExecutionBit(vtorder_id={self.vtorder_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \             # <<<<<<<<<<<<<<
- *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.isbuy})"
+ *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.core.isbuy})"
 */
   __pyx_t_8 = __Pyx_PyUnicode_Join(__pyx_t_7, 13, 29 * 2 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_1) + 14 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_2) + 16 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_3) + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_5) + 7 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6) + 8 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_4) + 1, 127 | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_1) | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_5) | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6));
   if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 80, __pyx_L1_error)
@@ -3711,11 +3708,11 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   goto __pyx_L0;
 
   /* "backtest/execution/core/finance/trade.pyx":79
- *                                     self.core.executed_size, self.core.comm))
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
  *         return f"OrderExecutionBit(vtorder_id={self.vtorder_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \
- *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.isbuy})"
+ *             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.core.isbuy})"
 */
 
   /* function exit code */
@@ -3735,12 +3732,12 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/trade.pxd":26
+/* "backtest/execution/core/finance/trade.pxd":27
  * 
  * cdef class OrderExecutionBit:
  *     cdef readonly OrderExbitData core             # <<<<<<<<<<<<<<
  *     cdef bytes vtorder_id
- *     cdef bint isbuy
+ * 
 */
 
 /* Python wrapper */
@@ -3767,7 +3764,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_5trade_17OrderExec
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData(__pyx_v_self->core); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 26, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData(__pyx_v_self->core); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4367,8 +4364,8 @@ __Pyx_RefNannySetupContext("PyInit_trade", 0);
  *         return resp
  * 
  *     def __reduce__(self): # class / args             # <<<<<<<<<<<<<<
- *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_price,
- *                                     self.core.executed_size, self.core.comm))
+ *         return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size,
+ *                                     self.core.executed_price, self.core.comm, self.core.isbuy))
 */
   __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_7finance_5trade_17OrderExecutionBit_3__reduce__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_OrderExecutionBit___reduce, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -4449,25 +4446,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{179},{29},{1},{1},{8},{41},{7},{7},{6},{14},{29},{16},{2},{8},{9},{5},{8},{17},{28},{20},{4},{9},{4},{18},{37},{42},{4},{20},{4},{18},{4},{11},{14},{13},{8},{13},{5},{5},{8},{10},{8},{8},{3},{14},{12},{10},{4},{12},{10},{8},{6},{10},{40}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (591 bytes) */
-const char* const cstring = "BZh91AY&SY\205V\246\337\000\000\032\377\336BbB\000D\347\204B\277!\327\000\277\377\377\360@\000@@@@@@@@@\001\343\253\265\216\270jd\t\241\036\221?SD\364\232zM4z\206@\320\304b3&\240\324\243\324\375Sd\231\251\220\031\003F\232\000\321\204\0002\r\010F*zj\006\322\r\r\032\000\000\000\000\000\r4\223LM50\215OS\324\311\240\006\203A\240\000\r\014\310\037\326\306v\266\316kE\375;\266a\331G\263wb0\262\336\250\265/\212\207\013\227\022ld\220\243\352\363\262|g\343)\353\367\3072\226\347\376A!J\201\210\022Tc\302\252\024\254;\315\314\352\2564H\311\333e\260b\027)g\320\351^53\013j^^3[TSn\215\001\324\230@~\002E$\232N\345\363y8/ u\310\325\r\231H!J(4\003\035\014i~X{\201\251Q\232<F\267\247\311\031t\340\301X\203e\321x\347\346\316\202\023\n\364\240e\231\202K\327H6!\021\261I\002p\377(\364d\033v\326\"\260\211\022\2453\220)\002\352.D:k|C\306$eP\332\306\370\211`\244\1770\311\0024Q*\010I\222[\366\320\000\272R\000\2404\236\366\323I\204\307\324\246\231\030\215J\346\005\023\230\005\325\240\347\233jS'H\243\226.K\2011\224=8\344\027Jr\016\234r'\"\372\362'00\302\026\254F\235\006-pM\362\001m\216\004c@h\304\345\n\001\270N\312\316%>BO\006\226\314\305\235B\020TZ\3274=\303\021e\205\026\371\372,\r2\266\270V\231\334\211v\020\0213\240\2471\302\262/\330\221\230_@\2107_9D\220\326Tk\002`\2269\321\260<\316 \3506J.\230)\024\307\000Y8\213\006\311\016T 1\n\202\320\324\251F\365\311*\267`h\364\205\360j\313\2471\225Q\225\001qI\000\022\010.v\002q\266\322\020H\240\203#\tZ\311n\304$\001\010\321E\247\36291\241@5!\2259:\352\n\373p\037\271\234j\017\365\177}t\325a\226\177\333\033\257\235\277\342\356H\247\n\022\020\252\324\333\340";
-    PyObject *data = __Pyx_DecompressString(cstring, 591, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{179},{29},{1},{1},{8},{41},{7},{7},{6},{14},{29},{16},{2},{8},{9},{5},{8},{17},{28},{20},{4},{9},{4},{18},{37},{42},{4},{20},{4},{18},{4},{11},{14},{13},{8},{13},{5},{5},{8},{10},{8},{8},{3},{14},{12},{10},{4},{12},{10},{8},{6},{10},{48}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (594 bytes) */
+const char* const cstring = "BZh91AY&SY\353\216\000N\000\000\032\377\336BbB\000F\347\204C\277!\327\300\277\377\377\360@\000@@@@@@@@@\001\343\251@\206\246@\2023Q\204M\242=@\310h\006\200\3650F2j\034\300\230\232\014&L\23120\230&\232db`\010`9\20114\030L\2312da0M4\310\304\300\020\300%\010\324\304\324\311\222=\000\223&\236\240\320\001\240\031\00012\240n\266\003\265\266)\027\374\265\325\202\254Z\033\257\t\205\226\305=\356\275\312\033n\335I\261\220\311\311\307\356\374\031>:\367\335:\264QyK}\332\346HR\24611%F;{(R\260\3557\331\222\270\021\013'm\226\312\304.\341uw\277r1\354\314\r\314k\347\336\353W\036\243\323\262\024\010)0\200\351\311\024\222i8\2447\025\007\310\226\224v\036,\242\214\250\302\332-Z+-\323\374\207\301\222\035\037S\262i\373R\217\031e\254H\333\231\357\034\334Y!\007\n\353@\245\314\020\336\210\203^\017\033\024\220'\021\367A\237\031\325\275\252`\"UYS\221C0enH\213\350\302u&^\220\351\350\306\273\362\266\343>\346S\272\021\203\234\256\260^-p\225\264\355\347\004\321W\021\312B|)\027\272\022\316\253H\302(\224R\240O>\300\"Z\017\013\252Ja\240c\341\213\202\345&3\034i\311\010\210\247 \374\343\201>\213\357\313\016\004\242i\243\"k\343\22367\377\003\204\260\036T\023-\270*9\034\022<\355\035\253\236\t\t\236\227\214\032\306\021EcC\311\311\310\275a\212\243j\263\301\210\353v\214)\202w\244\211\226\312\025[\020\315\275v`\246\2557,MV\225\027-V*%\307b\261\330\021\023\031J\270\223[\nJ\217s\031De3W`\260\260\254\rjI\221B\010\254+\216\231\330\357\345G\263W\014 \246\341+m<I|n\2744\337@\036n[\014\3059\261\302sy\3679q\262\355\020\273\232\242PQ\034\267B\377k\307\325\306\214\201\322\213}\331{\260\032\234[N\336I\023\203\332\235\233}6V\3332\350\376\262\006~U\306\337\361w$S\205\t\016\270\340\004\340";
+    PyObject *data = __Pyx_DecompressString(cstring, 594, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (499 bytes) */
-const char* const cstring = "x\332mR=o\3330\020\235\nt)\220%;\207\000I\001\207^2t\021\212\246N\201.\251\0218]\211\023y\212\331P\244\312;\272V\247\376\224\216\031;z\314\330\321c~NI9v\034\244\007\210\"\310w\037\357=\276\275\014\214\202\347\300\342c\317\363\340\205%a\320\331\032#0\272^\020G\253\031c\001y1\275\230\236\236\275;\023\340\215\210\370\r5\223\240Tk\007DH\"4\242N\326\261\365\202\373\016I\212\317\215\350C\022\036\321\010\016\242\313\270\375\004\236\243\027\204\\6\342\030\274\017\014l\203W9\335\372\233cal\314M\354\002K\366'p\204\362K4\030/\226\250SA\236[>Yp(g\312\232J\276\007cT.\2035\350[F\3421n\241c\035\"\216\033\353\301k\034s\004\203\262\353\227#\241C\333V\306\022\324\016\321\227u$6Yh\224\341j$\366cw\323ee\260\332\203\222\375\211\325\215\036e\021\353\324W\2266\305\3140\3670v\236\366\305\370/\016\244R\021M\322\250rL\373e\376&\331\003u\211K\276\302\346\n\251\233\225\341\317\203\351g1!P\357\265\r2\323\013\271\206G\332r\227;\356\345\022\345#w9p\377\017\350&{\376\003z\031\272b\177\210\222\364\034[\250s\243\232\025\231\333M\231.\006\016:8\r4\327.7T6;\026A\0175\213\232{\352=\227\353\231VJ5\311\353L\322\222\332\r?hg\031[R\252\205\\8G\033Lr\203\034\036\332\374\337\332\335\205N\251l\241Zp\021\272\000\276'p\033\320\223\212\204\256)+?\246\347\235\301\006\222c\245\212\002J-\300%\244\247w\364\353\303\303\353\203\365\301\321\357\311\335\233?\263\325\341\312\377\235\254\247\327\353\353\257\017G'w\257\326\247\325jv\177x\017\377\000joA\275";
-    PyObject *data = __Pyx_DecompressString(cstring, 499, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (508 bytes) */
+const char* const cstring = "x\332mR\277o\0231\024\236\220X\220\272\260\277\241\250EJ/K\007\226\200()\022K\211\252\224\262Y>\373]b\352\263\017\277\3474\307\304\237\302\330\2211c\307\2167\366\317\301\2764i\252\362\244\363Y\366\367~|\337\347\267g\236\021x.\031>\265<\367\016\014\201FkJ\014\222\321\266@\034\214b\014\031\344`r:9:~w\014\322i\010\370\003\025\023P,\225\225DH\340+(\243\261l\034p\333 \025\360\245\202\326Gp\210\032\330C\223p\273\t<G\007\204\2347p \235\363,\331x'R\272q\263\003\320&\244&f\2019\373\263\264\204\305\327\2401\234.Q\305\214<1|\270`\237\317\204\321\243\342\203\324Z\2442XJu\305H<\304\rt\250|\300ae\234t\n\207\034\244\306\242i\227\003P\276\256G\332\220,-\242\313\353\000\326Y\250\205\346\321\000vc{\323$ep\264\003%\363\013G35H\"\226\261\035\031Z\027\323\375\334\375\330i\332g\343?;(\204\010\250\243B\221b\322.\3237N\036\2103\\\3629V\347H\3154\017\177\342u;\r\021%\265N\031_$z>\325pH\033\356\305\226{\276\304\342\201{\321s\377\017h\226<\277\226m\341\233l\277\017\005\2519\326\262L\215J\026\244\257\326e\232\340\331+o\225\244\271\262\251\2410\311\261 U_3\253\271\243\336S\271\236h%D\025\235J$\r\211\355\360\275v\206\261&!j\231\n\247\250\275\216\266\227\303\311:\3757v7\276\021\"Y(\026\234\205\316\200\237Q\3325\350QEB[\345\225\037\322\323Nc%\243e!\262\002B,\244\215H\217\357\350\367\307\373\227{\335\336\376\237\361\315\253\277\323\325\353\225\273\033w\223\213\356\342\333\375\376\341\315\213\356\350\375J\337\276\271\275\276\323\335\371ew\371\375\037\217\022F\030";
+    PyObject *data = __Pyx_DecompressString(cstring, 508, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (832 bytes) */
-const char* const bytes = ")Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.OrderExecutionBit(vtorder_id=.?add_notebacktest/execution/core/finance/trade.pyx, comm=disableenable, executed_dt=,             executed_price=, executed_size=gc, isbuy=isenabledFalseOrderBitOrderExecutionBitOrderExecutionBit.__reduce____Pyx_PyDict_NextRefRespTradeBodyTrueasyncio.coroutinesbacktest.execution.core.finance.tradebacktest.execution.gateway.operator.schemabodybt_sdk.core.protocolcashcline_in_tracebackcommexecuted_dtexecuted_priceexecuted_size__func___is_coroutineisbuyitems__main____module____name__order_idpop__pyx_vtable____qualname____reduce__self__set_name__setdefault__test__valuesvtorder_id\200A\330\010\020\320\020$\240D\250\r\260T\270\025\270n\310D\320PU\320UV\330$(\250\005\320-=\270T\300\025\300a";
+    #else /* compression: none (840 bytes) */
+const char* const bytes = ")Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.OrderExecutionBit(vtorder_id=.?add_notebacktest/execution/core/finance/trade.pyx, comm=disableenable, executed_dt=,             executed_price=, executed_size=gc, isbuy=isenabledFalseOrderBitOrderExecutionBitOrderExecutionBit.__reduce____Pyx_PyDict_NextRefRespTradeBodyTrueasyncio.coroutinesbacktest.execution.core.finance.tradebacktest.execution.gateway.operator.schemabodybt_sdk.core.protocolcashcline_in_tracebackcommexecuted_dtexecuted_priceexecuted_size__func___is_coroutineisbuyitems__main____module____name__order_idpop__pyx_vtable____qualname____reduce__self__set_name__setdefault__test__valuesvtorder_id\200A\330\010\020\320\020$\240D\250\r\260T\270\025\270n\310D\320PU\320UV\330$(\250\005\320->\270d\300%\300w\310d\320RW\320WX";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -4550,7 +4547,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 75};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
-    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_finance_2, __pyx_mstate->__pyx_n_u_reduce, __pyx_mstate->__pyx_kp_b_iso88591_A_D_T_nDPUUV_T_a, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_finance_2, __pyx_mstate->__pyx_n_u_reduce, __pyx_mstate->__pyx_kp_b_iso88591_A_D_T_nDPUUV_d_wdRWWX, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;
@@ -6191,99 +6188,6 @@ static CYTHON_INLINE PyObject* __Pyx____Pyx_PyUnicode_From_int64_t(int64_t value
         case 'x':
             *(--dpos) = hex_digits[abs((int)(remaining % 16))];
             remaining = (int64_t) (remaining / 16);
-            break;
-        default:
-            assert(0);
-            break;
-        }
-    } while (unlikely(remaining != 0));
-    assert(!last_one_off || *dpos == '0');
-    dpos += last_one_off;
-    length = end - dpos;
-    ulength = length;
-    prepend_sign = 0;
-    if (!is_unsigned && value <= neg_one) {
-        if (padding_char == ' ' || width <= length + 1) {
-            *(--dpos) = '-';
-            ++length;
-        } else {
-            prepend_sign = 1;
-        }
-        ++ulength;
-    }
-    if (width > ulength) {
-        ulength = width;
-    }
-    if (ulength == 1) {
-        return PyUnicode_FromOrdinal(*dpos);
-    }
-    return __Pyx_PyUnicode_BuildFromAscii(ulength, dpos, (int) length, prepend_sign, padding_char);
-}
-
-/* CIntToPyUnicode */
-static CYTHON_INLINE PyObject* __Pyx_uchar___Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char) {
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
-    const int neg_one = (int) -1, const_zero = (int) 0;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-    const int is_unsigned = neg_one > const_zero;
-    if (unlikely(!(is_unsigned || value == 0 || value > 0) ||
-                    !(sizeof(value) <= 2 || value & ~ (int) 0x01fffff || __Pyx_CheckUnicodeValue((int) value)))) {
-        PyErr_SetString(PyExc_OverflowError, "%c arg not in range(0x110000)");
-        return NULL;
-    }
-    if (width <= 1) {
-        return PyUnicode_FromOrdinal((int) value);
-    }
-    return __Pyx_PyUnicode_FromOrdinal_Padded((int) value, width, padding_char);
-}
-static CYTHON_INLINE PyObject* __Pyx____Pyx_PyUnicode_From_int(int value, Py_ssize_t width, char padding_char, char format_char) {
-    char digits[sizeof(int)*3+2];
-    char *dpos, *end = digits + sizeof(int)*3+2;
-    const char *hex_digits = DIGITS_HEX;
-    Py_ssize_t length, ulength;
-    int prepend_sign, last_one_off;
-    int remaining;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
-    const int neg_one = (int) -1, const_zero = (int) 0;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-    const int is_unsigned = neg_one > const_zero;
-    if (format_char == 'X') {
-        hex_digits += 16;
-        format_char = 'x';
-    }
-    remaining = value;
-    last_one_off = 0;
-    dpos = end;
-    do {
-        int digit_pos;
-        switch (format_char) {
-        case 'o':
-            digit_pos = abs((int)(remaining % (8*8)));
-            remaining = (int) (remaining / (8*8));
-            dpos -= 2;
-            memcpy(dpos, DIGIT_PAIRS_8 + digit_pos * 2, 2);
-            last_one_off = (digit_pos < 8);
-            break;
-        case 'd':
-            digit_pos = abs((int)(remaining % (10*10)));
-            remaining = (int) (remaining / (10*10));
-            dpos -= 2;
-            memcpy(dpos, DIGIT_PAIRS_10 + digit_pos * 2, 2);
-            last_one_off = (digit_pos < 10);
-            break;
-        case 'x':
-            *(--dpos) = hex_digits[abs((int)(remaining % 16))];
-            remaining = (int) (remaining / 16);
             break;
         default:
             assert(0);
@@ -8871,11 +8775,11 @@ bad:
 static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData(struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData s) {
   PyObject* res;
   PyObject* member;
-  res = __Pyx_PyDict_NewPresized(5); if (unlikely(!res)) return NULL;
+  res = __Pyx_PyDict_NewPresized(6); if (unlikely(!res)) return NULL;
   member = __Pyx_PyLong_From_int64_t(s.executed_dt); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_executed_dt, member) < 0)) goto bad;
   Py_DECREF(member);
-  member = __Pyx_PyLong_From_int(s.executed_size); if (unlikely(!member)) goto bad;
+  member = __Pyx_PyLong_From_int64_t(s.executed_size); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_executed_size, member) < 0)) goto bad;
   Py_DECREF(member);
   member = PyFloat_FromDouble(s.executed_price); if (unlikely(!member)) goto bad;
@@ -8887,6 +8791,9 @@ static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core
   member = PyFloat_FromDouble(s.cash); if (unlikely(!member)) goto bad;
   if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_cash, member) < 0)) goto bad;
   Py_DECREF(member);
+  member = __Pyx_PyBool_FromLong(s.isbuy); if (unlikely(!member)) goto bad;
+  if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_isbuy, member) < 0)) goto bad;
+  Py_DECREF(member);
   return res;
   bad:
   Py_XDECREF(member);
@@ -8894,21 +8801,21 @@ static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core
   return NULL;
 }
 /* CIntFromPy */
-static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
+static CYTHON_INLINE int64_t __Pyx_PyLong_As_int64_t(PyObject *x) {
 #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #endif
-    const int neg_one = (int) -1, const_zero = (int) 0;
+    const int64_t neg_one = (int64_t) -1, const_zero = (int64_t) 0;
 #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
     const int is_unsigned = neg_one > const_zero;
     if (unlikely(!PyLong_Check(x))) {
-        int val;
+        int64_t val;
         PyObject *tmp = __Pyx_PyNumber_Long(x);
-        if (!tmp) return (int) -1;
-        val = __Pyx_PyLong_As_int(tmp);
+        if (!tmp) return (int64_t) -1;
+        val = __Pyx_PyLong_As_int64_t(tmp);
         Py_DECREF(tmp);
         return val;
     }
@@ -8917,35 +8824,35 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
         if (unlikely(__Pyx_PyLong_IsNeg(x))) {
             goto raise_neg_overflow;
         } else if (__Pyx_PyLong_IsCompact(x)) {
-            __PYX_VERIFY_RETURN_INT(int, __Pyx_compact_upylong, __Pyx_PyLong_CompactValueUnsigned(x))
+            __PYX_VERIFY_RETURN_INT(int64_t, __Pyx_compact_upylong, __Pyx_PyLong_CompactValueUnsigned(x))
         } else {
             const digit* digits = __Pyx_PyLong_Digits(x);
             assert(__Pyx_PyLong_DigitCount(x) > 1);
             switch (__Pyx_PyLong_DigitCount(x)) {
                 case 2:
-                    if ((8 * sizeof(int) > 1 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) > 1 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 2 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) >= 2 * PyLong_SHIFT)) {
-                            return (int) (((((int)digits[1]) << PyLong_SHIFT) | (int)digits[0]));
+                            __PYX_VERIFY_RETURN_INT(int64_t, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) >= 2 * PyLong_SHIFT)) {
+                            return (int64_t) (((((int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0]));
                         }
                     }
                     break;
                 case 3:
-                    if ((8 * sizeof(int) > 2 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) > 2 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 3 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) >= 3 * PyLong_SHIFT)) {
-                            return (int) (((((((int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0]));
+                            __PYX_VERIFY_RETURN_INT(int64_t, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) >= 3 * PyLong_SHIFT)) {
+                            return (int64_t) (((((((int64_t)digits[2]) << PyLong_SHIFT) | (int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0]));
                         }
                     }
                     break;
                 case 4:
-                    if ((8 * sizeof(int) > 3 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) > 3 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 4 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) >= 4 * PyLong_SHIFT)) {
-                            return (int) (((((((((int)digits[3]) << PyLong_SHIFT) | (int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0]));
+                            __PYX_VERIFY_RETURN_INT(int64_t, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) >= 4 * PyLong_SHIFT)) {
+                            return (int64_t) (((((((((int64_t)digits[3]) << PyLong_SHIFT) | (int64_t)digits[2]) << PyLong_SHIFT) | (int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0]));
                         }
                     }
                     break;
@@ -8960,89 +8867,89 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
         {
             int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
             if (unlikely(result < 0))
-                return (int) -1;
+                return (int64_t) -1;
             if (unlikely(result == 1))
                 goto raise_neg_overflow;
         }
 #endif
-        if ((sizeof(int) <= sizeof(unsigned long))) {
-            __PYX_VERIFY_RETURN_INT_EXC(int, unsigned long, PyLong_AsUnsignedLong(x))
-        } else if ((sizeof(int) <= sizeof(unsigned PY_LONG_LONG))) {
-            __PYX_VERIFY_RETURN_INT_EXC(int, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
+        if ((sizeof(int64_t) <= sizeof(unsigned long))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int64_t, unsigned long, PyLong_AsUnsignedLong(x))
+        } else if ((sizeof(int64_t) <= sizeof(unsigned PY_LONG_LONG))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int64_t, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
         }
     } else {
 #if CYTHON_USE_PYLONG_INTERNALS
         if (__Pyx_PyLong_IsCompact(x)) {
-            __PYX_VERIFY_RETURN_INT(int, __Pyx_compact_pylong, __Pyx_PyLong_CompactValue(x))
+            __PYX_VERIFY_RETURN_INT(int64_t, __Pyx_compact_pylong, __Pyx_PyLong_CompactValue(x))
         } else {
             const digit* digits = __Pyx_PyLong_Digits(x);
             assert(__Pyx_PyLong_DigitCount(x) > 1);
             switch (__Pyx_PyLong_SignedDigitCount(x)) {
                 case -2:
-                    if ((8 * sizeof(int) - 1 > 1 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) - 1 > 1 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 2 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) - 1 > 2 * PyLong_SHIFT)) {
-                            return (int) (((int)-1)*(((((int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(int64_t, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) - 1 > 2 * PyLong_SHIFT)) {
+                            return (int64_t) (((int64_t)-1)*(((((int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0])));
                         }
                     }
                     break;
                 case 2:
-                    if ((8 * sizeof(int) > 1 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) > 1 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 2 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) - 1 > 2 * PyLong_SHIFT)) {
-                            return (int) ((((((int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(int64_t, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) - 1 > 2 * PyLong_SHIFT)) {
+                            return (int64_t) ((((((int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0])));
                         }
                     }
                     break;
                 case -3:
-                    if ((8 * sizeof(int) - 1 > 2 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) - 1 > 2 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 3 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) - 1 > 3 * PyLong_SHIFT)) {
-                            return (int) (((int)-1)*(((((((int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(int64_t, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) - 1 > 3 * PyLong_SHIFT)) {
+                            return (int64_t) (((int64_t)-1)*(((((((int64_t)digits[2]) << PyLong_SHIFT) | (int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0])));
                         }
                     }
                     break;
                 case 3:
-                    if ((8 * sizeof(int) > 2 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) > 2 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 3 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) - 1 > 3 * PyLong_SHIFT)) {
-                            return (int) ((((((((int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(int64_t, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) - 1 > 3 * PyLong_SHIFT)) {
+                            return (int64_t) ((((((((int64_t)digits[2]) << PyLong_SHIFT) | (int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0])));
                         }
                     }
                     break;
                 case -4:
-                    if ((8 * sizeof(int) - 1 > 3 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) - 1 > 3 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 4 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) - 1 > 4 * PyLong_SHIFT)) {
-                            return (int) (((int)-1)*(((((((((int)digits[3]) << PyLong_SHIFT) | (int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(int64_t, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) - 1 > 4 * PyLong_SHIFT)) {
+                            return (int64_t) (((int64_t)-1)*(((((((((int64_t)digits[3]) << PyLong_SHIFT) | (int64_t)digits[2]) << PyLong_SHIFT) | (int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0])));
                         }
                     }
                     break;
                 case 4:
-                    if ((8 * sizeof(int) > 3 * PyLong_SHIFT)) {
+                    if ((8 * sizeof(int64_t) > 3 * PyLong_SHIFT)) {
                         if ((8 * sizeof(unsigned long) > 4 * PyLong_SHIFT)) {
-                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if ((8 * sizeof(int) - 1 > 4 * PyLong_SHIFT)) {
-                            return (int) ((((((((((int)digits[3]) << PyLong_SHIFT) | (int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(int64_t, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int64_t) - 1 > 4 * PyLong_SHIFT)) {
+                            return (int64_t) ((((((((((int64_t)digits[3]) << PyLong_SHIFT) | (int64_t)digits[2]) << PyLong_SHIFT) | (int64_t)digits[1]) << PyLong_SHIFT) | (int64_t)digits[0])));
                         }
                     }
                     break;
             }
         }
 #endif
-        if ((sizeof(int) <= sizeof(long))) {
-            __PYX_VERIFY_RETURN_INT_EXC(int, long, PyLong_AsLong(x))
-        } else if ((sizeof(int) <= sizeof(PY_LONG_LONG))) {
-            __PYX_VERIFY_RETURN_INT_EXC(int, PY_LONG_LONG, PyLong_AsLongLong(x))
+        if ((sizeof(int64_t) <= sizeof(long))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int64_t, long, PyLong_AsLong(x))
+        } else if ((sizeof(int64_t) <= sizeof(PY_LONG_LONG))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int64_t, PY_LONG_LONG, PyLong_AsLongLong(x))
         }
     }
     {
-        int val;
+        int64_t val;
         int ret = -1;
 #if PY_VERSION_HEX >= 0x030d00A6 && !CYTHON_COMPILING_IN_LIMITED_API
         Py_ssize_t bytes_copied = PyLong_AsNativeBytes(
@@ -9068,14 +8975,14 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
             v = __Pyx_NewRef(x);
         } else {
             v = PyNumber_Long(x);
-            if (unlikely(!v)) return (int) -1;
+            if (unlikely(!v)) return (int64_t) -1;
             assert(PyLong_CheckExact(v));
         }
         {
             int result = PyObject_RichCompareBool(v, Py_False, Py_LT);
             if (unlikely(result < 0)) {
                 Py_DECREF(v);
-                return (int) -1;
+                return (int64_t) -1;
             }
             is_negative = result == 1;
         }
@@ -9086,15 +8993,15 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
             stepval = PyNumber_Invert(v);
             Py_DECREF(v);
             if (unlikely(!stepval))
-                return (int) -1;
+                return (int64_t) -1;
         } else {
             stepval = v;
         }
         v = NULL;
-        val = (int) 0;
+        val = (int64_t) 0;
         mask = PyLong_FromLong((1L << chunk_size) - 1); if (unlikely(!mask)) goto done;
         shift = PyLong_FromLong(chunk_size); if (unlikely(!shift)) goto done;
-        for (bits = 0; bits < (int) sizeof(int) * 8 - chunk_size; bits += chunk_size) {
+        for (bits = 0; bits < (int) sizeof(int64_t) * 8 - chunk_size; bits += chunk_size) {
             PyObject *tmp, *digit;
             long idigit;
             digit = PyNumber_And(stepval, mask);
@@ -9102,7 +9009,7 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
             idigit = PyLong_AsLong(digit);
             Py_DECREF(digit);
             if (unlikely(idigit < 0)) goto done;
-            val |= ((int) idigit) << bits;
+            val |= ((int64_t) idigit) << bits;
             tmp = PyNumber_Rshift(stepval, shift);
             if (unlikely(!tmp)) goto done;
             Py_DECREF(stepval); stepval = tmp;
@@ -9112,13 +9019,13 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
         {
             long idigit = PyLong_AsLong(stepval);
             if (unlikely(idigit < 0)) goto done;
-            remaining_bits = ((int) sizeof(int) * 8) - bits - (is_unsigned ? 0 : 1);
+            remaining_bits = ((int) sizeof(int64_t) * 8) - bits - (is_unsigned ? 0 : 1);
             if (unlikely(idigit >= (1L << remaining_bits)))
                 goto raise_overflow;
-            val |= ((int) idigit) << bits;
+            val |= ((int64_t) idigit) << bits;
         }
         if (!is_unsigned) {
-            if (unlikely(val & (((int) 1) << (sizeof(int) * 8 - 1))))
+            if (unlikely(val & (((int64_t) 1) << (sizeof(int64_t) * 8 - 1))))
                 goto raise_overflow;
             if (is_negative)
                 val = ~val;
@@ -9130,17 +9037,17 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
         Py_XDECREF(stepval);
 #endif
         if (unlikely(ret))
-            return (int) -1;
+            return (int64_t) -1;
         return val;
     }
 raise_overflow:
     PyErr_SetString(PyExc_OverflowError,
-        "value too large to convert to int");
-    return (int) -1;
+        "value too large to convert to int64_t");
+    return (int64_t) -1;
 raise_neg_overflow:
     PyErr_SetString(PyExc_OverflowError,
-        "can't convert negative value to int");
-    return (int) -1;
+        "can't convert negative value to int64_t");
+    return (int64_t) -1;
 }
 
 /* CIntToPy */
@@ -9190,75 +9097,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int64_t(int64_t value) {
         from_bytes = PyObject_GetAttrString((PyObject*)&PyLong_Type, "from_bytes");
         if (!from_bytes) return NULL;
         py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(int64_t));
-        if (!py_bytes) goto limited_bad;
-        order_str = PyUnicode_FromString(little ? "little" : "big");
-        if (!order_str) goto limited_bad;
-        {
-            PyObject *args[3+(CYTHON_VECTORCALL ? 1 : 0)] = { NULL, py_bytes, order_str };
-            if (!is_unsigned) {
-                kwds = __Pyx_MakeVectorcallBuilderKwds(1);
-                if (!kwds) goto limited_bad;
-                if (__Pyx_VectorcallBuilder_AddArgStr("signed", __Pyx_NewRef(Py_True), kwds, args+3, 0) < 0) goto limited_bad;
-            }
-            result = __Pyx_Object_Vectorcall_CallFromBuilder(from_bytes, args+1, 2 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET, kwds);
-        }
-        limited_bad:
-        Py_XDECREF(kwds);
-        Py_XDECREF(order_str);
-        Py_XDECREF(py_bytes);
-        Py_XDECREF(from_bytes);
-        return result;
-#endif
-    }
-}
-
-/* CIntToPy */
-static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value) {
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
-    const int neg_one = (int) -1, const_zero = (int) 0;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-    const int is_unsigned = neg_one > const_zero;
-    if (is_unsigned) {
-        if (sizeof(int) < sizeof(long)) {
-            return PyLong_FromLong((long) value);
-        } else if (sizeof(int) <= sizeof(unsigned long)) {
-            return PyLong_FromUnsignedLong((unsigned long) value);
-#if !CYTHON_COMPILING_IN_PYPY
-        } else if (sizeof(int) <= sizeof(unsigned PY_LONG_LONG)) {
-            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
-#endif
-        }
-    } else {
-        if (sizeof(int) <= sizeof(long)) {
-            return PyLong_FromLong((long) value);
-        } else if (sizeof(int) <= sizeof(PY_LONG_LONG)) {
-            return PyLong_FromLongLong((PY_LONG_LONG) value);
-        }
-    }
-    {
-        unsigned char *bytes = (unsigned char *)&value;
-#if !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x030d00A4
-        if (is_unsigned) {
-            return PyLong_FromUnsignedNativeBytes(bytes, sizeof(value), -1);
-        } else {
-            return PyLong_FromNativeBytes(bytes, sizeof(value), -1);
-        }
-#elif !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX < 0x030d0000
-        int one = 1; int little = (int)*(unsigned char *)&one;
-        return _PyLong_FromByteArray(bytes, sizeof(int),
-                                     little, !is_unsigned);
-#else
-        int one = 1; int little = (int)*(unsigned char *)&one;
-        PyObject *from_bytes, *result = NULL, *kwds = NULL;
-        PyObject *py_bytes = NULL, *order_str = NULL;
-        from_bytes = PyObject_GetAttrString((PyObject*)&PyLong_Type, "from_bytes");
-        if (!from_bytes) return NULL;
-        py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(int));
         if (!py_bytes) goto limited_bad;
         order_str = PyUnicode_FromString(little ? "little" : "big");
         if (!order_str) goto limited_bad;
@@ -9637,6 +9475,256 @@ raise_neg_overflow:
     PyErr_SetString(PyExc_OverflowError,
         "can't convert negative value to long");
     return (long) -1;
+}
+
+/* CIntFromPy */
+static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *x) {
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const int neg_one = (int) -1, const_zero = (int) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+    if (unlikely(!PyLong_Check(x))) {
+        int val;
+        PyObject *tmp = __Pyx_PyNumber_Long(x);
+        if (!tmp) return (int) -1;
+        val = __Pyx_PyLong_As_int(tmp);
+        Py_DECREF(tmp);
+        return val;
+    }
+    if (is_unsigned) {
+#if CYTHON_USE_PYLONG_INTERNALS
+        if (unlikely(__Pyx_PyLong_IsNeg(x))) {
+            goto raise_neg_overflow;
+        } else if (__Pyx_PyLong_IsCompact(x)) {
+            __PYX_VERIFY_RETURN_INT(int, __Pyx_compact_upylong, __Pyx_PyLong_CompactValueUnsigned(x))
+        } else {
+            const digit* digits = __Pyx_PyLong_Digits(x);
+            assert(__Pyx_PyLong_DigitCount(x) > 1);
+            switch (__Pyx_PyLong_DigitCount(x)) {
+                case 2:
+                    if ((8 * sizeof(int) > 1 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 2 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) >= 2 * PyLong_SHIFT)) {
+                            return (int) (((((int)digits[1]) << PyLong_SHIFT) | (int)digits[0]));
+                        }
+                    }
+                    break;
+                case 3:
+                    if ((8 * sizeof(int) > 2 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 3 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) >= 3 * PyLong_SHIFT)) {
+                            return (int) (((((((int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0]));
+                        }
+                    }
+                    break;
+                case 4:
+                    if ((8 * sizeof(int) > 3 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 4 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) >= 4 * PyLong_SHIFT)) {
+                            return (int) (((((((((int)digits[3]) << PyLong_SHIFT) | (int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0]));
+                        }
+                    }
+                    break;
+            }
+        }
+#endif
+#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX < 0x030C00A7
+        if (unlikely(Py_SIZE(x) < 0)) {
+            goto raise_neg_overflow;
+        }
+#else
+        {
+            int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
+            if (unlikely(result < 0))
+                return (int) -1;
+            if (unlikely(result == 1))
+                goto raise_neg_overflow;
+        }
+#endif
+        if ((sizeof(int) <= sizeof(unsigned long))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int, unsigned long, PyLong_AsUnsignedLong(x))
+        } else if ((sizeof(int) <= sizeof(unsigned PY_LONG_LONG))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
+        }
+    } else {
+#if CYTHON_USE_PYLONG_INTERNALS
+        if (__Pyx_PyLong_IsCompact(x)) {
+            __PYX_VERIFY_RETURN_INT(int, __Pyx_compact_pylong, __Pyx_PyLong_CompactValue(x))
+        } else {
+            const digit* digits = __Pyx_PyLong_Digits(x);
+            assert(__Pyx_PyLong_DigitCount(x) > 1);
+            switch (__Pyx_PyLong_SignedDigitCount(x)) {
+                case -2:
+                    if ((8 * sizeof(int) - 1 > 1 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 2 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) - 1 > 2 * PyLong_SHIFT)) {
+                            return (int) (((int)-1)*(((((int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                        }
+                    }
+                    break;
+                case 2:
+                    if ((8 * sizeof(int) > 1 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 2 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) - 1 > 2 * PyLong_SHIFT)) {
+                            return (int) ((((((int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                        }
+                    }
+                    break;
+                case -3:
+                    if ((8 * sizeof(int) - 1 > 2 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 3 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) - 1 > 3 * PyLong_SHIFT)) {
+                            return (int) (((int)-1)*(((((((int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                        }
+                    }
+                    break;
+                case 3:
+                    if ((8 * sizeof(int) > 2 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 3 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) - 1 > 3 * PyLong_SHIFT)) {
+                            return (int) ((((((((int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                        }
+                    }
+                    break;
+                case -4:
+                    if ((8 * sizeof(int) - 1 > 3 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 4 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) - 1 > 4 * PyLong_SHIFT)) {
+                            return (int) (((int)-1)*(((((((((int)digits[3]) << PyLong_SHIFT) | (int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                        }
+                    }
+                    break;
+                case 4:
+                    if ((8 * sizeof(int) > 3 * PyLong_SHIFT)) {
+                        if ((8 * sizeof(unsigned long) > 4 * PyLong_SHIFT)) {
+                            __PYX_VERIFY_RETURN_INT(int, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if ((8 * sizeof(int) - 1 > 4 * PyLong_SHIFT)) {
+                            return (int) ((((((((((int)digits[3]) << PyLong_SHIFT) | (int)digits[2]) << PyLong_SHIFT) | (int)digits[1]) << PyLong_SHIFT) | (int)digits[0])));
+                        }
+                    }
+                    break;
+            }
+        }
+#endif
+        if ((sizeof(int) <= sizeof(long))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int, long, PyLong_AsLong(x))
+        } else if ((sizeof(int) <= sizeof(PY_LONG_LONG))) {
+            __PYX_VERIFY_RETURN_INT_EXC(int, PY_LONG_LONG, PyLong_AsLongLong(x))
+        }
+    }
+    {
+        int val;
+        int ret = -1;
+#if PY_VERSION_HEX >= 0x030d00A6 && !CYTHON_COMPILING_IN_LIMITED_API
+        Py_ssize_t bytes_copied = PyLong_AsNativeBytes(
+            x, &val, sizeof(val), Py_ASNATIVEBYTES_NATIVE_ENDIAN | (is_unsigned ? Py_ASNATIVEBYTES_UNSIGNED_BUFFER | Py_ASNATIVEBYTES_REJECT_NEGATIVE : 0));
+        if (unlikely(bytes_copied == -1)) {
+        } else if (unlikely(bytes_copied > (Py_ssize_t) sizeof(val))) {
+            goto raise_overflow;
+        } else {
+            ret = 0;
+        }
+#elif PY_VERSION_HEX < 0x030d0000 && !(CYTHON_COMPILING_IN_PYPY || CYTHON_COMPILING_IN_LIMITED_API) || defined(_PyLong_AsByteArray)
+        int one = 1; int is_little = (int)*(unsigned char *)&one;
+        unsigned char *bytes = (unsigned char *)&val;
+        ret = _PyLong_AsByteArray((PyLongObject *)x,
+                                    bytes, sizeof(val),
+                                    is_little, !is_unsigned);
+#else
+        PyObject *v;
+        PyObject *stepval = NULL, *mask = NULL, *shift = NULL;
+        int bits, remaining_bits, is_negative = 0;
+        int chunk_size = (sizeof(long) < 8) ? 30 : 62;
+        if (likely(PyLong_CheckExact(x))) {
+            v = __Pyx_NewRef(x);
+        } else {
+            v = PyNumber_Long(x);
+            if (unlikely(!v)) return (int) -1;
+            assert(PyLong_CheckExact(v));
+        }
+        {
+            int result = PyObject_RichCompareBool(v, Py_False, Py_LT);
+            if (unlikely(result < 0)) {
+                Py_DECREF(v);
+                return (int) -1;
+            }
+            is_negative = result == 1;
+        }
+        if (is_unsigned && unlikely(is_negative)) {
+            Py_DECREF(v);
+            goto raise_neg_overflow;
+        } else if (is_negative) {
+            stepval = PyNumber_Invert(v);
+            Py_DECREF(v);
+            if (unlikely(!stepval))
+                return (int) -1;
+        } else {
+            stepval = v;
+        }
+        v = NULL;
+        val = (int) 0;
+        mask = PyLong_FromLong((1L << chunk_size) - 1); if (unlikely(!mask)) goto done;
+        shift = PyLong_FromLong(chunk_size); if (unlikely(!shift)) goto done;
+        for (bits = 0; bits < (int) sizeof(int) * 8 - chunk_size; bits += chunk_size) {
+            PyObject *tmp, *digit;
+            long idigit;
+            digit = PyNumber_And(stepval, mask);
+            if (unlikely(!digit)) goto done;
+            idigit = PyLong_AsLong(digit);
+            Py_DECREF(digit);
+            if (unlikely(idigit < 0)) goto done;
+            val |= ((int) idigit) << bits;
+            tmp = PyNumber_Rshift(stepval, shift);
+            if (unlikely(!tmp)) goto done;
+            Py_DECREF(stepval); stepval = tmp;
+        }
+        Py_DECREF(shift); shift = NULL;
+        Py_DECREF(mask); mask = NULL;
+        {
+            long idigit = PyLong_AsLong(stepval);
+            if (unlikely(idigit < 0)) goto done;
+            remaining_bits = ((int) sizeof(int) * 8) - bits - (is_unsigned ? 0 : 1);
+            if (unlikely(idigit >= (1L << remaining_bits)))
+                goto raise_overflow;
+            val |= ((int) idigit) << bits;
+        }
+        if (!is_unsigned) {
+            if (unlikely(val & (((int) 1) << (sizeof(int) * 8 - 1))))
+                goto raise_overflow;
+            if (is_negative)
+                val = ~val;
+        }
+        ret = 0;
+    done:
+        Py_XDECREF(shift);
+        Py_XDECREF(mask);
+        Py_XDECREF(stepval);
+#endif
+        if (unlikely(ret))
+            return (int) -1;
+        return val;
+    }
+raise_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "value too large to convert to int");
+    return (int) -1;
+raise_neg_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "can't convert negative value to int");
+    return (int) -1;
 }
 
 /* FastTypeChecks */

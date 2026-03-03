@@ -135,7 +135,7 @@ cdef class Account:
                           self.core.cash, 
                           self.core.pnl, 
                           self.core.leverage, 
-                          self.coremargin))
+                          self.core.margin))
     
     def __repr__(self):
         template = "Account(experiment_id={experiment_id} ," \

@@ -332,7 +332,6 @@ cdef class TrackerActor:
         self._latest_snapshot = snapshot_body
 
         if writer:
-            # self._writer.push(payload)
             self._put_buffer.append(payload)
             
             if len(self._put_buffer) >= self.buffer_size:
@@ -345,9 +344,8 @@ cdef class TrackerActor:
         self._put_buffer = []
 
     async def shutdown(self):
-        cdef dict _sentinel = {MsgType.Sentinel: 0}
-        self._put_buffer.append(_sentinel)
         self._flush()
+        self._writer.push([MsgType.Sentinel])
 
 
 cdef class Simulator:
@@ -425,7 +423,6 @@ cdef class Simulator:
             await actor.shutdown()
         # if self._actor_tasks:
         #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
-
         logger.info("All TrackerActors stopped.")
         await self._writer.wait_until_finished()
         logger.info("Simulator shutdown complete.")

@@ -10,7 +10,7 @@ from functools import partial
 
 from bt_sdk.core.client import GetMdApi
 from bt_sdk.core.protocol import QueryBody
-from deploy.strategy.test_signal import *
+from deploy.strategy.demo import *
 from backtest.execution.actor import *
 
 
@@ -75,7 +75,7 @@ class GlobalWriterActor:
 
 
 def run_backtest(config: Dict[str, Any], data_ref: object, actor: object):
-    # try:
+    try:
         # --- 初始化 Cerebro ---
         cerebro = bt.Cerebro(client_id=uuid.UUID(config["client_id"]).bytes, writer=False)
         cerebro.addstore("ray", ref=data_ref, config=config, actor=actor) 
@@ -117,8 +117,8 @@ def run_backtest(config: Dict[str, Any], data_ref: object, actor: object):
         pnl = results.get('pnl', -9999)
         sharpe = results.get('sharpe', -9999)
         tune.report({"pnl": pnl, "sharpe": sharpe})
-    # except Exception as e:
-    #     tune.report({"pnl": -9999, "sharpe": -9999, "error": str(e)})
+    except Exception as e:
+        tune.report({"pnl": -9999, "sharpe": -9999, "error": str(e)})
 
 
 def train_hpo():
@@ -149,8 +149,8 @@ def train_hpo():
 
     print("Preloading data...")
     data = preload(
-        start_date=20100101, 
-        end_date=20230101, 
+        start_date=20040101, 
+        end_date=20260101, 
         sid=[b"600036"], 
         benchmark=b"000001"
     )
@@ -209,14 +209,16 @@ def train_hpo():
     )
 
     tuner = tune.Tuner(
-        # tune.with_parameters(run_backtest, data_ref=data_ref, actor=actor), # big data ref and actor
-        trainable, # avoid to log config which contain data_ref 
-        
+        # trainable, # tune.with_parameters(run_backtest, data_ref=data_ref, actor=actor), # big data ref and actor
+        tune.with_resources(
+            trainable,
+            resources={"cpu": 1, "gpu": 0}
+        ),
         param_space=search_space,
         
         tune_config=tune.TuneConfig(
             num_samples=200,             # 尝试 200 组参数
-            max_concurrent_trials=6,    # 最大并发数
+            max_concurrent_trials=10,    # 最大并发数
             scheduler=asha_scheduler     # 启用 ASHA 剪枝
         ),
         

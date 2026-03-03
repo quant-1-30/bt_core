@@ -164,3 +164,4 @@ cython_debug/
 *.lprof # line_profile
 *.prof #cProfile
 *.csv
+.DS_Store

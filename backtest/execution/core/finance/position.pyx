@@ -26,6 +26,7 @@ Created on Tue Mar 12 15:37:47 2019
 # distutils: language = c++
 # cython: language_level=3
 import uuid
+import json
 
 from bt_sdk.core.protocol import PositionBody, Resp
 from backtest.execution.gateway.operator.schema import vtPosition
@@ -115,7 +116,7 @@ cdef class Position:
             because they refer to a part of the "size" argument
         '''
         cdef OrderExbitData core = orderbit.core
-        cdef int32_t sign = 1 if orderbit.isbuy else -1
+        cdef int32_t sign = 1 if core.isbuy else -1
         cdef int size = sign * core.executed_size 
         cdef double price = core.executed_price
 
@@ -251,20 +252,24 @@ cdef class Position:
     def __bool__(self):
         return bool(self.core.size != 0)
 
-    def __reduce__(self):
-        return (Position, (self.core.experiment_id, self.core.sid, self.core.datetime, self.core.size, self.core.available, self.core.cost_basis, self.core.pnl))
+    def __reduce__(self): # sq same as __init__
+        return (Position, (self.core.experiment_id, self.core.sid, self.asset_info, self.core.datetime, self.core.size, self.core.available, self.core.cost_basis, self.core.pnl))
     
     def __repr__(self):
         template = "Position(experiment_id={experiment_id} ," \
                    "sid={sid} ," \
+                   "asset_info={asset_info} , "\
                    "datetime={datetime} ," \
                    "size={size} ," \
                    "available={available} ," \
                    "cost_basis={cost_basis} ," \
                    "pnl={pnl})"
+        formatted_asset_info = json.dumps(self.asset_info, ensure_ascii=False)
+
         return template.format(
             experiment_id=self.core.experiment_id,
             sid=self.core.sid,
+            asset_info=formatted_asset_info,
             datetime=self.core.datetime,
             size=self.core.size,
             available=self.core.available,

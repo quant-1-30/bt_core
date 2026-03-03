@@ -30,22 +30,21 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
         self._finished_event = asyncio.Event()
 
     cpdef void push(self, list snapshots):
-        for snap in snapshots:
-            self._queue.put_nowait(snap) # may cause oom
+        self._queue.put_nowait(snapshots) # may cause oom
 
     async def run(self):
         logger.info("BatchWriterActor started.")
-        cdef dict data
+        cdef object data
 
         while self._running:
             try:
                 data = await self._queue.get()
-                if MsgType.Sentinel in data: 
+                if [MsgType.Sentinel] == data: 
                     await self._flush()
                     self._running = False
                     break
 
-                self._buffer.append(data)
+                self._buffer.extend(data)
                 if len(self._buffer) >= self.batch_size:
                     await self._flush()
 
@@ -195,4 +194,4 @@ cdef class RayWriterProxy(IBatchWriter):
         self._handle.push.remote(data)
 
     async def wait_until_finished(self):
-        await self._handle.wait_until_finished()
+        await self._handle.wait_until_finished.remote()

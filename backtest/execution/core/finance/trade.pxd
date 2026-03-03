@@ -17,15 +17,15 @@ from libc.stdint cimport int64_t
 
 cdef struct OrderExbitData:
     int64_t executed_dt
-    int executed_size
+    int64_t executed_size
     double executed_price
     double comm
     double cash
+    bint isbuy
 
 cdef class OrderExecutionBit:
     cdef readonly OrderExbitData core
     cdef bytes vtorder_id
-    cdef bint isbuy
 
     cdef OrderExecutionBit clone(self)
     

@@ -318,3 +318,15 @@ proxy for batchwriter
 
 
 Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_parameters 传入了 data_ref 或 actor，控制台可能会显示类似 ObjectRef(xxx) 或 Actor 的字符串表示
+
+*避坑指南：**
+永远不要用以下名字命名你的 Python 脚本：
+*   `signal.py`
+*   `socket.py`
+*   `select.py`
+*   `threading.py`
+*   `queue.py`
+*   `io.py`
+*   `code.py`
+*   `email.py`
+*   `random.py`

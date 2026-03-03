@@ -80,6 +80,13 @@ cdef class Asset:
 
     cdef AssetCore serialize(self):
         return self.core
-    
+
+    def __reduce__(self):#  class / args
+        return (Asset, (self.sid, 
+                        self.name, 
+                        self.core.first_trading, 
+                        self.core.delist,
+            ))
+
     def __repr__(self):
         return f"Asset(sid={self.sid}, name={self.name}, first_trading={self.core.first_trading}, delist={self.core.delist})"

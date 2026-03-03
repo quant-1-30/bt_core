@@ -196,7 +196,7 @@ cdef class Order:
 
     def __reduce__(self): # class / args
         return (Order, (self.core.experiment_id, self.core.sid, self.core.sizer_ratio, self.core.pricelimit, 
-                        self.core.order_type, self.core.exec_type, self.filler)      
+                        self.core.order_type, self.core.exec_type, self.core.created_dt, self.filler)      
         )
     
     def __repr__(self):
