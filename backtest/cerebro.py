@@ -522,7 +522,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                             out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
         
         # metrics
-        return {"sharpe": np.random.randn(), "pnl": np.random.randn()}
+        # return {"sharpe": np.random.randn(), "pnl": np.random.randn()}
 
      
     def runstrategies(self, iterstrat, **kwargs):

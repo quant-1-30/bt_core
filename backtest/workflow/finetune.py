@@ -10,7 +10,7 @@ from functools import partial
 
 from bt_sdk.core.client import GetMdApi
 from bt_sdk.core.protocol import QueryBody
-from deploy.strategy.demo import *
+from deploy.demo import *
 from backtest.execution.actor import *
 
 
@@ -23,10 +23,6 @@ def _initialize_mdpai():
     mdapi.start(_loop)
     return mdapi
 
-def _initialize_actor():
-    batch_size = int(os.getenv("BatchSize"))
-    actor = BatchWriterActor.remote(max_size=max_size, batch_size=batch_size)  # global 
-    return actor
 
 def preload(start_date: int, end_date: int, sid: List[str], benchmark):
     md_api = _initialize_mdpai()

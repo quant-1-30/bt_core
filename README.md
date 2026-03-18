@@ -210,6 +210,7 @@ python -m snakeviz output.prof
 
 # Ray Scale
 RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1 ray start --address='172.20.10.3:6379' / --head --object-store-memory=****
+export RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0
 
 ray stop 
 
@@ -330,3 +331,39 @@ Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_pa
 *   `code.py`
 *   `email.py`
 *   `random.py`
+
+# ta-lib replace indicator logic
+
+
+    # 幂律分布
+    # **极值理论 (Extreme Value Theory, EVT)：** 在对策略历史回撤进行建模时，单独把那些超过阈值的极值（Tails）切出来，用**广义帕累托分布 (GPD)** 去拟合。这能准确预测出“黑天鹅降临时，我到底会亏多少”。
+    # ***小数凯利 (Fractional Kelly)：** 经典的凯利公式 $f = p - q/b$ 也是基于温和分布假设的。在幂律市场中，极端亏损会导致分母爆发。实盘中，顶级机构算出的最佳仓位后，通常只执行 **半凯利 (Half-Kelly) 甚至 1/4 凯利**，留足现金应对幂律左尾的深
+    # ### 2. 工业级应用方案：稳健缩放（Robust Scaling）
+    # 面对幂律特征（如成交量、极端收益率），不要用均值和标准差，改用：
+    # *   **横截面排序 (Cross-sectional Ranking)：** 将 5000 只股票当天的成交量转化为 0~1 之间的百分位排名（Percentile Rank）。无论极端放量有多恐怖，最大值永远是 1.0。
+    # *   **中位数绝对偏差 (MAD, Median Absolute Deviation)：** 用中位数代替均值，用 MAD 代替标准差。
+    # *   **对数转换 (Log Transformation)：** 对于价格和成交量，必须先取对数 $\log(x)$，将乘性的幂律爆发转化为线性的加法，再喂给 FSM 或机器学习模型。
+
+    # 在您的量化系统中，这表现为两种截然不同的子策略并行：
+
+    # 1. **左侧极度保守（90% 资金）：**
+    #    配置在极低风险、免疫市场黑天鹅的策略上。例如：您的**无风险套利策略**、**严格 Beta 中性的高频残差策略**。这部分提供缓慢但确定性的线性收益。
+    # 2. **右侧极度激进（10% 资金）：**
+    #    配置在专门捕获“幂律右尾”的高赔率策略上。例如：您之前设计的**“宏观牛市条件下的微观 VCP 形态突破贝叶斯策略”**。这部分策略平时可能经常因为小止损而流血（Bleeding），但一旦压中一个长达数月的连招主升浪，这 10% 的资金翻 10 倍，足以覆盖整个组合的风险。
+    # 3. **绝对不碰中间地带：**
+    #    坚决不把重仓放在那些“胜率 60%，盈亏比 1:1，但可能遭遇黑天鹅一波带走”的平庸策略上。
+
+    # 转化为“鲁棒标准差” (Robust SD):** 为了让 MAD 在数值尺度上与传统的标准差兼容（方便套用 Z-Score），统计学上通常乘以一个常数 `1.4826`（在正态分布假设下的渐近缩放因子）。
+    # $\sigma_{robust} = 1.4826 \times MAD$
+
+    # universe / cross section # 拼接由于市场政策变化 创业板10%-20%, 因此标的nbins 适配特定时点变化
+    # Volatility Clustering 
+    # revision ---> 14:55 降低日内回撤风险
+    ### **1. 状态机匹配 (Step FSM)**；**2. 贝叶斯大脑更新 (Update Posterior)**；**3. 全概率预测 (Predict)**
+
+    嵌套优化问题（Nested Optimization Problem）”**。
+
+    **业界顶尖解决方案：“网格化降维 + 代理评估模型 (Surrogate-Assisted Hierarchical Search)”**
+
+export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1
+ray start --head --include-dashboard=false 
