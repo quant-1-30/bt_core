@@ -1950,11 +1950,11 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
  * 
  * 
  * cdef class AsyncGateway:             # <<<<<<<<<<<<<<
- *     cdef object mdapi
+ *     cdef object _mdapi
 */
 struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway {
   PyObject_HEAD
-  PyObject *mdapi;
+  PyObject *_mdapi;
 };
 
 

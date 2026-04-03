@@ -7,18 +7,13 @@ import pyarrow.compute as pc
 from typing import List, Any, Dict
 
 from bt_sdk.core.protocol import QueryBody
-from backtest.execution.actor import *
+from workflow.fsm import run_pipeline
 
 
-# ==========================================
-# Orchestration
-# ==========================================
-def dipatch(start_date, end_date, market, benchmark=b"000001"):
-    print("🚀 初始化 Ray 分布式集群...")
-    ray.init(ignore_reinit_error=True)
-    
+def preload(start_date: int, end_date: int, benchmark: bytes, market: str):
+     # 0 1 2 / raw qfq hfq
     print("📡 获取全市场股票池...")
-    md_api = _initialize_mdpai()
+    md_api = _initialize_mdapi()
     table = md_api.get_instrument()
     mask = pc.starts_with(table["sid"], market) 
     universe = table.filter(mask).column("sid").cast(pa.binary()).to_pylist()
@@ -27,23 +22,42 @@ def dipatch(start_date, end_date, market, benchmark=b"000001"):
     # benchmark
     bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[benchmark]) 
     bench_data = md_api.get_benchmark(bench_body)
-    bench_ref = ray.put(bench_data)
     
+    # macro_benchmark
     print("📊 Head Node Benchmark rolling 252 macro state")
-    global_macro_dict = compute_rolling_macro_states(start_date, end_date, benchmark_sid=benchmark)
-    macro_ref = ray.put(global_macro_dict) 
+    bench_252_body = QueryBody(start_date=start_date - 20000, end_date=end_date, sid=[benchmark])
+    bench_252_data = md_api.get_benchmark(bench_252_body)
+    return (universe, bench_data[benchmark], bench_252_data[benchmark])
+
+
+# ==========================================
+# Orchestration
+# ==========================================
+def dipatch(start_date, end_date, market, benchmark=b"000001"):
+    print("🚀 初始化 Ray 分布式集群...")
+    ray.init(ignore_reinit_error=True)
+
+    universe, bench_data, bench_252_data = preload(start_date, end_date, market, benchmark)
+
+    # object_ref ---> zero_copy and read  
+    bench_ref = ray.put(bench_data)
+
+    macro_state = compute_rolling_macro_states(bench_252_data)
+    macro_ref = ray.put(macro_state) 
     
     print(" Dispatcher Ray Worker...")
+    # config / vec_m / fsm read from file
+
     futures =[]
-    for sid in universe: # adjust task num to avoid exhaust io 
-        future = run_socre_pipeline.remote(
+    for sid in universe: 
+        future = run_pipeline.remote(
             sid=sid,
             start_date=start_date,
             end_date=end_date,
             config=BEST_CONFIG,
             learned_motif=HYPOTHETICAL_MOTIF,
             fsm_prior=INITIAL_FSM_PRIOR,
-            global_macro_dict=macro_ref,
+            macro_state_ref=macro_ref,
             bench_ref=bench_ref
         )
         futures.append(future)

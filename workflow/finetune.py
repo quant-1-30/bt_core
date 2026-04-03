@@ -8,16 +8,14 @@ import pyarrow.compute as pc
 from typing import List, Any, Dict
 from ray import tune
 
-import backtest as bt
-
-from bt_sdk.core.client import GetMdApi, FactorTopic
+from workflow.preprocess import _initialize_mdapi
+from workflow.strategy.astc import *
+from bt_sdk.core.client import FactorTopic
 from bt_sdk.core.protocol import QueryBody
-from backtest.workflow.preprocess import _initialize_mdpai
-from backtest.workflow.strategy.astc import *
 
 
 def preload(start_date: int, end_date: int, benchmark: bytes, market: str, frac:float, adj=1): # 0 1 2 / raw qfq hfq
-    md_api = _initialize_mdpai()
+    md_api = _initialize_mdapi()
 
     # universe
     table = md_api.get_instrument() 
@@ -38,7 +36,11 @@ def preload(start_date: int, end_date: int, benchmark: bytes, market: str, frac:
     # tick
     body = QueryBody(start_date=start_date, end_date=end_date, sid=universe)
     tick_data = md_api.get_subscribe(body, adj)
-    return {"benchmark": bench_data[benchmark], "tick": tick_data}
+
+    # macro_benchmark
+    body = QueryBody(start_date=start_date - 20000, end_date=end_date, sid=[benchmark])
+    macro_bench = md_api.get_benchmark(body)
+    return {"benchmark": bench_data[benchmark], "tick": tick_data, "macro_benchmark": macro_bench[benchmark]}
 
 
 def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", market="6", frac:float=0.01, stats_window=[5,10,20], 
@@ -60,11 +62,13 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         frac=frac,
         adj=FactorTopic.Hfq
     )
-    data_ref = ray.put(data) # Object store and publish to worker
     
     print("📊 Head Node Benchmark rolling 252 macro state")
-    global_macro_dict = compute_rolling_macro_states(start_date, end_date, benchmark_sid=benchmark)
-    macro_ref = ray.put(global_macro_dict)
+    macro_data = compute_rolling_macro_states(data["macro_benchmark"])
+
+    # Object store and publish to worker
+    data_ref = ray.put(data) 
+    macro_ref = ray.put(macro_data)
 
     search_space = {
         # extract from beta
@@ -76,7 +80,7 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         "ndays":  tune.randint(1, 14),
 
         # stumpy tsc and filter
-        "threshold_r": tune.uniform(0.8, 0.99),
+        "threshold_r": tune.uniform(0.90, 0.99),
     }
 
     # --- 配置 ASHA 算法 (早停) ---

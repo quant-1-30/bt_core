@@ -14,4 +14,4 @@ cdef enum RpcTopic:
 
 
 cdef class AsyncGateway:
-    cdef object mdapi 
+    cdef object _mdapi 

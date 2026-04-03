@@ -17,10 +17,20 @@ cdef const int64_t BatchSize = 100
 
 
 cdef class AsyncGateway:
-    
+
     def __init__(self):
-        md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
-        self.mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
+        self._mdapi = None
+
+    @property
+    def mdapi(self): # lazy load 
+        if self._mdapi is None:
+            md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
+            self._mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
+        return self._mdapi
+    
+    # def __init__(self):
+    #     md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
+    #     self.mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
 
     async def register(self, object event): 
         cdef object body = event.body

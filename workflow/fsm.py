@@ -11,18 +11,14 @@ import pyarrow as pa
 import polars as pl
 from typing import List, Any, Dict
 
-import backtest as bt
-
 from bt_sdk.core.client import FactorTopic
 from bt_sdk.core.protocol import QueryBody
 
 
 class BayesianOnlineFSM:
-    def __init__(self, num_macro_states=3, num_micro_bins=5):
-        self.num_macro = num_macro_states
-        self.num_micro = num_micro_bins
+    def __init__(self, prior_matrix):
         # Postperior Dirichlet
-        self.prior_matrix = np.ones((num_macro_states, num_micro_bins))
+        self.prior_matrix = prior_matrix # np.ones((num_macro_states, num_micro_bins))
         # to cache pending state
         self.pending_update = None 
 
@@ -46,30 +42,25 @@ class BayesianOnlineFSM:
         self.pending_update = {"macro_state": macro_state}
 
 
-def compute_fsm_signal(fsm_prior_matrix, macro_state, gpd_centers):
-    row_counts = fsm_prior_matrix[macro_state, :]
-
-    # Dirichlet postperior prob
-    probs = row_counts / np.sum(row_counts)
-    
-    expected_return = np.sum(probs * gpd_centers)
-    return expected_return
-
-
 # ==========================================
 # Ray Worker
 # ==========================================
-@ray.remote(num_cpus=1)
-def run_score_pipeline(
-    sid: bytes, start_date: int, end_date: int, 
-    config: dict, learned_motif: np.ndarray, 
-    global_macro_dict: dict, bench_ref: Any 
-):
+@ray.remote(num_cpus=0.2)
+def run_pipeline(
+    sid: bytes, 
+    start_date: int, 
+    end_date: int, 
+    config: dict, 
+    learned_motif: ray.ObjectRef, 
+    fsm_prior: ray.ObjectRef,
+    macro_state_ref: ray.ObjectRef, 
+    bench_ref: ray.ObjectRef
+    ):
     output_dir = "/tmp/backtest_results/parquet"
     os.makedirs(output_dir, exist_ok=True)
     parquet_path = f"{output_dir}/{sid.decode('utf-8')}.parquet"
     
-    md_api = _initialize_mdpai()
+    md_api = _initialize_mdapi()
     tick_data = md_api.get_subscribe(QueryBody(start_date=start_date, end_date=end_date, sid=[sid]), adj=FactorTopic.Hfq)
     
     if sid not in tick_data or tick_data[sid].num_rows == 0:
@@ -84,11 +75,10 @@ def run_score_pipeline(
     eod_data = extract_asset_feature(hf_df=hf_df, downsample=config["downsample"], m=m, amplify=1000)
     
     if len(eod_data) < 2: return {"sid": sid, "status": "insufficient_data"}
-
-    fsm = BayesianOnlineFSM(num_macro_states=3, num_micro_bins=5)
     
     threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
     z_motif = robust_z_normalize(learned_motif)
+    fsm = BayesianOnlineFSM(prior_matrix=fsm_prior)
 
     records =[]
     history_returns =[] 
@@ -115,7 +105,7 @@ def run_score_pipeline(
         dist = np.linalg.norm(z_today - z_motif)
         
         if dist < threshold_d:
-            macro_state = global_macro_dict.get(date_int, 1) 
+            macro_state = macro_state_ref.get(date_int, 1) 
             
             pred_score = fsm.predict_expected_return(macro_state, current_gpd_centers)
             
@@ -131,4 +121,3 @@ def run_score_pipeline(
         pl.DataFrame(records).write_parquet(parquet_path)
         return {"sid": sid, "status": "success", "triggers": len(records), "path": parquet_path}
     return {"sid": sid, "status": "no_triggers"}
-

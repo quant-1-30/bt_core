@@ -7,7 +7,7 @@ import polars as pl
 import scipy.stats as stats
 from typing import List, Any, Dict
 
-from backtest.workflow.preprocess import *
+from workflow.preprocess import *
 
 
 def get_atsc(raw_array: np.array, m: int, threshold_r: float):

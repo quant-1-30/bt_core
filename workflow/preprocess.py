@@ -2,30 +2,22 @@
 # -*- encondig: utf-8 -*-
 
 import os
-import ray
-import uuid
 import math
 import numpy as np
 import stumpy
 import pyarrow as pa
 import pyarrow.compute as pc
 import polars as pl
-import matplotlib.pyplot as plt
-import scipy.stats as stats
 from datetime import datetime
-from itertools import chain
 from typing import List, Any, Dict
-from ray import tune
 from scipy.stats import chi2_contingency, ks_2samp, skew, genpareto
-
-import backtest as bt
 
 from bt_sdk.core.client import GetMdApi, FactorTopic
 from bt_sdk.core.protocol import QueryBody
-from backtest.execution.actor import *
+from backtest.execution.actor import AsyncRunner
 
 
-def _initialize_mdpai():
+def _initialize_mdapi():
     md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
     mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
     _runner = AsyncRunner()
@@ -163,16 +155,11 @@ def robust_z_normalize(window_data):
     return robust_z
 
 
-def compute_rolling_macro_states(start_date, end_date, benchmark_sid):
+def compute_rolling_macro_states(bench_data):
     """
     T-1 14:55 / T 14:55 动态分位数界定宏观状态, 自适应高波/低波周期, 避免状态太多先验概率支撑模型会严重退化 
     """
-    md_api = _initialize_mdpai()
-    
-    warmup_start = start_date - 20000 # warm up when start_date 
-    body = QueryBody(start_date=warmup_start, end_date=end_date, sid=[benchmark_sid])
-    bench_df = md_api.get_benchmark(body)[benchmark_sid]
-    bench_df = pl.from_arrow(bench_df).sort("tick").with_columns(
+    bench_df = pl.from_arrow(bench_data).sort("tick").with_columns(
         datetime = pl.from_epoch(pl.col("tick"), time_unit="s")
     )
     
@@ -287,16 +274,6 @@ def evaluate_objective(p_val, cond_mean, uncond_mean, alpha_penalty=100.0, beta_
     return score
 
 
-def compute_fsm_signal(fsm_prior_matrix, macro_state, gpd_centers):
-    row_counts = fsm_prior_matrix[macro_state, :]
-
-    # Dirichlet postperior prob
-    probs = row_counts / np.sum(row_counts)
-    
-    expected_return = np.sum(probs * gpd_centers)
-    return expected_return
-
-
 def extract_asset_feature(hf_df: pl.DataFrame, downsample: int, m: int, amplify: int = 1000):
     """
         1. strict with 14:55 to eliminate future
@@ -382,4 +359,3 @@ def extract_asset_feature(hf_df: pl.DataFrame, downsample: int, m: int, amplify:
         })
         
     return records
-
