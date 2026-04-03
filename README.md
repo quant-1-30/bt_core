@@ -367,3 +367,29 @@ Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_pa
 
 export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1
 ray start --head --include-dashboard=false 
+
+# 按照以上思路结合实际工程落地:  以单个A市场为例（比如创业板）  
+# 1\  基于A市场抽取5%标的，2010-2020作为训练数据（chain + FSM, 2020-2026作为验证（通过ray tune 寻找最优参数）
+# 2、根据1中的最优chain 和 fsm ， 离线计算每个标每天14:55 是否到达fsm最后一个节点 + 涨的概率，形成一个parquet文件
+# 3、将所有标的parquet文件组合起来，用于backtrader 回测的数据。（根据每天所有的标的在14:55 涨区间概率）
+# 根据以上方案相当于 按照不同市场执行backtrader , 如果对接实盘 提前读取所有parquet 过滤处于fsm倒数第二个节点, 
+# 在当天14:55执行计算判断顺利迁移到最后一个节点的概率 并执行买入或者卖出操作。 应该parquet 应该包含 当前节点顺序、prob, meta应该包含（chain , fsm 等固定数据）
+
+
+### 1. Parquet 文件的 Schema 设计（保存什么？）
+
+# 对于每一个标的、在每天的 14:55，你只需要拿当天的 $m$ 分钟残差收益曲线，与你 Top-K 的 `learned_motif` 计算一次 Z-Normalized 欧氏距离。
+# **只有当 `distance < threshold_d` 时，才生成一条记录写入 Parquet。**
+
+# 这个 Parquet 文件的 Schema（表结构）建议设计如下：
+
+# | 列名 (Column) | 类型 (Type) | 说明 (Description) |
+# | :--- | :--- | :--- |
+# | `date` | `int32` | 触发日期，例如 `20200102` |
+# | `sid` | `binary` / `string` | 股票代码，例如 `b'000001'` |
+# | `trial_id` | `string` | 记录是哪个 Top-K 模型触发的（关联特定的 motif 和 FSM） |
+# | `distance` | `float32` | 实际匹配的距离（越小说明形态越逼真，可用于后续信号加权） |
+# | `macro_state` | `int8` | 触发当日的宏观状态 (0=跌, 1=震荡, 2=涨) |
+# | `signal_score` | `float32` | **核心**：基于 FSM 矩阵查表算出的该股票 T+1 预期收益得分 |
+# | `bins` 
+
