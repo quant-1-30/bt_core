@@ -113,7 +113,7 @@ def dsample_and_concat(hf_dfs: Dict[str, pl.DataFrame], downsample: int, m: int 
     fill m np.nan between assets
     """
     multi_asset =[]
-    nan_buffer = np.full(m, np.nan)  # 🌟 修复：生成 m 个 NaN 组成的缓冲垫
+    nan_buffer = np.full(m, np.nan)  
     
     for sid, hf_df in hf_dfs.items():
         hf_df_1455 = hf_df.filter(
@@ -155,14 +155,14 @@ def robust_z_normalize(window_data):
     return robust_z
 
 
-def compute_rolling_macro_states(bench_data):
+def compute_rolling_macro_states(bench_data: pa.Table, loopback: int):
     """
     T-1 14:55 / T 14:55 动态分位数界定宏观状态, 自适应高波/低波周期, 避免状态太多先验概率支撑模型会严重退化 
     """
     bench_df = pl.from_arrow(bench_data).sort("tick").with_columns(
         datetime = pl.from_epoch(pl.col("tick"), time_unit="s")
     )
-    
+    min_periods = int(loopback/2)
     # ==========================================
     # 1. eliminate data after 14:55
     # ==========================================
@@ -186,8 +186,8 @@ def compute_rolling_macro_states(bench_data):
     daily_bench = daily_bench.with_columns(
         daily_ret_1455 = pl.col("close_1455").pct_change()
     ).with_columns(
-        p20 = pl.col("daily_ret_1455").rolling_quantile(quantile=0.2, window_size=252, min_periods=100),
-        p80 = pl.col("daily_ret_1455").rolling_quantile(quantile=0.8, window_size=252, min_periods=100)
+        p20 = pl.col("daily_ret_1455").rolling_quantile(quantile=0.2, window_size=loopback, min_periods=min_periods), # at least not null nums
+        p80 = pl.col("daily_ret_1455").rolling_quantile(quantile=0.8, window_size=loopback, min_periods=min_periods)
     ).drop_nulls() 
     
     # ==========================================
@@ -202,19 +202,19 @@ def compute_rolling_macro_states(bench_data):
     return dict(zip(daily_bench["date_int"].to_list(), daily_bench["macro_state"].to_list()))
 
 
-def calculate_gpd(returns_series, quantiles=[0.10, 0.30, 0.70, 0.90]): # 252 ret_return
+def calculate_gpd(returns_series: np.array, quantiles: list): 
     """
-    :param returns_series: np.array 252 rolling return 
+    :param returns_series: np.array daily_returns
     :param quantiles: np.array  bins
     """
     returns = np.array(returns_series)
     returns = returns[np.isfinite(returns)]
     
+    centers = np.zeros(len(quantiles) + 1)
+
     edges = np.quantile(returns, quantiles) # any np.nan return nan
     u_down = edges[0] 
     u_up = edges[-1]  
-
-    centers = np.zeros(len(quantiles) + 1)
     
     # ==========================================
     # empritical
@@ -257,21 +257,53 @@ def calculate_gpd(returns_series, quantiles=[0.10, 0.30, 0.70, 0.90]): # 252 ret
     return edges, centers
 
 
-def evaluate_objective(p_val, cond_mean, uncond_mean, alpha_penalty=100.0, beta_penalty=10.0): 
-    spread = cond_mean - uncond_mean
+def build_rolling_gpd(panel_df: pl.DataFrame, quantiles: list, loopback: int, freq_month: int):
+    df = panel_df.select(["date_int", "daily_ret"]).drop_nulls()
+    unique_dates = df.select("date_int").unique().sort("date_int").to_series().to_numpy()
     
-    if p_val <= 0.05 and spread > 0: # positive
-        safe_pval = max(p_val, 1e-10)
-        score = -np.log10(safe_pval) * spread
-    else: 
-        score = -np.inf
-        if p_val > 0.05:
-            # score -= alpha_penalty * (p_val - 0.05)
-            score = 0.0
-            
-        if spread <= 0:
-            score = -beta_penalty * abs(spread)
-    return score
+    gpd_dict = {}
+    last_update_idx = -9999
+    current_edges, current_centers = None, None
+    
+    for idx, d_int in enumerate(unique_dates):
+        year = d_int // 10000
+        month = (d_int % 10000) // 100
+        curr_month_idx = year * 12 + month
+        
+        if current_edges is None or (curr_month_idx - last_update_idx >= freq_month):
+            start_idx = max(0, idx - loopback)
+            start_date = unique_dates[start_idx]
+                
+            hist_rets = df.filter(
+                (pl.col("date_int") >= start_date) & 
+                (pl.col("date_int") <= d_int) # 14:55
+            )["daily_ret"].to_numpy()
+                
+            current_edges, current_centers = calculate_gpd(hist_rets, quantiles)
+            last_update_idx = curr_month_idx
+                    
+        gpd_dict[d_int] = (current_edges, current_centers)
+    return gpd_dict
+
+
+def evaluate_objective(p_val: float, cond_mean: np.array, uncond_mean:np.array, m:int, penalty_m:int): 
+    """
+    1. **no direction**  abs(spread)
+    2. **smooth** -log10(p_val)
+    3. **length penalty**
+    """
+    spread = cond_mean - uncond_mean
+    abs_spread = abs(spread)
+    
+    safe_pval = max(p_val, 1e-10)
+    confidence = -np.log10(safe_pval) # penalty  log10(1.0) = 0 / log10(0.001) = -3 
+    raw_score = confidence * abs_spread * 10000.0
+
+    # Occam's Razor
+    if m > penalty_m:
+        penalty_factor = math.exp(- (m - penalty_m) / 50.0) 
+        raw_score = raw_score * penalty_factor
+    return raw_score
 
 
 def extract_asset_feature(hf_df: pl.DataFrame, downsample: int, m: int, amplify: int = 1000):

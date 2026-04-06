@@ -19,14 +19,14 @@ def get_atsc(raw_array: np.array, m: int, threshold_r: float):
     # np.argmin <= np.inf
     zero_mask = distances <= 1e-5
     if np.all(zero_mask):
-        raise ValueError("所有片段的距离都接近 0.0 (可能全是相同的常数/涨跌停直线)")
+        raise ValueError("exclude nearly horizonal vector")
     distances[zero_mask] = np.inf
 
     anchor_idx = np.argmin(distances)
     v_d = distances[anchor_idx]
     
     if v_d > threshold_d or np.isinf(v_d):
-        return None, None
+        return None, np.array([])
 
     left_I = np.copy(mp[:, 2])   
     right_I = np.copy(mp[:, 3])  
@@ -52,14 +52,14 @@ def get_atsc(raw_array: np.array, m: int, threshold_r: float):
 def evaluate_and_build_fsm(
     panel_df: pl.DataFrame, 
     motif: np.ndarray, 
-    threshold_r: float,
-    macro_ref: dict,
-    asset_bins: np.ndarray, 
+    config: dict,
+    macro_dict: dict,
+    gpd_dict: dict,
     stats_window: list 
 ):
     # align 14:55 -> 14:55 
     m = len(motif)
-    threshold_d = math.sqrt(2 * m * (1 - threshold_r))
+    threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
     
     # vectorize distance
     curves = np.stack(panel_df["curve"].to_numpy())
@@ -71,7 +71,7 @@ def evaluate_and_build_fsm(
     # distance concat DataFrame
     eval_df = panel_df.with_columns(
         pl.Series("distance", distances),
-        pl.col("date_int").replace_strict(macro_ref, default=1).alias("macro_state")
+        pl.col("date_int").replace_strict(macro_dict, default=1).alias("macro_state")
     )
     
     # trigger by threshold
@@ -80,17 +80,21 @@ def evaluate_and_build_fsm(
         return {"status": "failed", "reason": "总触发次数过少 (<10)", "metrics_score": -np.inf}
         
     # laplace and FSM 
-    num_bins = len(asset_bins) + 1
+    num_bins = len(config["gpd_quantiles"]) + 1
     fsm_prior_matrix = np.ones((3, num_bins)) 
     
     # evaluate stats on T+1 / T+5 / T+10
     for row in triggers.iter_rows(named=True):
         macro_state = row["macro_state"]
         ret_t1 = row["fwd_ret_1"]
-        
-        bin_idx = np.digitize(ret_t1, asset_bins)
+
+        # GPD edges
+        trigger_date = row["date_int"]
+        edges, _ = gpd_dict.get(trigger_date, (None, None))
+        if edges is None: continue
+
+        bin_idx = np.digitize(ret_t1, edges)
         bin_idx = min(max(bin_idx, 0), num_bins - 1) 
-        
         fsm_prior_matrix[macro_state, bin_idx] += 1.0
 
     # KS / MW-U Test
@@ -116,7 +120,7 @@ def evaluate_and_build_fsm(
         else:
             u_stat, u_pval = stats.mannwhitneyu(cond_rets, uncond_rets, alternative='less')
 
-        score = evaluate_objective(u_pval, cond_mean_val, uncond_mean_val)
+        score = evaluate_objective(u_pval, cond_mean_val, uncond_mean_val, len(motif), config["penalty_m"])
         
         ks_results[f"T+{fw}"] = {
             "cond_mean": cond_mean_val,
@@ -128,24 +132,47 @@ def evaluate_and_build_fsm(
         if u_pval < 0.05:
             passed_alpha_test = True
     
-    metrics_score = max([k["score"] for k in ks_results.values()]) if ks_results else -np.inf
+    raw_score = max([k["score"] for k in ks_results.values()]) if ks_results else -np.inf
 
     if not passed_alpha_test:
-        return {"status": "failed", "reason": "KS/MW-U 检验不显著", "metrics_score": metrics_score}
+        return {"status": "failed", "reason": "KS/MW-U 检验不显著", "metrics_score": raw_score}
 
     return {
         "status": "success",
         "fsm_trigger_count": len(triggers), 
         "ks_results": ks_results,
         "fsm_prior_matrix": fsm_prior_matrix,
-        "metrics_score": metrics_score
+        "metrics_score": raw_score
     }
 
 
-def run_pipeline(config: dict, data_ref: dict, macro_ref: dict, stats_window: list): 
+def intercept(config):
+    # ====================================================
+    # 🛡️ 金融常识拦截器 (Domain Knowledge Guardrails)
+    # ====================================================
+    # 拦截 1 形态点数过少非有效博弈或过多无法匹配
+    m = int(config["ndays"] * np.floor(240 / config["downsample"]))
+    if m < 8 or m > 60:
+        return {"status": "failed", "reason": f"m={m} 长度不合理", "metrics_score": -9999}
+        
+    # 拦截 2 频率倒挂 采样频率比Beta频率还高噪音
+    if config["downsample"] < config["rolling_freq"]:
+        return {"status": "failed", "reason": "频率倒挂", "metrics_score": -9999}
+        
+    # 拦截 3 相关系数与长度木桶效应
+    if m > 30 and config["threshold_r"] > 0.90:
+        return {"status": "failed", "reason": "长序列要求高r", "metrics_score": -9999}
+
+    return {"status": "success"}
+
+def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:int): 
     """
     Pattern and Prior Matrix KS/MW-U Score
     """
+    status = intercept(config)
+    if status["status"] == "failed":
+        return status
+
     hf_dfs = {}
     for asset, _ref in data_ref["tick"].items():
         hf_dfs[asset] = extract_from_beta_with_freq(
@@ -179,17 +206,24 @@ def run_pipeline(config: dict, data_ref: dict, macro_ref: dict, stats_window: li
         for r in records:
             r["sid"] = asset
         snapshots.extend(records)
-        
-    if len(snapshots) == 0:
-        return {"status": "failed", "reason": "无有效快照数据", "metrics_score": -np.inf}
 
     panel_df = pl.DataFrame(snapshots).sort(["sid", "date_int"])
 
+    # calculate rolling macro_state and gpd
+    gpd_dict = build_rolling_gpd(
+        panel_df, 
+        quantiles=config["gpd_quantiles"], 
+        loopback=config["loopback"], 
+        freq_month=config["gpd_freq_month"]
+    )
+    
+    macro_dict = compute_rolling_macro_states(data_ref["benchmark"], config["loopback"])
+
+    # calculate future ret for stats test
     panel_df = panel_df.with_columns(
         pl.col("daily_ret").shift(-1).over("sid").alias("fwd_ret_1")
     )
     
-    # forward return used for stats test
     exprs =[]
     for fw in stats_window:
         if fw == 1: 
@@ -207,18 +241,19 @@ def run_pipeline(config: dict, data_ref: dict, macro_ref: dict, stats_window: li
     if exprs: 
         panel_df = panel_df.with_columns(exprs)
 
-    # gpd and fsm
-    all_daily_rets = panel_df["daily_ret"].drop_nulls().to_numpy()
-    edges, centers = calculate_gpd(all_daily_rets) 
-
+    # calculate fsm 
+    eval_panel_df = panel_df.filter(pl.col("date_int") >= actual_date)
+    if len(eval_panel_df) == 0:
+        return {"status": "failed", "reason": "无有效快照数据", "metrics_score": -np.inf}
+    
 
     res = evaluate_and_build_fsm(
-        panel_df, motif, config["threshold_r"], macro_ref, edges, stats_window
+        eval_panel_df, motif, config, macro_dict, gpd_dict, stats_window
     )
     
     if res.get("status") == "success":
         res["learned_motif"] = motif.tolist()
+        res["learned_motif"] = motif.tolist()
         res["learned_edges"] = edges.tolist()
         res["learned_gpd_centers"] = centers.tolist()
-        
     return res
