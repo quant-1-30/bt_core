@@ -72,29 +72,29 @@ class Instrument(object):
         return self.assets
 
 
-class MetaBtData(DataBase.__class__):
+class MetaRemoteData(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
-        super(MetaBtData, cls).__init__(name, bases, dct)
+        super(MetaRemoteData, cls).__init__(name, bases, dct)
         RemoteStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
-        print("MetaBtData donew kwargs ", kwargs)
-        _obj, args, kwargs = super(MetaBtData, cls).donew(*args, **kwargs)
-        print("MetaBtData donew kwargs after", kwargs)
+        print("MetaRemoteData donew kwargs ", kwargs)
+        _obj, args, kwargs = super(MetaRemoteData, cls).donew(*args, **kwargs)
+        print("MetaRemoteData donew kwargs after", kwargs)
         return _obj, args, kwargs
     
     def dopostinit(cls, _obj, *args, **kwargs):
-        print("MetaBtData dopostinit kwargs ", kwargs)
+        print("MetaRemoteData dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
-        print("MetaBtData dopostinit kwargs ", kwargs)
+        print("MetaRemoteData dopostinit kwargs ", kwargs)
         _obj.mdapi = _obj.p.mdapi
         _obj.chan = queue.Queue()
         return _obj, args, kwargs
 
 
-class RemoteData(with_metaclass(MetaBtData, DataBase)):
+class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
     
     params = (
         ("mdapi", None),

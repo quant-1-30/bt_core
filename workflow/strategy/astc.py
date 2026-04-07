@@ -10,6 +10,26 @@ from typing import List, Any, Dict
 from workflow.preprocess import *
 
 
+def intercept(config):
+    # ====================================================
+    # 🛡️ 金融常识拦截器 (Domain Knowledge Guardrails)
+    # ====================================================
+    # 拦截 1 形态点数过少非有效博弈或过多无法匹配
+    m = int(config["ndays"] * np.floor(240 / config["downsample"]))
+    if m < 8 or m > 60:
+        return {"status": "failed", "reason": f"m={m} 长度不合理", "metrics_score": -9999}
+        
+    # 拦截 2 频率倒挂 采样频率比Beta频率还高噪音
+    if config["downsample"] < config["rolling_freq"]:
+        return {"status": "failed", "reason": "频率倒挂", "metrics_score": -9999}
+        
+    # 拦截 3 相关系数与长度木桶效应
+    if m > 30 and config["threshold_r"] > 0.90:
+        return {"status": "failed", "reason": "长序列要求高r", "metrics_score": -9999}
+
+    return {"status": "success"}
+
+
 def get_atsc(raw_array: np.array, m: int, threshold_r: float):
     # filter by person d^2 = 2m(1-r)
     threshold_d = math.sqrt(2 * m * (1 - threshold_r)) 
@@ -49,6 +69,7 @@ def get_atsc(raw_array: np.array, m: int, threshold_r: float):
     return atsc_chain, atsc_chain_v
 
 
+# align 14:55 -> 14:55 
 def evaluate_and_build_fsm(
     panel_df: pl.DataFrame, 
     motif: np.ndarray, 
@@ -56,42 +77,45 @@ def evaluate_and_build_fsm(
     macro_dict: dict,
     gpd_dict: dict,
     stats_window: list 
-):
-    # align 14:55 -> 14:55 
-    m = len(motif)
-    threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
+): 
+    # laplace and FSM 
+    num_bins = len(config["gpd_quantiles"]) + 1
+    fsm_prior_matrix = np.ones((3, num_bins))
     
     # vectorize distance
     curves = np.stack(panel_df["curve"].to_numpy())
     z_curves = robust_z_normalize(curves)
     z_motif = robust_z_normalize(motif)
-    
     distances = np.linalg.norm(z_curves - z_motif, axis=1)
     
     # distance concat DataFrame
     eval_df = panel_df.with_columns(
         pl.Series("distance", distances),
-        pl.col("date_int").replace_strict(macro_dict, default=1).alias("macro_state")
+        # pl.col("date_int").replace_strict(macro_dict, default=1).alias("macro_state")
+        pl.col("date_int").replace(macro_dict, default=1).alias("macro_state")
     )
     
     # trigger by threshold
+    m = len(motif)
+    threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
+
     triggers = eval_df.filter(pl.col("distance") < threshold_d)
     if len(triggers) < 10:
         return {"status": "failed", "reason": "总触发次数过少 (<10)", "metrics_score": -np.inf}
-        
-    # laplace and FSM 
-    num_bins = len(config["gpd_quantiles"]) + 1
-    fsm_prior_matrix = np.ones((3, num_bins)) 
-    
+         
     # evaluate stats on T+1 / T+5 / T+10
     for row in triggers.iter_rows(named=True):
         macro_state = row["macro_state"]
         ret_t1 = row["fwd_ret_1"]
+        if not ret_t1:
+            print("null ret_t1 ", ret_t1)
+            continue
 
         # GPD edges
         trigger_date = row["date_int"]
         edges, _ = gpd_dict.get(trigger_date, (None, None))
         if edges is None: continue
+        print("null edges ", edges)
 
         bin_idx = np.digitize(ret_t1, edges)
         bin_idx = min(max(bin_idx, 0), num_bins - 1) 
@@ -142,28 +166,10 @@ def evaluate_and_build_fsm(
         "fsm_trigger_count": len(triggers), 
         "ks_results": ks_results,
         "fsm_prior_matrix": fsm_prior_matrix,
+        "learned_motif": motif.tolist(),
         "metrics_score": raw_score
     }
 
-
-def intercept(config):
-    # ====================================================
-    # 🛡️ 金融常识拦截器 (Domain Knowledge Guardrails)
-    # ====================================================
-    # 拦截 1 形态点数过少非有效博弈或过多无法匹配
-    m = int(config["ndays"] * np.floor(240 / config["downsample"]))
-    if m < 8 or m > 60:
-        return {"status": "failed", "reason": f"m={m} 长度不合理", "metrics_score": -9999}
-        
-    # 拦截 2 频率倒挂 采样频率比Beta频率还高噪音
-    if config["downsample"] < config["rolling_freq"]:
-        return {"status": "failed", "reason": "频率倒挂", "metrics_score": -9999}
-        
-    # 拦截 3 相关系数与长度木桶效应
-    if m > 30 and config["threshold_r"] > 0.90:
-        return {"status": "failed", "reason": "长序列要求高r", "metrics_score": -9999}
-
-    return {"status": "success"}
 
 def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:int): 
     """
@@ -176,8 +182,7 @@ def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:i
     hf_dfs = {}
     for asset, _ref in data_ref["tick"].items():
         hf_dfs[asset] = extract_from_beta_with_freq(
-            _ref, data_ref["benchmark"], config["rolling_freq"], config["ewm_span"]
-        )
+            _ref, data_ref["benchmark"], config["rolling_freq"], config["ewm_span"], config["signal_type"])
 
     m = int(config["ndays"] * np.floor(4 * 60 / config["downsample"]))  
 
@@ -246,14 +251,7 @@ def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:i
     if len(eval_panel_df) == 0:
         return {"status": "failed", "reason": "无有效快照数据", "metrics_score": -np.inf}
     
-
     res = evaluate_and_build_fsm(
         eval_panel_df, motif, config, macro_dict, gpd_dict, stats_window
     )
-    
-    if res.get("status") == "success":
-        res["learned_motif"] = motif.tolist()
-        res["learned_motif"] = motif.tolist()
-        res["learned_edges"] = edges.tolist()
-        res["learned_gpd_centers"] = centers.tolist()
     return res

@@ -95,3 +95,23 @@ cdef class Pyramid(Sizer):
 # 
 #     '''
 
+
+def calculate_gpd_cvar(returns, confidence_level=0.99):
+    """基于 GPD 计算 99% 极值条件在险价值 (CVaR)"""
+    # ====== 在仓位管理中的应用 ======
+    # position_rate = tolerance / GPD_CVaR = 5% / 12% = 41.6% 
+    losses = -np.array(returns)
+    threshold_percentile = 95
+    u = np.percentile(losses, threshold_percentile)
+    
+    tail_losses = losses[losses > u] - u
+    # c 是形状参数 (xi), loc 是位置参数(固定为0), scale 是尺度参数 (beta)
+    shape_xi, loc, scale_beta = genpareto.fit(tail_losses, floc=0)
+    
+    # GPD CVar 相比于正态分布的 VaR
+    tail_prob = 1.0 - (threshold_percentile / 100.0)
+    alpha = 1.0 - confidence_level
+    
+    cvar_gpd = u + (scale_beta / (1 - shape_xi)) * ( ((tail_prob / alpha) ** shape_xi) - 1 )
+    return cvar_gpd
+

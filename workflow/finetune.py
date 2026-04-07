@@ -66,6 +66,7 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
 
     search_space = {
         # extract beta
+        "signal_type": tune.choice(["close", "vwap", "vpt"]),
         "rolling_freq": tune.choice([10, 15, 20, 30, 60]),
         "ewm_span": tune.choice([10, 20, 30]),     
 
@@ -83,7 +84,6 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         "gpd_quantiles": tune.choice([[0.10, 0.30, 0.70, 0.90], [0.20, 0.40, 0.60, 0.80], [0.05, 0.25, 0.75, 0.95]]),
         "gpd_freq_month": tune.choice([3, 6]), # update frequency 
     }
-
 
     # --- 配置 ASHA 算法 (早停) 避免score -np.inf ---
     # metric: 优化目标, mode:最大化 / grace_period: 至少跑多久才开始判断 / reduction_factor: 每轮淘汰比例
@@ -127,7 +127,7 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
     best_trial = results.get_best_result(metric="metrics_score", mode="max")
     print("="*30)
     print("Best trial config: {}".format(best_trial.config))
-    print("Best trial final sharpe: {}".format(best_trial.metrics))
+    print("Best trial final: {}".format(best_trial.metrics))
     
     class CustomEncoder(json.JSONEncoder):
         
@@ -143,8 +143,11 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         json.dump(best_trial.metrics, f, cls=CustomEncoder) 
 
     df = results.get_dataframe()
+    # 3D Visual
+    plot_tune_landscape_3d(df, "config/threshold_r", "config/downsample")
     # topk
-    print(f"========== Top {K} Trials ==========")
+    topK=5
+    print(f"========== Top {topK} Trials ==========")
     valid = df[df["metrics_score"] > -np.inf].copy()
     top_k_df = valid.sort_values(by="metrics_score", ascending=False).head(topK)
     
@@ -159,9 +162,6 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         })
         print(f"Trial: {row['trial_id']} | Score: {row['metrics_score']:.4f} | Config: {cfg}")
 
-    # 3D Visual
-    plot_tune_landscape_3d(df, "config/threshold_r", "config/downsample")
-        
 
 if __name__ == "__main__":
 

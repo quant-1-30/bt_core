@@ -31,56 +31,48 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.raystore import RayStore
+from backtest.stores.generic import GenericStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-__all__ = ["RayData"]
 
-
-class MetaRayData(DataBase.__class__):
+class MetaParquetBase(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
-        super(MetaRayData, cls).__init__(name, bases, dct)
-        RayStore.DataCls = cls
+        super(MetaParquetBase, cls).__init__(name, bases, dct)
+        GenericStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
-        # print("MetaRayData donew kwargs ", kwargs)
-        _obj, args, kwargs = super(MetaRayData, cls).donew(*args, **kwargs)
-        # print("MetaRayData donew kwargs after", kwargs)
+        # print("MetaParquetBase donew kwargs ", kwargs)
+        _obj, args, kwargs = super(MetaParquetBase, cls).donew(*args, **kwargs)
+        # print("MetaParquetBase donew kwargs after", kwargs)
         return _obj, args, kwargs
     
     def dopostinit(cls, _obj, *args, **kwargs):
-        # print("MetaRayData dopostinit kwargs ", kwargs)
+        # print("MetaParquetBase dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
-        # print("MetaRayData dopostinit kwargs ", kwargs)
-        _obj.ref = ray.get(_obj.p.ref)
+        # print("MetaParquetBase dopostinit kwargs ", kwargs)
         return _obj, args, kwargs
 
 
-class RayData(with_metaclass(MetaRayData, DataBase)):
+class ParquetData(with_metaclass(MetaParquetBase, DataBase)):
     
     params = (
-        ("ref", None),
-        # ("config", {}),
-        ("rtbar", False,), # use RealTime 5 seconds bars
+        ("pattern", None),
+        ("batch_size", 10000),
+        ("rtbar", False,) # use RealTime 5 seconds bars
     )
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
 
-        self.calendar = self.ref["calendar"]
-        self.instrument = self.ref["instrument"]
-        self.bench = self.ref["benchmark"]
-        self.adj_factors = self.ref["adj"]
+        lazy_df = pl.scan_parquet(pattern)
+        lazy_df = (
+            lazy_df
+        )
+        self._row_iter = self._make_iter()
 
-        tick_table = self.ref["tick"]
-        self._row_iter = self._make_iter(tick_table)
-        
-        # self.sids = self.ref["sid"]
-        # self.extra_info = ", ".join([f"{k}={v}" for k, v in self.p.config.items()]) # any extra info to relate with feed
-        
     def _load(self):
         while True:
             try:
@@ -92,10 +84,12 @@ class RayData(with_metaclass(MetaRayData, DataBase)):
                 return True
             except StopIteration:
                 return False
-
-    def _make_iter(self, table):
-        cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
-        return zip(*cols)
+    
+    def _make_iter(self, lazy_df):
+         # self._row_iter = lazy_df.collect(streaming=True)
+        for batch in lazy_df.collect_iter(batch_size=self.p.batch_size):
+            for row in batch.iter_rows(named=True):
+                yield row
 
     def _load_bar(self, row):
         dt = self.lines.datetime[0]

@@ -19,7 +19,6 @@ class BayesianOnlineFSM:
     def __init__(self, prior_matrix):
         # Postperior Dirichlet
         self.prior_matrix = prior_matrix # np.ones((num_macro_states, num_micro_bins))
-        # to cache pending state
         self.pending_update = None 
 
     def update_posterior(self, realized_ret, gpd_edges):
@@ -30,7 +29,6 @@ class BayesianOnlineFSM:
             real_bin = min(max(real_bin, 0), self.num_micro - 1) # to avoid surpass
             
             self.prior_matrix[pre_macro_state, real_bin] += 1.0
-            
             self.pending_update = None
 
     def predict_expected_return(self, macro_state, gpd_centers):
@@ -40,6 +38,9 @@ class BayesianOnlineFSM:
 
     def track_state(self, macro_state):
         self.pending_update = {"macro_state": macro_state}
+
+    def get_fsm(self):
+        return self.prior_matrix
 
 
 # ==========================================
@@ -94,8 +95,6 @@ def run_pipeline(
         daily_ret = row["daily_ret"]
         daily_beta = row["last_beta"] 
         
-        history_returns.append(daily_ret)
-        
         edges, centers = gpd_dict[date_int]
         fsm.update_posterior(realized_ret=daily_ret, gpd_edges=edges)
             
@@ -107,9 +106,9 @@ def run_pipeline(
             pred_score = fsm.predict_expected_return(macro_state, centers)
             
             records.append({
-                "date": date_int, "sid": sid.decode("utf-8"),
-                "distance": float(dist), "beta": float(daily_beta),
-                "macro_state": int(macro_state), "pred_score": float(pred_score)
+                "date": date_int, "distance": float(dist), 
+                "beta": float(daily_beta), "macro_state": int(macro_state), 
+                "pred_score": float(pred_score), "prior_matrix": fsm.get_fsm()
             })
             fsm.track_state(macro_state)
             

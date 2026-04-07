@@ -84,7 +84,7 @@ class SellSignal(btind.Indicator):
             raise
 
 
-class FsmSignal(btind.Indicator): 
+class DrawDownSignal(btind.Indicator): 
 
     lines = ('signal',)
     params = (("thres", 0.25),)
