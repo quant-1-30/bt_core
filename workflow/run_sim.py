@@ -1,17 +1,10 @@
-import os
-import ray
 import gc
 import uuid
 import traceback
 import backtest as bt
-import numpy as np
-import ray.util.scheduling_strategies
 
-from itertools import compress
-from functools import partial
-from joblib import Parallel, delayed
 from typing import Dict, Any
-from tests.sample.ind import *
+from workflow.strategy.ind import *
 
 
 def run_backtest(config_ref, sid_map, store_agent=None):

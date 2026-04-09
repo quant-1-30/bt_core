@@ -30,7 +30,7 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.remote import RemoteStore
+from backtest.stores.rpcstore import RemoteStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 

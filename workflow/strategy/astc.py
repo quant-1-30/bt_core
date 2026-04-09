@@ -6,6 +6,7 @@ import stumpy
 import polars as pl
 import scipy.stats as stats
 from typing import List, Any, Dict
+from dtaidistance import dtw
 
 from workflow.function import *
 
@@ -19,20 +20,20 @@ def intercept(config):
     if m < 8 or m > 60:
         return {"status": "failed", "reason": f"m={m} 长度不合理", "metrics_score": -9999}
         
-    # 拦截 2 频率倒挂 采样频率比Beta频率还高噪音
-    if config["downsample"] < config["rolling_freq"]:
-        return {"status": "failed", "reason": "频率倒挂", "metrics_score": -9999}
+    # # 拦截 2 频率倒挂 采样频率比Beta频率还高噪音
+    # if config["downsample"] < config["rolling_freq"]:
+    #     return {"status": "failed", "reason": "频率倒挂", "metrics_score": -9999}
         
-    # 拦截 3 相关系数与长度木桶效应
-    if m > 30 and config["threshold_r"] > 0.90:
-        return {"status": "failed", "reason": "长序列要求高r", "metrics_score": -9999}
-
+    # # 拦截 3 相关系数与长度木桶效应
+    # if m > 30 and config["threshold_r"] > 0.90:
+    #     return {"status": "failed", "reason": "长序列要求高r", "metrics_score": -9999}
     return {"status": "success"}
 
 
-def get_atsc(raw_array: np.array, m: int, threshold_r: float):
+def get_atsc(raw_array: np.array, config):
     # filter by person d^2 = 2m(1-r)
-    threshold_d = math.sqrt(2 * m * (1 - threshold_r)) 
+    threshold_d = config["threshold_d"]
+    m = config["m"]
     mp = stumpy.stump(raw_array, m=m)
 
     distances = np.copy(mp[:, 0])
@@ -46,6 +47,7 @@ def get_atsc(raw_array: np.array, m: int, threshold_r: float):
     v_d = distances[anchor_idx]
     
     if v_d > threshold_d or np.isinf(v_d):
+        print("v_d not effective: ", v_d)
         return None, np.array([])
 
     left_I = np.copy(mp[:, 2])   
@@ -69,7 +71,6 @@ def get_atsc(raw_array: np.array, m: int, threshold_r: float):
     return atsc_chain, atsc_chain_v
 
 
-# align 14:55 -> 14:55 
 def evaluate_and_build_fsm(
     panel_df: pl.DataFrame, 
     motif: np.ndarray, 
@@ -83,23 +84,31 @@ def evaluate_and_build_fsm(
     fsm_prior_matrix = np.ones((3, num_bins))
     
     # vectorize distance
-    curves = np.stack(panel_df["curve"].to_numpy())
+    curves = np.stack(panel_df["curve"].to_numpy()) # stride not contiguous
     z_curves = robust_z_normalize(curves)
     z_motif = robust_z_normalize(motif)
-    distances = np.linalg.norm(z_curves - z_motif, axis=1)
-    
+
+    # C-contiguous for C speed
+    z_curves_c = np.ascontiguousarray(z_curves, dtype=np.float64)
+    z_motif_c = np.ascontiguousarray(z_motif, dtype=np.float64)
+    # distances = np.linalg.norm(z_curves_c - z_motif_c, axis=1)
+    dtw_window = calculate_dtw_params(config) 
+    distances = np.array([
+        dtw.distance_fast(
+            row, 
+            z_motif_c, 
+            window=dtw_window, 
+            max_dist= config["threshold_d"] # avoid 0.5 * math.sqrt(m) 
+        ) for row in z_curves_c
+    ]) 
     # distance concat DataFrame
     eval_df = panel_df.with_columns(
         pl.Series("distance", distances),
-        # pl.col("date_int").replace_strict(macro_dict, default=1).alias("macro_state")
-        pl.col("date_int").replace(macro_dict, default=1).alias("macro_state")
+        pl.col("date_int").replace(macro_dict, default=1).alias("macro_state") #replace_strict
     )
     
     # trigger by threshold
-    m = len(motif)
-    threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
-
-    triggers = eval_df.filter(pl.col("distance") < threshold_d)
+    triggers = eval_df.filter(pl.col("distance") < config["threshold_d"])
     if len(triggers) < 10:
         return {"status": "failed", "reason": "总触发次数过少 (<10)", "metrics_score": -np.inf}
          
@@ -176,24 +185,28 @@ def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:i
     if status["status"] == "failed":
         return status
 
-    hf_dfs = {}
-    for asset, _ref in data_ref["tick"].items():
-        hf_dfs[asset] = extract_from_beta_with_freq(
-            _ref, data_ref["benchmark"], config["rolling_freq"], config["ewm_span"], config["signal_type"])
+    # hf_dfs = {}
+    # for asset, _ref in data_ref["tick"].items():
+    #     hf_dfs[asset] = extract_from_beta_with_freq(
+    #         # _ref, data_ref["benchmark"], config["rolling_freq"], config["ewm_span"], config["signal_type"])
+    #         _ref, data_ref["benchmark"], config["signal_type"])
+    hf_dfs = process_to_residuals(data_ref["tick"], config["signal_type"])
 
     m = int(config["ndays"] * np.floor(4 * 60 / config["downsample"]))  
+    config["threshold_d"] = math.sqrt(2 * m * (1 - config["threshold_r"])) 
+    config["m"] = m
 
     # =========================================================
     # step 1 concat
     # =========================================================
     padded_array = dsample_and_concat(
-        hf_dfs, config["downsample"], m=m, amplify=1000
+        hf_dfs, config
     )
     
     if len(padded_array) < m:
         return {"status": "failed", "reason": "降采样后数据不足以组成 Motif", "metrics_score": -np.inf}
         
-    tsc, tsc_v = get_atsc(padded_array, m, config["threshold_r"])
+    tsc, tsc_v = get_atsc(padded_array, config)
     if tsc_v is None or len(tsc_v) == 0:
         return {"status": "failed", "reason": "未找到有效 Motif", "metrics_score": -np.inf}
         

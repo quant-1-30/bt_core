@@ -10,6 +10,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
+import json
 import ray
 import traceback
 import numpy as np
@@ -18,14 +19,13 @@ import pyarrow.compute as pc
 from functools import partial
 from typing import List, Any, Dict
 
+from dotenv import load_dotenv
 from bt_sdk.core.protocol import QueryBody
 from workflow.strategy.fsm import run_pipeline
 from workflow.function import _initialize_mdapi
 
 
 def preload(start_date: int, end_date: int, benchmark: bytes, market: str):
-     # 0 1 2 / raw qfq hfq
-    print("📡 获取全市场股票池...")
     md_api = _initialize_mdapi()
     table = md_api.get_instrument()
     mask = pc.starts_with(table["sid"], market) 
@@ -40,23 +40,7 @@ def preload(start_date: int, end_date: int, benchmark: bytes, market: str):
 # ==========================================
 # Orchestration
 # ==========================================
-def dipatch(start_date, end_date, market, benchmark):
-    print("🚀 初始化 Ray 分布式集群...")
-
-    # env_vars = { # numpy auto use all cpus
-    #   "OMP_NUM_THREADS": "1",
-    #   "MKL_NUM_THREADS": "1",
-    #   "OPENBLAS_NUM_THREADS": "1",
-    #   "VECLIB_MAXIMUM_THREADS": "1",
-    #   "NUMEXPR_NUM_THREADS": "1"
-    # }
-
-    ray.init(
-        ignore_reinit_error=True,
-        namespace="backtest"
-        # runtime_env={"env_vars": json.dumps(env_vars)}, # 
-    )
-
+def dipatch(start_date, end_date, market, benchmark, output):
     # object_ref ---> zero_copy and read  
     universe, bench_data = preload(start_date, end_date, benchmark, market)
     bench_ref = ray.put(bench_data)
@@ -88,18 +72,17 @@ def dipatch(start_date, end_date, market, benchmark):
     print(f"Agent Num {len(agents)}") 
 
     # load config
-    import json
     with open("metric.json", "r") as f:
         config = json.load(f)
     
     config["start_date"] = start_date
     config["end_date"] = end_date
+    config["output"] = output
     config_ref = ray.put(config)
 
     print(" Dispatcher Ray Worker...")
     # Head Node: N RayAgent
-    assets = universe[:10]
-    pending = [agents[i % 10].submit.remote(sid, config_ref, bench_ref) for i, sid in enumerate(assets)]
+    pending = [agents[i % 10].submit.remote(sid, config_ref, bench_ref) for i, sid in enumerate(universe)]
     results = []
 
     while pending:
@@ -107,8 +90,9 @@ def dipatch(start_date, end_date, market, benchmark):
         for ref in done:
             try:
                 res = ray.get(ref)
+                print("result: ",res)
                 results.append(res)
-                if len(results) % ray_window == 0:
+                if len(results) % 5 == 0:
                     print(f"Progress: {len(results)}/{len(assets)}")
             except Exception as e:
                 print(f"Task failed: {e}")
@@ -121,14 +105,14 @@ def dipatch(start_date, end_date, market, benchmark):
     print(f"success rate : {success_cnt}/{len(universe)}")
     print(f"📁 {total_triggers} writer /tmp/backtest_results/parquet")
     print("=========================================")
-    # ray.shutdown()
 
 
 if __name__ == "__main__":
 
-    start_date=20200102
+    load_dotenv()
+
+    start_date=20000102
     end_date=20260228
     market="6"
     benchmark=b"000001"
-
     dipatch(start_date, end_date, market, benchmark)

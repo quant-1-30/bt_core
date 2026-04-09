@@ -366,7 +366,7 @@ Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_pa
     **业界顶尖解决方案：“网格化降维 + 代理评估模型 (Surrogate-Assisted Hierarchical Search)”**
 
 export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1
-ray start --head --include-dashboard=false 
+ray start --head --include-dashboard=false --system-config='{"automatic_object_spilling_enabled: false}' 
 ray summary actors
 
 
@@ -398,3 +398,23 @@ ray summary actors
 # 决策树 算法应用于量化投资
 
 
+# 编译 dtaidistance
+1\ export env
+export CFLAGS="-I/opt/homebrew/opt/libomp/include"
+export CXXFLAGS="-I/opt/homebrew/opt/libomp/include"
+export LDFLAGS="-L/opt/homebrew/opt/libomp/lib"
+
+2\ clear cache
+    poetry run pip uninstall -y dtaidistance
+    poetry cache clear pypi --all
+3\ recompile to install
+poetry run pip install --no-cache-dir --no-binary dtaidistance dtaidistance 
+
+4\ test c api
+    from dtaidistance import dtw
+    print(dtw.try_import_c())
+
+# in cluster a. nfs / b. grpc host / c. resource / d. docker distribute
+
+brew services start redis
+caffeinate -i -s python finetune.py

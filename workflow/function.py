@@ -17,9 +17,9 @@ from bt_sdk.core.protocol import QueryBody
 from backtest.execution.actor import AsyncRunner
 
 
-def _initialize_mdapi():
+def _initialize_mdapi(timeout=1000):
     md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
-    mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
+    mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])), timeout=timeout)
     _runner = AsyncRunner()
     _runner.start() # new_event_loop
     _loop = _runner.get_loop()
@@ -41,135 +41,207 @@ def robust_z_normalize(window_data):
     return robust_z
 
 
-def extract_from_beta_with_freq(raw: pl.DataFrame, bench_ref: pa.Table, rolling_freq: int, ewm_span: int, signal_type: str = "vwap"):
-    """
-    :param signal_type: "close" , "vwap", "vpt"
-    """
-    span = int(ewm_span * 4 * np.floor(60 / rolling_freq))
-    benchmark = pl.from_arrow(bench_ref)
-    raw_df = raw if isinstance(raw, pl.DataFrame) else pl.from_arrow(raw)
+def calculate_dtw_params(config: dict):
+    # L2 allowed_err(0.25 z-score) * sqrt(m)
+    # max_dtw_dist = 0.5 * math.sqrt(m) 
+    raw_window = int(config["m"] * config["dtw_window_frac"])
+    # retricted and halfday
+    max_intraday = int(60*2 / config["downsample"]) 
+    dtw_window = max(1, min(max_intraday, raw_window))
+    return dtw_window
+
+
+# def extract_from_beta_with_freq(raw: pl.DataFrame, bench_ref: pa.Table, rolling_freq: int, ewm_span: int, signal_type: str = "vwap"):
+#     """
+#     :param signal_type: "close" , "vwap", "vpt"
+#     """
+#     span = int(ewm_span * 4 * np.floor(60 / rolling_freq))
+#     benchmark = pl.from_arrow(bench_ref)
+#     raw_df = raw if isinstance(raw, pl.DataFrame) else pl.from_arrow(raw)
  
-    # ==========================================
-    # 1. concat benchmark and eliminate 14:55
-    # ==========================================
-    data_joined = raw_df.join(
-        benchmark.select(["tick", "close"]).rename({"close": "close_bench"}),
-        on="tick",
-        how="left" 
-    ).sort("tick").with_columns(
+#     # ==========================================
+#     # 1. concat benchmark and eliminate 14:55
+#     # ==========================================
+#     data_joined = raw_df.join(
+#         benchmark.select(["tick", "close"]).rename({"close": "close_bench"}),
+#         on="tick",
+#         how="left" 
+#     ).sort("tick").with_columns(
+#         datetime = pl.from_epoch(pl.col("tick"), time_unit="s"),
+#         date_int = pl.from_epoch(pl.col("tick"), time_unit="s").dt.strftime("%Y%m%d").cast(pl.Int32)
+#     )
+
+#     data_joined = data_joined.filter(
+#         # pl.col("datetime").dt.time() <= datetime.time(14, 55, 0)
+#         pl.col("datetime").dt.hour() * 60 + pl.col("datetime").dt.minute() <= 14 * 60 + 55
+#     )
+
+#     # ==========================================
+#     # 2. vwap price / close / vpt price
+#     # ==========================================
+#     if signal_type == "vwap":
+#         data_joined = data_joined.with_columns(
+#             signal_price = pl.when(pl.col("volume") > 0)
+#                              .then(pl.col("amount") / pl.col("volume"))
+#                              .otherwise(pl.col("close"))
+#         )
+#     else:
+#         # Close / VPT 
+#         data_joined = data_joined.with_columns(
+#             signal_price = pl.col("close")
+#         )
+
+#     data_joined = data_joined.with_columns(
+#         log_ret_raw = pl.col("signal_price").log().diff().fill_null(0.0),
+#         log_ret_bench_raw = pl.col("close_bench").log().diff().fill_null(0.0)
+#     )
+
+#     # ==========================================
+#     # 3. calculate Beta 
+#     # ==========================================
+#     beta_df = data_joined.group_by_dynamic( 
+#         "datetime", 
+#         every=f"{rolling_freq}m",
+#         closed="left" 
+#     ).agg(
+#         close_freq = pl.col("signal_price").last(),
+#         close_bench_freq = pl.col("close_bench").last()
+#     ).sort("datetime").with_columns(
+#         ret_freq = pl.col("close_freq").log().diff().fill_null(0.0),
+#         ret_bench_freq = pl.col("close_bench_freq").log().diff().fill_null(0.0)
+#     ).with_columns(
+#         xy_ewm = (pl.col("ret_freq") * pl.col("ret_bench_freq")).ewm_mean(span=span, ignore_nulls=True),
+#         x_ewm  = pl.col("ret_freq").ewm_mean(span=span, ignore_nulls=True),
+#         y_ewm  = pl.col("ret_bench_freq").ewm_mean(span=span, ignore_nulls=True),
+#         y2_ewm = (pl.col("ret_bench_freq") ** 2).ewm_mean(span=span, ignore_nulls=True)
+#     ).with_columns(
+#         cov_xy = pl.col("xy_ewm") - (pl.col("x_ewm") * pl.col("y_ewm")),
+#         var_y  = pl.col("y2_ewm") - (pl.col("y_ewm") ** 2)
+#     ).with_columns(
+#         raw_beta = pl.when(pl.col("var_y") > 1e-8)
+#                      .then(pl.col("cov_xy") / pl.col("var_y"))
+#                      .otherwise(1.0)
+#     ).with_columns(
+#         beta_upper = pl.col("raw_beta").rolling_quantile(0.95, window_size=span, min_periods=5), 
+#         beta_lower = pl.col("raw_beta").rolling_quantile(0.05, window_size=span, min_periods=5)
+#     ).with_columns(
+#         beta = pl.min_horizontal(
+#                    pl.max_horizontal(pl.col("raw_beta"), pl.col("beta_lower").fill_null(-3.0)), 
+#                    pl.col("beta_upper").fill_null(3.0)
+#                )
+#     ).with_columns(
+#         filled_beta = pl.col("beta").shift(1).forward_fill().fill_null(1.0), 
+#         datetime_trunc = pl.col("datetime").dt.truncate(f"{rolling_freq}m")
+#     ).select(["datetime_trunc", "filled_beta"])  
+
+#     # ==========================================
+#     # 4. calculate residual_ret
+#     # ==========================================
+#     hf_df = data_joined.with_columns(
+#         datetime_trunc = pl.col("datetime").dt.truncate(f"{rolling_freq}m")
+#     ).join( 
+#         beta_df,
+#         on="datetime_trunc",
+#         how="left"
+#     ).with_columns(
+#         filled_beta = pl.col("filled_beta").forward_fill().fill_null(1.0)
+#     )
+
+#     hf_df = hf_df.sort("tick").with_columns( 
+#         residual_ret = pl.col("log_ret_raw") - pl.col("filled_beta") * pl.col("log_ret_bench_raw")
+#     )
+    
+#     # ==========================================
+#     # 5. multiplier on vpt
+#     # ==========================================
+#     if signal_type == "vpt":
+#         hf_df = hf_df.with_columns(
+#             daily_mean_vol = pl.col("volume").mean().over("date_int")
+#         ).with_columns(
+#             vol_weight = pl.when(pl.col("daily_mean_vol") > 0)
+#                            .then(pl.col("volume") / pl.col("daily_mean_vol"))
+#                            .otherwise(1.0)
+#         ).with_columns(
+#             residual_ret = pl.col("residual_ret") * pl.col("vol_weight")
+#         )
+
+#     hf_df = hf_df.with_columns(
+#         # intraday_cum = pl.col("residual_ret").cum_sum().over("date_int"),
+#         intraday_cum = pl.col("residual_ret").cum_sum()
+#     )
+    
+#     if "daily_mean_vol" in hf_df.columns:
+#         hf_df = hf_df.drop(["daily_mean_vol", "vol_weight"])
+        
+#     return hf_df
+
+
+def process_to_residuals(data_ref: dict, signal_type: str = "vwap") -> dict:
+    """
+    concat -> median -> extract
+    """
+    dfs = [v for _, v in data_ref.items()]
+    if not dfs:
+        return {}
+    panel_df = pl.concat(dfs)
+    
+    # filter 14:55
+    panel_df = panel_df.with_columns(
         datetime = pl.from_epoch(pl.col("tick"), time_unit="s"),
         date_int = pl.from_epoch(pl.col("tick"), time_unit="s").dt.strftime("%Y%m%d").cast(pl.Int32)
-    )
-
-    data_joined = data_joined.filter(
-        # pl.col("datetime").dt.time() <= datetime.time(14, 55, 0)
+    ).filter(
         pl.col("datetime").dt.hour() * 60 + pl.col("datetime").dt.minute() <= 14 * 60 + 55
     )
 
-    # ==========================================
-    # 2. vwap price / close / vpt price
-    # ==========================================
     if signal_type == "vwap":
-        data_joined = data_joined.with_columns(
+        panel_df = panel_df.with_columns(
             signal_price = pl.when(pl.col("volume") > 0)
                              .then(pl.col("amount") / pl.col("volume"))
                              .otherwise(pl.col("close"))
         )
-    else:
-        # Close / VPT 
-        data_joined = data_joined.with_columns(
-            signal_price = pl.col("close")
-        )
+    else: # close or vpt
+        panel_df = panel_df.with_columns(signal_price = pl.col("close"))
 
-    data_joined = data_joined.with_columns(
-        log_ret_raw = pl.col("signal_price").log().diff().fill_null(0.0),
-        log_ret_bench_raw = pl.col("close_bench").log().diff().fill_null(0.0)
+    panel_df = panel_df.sort(["sid", "tick"]).with_columns(
+        log_ret_raw = pl.col("signal_price").log().diff().fill_null(0.0).over("sid")
     )
 
-    # ==========================================
-    # 3. calculate Beta 
-    # ==========================================
-    beta_df = data_joined.group_by_dynamic( 
-        "datetime", 
-        every=f"{rolling_freq}m",
-        closed="left" 
-    ).agg(
-        close_freq = pl.col("signal_price").last(),
-        close_bench_freq = pl.col("close_bench").last()
-    ).sort("datetime").with_columns(
-        ret_freq = pl.col("close_freq").log().diff().fill_null(0.0),
-        ret_bench_freq = pl.col("close_bench_freq").log().diff().fill_null(0.0)
+    # =======================================================
+    # calculate universe median
+    # =======================================================
+    panel_df = panel_df.with_columns(
+        median_ret = pl.col("log_ret_raw").median().over("tick")
     ).with_columns(
-        xy_ewm = (pl.col("ret_freq") * pl.col("ret_bench_freq")).ewm_mean(span=span, ignore_nulls=True),
-        x_ewm  = pl.col("ret_freq").ewm_mean(span=span, ignore_nulls=True),
-        y_ewm  = pl.col("ret_bench_freq").ewm_mean(span=span, ignore_nulls=True),
-        y2_ewm = (pl.col("ret_bench_freq") ** 2).ewm_mean(span=span, ignore_nulls=True)
-    ).with_columns(
-        cov_xy = pl.col("xy_ewm") - (pl.col("x_ewm") * pl.col("y_ewm")),
-        var_y  = pl.col("y2_ewm") - (pl.col("y_ewm") ** 2)
-    ).with_columns(
-        raw_beta = pl.when(pl.col("var_y") > 1e-8)
-                     .then(pl.col("cov_xy") / pl.col("var_y"))
-                     .otherwise(1.0)
-    ).with_columns(
-        beta_upper = pl.col("raw_beta").rolling_quantile(0.95, window_size=span, min_periods=5), 
-        beta_lower = pl.col("raw_beta").rolling_quantile(0.05, window_size=span, min_periods=5)
-    ).with_columns(
-        beta = pl.min_horizontal(
-                   pl.max_horizontal(pl.col("raw_beta"), pl.col("beta_lower").fill_null(-3.0)), 
-                   pl.col("beta_upper").fill_null(3.0)
-               )
-    ).with_columns(
-        filled_beta = pl.col("beta").shift(1).forward_fill().fill_null(1.0), 
-        datetime_trunc = pl.col("datetime").dt.truncate(f"{rolling_freq}m")
-    ).select(["datetime_trunc", "filled_beta"])  
-
-    # ==========================================
-    # 4. calculate residual_ret
-    # ==========================================
-    hf_df = data_joined.with_columns(
-        datetime_trunc = pl.col("datetime").dt.truncate(f"{rolling_freq}m")
-    ).join( 
-        beta_df,
-        on="datetime_trunc",
-        how="left"
-    ).with_columns(
-        filled_beta = pl.col("filled_beta").forward_fill().fill_null(1.0)
+        residual_ret = pl.col("log_ret_raw") - pl.col("median_ret")
     )
 
-    hf_df = hf_df.sort("tick").with_columns( 
-        residual_ret = pl.col("log_ret_raw") - pl.col("filled_beta") * pl.col("log_ret_bench_raw")
-    )
-    
-    # ==========================================
-    # 5. multiplier on vpt
-    # ==========================================
     if signal_type == "vpt":
-        hf_df = hf_df.with_columns(
-            daily_mean_vol = pl.col("volume").mean().over("date_int")
+        panel_df = panel_df.with_columns(
+            daily_mean_vol = pl.col("volume").mean().over(["sid", "date_int"])
         ).with_columns(
             vol_weight = pl.when(pl.col("daily_mean_vol") > 0)
                            .then(pl.col("volume") / pl.col("daily_mean_vol"))
                            .otherwise(1.0)
         ).with_columns(
             residual_ret = pl.col("residual_ret") * pl.col("vol_weight")
-        )
+        ).drop(["daily_mean_vol", "vol_weight"])
 
-    hf_df = hf_df.with_columns(
-        # intraday_cum = pl.col("residual_ret").cum_sum().over("date_int"),
-        intraday_cum = pl.col("residual_ret").cum_sum()
+    panel_df = panel_df.with_columns(
+        intraday_cum = pl.col("residual_ret").cum_sum().over("sid")
     )
-    
-    if "daily_mean_vol" in hf_df.columns:
-        hf_df = hf_df.drop(["daily_mean_vol", "vol_weight"])
-        
-    return hf_df
+
+    hf_dfs = {}
+    for sid_tuple, sub_df in panel_df.partition_by("sid", as_dict=True).items():
+        hf_dfs[sid_tuple[0]] = sub_df.drop(["sid", "signal_price", "median_ret"])
+    return hf_dfs
 
 
-def dsample_and_concat(hf_dfs: Dict[str, pl.DataFrame], downsample: int, m: int , amplify:int =1000):
+def dsample_and_concat(hf_dfs: Dict[str, pl.DataFrame], config, amplify:int =100):
     """
     fill m np.nan between assets
     """
+    downsample = config["downsample"]
+    m = config["m"]
     multi_asset =[]
     nan_buffer = np.full(m, np.nan)  
     
@@ -241,14 +313,12 @@ def extract_asset_feature(hf_df: pl.DataFrame, downsample: int, m: int, amplify:
     ).agg(
         cum_val = pl.col("intraday_cum_bps").last(),
         date_int = pl.col("date_int").last(),
-        last_beta = pl.col("filled_beta").last(),
         last_tick_time = pl.col("datetime").last(),
         last_price = pl.col("close").last() 
     ).drop_nulls(subset=["cum_val"])
     
     cum_vals = df_sampled["cum_val"].to_numpy()
     dates = df_sampled["date_int"].to_numpy()
-    betas = df_sampled["last_beta"].to_numpy()
     tick_times = df_sampled["last_tick_time"].to_list()
     prices = df_sampled["last_price"].to_numpy() 
     
@@ -280,7 +350,6 @@ def extract_asset_feature(hf_df: pl.DataFrame, downsample: int, m: int, amplify:
             "date_int": curr_date,
             "curve": curve_m,
             "daily_ret": ret_dict.get(curr_date, 0.0), 
-            "last_beta": betas[idx]
         })
         
     return records

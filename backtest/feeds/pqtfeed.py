@@ -31,17 +31,17 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.exp import ExpStore
+from backtest.stores.localstore import LocalStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
 
-class MetaExpBase(DataBase.__class__):
+class MetaParquetBase(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
-        super(MetaExpBase, cls).__init__(name, bases, dct)
-        ExpStore.DataCls = cls
+        super(MetaParquetBase, cls).__init__(name, bases, dct)
+        LocalStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaParquetBase, cls).donew(*args, **kwargs)
@@ -52,7 +52,7 @@ class MetaExpBase(DataBase.__class__):
         return _obj, args, kwargs
 
 
-class ExpData(with_metaclass(MetaExpBase, DataBase)):
+class ParquetData(with_metaclass(MetaParquetBase, DataBase)):
     
     params = (
         ("pattern", None),

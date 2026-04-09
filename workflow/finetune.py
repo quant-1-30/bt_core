@@ -1,6 +1,14 @@
 #! /usr/bin/env python3
 # -*- encondig: utf-8 -*-
 
+import os
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
 import json
 import ray
 import numpy as np
@@ -10,7 +18,7 @@ from typing import List, Any, Dict
 from ray import tune
 
 from workflow.function import _initialize_mdapi
-from workflow.strategy.astc import *
+from workflow.strategy.astc import run_pipeline
 from workflow.visual import plot_tune_landscape_3d
 from bt_sdk.core.client import FactorTopic
 from bt_sdk.core.protocol import QueryBody
@@ -41,17 +49,10 @@ def preload(start_date: int, end_date: int, benchmark: bytes, market: str, frac:
     return {"benchmark": bench_data[benchmark], "tick": tick_data}
 
 
-def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", market="6", frac:float=0.01, stats_window=[5,10,20], 
-                num_samples:int =200, max_concurrency:int=10, topK=5): 
-    # # --- 启动 Ray ---
-    env_config = {}
+def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", market="6", frac:float=0.1, stats_window=[5,10,20], 
+                num_samples:int =200, max_concurrency:int=10, topK=5):
 
-    ray.init(address="auto", 
-            namespace="backtest", 
-            # runtime_env={"env_vars": json.dumps(env_config)}, # 
-            ignore_reinit_error=True)
-
-    print("preload data")
+     
     data = preload(
         start_date=start_date - 10000, 
         end_date=end_date, 
@@ -60,22 +61,23 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         frac=frac,
         adj=FactorTopic.Hfq
     )
+    print("finish preload data")
     
     # Object store and publish to worker
     data_ref = ray.put(data) 
 
     search_space = {
-        # extract beta
-        "signal_type": tune.choice(["close", "vwap", "vpt"]),
-        "rolling_freq": tune.choice([10, 15, 20, 30, 60]),
-        "ewm_span": tune.choice([10, 20, 30]),     
+        # extract median
+        "signal_type": tune.choice(["vwap", "vpt"]),
 
         # m <= 50 
         "downsample": tune.choice([15, 20, 30, 60]), 
         "ndays": tune.choice([1, 2, 3]), 
 
-        # stumpy tsc 
-        "threshold_r": tune.uniform(0.70, 0.95), 
+        # dtw / linalg_norm
+        "threshold_r": tune.uniform(0.70, 0.95),
+        "dtw_window_frac": tune.uniform(0.05, 0.20), 
+
         # metrics
         "penalty_m": tune.choice([20, 30, 40]), 
 
@@ -102,7 +104,7 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
             stats_window=stats_window,
             actual_date=start_date  
         ),
-        resources={"cpu": 8, "gpu": 0}
+        resources={"cpu": 1, "gpu": 0} # intend for every trial
     )
 
     tuner = tune.Tuner( 
@@ -137,10 +139,11 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
             
             if isinstance(obj, np.float64):
                 return float(obj)
-            
+            return super().default(obj)
+ 
 
     with open("metric.json", "w+") as f:
-        json.dump(best_trial.metrics, f, indent=4, cls=CustomEncoder) 
+        json.dump(best_trial.metrics, f, indent=4, cls=CustomEncoder, ensure_ascii=False) 
 
     df = results.get_dataframe()
     df.to_csv("finetune.csv")
@@ -166,4 +169,17 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
 
 if __name__ == "__main__":
 
+    env_vars = { 
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+
+    ray.init(address="auto", 
+             namespace="backtest", 
+             runtime_env={"env_vars": env_vars}, # 
+            ignore_reinit_error=True
+    )
     train_hpo() 

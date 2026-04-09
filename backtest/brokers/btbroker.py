@@ -23,7 +23,7 @@ from backtest.metabase import with_metaclass
 from typing import List, Union
 
 from backtest.broker import BrokerBase
-from backtest.stores.remote import RemoteStore
+from backtest.stores.rpcstore import RemoteStore
 from backtest.stores.raystore import RayStore
 from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp, SnapshotBody, AccountBody, PositionBody
 

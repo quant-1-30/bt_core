@@ -28,10 +28,10 @@ from bt_sdk.core.protocol import *
 from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
 
 
-__all__ = ["ExpStore"]
+__all__ = ["LocalStore"]
 
 
-class ExpStore(Store):
+class LocalStore(Store):
     '''Singleton class wrapping to control the connections.
 
     Params:
