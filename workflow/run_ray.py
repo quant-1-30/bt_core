@@ -11,6 +11,7 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 import ray
+import traceback
 import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
@@ -19,7 +20,7 @@ from typing import List, Any, Dict
 
 from bt_sdk.core.protocol import QueryBody
 from workflow.strategy.fsm import run_pipeline
-from workflow.preprocess import _initialize_mdapi
+from workflow.function import _initialize_mdapi
 
 
 def preload(start_date: int, end_date: int, benchmark: bytes, market: str):
@@ -52,6 +53,7 @@ def dipatch(start_date, end_date, market, benchmark):
 
     ray.init(
         ignore_reinit_error=True,
+        namespace="backtest"
         # runtime_env={"env_vars": json.dumps(env_vars)}, # 
     )
 
@@ -62,30 +64,43 @@ def dipatch(start_date, end_date, market, benchmark):
     # load agents
     agents = []
     node_id = 0
-    while True:
-        try:
-            actor = ray.get_actor(f"MdapiAgent_Local_{node_id}" )
-            agents.append(actor)
-            node_id += 1
-        except ValueError:
-            break
-    
+    max_retries = 5  
+
+    while node_id < 10:  
+        actor_name = f"MdapiAgent_Local_{node_id}"
+        retries = 0
+        actor = None
+        
+        while retries < max_retries:
+            try:
+                actor = ray.get_actor(actor_name, namespace="backtest")
+                agents.append(actor)
+                node_id += 1
+                break  
+            except ValueError:
+                retries += 1
+                print(f"[{retries}/{max_retries}] 未找到 {actor_name}，等待 GCS 注册...")
+                time.sleep(1)  # used for ray gcs register
+
     if not agents:
         # use_explicit_agent = True
         raise ValueError("No Global Pool agents found. Switching to Binding/Auto mode (store_agent=None).")
     print(f"Agent Num {len(agents)}") 
 
     # load config
-    config = {}
+    import json
+    with open("metric.json", "r") as f:
+        config = json.load(f)
+    
     config["start_date"] = start_date
     config["end_date"] = end_date
     config_ref = ray.put(config)
 
     print(" Dispatcher Ray Worker...")
+    # Head Node: N RayAgent
+    assets = universe[:10]
+    pending = [agents[i % 10].submit.remote(sid, config_ref, bench_ref) for i, sid in enumerate(assets)]
     results = []
-
-    # Head Node: N RayAgent 
-    pending = [agents[i % 10].submit.remote(sid, config_ref, bench_ref) for i, sid in enumerate(universe[:10])]
 
     while pending:
         done, pending = ray.wait(pending, num_returns=1)
@@ -98,9 +113,6 @@ def dipatch(start_date, end_date, market, benchmark):
             except Exception as e:
                 print(f"Task failed: {e}")
                 traceback.print_exc()
-
-        if assets:
-            pending.append(ray_submit())
 
     print("All done!")
     success_cnt = sum(1 for r in results if r["status"] == "success")

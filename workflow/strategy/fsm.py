@@ -49,9 +49,9 @@ class BayesianOnlineFSM:
 @ray.remote(num_cpus=0.2)
 def run_pipeline(
     sid: bytes,
+    config: dict,
     tick_data: pl.DataFrame,
-    config: ray.ObjectRef,
-    bench_ref: ray.ObjectRef
+    bench_ref: pa.Table
     ):
     output_dir = "/tmp/backtest_results/parquet"
     os.makedirs(output_dir, exist_ok=True)
@@ -61,7 +61,7 @@ def run_pipeline(
         return {"sid": sid, "status": "no_data"}
         
     hf_df = extract_from_beta_with_freq(
-        raw=pl.from_arrow(tick_data[sid]), bench_ref=bench_ref, 
+        raw=tick_data[sid], bench_ref=bench_ref, 
         rolling_freq=config["rolling_freq"], ewm_span=config["ewm_span"]
     )
     

@@ -19,7 +19,7 @@ def run_backtest(config_ref, sid_map, store_agent=None):
     print("run_backtest sid ", sid)
     try:
         cerebro = bt.Cerebro(client_id=uuid.UUID(config_ref["client_id"]).bytes, writer=False)  
-        cerebro.addstore("ray", agent=store_agent) 
+        cerebro.addstore("generic") 
         ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
         wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
 

@@ -7,12 +7,12 @@ import polars as pl
 import scipy.stats as stats
 from typing import List, Any, Dict
 
-from workflow.preprocess import *
+from workflow.function import *
 
 
 def intercept(config):
     # ====================================================
-    # 🛡️ 金融常识拦截器 (Domain Knowledge Guardrails)
+    # Domain Knowledge Guardrails
     # ====================================================
     # 拦截 1 形态点数过少非有效博弈或过多无法匹配
     m = int(config["ndays"] * np.floor(240 / config["downsample"]))
@@ -108,14 +108,11 @@ def evaluate_and_build_fsm(
         macro_state = row["macro_state"]
         ret_t1 = row["fwd_ret_1"]
         if not ret_t1:
-            print("null ret_t1 ", ret_t1)
             continue
-
         # GPD edges
         trigger_date = row["date_int"]
         edges, _ = gpd_dict.get(trigger_date, (None, None))
         if edges is None: continue
-        print("null edges ", edges)
 
         bin_idx = np.digitize(ret_t1, edges)
         bin_idx = min(max(bin_idx, 0), num_bins - 1) 

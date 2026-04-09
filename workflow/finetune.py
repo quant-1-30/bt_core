@@ -9,7 +9,7 @@ import pyarrow.compute as pc
 from typing import List, Any, Dict
 from ray import tune
 
-from workflow.preprocess import _initialize_mdapi
+from workflow.function import _initialize_mdapi
 from workflow.strategy.astc import *
 from workflow.visual import plot_tune_landscape_3d
 from bt_sdk.core.client import FactorTopic
@@ -75,7 +75,7 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
         "ndays": tune.choice([1, 2, 3]), 
 
         # stumpy tsc 
-        "threshold_r": tune.uniform(0.75, 0.95), 
+        "threshold_r": tune.uniform(0.70, 0.95), 
         # metrics
         "penalty_m": tune.choice([20, 30, 40]), 
 
@@ -132,17 +132,18 @@ def train_hpo(start_date=20100101, end_date=20200101, benchmark=b"000001", marke
     class CustomEncoder(json.JSONEncoder):
         
         def default(self, obj):
-            if isinstance(obj, np.array):
+            if isinstance(obj, np.ndarray):
                 return list(obj)
             
-            if isinstance(obj, np.floating):
+            if isinstance(obj, np.float64):
                 return float(obj)
             
 
     with open("metric.json", "w+") as f:
-        json.dump(best_trial.metrics, f, cls=CustomEncoder) 
+        json.dump(best_trial.metrics, f, indent=4, cls=CustomEncoder) 
 
     df = results.get_dataframe()
+    df.to_csv("finetune.csv")
     # 3D Visual
     plot_tune_landscape_3d(df, "config/threshold_r", "config/downsample")
     # topk

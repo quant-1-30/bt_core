@@ -28,10 +28,10 @@ from bt_sdk.core.protocol import *
 from backtest.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
 
 
-__all__ = ["RayStore"]
+__all__ = ["ExpStore"]
 
 
-class GenericStore(Store):
+class ExpStore(Store):
     '''Singleton class wrapping to control the connections.
 
     Params:
@@ -55,23 +55,18 @@ class GenericStore(Store):
     )
 
     def __init__(self):
-        self._feed = self.DataCls(ref=self.p.ref, config=self.p.config) 
-
         q_size = int(os.getenv("QSize")) 
         buffer_size = int(os.getenv("BufferSize"))
         actor = RayWriterProxy(self.p.actor)
         tdapi = TdApi(client_id=self.p.client_id, q_size=q_size, buffer_size=buffer_size, actor=actor)
         self.broker = self.BrokerCls(tdapi=tdapi)
+        self._feed = self.DataCls(ref=self.p.ref) 
         
         self._runner = AsyncRunner()
 
     def start(self, *args, **kwargs):
         self._runner.start() # new_event_loop
         _loop = self._runner.get_loop()
-        
-        md_addr = os.getenv("MD_ADDR", self.p.md_addr).split(":")
-        mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
-        mdapi.start(_loop) # ensure simulator mdapi is binding
         self.broker._prepare(_loop)
 
     def setenvironment(self, env):
@@ -85,14 +80,6 @@ class GenericStore(Store):
 
 # ------------------------------------------------------------------- data api ---------------------------------------------------------------------
 
-    def get_calendar(self) -> np.array:
-        '''Returns the calendar data'''
-        return self._feed.calendar
-    
-    def get_instrument(self) -> Dict[str, Any]:
-        '''Returns the assets data'''
-        return self._feed.instrument
-    
     def get_benchmark(self) -> pa.Table:
         table = self._feed.bench
         return table

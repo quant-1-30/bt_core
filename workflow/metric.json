@@ -1,1 +1,92 @@
-{"status": "failed", "reason": "\u957f\u5e8f\u5217\u8981\u6c42\u9ad8r", "metrics_score": -9999, "timestamp": 1775663321, "checkpoint_dir_name": null, "done": true, "training_iteration": 1, "trial_id": "66c87_00001", "date": "2026-04-08_23-48-41", "time_this_iter_s": 0.20548295974731445, "time_total_s": 0.20548295974731445, "pid": 59996, "hostname": "hengxindeMacBook-Pro.local", "node_ip": "127.0.0.1", "config": {"signal_type": "vwap", "rolling_freq": 15, "ewm_span": 20, "downsample": 15, "ndays": 2, "threshold_r": 0.9430518683583152, "penalty_m": 20, "loopback": 504, "gpd_quantiles": [0.1, 0.3, 0.7, 0.9], "gpd_freq_month": 6}, "time_since_restore": 0.20548295974731445, "iterations_since_restore": 1, "experiment_tag": "1_downsample=15,ewm_span=20,gpd_freq_month=6,gpd_quantiles=0_1_0_3_0_7_0_9,loopback=504,ndays=2,penalty_m=20,rolling_freq=15,signal_type=vwap,threshold_r=0.9431"}
+{
+    "status": "success",
+    "fsm_trigger_count": 4696,
+    "ks_results": {
+        "T+5": {
+            "cond_mean": 0.0008906740832997345,
+            "uncond_mean": -0.001440181497864037,
+            "ks_pval": 0.01318636533458437,
+            "u_pval": 0.007511317358178874,
+            "score": 49.51398957253439
+        },
+        "T+10": {
+            "cond_mean": 0.0020646438437047663,
+            "uncond_mean": -0.0028525768824278082,
+            "ks_pval": 3.519367509938886e-05,
+            "u_pval": 4.7170972892947435e-05,
+            "score": 212.7349577628619
+        },
+        "T+20": {
+            "cond_mean": 0.004733588043933985,
+            "uncond_mean": -0.005747590271152772,
+            "ks_pval": 4.63683971920306e-07,
+            "u_pval": 1.1166122788241407e-07,
+            "score": 728.6617461725474
+        }
+    },
+    "fsm_prior_matrix": [
+        [
+            194,
+            174,
+            162,
+            171,
+            208
+        ],
+        [
+            574,
+            605,
+            544,
+            536,
+            541
+        ],
+        [
+            182,
+            175,
+            174,
+            179,
+            201
+        ]
+    ],
+    "learned_motif": [
+        34.94019677632693,
+        37.38768778386504,
+        36.09020451077541,
+        43.75988232025846,
+        335.2012023428839,
+        359.16945432154944,
+        357.4915600831865,
+        361.6691708179334
+    ],
+    "metrics_score": 728.6617461725474,
+    "timestamp": 1775709290,
+    "checkpoint_dir_name": null,
+    "done": true,
+    "training_iteration": 1,
+    "trial_id": "b7869_00008",
+    "date": "2026-04-09_12-34-50",
+    "time_this_iter_s": 15.423501014709473,
+    "time_total_s": 15.423501014709473,
+    "pid": 69034,
+    "hostname": "hengxindeMacBook-Pro.local",
+    "node_ip": "127.0.0.1",
+    "config": {
+        "signal_type": "close",
+        "rolling_freq": 60,
+        "ewm_span": 10,
+        "downsample": 60,
+        "ndays": 2,
+        "threshold_r": 0.7384264994869821,
+        "penalty_m": 30,
+        "loopback": 504,
+        "gpd_quantiles": [
+            0.2,
+            0.4,
+            0.6,
+            0.8
+        ],
+        "gpd_freq_month": 6
+    },
+    "time_since_restore": 15.423501014709473,
+    "iterations_since_restore": 1,
+    "experiment_tag": "8_downsample=60,ewm_span=10,gpd_freq_month=6,gpd_quantiles=0_2_0_4_0_6_0_8,loopback=504,ndays=2,penalty_m=30,rolling_freq=60,signal_type=close,threshold_r=0.7384"
+}

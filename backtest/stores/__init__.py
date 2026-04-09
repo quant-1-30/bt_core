@@ -34,12 +34,14 @@
 
 from .remote import RemoteStore
 from .raystore import RayStore
+from .exp import ExpStore
 
 # from .ibstore import IBStore
 # from .oandastore import OandaStore
 # from .raystore import RayBtStore
 
 _stores = {
+    "exp": ExpStore, 
     "remote": RemoteStore,
     "ray": RayStore
 }

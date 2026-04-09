@@ -22,7 +22,7 @@
 
 from .remote import *
 from .rayfeed import *
-from .generic import *
+from .exp import *
 # from .raydata import *
 
 # from .pandafeed import *

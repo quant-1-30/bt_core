@@ -367,6 +367,8 @@ Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_pa
 
 export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1
 ray start --head --include-dashboard=false 
+ray summary actors
+
 
 # 按照以上思路结合实际工程落地:  以单个A市场为例（比如创业板）  
 # 1\  基于A市场抽取5%标的，2010-2020作为训练数据（chain + FSM, 2020-2026作为验证（通过ray tune 寻找最优参数）
@@ -394,4 +396,5 @@ ray start --head --include-dashboard=false
 # | `bins` 
 
 # 决策树 算法应用于量化投资
+
 

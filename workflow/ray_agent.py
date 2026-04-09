@@ -1,12 +1,14 @@
 import ray
 import os
 import asyncio
+import pyarrow as pa
 import reactivex.operators as ops
 import ray.util.scheduling_strategies
 
 from dotenv import load_dotenv
 from bt_sdk.core.protocol import *
-from workflow.preprocess import _initialize_mdapi
+from bt_sdk.core.client import FactorTopic
+from workflow.function import _initialize_mdapi
 
 
 @ray.remote(num_cpus=0.1, max_concurrency=1000) # default 0.1 used for socket light service
@@ -16,26 +18,26 @@ class MdapiAgent:
         print(f"MdapiAgent initialized on Node: {ray.get_runtime_context().get_node_id()}")
         self.mdapi = None
 
-    def _ensure_initialized(self): # loop 
+    def _ensure_initialized(self): 
         """Lazy initialize to ensure get_running_loop not new_loop"""
         if self.mdapi is None:
             print(f"[Agent] Initializing APIs on Node {ray.get_runtime_context().get_node_id()}...")
             self.mdapi = _initialize_mdapi()
 
-    async def get_tick(start_date: int, end_date: int, sid: bytes):
+    async def get_tick(self, start_date: int, end_date: int, sid: bytes):
         self._ensure_initialized()
         body = QueryBody(start_date=start_date, end_date=end_date, sid=[sid])
-        tick_data = await self.mdapi.get_subscribe_async(bdoy, adj=FactorTopic.Hfq)
+        tick_data = await self.mdapi.get_subscribe_async(body, FactorTopic.Hfq)
         return tick_data
 
-    async def submit(sid:bytes, rq_config: ray.ObjectRef, bench_ref):
-        tick_data = await get_tick(rq_config["start_date"], rq_config["end_date"], sid)
+    async def submit(self, sid:bytes, config_ref: dict, bench_ref: pa.Table):
+        tickdata = await self.get_tick(config_ref["start_date"], config_ref["end_date"], sid)
         return run_backtest.remote(
                 sid, 
-                tick_data,
-                rq_config,
-                bench_ref=bench_ref
-            )
+                config_ref,
+                tickdata,
+                bench_ref
+                )
 
     def stop(self):
         self.mdapi.disconnect()

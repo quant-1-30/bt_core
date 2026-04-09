@@ -31,32 +31,28 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.generic import GenericStore
+from backtest.stores.exp import ExpStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
 
-class MetaParquetBase(DataBase.__class__):
+class MetaExpBase(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
-        super(MetaParquetBase, cls).__init__(name, bases, dct)
-        GenericStore.DataCls = cls
+        super(MetaExpBase, cls).__init__(name, bases, dct)
+        ExpStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
-        # print("MetaParquetBase donew kwargs ", kwargs)
         _obj, args, kwargs = super(MetaParquetBase, cls).donew(*args, **kwargs)
-        # print("MetaParquetBase donew kwargs after", kwargs)
         return _obj, args, kwargs
     
     def dopostinit(cls, _obj, *args, **kwargs):
-        # print("MetaParquetBase dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
-        # print("MetaParquetBase dopostinit kwargs ", kwargs)
         return _obj, args, kwargs
 
 
-class ParquetData(with_metaclass(MetaParquetBase, DataBase)):
+class ExpData(with_metaclass(MetaExpBase, DataBase)):
     
     params = (
         ("pattern", None),
