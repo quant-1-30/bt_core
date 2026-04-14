@@ -30,9 +30,8 @@ def preload(start_date: int, end_date: int, benchmark: bytes, market: str):
     table = md_api.get_instrument()
     mask = pc.starts_with(table["sid"], market) 
     universe = table.filter(mask).column("sid").cast(pa.binary()).to_pylist()
-    
     # benchmark
-    bench_body = QueryBody(start_date=start_date-20000, end_date=end_date, sid=[benchmark]) 
+    bench_body = QueryBody(start_date=start_date-10000, end_date=end_date, sid=[benchmark]) 
     bench_data = md_api.get_benchmark(bench_body)
     return (universe, bench_data[benchmark])
 

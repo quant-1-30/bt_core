@@ -1,10 +1,27 @@
 import gc
 import uuid
+import numpy as np
 import traceback
 import backtest as bt
+import backtest.indicators as btind
 
 from typing import Dict, Any
-from workflow.strategy.ind import *
+
+
+class WeekPriceSignal(btind.Indicator): 
+
+    lines = ('signal',)
+    params = (("period", 10),) 
+
+    def __init__(self):
+        sma = btind.SMA(self.data0.close, period=self.p.period)
+        self.lines.signal = sma / self.data1.close - 1.0
+
+    def next(self):
+        signal = self.lines.signal[0]
+        if signal > 10.0:
+            print("WeekPriceSignal ", signal)
+            raise ValueError("WeekPriceSignal corrupted")
 
 
 def run_backtest(config_ref, sid_map, store_agent=None):

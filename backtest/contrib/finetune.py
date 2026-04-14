@@ -16,6 +16,7 @@ import pyarrow as pa
 import pyarrow.compute as pc
 from typing import List, Any, Dict
 from ray import tune
+from ray.tune.search.optuna import OptunaSearch
 
 from workflow.function import _initialize_mdapi
 from workflow.strategy.astc import run_pipeline
@@ -40,21 +41,20 @@ def preload(start_date: int, end_date: int, benchmark: bytes, market: str, frac:
     num_samples = int(frac * num_rows)
     result = filter_table.take(np.random.choice(num_rows, size=num_samples, replace=False))
     universe = result.column("sid").cast(pa.binary()).to_pylist() # view(pa.uint8())
-    # benchmark
-    bench_body = QueryBody(start_date=start_date, end_date=end_date, sid=[benchmark]) 
-    bench_data = md_api.get_benchmark(bench_body)
     # tick
     body = QueryBody(start_date=start_date, end_date=end_date, sid=universe)
     tick_data = md_api.get_subscribe(body, adj)
+    # benchmark
+    bench_body = QueryBody(start_date=start_date-10000, end_date=end_date, sid=[benchmark]) 
+    bench_data = md_api.get_benchmark(bench_body)
     return {"benchmark": bench_data[benchmark], "tick": tick_data}
 
 
 def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", market="6", frac:float=0.1, stats_window=[5,10,20], 
                 num_samples:int =200, max_concurrency:int=10, topK=5):
-
      
     data = preload(
-        start_date=start_date - 10000, 
+        start_date=start_date, 
         end_date=end_date, 
         benchmark=benchmark,
         market=market, # 6/688/0/3
@@ -76,13 +76,13 @@ def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", marke
 
         # dtw / linalg_norm
         "threshold_r": tune.uniform(0.70, 0.95),
-        "dtw_window_frac": tune.uniform(0.05, 0.20), 
+        "dtw_window_frac": tune.choice([0.05, 0.10, 0.15, 0.20]), 
 
         # metrics
         "penalty_m": tune.choice([20, 30, 40]), 
 
         # rolling
-        "loopback": tune.choice([126, 252, 504]),
+        "loopback": tune.choice([126, 252]),
         "gpd_quantiles": tune.choice([[0.10, 0.30, 0.70, 0.90], [0.20, 0.40, 0.60, 0.80], [0.05, 0.25, 0.75, 0.95]]),
         "gpd_freq_month": tune.choice([3, 6]), # update frequency 
     }
@@ -106,6 +106,7 @@ def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", marke
         ),
         resources={"cpu": 1, "gpu": 0} # intend for every trial
     )
+    search_alg = HyperOptSearch()
 
     tuner = tune.Tuner( 
         wrapped_trainable, 
@@ -113,9 +114,11 @@ def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", marke
         param_space=search_space,
         
         tune_config=tune.TuneConfig(
+            # search_alg=search_alg,
             num_samples=num_samples,            
             max_concurrent_trials=max_concurrency,    
             scheduler=asha_scheduler
+
         ),
         
         run_config=tune.RunConfig(
@@ -124,6 +127,8 @@ def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", marke
         ),
     )
     results = tuner.fit()
+    # search_alg.save("./my-checkpoint.pkl")
+    # search_alg2.restore("./my-checkpoint.pkl")
 
     # --- 分析结果 ---
     best_trial = results.get_best_result(metric="metrics_score", mode="max")
@@ -155,16 +160,9 @@ def train_hpo(start_date=20100101, end_date=20111231, benchmark=b"000001", marke
     valid = df[df["metrics_score"] > -np.inf].copy()
     top_k_df = valid.sort_values(by="metrics_score", ascending=False).head(topK)
     
-    top_k_configs =[]
     for idx, row in top_k_df.iterrows():
         cfg = {k.replace("config/", ""): v for k, v in row.items() if k.startswith("config/")}
-        top_k_configs.append({
-            "config": cfg,
-            "metrics_score": row["metrics_score"],
-            "fsm_prior_matrix": row.get("fsm_prior_matrix"), 
-            "trial_id": row["trial_id"] 
-        })
-        print(f"Trial: {row['trial_id']} | Score: {row['metrics_score']:.4f} | Config: {cfg}")
+        print(f"Trial: {row['trial_id']} | Status: {row['status']} | Score: {row['metrics_score']:.4f} | Config: {cfg}")
 
 
 if __name__ == "__main__":

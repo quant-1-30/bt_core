@@ -202,16 +202,9 @@ def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:i
     padded_array = dsample_and_concat(
         hf_dfs, config
     )
-    
     if len(padded_array) < m:
         return {"status": "failed", "reason": "降采样后数据不足以组成 Motif", "metrics_score": -np.inf}
         
-    tsc, tsc_v = get_atsc(padded_array, config)
-    if tsc_v is None or len(tsc_v) == 0:
-        return {"status": "failed", "reason": "未找到有效 Motif", "metrics_score": -np.inf}
-        
-    motif = tsc_v[-1]
-
     # =========================================================
     # step 2 14:55 snapshot
     # =========================================================
@@ -223,16 +216,6 @@ def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:i
         snapshots.extend(records)
 
     panel_df = pl.DataFrame(snapshots).sort(["sid", "date_int"])
-
-    # calculate rolling macro_state and gpd
-    gpd_dict = build_rolling_gpd(
-        panel_df, 
-        quantiles=config["gpd_quantiles"], 
-        loopback=config["loopback"], 
-        freq_month=config["gpd_freq_month"]
-    )
-    
-    macro_dict = compute_rolling_macro_states(data_ref["benchmark"], config["loopback"])
 
     # calculate future ret for stats test
     panel_df = panel_df.with_columns(
@@ -260,8 +243,23 @@ def run_pipeline(config: dict, data_ref: dict, stats_window: list, actual_date:i
     eval_panel_df = panel_df.filter(pl.col("date_int") >= actual_date)
     if len(eval_panel_df) == 0:
         return {"status": "failed", "reason": "无有效快照数据", "metrics_score": -np.inf}
+
+    # calculate astc
+    tsc, tsc_v = get_atsc(padded_array, config)
+    if tsc_v is None or len(tsc_v) == 0:
+        return {"status": "failed", "reason": "未找到有效 Motif", "metrics_score": -np.inf}  
+
+    # calculate rolling macro_state and gpd
+    gpd_dict = build_rolling_gpd(
+        panel_df, 
+        quantiles=config["gpd_quantiles"], 
+        loopback=config["loopback"], 
+        freq_month=config["gpd_freq_month"]
+    )
     
+    macro_dict = compute_rolling_macro_states(data_ref["benchmark"], config["loopback"])
+
     res = evaluate_and_build_fsm(
-        eval_panel_df, motif, config, macro_dict, gpd_dict, stats_window
+        eval_panel_df, tsc_v[-1], config, macro_dict, gpd_dict, stats_window
     )
     return res

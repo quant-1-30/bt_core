@@ -366,7 +366,7 @@ Ray Tune 默认会在控制台（CLI）输出参数表。如果你通过 with_pa
     **业界顶尖解决方案：“网格化降维 + 代理评估模型 (Surrogate-Assisted Hierarchical Search)”**
 
 export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1
-ray start --head --include-dashboard=false --system-config='{"automatic_object_spilling_enabled: false}' 
+ray start --head --include-dashboard=false --system-config='{"automatic_object_spilling_enabled": false, "metrics_export_port": 8080}' 
 ray summary actors
 
 
@@ -418,3 +418,40 @@ poetry run pip install --no-cache-dir --no-binary dtaidistance dtaidistance
 
 brew services start redis
 caffeinate -i -s python finetune.py
+
+# import resource
+# # temporarly avoid init_sys_streams bug
+# soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+# resource.setrlimit(resource.RLIMIT_NOFILE, (65536, hard))
+Ray Tune 的自动解包机制**，不再在下游手动调用 `ray.get()`
+
+# oos_gpd = build_rolling_gpd(oos_panel_all, best_config["loopback"], best_config["gpd_quantiles"], best_config["gpd_freq_month"])
+# oos_gpd_ref = ray.put(oos_gpd)
+        
+# best_config["learned_motif"] = best_trial.metrics["learned_motif"]
+# best_config["fsm_prior_matrix"] = best_trial.metrics["fsm_prior_matrix"]
+        
+# ray_oos_ds = ray.data.from_arrow(oos_panel.to_arrow()) 
+        
+# scored_ds = ray_oos_ds.map_batches(
+#     MotifFSMModel,  
+#     fn_constructor_kwargs={
+#         "config": best_config, 
+#         "macro_ref": macro_ref,   # 传指针！
+#         "gpd_ref": oos_gpd_ref    # 传指针！
+#     },
+#     batch_format="pyarrow", 
+#     batch_size=5000,
+#     num_cpus=1,
+#     concurrency=10
+# )
+
+# output_path = f"/data/factors/my_strategy/year={trade_year}"
+# scored_ds.write_parquet(output_path)
+
+    
+T-1 14:55 / T 14:55 动态分位数界定宏观状态自适应高波/低波周期避免状态太多先验概率支撑模型会严重退化 
+
+内存中 wird (freeze) / commpressed (cold data not release)
+
+RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0 # 

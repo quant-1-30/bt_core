@@ -10,7 +10,7 @@ from workflow.function import _initialize_mdapi
 from workflow.strategy.fsm import run_pipeline
 
 
-@ray.remote(num_cpus=0.2, max_concurrency=1000) # default 0.1 used for socket light service
+@ray.remote(num_cpus=0.2, max_concurrency=10) # default 0.1 used for socket light service
 class MdapiAgent:
     def __init__(self):
         print(f"MdapiAgent initialized on Node: {ray.get_runtime_context().get_node_id()}")

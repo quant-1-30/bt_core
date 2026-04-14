@@ -68,6 +68,12 @@ def run_pipeline(
     _features = extract_asset_feature(hf_df=hf_df[sid], downsample=config["downsample"], m=config["m"], amplify=1000)
     panel_df = pl.DataFrame(_features).sort(["date_int"])
 
+    eval_panel_df = panel_df.filter(pl.col("date_int") >= trial_config["start_date"])
+    if len(eval_panel_df) < 10:
+        return {"sid": sid, "status": "insufficient_data"}
+    
+    # threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
+    z_motif = robust_z_normalize(trial_config["learned_motif"])
     # calculate gpd and macro
     gpd_dict = build_rolling_gpd(
         panel_df, 
@@ -78,13 +84,6 @@ def run_pipeline(
     macro_states = compute_rolling_macro_states(bench_ref, config["loopback"])
 
     records =[]
-    # threshold_d = math.sqrt(2 * m * (1 - config["threshold_r"]))
-    z_motif = robust_z_normalize(trial_config["learned_motif"])
-
-    eval_panel_df = panel_df.filter(pl.col("date_int") >= trial_config["start_date"])
-    if len(eval_panel_df) < 10:
-        return {"sid": sid, "status": "insufficient_data"}
-    
     for row in eval_panel_df.iter_rows(named=True):
         date_int = row["date_int"]
         curve_m = row["curve"]
