@@ -96,14 +96,14 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
 
     def start(self):
         super(Benchmark, self).start()
-        rawtable = self._owner.store.get_benchmark()
+        ret_table = self._owner.store.get_bench_ret()
 
-        close = rawtable["close"].to_numpy() # concat memory not sequence so zero_copy_only=True valueError
-        rets = close[1:] / close[:-1]
-        padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
+        # close = rawtable["close"].to_numpy() # concat memory not sequence so zero_copy_only=True valueError
+        # rets = close[1:] / close[:-1]
+        # padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
         
-        self.returns = padded
-        self.dts = rawtable["tick"].to_numpy()
+        self.dts = ret_table["date"].to_numpy()
+        self.returns = ret_table["return"].to_numpy()
 
     def on_dt_over(self):
         loc = np.searchsorted(self.dts, self.dtcmp)

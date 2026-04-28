@@ -379,9 +379,7 @@ def build_rolling_gpd(panel_df: pl.DataFrame, quantiles: list, loopback: int, fr
         curr_month_idx = year * 12 + month
         
         if current_edges is None or (curr_month_idx - last_update_idx >= freq_month):
-            
             hist_rets = np.concatenate(rolling_window) if rolling_window else np.array([])
-            
             # if len(hist_rets) >= 500:
             current_edges, current_centers = calculate_gpd(hist_rets, quantiles)
             last_update_idx = curr_month_idx

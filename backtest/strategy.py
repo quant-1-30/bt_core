@@ -60,9 +60,13 @@ class MetaStrategy(StrategyBase.__class__):
 
         # Find the owner and store it
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
-        _obj.store = cerebro.store # add store to strategy
-        
         _obj.sizer = env.sizer # add sizing to strategy
+
+        # register strategy to store with unique id
+        store = cerebro.store # add store to strategy
+        store.register(_obj.__class__.__name__, env.u_id) 
+        _obj.store = store
+
         return _obj, args, kwargs
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -169,7 +173,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
-        self._add_experimentId()
         self.set_cash(**kwargs)
         self.qbuffer(savemem=savemem)
         self._periodrecalc()
@@ -208,10 +211,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # elif hasattr(self, '_next_fast'):
         #     recur.append(self._next_fast)
         return recur
-
-    def _add_experimentId(self): # setup sizer / risk / cash
-        extra_info = json.dumps(self.p._getkwargs())
-        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
@@ -372,7 +371,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         
         return ratio, is_submit
  
-    def buy(self, plimit: int=0, execType=0, filler=b"likehood"):
+    def buy(self, sids=[], plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
           - ``plimit`` (default: ``0``) means set price limit or not
@@ -420,7 +419,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         _sizer, is_allowed = self.getsizing()
         if created_dt > 0 and is_allowed:
             order = OrderBody(
-                        sid=self.datas[0].sids[0],
+                        # sid=self.datas[0].sids[0],
+                        sids,
                         pricelimit=plimit,
                         sizer_ratio=_sizer, 
                         order_type=0,
@@ -435,7 +435,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
         
-    def sell(self, plimit: int=0, execType=0, filler=b"likehood"):
+    def sell(self, sids = [], plimit: int=0, execType=0, filler=b"likehood"):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -449,7 +449,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         _sizer, is_allowed = self.getsizing(isbuy=False)
         if created_dt > 0 and is_allowed:
             order = OrderBody(
-                        sid=self.datas[0].sids[0],
+                        # sid=self.datas[0].sids[0],
+                        sids,
                         sizer_ratio=_sizer, 
                         pricelimit=plimit,     
                         order_type=1,
@@ -664,14 +665,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
     def _start(self, savemem, **kwargs):
         # self._sentinel = None  # sentinel for order concurrency
         super(SignalStrategy, self)._start(savemem, **kwargs)
-
-    def _add_experimentId(self):
-        extra_infos = []
-        for sig_type, sigs in self._signals.items():
-            _info = [f"{sig.__class__.__name__}({json.dumps(sig.p._getkwargs())})" for sig in sigs]
-            extra_infos.extend(_info)
-        extra_info = ','.join(extra_infos)
-        self.experiment_id = self.store.register(self.__class__.__name__, extra_info)
 
     def signal_add(self, sigtype, signal):
         self._signals[sigtype].append(signal)

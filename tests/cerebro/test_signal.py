@@ -12,21 +12,50 @@ import backtest.indicators as btind
 os.environ["GRPC_POLL_STRATEGY"] = "poll"
 
 
-class WeekPriceSignal(btind.Indicator): 
+# class WeekPriceSignal(btind.Indicator): 
 
+#     lines = ('signal',)
+#     params = (("period", 10),) 
+
+#     def __init__(self):
+#         sma = btind.SMA(self.data0.close, period=self.p.period)
+#         self.lines.signal = sma / self.data1.close - 1.0
+
+#     def next(self):
+#         signal = self.lines.signal[0]
+#         if signal > 10.0:
+#             print("WeekPriceSignal ", signal)
+#             raise ValueError("WeekPriceSignal corrupted")
+
+
+class WeekPriceSignal(btind.Indicator): 
     lines = ('signal',)
     params = (("period", 10),) 
 
     def __init__(self):
-        sma = btind.SMA(self.data0.close, period=self.p.period)
-        self.lines.signal = sma / self.data1.close - 1.0
+        # self.data0 ddata), self.data1 wdata)
+        self.sma_weekly = btind.SMA(self.data1.close, period=self.p.period)
 
     def next(self):
-        signal = self.lines.signal[0]
-        if signal > 10.0:
-            print("WeekPriceSignal ", signal)
-            raise ValueError("WeekPriceSignal corrupted")
+        if len(self.sma_weekly) == 0 or len(self.data0) == 0:
+            return
 
+        # =============================================================
+        # Look-ahead Bias
+        # =============================================================
+        if self.data1.datetime.date(0) == self.data0.datetime.date(0):
+            if len(self.sma_weekly) < 2: 
+                return
+            last_week_sma = self.sma_weekly[-1]
+        else:
+            last_week_sma = self.sma_weekly[0]
+
+        self.lines.signal[0] = last_week_sma / self.data0.close[0] - 1.0
+
+        if self.lines.signal[0] > 10.0:
+            print("WeekPriceSignal ", self.lines.signal[0])
+            raise ValueError("WeekPriceSignal corrupted")
+            
 
 class DailyPriceSignal(btind.Indicator): 
 
@@ -119,7 +148,8 @@ if __name__ == '__main__':
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
 
-    cerebro.add_signal(bt.SIGNAL_LONG, WeekPriceSignal, wdata, ddata)
+    # data0作为主时钟
+    cerebro.add_signal(bt.SIGNAL_LONG, WeekPriceSignal, ddata, wdata)
     cerebro.add_signal(bt.SIGNAL_LONG_INV, DailyPriceSignal, ddata)
     cerebro.add_signal(bt.SIGNAL_LONG, MACDSignal, ddata)
     cerebro.add_signal(bt.SIGNAL_LONG, VolSignal, ddata)

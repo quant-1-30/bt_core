@@ -99,8 +99,8 @@ class RemoteStore(Store):
         '''Returns the assets data'''
         return self._feed.instrument
     
-    def get_benchmark(self) -> pa.Table:
-        table = self._feed.bench
+    def get_bench_ret(self) -> pa.Table:
+        table = self._feed.bench_ret
         return table
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------

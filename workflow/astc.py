@@ -81,12 +81,11 @@ def extract_asset_feature(hf_df: pl.DataFrame, downsample: int, m: int, amplify:
         if idx - m + 1 < 0:
             continue
             
-        # suspend logic
+        # filter suspend and reach limit eod eg 14:35, 14:45, 14:55  
         t_time = tick_times[idx]
         if t_time.hour < 14 or (t_time.hour == 14 and t_time.minute < 45):
             continue
             
-        # reach price limit eg 14:35, 14:45, 14:55  
         tail_prices = prices[idx - 2 : idx + 1] if idx >= 2 else prices[:idx+1]
         if np.std(tail_prices) < 1e-5: 
             continue

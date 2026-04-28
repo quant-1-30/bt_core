@@ -29,6 +29,7 @@ from ray import tune
 from typing import Union, List
 from workflow.astc import *
 from workflow.preprocess import *
+from workflow.util import consume_time
 
 
 # annual 8% vol ---> daily vol 0.5% vol * sqrt(252)
@@ -214,6 +215,7 @@ def trainable(config, chunks_meta, chunks_ref, daily_ret, macro_dict, gpd_dict, 
         return {"metrics_score": -np.inf}
 
 
+@consume_time
 def run_wfo_pipeline(start_year, 
                      end_year, 
                      benchmark, 
@@ -246,9 +248,6 @@ def run_wfo_pipeline(start_year,
     )
     print("global state calculate finish")
 
-    retune = True
-    last_valid_state = {"config": None}
-
     last_valid_state = {
         "config": None,
         "motif": None,
@@ -270,7 +269,10 @@ def run_wfo_pipeline(start_year,
             md_api, universe, train_start, train_end, signal_type
         ) 
 
-        # Evaluation 
+        retune = True
+
+        # ================================================================ Evaluation  ======================================================  
+
         if last_valid_state["config"] is not None:
             print(f" test motif is valid on {train_start}-{train_end}")
 
@@ -306,6 +308,8 @@ def run_wfo_pipeline(start_year,
 
             }
 
+            # --- 配置 ASHA 算法 (早停) 避免score -np.inf ---
+            # metric: 优化目标, mode:最大化 / grace_period: 至少跑多久才开始判断 / reduction_factor: 每轮淘汰比例
             asha_scheduler = tune.schedulers.ASHAScheduler( 
                 metric="metrics_score", # target
                 mode="max", 
@@ -327,7 +331,7 @@ def run_wfo_pipeline(start_year,
                     stats_window=stats_window,
                     signal_type=signal_type 
                 ),
-                resources={"cpu": 1, "gpu": 0} # intend for every trial
+                resources={"cpu": 1, "gpu": 0} 
             )
             tuner = tune.Tuner( 
                 wrapped_trainable,
@@ -344,6 +348,8 @@ def run_wfo_pipeline(start_year,
                 ),
             )
             results = tuner.fit() 
+            # search_alg.save("./my-checkpoint.pkl")
+            # search_alg.restore("./my-checkpoint.pkl")
             best_trial = results.get_best_result("metrics_score", "max")
             
             if best_trial.metrics.get("metrics_score", -np.inf) == -np.inf:
@@ -388,7 +394,7 @@ def run_wfo_pipeline(start_year,
         oos_panel = build_panel_from_chunk(oos_chunks_meta, oos_chunks_ref, global_daily_ret, current_config, signal_type)
         
         if len(oos_panel) == 0:
-            print(f"⚠️ OOS 阶段数据提取为空。")
+            print(f"⚠️ OOS 阶段数据提取为空")
             continue
             
         oos_panel = oos_panel.filter(pl.col("day") >= oos_start)
@@ -399,9 +405,9 @@ def run_wfo_pipeline(start_year,
             output_path = f"data/fsm"
             os.makedirs(output_path, exist_ok=True)
             scored_df.write_parquet(f"{output_path}/scores_{_year}.parquet")
-            print(f"✅ {_year} 年产出高质量信号: {len(scored_df)} 个。")
+            print(f"✅ {_year} 年产出高质量信号: {len(scored_df)}")
         else:
-            print(f"⚠️ {_year} 年未产出任何符合阈值的交易信号。")
+            print(f"⚠️ {_year} 年未产出任何符合阈值的交易信号")
             
         # Release Memory
         ray.internal.free(oos_chunks_ref)
@@ -425,7 +431,7 @@ if __name__ == "__main__":
     )
 
     start_date=2010
-    end_date=2013
+    end_date=2026
     benchmark=b"000001"
     market = "6"
     max_concurrency = 10 

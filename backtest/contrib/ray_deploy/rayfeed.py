@@ -30,114 +30,55 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.rpcstore import RemoteStore
+from backtest.stores.remote import RemoteStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
 
-__all__ = ["RemoteData"]
+__all__ = ["RayData"]
 
 
-class Calendar:
-    '''Descriptor calendar'''
-    def __init__(self):
-        self._calendar = []
-
-    def __get__(self, instance, owner):
-        if instance is None: return self
-        
-        mdapi = getattr(instance, 'mdapi', None)
-        if not self._calendar:
-            datas = mdapi.get_calendar()
-            from itertools import chain
-            self._calendar = list(chain(*datas))
-        return self._calendar
-
-
-class Instrument(object):
-    '''Descriptor instrument'''
-    def __init__(self):
-        self.assets = {}
-    
-    def __set__(self, instance, value):
-        raise AttributeError("not allowed to set")
-    
-    def __get__(self, instance, owner):
-        if instance is None: return self
-        
-        mdapi = getattr(instance, 'mdapi', None)
-        if len(self.assets) == 0:
-            table = mdapi.get_instrument() 
-            # ctable = pa.concat_tables(tables, promote_options="permissive") # zero_copy , but combine_chunk is heavy memory ops
-            self.assets = table.to_pylist() # row-wise dict list / table.to_pandas() and df.to_dict('records') # Arrow --> Pandas
-        return self.assets
-
-
-# class BenchReturns(object):
-#     '''Descriptor benchmark returns'''
-#     def __init__(self):
-#         self.bench_ret = {}
-#     def __set__(self, instance, value):       
-#         raise AttributeError("not allowed to set")
-#     def __get__(self, instance, owner):
-#         if instance is None: return self
-#         mdapi = getattr(instance, 'mdapi', None)
-#         if len(self.bench_ret) == 0:
-#             table = mdapi.get_bench_ret()
-#             self.bench_ret = {row['tick']: row['return'] for row in table.to_pylist()}
-#         return self.bench_ret 
-
-
-class MetaRemoteData(DataBase.__class__):
+class MetaBtData(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
-        super(MetaRemoteData, cls).__init__(name, bases, dct)
+        super(MetaBtData, cls).__init__(name, bases, dct)
         RemoteStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
-        print("MetaRemoteData donew kwargs ", kwargs)
-        _obj, args, kwargs = super(MetaRemoteData, cls).donew(*args, **kwargs)
-        print("MetaRemoteData donew kwargs after", kwargs)
+        print("MetaBtData donew kwargs ", kwargs)
+        _obj, args, kwargs = super(MetaBtData, cls).donew(*args, **kwargs)
+        print("MetaBtData donew kwargs after", kwargs)
         return _obj, args, kwargs
     
     def dopostinit(cls, _obj, *args, **kwargs):
-        print("MetaRemoteData dopostinit kwargs ", kwargs)
+        print("MetaBtData dopostinit kwargs ", kwargs)
         _obj, args, kwargs = super().dopostinit(_obj, *args, **kwargs) 
-        print("MetaRemoteData dopostinit kwargs ", kwargs)
+        print("MetaBtData dopostinit kwargs ", kwargs)
         _obj.mdapi = _obj.p.mdapi
+        _obj.agent = _obj.p.agent
         _obj.chan = queue.Queue()
         return _obj, args, kwargs
 
 
-class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
+class RayData(with_metaclass(MetaBtData, DataBase)):
     
     params = (
         ("mdapi", None),
+        ("agent", None),
         ("rtbar", False,), # use RealTime 5 seconds bars
     )
 
     calendar = Calendar() 
     instrument = Instrument()
-    # bench_ret = BenchReturns()
 
     def _prepare(self, _loop): 
         self.mdapi.start(_loop)
 
-    def get_adjfactor(self, body: QueryBody):
-        adj_data = self.mdapi.get_factor(body)
-        adj = adj_data[body.sid[0]]
-        factors = adj.raw_factors if adj else {} # adj_factors
-        if factors:
-            factors = dict(sorted(factors.items())) # sort by key
-            self.adj_factors = factors
-
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
-        self._row_iter = None
-        # self.bench_ret = self.bench_ret[kwargs["benchmark"]] 
-
+        # calculate tick and adj
         body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["sid"])
-        self.get_adjfactor(body)
+        self.preload(body)
 
         observable = self.mdapi.subscribe(body)
         observable.subscribe( # nonblocking 
@@ -145,6 +86,35 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
             on_error=lambda e: self.chan.put(e),
             on_completed=lambda: self.chan.put(StopIteration) 
         )
+
+    def preload(self, body: QueryBody, benchmark):
+        sid_list = body.sid
+        sid_str = [sid.decode("utf-8") for sid in sid_list]
+
+        self.bench = ray.get(self.data_ref["benchmark"])
+        self.calendar =  ray.get(self.data_ref["calendar"])
+        self.instrument =  ray.get(self.data_ref["instrument"])
+        
+        fut_calendar = self.agent.get_calendar.remote(body)
+        fut_instrument = self.agent.get_instrument.remote(body)
+        fut_bench = self.agent.get_benchmark.remote(benh_body)
+        
+        self.calendar = ray.get(fut_calendar, timeout=20)
+        self.instrument = ray.get(fut_instrument, timeout=20)
+        self.bench = ray.get(fut_bench, timeout=20)
+
+        adj_data = self.mdapi.get_factor(body)
+        adj = adj_data[sid_list[0]]
+        factors = adj.raw_factors if adj else {} # adj_factors
+        if factors:
+            factors = dict(sorted(factors.items())) # sort by key
+            self.adj_factors = factors
+        
+        self.extra_info = f"FeedInfo: {body.start_date}:{body.end_date}@{','.join(sid_str)}" # any extra info to relate with feed
+        self.sids = sid_list
+        self._row_iter = None # initialize iter buffer
+        
+        print(f"[_start] Benchmark and {self.sids} Factors received.", len(self.adj_factors), len(self.bench))
 
     def _load(self):
         while True:
@@ -167,7 +137,7 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
                 raise msg
 
             self._row_iter = self._make_iter(msg)
-    
+
     def _make_iter(self, table):
         cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
         return zip(*cols)

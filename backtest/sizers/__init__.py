@@ -18,39 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
+# The modules below should/must define __all__ with the objects wishes
+# or prepend an "_" (underscore) to private classes/variables
 
-from .rpcfeed import *
-from .pqtfeed import *
-# from .raydata import *
-
-# from .pandafeed import *
-# from .csvgeneric import *
-# from .btcsv import *
-# from .vchartcsv import *
-# from .vchart import *
-# from .yahoo import *
-# from .quandl import *
-# from .sierrachart import *
-# from .mt4csv import *
-# from .influxfeed import *
-# try:
-#     from .ibdata import *
-# except ImportError:
-#     pass  # The user may not have ibpy installed
-
-# try:
-#     from .vcdata import *
-# except ImportError:
-#     pass  # The user may not have something installed
-
-# try:
-#     from .oanda import OandaData
-# except ImportError:
-#     pass  # The user may not have something installed
-
-
-# from .vchartfile import VChartFile
-
-# from .rollover import RollOver
-# from .chainer import Chainer
+from .fixedsize import *
+from .percents_sizer import *

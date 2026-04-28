@@ -29,6 +29,7 @@ from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizer import Fixed, Pyramid
+from .pnc import Pnc
 from .timer import Timer, Session
 from .errors import *
 from .stores import _stores
@@ -117,41 +118,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._pretimers = list()
         self._mcstimers = list()
         
+        # unique id for the run, can be used to relate with store
+        self.u_id = "" 
         self._r = None
         self.sizer = Fixed()
-        
         self._plot = Plot()
-
-    def addstore(self, store: str="remote", **kwargs):
-        '''Adds an ``Store`` instance to the if not already present'''
-        storecls = _stores[store]
-        self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
-
-# ------------------------------------------------------------------ callback --------------------------------------------------------------
-
-    def addstorecb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
-        notify_store method
-
-        The signature of the callback must support the following:
-
-          - callback(msg, \*args, \*\*kwargs)
-
-        The actual ``msg``, ``*args`` and ``**kwargs`` received are
-        implementation defined (depend entirely on the *data/broker/store*) but
-        in general one should expect them to be *printable* to allow for
-        reception and experimentation.
-        '''
-        self.storecbs.append(callback)
-
-    def optcallback(self, cb):
-        '''
-        Adds a *callback* to the list of callbacks that will be called with the
-        optimizations when each of the strategies has been run
-
-        The signature: cb(strategy)
-        '''
-        self.optcbs.append(cb)
 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
@@ -349,6 +320,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname)
         return dataname
 
+# ---------------------------------------------------------------- middleware ------------------------------------------------------------
+
+    def addstore(self, store: str="remote", **kwargs):
+        '''Adds an ``Store`` instance to the if not already present'''
+        storecls = _stores[store]
+        self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
+    
+    def addpnc(self, sizer: str="default", **kwargs):
+        '''Adds a TaskPlan instance to the system'''
+        _sizer = None
+        self.pnc = Pnc(_sizer, **kwargs)
+
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
     def addsizer(self, sizer="Pyramid", kwargs=None):
@@ -403,6 +386,32 @@ class Cerebro(with_metaclass(MetaParams, object)):
         allowed to increase a position'''
         self._signal_accumulate = onoff
 
+# ------------------------------------------------------------------ callback --------------------------------------------------------------
+
+    def addstorecb(self, callback):
+        '''Adds a callback to get messages which would be handled by the
+        notify_store method
+
+        The signature of the callback must support the following:
+
+          - callback(msg, \*args, \*\*kwargs)
+
+        The actual ``msg``, ``*args`` and ``**kwargs`` received are
+        implementation defined (depend entirely on the *data/broker/store*) but
+        in general one should expect them to be *printable* to allow for
+        reception and experimentation.
+        '''
+        self.storecbs.append(callback)
+
+    def optcallback(self, cb):
+        '''
+        Adds a *callback* to the list of callbacks that will be called with the
+        optimizations when each of the strategies has been run
+
+        The signature: cb(strategy)
+        '''
+        self.optcbs.append(cb)
+
 # ---------------------------------------------------------------- run -------------------------------------------------------------------
     
     def __call__(self, iterstrat):
@@ -411,9 +420,19 @@ class Cerebro(with_metaclass(MetaParams, object)):
         module without complains
         '''
         return self.runstrategies(iterstrat)
- 
+
+    def _next_stid(self, run_kwargs):
+        # self.stcount = itertools.count(0)
+        # return next(self.stcount)
+        extra_info = [f"RunKwargs: {json.dumps(run_kwargs)}"]
+        for sig_type, args, kwargs in self.strats:
+            _info = f" {sig.__class__.__name__}({json.dumps(kwargs())})"
+            extra_info.append(_info)
+        self.u_id = ','.join(extra_info)
+
     @consume_time
-    def run(self, *args, **kwargs):
+    # def run(self, *args, **kwargs):
+    def run(self, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was
         instantiated with.
@@ -427,7 +446,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
-        ''' 
+        '''
+        self._next_stid(kwargs) 
+
         # Prepare feed
         print("cerebro run data start")
         self.adddata(dmaster=True)
