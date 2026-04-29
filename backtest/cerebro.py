@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import json
 import numpy as np
 import datetime
 import itertools
@@ -28,14 +29,14 @@ from . import observers
 from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
-from .sizer import Fixed, Pyramid
+from .sizers import _sizers
 from .pnc import Pnc
 from .timer import Timer, Session
 from .errors import *
 from .stores import _stores
-from .utils.wrapper import consume_time
 from .plot import Plot
-from .tradingcal import TradingCalendarBase, TradingCalendar
+from .utils.wrapper import consume_time
+from .utils.encoder import CustomJSONEncoder
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -121,27 +122,26 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # unique id for the run, can be used to relate with store
         self.u_id = "" 
         self._r = None
-        self.sizer = Fixed()
         self._plot = Plot()
 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
-    def addcalendar(self, cal=None):
-        '''Adds a global trading calendar to the system. Individual data feeds
-        may have separate calendars which override the global one
+    # def addcalendar(self, cal=None):
+    #     '''Adds a global trading calendar to the system. Individual data feeds
+    #     may have separate calendars which override the global one
 
-        ``cal`` can be an instance of ``TradingCalendar`` a string or an
-        instance of ``pandas_market_calendars``. A string will be will be
-        instantiated as a ``PandasMarketCalendar`` (which needs the module
-        ``pandas_market_calendar`` installed in the system.
+    #     ``cal`` can be an instance of ``TradingCalendar`` a string or an
+    #     instance of ``pandas_market_calendars``. A string will be will be
+    #     instantiated as a ``PandasMarketCalendar`` (which needs the module
+    #     ``pandas_market_calendar`` installed in the system.
 
-        If a subclass of `TradingCalendarBase` is passed (not an instance) it
-        will be instantiated
-        '''
-        if cal and issubclass(cal, TradingCalendarBase): 
-            self._tradingcal = cal
-        else:
-            self._tradingcal = TradingCalendar()
+    #     If a subclass of `TradingCalendarBase` is passed (not an instance) it
+    #     will be instantiated
+    #     '''
+    #     if cal and issubclass(cal, TradingCalendarBase): 
+    #         self._tradingcal = cal
+    #     else:
+    #         self._tradingcal = TradingCalendar()
 
     def addtz(self, tz):
         '''
@@ -322,7 +322,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ---------------------------------------------------------------- middleware ------------------------------------------------------------
 
-    def addstore(self, store: str="remote", **kwargs):
+    def addstore(self, store: str="local", **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[store]
         self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
@@ -332,19 +332,19 @@ class Cerebro(with_metaclass(MetaParams, object)):
         _sizer = None
         self.pnc = Pnc(_sizer, **kwargs)
 
-# ---------------------------------------------------------------- strategy ------------------------------------------------------------
-
-    def addsizer(self, sizer="Pyramid", kwargs=None):
+    def addsizer(self, sizer="fixed", **kwargs):
         '''Adds a ``Sizer`` class (and args) which is the default sizer for any
         strategy added to cerebro
         '''
-        self.sizer = Pyramid(**kargs)
+        self.sizer = _sizers[sizer](**kwargs)
 
     # def addrisk(self, risk="tl", **kwargs):
     #     '''Adds a ``RiskControl`` class (and args) which is the default risk for any
     #     strategy added to cerebro
     #     '''
     #     self._r = _rctl[risk](**kwargs)
+
+# ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
     def addstrategy(self, strategy, *args, **kwargs):
         '''
@@ -424,14 +424,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
     def _next_stid(self, run_kwargs):
         # self.stcount = itertools.count(0)
         # return next(self.stcount)
-        extra_info = [f"RunKwargs: {json.dumps(run_kwargs)}"]
+        extra_info = [f"RunKwargs: {json.dumps(run_kwargs, cls=CustomJSONEncoder, indent=2)}"]
         for sig_type, args, kwargs in self.strats:
             _info = f" {sig.__class__.__name__}({json.dumps(kwargs())})"
             extra_info.append(_info)
         self.u_id = ','.join(extra_info)
 
     @consume_time
-    # def run(self, *args, **kwargs):
     def run(self, **kwargs):
         '''The core method to perform backtesting. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was

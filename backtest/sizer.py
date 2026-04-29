@@ -42,26 +42,19 @@ class Sizer(with_metaclass(MetaParams, object)):
         Gives access to information some complex sizers may need like portfolio
         value, ..
     '''
-    strategy = None
-    broker = None
+    params = (('stake', 0.5),) # Pyramiding: 0.5 means 50% of the current position size for each additional tranche
 
-    def getsizing(self, data, isbuy):
-        comminfo = self.broker.getcommissioninfo(data)
-        return self._getsizing(comminfo, self.broker.getcash(), data, isbuy)
+    def getsizing(self, data, snapshot, isbuy):
+        return self._getsizing(data, snapshot, isbuy)
 
-    def _getsizing(self, comminfo, cash, data, isbuy):
+    def _getsizing(self, data, snapshot, isbuy):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 
         Params:
-          - ``comminfo``: The CommissionInfo instance that contains
-            information about the commission for the data and allows
-            calculation of position value, operation cost, commision for the
-            operation
-
-          - ``cash``: current available cash in the *broker*
-
           - ``data``: target of the operation
+
+          - ``snapshot``: a snapshot of the current state of the strategy (see Strategy.snapshot())
 
           - ``isbuy``: will be ``True`` for *buy* operations and ``False``
             for *sell* operations
@@ -73,10 +66,6 @@ class Sizer(with_metaclass(MetaParams, object)):
 
         '''
         raise NotImplementedError
-
-    def set(self, strategy, broker):
-        self.strategy = strategy
-        self.broker = broker
 
 
 SizerBase = Sizer  # alias for old naming

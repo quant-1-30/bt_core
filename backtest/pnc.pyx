@@ -1,86 +1,129 @@
 # cython: language_level=3
 # cython: boundscheck=False
-# cython: wraparound=F
+# cython: wraparound=False
 
 from libc.stdint cimport int32_t, int64_t
+
+from .sizers import _sizers
+from .utils.dateintern import ts2intdt
+
+
+cdef class TraderPlan:
+    
+    cdef public str sid
+    cdef public double weight
+    cdef public bint isbuy
+    cdef public int32_t priority
+
+    def __init__(self, str sid, double weight, bint isbuy, int priority=1):
+        self.sid = sid
+        self.weight = weight
+        self.isbuy = isbuy
+        # small --> high
+        self.priority = priority 
+
+    def __repr__(self):
+        action = "BUY" if self.isbuy else "SELL"
+        return f"[{action} (Pri:{self.priority})] {self.sid} -> {self.weight*100:.1f}%"
+
+    # __lt__ --> .sort() 
+    def __lt__(self, object other):
+        return self.priority < (<TraderPlan>other).priority
 
 
 cdef class Pnc:
     """
-        严格按照先卖后买 / 风控优先
+    sell first and buy after / risk control priority
     """
-    
-    def __init__(self, object sizer, int32_t lock_days):
-        self.sizer = sizer
-        self.lock_days = lock_days
-        
-        self.sells =[]
-        self.buys =[]
 
-    cpdef void generate_plan(self, 
-                        dict topk_info,
-                        dict current_positions, 
-                        double rish_tl,
-                        double ratio=1.0):   
+    def __init__(self, int32_t lock_days, str sizer_name):
+        self.interval = lock_days
+        self.sizer = _sizers[sizer_name]
+        self.sells = []
+        self.buys =[]
+        self.pending_sells = {}
+
+    cpdef void generate_plan(self, dict topk_info, object snapshot, double risk_tl):
         cdef str sid
-        cdef int days_held
-        cdef double pnl
-        cdef dict pos_info, portfolio_wgt
-        cdef list sid_keys = list(topk_info.keys())
+        cdef int days_held, current_day
+        cdef double pnl, wgt_ratio
+        cdef object pos
+        cdef list positions = snapshot.positions # msgspec List 
 
         self.sells.clear()
         self.buys.clear()
         
+        current_day = ts2intdt(snapshot.account.datetime)
+
         # ==========================================
         # selling first
         # ==========================================
+        s_wgt = self.sizer.getsizing(topk_info, snapshot, False)
 
-        for sid, pos_info in current_positions.items():
-            pnl = topk_info[sid]["close"] / pos_info["cost_basis"] - 1.0
-            days_held = int2dt(pos_info["datetime"]) - topk_info[sid]["day"]
-        
-            # risk
-            if pnl <= rish_tl:
+        for pos in positions: # 遍历 msgspec list
+            
+            if isinstance(pos.sid, bytes):
+                sid = pos.sid.decode('utf-8')
+            else:
+                sid = pos.sid
+            
+            pnl = topk_info[sid]["close"] / pos.cost_basis - 1.0
+            days_held = current_day - ts2intdt(pos.datetime) 
+            wgt_ratio = s_wgt.get(sid, 0.0)
+
+            # risk_tl 
+            if pnl <= risk_tl:
                 continue
                 
             # lock control
-            if days_held < lock_days:
+            if days_held < self.interval:
                 continue
                 
-            # evaluate at lock expiration
+            # avoid conflict
             if sid in topk_info:
                 continue
         
-            self.sells.append(TradePlan(sid, ratio, True, priority=1))
-            self.pending_sells[sid] = int(pos_info["available"] * ratio)
+            self.sells.append(TraderPlan(sid, wgt_ratio, False, priority=1))
+            self.pending_sells[sid] = pos.size
 
-        self.sells.sort(key=lambda x: x.priority)
+        self.sells.sort()
 
         # ==========================================
         # buy second
         # ==========================================
+        b_wgt = self.sizer.getsizing(topk_info, snapshot, True)
 
-        portfolio_wgt = self.sizer.getsizing(sid_keys)
+        for sid in topk_info:
+            wgt_ratio = b_wgt.get(sid, 0.0)
+            self.buys.append(TraderPlan(sid, wgt_ratio, True, priority=1))
 
-        for sid in sid_keys:
-            current_weight = portfolio_wgt[sid]
-            self.buys.append(TradePlan(sid, current_weight, False, priority=1))
+        self.buys.sort()
 
-        self.buys.sort(key=lambda x: x.priority)
+    cpdef void on_filled(self, object strades):
+        cdef str sid
+        cdef int32_t filled_vol
+        cdef object trade
 
-    cpdef void on_filled(self, object sell_trades):
-        for trade in sell_trades:
-            sid = trade.sid
+        for trade in strades:
+            if isinstance(trade.sid, bytes):
+                sid = trade.sid.decode('utf-8')
+            else:
+                sid = trade.sid
+                
+            filled_vol = trade.executed_size
+
             if sid in self.pending_sells:
                 self.pending_sells[sid] -= filled_vol
                 if self.pending_sells[sid] <= 0:
                     del self.pending_sells[sid]
 
     cpdef dict get_pending_sells(self):
-        """
-            used for sell on next opening with left selling
-        """
         return self.pending_sells
 
-    cpdef to_plan(self):
+    cpdef dict to_plan(self):
         return {"sell": self.sells, "buy": self.buys}
+
+
+#cdef class MultiPnc:
+#    # resolve differenct stratgey conflicts
+#    pass

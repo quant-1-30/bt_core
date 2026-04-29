@@ -21,8 +21,8 @@ extensions = [
         # "-Wno-sign-compare" 
     ),
     Extension(
-        name="backtest.sizer", 
-        sources=["backtest/sizer.pyx"],
+        name="backtest.pnc", 
+        sources=["backtest/pnc.pyx"],
         include_dirs=[np.get_include(), current_dir],
         language="c++", # vector/map
         extra_compile_args=["-O3", "-std=c++11"],

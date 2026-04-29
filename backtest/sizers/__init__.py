@@ -24,5 +24,12 @@ from __future__ import (absolute_import, division, print_function,
 # The modules below should/must define __all__ with the objects wishes
 # or prepend an "_" (underscore) to private classes/variables
 
-from .fixedsize import *
-from .percents_sizer import *
+from .generic import *
+
+
+_sizers = {
+    'fixed': FixedSize,
+    'weighted': WeightedSizer,
+    'turtle': TurtleSizer,
+    'kelly': KellySizer
+}

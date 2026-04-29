@@ -23,8 +23,7 @@ from backtest.metabase import with_metaclass
 from typing import List, Union
 
 from backtest.broker import BrokerBase
-from backtest.stores.rpcstore import RemoteStore
-from backtest.stores.raystore import RayStore
+from backtest.stores.localstore import LocalStore
 from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, QueryBody, Resp, SnapshotBody, AccountBody, PositionBody
 
 __all__ = ["BTBroker"]
@@ -35,8 +34,7 @@ class MetaBtBroker(BrokerBase.__class__):
     def __init__(cls, name, bases, dct):
         super(MetaBtBroker, cls).__init__(name, bases, dct)
         # auto Register with the store when type class __import__
-        RemoteStore.BrokerCls = cls 
-        RayStore.BrokerCls = cls 
+        LocalStore.BrokerCls = cls 
 
     def donew(cls, *args, **kwargs):
         print("MetaBtBroker donew kwargs ", kwargs)
@@ -82,7 +80,7 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
     def _prepare(self, _loop):
         self.tdapi.start(_loop)
     
-    def register(self, body:RegisterBody) -> List[Resp]:
+    def register(self, body:RegisterBody) -> bytes:
         data = self.tdapi.register(body)
         return data.body.experiment_id
     

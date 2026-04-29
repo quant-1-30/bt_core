@@ -87,5 +87,3 @@ class FsmMasterStrategy(bt.Strategy):
         """真实成交回报 推进taskplan状态"""
         self.taskplan.on_filled(sid, trades)
 
-
-#  第二步 推理：重构原生的 Sizer (同时支持单标的（CTA）和多标的（横截面）

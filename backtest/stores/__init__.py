@@ -32,16 +32,12 @@
 # except ImportError:
 #     pass  # The user may not have a module installed
 
-from .rpcstore import RemoteStore
-from .raystore import RayStore
 from .localstore import LocalStore
 
 # from .ibstore import IBStore
 # from .oandastore import OandaStore
-# from .raystore import RayBtStore
+# from .xtpstore import XtpStore
 
 _stores = {
-    "local": LocalStore, 
-    "remote": RemoteStore,
-    "ray": RayStore
+    "local": LocalStore,
 }

@@ -26,12 +26,11 @@ import itertools
 import operator
 import json
 from collections import defaultdict
-from bt_sdk.core.protocol import OrderBody
+from bt_sdk.core.protocol import OrderBody, SnapshotBody
 
 import backtest as bt
 from .lineiterator import LineIterator, StrategyBase
 from .lineseries import LineSeriesStub
-# from .metabase import with_metaclass, ItemCollection, findowner
 from .metabase import with_metaclass, findowner
 from .utils.autodict import AutoOrderedDict
 
@@ -64,7 +63,7 @@ class MetaStrategy(StrategyBase.__class__):
 
         # register strategy to store with unique id
         store = cerebro.store # add store to strategy
-        store.register(_obj.__class__.__name__, env.u_id) 
+        _obj.experiment_id = store.register(_obj.__class__.__name__, env.u_id) 
         _obj.store = store
 
         return _obj, args, kwargs
@@ -490,7 +489,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         return self.snapshot
 
-    def getvalue(self): 
+    def getvalue(self)-> SnapshotBody: 
         snapshot = self.store.getvalue(self.experiment_id) 
         return snapshot
          

@@ -23,6 +23,7 @@ import numpy as np
 import queue
 import pyarrow as pa
 import pyarrow.compute as pc
+import polars as pl
 import reactivex.operators as ops
 
 from typing import List
@@ -30,27 +31,13 @@ from typing import List
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass
-from backtest.stores.rpcstore import RemoteStore
+from backtest.stores.localstore import LocalStore
 from backtest.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
+from bt_sdk.core.client import FactorTopic
+
 
 __all__ = ["RemoteData"]
-
-
-class Calendar:
-    '''Descriptor calendar'''
-    def __init__(self):
-        self._calendar = []
-
-    def __get__(self, instance, owner):
-        if instance is None: return self
-        
-        mdapi = getattr(instance, 'mdapi', None)
-        if not self._calendar:
-            datas = mdapi.get_calendar()
-            from itertools import chain
-            self._calendar = list(chain(*datas))
-        return self._calendar
 
 
 class Instrument(object):
@@ -72,27 +59,12 @@ class Instrument(object):
         return self.assets
 
 
-# class BenchReturns(object):
-#     '''Descriptor benchmark returns'''
-#     def __init__(self):
-#         self.bench_ret = {}
-#     def __set__(self, instance, value):       
-#         raise AttributeError("not allowed to set")
-#     def __get__(self, instance, owner):
-#         if instance is None: return self
-#         mdapi = getattr(instance, 'mdapi', None)
-#         if len(self.bench_ret) == 0:
-#             table = mdapi.get_bench_ret()
-#             self.bench_ret = {row['tick']: row['return'] for row in table.to_pylist()}
-#         return self.bench_ret 
-
-
 class MetaRemoteData(DataBase.__class__):
     
     def __init__(cls, name, bases, dct):
         """auto Register with the store when type class __import__"""
         super(MetaRemoteData, cls).__init__(name, bases, dct)
-        RemoteStore.DataCls = cls
+        LocalStore.DataCls = cls
 
     def donew(cls, *args, **kwargs):
         print("MetaRemoteData donew kwargs ", kwargs)
@@ -116,30 +88,39 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         ("rtbar", False,), # use RealTime 5 seconds bars
     )
 
-    calendar = Calendar() 
     instrument = Instrument()
-    # bench_ret = BenchReturns()
 
     def _prepare(self, _loop): 
         self.mdapi.start(_loop)
 
     def get_adjfactor(self, body: QueryBody):
-        adj_data = self.mdapi.get_factor(body)
+        adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
         adj = adj_data[body.sid[0]]
         factors = adj.raw_factors if adj else {} # adj_factors
         if factors:
             factors = dict(sorted(factors.items())) # sort by key
             self.adj_factors = factors
 
+    def get_daily_ret(self, body: QueryBody):
+        raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
+        close = raw_data[body.sid[0]]
+
+        close = close.with_columns(
+            pl.col("close").pct_change().fill_null(0).alias("ret")
+        ).select(["day", "ret"])
+        self.bench_ret = close.to_dicts()
+
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
         self._row_iter = None
-        # self.bench_ret = self.bench_ret[kwargs["benchmark"]] 
 
         body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["sid"])
         self.get_adjfactor(body)
 
-        observable = self.mdapi.subscribe(body)
+        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])
+        self.get_daily_ret(body)
+
+        observable = self.mdapi.subscribe(body, FactorTopic.Raw)
         observable.subscribe( # nonblocking 
             on_next=self.chan.put,
             on_error=lambda e: self.chan.put(e),

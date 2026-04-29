@@ -34,7 +34,7 @@ from backtest.execution.actor.writer_actor import BatchWriterActor
 __all__ = ["BTStore"]
 
 
-class RemoteStore(Store):
+class LocalStore(Store):
     '''Singleton class wrapping to control the connections.
 
     Params:
@@ -91,10 +91,6 @@ class RemoteStore(Store):
 
 # ------------------------------------------------------------------- data api ---------------------------------------------------------------------
 
-    def get_calendar(self) -> np.array:
-        '''Returns the calendar data'''
-        return self._feed.calendar
-    
     def get_instrument(self) -> Dict[str, Any]:
         '''Returns the assets data'''
         return self._feed.instrument
@@ -105,29 +101,28 @@ class RemoteStore(Store):
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
 
-    def register(self, strategy: str, strat_info: str) -> List[Resp]:
-        extra_info = f"Strategy: {strat_info}; Feed: {self._feed.extra_info}"
-        body = RegisterBody(strategy=strategy, extra_info=extra_info, client_id=self.p.client_id)
+    def register(self, strategy: str, strat_info: str) -> bytes:
+        body = RegisterBody(strategy=strategy, extra_info=f"Strategy: {strat_info}", client_id=self.p.client_id)
         resp = self.broker.register(body)
         return resp
     
-    def set_cash(self, experiment_id: bytes, session: int, cash: float) -> List[Resp]:
+    def set_cash(self, experiment_id: bytes, session: int, cash: float) -> List[SnapshotBody]:
         body = CashBody(cash=cash, session=session)
         resp = self.broker.set_cash(experiment_id, body)
         return resp
     
-    def submit(self, experiment_id: bytes, body: OrderBody) -> List[Resp]:
+    def submit(self, experiment_id: bytes, body: OrderBody) -> List[SnapshotBody]:
         resp = self.broker.submit(experiment_id, body)
         return resp
     
-    def getvalue(self, experiment_id: bytes) -> List[Resp]:
+    def getvalue(self, experiment_id: bytes) -> List[SnapshotBody]:
         resp = self.broker.getvalue(experiment_id)
         return resp
     
-    def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Resp]:
+    def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[SnapshotBody]:
         return self.broker.subscribe(topic, experiment_id, body)
     
-    def on_dt_over(self, experiment_id: bytes) -> List[Resp]:
+    def on_dt_over(self, experiment_id: bytes) -> List[SnapshotBody]:
         body = self._feed.on_dt_over()
         if body:
             resp = self.broker.on_dt_over(experiment_id, body)
