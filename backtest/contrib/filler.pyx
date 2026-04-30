@@ -30,7 +30,7 @@ from functools import partial
 from libc.math cimport floor 
 
 from backtest.execution.gateway.interface import async_gt # cimport the async wrapper
-from backtest.execution.gateway.interface cimport AsyncGateway  # cimport the enum type
+from backtest.execution.gateway.interface cimport AsyncGateway, RpcTopic  # cimport the enum type
 
 from backtest.execution.utils.util cimport ts2intdt # cdef func differ from cdef class
 from backtest.execution.core.finance.order cimport OrderCoreData
@@ -38,7 +38,6 @@ from backtest.execution.core.finance.position cimport Position
 from backtest.execution.core.finance.comminfo cimport CommInfo_Stocks, CommInfo_Futures
 from backtest.execution.core.finance.trade cimport OrderExecutionBit
 from bt_sdk.core.protocol import QueryBody
-from bt_sdk.core.client import RpcTopic
 
 cimport numpy as cnp
 cnp.import_array() # 必须调用以初始化 numpy C-API
@@ -102,28 +101,34 @@ cdef class PseudoFiller:
         cdef object request = QueryBody(int_dt, int_dt, [core.sid])
 
         async def loader(object req):
-              cdef double[:, ::1] np_view
-              cdef list float_column =["tick", "open", "high", "low", "close", "volume", "amount"]
-              cdef object df, cast_df, np_arr
+            cdef object batch
+            cdef double[:, ::1] np_view
+            # cdef double[:, ::1] buffer_view = np.empty((self.batch_size, cols), dtype=np.float64) # C-Row / Fortan-Col
+            cdef list float_column = ["tick", "open", "high", "low", "close", "volume", "amount"]
+            cdef object float_schema = pa.schema([
+                (n, pa.float64()) for n in float_column
+            ])
 
-              try:
-                  import polars as pl
-                  import numpy as np
-
-                  data = await async_gt.remote(RpcTopic.Tick, req) # sid: pl.DataFrame
-                  df = data[req.sid[0]]
-
-                  cast_df = df.select(pl.col(float_column).cast(pl.Float64))
-                  # 2D Numpy Array np.ascontiguousarray double[:, ::1] (C-Contiguous)
-                  np_arr = np.ascontiguousarray(cast_df.to_numpy())
-
-                  np_view = np_arr # Cython MemoryView
-                  lines.batch_load(np_view)
-              except GeneratorExit:
-                  print("GeneratorExit Error means error during line batch_load")
-                  pass
-              except Exception as e:
-                  print(f"Loader Error: {e}")
+            try:
+                # iterator = await async_gt.rpc(RpcTopic.Tick, req)
+                # async for batch in iterator:
+                #     select_batch = batch.select(float_column) # batch.drop(["sid"])
+                #     cast_batch = select_batch.cast(float_schema) # ).to_tensor().to_numpy() despercated 
+                #     arrays = [col.to_numpy() for col in cast_batch.columns] # Arrow to Numpy C-order
+                #     np_view = np.column_stack(arrays) # C-Contiguous
+                #     lines.batch_load(np_view)
+                data = await async_gt.remote(RpcTopic.Tick, req) # sid: table
+                table = data[req.sid[0]]
+                select_table = table.select(float_column) # batch.drop(["sid"])
+                cast_table = select_table.cast(float_schema) # ).to_tensor().to_numpy() despercated 
+                arrays = [col.to_numpy() for col in cast_table.columns] # Arrow to Numpy C-order
+                np_view = np.column_stack(arrays) # C-Contiguous
+                lines.batch_load(np_view)
+            except GeneratorExit:
+                print("GeneratorExit Error means error during line batch_load")
+                pass
+            except Exception as e:
+                print(f"Loader Error: {e}")
 
         if cache is not None:
             data = await cache.get_or_load(request, loader)
@@ -131,7 +136,7 @@ cdef class PseudoFiller:
         else:
             await loader(request)
         return lines
-
+   
     cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines):
         """Cdef bypass Python getattr"""
         cdef double plimit, price

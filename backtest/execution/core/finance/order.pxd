@@ -36,14 +36,14 @@ cdef enum OrderType:
 
 
 cdef enum OrderStatus:
-        Created = 0
-        Submitted = 1
-        Accepted = 2
-        Partial = 3
-        Completed = 4
-        Canceled = 5
-        Expired = 6
-        Rejected = 7
+    Created = 0
+    Submitted = 1
+    Accepted = 2
+    Partial = 3
+    Completed = 4
+    Canceled = 5
+    Expired = 6
+    Rejected = 7
 
 
 cdef struct OrderCoreData:

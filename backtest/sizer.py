@@ -22,6 +22,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from .metabase import with_metaclass, MetaParams
+from bt_sdk.core.protocol import SnapshotBody
+from typing import List, Dict, Any
 
 
 class Sizer(with_metaclass(MetaParams, object)):
@@ -42,20 +44,20 @@ class Sizer(with_metaclass(MetaParams, object)):
         Gives access to information some complex sizers may need like portfolio
         value, ..
     '''
-    params = (('stake', 0.5),) # Pyramiding: 0.5 means 50% of the current position size for each additional tranche
+    params = (('stake', 0.9),) # retain 1 - stake for stafety 
 
-    def getsizing(self, data, snapshot, isbuy):
-        return self._getsizing(data, snapshot, isbuy)
+    def getsizing(self, topk_info: Dict[bytes, Any], snapshot: SnapshotBody, isbuy: bool):
+        return self._getsizing(topk_info, snapshot, isbuy)
 
-    def _getsizing(self, data, snapshot, isbuy):
+    def _getsizing(self, topk_info: Dict[bytes, Any], snapshot: SnapshotBody, isbuy: bool):
         '''This method has to be overriden by subclasses of Sizer to provide
         the sizing functionality
 
         Params:
-          - ``data``: target of the operation
+          - ``topk_info``: target of the operation, additional information about the target securities 
 
           - ``snapshot``: a snapshot of the current state of the strategy (see Strategy.snapshot())
-
+          
           - ``isbuy``: will be ``True`` for *buy* operations and ``False``
             for *sell* operations
 

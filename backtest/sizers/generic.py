@@ -20,6 +20,9 @@
 ###############################################################################
 import backtest as bt
 
+from typing import List, Dict, Any
+from bt_sdk.core.protocol import SnapshotBody
+
 
 class FixedSize(bt.Sizer):
     '''
@@ -28,13 +31,12 @@ class FixedSize(bt.Sizer):
     wishes to use to scale into trades by specifying the ``tranches``
     parameter.
     '''
-
-    def _getsizing(self, datas, snapshot, isbuy):
+    def _getsizing(self, topk_info: Dict[bytes, Any], snapshot: SnapshotBody, isbuy: bool):
         if isbuy:
-            ratio = 1 / len(datas) if len(datas) > 1 else self.p.stake
-            _sizer = {data["sid"]: ratio for data in datas}
+            ratio = self.p.stake / len(topk_info) if len(topk_info) > 1 else self.p.stake
+            _sizer = {sid: ratio for sid in topk_info.keys()}
         else:
-            _sizer = {p["sid"]: 1.0 for p in snapshot["positions"] if p["size"] > 0}
+            _sizer = {p.sid: 1.0 for p in snapshot.positions if p.size > 0}
         return _sizer
 
 
@@ -51,17 +53,15 @@ class WeightedSizer(bt.Sizer):
     and the allocation will be proportional to their score relative to the total
     positive score of all candidates.
     '''
-    def _getsizing(self, datas, snapshot, isbuy):
+    def _getsizing(self, topk_info: Dict[bytes, Any], snapshot: SnapshotBody, isbuy: bool):
         if isbuy:
-            total_score = sum(max(data["score"], 0) for data in datas)
-            # context = getattr(self.strategy, "sizing_context", {})
-            _sizer = {data["sid"]: self.p.stake * data["score"] / total_score for data in datas}
+            total_score = sum(max(info.get("score", 0), 0) for info in topk_info)
+            _sizer = {info["sid"]: self.p.stake * max(info.get("score", 0), 0) / total_score for info in topk_info}
         else:
-            _sizer = {p["sid"]: 1.0 for p in snapshot["positions"] if p["size"] > 0}
+            _sizer = {p.sid: 1.0 for p in snapshot.positions if p.size > 0}
         return _sizer
 
 
-# `size_ratio = (股数 * Close) / 总资金 = (总资金 * 1% / ATR) * Close / 总资金 = 1% * (Close / ATR) = risk_ratio / atr_ratio`。
 class TurtleSizer(bt.Sizer):
     '''This sizer implements the position sizing method used in the Turtle Trading system, 
        which is based on the Average True Range (ATR) of the asset. The size is calculated as:  
@@ -73,14 +73,14 @@ class TurtleSizer(bt.Sizer):
             - atr is the Average True Range of the asset, which measures its volatility
             - close is the current closing price of the asset
     '''
-    params = (('risk_ratio', 0.01),)
+    params = (('risk_ratio', 0.01),) # 基于涨跌制度估算系数至少10倍左右
 
-    def _getsizing(self, datas, snapshot, isbuy):
-
+    def _getsizing(self, topk_info: Dict[bytes, Any], snapshot: SnapshotBody, isbuy: bool):
+        # size_ratio = (股数 * Close) / 总资金 = (总资金 * 1% / ATR) * Close / 总资金 = 1% * (Close / ATR)
         if isbuy:
-            _sizer = {data["sid"]: self.p.risk_ratio * (data["close"] / data["atr"]) for data in datas}
+            _sizer = {sid: self.p.stake * self.p.risk_ratio * (info.get("close", 0) / info.get("atr", 1)) for sid, info in topk_info.items()}
         else:
-            _sizer = {p["sid"]: 1.0 for p in snapshot["positions"] if p["size"] > 0}
+            _sizer = {p.sid: 1.0 for p in snapshot.positions if p.size > 0}
         return _sizer
 
 
@@ -126,10 +126,8 @@ class KellySizer(bt.Sizer):
          given data
  
     '''
-
-    def _getsizing(self, datas, snapshot, isbuy):
-        # Kelly 变体 权重 = Score / 方差 (这里我们用 beta 近似替代方差)
-        # Clipping 
+    def _getsizing(self, topk_info: Dict[bytes, Any], snapshot: SnapshotBody, isbuy: bool):
+        # Kelly 变体 权重 = Score / 方差 (这里我们用 beta 近似替代方差) / Clipping 
         # 扩展为多策略, 每个策略一个 KellySizer, 通过参数传入策略名来区分不同策略的评分体系
         pass 
 

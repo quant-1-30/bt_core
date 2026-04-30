@@ -104,7 +104,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
     def __init__(self):
         self.cash = 0.0
-        self.calendar_days = list()
+        self.u_id = "" 
+
         self.datas = list()
         self.strats = list()
         self.observers = list()
@@ -112,37 +113,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.signals = list()
         self._signal_strat = (None, None, None)
         self._signal_accumulate = True
-        self.writers = list()
-        self.optcbs = list()  # holds a list of callbacks for opt strategies
+        
+        self.optcbs = list()  
         self.storecbs = list()
 
         self._pretimers = list()
         self._mcstimers = list()
         
-        # unique id for the run, can be used to relate with store
-        self.u_id = "" 
-        self._r = None
+        self.writers = list()
         self._plot = Plot()
 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
-    # def addcalendar(self, cal=None):
-    #     '''Adds a global trading calendar to the system. Individual data feeds
-    #     may have separate calendars which override the global one
-
-    #     ``cal`` can be an instance of ``TradingCalendar`` a string or an
-    #     instance of ``pandas_market_calendars``. A string will be will be
-    #     instantiated as a ``PandasMarketCalendar`` (which needs the module
-    #     ``pandas_market_calendar`` installed in the system.
-
-    #     If a subclass of `TradingCalendarBase` is passed (not an instance) it
-    #     will be instantiated
-    #     '''
-    #     if cal and issubclass(cal, TradingCalendarBase): 
-    #         self._tradingcal = cal
-    #     else:
-    #         self._tradingcal = TradingCalendar()
-
     def addtz(self, tz):
         '''
         This can also be done with the parameter ``tz``
@@ -320,29 +302,16 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname)
         return dataname
 
-# ---------------------------------------------------------------- middleware ------------------------------------------------------------
+# ---------------------------------------------------------------- control ------------------------------------------------------------
 
     def addstore(self, store: str="local", **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[store]
         self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
     
-    def addpnc(self, sizer: str="default", **kwargs):
+    def addcontrol(self, lock_days, sizer_name: str="fixed", **kwargs):
         '''Adds a TaskPlan instance to the system'''
-        _sizer = None
-        self.pnc = Pnc(_sizer, **kwargs)
-
-    def addsizer(self, sizer="fixed", **kwargs):
-        '''Adds a ``Sizer`` class (and args) which is the default sizer for any
-        strategy added to cerebro
-        '''
-        self.sizer = _sizers[sizer](**kwargs)
-
-    # def addrisk(self, risk="tl", **kwargs):
-    #     '''Adds a ``RiskControl`` class (and args) which is the default risk for any
-    #     strategy added to cerebro
-    #     '''
-    #     self._r = _rctl[risk](**kwargs)
+        self.pnc = Pnc(lock_days, sizer_name, **kwargs)
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
@@ -354,6 +323,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         args and kwargs will be passed to the strategy as they are during
         instantiation.
         '''
+        # self.strats.append([(strategy, args, kwargs)])
         self.strats.append([(strategy, args, kwargs)])
 
     def addindicator(self, indcls, *args, **kwargs): # signal is indicator
@@ -425,8 +395,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # self.stcount = itertools.count(0)
         # return next(self.stcount)
         extra_info = [f"RunKwargs: {json.dumps(run_kwargs, cls=CustomJSONEncoder, indent=2)}"]
-        for sig_type, args, kwargs in self.strats:
-            _info = f" {sig.__class__.__name__}({json.dumps(kwargs())})"
+        for strat in self.strats:
+            sig_type, args, kwargs = strat[0]
+            _info = f" {sig_type.__class__.__name__}({json.dumps(kwargs)})"
             extra_info.append(_info)
         self.u_id = ','.join(extra_info)
 
@@ -550,7 +521,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         Internal method invoked by ``run``` to run a set of strategies
         '''
         self.runningstrats = runstrats = list()
-
         for stratcls, sargs, skwargs in iterstrat:
             sargs = self.datas + list(sargs)
             try:

@@ -1,11 +1,12 @@
 import asyncio
 import numpy as np
-import pyarrow as pa
+import polars as pl
 
 from backtest.execution.core.finance.asset cimport Asset
-from backtest.execution.gateway.interface cimport AsyncGateway, RpcTopic  # cdef class info 
+from backtest.execution.gateway.interface cimport AsyncGateway # cdef class info 
 from backtest.execution.gateway.interface import async_gt  # load.so used for cast cdef type     
 from bt_sdk.core.protocol import QueryBody
+from bt_sdk.core.client import RpcTopic
 
 from libc.stdint cimport int32_t
 
@@ -23,37 +24,35 @@ cdef class AssetCache:
         cdef object table
         cdef int32_t rpc_type = RpcTopic.Instrument
 
-        table = await async_gt.remote(rpc_type, None) # complete
-        return table
+        df = await async_gt.remote(rpc_type, None) # complete
+        return df
 
-    cdef void _add_to_cache(self, object table):
+    cdef void _add_to_cache(self, object df):
         cdef:
-            object batch
-            int i, batch_len
-            # MemoryView is mutable but pyarrow is immuatable
+            int32_t i, df_len
             const cnp.int32_t[:] v_int_sids 
             const cnp.int32_t[:] v_firsts
             const cnp.int32_t[:] v_delists
             Asset asset 
             bytes sid_bytes
             list v_names, v_sids
-
-        for batch in table.to_batches(): # table cpu seek + caluate / batch seek avoid combine_chunk
-            batch_len = batch.num_rows
-            
-            v_int_sids = batch.column("sid").cast(pa.int32()).to_numpy(zero_copy_only=True) # sid column is string
-            # v_firsts = batch.column("first_trading").to_numpy().astype(np.int32, copy=False)
-            v_firsts = batch.column("first_trading").cast(pa.int32()).to_numpy(zero_copy_only=True) 
-            v_delists = batch.column("delist").cast(pa.int32()).to_numpy(zero_copy_only=True) 
-            
-            v_names = batch.column("name").to_pylist() # better than as_py()
-            v_sids = batch.column("sid").to_pylist() # better than as_py()
-
-            for i in range(batch_len): # C++ struct / std::string 或 char*
-                sid_bytes = v_sids[i].encode("utf-8")
-                asset = Asset(sid_bytes, v_names[i], v_firsts[i], v_delists[i])
-                self._c_cache[v_int_sids[i]] = asset.core
-
+    
+        df_len = df.height
+        if df_len == 0:
+            return
+     
+        v_int_sids = df.get_column("sid").cast(pl.Int32).to_numpy() 
+        v_firsts = df.get_column("first_trading").cast(pl.Int32).to_numpy()
+        v_delists = df.get_column("delist").cast(pl.Int32).to_numpy()
+        
+        v_names = df.get_column("name").to_list() 
+        v_sids = df.get_column("sid").to_list()
+    
+        for i in range(df_len):
+            sid_bytes = v_sids[i].encode("utf-8")
+            asset = Asset(sid_bytes, v_names[i], v_firsts[i], v_delists[i])
+            self._c_cache[v_int_sids[i]] = asset.core
+    
     async def addinfo(self, bytes sid):
         cdef int32_t c_sid = int(sid.decode("utf-8"))
 

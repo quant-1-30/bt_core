@@ -366,10 +366,6 @@ class ObserverBase(DataAccessor):
 class StrategyBase(DataAccessor):
     pass
 
-
-class NotifyBase(DataAccessor):
-    pass
-
 # ---------------------------------------------------------- coupler -----------------------------------------------------------------
 
 # Utility class to couple lines/lineiterators which may have different lengths

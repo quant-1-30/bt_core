@@ -54,12 +54,13 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
     cerebro.addstore() 
+    cerebro.addcontrol(5, "fixed", stake=0.9)
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
 
     cerebro.addstrategy(TestStrategy, ddata)
 
-    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=b"000001", out="strategy.csv")
+    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"000001"], out="strategy.csv")
 
     # 20040101 - 20260201 100s

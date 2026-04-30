@@ -37,7 +37,6 @@ from collections import defaultdict
 from itertools import chain
 
 from bt_sdk.core.protocol import SnapshotBody, Resp, Event, QueryBody
-from bt_sdk.core.client import RpcTopic
 from backtest.execution.gateway.interface import async_gt
 
 from libcpp.unordered_map cimport unordered_map
@@ -55,6 +54,7 @@ from backtest.execution.core.finance.common cimport EventItem, AdjustmentData, R
 from backtest.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Likehood 
 from backtest.execution.core.finance.simulate_types cimport MsgType
 from backtest.execution.utils.util cimport ts2intdt
+from backtest.execution.gateway.interface cimport RpcTopic
 from backtest.execution.actor.writer_actor cimport IBatchWriter
 
 
@@ -204,29 +204,6 @@ cdef class TrackerActor:
                 p_sid.update(ordbit) 
             self.cash_manager.sync(self.experiment_id, self.positions)
 
-    async def _fetch_from_rpc(self, object event):
-
-        async def remote(int rpc_type, object body):
-            cdef list batches = []
-            sorted_batches = await async_gt.remote(rpc_type, body) 
-            return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
-
-        cdef object body = event.body
-        cdef list psids = list(self.positions.keys())
-        cdef int32_t s_dt, e_dt
-
-        s_dt = ts2intdt(body.start_date)
-        e_dt = ts2intdt(body.end_date)
-
-        close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids)
-        event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids)
-        
-        close_task = remote(RpcTopic.Close, close_body) 
-        adj_task = remote(RpcTopic.Adjustment, event_body)
-        rgt_task = remote(RpcTopic.Rightment, event_body)
-        closes_df, adjs_df, rgts_df = await asyncio.gather(close_task, adj_task, rgt_task) 
-        return (closes_df, adjs_df, rgts_df)
-
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
         cdef object close_table, adj_table, rgt_table
@@ -238,24 +215,19 @@ cdef class TrackerActor:
             self.cash_manager.sync_no_sids(experiment_id, sync_tick)
             return
 
-        closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(event)
-
-        if closes_df:
-            for sid in closes_df:
-                close_df = closes_df[sid]
-                if not close_df.is_empty():
-                    for row in close_df.iter_rows(named=True):
-                        sid = row["sid"] 
-                        if sid in self.positions:
-                            p_obj = self.positions[sid]
-                            close_dt = int(row["day"])
-                            close_price = float(row["close"])
-                            p_obj.on_dt_over(close_dt, close_price)
+        close_table, adj_table, rgt_table = await self._fetch_from_rpc(event)
+        if close_table:
+            for sid in close_table:
+                p_obj = self.positions[sid]
+                sid_table = close_table[sid]
+                close_dt = sid_table.column("day")[0].as_py()
+                close_price = sid_table.column("close")[0].as_py()
+                p_obj.on_dt_over(int(close_dt), close_price)
 
         self.cash_manager.sync(self.experiment_id, self.positions)
-        self._sync_event(experiment_id, self.positions, adjs_df, rgts_df) 
-
-    cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_df, dict py_rgt_df):
+        self._sync_event(experiment_id, self.positions, adj_table, rgt_table) # next_day sync event
+        
+    cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table):
         cdef double event_cash = 0.0
         cdef Position pos_obj  
         cdef unordered_map[int, AdjustmentData] cpp_adj_map # int as key better than cpp_String c++ stl vector& to deref to access value in cython 
@@ -266,25 +238,18 @@ cdef class TrackerActor:
         cdef list psids
 
         psids = list(pobjs.keys())
-        if py_adj_df:
-            for adj_sid, v in py_adj_df.items():
+        if py_adj_table:
+            for adj_sid, v in py_adj_table.items():
                 int_sid = int(adj_sid)
-                # [0] series 
-                cpp_adj_map[int_sid] = AdjustmentData(
-                    bonus_share=float(v.item(0, "bonus_share")), 
-                    transfer=float(v.item(0, "transfer")), 
-                    bonus=float(v.item(0, "bonus"))
-                )
-
+                cpp_adj_map[int_sid] = AdjustmentData(bonus_share=v.column("bonus_share")[0].as_py(), 
+                                                  transfer=v.column("transfer")[0].as_py(), 
+                                                  bonus=v.column("bonus")[0].as_py())
                 
-        if py_rgt_df:
-            for rgt_sid, v in py_rgt_df.items():
+        if py_rgt_table:
+            for rgt_sid, v in py_rgt_table.items():
                 int_sid = int(rgt_sid)
-                cpp_rgt_map[int_sid] = RightData(
-                    ratio=float(v.item(0, "ratio")), 
-                    price=float(v.item(0, "price"))
-                )
-
+                cpp_rgt_map[int_sid] = RightData(ratio=v.column("ratio")[0].as_py(), 
+                                             price=v.column("price")[0].as_py())
 
         for sid_bytes in psids:
             pos_obj = pobjs[sid_bytes] 
@@ -306,6 +271,29 @@ cdef class TrackerActor:
 
         if event_cash != 0:
             self.cash_manager.add_cash(experiment_id, event_cash)
+
+    async def _fetch_from_rpc(self, object event):
+
+        async def remote_wrap(int rpc_type, object body):
+            cdef list batches = []
+            sorted_batches = await async_gt.remote(rpc_type, body) 
+            return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
+
+        cdef object body = event.body
+        cdef list psids = list(self.positions.keys())
+        cdef int32_t s_dt, e_dt
+
+        s_dt = ts2intdt(body.start_date)
+        e_dt = ts2intdt(body.end_date)
+
+        close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids)
+        event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids)
+        
+        close_task = remote_wrap(RpcTopic.Close, close_body) 
+        adj_task = remote_wrap(RpcTopic.Adjustment, event_body)
+        rgt_task = remote_wrap(RpcTopic.Rightment, event_body)
+        close_table, adj_table, rgt_table = await asyncio.gather(close_task, adj_task, rgt_task) 
+        return (close_table, adj_table, rgt_table)
 
     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=False):
         cdef Position p_obj

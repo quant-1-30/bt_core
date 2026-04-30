@@ -105,16 +105,16 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
         close = raw_data[body.sid[0]]
 
-        close = close.with_columns(
+        self.bench_ret = close.with_columns(
             pl.col("close").pct_change().fill_null(0).alias("ret")
         ).select(["day", "ret"])
-        self.bench_ret = close.to_dicts()
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
         self._row_iter = None
+        self.sid = kwargs["sid"]
 
-        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["sid"])
+        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=self.sid)
         self.get_adjfactor(body)
 
         body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])

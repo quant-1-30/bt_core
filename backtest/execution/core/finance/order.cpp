@@ -2034,8 +2034,8 @@ enum __pyx_t_8backtest_9execution_4core_7finance_5order_OrderType {
  * 
  * 
  * cdef enum OrderStatus:             # <<<<<<<<<<<<<<
- *         Created = 0
- *         Submitted = 1
+ *     Created = 0
+ *     Submitted = 1
 */
 enum __pyx_t_8backtest_9execution_4core_7finance_5order_OrderStatus {
   __pyx_e_8backtest_9execution_4core_7finance_5order_Created = 0,

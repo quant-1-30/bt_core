@@ -27,7 +27,7 @@ class WeekPriceSignal(btind.Indicator):
         # =============================================================
         # Look-ahead Bias
         # =============================================================
-        if self.data1.datetime.date(0) == self.data0.datetime.date(0):
+        if self.data1.datetime.datetime() == self.data0.datetime.datetime():
             if len(self.sma_weekly) < 2: 
                 return
             last_week_sma = self.sma_weekly[-1]
@@ -126,9 +126,9 @@ class DrawDownSignal(btind.Indicator):
 if __name__ == '__main__':
     
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=True) 
     cerebro.addstore() 
-    cerebro.addsizer("fixed", stake=0.6)
+    cerebro.addcontrol(5, "fixed", stake=0.9)
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
@@ -142,4 +142,4 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20040101, todate=20260201, benchmark=[b"000001"], sizer="fixed", out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20200101, todate=20260201, benchmark=[b"000001"], out="signal.csv")

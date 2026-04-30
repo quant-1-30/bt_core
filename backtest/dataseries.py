@@ -97,7 +97,7 @@ class DataSeries(LineSeries):
         # returns dictionary with information
         info = OrderedDict()
         info['Name'] = self._name
-        info['ExtraInfo'] = self.extra_info
+        # info['ExtraInfo'] = self.extra_info
         info['Timeframe'] = TimeFrame.TName(self._timeframe)
         info['Compression'] = self._compression
 

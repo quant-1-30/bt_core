@@ -57,9 +57,9 @@ class MetaStrategy(StrategyBase.__class__):
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaStrategy, cls).donew(*args, **kwargs)
 
-        # Find the owner and store it
+        # Find the _owner and store it
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
-        _obj.sizer = env.sizer # add sizing to strategy
+        _obj.pnc = env.pnc # pnc contain sizer and risk
 
         # register strategy to store with unique id
         store = cerebro.store # add store to strategy
@@ -83,7 +83,9 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.writers = list()
         _obj._orders = list()
         _obj._trades = list()
+
         _obj.snapshot = None
+        _obj.topk_info = None # strategy context info from indicator notify
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -350,27 +352,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for indicactor in self._flat_fast:
             indicactor() # _next_fast
         self.next()
-
-    def getsizing(self, isbuy=True):
-        '''Get the current sizing for the strategy'''
-        ratio = self.sizer.getsizing(isbuy)
-
-        if isbuy:
-            acct_snap = self.snapshot.account
-            
-            if acct_snap.cash < 10000:
-                return 0, False
-
-            total_value = acct_snap.portfolio_value + acct_snap.cash
-            cash_buffer = acct_snap.cash / total_value
-            is_submit = False if cash_buffer < 0.10 else True
-        else:
-            pos_snap = self.snapshot.positions
-            is_submit = pos_snap[0].available > 0 if pos_snap else False 
-        
-        return ratio, is_submit
  
-    def buy(self, sids=[], plimit: int=0, execType=0, filler=b"likehood"):
+    def buy(self, buys, plimit: int=0, execType=0, filler=b"likehood"):
         '''Create a buy (long) order and send it to the broker 
           
           - ``plimit`` (default: ``0``) means set price limit or not
@@ -415,13 +398,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
 
-        _sizer, is_allowed = self.getsizing()
-        if created_dt > 0 and is_allowed:
+        for bplan in buys:
+            core = bplan.core
             order = OrderBody(
-                        # sid=self.datas[0].sids[0],
-                        sids,
+                        core["sid"],
+                        sizer_ratio=core["weight"], 
                         pricelimit=plimit,
-                        sizer_ratio=_sizer, 
                         order_type=0,
                         exec_type=0, 
                         created_dt=int(created_dt),
@@ -434,7 +416,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
         
-    def sell(self, sids = [], plimit: int=0, execType=0, filler=b"likehood"):
+    def sell(self, sells, plimit: int=0, execType=0, filler=b"likehood"):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -445,12 +427,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
 
-        _sizer, is_allowed = self.getsizing(isbuy=False)
-        if created_dt > 0 and is_allowed:
+        for splan in sells:
+            core = splan.core
             order = OrderBody(
-                        # sid=self.datas[0].sids[0],
-                        sids,
-                        sizer_ratio=_sizer, 
+                        core["sid"],
+                        sizer_ratio=core["weight"], 
                         pricelimit=plimit,     
                         order_type=1,
                         exec_type=execType, 
@@ -463,8 +444,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.lines.sell[0] = -1
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
-                self.sizer.reset() 
-    
+                self.pnc.on_filled(trades)
+
     def notify_timer(self, dts):
         self.on_dt_over = True
         snapshot = self.store.on_dt_over(self.experiment_id) 
@@ -504,7 +485,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         # prepare the indicators/observers data headers
         for iocsv in self.indobscsv:
-            name = iocsv.plotinfo.plotname or iocsv.extra_info
+            name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             headers.append(name)
             col_alias = ",".join(iocsv.getlinealiases())
             headers.append(col_alias)
@@ -515,7 +496,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         values = list()
 
         for iocsv in self.indobscsv:
-            name = iocsv.plotinfo.plotname or iocsv.extra_info # iocsv.__class__.__name__
+            name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
             values.append(name)
             lio = len(iocsv)
             if lio:
@@ -724,10 +705,15 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # Invalidate short leave if shortexit signals are available
         s_leave = not self._shortexit and s_leave
 
+        # execute
+        topk_info = {self.data0.sid[0]: {"close" :self.data0.close[0]}} if not self.topk_info else self.topk_info # only support one data feed for now
+        self.pnc.generate_plan(topk_info, self.snapshot, self.stats)  
+        plan= self.pnc.to_plan()
+
         if l_enter:
             if self.p._accumulate:
-                self.buy()
+                self.buy(plan["buy"])
         # elif l_exit or l_rev or l_leave:
         else:
             # closing position - not relevant for concurrency
-            self.sell() # sell means close
+            self.sell(plan["sell"]) # sell means close

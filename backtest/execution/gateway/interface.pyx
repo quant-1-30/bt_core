@@ -10,8 +10,7 @@ from backtest.execution.gateway.operator.schema import Experiment, vtPosition, v
 from backtest.execution.gateway.operator.operator import async_ops
 
 from libc.stdint cimport int64_t
-from bt_sdk.core.client import GetMdApi 
-
+from bt_sdk.core.client import GetMdApi, FactorTopic, RpcTopic
 
 cdef const int64_t BatchSize = 100
 
@@ -28,10 +27,6 @@ cdef class AsyncGateway:
             self._mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
         return self._mdapi
     
-    # def __init__(self):
-    #     md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
-    #     self.mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
-
     async def register(self, object event): 
         cdef object body = event.body
         cdef object row, resp
@@ -66,7 +61,8 @@ cdef class AsyncGateway:
                     ).label("rn")
                 )
             ).subquery() 
-            account_alias = aliased(vtAccount, sub_stmt) # aliased subquery related to SQLAlchemy entity class and result is vtAccount object
+            # aliased subquery related to SQLAlchemy entity class and result is vtAccount object
+            account_alias = aliased(vtAccount, sub_stmt) 
 
             stmt = (
                 select(account_alias)
@@ -122,7 +118,8 @@ cdef class AsyncGateway:
                 .where(vtOrder.created_dt.between(body.start_date, body.end_date))
                 .options(
                     # load_only(vtOrder.id, vtOrder.experiment_id), # 加载必要的字段减少内存占用
-                    selectinload(vtOrder.order_bits) # selectinload 代替 subqueryload 在处理ID 列表时通常比子查询更快 / row.order_bits 已在内存中，此处无额外 IO
+                    # selectinload 代替 subqueryload 在处理ID 列表时通常比子查询更快 / row.order_bits 已在内存中 无额外IO
+                    selectinload(vtOrder.order_bits) 
                 )
             )
         
@@ -211,12 +208,14 @@ cdef class AsyncGateway:
             rpc request
             rpc_type: adjustment / rightment
         """
-        if rpc_type == RpcTopic.Close:
-            results = await self.mdapi.get_close_async(body)
-        elif rpc_type == RpcTopic.Instrument:
+        if rpc_type == RpcTopic.Instrument:
             results = await self.mdapi.get_instrument_async()
+        elif rpc_type == RpcTopic.Tick:
+            results = await self.mdapi.get_subscribe_async(body, FactorTopic.Raw)
+        elif rpc_type == RpcTopic.Close:
+            results = await self.mdapi.get_close_async(body, FactorTopic.Raw)
         else:
-            results = await self.mdapi.get_event_async(rpc_type, body)
+            results = await self.mdapi.get_event_async(body, rpc_type)
         return results 
 
     async def __call__(self, object objs, bint return_obj=False):

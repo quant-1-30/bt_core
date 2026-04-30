@@ -75,15 +75,15 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
             # remove 9 to avoid precision rounding errors
             _obj.p.sessionend = datetime.timedelta()
 
-        _obj._barstack = collections.deque()  # for filter operations
-        _obj._barstash = collections.deque()  # for filter operations
-
+        # filter operations
         _obj._filters = list()
-        _obj.adj_factors = {} # default
-        _obj._record_adj_dt = 0
-        _obj.extra_info = ""
-        _obj.bench = None # benchmark
-        _obj.sids = [] # b''
+        _obj._barstack = collections.deque()  
+        _obj._barstash = collections.deque()  
+
+        _obj.adj_factors = {} 
+        _obj.adj_tmp_dt = 0
+        _obj.sid = []
+
         print("MetaAbstractDataBase dopostinit finish ")
         return _obj, args, kwargs
 
@@ -328,7 +328,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
     def addfilter(self, p, *args, **kwargs):
         if inspect.isclass(p):
             pobj = p(self, *args, **kwargs)
-            self.extra_info += f"  ResampleInfo: {str(pobj.p)}"
+            # self.extra_info += f"  ResampleInfo: {str(pobj.p)}"
             self._filters.append((pobj, [], {}))
         else:
             raise TypeError(f'{p} is not class')
@@ -367,7 +367,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         current_dt = int(num2date(self.lines.datetime[0]).strftime("%Y%m%d"))
 
-        if current_dt in self.adj_factors and current_dt != self._record_adj_dt:
+        if current_dt in self.adj_factors and current_dt != self.adj_tmp_dt:
             factor = self.adj_factors[current_dt]
         
             adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
@@ -381,7 +381,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self.volume.apply_factor(1.0 / factor)
             self.volume[0] = _v * factor
 
-            self._record_adj_dt = current_dt
+            self.adj_tmp_dt = current_dt
 
     def on_dt_over(self):
         if not np.isnan(self.lines.datetime[-1]): # nan ---> np.inf
