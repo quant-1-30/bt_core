@@ -84,7 +84,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj._orders = list()
         _obj._trades = list()
 
-        _obj.snapshot = None
+        _obj.snapshot = None # cache position and account
         _obj.topk_info = None # strategy context info from indicator notify
         return _obj, args, kwargs
 
@@ -171,6 +171,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         super().qbuffer(savemem=savemem)
         self.minbuffer()
+    
+    def set_cash(self, **kwargs):
+        cash = kwargs.pop("cash", 100000)
+        session = kwargs["fromdate"]
+        self.snapshot = self.store.set_cash(self.experiment_id, session, cash)
 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
@@ -195,11 +200,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._fast_analyzers = [ analyzer._next for analyzer in self.analyzers]
         self._fast_observers = [observer._next for observer in self.observers]
         self._flat_fast = self._flat_collect() 
-
-    def set_cash(self, **kwargs):
-        cash = kwargs.pop("cash", 100000)
-        session = kwargs["fromdate"]
-        self.snapshot = self.store.set_cash(self.experiment_id, session, cash)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -287,23 +287,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     #     self._next_observers(minperstatus)
     #     super(Strategy, self)._next() # lineiterator _next
 
-    def _flat_collect(self):
-            _flat_chain = []
-            
-            for ind in self._lineiterators[LineIterator.IndType]:
-                _flat_chain.extend(self._next_recursive(ind))
-            return _flat_chain
-            
-    def _next_recursive(self, indicator):
-        recur = []
-        for c_ind in indicator._lineiterators[LineIterator.IndType]:
-            recur.extend(self._next_recursive(c_ind))
-        if hasattr(self, '_next_fast'):
-            recur.append(self._next_fast)
-        # elif hasattr(self, '_next_fast'):
-        #     recur.append(self._next_fast)
-        return recur
-
     # @profile
     def _next_observers(self, minperstatus):
         if minperstatus < 0:
@@ -320,13 +303,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             observer._next()
 
     # @profile
-    def _next_observers_fast(self): # avoid attr
-        for aly in self._fast_analyzers:
-            aly()
-        for obs in self._fast_observers:
-            obs()
-
-    # @profile
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
         minperstatus = self._getminperstatus()
@@ -340,6 +316,29 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.nextstart()  # only called for the 1st value
         else:
             self.prenext()
+
+    # --------------------------------------------------------------flat next --------------------------------------------------
+
+    def _next_recursive(self, indicator):
+        recursive = []
+        for c_ind in indicator._lineiterators[LineIterator.IndType]:
+            recursive.extend(self._next_recursive(c_ind))
+        if hasattr(self, '_next_fast'):
+            recursive.append(self._next_fast)
+        return recursive
+    
+    def _flat_collect(self):
+            _flat_chain = []
+            for ind in self._lineiterators[LineIterator.IndType]:
+                _flat_chain.extend(self._next_recursive(ind))
+            return _flat_chain
+
+    # @profile
+    def _next_observers_fast(self): # avoid attr
+        for aly in self._fast_analyzers:
+            aly()
+        for obs in self._fast_observers:
+            obs()
     
     # @profile
     def _next_flat_fast(self):
@@ -351,6 +350,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for indicactor in self._flat_fast:
             indicactor() # _next_fast
         self.next()
+    
+    # -------------------------------------------------------------------------------------------------------------------------
  
     def buy(self, buys, plimit: int=0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 
@@ -407,7 +408,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         exec_type=0, 
                         created_dt=int(created_dt),
                         filler=filler)
-            # import pdb; pdb.set_trace()
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.order
             if trades:
@@ -426,6 +426,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
 
+        print("sells ", sells)
         for splan in sells:
             core = splan.core
             order = OrderBody(
@@ -445,13 +446,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.snapshot = snapshot
                 self.pnc.on_filled(trades)
 
-    def notify_timer(self, dts):
-        self.on_dt_over = True
-        snapshot = self.store.on_dt_over(self.experiment_id) 
-        if snapshot:
-            self.snapshot = snapshot
-        self.reset()
-
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders
         # and pendingtrades, which have to exist for things like observers
@@ -459,6 +453,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._orders.append(qorder)
         if qtrades:
             self._trades.extend(qtrades)
+
+    def notify_timer(self, dts):
+        self.on_dt_over = True
+        snapshot = self.store.on_dt_over(self.experiment_id) 
+        if snapshot:
+            self.snapshot = snapshot
+        self.reset()
 
     def cancel(self, order_id):
         '''Cancels the order in the broker'''

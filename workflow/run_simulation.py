@@ -85,7 +85,7 @@ class FsmStrategy(bt.Strategy):
         # =========================================================
         if seconds_in_day == 34200:
             # mode eager
-            super().sell(pending_sells)
+            self.sell(pending_sells.values())
 
         # =========================================================
         # stage2 14:55 —— FSM 
@@ -94,8 +94,8 @@ class FsmStrategy(bt.Strategy):
             topk_info = self.topk_info 
             if not topk_info: return
             # import pdb; pdb.set_trace()
-            print("topk_info ", topk_info)
-            print("snapshot ", snapshot)
+            # print("topk_info ", topk_info)
+            # print("snapshot ", snapshot)
             current_prices = self.store.get_snapshot_tick(psids, int(current_tick))
             plan = self.pnc.generate_plan(topk_info, current_prices, snapshot, self.stats)
             print("plan ", plan)

@@ -426,10 +426,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
             data._start(**kwargs)
 
         print("cerebro run data._start finish")
+
         # Prepare timers
         if not self._pretimers:
-            # add default timer to adjust T+1 
-            self._pretimers.append(Timer(when=Session.SESSION_START))  
+            self._pretimers.append(Timer(when=Session.SESSION_START)) # T + 1 policy to update on 9:30 
         for timer in itertools.chain(self._pretimers, self._mcstimers):
             timer.start(self.datas[0]) # preprocess tzdata if needed
 

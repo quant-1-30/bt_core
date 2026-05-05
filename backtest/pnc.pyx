@@ -49,6 +49,7 @@ cdef class Pnc:
         cdef double pnl, wgt_ratio
         cdef bint signal
         cdef object pos
+        cdef TraderPlan tmp
         cdef list positions = snapshot.positions # msgspec List
         cdef object account = snapshot.account 
 
@@ -77,9 +78,12 @@ cdef class Pnc:
         s_wgt = self.sizer.getsizing(topk_info, snapshot, False)
 
         for pos in positions: # msgspec list
+            if pos.size == 0:
+                continue
+
             sid = pos.sid
 
-            current_price = current_prices.get(sid, pos.cost_basis) # suspending / missiong 
+            current_price = current_prices.get(sid, pos.cost_basis) # suspending / missing 
             pnl = current_price / pos.cost_basis - 1.0
 
             # ------------------------------------------
@@ -87,9 +91,11 @@ cdef class Pnc:
             # ------------------------------------------
             if pnl <= self.p_tolerance: 
                 wgt_ratio = s_wgt.get(sid, 1.0) 
-                self.sells.append(TraderPlan(sid, wgt_ratio, False, priority=0)) # priority=0 最高级
-                self.pending_sells[sid] = pos.size
-                continue # 风控卖出已计划，直接看下一个持仓
+                tmp = TraderPlan(sid, wgt_ratio, False, priority=0) # priority=0 最高级
+                self.sells.append(tmp) 
+                # self.pending_sells[sid] = pos.size
+                self.pending_sells[sid] = tmp
+                continue 
                 
             # ------------------------------------------
             # Priority B: normal switch
@@ -102,8 +108,9 @@ cdef class Pnc:
                 continue
         
             wgt_ratio = s_wgt.get(sid, 0.0)
-            self.sells.append(TraderPlan(sid, wgt_ratio, False, priority=1))
-            self.pending_sells[sid] = pos.size
+            tmp = TraderPlan(sid, wgt_ratio, False, priority=1)
+            self.sells.append(tmp)
+            self.pending_sells[sid] = tmp
 
         self.sells.sort()
         
@@ -118,7 +125,8 @@ cdef class Pnc:
 
         for sid in topk_info:
             wgt_ratio = b_wgt.get(sid, 0.0)
-            self.buys.append(TraderPlan(sid, wgt_ratio, True, priority=1))
+            tmp = TraderPlan(sid, wgt_ratio, True, priority=1)
+            self.buys.append(tmp)
 
         self.buys.sort()
         
@@ -138,8 +146,12 @@ cdef class Pnc:
             filled_vol = trade.executed_size
 
             if sid in self.pending_sells:
-                self.pending_sells[sid] -= filled_vol
-                if self.pending_sells[sid] <= 0:
+                # self.pending_sells[sid] -= filled_vol
+                # if self.pending_sells[sid] <= 0:
+                #     del self.pending_sells[sid]
+
+                tmp = self.pending_sells[sid] 
+                if tmp.core - filled_vol <= 0:
                     del self.pending_sells[sid]
 
     cpdef dict get_pending_sells(self):

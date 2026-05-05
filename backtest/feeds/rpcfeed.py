@@ -111,9 +111,11 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
 
     def get_snapshot(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
         body = QueryBody(start_date=tick, end_date=tick, sid=psids)
-        # import pdb; pdb.set_trace()
         df = self.mdapi.get_subscribe(body, FactorTopic.Raw)
-        snapshot = df.to_pandas().to_dict('records') if df else {}
+        snapshot = {}
+        if df:
+            from toolz import valmap
+            snapshot = valmap(lambda x : x["close"][0], df)
         return snapshot
 
     def _start(self, *args, **kwargs):
