@@ -56,6 +56,7 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     order.on_fix(price)
     tick_value = price * info.tick_size
     sizer_cash = core.sizer_ratio * cash
+    # print("price , tick_value :", price, tick_value, sizer_cash)
     if not is_buy:
         size = p_sid.get_available()
         # print("not is_buy filler calculate size :", size)
@@ -171,7 +172,8 @@ cdef class PseudoFiller:
         if not is_in:
             raise AssertionError(f"{core.created_dt} out of lines tick`")
 
-        loc = np.searchsorted(lines.tick, core.created_dt) # cnp.ndarray memoryview 
+        loc = np.searchsorted(lines.tick, core.created_dt) # cnp.ndarray memoryview
+        # print("loc ", loc) 
 
         if core.exec_type == 0:
             filler_price = lines.close[loc] 
@@ -180,7 +182,7 @@ cdef class PseudoFiller:
             size = calculate(order, p_sid, cash, filler_price)
             filler_size = min(size, int(lines.volume[loc] * self.impact)) # Use C-level self.impact
             comm = on_comm(size=filler_size, price=slip_price)
-            # print(f"Exectype is price filler_size: {filler_size}, slip_price: {slip_price}, comm: {comm}")
+            print(f"Exectype is 0 filler_size: {filler_size}, slip_price: {slip_price}, comm: {comm}")
             order_bit = OrderExecutionBit(
                               vtorder_id = core.vtorder_id,
                               executed_dt=lines.tick[loc],
@@ -189,6 +191,7 @@ cdef class PseudoFiller:
                               comm=comm,
                               isbuy=is_buy)
             order.execute(order_bit)
+            print("order_bit ", order_bit)
         elif core.exec_type == 1:
             ploc, filler_price = self._exec_plimit(loc, order, lines) 
             if ploc < 0:
@@ -196,9 +199,10 @@ cdef class PseudoFiller:
             slip_price = on_slip(price=filler_price) 
 
             size = calculate(order, p_sid, cash, filler_price) # np.vectorize(calc_size)(order=order)
+            print("size :", size, int(lines.volume[ploc] * self.impact))
             filler_size = min(size, int(lines.volume[ploc] * self.impact))
             comm = on_comm(size=filler_size, price=slip_price)
-            # print(f"Exectype is price filler_size: {filler_size}, slip_price: {slip_price}, comm: {comm}")
+            print(f"Exectype is 1 filler_size: {filler_size}, slip_price: {slip_price}, comm: {comm}")
             order_bit = OrderExecutionBit(
                             vtorder_id = core.vtorder_id,
                             executed_dt=lines.tick[ploc],
@@ -216,6 +220,7 @@ cdef class PseudoFiller:
             if len(lines) == 0:
                 print("lines is empty order :", order)
                 return
+            # print("filler __call__ :", order, lines, p_sid, cash, lines)
             self._filler(order, p_sid, cash, lines)
         except Exception as e:
             print(f"Error during filler preload: {e}")

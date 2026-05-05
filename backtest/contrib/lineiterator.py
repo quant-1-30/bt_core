@@ -265,12 +265,6 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     #             self.prenext()
 
     # @profile
-    def _next_fast(self): # cpu soft
-        # self._clk_update()
-        self.forward()
-        self.next()
-
-    # @profile
     def _next(self):
         clock_len = self._clk_update()
 
@@ -286,6 +280,12 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         elif clock_len:
             self.prenext()
     
+    # @profile
+    def _next_fast(self): # cpu soft
+        # self._clk_update()
+        self.forward()
+        self.next()
+
     def prenext(self):
         '''
         This method will be called before the minimum period of all

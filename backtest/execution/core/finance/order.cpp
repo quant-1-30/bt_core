@@ -5963,7 +5963,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_5order_5Order___init__(s
  *         self.core.experiment_id = experiment_id
  *         self.core.sid = sid             # <<<<<<<<<<<<<<
  *         self.core.size = 0
- *         self.core.sizer_ratio = sizer_ratio / 100
+ *         self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
 */
   __pyx_t_1 = __pyx_convert_string_from_py_6libcpp_6string_std__in_string(__pyx_v_sid); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 31, __pyx_L1_error)
   __pyx_v_self->core.sid = __PYX_STD_MOVE_IF_SUPPORTED(__pyx_t_1);
@@ -5972,7 +5972,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_5order_5Order___init__(s
  *         self.core.experiment_id = experiment_id
  *         self.core.sid = sid
  *         self.core.size = 0             # <<<<<<<<<<<<<<
- *         self.core.sizer_ratio = sizer_ratio / 100
+ *         self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
  *         self.core.price = 0.0
 */
   __pyx_v_self->core.size = 0;
@@ -5980,15 +5980,15 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_5order_5Order___init__(s
   /* "backtest/execution/core/finance/order.pyx":33
  *         self.core.sid = sid
  *         self.core.size = 0
- *         self.core.sizer_ratio = sizer_ratio / 100             # <<<<<<<<<<<<<<
+ *         self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100             # <<<<<<<<<<<<<<
  *         self.core.price = 0.0
  *         self.core.pricelimit = pricelimit / 100
 */
-  __pyx_v_self->core.sizer_ratio = (__pyx_v_sizer_ratio / 100.0);
+  __pyx_v_self->core.sizer_ratio = __pyx_v_sizer_ratio;
 
   /* "backtest/execution/core/finance/order.pyx":34
  *         self.core.size = 0
- *         self.core.sizer_ratio = sizer_ratio / 100
+ *         self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
  *         self.core.price = 0.0             # <<<<<<<<<<<<<<
  *         self.core.pricelimit = pricelimit / 100
  *         self.core.order_type = order_type
@@ -5996,7 +5996,7 @@ static int __pyx_pf_8backtest_9execution_4core_7finance_5order_5Order___init__(s
   __pyx_v_self->core.price = 0.0;
 
   /* "backtest/execution/core/finance/order.pyx":35
- *         self.core.sizer_ratio = sizer_ratio / 100
+ *         self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
  *         self.core.price = 0.0
  *         self.core.pricelimit = pricelimit / 100             # <<<<<<<<<<<<<<
  *         self.core.order_type = order_type

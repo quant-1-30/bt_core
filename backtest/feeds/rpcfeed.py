@@ -26,7 +26,7 @@ import pyarrow.compute as pc
 import polars as pl
 import reactivex.operators as ops
 
-from typing import List
+from typing import List, Mapping, Any
 
 from backtest.feed import DataBase
 from backtest.dataseries import TimeFrame
@@ -108,6 +108,13 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         self.bench_ret = close.with_columns(
             pl.col("close").pct_change().fill_null(0).alias("ret")
         ).select(["day", "ret"])
+
+    def get_snapshot(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
+        body = QueryBody(start_date=tick, end_date=tick, sid=psids)
+        # import pdb; pdb.set_trace()
+        df = self.mdapi.get_subscribe(body, FactorTopic.Raw)
+        snapshot = df.to_pandas().to_dict('records') if df else {}
+        return snapshot
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)

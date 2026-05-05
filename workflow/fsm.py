@@ -147,7 +147,7 @@ class MotifFSMModel:
                         "score": float(score_ret),
                         "macro_state": macro_state
                     })
-                    # close and atr 
+                    # atr 
                     
             # =======================================================
             # 3. Cross-Sectional Rank & Top-K

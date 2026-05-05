@@ -98,6 +98,12 @@ class LocalStore(Store):
     def get_bench_ret(self) -> pa.Table:
         table = self._feed.bench_ret
         return table
+
+    def get_snapshot_tick(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
+        '''Returns the current snapshot'''
+        snapshot = self._feed.get_snapshot(psids, tick)
+        print("LocalStore get_snapshot_tick snapshot ", snapshot)   
+        return snapshot
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
 

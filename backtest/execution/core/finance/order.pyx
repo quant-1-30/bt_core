@@ -30,7 +30,7 @@ cdef class Order:
         self.core.experiment_id = experiment_id
         self.core.sid = sid
         self.core.size = 0
-        self.core.sizer_ratio = sizer_ratio / 100
+        self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
         self.core.price = 0.0
         self.core.pricelimit = pricelimit / 100
         self.core.order_type = order_type

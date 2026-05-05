@@ -261,7 +261,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if not t.check(dt0):
                     continue
                 
-                print("_check_timer", dt0)
+                # print("_check_timer", dt0)
                 for strat in runstrats:
                     strat.notify_timer(dt0)
 
@@ -323,7 +323,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         args and kwargs will be passed to the strategy as they are during
         instantiation.
         '''
-        # self.strats.append([(strategy, args, kwargs)])
         self.strats.append([(strategy, args, kwargs)])
 
     def addindicator(self, indcls, *args, **kwargs): # signal is indicator

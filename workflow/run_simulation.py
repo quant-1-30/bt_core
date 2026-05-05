@@ -1,3 +1,4 @@
+import uuid
 import numpy as np
 import polars as pl
 import backtest as bt
@@ -14,13 +15,12 @@ class PanelRanker(bt.Indicator):
 
     params = (
         ("parquet_path", None),
-        ('thres', 0.3), 
+        ('thres', 0.0), 
         ('top_k', 5),
     )
 
     def __init__(self):
         self.context_info = defaultdict(dict)
-        self.notify = self._owner.notify  
 
         lf = pl.scan_parquet(self.p.parquet_path)
         
@@ -28,14 +28,18 @@ class PanelRanker(bt.Indicator):
         # group by day and struct columns
         # ==========================================
         agg_df = (
-            lf.filter(pl.col("score") > self.p.thres)
-              .group_by("day")
-              .agg(
-                  pl.struct(["sid", "score", "distance", "macro_state"])
-                    .sort_by("score", descending=True)
-                    .head(self.p.top_k)
-                    .alias("topk_info")
-              )
+            lf
+            .with_columns(
+                pl.col("sid").cast(pl.Binary)
+            )
+            .filter(pl.col("score") > self.p.thres)
+            .group_by("day")
+            .agg(
+                pl.struct(["sid", "score", "distance", "macro_state"])
+                .sort_by("score", descending=True)
+                .head(self.p.top_k)
+                .alias("topk_info")
+            )
         ).collect()
 
         for row in agg_df.iter_rows(named=True):
@@ -45,27 +49,41 @@ class PanelRanker(bt.Indicator):
             }
 
     def next(self):
-        current_day = ts2intdt(self.data.datetime.date(0))
+        current_day = ts2intdt(self.data.datetime[0])
+        # import pdb; pdb.set_trace()
+        print("PanelRanker next current_day ", current_day)
+
+        self.lines.dummy[0] = 0.0 # dummy line to trigger next
 
         if current_day in self.context_info:
+            print("PanelRanker next current_day ", current_day)
             info = self.context_info[current_day]
-            self._onwner.topk_info = info 
+            self._owner.topk_info = info 
 
 
-class FsmMasterStrategy(bt.Strategy):
+class FsmStrategy(bt.Strategy):
+
+    params = (
+        ("parquet_path", "/Users/hengxinliu/startup/backtest/workflow/data/fsm/*"),
+    )
+
+    def __init__(self):
+        self.pr = PanelRanker(parquet_path=self.p.parquet_path)
 
     def next(self):
         current_tick = self.data.datetime[0]
+        current_day = ts2intdt(current_tick)
+        # print("FsmStrategy current_day ", current_day)
         seconds_in_day = int(current_tick) % 86400 # utc 28800
         snapshot = self.get_snapshot()
+        psids = [p.sid for p in snapshot.positions]
 
-        pending_sells = self.taskplan.get_pending_sells()
+        pending_sells = self.pnc.get_pending_sells()
 
         # =========================================================
-        # stage1 09:31 —— Pending Sells
+        # stage1 09:30 —— Pending Sells
         # =========================================================
-        if seconds_in_day == 34260:
-            pending = self.taskplan.pending_sells
+        if seconds_in_day == 34200:
             # mode eager
             super().sell(pending_sells)
 
@@ -73,17 +91,20 @@ class FsmMasterStrategy(bt.Strategy):
         # stage2 14:55 —— FSM 
         # =========================================================
         elif seconds_in_day == 53700:
-            topk_info = self.get_notify_info()  # how to get info from PanelRanker? 通过 strategy.notify() 传递信息? 
+            topk_info = self.topk_info 
             if not topk_info: return
-
-            self.pnc.generate_plan(topk_info, snapshot, rish_tl) 
-            plan = self.pnc.to_plan()
+            # import pdb; pdb.set_trace()
+            print("topk_info ", topk_info)
+            print("snapshot ", snapshot)
+            current_prices = self.store.get_snapshot_tick(psids, int(current_tick))
+            plan = self.pnc.generate_plan(topk_info, current_prices, snapshot, self.stats)
+            print("plan ", plan)
 
             # 【卖出指令生成】
-            super().sell(plan["sell"])
+            self.sell(plan["sell"])
 
             # 【买入指令生成】 可以重复建仓
-            super().buy(plan["buy"])
+            self.buy(plan["buy"])
 
 
 if __name__ == '__main__':
@@ -93,10 +114,10 @@ if __name__ == '__main__':
     cerebro.addstore() 
     cerebro.addcontrol(5, "fixed", stake=0.9)
 
-    ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
-    wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
+    # ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
+    # wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
     
-    cerebro.addstrategy(FsmMasterStrategy)
+    cerebro.addstrategy(FsmStrategy)
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20200101, todate=20260201, benchmark=[b"000001"], out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20100101, todate=20121231, benchmark=[b"000001"], out="signal.csv")
