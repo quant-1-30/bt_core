@@ -120,7 +120,8 @@ class vtOrder(Base):
  
     __table_args__ = (
         # PrimaryKeyConstraint("id", "order_id", name="pk_order_id"),
-        UniqueConstraint("sid", "created_dt", "experiment_id", name="uq_order_sid_created_dt_experiment_id"), 
+        # UniqueConstraint("sid", "created_dt", "experiment_id", name="uq_order_sid_created_dt_experiment_id"), 
+        UniqueConstraint("order_id", "experiment_id", name="uq_order_id_experiment_id"), 
     )
 
     experiment: Mapped["Experiment"] = relationship(

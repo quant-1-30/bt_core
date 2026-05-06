@@ -2101,6 +2101,8 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order {
   int32_t status;
   int32_t _exchange;
   PyObject *_exbits;
+  PyObject *_exbits_schema;
+  PyObject *cached_uuid;
 };
 
 

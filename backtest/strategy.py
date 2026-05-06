@@ -197,9 +197,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = np.array([len(data) for data in self.datas])
         self.on_dt_over = False
 
-        self._fast_analyzers = [ analyzer._next for analyzer in self.analyzers]
-        self._fast_observers = [observer._next for observer in self.observers]
-        self._flat_fast = self._flat_collect() 
+        # self._fast_analyzers = [ analyzer._next for analyzer in self.analyzers]
+        # self._fast_observers = [observer._next for observer in self.observers]
+        # # self._flat_fast = self._flat_collect() 
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -253,15 +253,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                      for d in self.datas if len(d)])      
         self._dlens = newdlens
 
-    # def _clk_update(self):
-    #     newdlens = np.array([len(d) for d in self.datas])
-    #     if any(nl > l for l, nl in zip(self._dlens, newdlens)):
-    #         self.forward()
-
-    #     self.lines.datetime[0] = np.max([d.datetime[0]
-    #                                  for d in self.datas if len(d)])      
-    #     self._dlens = newdlens
- 
     # def _next_observers(self, minperstatus, once=False):
     #         for observer in self._lineiterators[LineIterator.ObsType]:
     #             for analyzer in observer._analyzers:
@@ -282,11 +273,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     #             else:
     #                 analyzer._prenext()
     
-    # def _next(self):
-    #     minperstatus = self._getminperstatus() # datas already next 
-    #     self._next_observers(minperstatus)
-    #     super(Strategy, self)._next() # lineiterator _next
-
     # @profile
     def _next_observers(self, minperstatus):
         if minperstatus < 0:
@@ -302,55 +288,66 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for observer in self.observers:
             observer._next()
 
-    # @profile
+    # def _next(self):
+    #     minperstatus = self._getminperstatus() # datas already next 
+    #     self._next_observers(minperstatus)
+    #     super(Strategy, self)._next() # lineiterator _next
+
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
+        super(Strategy, self)._next()
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
-        super(Strategy, self)._next() # lineiterator _next
-
-        if minperstatus < 0:
-            self.next()
-            # self._next = self._next_flat_fast
-        elif minperstatus == 0:
-            self.nextstart()  # only called for the 1st value
-        else:
-            self.prenext()
-
+    
     # --------------------------------------------------------------flat next --------------------------------------------------
 
-    def _next_recursive(self, indicator):
-        recursive = []
-        for c_ind in indicator._lineiterators[LineIterator.IndType]:
-            recursive.extend(self._next_recursive(c_ind))
-        if hasattr(self, '_next_fast'):
-            recursive.append(self._next_fast)
-        return recursive
-    
-    def _flat_collect(self):
-            _flat_chain = []
-            for ind in self._lineiterators[LineIterator.IndType]:
-                _flat_chain.extend(self._next_recursive(ind))
-            return _flat_chain
+    # # @profile
+    # def _next_observers_fast(self): # avoid attr
+    #     for aly in self._fast_analyzers:
+    #         aly()
+    #     for obs in self._fast_observers:
+    #         obs()
 
-    # @profile
-    def _next_observers_fast(self): # avoid attr
-        for aly in self._fast_analyzers:
-            aly()
-        for obs in self._fast_observers:
-            obs()
-    
-    # @profile
-    def _next_flat_fast(self):
-        self.clk_update()
-        self.lines.datetime[0] = np.max([d.datetime[0]
-                                     for d in self.datas if len(d)])      
-        self._next_observers_fast()
+    # # @profile
+    # def _next_flat_fast(self):
+    #     self.clk_update()
+    #     self.lines.datetime[0] = np.max([d.datetime[0]
+    #                                  for d in self.datas if len(d)])      
+    #     self._next_observers_fast()
 
-        for indicactor in self._flat_fast:
-            indicactor() # _next_fast
-        self.next()
+    #     for indicactor in self._flat_fast:
+    #         indicactor() # _next_fast
+    #     self.next()
+
+    # # @profile
+    # def _next(self):
+    #     self.clk_update() # differ from lineiterator _clk_update 
+    #     minperstatus = self._getminperstatus()
+    #     self._next_observers(minperstatus)
+    #     super(Strategy, self)._next() # lineiterator _next
+
+    #     if minperstatus < 0:
+    #         self.next()
+    #         # self._next = self._next_flat_fast
+    #     elif minperstatus == 0:
+    #         self.nextstart()  # only called for the 1st value
+    #     else:
+    #         self.prenext()
+
+    # def _next_recursive(self, indicator):
+    #     recursive = []
+    #     for c_ind in indicator._lineiterators[LineIterator.IndType]:
+    #         recursive.extend(self._next_recursive(c_ind))
+    #     if hasattr(self, '_next_fast'):
+    #         recursive.append(self._next_fast)
+    #     return recursive
     
+    # def _flat_collect(self):
+    #         _flat_chain = []
+    #         for ind in self._lineiterators[LineIterator.IndType]:
+    #             _flat_chain.extend(self._next_recursive(ind))
+    #         return _flat_chain
+ 
     # -------------------------------------------------------------------------------------------------------------------------
  
     def buy(self, buys, plimit: int=0, execType=0, filler=b"oco"):
@@ -411,6 +408,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.order
             if trades:
+                # import pdb; pdb.set_trace()
                 self.lines.buy[0] = 1 
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
@@ -425,6 +423,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
+        updated = {}
 
         for splan in sells:
             core = splan.core
@@ -440,10 +439,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.order
             if trades:
+                # import pdb; pdb.set_trace()
                 self.lines.sell[0] = -1
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
-                self.pnc.on_filled(trades)
+                updated[core["sid"]] = trades # RuntimeError: dictionary changed size during iteration
+        
+        self.pnc.on_filled(updated)
 
     def notify_trade(self, qorder, qtrades=[]):
         # need to know if quicknotify is on, to not reprocess pendingorders

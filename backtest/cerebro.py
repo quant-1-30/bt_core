@@ -260,8 +260,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for t in self._pretimers:
                 if not t.check(dt0):
                     continue
-                
-                # print("_check_timer", dt0)
+                print("_check_timer trigger", dt0)
                 for strat in runstrats:
                     strat.notify_timer(dt0)
 

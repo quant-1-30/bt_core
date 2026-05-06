@@ -70,7 +70,7 @@ class FsmStrategy(bt.Strategy):
     def next(self):
         current_tick = self.data.datetime[0]
         current_day = ts2intdt(current_tick)
-        # print("FsmStrategy current_day ", current_day)
+        print("FsmStrategy current_day ", current_day)
         seconds_in_day = int(current_tick) % 86400 # utc 28800
         snapshot = self.get_snapshot()
         psids = [p.sid for p in snapshot.positions]
@@ -99,6 +99,12 @@ class FsmStrategy(bt.Strategy):
             self.sell(plan["sell"])
 
             # 【买入指令生成】 可以重复建仓
+            # import pdb; pdb.set_trace()
+            buy_sids = [plan.core["sid"] for plan in plan["buy"]]
+            if len(buy_sids) != len(set(buy_sids)):
+                print(f"🚨 严重警告: {current_tick} 这分钟内, 同一个标的被买入多次! 计划列表: {plan['buy']}")
+                raise ValueError("重复买入")
+
             self.buy(plan["buy"])
 
 

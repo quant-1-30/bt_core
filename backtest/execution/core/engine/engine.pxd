@@ -6,7 +6,7 @@ cpdef enum EngineTopic:
     Register = 0
     SetCash = 1
     Submit = 2
-    DayOver = 3 
+    Tplus1 = 3 
     GetValue = 4
     Subscribe = 5
 

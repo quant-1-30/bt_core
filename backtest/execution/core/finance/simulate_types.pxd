@@ -4,7 +4,7 @@ from libcpp.string cimport string as cpp_string
 cdef enum MsgType:
     Account = 1
     Order = 2      
-    Settlement = 3     
+    Tplus1 = 3     
     Snapshot = 4  
     Sentinel = 99    
 

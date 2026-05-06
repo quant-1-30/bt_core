@@ -16,6 +16,7 @@ from bt_sdk.core.protocol import AccountBody, Resp
 
 from backtest.execution.core.finance.position cimport Position
 from backtest.execution.core.finance.trade cimport OrderExbitData, OrderExecutionBit
+from backtest.execution.utils.util cimport ts2intdt
 
 
 cdef class Account:
@@ -97,12 +98,9 @@ cdef class Account:
         cdef double _v = 0.0
         cdef double _cash = 0.0
         cdef double _pnl = 0.0
-        cdef int64_t max_dt = self.core.datetime
+        cdef int64_t max_dt = max(self.core.datetime, tick)
         cdef Position p
 
-        if tick > 0:
-            self.core.datetime = tick
-        
         # cdef pair[int, Position] item # pair ---> C++ for(auto& item : pobjs)
         for p in pobjs.values():
             _v += p.core.pval
@@ -111,7 +109,8 @@ cdef class Account:
         
         self.core.portfolio_value = _v
         self.core.pnl = _pnl
-        self.core.datetime = max_dt
+        # self.core.datetime = max_dt
+        self.core.datetime = ts2intdt(max_dt)
 
     cdef Account clone(self):
         cdef Account obj = Account.__new__(Account) # only allocate memory

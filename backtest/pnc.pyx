@@ -11,11 +11,12 @@ from .utils.dateintern import ts2intdt
 
 cdef class TraderPlan:
     
-    def __init__(self, bytes sid, double weight, bint isbuy, int priority=1):
+    def __init__(self, bytes sid, double weight, bint isbuy, int32_t size=0, int32_t priority=1):
         self.core.sid = sid
         self.core.weight = weight
         self.core.isbuy = isbuy
         # small --> high
+        self.core.size = size
         self.core.priority = priority 
 
     def __repr__(self):
@@ -67,7 +68,7 @@ cdef class Pnc:
 
         if signal:
             print("signal :", signal)
-            self.sells = [TraderPlan(pos.sid, 1.0, False, priority=1) for pos in positions]
+            self.sells = [TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions]
             return {} 
 
         # ==========================================
@@ -90,9 +91,8 @@ cdef class Pnc:
             # ------------------------------------------
             if pnl <= self.p_tolerance: 
                 wgt_ratio = s_wgt.get(sid, 1.0) 
-                tmp = TraderPlan(sid, wgt_ratio, False, priority=0) # priority=0 最高级
+                tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=0) # priority=0 最高级
                 self.sells.append(tmp) 
-                # self.pending_sells[sid] = pos.size
                 self.pending_sells[sid] = tmp
                 
                 if sid in topk_info:
@@ -111,7 +111,7 @@ cdef class Pnc:
                 continue
         
             wgt_ratio = s_wgt.get(sid, 0.0)
-            tmp = TraderPlan(sid, wgt_ratio, False, priority=1)
+            tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=1)
             self.sells.append(tmp)
             self.pending_sells[sid] = tmp
 
@@ -128,33 +128,26 @@ cdef class Pnc:
 
         for sid in topk_info:
             wgt_ratio = b_wgt.get(sid, 0.0)
-            tmp = TraderPlan(sid, wgt_ratio, True, priority=1)
+            tmp = TraderPlan(sid, wgt_ratio, True, 0, priority=1)
             self.buys.append(tmp)
 
         self.buys.sort()
         
         return {"sell": self.sells, "buy": self.buys}
 
-    cpdef void on_filled(self, object strades):
-        cdef str sid
-        cdef int32_t filled_vol
+    cpdef void on_filled(self, dict mtrades): # TradeBody
+        cdef bytes sid
+        cdef int32_t remain
+        cdef TraderPlan tp
         cdef object trade
 
-        for trade in strades:
-            if isinstance(trade.sid, bytes):
-                sid = trade.sid.decode('utf-8')
-            else:
-                sid = trade.sid
-                
-            filled_vol = trade.executed_size
+        for sid, trades in mtrades.items():
+            executed_size = sum([trade.body.executed_size for trade in trades])
 
             if sid in self.pending_sells:
-                # self.pending_sells[sid] -= filled_vol
-                # if self.pending_sells[sid] <= 0:
-                #     del self.pending_sells[sid]
-
-                tmp = self.pending_sells[sid] 
-                if tmp.core - filled_vol <= 0:
+                tp = self.pending_sells[sid]
+                remain = tp.core.size - executed_size
+                if remain <= 0:
                     del self.pending_sells[sid]
 
     cpdef dict get_pending_sells(self):
@@ -164,5 +157,3 @@ cdef class Pnc:
 #cdef class MultiPnc:
 #    # resolve differenct stratgey conflicts
 #    pass
-
-    

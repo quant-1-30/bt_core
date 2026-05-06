@@ -32,7 +32,7 @@ cdef class TrackerActor:
 
     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table)
 
-    cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*)
+    cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*, list ord_body=*)
 
     cdef object get_snapshot(self)
     

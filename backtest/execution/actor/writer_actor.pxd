@@ -7,10 +7,11 @@ cdef class IBatchWriter:
 
 cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
     cdef int32_t batch_size
+    cdef int32_t retries
     cdef bint _running
     cdef public bint remote
-    cdef object _queue
     cdef list _buffer
+    cdef object _queue
     cdef object _finished_event 
     
     cpdef void push(self, list data)

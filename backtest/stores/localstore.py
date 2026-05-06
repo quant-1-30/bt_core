@@ -131,6 +131,7 @@ class LocalStore(Store):
     def on_dt_over(self, experiment_id: bytes) -> List[SnapshotBody]:
         body = self._feed.on_dt_over()
         if body:
+            # import pdb; pdb.set_trace()
             resp = self.broker.on_dt_over(experiment_id, body)
             return resp
         return None

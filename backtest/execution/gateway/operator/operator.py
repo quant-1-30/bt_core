@@ -164,8 +164,8 @@ class AsyncOps:
         
         conflict_keys_map = {
             "vtorder": {
-                "key": ["sid", "created_dt", "experiment_id"], 
-                "constraint": "uq_order_sid_created_dt_experiment_id"
+                "key": ["sid", "experiment_id"], 
+                "constraint": "uq_order_id_experiment_id"
             },
             "order_bit": {
                 "key": ["order_id", "executed_dt"],

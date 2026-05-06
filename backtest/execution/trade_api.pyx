@@ -49,10 +49,11 @@ cdef class AsyncApi:
 
     async def on_dt_over_async(self, bytes experiment_id, object body):
         cdef object event = Event(
-            topic=EngineTopic.DayOver,
+            topic=EngineTopic.Tplus1,
             body=body,
             experiment_id=experiment_id
         )
+        print("AsyncApi on_dt_over: ", event)
         return await self.engine.on_dt_over(event)
 
     async def getvalue_async(self, bytes experiment_id):
@@ -133,9 +134,10 @@ cdef class TdApi:
             raise e
 
     cpdef object on_dt_over(self, bytes experiment_id, object body):
+        print("TdApi on_dt_over \n")
         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
-        return future.result() # 即使返回 None 也要等，保证时序
+        return future.result() 
 
     cpdef object getvalue(self, bytes experiment_id):
         cdef object coro = self._async_api.getvalue_async(experiment_id)

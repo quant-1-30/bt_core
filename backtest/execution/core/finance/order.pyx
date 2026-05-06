@@ -37,13 +37,17 @@ cdef class Order:
         self.core.exec_type = exec_type
         self.core.created_dt = created_dt
 
+        self.status = 0
         self.filler = filler
         self.info = AssetCore(0, 0, 0, False)
-        
-        self.status = 0
-        self._exbits = []
+
         self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
         self.core.vtorder_id = fast_uuid4_bytes() # uuid.uuid4().bytes
+
+        # cache  
+        self._exbits = []
+        self._exbits_schema = []
+        self.cached_uuid = uuid.UUID(bytes=experiment_id)
 
     property alive:
         def __get__(self):
@@ -83,7 +87,9 @@ cdef class Order:
 
         if exbit_size <= 0:
             return
+
         self._exbits.append(order_bit)
+        self._exbits_schema.append(order_bit.to_schema())
 
         # partial = abs(self.core.size) - abs(exbit_size)
         partial = abs(size) - abs(exbit_size)
@@ -115,7 +121,8 @@ cdef class Order:
         obj.filler = self.filler
         obj.info = self.info
         obj.status = self.status
-        obj._exbits = self._exbits
+        # obj._exbits = self._exbits # reference copy / clone exbit
+        obj._exbits = list(self._exbits)  
         obj._exchange = self._exchange
         obj.core = core
         return obj 
@@ -129,12 +136,13 @@ cdef class Order:
         return data
     
     cdef object to_schema(self):
-        cdef OrderExecutionBit exbit
+        # cdef OrderExecutionBit exbit
         # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
+        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
 
         vtorder = vtOrder(
-            experiment_id=experiment_id,
+            # experiment_id=experiment_id,
+            experiment_id=self.cached_uuid,
             sid=self.core.sid,
             order_id=self.core.vtorder_id,
             price=self.core.price,
@@ -143,8 +151,10 @@ cdef class Order:
             exec_type = self.core.exec_type,
             created_dt=self.core.created_dt
         )
-        orderBits = [exbit.to_schema() for exbit in self._exbits] # complex object need to be serialized used for insert into pg
-        vtorder.order_bits.extend(orderBits)
+        # orderBits = [exbit.to_schema() for exbit in self._exbits] # complex object need to be serialized used for insert into pg
+        # vtorder.order_bits.extend(orderBits)
+
+        vtorder.order_bits.extend(self._exbits_schema)
         return vtorder
 
     cdef void submit(self):

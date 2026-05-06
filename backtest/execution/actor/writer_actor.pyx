@@ -22,9 +22,10 @@ cdef class IBatchWriter:
 
 cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
 
-    def __init__(self, int32_t q_size, int32_t batch_size):
+    def __init__(self, int32_t q_size, int32_t batch_size, int32_t retries=3):
         self._buffer = []
         self._running = True
+        self.retries = retries
         self.batch_size = batch_size
         self._queue = asyncio.Queue(maxsize=q_size)
         self._finished_event = asyncio.Event()
@@ -55,103 +56,83 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
         logger.info("BatchWriterActor stopped.")
 
     async def _flush(self):
-        cdef Account acct_obj
-        cdef Order order_obj
-        cdef Position pos_obj
-        
-        cdef tuple key
-        cdef dict item
-        cdef dict dedup_positions = {}  # used to filter duplicated
-        cdef dict dedup_accounts = {}   
         cdef list account_data = []
         cdef list order_data = []
         cdef list orderbit_data = []
         cdef list position_data = []
         
+        cdef dict dedup_positions = {}  
+        cdef dict dedup_accounts = {}   
+        
         if not self._buffer:
             return
-
+        
         try:
             for item in self._buffer:
-                if "order" in item and item["order"] is not None:
-                    order_obj = <Order>item["order"]
-                    schema_obj = order_obj.to_schema()
-                    schema_bit = [d.to_dict() for d in schema_obj.order_bits]
+                if "order" in item:
+                    schema_obj = item["order"] 
+                    order_dict = schema_obj.to_dict()
+                    order_data.append(order_dict)
+                    
+                    if hasattr(schema_obj, 'order_bits'):
+                        for bit in schema_obj.order_bits:
+                            orderbit_data.append(bit.to_dict())
 
-                    order_data.append(schema_obj.to_dict())
-                    # orderbit_data = [d.to_dict() for d in schema_obj.order_bits]
-                    orderbit_data.extend(schema_bit)
+                if "positions" in item:
+                    for sid, p_schema in item["positions"].items():
+                        p_dict = p_schema.to_dict()
 
-                if "positions" in item and item["positions"] is not None:
-                    positions_map = item["positions"]
-                    for p in positions_map.values():
-                        pos_obj = <Position>p
-                        data = pos_obj.to_schema().to_dict()
-                        # key = f"{data['datetime']}_{data['sid']}_{data['experiment_id']}" # repr not reliable when bytea and uuid
-                        # key = (data['datetime'], data['sid'], data['experiment_id'])
-                        # Normalization
-                        raw_sid = data['sid']
-                        if isinstance(data, bytes):
-                            safe_sid = raw_sid
-                        elif isinstance(raw_sid, str):
-                            safe_sid = raw_sid.encode('utf-8') 
-                        elif isinstance(raw_sid, memoryview):
-                            safe_sid = raw_sid.tobytes() # memoryview != bytes
-                        elif isinstance(raw_sid, bytearray):
-                            safe_sid = bytes(raw_sid) # bytearray 
-                        else:
-                            safe_sid = str(raw_sid).encode('utf-8') 
+                        # raw_sid = p_dict['sid']
+                        # if isinstance(raw_sid, bytes):
+                        #     safe_sid = raw_sid
+                        # elif isinstance(raw_sid, str):
+                        #     safe_sid = raw_sid.encode('utf-8') 
+                        # elif isinstance(raw_sid, memoryview):
+                        #     safe_sid = raw_sid.tobytes() # memoryview != bytes
+                        # elif isinstance(raw_sid, bytearray):
+                        #     safe_sid = bytes(raw_sid) # bytearray 
+                        # else:
+                        #     safe_sid = str(raw_sid).encode('utf-8') 
 
-                        safe_dt = int(data['datetime'])
-                        raw_exp = data['experiment_id']
-                        safe_exp_id = str(raw_exp) 
-                        key = (safe_dt, safe_sid, safe_exp_id)
-                        dedup_positions[key] = data
+                        key = (int(p_dict['datetime']), sid, str(p_dict['experiment_id']))
+                        dedup_positions[key] = p_dict
                 
-                if "account" in item and item["account"] is not None:
-                    acct_obj = <Account>item["account"]  # cast
-                    data = acct_obj.to_schema().to_dict()
-                    # key = (data['datetime'], data['experiment_id'])
-                    safe_dt = int(data['datetime'])
-                    raw_exp = data['experiment_id']
-                    safe_exp_id = str(raw_exp) 
-                    key = (safe_dt, safe_exp_id)
-                    dedup_accounts[key] = data
+                if "account" in item:
+                    a_schema = item["account"]
+                    a_dict = a_schema.to_dict()
+                    key = (int(a_dict['datetime']), str(a_dict['experiment_id']))
+                    dedup_accounts[key] = a_dict
             
             if order_data:
                 await self._retry_write("vtorder", order_data)
+            if orderbit_data:
                 await self._retry_write("order_bit", orderbit_data)
             
-            position_data = list(dedup_positions.values())
-            account_data = list(dedup_accounts.values())
-
-            if position_data:
-                await self._retry_write("vtposition", position_data)
-            
-            if account_data:
-                await self._retry_write("account", account_data)
+            if dedup_positions:
+                await self._retry_write("vtposition", list(dedup_positions.values()))
+            if dedup_accounts:
+                await self._retry_write("account", list(dedup_accounts.values()))
 
         except Exception as e:
-            logger.error(f"Critical error during flush preparation: {e}", exc_info=True)
-            await self._dump_fallback("flush_crash", self._buffer) # retry + degrade
+            logger.error(f"Critical error during flush: {e}", exc_info=True)
+            print("crush error: ", e)
+            import sys
+            sys.exit()
+            await self._dump_fallback("flush_crash", self._buffer)
         
         finally:
-            self._buffer.clear() 
+            self._buffer.clear()
 
     async def _retry_write(self, str table, list data):
-        """
-            retry ---> failure ---> disk
-        """
-        cdef int retries = 3
         cdef int i = 0
         
-        while i < retries:
+        while i < self.retries:
             try:
                 await async_gt.bulk_insert(table, data) 
                 return 
             except Exception as e:
                 i += 1
-                if i < retries:
+                if i < self.retries:
                     logger.warning(f"Write {table} failed (attempt {i}), retrying... Error: {e}")
                     await asyncio.sleep(0.1 * i)
                 else:
@@ -176,7 +157,7 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
     cdef _sync_write_file(self, str path, list data):
         try:
             with open(path, 'w') as f:
-                json.dump(data, f, default=str)
+                json.dump(data, f, default=str, indent=4)
         except TypeError:
              with open(path, 'w') as f:
                 f.write(str(data))
@@ -184,14 +165,3 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
     async def wait_until_finished(self):
         await self._finished_event.wait()
 
-
-cdef class RayWriterProxy(IBatchWriter):
-    
-    def __init__(self, handle):
-        self._handle = handle
-        
-    cpdef void push(self, list data):
-        self._handle.push.remote(data)
-
-    async def wait_until_finished(self):
-        await self._handle.wait_until_finished.remote()

@@ -6,6 +6,7 @@ cdef struct CoreData:
     cpp_string sid
     double weight
     bint isbuy
+    int32_t size 
     int32_t priority
 
 
@@ -26,6 +27,6 @@ cdef class Pnc:
 
     cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats)
 
-    cpdef void on_filled(self, object sell_trades)
+    cpdef void on_filled(self, dict sell_trades)
 
     cpdef dict get_pending_sells(self)

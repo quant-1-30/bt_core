@@ -152,6 +152,7 @@ cdef class Timer:
 
         self._isdata = isinstance(self._tzdata, AbstractDataBase)
         self._reset_when()
+        print("_rstwhen: ", self._rstwhen)
 
     cdef void _reset_when(self, object ddate=datetime.min):
         self._dwhen = None
@@ -218,86 +219,87 @@ cdef class Timer:
         return daycarry or curday
 
     cpdef bint check(self, double dt):
-            cdef object d, ddate
-            cdef int dday, dmonth, dweek, dwkday
-            cdef bint valid
-            cdef double repeat_ordinal 
+        cdef object d, ddate
+        cdef int dday, dmonth, dweek, dwkday
+        cdef bint valid
+        cdef double repeat_ordinal 
 
-            if self._dtwhen > 0 and dt < self._dtwhen:
-                return False
+        if self._dtwhen > 0 and dt < self._dtwhen:
+            return False
 
-            if self._isdata:
-                d = self._tzdata.num2date(dt)
-            else:
-                d = num2date(dt)
+        if self._isdata:
+            d = self._tzdata.num2date(dt)
+        else:
+            d = num2date(dt)
+
+        print("check dt to date: ", d) 
+        ddate = d.date()
+
+        if self._lastcall == ddate:
+            return False
+
+        if ddate > self._curdate:
+            self._curdate = ddate
             
-            ddate = d.date()
+            dday = ddate.day
+            dmonth = ddate.month
+            _, dweek, dwkday = ddate.isocalendar()
 
-            if self._lastcall == ddate:
-                return False
-
-            if ddate > self._curdate:
-                self._curdate = ddate
-                
-                dday = ddate.day
-                dmonth = ddate.month
-                _, dweek, dwkday = ddate.isocalendar()
-
-                valid = self._check_month(dday, dmonth)
-                if valid:
-                    valid = self._check_week(dwkday, dweek)
-                
-                if valid and self.allow is not None:
-                    valid = self.allow(ddate)
-                
-                if not valid:
-                    self._reset_when(ddate)
-                    return False
-                
-                self._dtwhen = 0.0 # newday reset 
-
-            if self._dtwhen <= 0:
-                dwhen = datetime.combine(ddate, self._rstwhen)
-                dwhen = dwhen.replace(tzinfo=d.tzinfo)
-                
-                if self.offset > 0:
-                    dwhen += timedelta(seconds=self.offset)
-                
-                self._dwhen = dwhen
-                
-                if self._isdata:
-                    self._dtwhen = self._tzdata.date2num(dwhen) # ordinal
-                else:
-                    self._dtwhen = date2num(dwhen)
-
-            if dt < self._dtwhen:
-                return False
-
-            if self.repeat <= 0.0:
+            valid = self._check_month(dday, dmonth)
+            if valid:
+                valid = self._check_week(dwkday, dweek)
+            
+            if valid and self.allow is not None:
+                valid = self.allow(ddate)
+            
+            if not valid:
                 self._reset_when(ddate)
+                return False
+            
+            self._dtwhen = 0.0 # newday reset 
+
+        if self._dtwhen <= 0:
+            dwhen = datetime.combine(ddate, self._rstwhen)
+            dwhen = dwhen.replace(tzinfo=d.tzinfo)
+            
+            if self.offset > 0:
+                dwhen += timedelta(seconds=self.offset)
+            
+            self._dwhen = dwhen
+            
+            if self._isdata:
+                self._dtwhen = self._tzdata.date2num(dwhen) # ordinal
             else:
-                if d > self._nexteos:
-                    if self._isdata:  # eos provided by data
-                        _, nextdteos = self._tzdata._getnexteos()
-                    else:  # generic eos
-                        nexteos = datetime.combine(ddate, datetime.max).replace(tzinfo=d.tzinfo)
-                        nextdteos = date2num(nexteos)
+                self._dtwhen = date2num(dwhen)
 
-                    self._nextdteos = nextdteos
-                
-                repeat_ordinal = self.repeat / 86400.0 # seconds ---> day
+        if dt < self._dtwhen:
+            return False
 
-                while True:
-                    self._dtwhen += repeat_ordinal
-                    # TODO: EOS (Session End) 检查逻辑
-                    if self._dtwhen > self._nextdteos:
-                        self._reset_when(ddate)  
-                        break
+        if self.repeat <= 0.0:
+            self._reset_when(ddate)
+        else:
+            if d > self._nexteos:
+                if self._isdata:  # eos provided by data
+                    _, nextdteos = self._tzdata._getnexteos()
+                else:  # generic eos
+                    nexteos = datetime.combine(ddate, datetime.max).replace(tzinfo=d.tzinfo)
+                    nextdteos = date2num(nexteos)
 
-                    if self._dtwhen > dt:
-                        if self._isdata:
-                            self._dwhen = self._tzdata.num2date(self._dtwhen)
-                        else:
-                            self._dwhen = num2date(self._dtwhen)
-                        break
-            return True # timer target was met
+                self._nextdteos = nextdteos
+            
+            repeat_ordinal = self.repeat / 86400.0 # seconds ---> day
+
+            while True:
+                self._dtwhen += repeat_ordinal
+                # TODO: EOS (Session End) 检查逻辑
+                if self._dtwhen > self._nextdteos:
+                    self._reset_when(ddate)  
+                    break
+
+                if self._dtwhen > dt:
+                    if self._isdata:
+                        self._dwhen = self._tzdata.num2date(self._dtwhen)
+                    else:
+                        self._dwhen = num2date(self._dtwhen)
+                    break
+        return True # timer target was met

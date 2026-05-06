@@ -67,7 +67,6 @@ cdef class Position:
         self.core.cost_basis = cost_basis
         self.core.pnl = pnl
         self.core.pval = 0.0
-        # self.core.cash = 0.0
         
         self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
@@ -197,9 +196,6 @@ cdef class Position:
         cdef int32_t size = self.core.size
         cdef double cost_basis = self.core.cost_basis
         cdef int32_t delist = self.asset_info.delist
-        cdef int64_t end_dts = num2date(end_dt).timestamp() + 86399 # 24 * 3600 -1
-
-        self.core.datetime = end_dts
 
         if delist > 0 and delist <= end_dt:
             self.core.size = 0
@@ -208,13 +204,16 @@ cdef class Position:
         else:
             self.core.pnl = size * (close - cost_basis)
             self.core.pval = size * close
+        
+        # self.core.datetime = int(num2date(end_dt).timestamp()) + 86399 # 24 * 3600 -1
+        self.core.datetime = end_dt
 
     cdef void on_dt_over(self, int32_t end_dt, double close):
         print("position on_dt_over: ", end_dt, close)
         # sync size due to T + 1
         cdef int32_t size = self.core.size
         self.core.available = size
-        # self.core.cash = 0.0 # to sync with account 
+
         self._dt_over(end_dt, close)
 
     cdef Position clone(self):

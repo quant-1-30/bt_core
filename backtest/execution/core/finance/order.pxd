@@ -65,7 +65,10 @@ cdef class Order:
     cdef AssetCore info
     cdef int32_t status
     cdef int32_t _exchange
+
     cdef object _exbits
+    cdef object _exbits_schema
+    cdef object cached_uuid
 
     cdef void addinfo(self, dict asset_info)
     
