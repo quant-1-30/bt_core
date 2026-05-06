@@ -22,9 +22,9 @@ cdef class Order:
                  bytes sid,
                  double sizer_ratio,
                  double pricelimit,
-                 int order_type,
-                 int exec_type,
-                 int created_dt,
+                 int32_t order_type,
+                 int32_t exec_type,
+                 int32_t created_dt,
                  bytes filler):
 
         self.core.experiment_id = experiment_id
@@ -32,7 +32,7 @@ cdef class Order:
         self.core.size = 0
         self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
         self.core.price = 0.0
-        self.core.pricelimit = pricelimit / 100
+        self.core.pricelimit = pricelimit # pricelimit / 100
         self.core.order_type = order_type
         self.core.exec_type = exec_type
         self.core.created_dt = created_dt
@@ -77,50 +77,26 @@ cdef class Order:
     cdef on_fix(self, double price):
         self.core.price = price
 
-    cdef void execute(self, OrderExecutionBit order_bit):
+    cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit): # except * 
         cdef OrderExbitData core = order_bit.core
-        cdef int exbit_size = core.executed_size
+        cdef int32_t exbit_size = core.executed_size
 
         if exbit_size <= 0:
             return
         self._exbits.append(order_bit)
 
-        partial = abs(self.core.size) - abs(exbit_size)
+        # partial = abs(self.core.size) - abs(exbit_size)
+        partial = abs(size) - abs(exbit_size)
         if partial > 0:
             self.partial()
-        else:
+        else: 
+            # partial == 0
             self.completed()
-    
-    cdef void submit(self):
-        '''Marks an order as submitted and stores the broker to which it was
-        submitted'''
-        self.status = OrderStatus.Submitted
-    
-    cdef void accept(self):
-        '''Marks an order as submitted and stores the broker to which it was
-        submitted'''
-        self.status = OrderStatus.Accepted
-    
-    cdef void reject(self):
-        '''Marks an order as rejected'''
-        self.status = OrderStatus.Rejected
-
-    cdef void partial(self):
-        '''Marks an order as partially filled'''
-        self.status = OrderStatus.Partial
-
-    cdef void expire(self):
-        '''Marks an order as expired. Returns True if it worked'''
-        self.status = OrderStatus.Expired
-
-    cdef void completed(self):
-        '''Marks an order as completely filled'''
-        self.status = OrderStatus.Completed
-    
-    cdef void cancel(self):
-        '''Marks an order as cancelled'''
-        self.status = OrderStatus.Canceled
- 
+        
+        # update core.size
+        self.core.size = size
+        self.core.price = price 
+     
     cdef Order clone(self):
         cdef Order obj = Order.__new__(Order) # only allocate memory
         cdef OrderCoreData core 
@@ -153,8 +129,9 @@ cdef class Order:
         return data
     
     cdef object to_schema(self):
-        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
         cdef OrderExecutionBit exbit
+        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
+        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
 
         vtorder = vtOrder(
             experiment_id=experiment_id,
@@ -170,6 +147,36 @@ cdef class Order:
         vtorder.order_bits.extend(orderBits)
         return vtorder
 
+    cdef void submit(self):
+        '''Marks an order as submitted and stores the broker to which it was
+        submitted'''
+        self.status = OrderStatus.Submitted
+    
+    cdef void accept(self):
+        '''Marks an order as submitted and stores the broker to which it was
+        submitted'''
+        self.status = OrderStatus.Accepted
+    
+    cdef void reject(self):
+        '''Marks an order as rejected'''
+        self.status = OrderStatus.Rejected
+
+    cdef void partial(self):
+        '''Marks an order as partially filled'''
+        self.status = OrderStatus.Partial
+
+    cdef void expire(self):
+        '''Marks an order as expired. Returns True if it worked'''
+        self.status = OrderStatus.Expired
+
+    cdef void completed(self):
+        '''Marks an order as completely filled'''
+        self.status = OrderStatus.Completed
+    
+    cdef void cancel(self):
+        '''Marks an order as cancelled'''
+        self.status = OrderStatus.Canceled
+    
     def __len__(self):
         return len(self._exbits)
         

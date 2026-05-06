@@ -1,5 +1,6 @@
 from libcpp.string cimport string as cpp_string
 from libc.math cimport modf as cmodf
+from libc.stdint cimport int64_t, int32_t
 
 from backtest.execution.core.finance.order cimport Order
 from backtest.execution.core.finance.position cimport Position
@@ -11,23 +12,22 @@ from backtest.execution.core.finance.asset cimport AssetCore
 
 cdef class PseudoFiller:
     cdef public double impact
-    cdef public double thres
-    cdef public int batch_size
+    cdef public int32_t batch_size
     cdef Slippage slip
     cdef CommInfoBase comm
     
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines)
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines)
     
     cdef void _filler(self, Order order, Position p_obj, double cash, Lines lines)
 
 
 cdef class OCC(PseudoFiller):
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines)
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines)
 
 
 cdef class Smooth(PseudoFiller):
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines)
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines)
 
 
 cdef class Likehood(PseudoFiller):
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines)
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines)

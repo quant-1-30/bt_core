@@ -39,7 +39,6 @@ cdef class AsyncCashManager:
                                                 pnl=body.pnl,
                                                 leverage=body.leverage,
                                                 margin=body.margin)
-        # print("AsyncCashManager _start acct ", self.acct)
 
     cdef Account get_account(self, bytes experiment_id):
         acct = self.acct.setdefault(experiment_id, Account(experiment_id=experiment_id))
@@ -54,7 +53,6 @@ cdef class AsyncCashManager:
 
         meta.cash = body.cash
         meta.session = body.session
-
         acct = self.get_account(experiment_id)
         acct.set_cash(meta)
 
@@ -64,16 +62,19 @@ cdef class AsyncCashManager:
         acct = self.get_account(experiment_id)
         acct.add_cash(cash)
 
-    cdef void sync(self, bytes experiment_id, dict pobjs):
+    cdef void update(self, bytes experiment_id, list trades, double pnl):
         """update account with position"""
         cdef Account acct
 
         acct = self.get_account(experiment_id)
-        acct.update(pobjs)
+        acct.update(trades, pnl)
 
-    cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick):
+    cdef void sync(self, bytes experiment_id, int64_t sync_tick, dict pobjs):
+        """sync account on_dt_over"""
+        cdef Account acct
+
         acct = self.get_account(experiment_id)
-        acct.sync_dt(sync_tick)
+        acct.sync(sync_tick, pobjs)
 
     cdef remove_client(self, bytes experiment_id):
         self.acct.pop(experiment_id, None)

@@ -26,7 +26,7 @@ cdef class LineAlias:
         self._data.push_back(value)
 
     cdef void extend(self, double[:] arr): # memoryview
-        cdef int i
+        cdef int32_t i
         for i in range(arr.shape[0]):
             self._data.push_back(arr[i])
 
@@ -57,8 +57,8 @@ cdef class Lines:
         """
             Memoryview (double[:, :]) numpy array zero_copy
         """
-        cdef int n = arr.shape[0]
-        cdef int i
+        cdef int32_t n = arr.shape[0]
+        cdef int32_t i
         
         for i in range(n):
             self.tick.push_back(<int64_t>arr[i, 0])
@@ -71,7 +71,7 @@ cdef class Lines:
         
         self._size += n
 
-    cdef Bar getvalue(self, int idx):
+    cdef Bar getvalue(self, int32_t idx):
         """返回 C 结构体包装的 Bar 或者纯 Python 字典/元组"""
         cdef Bar bar
         if idx < 0 or idx >= self._size:
@@ -119,7 +119,7 @@ cdef class Lines:
     cdef double max(self): 
         if self._size == 0: return 0.0
         cdef double m = self.high[0]
-        cdef int i
+        cdef int32_t i
         for i in range(1, self._size):
             if self.high[i] > m: m = self.high[i]
         return m
@@ -127,7 +127,7 @@ cdef class Lines:
     cdef double min(self):
         if self._size == 0: return 0.0
         cdef double m = self.low[0]
-        cdef int i
+        cdef int32_t i
         for i in range(1, self._size):
             if self.low[i] < m: m = self.low[i]
         return m
@@ -141,6 +141,6 @@ cdef class Lines:
         return self._size
 
     def __iter__(self):
-        cdef int i
+        cdef int32_t i
         for i in range(self._size):
             yield self.getvalue(i) 

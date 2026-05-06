@@ -650,7 +650,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         self._signals[sigtype].append(signal)
 
     def _next(self): # next
-        # import pdb; pdb.set_trace()
         super(SignalStrategy, self)._next()
         self._next_signal()
         # if hasattr(self, '_next_custom'):

@@ -115,6 +115,11 @@ cdef class TdApi:
         cdef object coro = self._async_api.register_async(body)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
         return future.result()
+    
+    cpdef object set_cash(self, bytes experiment_id, object body):
+        cdef object coro = self._async_api.set_cash_async(experiment_id, body)
+        cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
+        return future.result()
 
     cpdef object submit(self, bytes experiment_id, object body):
         # run_coroutine_threadsafe return concurrent.futures.Future 
@@ -126,11 +131,6 @@ cdef class TdApi:
         except Exception as e:
             print(f"Submit failed: {e}")
             raise e
-
-    cpdef object set_cash(self, bytes experiment_id, object body):
-        cdef object coro = self._async_api.set_cash_async(experiment_id, body)
-        cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        return future.result()
 
     cpdef object on_dt_over(self, bytes experiment_id, object body):
         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)

@@ -31,8 +31,8 @@ cdef class Asset:
     def __init__(self, 
                 bytes sid, 
                 str name, 
-                int first_trading, 
-                int delist
+                int32_t first_trading, 
+                int32_t delist
                 ):
         self.sid = sid
         self.name = name

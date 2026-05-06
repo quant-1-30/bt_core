@@ -1,6 +1,6 @@
 import numpy as np
 from libcpp.vector cimport vector
-from libc.stdint cimport int64_t
+from libc.stdint cimport int32_t, int64_t
 from libcpp.string cimport string as cpp_string
 
 cimport numpy as cnp
@@ -30,7 +30,7 @@ cdef class LineAlias:
 
 
 cdef class Lines:
-    cdef int _size
+    cdef int32_t _size
 
     cdef vector[int64_t] tick
     cdef vector[double] open
@@ -42,7 +42,7 @@ cdef class Lines:
 
     cdef void batch_load(self, double[:, :] arr)
 
-    cdef Bar getvalue(self, int idx)
+    cdef Bar getvalue(self, int32_t idx)
 
     cdef double max(self) 
 

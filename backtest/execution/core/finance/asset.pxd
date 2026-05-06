@@ -13,13 +13,13 @@
 #  limitations under the License.
 # -------------------------------------------------------------------------------------------------
 from libcpp.string cimport string as cpp_string
-from libc.stdint cimport int64_t
+from libc.stdint cimport int64_t, int32_t
 
 
 cdef struct AssetCore:
-     int first_trading
-     int delist
-     int tick_size
+     int32_t first_trading
+     int32_t delist
+     int32_t tick_size
      bint increment
 
 cdef class Asset:

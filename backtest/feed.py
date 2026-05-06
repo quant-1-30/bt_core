@@ -384,6 +384,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self.adj_tmp_dt = current_dt
 
     def on_dt_over(self):
+        # minus >= oneday
         if not np.isnan(self.lines.datetime[-1]): # nan ---> np.inf
             body = QueryBody(
                     start_date=int(self.lines.datetime[-1]), 

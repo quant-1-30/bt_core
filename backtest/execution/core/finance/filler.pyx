@@ -35,7 +35,8 @@ from backtest.execution.gateway.interface cimport AsyncGateway  # cimport the en
 from backtest.execution.utils.util cimport ts2intdt # cdef func differ from cdef class
 from backtest.execution.core.finance.order cimport OrderCoreData
 from backtest.execution.core.finance.position cimport Position
-from backtest.execution.core.finance.comminfo cimport CommInfo_Stocks, CommInfo_Futures
+from backtest.execution.core.finance.slippage cimport PercSlip
+from backtest.execution.core.finance.comminfo cimport CommInfo_Stocks
 from backtest.execution.core.finance.trade cimport OrderExecutionBit
 from bt_sdk.core.protocol import QueryBody
 from bt_sdk.core.client import RpcTopic
@@ -49,7 +50,7 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     cdef AssetCore info = order.info
     cdef OrderCoreData core = order.core
     cdef double tick_value, sizer_cash
-    cdef int sizer_size
+    cdef int32_t sizer_size
     cdef bint is_buy = order.isbuy
     
     """plimit or dt trans to price"""
@@ -60,7 +61,7 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     if not is_buy:
         size = p_sid.get_available()
         # print("not is_buy filler calculate size :", size)
-        sizer_size = <int>(size * core.sizer_ratio) 
+        sizer_size = <int32_t>(size * core.sizer_ratio) 
         return sizer_size 
 
     if tick_value > cash:
@@ -73,25 +74,21 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     # return size
 
     raw_shares = floor(sizer_cash / tick_value)
-    return <int>(raw_shares * info.tick_size)
+    return <int32_t>(raw_shares * info.tick_size)
 
 
 cdef class PseudoFiller:
 
     def __init__(self, 
                     double impact = 0.05, 
-                    double thres = 0.01,
-                    int batch_size = 1000,
-                    double slip_perc = 0.0,
-                    double slip_fixed = 0.0,
-                    double commission = 0.0
+                    int32_t batch_size = 1000,
+                    double slip_perc = 0.005,
                     ):
 
         self.impact = impact
-        self.thres = thres
         self.batch_size = batch_size
-        self.slip = Slippage(slip_perc=slip_perc, slip_fixed=slip_fixed)
-        self.comm = CommInfo_Stocks(commission=commission) 
+        self.slip = PercSlip(slip_perc=slip_perc)
+        self.comm = CommInfo_Stocks() 
         
     async def _preload(self, Order ord, cache=None):
         """
@@ -99,7 +96,7 @@ cdef class PseudoFiller:
         """
         cdef Lines lines = Lines() 
         cdef OrderCoreData core = ord.core 
-        cdef int int_dt = ts2intdt(core.created_dt)
+        cdef int32_t int_dt = ts2intdt(core.created_dt)
         cdef object request = QueryBody(int_dt, int_dt, [core.sid])
 
         async def loader(object req):
@@ -133,12 +130,12 @@ cdef class PseudoFiller:
             await loader(request)
         return lines
 
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines):
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines):
         """Cdef bypass Python getattr"""
         cdef double plimit, price
         cdef OrderCoreData core = order.core
         cdef bint is_buy = order.isbuy 
-        cdef int n = len(lines)
+        cdef int32_t n = len(lines)
         
         plimit = (1 + core.pricelimit) * lines.open[loc] # c level line
         
@@ -153,7 +150,7 @@ cdef class PseudoFiller:
 
     cdef void _filler(self, Order order, Position p_sid, double cash, Lines lines):
         cdef double p_max, p_min, reach_limit, comm, _price, slip_price
-        cdef int size, filler_size, loc
+        cdef int32_t size, filler_size, loc
         cdef OrderExecutionBit order_bit
         cdef OrderCoreData core = order.core
         cdef bint is_buy = order.isbuy
@@ -162,7 +159,7 @@ cdef class PseudoFiller:
         p_min = lines.min()
         reach_limit = (p_max - p_min) / p_min
 
-        if reach_limit < self.thres: 
+        if reach_limit < 0.01: # filter stock reachlimit
             return
 
         on_slip = partial(self.slip, pmax=p_max, pmin=p_min, isbuy=is_buy)
@@ -176,11 +173,11 @@ cdef class PseudoFiller:
         # print("loc ", loc) 
 
         if core.exec_type == 0:
-            filler_price = lines.close[loc] 
-            slip_price = on_slip(price=filler_price)
+            order_price = lines.close[loc] 
+            slip_price = on_slip(price=order_price)
 
-            size = calculate(order, p_sid, cash, filler_price)
-            filler_size = min(size, int(lines.volume[loc] * self.impact)) # Use C-level self.impact
+            size = calculate(order, p_sid, cash, order_price)
+            filler_size = min(size, <int32_t>(lines.volume[loc] * self.impact)) # Use C-level self.impact
             comm = on_comm(size=filler_size, price=slip_price)
             print(f"Exectype is 0 filler_size: {filler_size}, slip_price: {slip_price}, comm: {comm}")
             order_bit = OrderExecutionBit(
@@ -190,17 +187,15 @@ cdef class PseudoFiller:
                               executed_price=slip_price, 
                               comm=comm,
                               isbuy=is_buy)
-            order.execute(order_bit)
-            print("order_bit ", order_bit)
+            order.execute(size, order_price, order_bit)
         elif core.exec_type == 1:
-            ploc, filler_price = self._exec_plimit(loc, order, lines) 
+            ploc, order_price = self._exec_plimit(loc, order, lines) 
             if ploc < 0:
                 return 
-            slip_price = on_slip(price=filler_price) 
+            slip_price = on_slip(price=order_price) 
 
-            size = calculate(order, p_sid, cash, filler_price) # np.vectorize(calc_size)(order=order)
-            print("size :", size, int(lines.volume[ploc] * self.impact))
-            filler_size = min(size, int(lines.volume[ploc] * self.impact))
+            size = calculate(order, p_sid, cash, order_price) # np.vectorize(calc_size)(order=order)
+            filler_size = min(size, <int32_t>(lines.volume[ploc] * self.impact))
             comm = on_comm(size=filler_size, price=slip_price)
             print(f"Exectype is 1 filler_size: {filler_size}, slip_price: {slip_price}, comm: {comm}")
             order_bit = OrderExecutionBit(
@@ -210,7 +205,7 @@ cdef class PseudoFiller:
                             executed_price=slip_price, 
                             comm=comm,
                             isbuy=is_buy)
-            order.execute(order_bit)
+            order.execute(size, order_price, order_bit)
         else:
             raise NotImplementedError("stoplimit is not implemented")
 
@@ -218,9 +213,8 @@ cdef class PseudoFiller:
         try:
             lines = await self._preload(order)
             if len(lines) == 0:
-                print("lines is empty order :", order)
+                print("order lines is empty :", order)
                 return
-            # print("filler __call__ :", order, lines, p_sid, cash, lines)
             self._filler(order, p_sid, cash, lines)
         except Exception as e:
             print(f"Error during filler preload: {e}")
@@ -229,11 +223,11 @@ cdef class PseudoFiller:
 
 cdef class OCC(PseudoFiller):
 
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines):
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines):
         cdef double plimit, price
         cdef bint is_buy = order.isbuy 
         cdef OrderCoreData core = order.core
-        cdef int n = len(lines)
+        cdef int32_t n = len(lines)
         
         plimit = (1 + core.pricelimit) * lines.close[loc]
         
@@ -249,11 +243,11 @@ cdef class OCC(PseudoFiller):
     
 cdef class Smooth(PseudoFiller):
 
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines):
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines):
         cdef double plimit, price
         cdef bint is_buy = order.isbuy 
         cdef OrderCoreData core = order.core
-        cdef int n = len(lines)
+        cdef int32_t n = len(lines)
         
         smooth_price =  (lines.open[loc] + lines.close[loc] + lines.high[loc] + lines.low[loc]) / 4
         plimit = (1 + core.pricelimit)  * smooth_price
@@ -270,11 +264,11 @@ cdef class Smooth(PseudoFiller):
 
 cdef class Likehood(PseudoFiller):
 
-    cdef (int, double) _exec_plimit(self, int loc, Order order, Lines lines):
+    cdef (int32_t, double) _exec_plimit(self, int32_t loc, Order order, Lines lines):
         cdef double plimit, price
         cdef bint is_buy = order.isbuy 
         cdef OrderCoreData core = order.core
-        cdef int n = len(lines)
+        cdef int32_t n = len(lines)
         
         for i in range(loc, n):
             if is_buy:

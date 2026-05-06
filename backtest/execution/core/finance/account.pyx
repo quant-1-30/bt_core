@@ -15,6 +15,7 @@ from backtest.execution.gateway.operator.schema import vtAccount
 from bt_sdk.core.protocol import AccountBody, Resp
 
 from backtest.execution.core.finance.position cimport Position
+from backtest.execution.core.finance.trade cimport OrderExbitData, OrderExecutionBit
 
 
 cdef class Account:
@@ -49,7 +50,6 @@ cdef class Account:
         self.core.margin = margin
  
     cdef void set_cash(self, CashData body, bint reset=True):
-        # print("set_cash body", body)
         if reset:
             self.restore()
         self.core.cash = body.cash
@@ -69,7 +69,28 @@ cdef class Account:
         _cash = self.core.cash + cash
         self.core.cash = _cash
 
-    cdef void update(self, dict pobjs):
+    cdef void update(self, list trades, double pnl):
+        '''
+        Updates the current position on Account
+        '''
+        cdef OrderExbitData core 
+        cdef OrderExecutionBit trade
+        cdef double _val = 0.0
+        cdef double _comm = 0.0
+        cdef int64_t max_dt = 0
+        
+        for trade in trades:
+            core = trade.core
+            _val += core.val
+            _comm += core.comm
+            max_dt = max(core.executed_dt, max_dt)
+        
+        self.core.portfolio_value += _val
+        self.core.cash -= (_val + _comm) 
+        self.core.datetime = max_dt
+        self.core.pnl += pnl
+
+    cdef void sync(self, int64_t tick, dict pobjs):
         '''
         Updates the current position on Account
         '''
@@ -77,23 +98,20 @@ cdef class Account:
         cdef double _cash = 0.0
         cdef double _pnl = 0.0
         cdef int64_t max_dt = self.core.datetime
-        
-        # cdef pair[int, Position] item # pair ---> C++ for(auto& item : pobjs)
         cdef Position p
 
+        if tick > 0:
+            self.core.datetime = tick
+        
+        # cdef pair[int, Position] item # pair ---> C++ for(auto& item : pobjs)
         for p in pobjs.values():
             _v += p.core.pval
-            _cash += p.core.cash
             _pnl += p.core.pnl
             max_dt = max(p.core.datetime, max_dt)
-
+        
         self.core.portfolio_value = _v
         self.core.pnl = _pnl
         self.core.datetime = max_dt
-        self.core.cash += _cash
-
-    cdef sync_dt(self, int64_t tick):
-        self.core.datetime = tick
 
     cdef Account clone(self):
         cdef Account obj = Account.__new__(Account) # only allocate memory
@@ -118,7 +136,8 @@ cdef class Account:
         return resp
 
     cdef object to_schema(self):
-        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
+        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
+        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)  # 16 / 32 / 4
 
         return vtAccount(experiment_id=experiment_id, 
                          datetime=self.core.datetime, 

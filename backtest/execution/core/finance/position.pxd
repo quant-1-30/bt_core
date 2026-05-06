@@ -25,31 +25,31 @@ cdef struct PositionCoreData:
     cpp_string experiment_id
     cpp_string sid
     int64_t datetime
-    int size
-    int available
+    int32_t size
+    int32_t available
     double cost_basis
     double pnl
     double pval
-    double cash
+    # double cash
     
 
 cdef class Position:
     cdef readonly PositionCoreData core
     cdef AssetCore asset_info
 
-    cdef int get_available(self)
+    cdef int32_t get_available(self)
     
     cdef void update(self, OrderExecutionBit orderbit)
     
-    cdef _update(self, OrderExecutionBit orderbit)
-    
-    cdef double process_events(self, vector[EventItem]& events)
+    cdef _execute(self, OrderExecutionBit orderbit)
     
     cdef double _process_event(self, EventItem item)
+    
+    cdef double process_events(self, vector[EventItem]& events)
 
-    cdef void on_dt_over(self, int end_dt, double close)
-
-    cdef void _on_dt_over(self, int end_dt, double close)
+    cdef void _dt_over(self, int32_t end_dt, double close)
+    
+    cdef void on_dt_over(self, int32_t end_dt, double close)
     
     cdef Position clone(self)
     

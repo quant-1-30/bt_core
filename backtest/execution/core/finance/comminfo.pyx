@@ -109,7 +109,7 @@ cdef class CommInfoBase:
     def __init__(self, 
                  double commission = 0.0,
                  double interest = 0.0,
-                 int commtype = 0):
+                 int32_t commtype = 0):
 
         self.commission = commission / 100.0
         self.creditrate = interest / 365.0
@@ -120,7 +120,7 @@ cdef class CommInfoBase:
         def __get__(self):
             return self._stocklike 
 
-    def __call__(self, Order order, int size, double price):
+    def __call__(self, Order order, int32_t size, double price):
         '''Calculates the commission of an operation at a given price
         '''
         return self.getcommission(order, size, price)
@@ -128,7 +128,7 @@ cdef class CommInfoBase:
     cdef double calculate(self, Order order):
         return self.commission
 
-    cdef double getcommission(self, Order order, int size, double price):
+    cdef double getcommission(self, Order order, int32_t size, double price):
         cdef double comm_rate = self.calculate(order)
         
         if self.commtype == CommType.COMM_PERC:
@@ -147,13 +147,7 @@ cdef class CommInfoBase:
 
 cdef class CommInfo_Stocks(CommInfoBase):
 
-    def __init__(self, 
-                 double commission = 0.0,
-                 double interest=0.0,
-                 int commtype = CommType.COMM_PERC):
-        super(CommInfo_Stocks, self).__init__(commission,
-                                              interest,
-                                              commtype)
+    def __init__(self):
         self._stocklike = True
 
     cdef double calculate(self, Order order):
@@ -178,7 +172,7 @@ cdef class CommInfo_Futures(CommInfoBase):
     def __init__(self, 
                  double commission = 0.0,
                  double interest=0.0,
-                 int commtype = CommType.COMM_FIXED):
+                 int32_t commtype = CommType.COMM_FIXED):
         super(CommInfo_Futures, self).__init__(commission,
                                                interest,
                                                commtype)

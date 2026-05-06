@@ -38,10 +38,10 @@ cdef class Account:
 
     cdef void add_cash(self, double cash)
 
-    cdef void update(self, dict p_obj)
+    cdef void update(self, list trades, double pnl)
     
-    cdef sync_dt(self, int64_t tick)
-
+    cdef void sync(self, int64_t tick, dict p_obj)
+    
     cdef Account clone(self)
     
     cdef object serialize(self)

@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 # -------------------------------------------------------------------------------------------------
-from libc.stdint cimport int64_t
+from libc.stdint cimport int32_t, int64_t
 from libcpp.string cimport string as cpp_string
 
 from backtest.execution.core.finance.trade cimport OrderExecutionBit, OrderExbitData
@@ -50,28 +50,28 @@ cdef struct OrderCoreData:
      cpp_string experiment_id # bytes in python
      cpp_string sid
      cpp_string vtorder_id
-     int size
+     int32_t size
      double sizer_ratio
      double price
      double pricelimit
-     int order_type
-     int exec_type
-     int created_dt
+     int32_t order_type
+     int32_t exec_type
+     int32_t created_dt
 
 
 cdef class Order:
     cdef readonly OrderCoreData core
     cdef readonly bytes filler
     cdef AssetCore info
-    cdef int status
-    cdef int _exchange
+    cdef int32_t status
+    cdef int32_t _exchange
     cdef object _exbits
 
     cdef void addinfo(self, dict asset_info)
     
     cdef on_fix(self, double price)
 
-    cdef void execute(self, OrderExecutionBit order_bit)
+    cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit)
     
     cdef void submit(self)
 

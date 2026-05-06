@@ -426,7 +426,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
 
-        print("sells ", sells)
         for splan in sells:
             core = splan.core
             order = OrderBody(
@@ -650,7 +649,6 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         self._signals[sigtype].append(signal)
 
     def _next(self): # next
-        # import pdb; pdb.set_trace()
         super(SignalStrategy, self)._next()
         self._next_signal()
         # if hasattr(self, '_next_custom'):

@@ -1686,7 +1686,7 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData {
   int64_t executed_size;
   double executed_price;
   double comm;
-  double cash;
+  double val;
   int isbuy;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
@@ -1695,13 +1695,13 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
  * 
  * 
  * cdef struct AssetCore:             # <<<<<<<<<<<<<<
- *      int first_trading
- *      int delist
+ *      int32_t first_trading
+ *      int32_t delist
 */
 struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore {
-  int first_trading;
-  int delist;
-  int tick_size;
+  int32_t first_trading;
+  int32_t delist;
+  int32_t tick_size;
   int increment;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData;
@@ -1717,12 +1717,11 @@ struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData {
   std::string experiment_id;
   std::string sid;
   int64_t datetime;
-  int size;
-  int available;
+  int32_t size;
+  int32_t available;
   double cost_basis;
   double pnl;
   double pval;
-  double cash;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5order_OrderCoreData;
 
@@ -1786,13 +1785,13 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5order_OrderCoreData {
   std::string experiment_id;
   std::string sid;
   std::string vtorder_id;
-  int size;
+  int32_t size;
   double sizer_ratio;
   double price;
   double pricelimit;
-  int order_type;
-  int exec_type;
-  int created_dt;
+  int32_t order_type;
+  int32_t exec_type;
+  int32_t created_dt;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData;
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_cash;
@@ -1929,8 +1928,8 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order {
   struct __pyx_t_8backtest_9execution_4core_7finance_5order_OrderCoreData core;
   PyObject *filler;
   struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore info;
-  int status;
-  int _exchange;
+  int32_t status;
+  int32_t _exchange;
   PyObject *_exbits;
 };
 
@@ -2179,13 +2178,13 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset 
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position {
-  int (*get_available)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *);
+  int32_t (*get_available)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *);
   void (*update)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *);
-  PyObject *(*_update)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *);
-  double (*process_events)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, std::vector<struct __pyx_t_8backtest_9execution_4core_7finance_6common_EventItem>  &);
+  PyObject *(*_execute)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *);
   double (*_process_event)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, struct __pyx_t_8backtest_9execution_4core_7finance_6common_EventItem);
-  void (*on_dt_over)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, int, double);
-  void (*_on_dt_over)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, int, double);
+  double (*process_events)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, std::vector<struct __pyx_t_8backtest_9execution_4core_7finance_6common_EventItem>  &);
+  void (*_dt_over)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, int32_t, double);
+  void (*on_dt_over)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *, int32_t, double);
   struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *(*clone)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *);
   PyObject *(*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *);
   PyObject *(*to_schema)(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position *);
@@ -2218,7 +2217,7 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5cache_AssetC
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5order_Order {
   void (*addinfo)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *, PyObject *);
   PyObject *(*on_fix)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *, double);
-  void (*execute)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *, struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *);
+  void (*execute)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *, int32_t, double, struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit *);
   void (*submit)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *);
   void (*accept)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *);
   void (*reject)(struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order *);
@@ -2245,8 +2244,8 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account {
   void (*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *, struct __pyx_t_8backtest_9execution_4core_7finance_6common_CashData, struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_cash *__pyx_optional_args);
   void (*restore)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
   void (*add_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *, double);
-  void (*update)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *, PyObject *);
-  PyObject *(*sync_dt)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *, int64_t);
+  void (*update)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *, PyObject *, double);
+  void (*sync)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *, int64_t, PyObject *);
   struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*clone)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
   PyObject *(*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
   PyObject *(*to_schema)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);

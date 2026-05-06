@@ -1892,13 +1892,13 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
  * 
  * 
  * cdef struct AssetCore:             # <<<<<<<<<<<<<<
- *      int first_trading
- *      int delist
+ *      int32_t first_trading
+ *      int32_t delist
 */
 struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore {
-  int first_trading;
-  int delist;
-  int tick_size;
+  int32_t first_trading;
+  int32_t delist;
+  int32_t tick_size;
   int increment;
 };
 
@@ -3511,9 +3511,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int32_t(int32_t value);
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyLong_From_npy_int32(npy_int32 value);
 
-/* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value);
-
 /* UpdateUnpickledDict.proto */
 static int __Pyx_UpdateUnpickledDict(PyObject *obj, PyObject *state, Py_ssize_t index);
 
@@ -3525,6 +3522,9 @@ static CYTHON_INLINE int __Pyx_PyLong_As_int(PyObject *);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE long __Pyx_PyLong_As_long(PyObject *);
+
+/* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value);
 
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyLong_From_long(long value);
@@ -31738,13 +31738,13 @@ static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core
       PyObject* res;
       PyObject* member;
       res = __Pyx_PyDict_NewPresized(4); if (unlikely(!res)) return NULL;
-      member = __Pyx_PyLong_From_int(s.first_trading); if (unlikely(!member)) goto bad;
+      member = __Pyx_PyLong_From_int32_t(s.first_trading); if (unlikely(!member)) goto bad;
       if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_first_trading, member) < 0)) goto bad;
       Py_DECREF(member);
-      member = __Pyx_PyLong_From_int(s.delist); if (unlikely(!member)) goto bad;
+      member = __Pyx_PyLong_From_int32_t(s.delist); if (unlikely(!member)) goto bad;
       if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_delist, member) < 0)) goto bad;
       Py_DECREF(member);
-      member = __Pyx_PyLong_From_int(s.tick_size); if (unlikely(!member)) goto bad;
+      member = __Pyx_PyLong_From_int32_t(s.tick_size); if (unlikely(!member)) goto bad;
       if (unlikely(PyDict_SetItem(res, __pyx_mstate_global->__pyx_n_u_tick_size, member) < 0)) goto bad;
       Py_DECREF(member);
       member = __Pyx_PyBool_FromLong(s.increment); if (unlikely(!member)) goto bad;
@@ -32711,75 +32711,6 @@ static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core
         }
     }
     
-/* CIntToPy */
-    static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value) {
-    #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wconversion"
-    #endif
-        const int neg_one = (int) -1, const_zero = (int) 0;
-    #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-    #pragma GCC diagnostic pop
-    #endif
-        const int is_unsigned = neg_one > const_zero;
-        if (is_unsigned) {
-            if (sizeof(int) < sizeof(long)) {
-                return PyLong_FromLong((long) value);
-            } else if (sizeof(int) <= sizeof(unsigned long)) {
-                return PyLong_FromUnsignedLong((unsigned long) value);
-    #if !CYTHON_COMPILING_IN_PYPY
-            } else if (sizeof(int) <= sizeof(unsigned PY_LONG_LONG)) {
-                return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
-    #endif
-            }
-        } else {
-            if (sizeof(int) <= sizeof(long)) {
-                return PyLong_FromLong((long) value);
-            } else if (sizeof(int) <= sizeof(PY_LONG_LONG)) {
-                return PyLong_FromLongLong((PY_LONG_LONG) value);
-            }
-        }
-        {
-            unsigned char *bytes = (unsigned char *)&value;
-    #if !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x030d00A4
-            if (is_unsigned) {
-                return PyLong_FromUnsignedNativeBytes(bytes, sizeof(value), -1);
-            } else {
-                return PyLong_FromNativeBytes(bytes, sizeof(value), -1);
-            }
-    #elif !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX < 0x030d0000
-            int one = 1; int little = (int)*(unsigned char *)&one;
-            return _PyLong_FromByteArray(bytes, sizeof(int),
-                                         little, !is_unsigned);
-    #else
-            int one = 1; int little = (int)*(unsigned char *)&one;
-            PyObject *from_bytes, *result = NULL, *kwds = NULL;
-            PyObject *py_bytes = NULL, *order_str = NULL;
-            from_bytes = PyObject_GetAttrString((PyObject*)&PyLong_Type, "from_bytes");
-            if (!from_bytes) return NULL;
-            py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(int));
-            if (!py_bytes) goto limited_bad;
-            order_str = PyUnicode_FromString(little ? "little" : "big");
-            if (!order_str) goto limited_bad;
-            {
-                PyObject *args[3+(CYTHON_VECTORCALL ? 1 : 0)] = { NULL, py_bytes, order_str };
-                if (!is_unsigned) {
-                    kwds = __Pyx_MakeVectorcallBuilderKwds(1);
-                    if (!kwds) goto limited_bad;
-                    if (__Pyx_VectorcallBuilder_AddArgStr("signed", __Pyx_NewRef(Py_True), kwds, args+3, 0) < 0) goto limited_bad;
-                }
-                result = __Pyx_Object_Vectorcall_CallFromBuilder(from_bytes, args+1, 2 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET, kwds);
-            }
-            limited_bad:
-            Py_XDECREF(kwds);
-            Py_XDECREF(order_str);
-            Py_XDECREF(py_bytes);
-            Py_XDECREF(from_bytes);
-            return result;
-    #endif
-        }
-    }
-    
 /* UpdateUnpickledDict */
     static int __Pyx__UpdateUnpickledDict(PyObject *obj, PyObject *state, Py_ssize_t index) {
         PyObject *state_dict = __Pyx_PySequence_ITEM(state, index);
@@ -33358,6 +33289,75 @@ static PyObject* __pyx_convert__to_py_struct____pyx_t_8backtest_9execution_4core
         PyErr_SetString(PyExc_OverflowError,
             "can't convert negative value to long");
         return (long) -1;
+    }
+    
+/* CIntToPy */
+    static CYTHON_INLINE PyObject* __Pyx_PyLong_From_int(int value) {
+    #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wconversion"
+    #endif
+        const int neg_one = (int) -1, const_zero = (int) 0;
+    #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+    #pragma GCC diagnostic pop
+    #endif
+        const int is_unsigned = neg_one > const_zero;
+        if (is_unsigned) {
+            if (sizeof(int) < sizeof(long)) {
+                return PyLong_FromLong((long) value);
+            } else if (sizeof(int) <= sizeof(unsigned long)) {
+                return PyLong_FromUnsignedLong((unsigned long) value);
+    #if !CYTHON_COMPILING_IN_PYPY
+            } else if (sizeof(int) <= sizeof(unsigned PY_LONG_LONG)) {
+                return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+    #endif
+            }
+        } else {
+            if (sizeof(int) <= sizeof(long)) {
+                return PyLong_FromLong((long) value);
+            } else if (sizeof(int) <= sizeof(PY_LONG_LONG)) {
+                return PyLong_FromLongLong((PY_LONG_LONG) value);
+            }
+        }
+        {
+            unsigned char *bytes = (unsigned char *)&value;
+    #if !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX >= 0x030d00A4
+            if (is_unsigned) {
+                return PyLong_FromUnsignedNativeBytes(bytes, sizeof(value), -1);
+            } else {
+                return PyLong_FromNativeBytes(bytes, sizeof(value), -1);
+            }
+    #elif !CYTHON_COMPILING_IN_LIMITED_API && PY_VERSION_HEX < 0x030d0000
+            int one = 1; int little = (int)*(unsigned char *)&one;
+            return _PyLong_FromByteArray(bytes, sizeof(int),
+                                         little, !is_unsigned);
+    #else
+            int one = 1; int little = (int)*(unsigned char *)&one;
+            PyObject *from_bytes, *result = NULL, *kwds = NULL;
+            PyObject *py_bytes = NULL, *order_str = NULL;
+            from_bytes = PyObject_GetAttrString((PyObject*)&PyLong_Type, "from_bytes");
+            if (!from_bytes) return NULL;
+            py_bytes = PyBytes_FromStringAndSize((char*)bytes, sizeof(int));
+            if (!py_bytes) goto limited_bad;
+            order_str = PyUnicode_FromString(little ? "little" : "big");
+            if (!order_str) goto limited_bad;
+            {
+                PyObject *args[3+(CYTHON_VECTORCALL ? 1 : 0)] = { NULL, py_bytes, order_str };
+                if (!is_unsigned) {
+                    kwds = __Pyx_MakeVectorcallBuilderKwds(1);
+                    if (!kwds) goto limited_bad;
+                    if (__Pyx_VectorcallBuilder_AddArgStr("signed", __Pyx_NewRef(Py_True), kwds, args+3, 0) < 0) goto limited_bad;
+                }
+                result = __Pyx_Object_Vectorcall_CallFromBuilder(from_bytes, args+1, 2 | __Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET, kwds);
+            }
+            limited_bad:
+            Py_XDECREF(kwds);
+            Py_XDECREF(order_str);
+            Py_XDECREF(py_bytes);
+            Py_XDECREF(from_bytes);
+            return result;
+    #endif
+        }
     }
     
 /* CIntToPy */

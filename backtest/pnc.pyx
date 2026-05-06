@@ -56,7 +56,6 @@ cdef class Pnc:
         self.sells.clear()
         self.buys.clear()
         
-        print("account ", account)
         current_day = ts2intdt(snapshot.account.datetime)
         
         # ==========================================
@@ -64,13 +63,12 @@ cdef class Pnc:
         # ==========================================
 
         drawdown_obs = stats["drawdown"] # lowercase
-        signal = drawdown_obs.lines.drawdown[0] > self.act_tolerance
+        signal = drawdown_obs.lines.drawdown[0] <= self.act_tolerance
 
-        print("signal :", drawdown_obs.lines.drawdown[0], signal)
-
-        # if signal:
-        #     self.sells = [TraderPlan(pos.sid, 1.0, False, priority=1) for pos in positions]
-        #     return {} 
+        if signal:
+            print("signal :", signal)
+            self.sells = [TraderPlan(pos.sid, 1.0, False, priority=1) for pos in positions]
+            return {} 
 
         # ==========================================
         # selling first
@@ -85,6 +83,7 @@ cdef class Pnc:
 
             current_price = current_prices.get(sid, pos.cost_basis) # suspending / missing 
             pnl = current_price / pos.cost_basis - 1.0
+            print("pnc pnl: ", pnl)
 
             # ------------------------------------------
             # Priority A: hard control
@@ -95,6 +94,10 @@ cdef class Pnc:
                 self.sells.append(tmp) 
                 # self.pending_sells[sid] = pos.size
                 self.pending_sells[sid] = tmp
+                
+                if sid in topk_info:
+                    topk_info.pop(sid, None)
+
                 continue 
                 
             # ------------------------------------------

@@ -33,16 +33,13 @@ cdef class OrderExecutionBit:
         self.core.executed_size = executed_size
         self.core.comm = comm
 
-        if isbuy:
-            self.core.cash = -1 * executed_price * executed_size - comm
-        else:
-            self.core.cash = executed_price * executed_size - comm
+        self.core.val = executed_price * executed_size if isbuy else -1 * executed_price * executed_size 
 
         self.core.isbuy = isbuy
 
-    property cash:
-        def __get__(self):
-            return self.core.cash
+    # property val:
+    #     def __get__(self):
+    #         return self.core.val
 
     cdef OrderExecutionBit clone(self):
         cdef OrderExecutionBit obj = OrderExecutionBit.__new__(OrderExecutionBit)
@@ -51,7 +48,8 @@ cdef class OrderExecutionBit:
         obj.core.executed_size = self.core.executed_size
         obj.core.executed_price = self.core.executed_price
         obj.core.comm = self.core.comm
-        obj.core.cash = self.core.cash
+        # obj.core.cash = self.core.cash
+        obj.core.val = self.core.val
         obj.core.isbuy = self.core.isbuy
         return obj 
     

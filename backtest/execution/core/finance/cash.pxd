@@ -11,9 +11,9 @@ cdef class AsyncCashManager:
 
     cdef void add_cash(self, bytes experiment_id, double cash)
     
-    cdef void sync(self, bytes experiment_id, dict pobjs)
+    cdef void update(self, bytes experiment_id, list trades, double pnl)
     
-    cdef void sync_no_sids(self, bytes experiment_id, int64_t sync_tick)
-
+    cdef void sync(self, bytes experiment_id, int64_t sync_tick, dict pobjs)
+    
     cdef remove_client(self, bytes experiment_id)
     

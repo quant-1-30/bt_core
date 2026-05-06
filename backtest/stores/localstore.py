@@ -102,7 +102,7 @@ class LocalStore(Store):
     def get_snapshot_tick(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
         '''Returns the current snapshot'''
         snapshot = self._feed.get_snapshot(psids, tick)
-        print("LocalStore get_snapshot_tick snapshot ", snapshot)   
+        # print("LocalStore get_snapshot_tick snapshot ", snapshot)   
         return snapshot
     
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------

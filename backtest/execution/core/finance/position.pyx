@@ -52,9 +52,9 @@ cdef class Position:
                 bytes experiment_id, 
                 bytes sid, 
                 dict asset_info,
-                int datetime=0, 
-                int size=0, 
-                int available=0, 
+                int64_t datetime=0, 
+                int32_t size=0, 
+                int32_t available=0, 
                 double cost_basis=0.0,
                 double pnl=0.0
                ):
@@ -67,7 +67,7 @@ cdef class Position:
         self.core.cost_basis = cost_basis
         self.core.pnl = pnl
         self.core.pval = 0.0
-        self.core.cash = 0.0
+        # self.core.cash = 0.0
         
         self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
@@ -75,7 +75,7 @@ cdef class Position:
         def __get__(self):
             return self.core.size == 0
     
-    cdef int get_available(self):
+    cdef int32_t get_available(self):
         return self.core.available
     
     cdef void update(self, OrderExecutionBit orderbit):
@@ -84,7 +84,7 @@ cdef class Position:
         units used to open/close a position
 
         Args:
-            size (int): amount to update the position size
+            size (int32_t): amount to update the position size
                 size < 0: A sell operation has taken place
                 size > 0: A buy operation has taken place
 
@@ -117,12 +117,12 @@ cdef class Position:
         '''
         cdef OrderExbitData core = orderbit.core
         cdef int32_t sign = 1 if core.isbuy else -1
-        cdef int size = sign * core.executed_size 
+        cdef int32_t size = sign * core.executed_size 
         cdef double price = core.executed_price
 
         cdef double cost_basis = self.core.cost_basis
-        cdef int orig_size = self.core.size
-        cdef int available = self.core.available + size
+        cdef int32_t orig_size = self.core.size
+        cdef int32_t available = self.core.available + size
 
         if available < 0:
             print("not supported short order") 
@@ -147,22 +147,23 @@ cdef class Position:
         else:
             return
         
-        self._update(orderbit) 
+        self._execute(orderbit) 
 
-    cdef _update(self, OrderExecutionBit orderbit):
+    cdef _execute(self, OrderExecutionBit orderbit):
         cdef OrderExbitData trade_core = orderbit.core
         cdef double trade_price = trade_core.executed_price
         cdef int64_t trade_dts = trade_core.executed_dt
 
         self.core.datetime = trade_dts
         self.core.pnl = self.core.size * (trade_price - self.core.cost_basis)
-        self.core.pval = self.core.size * trade_price
-        self.core.cash = trade_core.cash 
+        # self.core.pval = self.core.size * trade_price
+        # self.core.cash = trade_core.cash 
+        self.core.pval += trade_core.val
  
     cdef double process_events(self, vector[EventItem]& events):
         cdef double total_bonus = 0.0
-        cdef int i
-        cdef int n = events.size()
+        cdef int32_t i
+        cdef int32_t n = events.size()
         
         for i in range(n):
             total_bonus += self._process_event(events[i])
@@ -174,14 +175,14 @@ cdef class Position:
         cdef double event_bonus = 0.0
         cdef double sizer_ratio , bonus_ratio
         cdef double cost_basis = self.core.cost_basis
-        cdef int origin_size = self.core.size 
+        cdef int32_t origin_size = self.core.size 
         
         if item.event_type == 0:  # adjustment
             cr = calc_ratio(item.adj)
             sizer_ratio = cr.sizer_ratio
             bonus_ratio = cr.bonus_ratio
 
-            self.core.size = <int>(origin_size * sizer_ratio)
+            self.core.size = <int32_t>(origin_size * sizer_ratio)
             self.core.cost_basis = cost_basis / sizer_ratio
             event_bonus = origin_size * bonus_ratio
             # print("_process_event", origin_size, sizer_ratio, bonus_ratio)
@@ -191,18 +192,11 @@ cdef class Position:
             right_price = cost_basis + item.rgt.price * sizer_ratio
             self.core.cost_basis = right_price / (1 + sizer_ratio)
             return 0.0
-
-    cdef void on_dt_over(self, int end_dt, double close):
-        # sync size due to T + 1
-        cdef int size = self.core.size
-        self.core.available = size
-        self.core.cash = 0.0 # to sync with account 
-        self._on_dt_over(end_dt, close)
-    
-    cdef void _on_dt_over(self, int end_dt, double close):
-        cdef int size = self.core.size
+ 
+    cdef void _dt_over(self, int32_t end_dt, double close):
+        cdef int32_t size = self.core.size
         cdef double cost_basis = self.core.cost_basis
-        cdef int delist = self.asset_info.delist
+        cdef int32_t delist = self.asset_info.delist
         cdef int64_t end_dts = num2date(end_dt).timestamp() + 86399 # 24 * 3600 -1
 
         self.core.datetime = end_dts
@@ -214,6 +208,14 @@ cdef class Position:
         else:
             self.core.pnl = size * (close - cost_basis)
             self.core.pval = size * close
+
+    cdef void on_dt_over(self, int32_t end_dt, double close):
+        print("position on_dt_over: ", end_dt, close)
+        # sync size due to T + 1
+        cdef int32_t size = self.core.size
+        self.core.available = size
+        # self.core.cash = 0.0 # to sync with account 
+        self._dt_over(end_dt, close)
 
     cdef Position clone(self):
         cdef Position obj = Position.__new__(Position) # only allocate memory
@@ -240,6 +242,7 @@ cdef class Position:
         return resp
 
     cdef object to_schema(self):
+        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
         cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
 
         return vtPosition(experiment_id=experiment_id, sid=self.core.sid, 

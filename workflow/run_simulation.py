@@ -50,13 +50,10 @@ class PanelRanker(bt.Indicator):
 
     def next(self):
         current_day = ts2intdt(self.data.datetime[0])
-        # import pdb; pdb.set_trace()
-        print("PanelRanker next current_day ", current_day)
 
-        self.lines.dummy[0] = 0.0 # dummy line to trigger next
+        # self.lines.dummy[0] = 0.0 # dummy line to trigger next
 
         if current_day in self.context_info:
-            print("PanelRanker next current_day ", current_day)
             info = self.context_info[current_day]
             self._owner.topk_info = info 
 
@@ -77,6 +74,7 @@ class FsmStrategy(bt.Strategy):
         seconds_in_day = int(current_tick) % 86400 # utc 28800
         snapshot = self.get_snapshot()
         psids = [p.sid for p in snapshot.positions]
+        # print("psids ", psids)
 
         pending_sells = self.pnc.get_pending_sells()
 
@@ -93,12 +91,9 @@ class FsmStrategy(bt.Strategy):
         elif seconds_in_day == 53700:
             topk_info = self.topk_info 
             if not topk_info: return
-            # import pdb; pdb.set_trace()
-            # print("topk_info ", topk_info)
-            # print("snapshot ", snapshot)
             current_prices = self.store.get_snapshot_tick(psids, int(current_tick))
             plan = self.pnc.generate_plan(topk_info, current_prices, snapshot, self.stats)
-            print("plan ", plan)
+            # print("plan ", plan)
 
             # 【卖出指令生成】
             self.sell(plan["sell"])

@@ -66,8 +66,8 @@ logger = logging.getLogger(__name__)
 
 cdef class ActorMessage:
 
-    def __init__(self, int type, bytes experiment_id, object payload, object reply_future=None):
-        self.actor_id.MsgType = type
+    def __init__(self, int32_t _type, bytes experiment_id, object payload, object reply_future=None):
+        self.actor_id.MsgType = _type
         self.actor_id.experiment_id = experiment_id
         self.payload = payload
         self.reply_future = reply_future
@@ -75,13 +75,12 @@ cdef class ActorMessage:
 
 cdef class TrackerActor:
 
-    def __init__(self, bytes experiment_id, IBatchWriter writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
+    def __init__(self, IBatchWriter writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
         
         self.positions = {}
         self._put_buffer = [] 
         self.buffer_size = buffer_size
         self._queue = asyncio.Queue(maxsize=q_size)
-        self.experiment_id = experiment_id
         self.cash_manager = AsyncCashManager()
         self.asset_cache = asset_cache
 
@@ -94,15 +93,15 @@ cdef class TrackerActor:
             b"likehood": Likehood()
         }
         self._latest_snapshot = None 
+    
+    cdef object get_snapshot(self):
+        return Resp(body=self._latest_snapshot)
 
     async def push(self, ActorMessage msg):
         try:
             self._queue.put_nowait(msg) # cause oom
         except asyncio.QueueFull:
             await self._queue.put(msg) # backpressure
-    
-    cdef object get_snapshot(self):
-        return Resp(body=self._latest_snapshot)
 
     async def _start(self):
         cdef bytes sid, experiment_id
@@ -141,9 +140,9 @@ cdef class TrackerActor:
 
         try:
             await self._start()
-            logger.info(f"Actor {self.experiment_id} ready.")
+            logger.info(f"Actor start ready.")
         except Exception as e:
-            logger.critical(f"Actor {self.experiment_id} start failed: {e}", exc_info=True)
+            logger.critical(f"Actor start failed: {e}", exc_info=True)
             return 
 
         while True:
@@ -175,38 +174,17 @@ cdef class TrackerActor:
                     msg.reply_future.set_result(result)
 
             except Exception as e:
-                logger.error(f"Actor {self.experiment_id} process error: {e}", exc_info=True)
+                logger.error(f"Actor process error: {e}", exc_info=True)
                 if msg.reply_future and not msg.reply_future.done():
                     msg.reply_future.set_exception(e)
 
     cdef tuple set_cash(self, object event):
         """set cash and accout wrt"""
         self.cash_manager.set_cash(event)
-    
-    async def process_order(self, Order order):
-        cdef Position p_sid
-        cdef OrderCoreData core = order.core
-        cdef bytes sid = core.sid
-        cdef OrderExecutionBit ordbit
-
-        asset_info = await self.asset_cache.addinfo(sid)
-        # p_objs = self.positions.setdefault(experiment_id, {}) # default value if key not exists
-        if sid not in self.positions: 
-            self.positions[sid] = Position(sid=sid, experiment_id=self.experiment_id, asset_info=asset_info)
-        p_sid = self.positions[sid]
-
-        acct = self.cash_manager.get_account(self.experiment_id)
-        order.addinfo(asset_info)
-        await self._fillers[order.filler](order, acct.core.cash, p_sid)
-
-        if order.exbits:
-            for ordbit in order.exbits:
-                p_sid.update(ordbit) 
-            self.cash_manager.sync(self.experiment_id, self.positions)
 
     async def _fetch_from_rpc(self, object event):
 
-        async def remote(int rpc_type, object body):
+        async def remote(int32_t rpc_type, object body):
             cdef list batches = []
             sorted_batches = await async_gt.remote(rpc_type, body) 
             return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
@@ -226,70 +204,92 @@ cdef class TrackerActor:
         rgt_task = remote(RpcTopic.Rightment, event_body)
         closes_df, adjs_df, rgts_df = await asyncio.gather(close_task, adj_task, rgt_task) 
         return (closes_df, adjs_df, rgts_df)
+    
+    async def process_order(self, Order order):
+        cdef OrderCoreData core = order.core
+        cdef bytes sid = core.sid
+        cdef bytes experiment_id = core.experiment_id
+        cdef OrderExecutionBit ordbit
+        cdef Position p_sid
+
+        asset_info = await self.asset_cache.addinfo(sid)
+        # p_objs = self.positions.setdefault(experiment_id, {}) # default value if key not exists
+        if sid not in self.positions: 
+            self.positions[sid] = Position(sid=sid, experiment_id=experiment_id, asset_info=asset_info)
+        p_sid = self.positions[sid]
+
+        acct = self.cash_manager.get_account(experiment_id)
+        order.addinfo(asset_info)
+        await self._fillers[order.filler](order, acct.core.cash, p_sid)
+
+        if order.exbits:
+            for ordbit in order.exbits:
+                p_sid.update(ordbit) 
+            # self.cash_manager.sync(experiment_id, self.positions)
+            self.cash_manager.update(experiment_id, order.exbits, p_sid.core.pnl)
 
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
-        cdef object close_table, adj_table, rgt_table
+        cdef int64_t sync_tick = event.body.start_date
         cdef list psids = list(self.positions.keys())
         cdef Position p_obj
-        cdef int64_t sync_tick = event.body.start_date
+        
+        cdef int32_t close_dt
+        cdef double close_price
 
         if not psids: 
-            self.cash_manager.sync_no_sids(experiment_id, sync_tick)
+            self.cash_manager.sync(experiment_id, sync_tick, {})
             return
 
         closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(event)
 
-        if closes_df:
-            for sid in closes_df:
-                close_df = closes_df[sid]
-                if not close_df.is_empty():
-                    for row in close_df.iter_rows(named=True):
-                        sid = row["sid"] 
-                        if sid in self.positions:
-                            p_obj = self.positions[sid]
-                            close_dt = int(row["day"])
-                            close_price = float(row["close"])
-                            p_obj.on_dt_over(close_dt, close_price)
+        for _, close_df in closes_df.items():
+            if not close_df.is_empty():
+                for sid, day, close in close_df.select(["sid", "day", "close"]).rows(): # better than iter_rows(named=True)
+                    if sid in self.positions:
+                        p_obj = self.positions[sid]
 
-        self.cash_manager.sync(self.experiment_id, self.positions)
+                        close_dt = int(day)
+                        close_price = float(close)
+                        # print("simulate on_dt_over: ", close_dt, close_price)
+                        p_obj.on_dt_over(close_dt, close_price)
+                        # print("finish simulate on_dt_over: ", p_obj)
+
+        self.cash_manager.sync(experiment_id, sync_tick, self.positions)
         self._sync_event(experiment_id, self.positions, adjs_df, rgts_df) 
-
-    cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_df, dict py_rgt_df):
+ 
+    cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_dfs, dict py_rgt_dfs):
         cdef double event_cash = 0.0
         cdef Position pos_obj  
-        cdef unordered_map[int, AdjustmentData] cpp_adj_map # int as key better than cpp_String c++ stl vector& to deref to access value in cython 
-        cdef unordered_map[int , RightData] cpp_rgt_map
+        cdef unordered_map[int32_t, AdjustmentData] cpp_adj_map 
+        cdef unordered_map[int32_t, RightData] cpp_rgt_map
         cdef vector[EventItem] v_events
         cdef EventItem temp
-        cdef int int_sid
-        cdef list psids
+        cdef int32_t int_sid
 
-        psids = list(pobjs.keys())
-        if py_adj_df:
-            for adj_sid, v in py_adj_df.items():
-                int_sid = int(adj_sid)
-                # [0] series 
-                cpp_adj_map[int_sid] = AdjustmentData(
-                    bonus_share=float(v.item(0, "bonus_share")), 
-                    transfer=float(v.item(0, "transfer")), 
-                    bonus=float(v.item(0, "bonus"))
-                )
+        for sid, py_adj_df in py_adj_dfs.items():
+            if not py_adj_df.is_empty():
+                for bonus_share, transfer, bonus in py_adj_df.select(["bonus_share", "transfer", "bonus"]).rows():
+                    int_sid = int(sid)
+                    cpp_adj_map[int_sid] = AdjustmentData(
+                        bonus_share=float(bonus_share), 
+                        transfer=float(transfer), 
+                        bonus=float(bonus)
+                    )
 
-                
-        if py_rgt_df:
-            for rgt_sid, v in py_rgt_df.items():
-                int_sid = int(rgt_sid)
-                cpp_rgt_map[int_sid] = RightData(
-                    ratio=float(v.item(0, "ratio")), 
-                    price=float(v.item(0, "price"))
-                )
+        for sid, py_rgt_df in py_rgt_dfs.items():
+            if not py_rgt_df.is_empty():
+                for ratio, price in py_rgt_df.select(["ratio", "price"]).rows():
+                    int_sid = int(sid)
+                    cpp_rgt_map[int_sid] = RightData(
+                        ratio=float(ratio), 
+                        price=float(price)
+                    )
 
-
-        for sid_bytes in psids:
-            pos_obj = pobjs[sid_bytes] 
-            int_sid = int(sid_bytes)
+        for sid_bytes, pos_obj in pobjs.items():
+            int_sid = int(sid_bytes) 
             v_events.clear() 
+
             adj_it = cpp_adj_map.find(int_sid) 
             if adj_it != cpp_adj_map.end():
                 temp.event_type = 0
@@ -301,6 +301,7 @@ cdef class TrackerActor:
                 temp.event_type = 1
                 temp.rgt = deref(rgt_it).second 
                 v_events.push_back(temp)
+                
             if not v_events.empty():
                 event_cash += pos_obj.process_events(v_events)
 
@@ -308,44 +309,62 @@ cdef class TrackerActor:
             self.cash_manager.add_cash(experiment_id, event_cash)
 
     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=False):
-        cdef Position p_obj
-        cdef Account acct_snap
+        cdef bytes experiment_id
         cdef Order order_snap
+        cdef Order cloned_order
+        cdef Position p_obj
+        cdef Position cloned_pobj
+        cdef Account acct_snap
+        cdef ActorId actor_id = msg.actor_id
+
         cdef dict pos_snaps = {}
-        cdef dict payload = {}
-        cdef list posn_body = []
+        cdef list pobj_body =[]
         cdef object snapshot_body
+        cdef dict payload = {}
          
-        # Deep Copy Positions and Account
-        for sid, p_obj in self.positions.items():
-            pos_snaps[sid] = p_obj.clone() # C Level clone
-            posn_body.append(p_obj.clone().serialize().body)
+        if msg is not None:
+            experiment_id = actor_id.experiment_id
+        else:
+            return 
+        
+        # account snapshot
+        acct_snap = self.cash_manager.get_account(experiment_id).clone()
             
-        acct_snap = self.cash_manager.get_account(self.experiment_id).clone()
+        # position snapshot filter size = 0
+        for sid, p_obj in self.positions.items():
+            if p_obj.closed:
+                continue
+            cloned_pobj = p_obj.clone()
+            pos_snaps[sid] = cloned_pobj
+            pobj_body.append(cloned_pobj.serialize().body)
+            
         payload = {
             "positions": pos_snaps,
             "account": acct_snap
         }
-
-        if msg and msg.actor_id.MsgType == MsgType.Order:
-            order_snap = msg.payload
+        #  snapshotBody  Cython cdef class same as C Struct
+        if actor_id.MsgType == MsgType.Order:
+            order_snap = <Order>msg.payload
+            cloned_order = order_snap.clone()
+            
             snapshot_body = SnapshotBody(
                 account=acct_snap.serialize().body, 
-                positions=posn_body,
-                order=[item.body for item in order_snap.clone().serialize()]
+                positions=pobj_body,
+                order=[item.body for item in cloned_order.serialize()]
             )
-            payload["order"] = order_snap.clone()
+            payload["order"] = cloned_order
         else:
             snapshot_body = SnapshotBody(
                 account=acct_snap.serialize().body, 
-                positions=posn_body,
+                positions=pobj_body,
             )
 
         self._latest_snapshot = snapshot_body
 
+        # writer into db
         if writer:
+            print("_create_and_send_snapshot payload order: ", payload.get("order", []))
             self._put_buffer.append(payload)
-            
             if len(self._put_buffer) >= self.buffer_size:
                 self._flush()
 
@@ -373,6 +392,15 @@ cdef class Simulator:
 
     cdef void attach(self, loop):
         self._loop = loop
+
+    cdef TrackerActor _get_or_create_actor(self, bytes experiment_id):
+        cdef TrackerActor actor
+
+        if experiment_id not in self._actors:
+            actor = TrackerActor(self._writer, self._asset_cache, self.q_size, self.buffer_size)
+            self._actors[experiment_id] = actor
+            self._loop.create_task(actor.run())
+        return self._actors[experiment_id]
         
     async def set_cash(self, object event):
         cdef bytes experiment_id = event.experiment_id
@@ -417,15 +445,6 @@ cdef class Simulator:
 
         result = await future
         return result
-
-    cdef TrackerActor _get_or_create_actor(self, bytes experiment_id):
-        cdef TrackerActor actor
-
-        if experiment_id not in self._actors:
-            actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size)
-            self._actors[experiment_id] = actor
-            self._loop.create_task(actor.run())
-        return self._actors[experiment_id]
 
     async def shutdown(self):
         cdef ActorMessage msg = ActorMessage(MsgType.Sentinel, b"", None)
