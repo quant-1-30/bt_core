@@ -70,36 +70,31 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
         try:
             for item in self._buffer:
                 if "order" in item:
-                    schema_obj = item["order"] 
-                    order_dict = schema_obj.to_dict()
+                    order_dict, order_bits = item["order"] 
                     order_data.append(order_dict)
                     
-                    if hasattr(schema_obj, 'order_bits'):
-                        for bit in schema_obj.order_bits:
-                            orderbit_data.append(bit.to_dict())
+                    orderbit_data.extend(order_bits)
 
                 if "positions" in item:
-                    for sid, p_schema in item["positions"].items():
-                        p_dict = p_schema.to_dict()
+                    for p_dict in item["positions"]:
 
-                        # raw_sid = p_dict['sid']
-                        # if isinstance(raw_sid, bytes):
-                        #     safe_sid = raw_sid
-                        # elif isinstance(raw_sid, str):
-                        #     safe_sid = raw_sid.encode('utf-8') 
-                        # elif isinstance(raw_sid, memoryview):
-                        #     safe_sid = raw_sid.tobytes() # memoryview != bytes
-                        # elif isinstance(raw_sid, bytearray):
-                        #     safe_sid = bytes(raw_sid) # bytearray 
-                        # else:
-                        #     safe_sid = str(raw_sid).encode('utf-8') 
+                        raw_sid = p_dict['sid']
+                        if isinstance(raw_sid, bytes):
+                            safe_sid = raw_sid
+                        elif isinstance(raw_sid, str):
+                            safe_sid = raw_sid.encode('utf-8') 
+                        elif isinstance(raw_sid, memoryview):
+                            safe_sid = raw_sid.tobytes() # memoryview != bytes
+                        elif isinstance(raw_sid, bytearray):
+                            safe_sid = bytes(raw_sid) # bytearray 
+                        else:
+                            safe_sid = str(raw_sid).encode('utf-8') 
 
-                        key = (int(p_dict['datetime']), sid, str(p_dict['experiment_id']))
+                        key = (int(p_dict['datetime']), safe_sid, str(p_dict['experiment_id']))
                         dedup_positions[key] = p_dict
                 
                 if "account" in item:
-                    a_schema = item["account"]
-                    a_dict = a_schema.to_dict()
+                    a_dict = item["account"]
                     key = (int(a_dict['datetime']), str(a_dict['experiment_id']))
                     dedup_accounts[key] = a_dict
             
@@ -116,8 +111,6 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
         except Exception as e:
             logger.error(f"Critical error during flush: {e}", exc_info=True)
             print("crush error: ", e)
-            import sys
-            sys.exit()
             await self._dump_fallback("flush_crash", self._buffer)
         
         finally:

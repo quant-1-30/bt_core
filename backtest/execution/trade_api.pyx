@@ -53,7 +53,6 @@ cdef class AsyncApi:
             body=body,
             experiment_id=experiment_id
         )
-        print("AsyncApi on_dt_over: ", event)
         return await self.engine.on_dt_over(event)
 
     async def getvalue_async(self, bytes experiment_id):

@@ -20,14 +20,14 @@ cdef class OrderExecutionBit:
 
     '''
     def __init__(self,
-                bytes vtorder_id, 
+                bytes order_id, 
                 int64_t executed_dt=0, 
                 int64_t executed_size=0, 
                 double executed_price=0.0, 
                 double comm=0.0,
                 bool isbuy=False):
 
-        self.vtorder_id = vtorder_id
+        self.core.order_id = order_id
         self.core.executed_dt = <int64_t>executed_dt
         self.core.executed_price = executed_price
         self.core.executed_size = executed_size
@@ -43,7 +43,7 @@ cdef class OrderExecutionBit:
 
     cdef OrderExecutionBit clone(self):
         cdef OrderExecutionBit obj = OrderExecutionBit.__new__(OrderExecutionBit)
-        obj.vtorder_id = self.vtorder_id
+        obj.core.order_id = self.core.order_id
         obj.core.executed_dt = self.core.executed_dt
         obj.core.executed_size = self.core.executed_size
         obj.core.executed_price = self.core.executed_price
@@ -53,27 +53,30 @@ cdef class OrderExecutionBit:
         obj.core.isbuy = self.core.isbuy
         return obj 
     
+    cdef object serialize(self):
+        cdef object body, resp
+        body = TradeBody(order_id=self.core.order_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price, 
+                        executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)   
+        resp = Resp(body=body)
+        return resp
+    
     cdef object to_schema(self):
         return OrderBit(
-            order_id=self.vtorder_id,
+            order_id=self.core.order_id,
             executed_dt=self.core.executed_dt,
             executed_price=self.core.executed_price,
             executed_size=self.core.executed_size,
             comm=self.core.comm,
             isbuy=self.core.isbuy
         )
-    
-    cdef object serialize(self):
-        cdef object body, resp
-        body = TradeBody(vtorder_id=self.vtorder_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price, 
-                        executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)   
-        resp = Resp(body=body)
-        return resp
 
+    cdef OrderExbitData get_snapshot(self):
+        return self.core
+    
     def __reduce__(self): # class / args
-        return (OrderExecutionBit, (self.vtorder_id, self.core.executed_dt, self.core.executed_size, 
+        return (OrderExecutionBit, (self.core.order_id, self.core.executed_dt, self.core.executed_size, 
                                     self.core.executed_price, self.core.comm, self.core.isbuy))
 
     def __repr__(self):
-        return f"OrderExecutionBit(vtorder_id={self.vtorder_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \
+        return f"OrderExecutionBit(order_id={self.core.order_id}, executed_dt={self.core.executed_dt}, executed_size={self.core.executed_size}, \
             executed_price={self.core.executed_price}, comm={self.core.comm}, isbuy={self.core.isbuy})"

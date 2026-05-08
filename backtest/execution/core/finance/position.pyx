@@ -70,9 +70,11 @@ cdef class Position:
         
         self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
-    property closed:
-        def __get__(self):
-            return self.core.size == 0
+        self.cached_uuid = uuid.UUID(bytes=experiment_id)
+    
+    # property closed:
+    #     def __get__(self):
+    #         return self.core.size == 0
     
     cdef int32_t get_available(self):
         return self.core.available
@@ -155,8 +157,6 @@ cdef class Position:
 
         self.core.datetime = trade_dts
         self.core.pnl = self.core.size * (trade_price - self.core.cost_basis)
-        # self.core.pval = self.core.size * trade_price
-        # self.core.cash = trade_core.cash 
         self.core.pval += trade_core.val
  
     cdef double process_events(self, vector[EventItem]& events):
@@ -201,9 +201,11 @@ cdef class Position:
             self.core.size = 0
             self.core.available = 0
             self.core.pnl = 0
-        else:
+        elif close > 0:
             self.core.pnl = size * (close - cost_basis)
             self.core.pval = size * close
+        else:
+            pass # close == 0.0 means suspend stay
         
         # self.core.datetime = int(num2date(end_dt).timestamp()) + 86399 # 24 * 3600 -1
         self.core.datetime = end_dt
@@ -242,11 +244,14 @@ cdef class Position:
 
     cdef object to_schema(self):
         # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
+        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
 
-        return vtPosition(experiment_id=experiment_id, sid=self.core.sid, 
+        return vtPosition(experiment_id=self.cached_uuid, sid=self.core.sid, 
                         datetime=self.core.datetime, size=self.core.size, available=self.core.available,
-                        pnl=self.core.pnl, cost_basis=self.core.cost_basis)
+                        cost_basis=self.core.cost_basis, pnl=self.core.pnl)
+
+    cdef PositionCoreData get_snapshot(self):
+        return self.core
 
     def __len__(self):
         return self.core.size

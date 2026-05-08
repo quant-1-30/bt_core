@@ -49,6 +49,8 @@ cdef class Account:
         self.core.pnl = pnl 
         self.core.leverage = leverage
         self.core.margin = margin
+        
+        self.cached_uuid = uuid.UUID(bytes=experiment_id)
  
     cdef void set_cash(self, CashData body, bint reset=True):
         if reset:
@@ -134,17 +136,20 @@ cdef class Account:
         resp = Resp(body=body)
         return resp
 
-    cdef object to_schema(self):
+    cdef object to_schema(self): # not suit for snapshot because sqlchemy object has state
         # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)  # 16 / 32 / 4
+        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)  # 16 / 32 / 4
 
-        return vtAccount(experiment_id=experiment_id, 
+        return vtAccount(experiment_id=self.cached_uuid, 
                          datetime=self.core.datetime, 
                          portfolio_value=self.core.portfolio_value, 
                          cash=self.core.cash,
                          pnl=self.core.pnl, 
                          leverage=self.core.leverage, 
                          margin=self.core.margin)
+
+    cdef AccountCoreData get_snapshot(self):
+        return self.core
 
     def __reduce__(self):#  class / args
         return (Account, (self.core.experiment_id, 

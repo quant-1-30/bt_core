@@ -54,7 +54,6 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     cdef bint is_buy = order.isbuy
     
     """plimit or dt trans to price"""
-    order.on_fix(price)
     tick_value = price * info.tick_size
     sizer_cash = core.sizer_ratio * cash
     # print("price , tick_value :", price, tick_value, sizer_cash)
@@ -237,7 +236,7 @@ cdef class PseudoFiller:
             comm = on_comm(size=filler_size, price=slip_price)
             
             order_bit = OrderExecutionBit(
-                              vtorder_id = core.vtorder_id,
+                              order_id = core.order_id,
                               executed_dt = lines.tick[exec_loc],
                               executed_size = filler_size, 
                               executed_price = slip_price, 

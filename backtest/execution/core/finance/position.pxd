@@ -36,6 +36,7 @@ cdef struct PositionCoreData:
 cdef class Position:
     cdef readonly PositionCoreData core
     cdef AssetCore asset_info
+    cdef object cached_uuid
 
     cdef int32_t get_available(self)
     
@@ -57,3 +58,4 @@ cdef class Position:
     
     cdef object to_schema(self)
     
+    cdef PositionCoreData get_snapshot(self)

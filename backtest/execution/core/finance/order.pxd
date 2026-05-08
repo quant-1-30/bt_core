@@ -49,7 +49,7 @@ cdef enum OrderStatus:
 cdef struct OrderCoreData:
      cpp_string experiment_id # bytes in python
      cpp_string sid
-     cpp_string vtorder_id
+     cpp_string order_id
      int32_t size
      double sizer_ratio
      double price
@@ -62,6 +62,7 @@ cdef struct OrderCoreData:
 cdef class Order:
     cdef readonly OrderCoreData core
     cdef readonly bytes filler
+
     cdef AssetCore info
     cdef int32_t status
     cdef int32_t _exchange
@@ -72,8 +73,6 @@ cdef class Order:
 
     cdef void addinfo(self, dict asset_info)
     
-    cdef on_fix(self, double price)
-
     cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit)
     
     cdef void submit(self)
@@ -92,6 +91,8 @@ cdef class Order:
 
     cdef Order clone(self)
     
-    cdef list serialize(self)
+    cdef object serialize(self)
     
     cdef object to_schema(self)
+    
+    cdef OrderCoreData get_snapshot(self)

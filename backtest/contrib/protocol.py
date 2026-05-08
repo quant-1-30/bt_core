@@ -45,7 +45,7 @@ class ExperimentBody(msgspec.Struct, frozen=True, tag="experiment"):
 
 
 class TradeBody(msgspec.Struct, frozen=True, tag="trade"):
-    vtorder_id: bytes
+    order_id: bytes
     executed_dt: int
     executed_size: int
     executed_price: float

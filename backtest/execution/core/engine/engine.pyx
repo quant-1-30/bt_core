@@ -93,7 +93,6 @@ cdef class BackEngine:
     async def on_dt_over(self, object event):
         cdef object resp
 
-        print("engine on_dt_over: ", event)
         resp = await self.simulator.on_dt_over(event)
         return resp
 

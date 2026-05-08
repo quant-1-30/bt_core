@@ -26,7 +26,7 @@ Created on Tue Mar 12 15:37:47 2019
 import os
 import time
 import json
-
+import uuid
 import asyncio
 import logging
 import numpy as np
@@ -54,7 +54,7 @@ from backtest.execution.core.finance.trade cimport OrderExecutionBit
 from backtest.execution.core.finance.common cimport EventItem, AdjustmentData, RightData
 from backtest.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Likehood 
 from backtest.execution.core.finance.simulate_types cimport MsgType
-from backtest.execution.utils.util cimport ts2intdt
+from backtest.execution.utils.util cimport ts2intdt, num2date
 from backtest.execution.actor.writer_actor cimport IBatchWriter
 
 
@@ -75,7 +75,7 @@ cdef class ActorMessage:
 
 cdef class TrackerActor:
 
-    def __init__(self, IBatchWriter writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
+    def __init__(self, bytes experiment_id, IBatchWriter writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
         
         self.positions = {}
         self._put_buffer = [] 
@@ -93,6 +93,8 @@ cdef class TrackerActor:
             b"likehood": Likehood()
         }
         self._latest_snapshot = None 
+        
+        self.cached_uuid = uuid.UUID(bytes=experiment_id)
     
     async def push(self, ActorMessage msg):
         try:
@@ -130,13 +132,20 @@ cdef class TrackerActor:
         except Exception as e:
             logger.exception(f"Error starting position tracker: {e}")
     
+    cdef object get_snapshot(self):
+        return Resp(body=self._latest_snapshot)
+    
     cdef tuple set_cash(self, object event):
         """set cash and accout wrt"""
         self.cash_manager.set_cash(event)
 
     async def run(self):
         cdef ActorMessage msg
-        cdef Order order_payload
+        cdef Order order_obj
+        cdef OrderExecutionBit ordbit
+
+        cdef dict order_dict, ordbit_dict
+        cdef list order_bits
         cdef object result = None  
 
         try:
@@ -161,13 +170,24 @@ cdef class TrackerActor:
                 elif msg.actor_id.MsgType == MsgType.Order:
                     await self.process_order(payload)
 
-                    order_payload = <Order>payload
-                    order_schema = order_payload.to_schema() 
+                    order_obj = <Order>payload
+                    order_bits = [] # reset
 
-                    if order_schema.order_bits:
-                        self._put_buffer.append({"order": order_schema})
+                    # order snapshot
+                    order_dict = order_obj.get_snapshot() 
+                    order_dict['experiment_id'] = self.cached_uuid
+                    order_dict.pop("sizer_ratio")
+                    order_dict.pop("pricelimit")
+
+                    for ordbit in order_obj.exbits:
+                        ordbit_dict = ordbit.get_snapshot()
+                        ordbit_dict.pop("val")
+                        order_bits.append(ordbit_dict)
+
+                    if order_bits:
+                        self._put_buffer.append({"order": [order_dict, order_bits]})
                 
-                    self._create_and_send_snapshot(reason="order_sync", msg=msg, writer=False, ord_body=order_payload.serialize())
+                    self._create_and_send_snapshot(reason="order_sync", msg=msg, writer=False, ord_body=order_obj.serialize())
 
                 elif msg.actor_id.MsgType == MsgType.Tplus1:
                     await self.on_dt_over(payload)
@@ -187,19 +207,17 @@ cdef class TrackerActor:
                 if msg.reply_future and not msg.reply_future.done():
                     msg.reply_future.set_exception(e)
 
-    async def _fetch_from_rpc(self, object event):
+    async def _fetch_from_rpc(self, int64_t st, int64_t et, list psids):
 
         async def remote(int32_t rpc_type, object body):
             cdef list batches = []
             sorted_batches = await async_gt.remote(rpc_type, body) 
             return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
 
-        cdef object body = event.body
-        cdef list psids = list(self.positions.keys())
         cdef int32_t s_dt, e_dt
 
-        s_dt = ts2intdt(body.start_date)
-        e_dt = ts2intdt(body.end_date)
+        s_dt = ts2intdt(st)
+        e_dt = ts2intdt(et)
 
         close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids)
         event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids)
@@ -229,49 +247,41 @@ cdef class TrackerActor:
 
         if order.exbits:
             for ordbit in order.exbits:
-                p_sid.update(ordbit) 
+                p_sid.update(ordbit)
             self.cash_manager.update(experiment_id, order.exbits, p_sid.core.pnl)
 
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
         cdef int64_t sync_tick = event.body.start_date
-        cdef list psids = list(self.positions.keys())
         cdef Position p_obj
         
         cdef int32_t close_dt
         cdef double close_price
+        cdef list psids
+        cdef object body = event.body
+
+        self._collect() # # avoid self.position explode
+
+        psids = list(self.positions.keys())
 
         if not psids:
             self.cash_manager.sync(experiment_id, sync_tick, {})
             return
 
-        closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(event)
+        closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(body.start_date, body.end_date, psids)
 
-        # for _, close_df in closes_df.items():
-        #     if not close_df.is_empty():
-        #         for sid, day, close in close_df.select(["sid", "day", "close"]).rows(): # better than iter_rows(named=True)
-        #             if sid in self.positions:
-        #                 p_obj = self.positions[sid]
-
-        #                 close_dt = int(day)
-        #                 close_price = float(close)
-        #                 # print("simulate on_dt_over: ", close_dt, close_price)
-        #                 print("position on_dt_over")
-        #                 p_obj.on_dt_over(close_dt, close_price)
-        #                 # print("finish simulate on_dt_over: ", p_obj)
-        
-        if closes_df:
-            for sid_bytes, p_obj in self.positions.items():
-                close_df = closes_df.get(sid_bytes, None)
-                # if close_df is None:
-                #     close_df = closes_df.get(sid_bytes.decode('utf-8'))
-                
-                if close_df is not None and not close_df.is_empty():
-                    for day, close in close_df.select(["day", "close"]).rows():
-                        close_dt = int(day)
-                        close_price = float(close)
-                        print("position on_dt_over")
-                        p_obj.on_dt_over(close_dt, close_price)
+        for sid_bytes, p_obj in self.positions.items():
+            close_df = closes_df.get(sid_bytes, None)
+            
+            if close_df is not None and close_df.height > 0:
+                for day, close in close_df.select(["day", "close"]).rows():
+                    close_dt = int(day)
+                    close_price = float(close)
+                    print("position on_dt_over")
+                    p_obj.on_dt_over(close_dt, close_price)
+            else: # suspend 
+                close_dt = ts2intdt(sync_tick)
+                p_obj.on_dt_over(close_dt, 0.0)
 
         self.cash_manager.sync(experiment_id, sync_tick, self.positions)
         self._sync_event(experiment_id, self.positions, adjs_df, rgts_df) 
@@ -286,7 +296,7 @@ cdef class TrackerActor:
         cdef int32_t int_sid
 
         for sid, py_adj_df in py_adj_dfs.items():
-            if not py_adj_df.is_empty():
+            if py_adj_df is not None and py_adj_df.height > 0:
                 for bonus_share, transfer, bonus in py_adj_df.select(["bonus_share", "transfer", "bonus"]).rows():
                     int_sid = int(sid)
                     cpp_adj_map[int_sid] = AdjustmentData(
@@ -296,7 +306,7 @@ cdef class TrackerActor:
                     )
 
         for sid, py_rgt_df in py_rgt_dfs.items():
-            if not py_rgt_df.is_empty():
+            if py_rgt_df is not None and py_rgt_df.height > 0:
                 for ratio, price in py_rgt_df.select(["ratio", "price"]).rows():
                     int_sid = int(sid)
                     cpp_rgt_map[int_sid] = RightData(
@@ -326,34 +336,50 @@ cdef class TrackerActor:
         if event_cash != 0:
             self.cash_manager.add_cash(experiment_id, event_cash)
 
-    cdef _flush(self):
-        if not self._put_buffer: return
-
-        self._writer.push(self._put_buffer)
-        self._put_buffer = []
-
-    # separate order --- event stream  from snapshot
-    # 1 position / order and  1 account  daily avoid `UniqueConstraint`
+    cdef void _collect(self):
+        cdef bytes sid
+        cdef list dead_sids =[]
+        cdef Position p
+        
+        for sid_key, p in self.positions.items():
+            if p.core.size == 0:
+                dead_sids.append(sid_key)
+                
+        for sid_key in dead_sids:
+            del self.positions[sid_key]
+ 
     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=False, list ord_body=[]):
+        # separate order --- event stream  from snapshot
+        # 1 position / order and  1 account  daily avoid `UniqueConstraint`
         cdef bytes experiment_id
         cdef Position p_obj
         cdef Account acct
-        
-        cdef dict pos_snaps = {}
-        cdef list pobj_body =[]
+
+        cdef dict p_dict, a_dict 
+        cdef list pos_snaps=[]
+        cdef list pobj_body=[] 
         
         if msg is not None:
             experiment_id = msg.actor_id.experiment_id
         else:
             return 
-        
+
+        # account snapshot 
         acct = self.cash_manager.get_account(experiment_id).clone()
-            
-        for sid, p_obj in self.positions.items():
-            if p_obj.closed:
+        a_dict = acct.get_snapshot()
+        a_dict['experiment_id'] = self.cached_uuid
+
+        # position snapshot
+        for _, p_obj in self.positions.items():
+            if p_obj.core.size == 0:
                 continue
+
+            # struct auto dict 
+            p_dict = p_obj.get_snapshot() # p.core 
+            p_dict['experiment_id'] = self.cached_uuid
+            p_dict.pop("pval")
             
-            pos_snaps[sid] = p_obj.to_schema()
+            pos_snaps.append(p_dict)
             pobj_body.append(p_obj.serialize().body)
             
         self._latest_snapshot = SnapshotBody(
@@ -365,15 +391,18 @@ cdef class TrackerActor:
         if writer:
             payload = {
                 "positions": pos_snaps,
-                "account": acct.to_schema()
+                "account": a_dict,
             }
             self._put_buffer.append(payload)
             if len(self._put_buffer) >= self.buffer_size:
                 self._flush()
-    
-    cdef object get_snapshot(self):
-        return Resp(body=self._latest_snapshot)
 
+    cdef _flush(self):
+        if not self._put_buffer: return
+
+        self._writer.push(self._put_buffer)
+        self._put_buffer = []
+    
     async def shutdown(self):
         self._flush()
         self._writer.push([MsgType.Sentinel])
@@ -397,7 +426,7 @@ cdef class Simulator:
         cdef TrackerActor actor
 
         if experiment_id not in self._actors:
-            actor = TrackerActor(self._writer, self._asset_cache, self.q_size, self.buffer_size)
+            actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size)
             self._actors[experiment_id] = actor
             self._loop.create_task(actor.run())
         return self._actors[experiment_id]

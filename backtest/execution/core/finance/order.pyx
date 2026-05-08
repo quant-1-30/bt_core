@@ -42,7 +42,7 @@ cdef class Order:
         self.info = AssetCore(0, 0, 0, False)
 
         self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
-        self.core.vtorder_id = fast_uuid4_bytes() # uuid.uuid4().bytes
+        self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes
 
         # cache  
         self._exbits = []
@@ -78,9 +78,6 @@ cdef class Order:
         '''
         self.info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
-    cdef on_fix(self, double price):
-        self.core.price = price
-
     cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit): # except * 
         cdef OrderExbitData core = order_bit.core
         cdef int32_t exbit_size = core.executed_size
@@ -102,61 +99,7 @@ cdef class Order:
         # update core.size
         self.core.size = size
         self.core.price = price 
-     
-    cdef Order clone(self):
-        cdef Order obj = Order.__new__(Order) # only allocate memory
-        cdef OrderCoreData core 
-
-        core.experiment_id = self.core.experiment_id
-        core.sid = self.core.sid
-        core.size = self.core.size
-        core.sizer_ratio = self.core.sizer_ratio
-        core.price = self.core.price
-        core.pricelimit = self.core.pricelimit
-        core.order_type = self.core.order_type
-        core.exec_type = self.core.exec_type
-        core.created_dt = self.core.created_dt
-        core.vtorder_id = self.core.vtorder_id
-
-        obj.filler = self.filler
-        obj.info = self.info
-        obj.status = self.status
-        # obj._exbits = self._exbits # reference copy / clone exbit
-        obj._exbits = list(self._exbits)  
-        obj._exchange = self._exchange
-        obj.core = core
-        return obj 
-
-    cdef list serialize(self):
-        cdef data = []
-        cdef OrderExecutionBit exbit
-
-        for exbit in self._exbits:
-            data.append(exbit.serialize())
-        return data
-    
-    cdef object to_schema(self):
-        # cdef OrderExecutionBit exbit
-        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
-
-        vtorder = vtOrder(
-            # experiment_id=experiment_id,
-            experiment_id=self.cached_uuid,
-            sid=self.core.sid,
-            order_id=self.core.vtorder_id,
-            price=self.core.price,
-            size=self.core.size,
-            order_type=self.core.order_type,
-            exec_type = self.core.exec_type,
-            created_dt=self.core.created_dt
-        )
-        # orderBits = [exbit.to_schema() for exbit in self._exbits] # complex object need to be serialized used for insert into pg
-        # vtorder.order_bits.extend(orderBits)
-
-        vtorder.order_bits.extend(self._exbits_schema)
-        return vtorder
-
+   
     cdef void submit(self):
         '''Marks an order as submitted and stores the broker to which it was
         submitted'''
@@ -186,7 +129,65 @@ cdef class Order:
     cdef void cancel(self):
         '''Marks an order as cancelled'''
         self.status = OrderStatus.Canceled
+
+  
+    cdef Order clone(self):
+        cdef Order obj = Order.__new__(Order) # only allocate memory
+        cdef OrderCoreData core 
+
+        core.experiment_id = self.core.experiment_id
+        core.sid = self.core.sid
+        core.size = self.core.size
+        core.sizer_ratio = self.core.sizer_ratio
+        core.price = self.core.price
+        core.pricelimit = self.core.pricelimit
+        core.order_type = self.core.order_type
+        core.exec_type = self.core.exec_type
+        core.created_dt = self.core.created_dt
+        core.order_id = self.core.order_id
+
+        obj.filler = self.filler
+        obj.info = self.info
+        obj.status = self.status
+        # obj._exbits = self._exbits # reference copy / clone exbit
+        obj._exbits = list(self._exbits)  
+        obj._exchange = self._exchange
+        obj.core = core
+        return obj 
+
+    cdef object serialize(self):
+        cdef data = []
+        cdef OrderExecutionBit exbit
+
+        for exbit in self._exbits:
+            data.append(exbit.serialize())
+        return data
     
+    cdef object to_schema(self):
+        # cdef OrderExecutionBit exbit
+        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
+        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
+
+        vtorder = vtOrder(
+            # experiment_id=experiment_id,
+            experiment_id=self.cached_uuid,
+            sid=self.core.sid,
+            order_id=self.core.order_id,
+            price=self.core.price,
+            size=self.core.size,
+            order_type=self.core.order_type,
+            exec_type = self.core.exec_type,
+            created_dt=self.core.created_dt
+        )
+        # orderBits = [exbit.to_schema() for exbit in self._exbits] # complex object need to be serialized used for insert into pg
+        # vtorder.order_bits.extend(orderBits)
+
+        vtorder.order_bits.extend(self._exbits_schema)
+        return vtorder
+
+    cdef OrderCoreData get_snapshot(self):
+        return self.core
+
     def __len__(self):
         return len(self._exbits)
         
@@ -198,7 +199,7 @@ cdef class Order:
             return False
         
         cdef Order o = <Order>other # cast
-        return self.core.vtorder_id == o.core.vtorder_id
+        return self.core.order_id == o.core.order_id
 
     # def __richcmp(x, y, int op):
     #     cdef:
@@ -206,7 +207,7 @@ cdef class Order:
     #         str v_id
         
     #     r, y = (x, y) if isinstance(x, Order) else (y, x)
-    #     v_id = r.vtorder_id
+    #     v_id = r.order_id
 
     #     if op = Py_EQ:
     #         return v_id == y

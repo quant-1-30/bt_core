@@ -1660,8 +1660,8 @@ struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData {
   double margin;
 };
 
-/* "backtest/execution/core/finance/account.pxd":35
- *     cdef readonly AccountCoreData core
+/* "backtest/execution/core/finance/account.pxd":36
+ *     cdef object cached_uuid
  * 
  *     cdef void set_cash(self, CashData body, bint reset=*)             # <<<<<<<<<<<<<<
  * 
@@ -1688,12 +1688,13 @@ enum __pyx_t_8backtest_9execution_7gateway_9interface_SubTopic {
  * 
  * cdef class Account:             # <<<<<<<<<<<<<<
  *     cdef readonly AccountCoreData core
- * 
+ *     cdef object cached_uuid
 */
 struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *__pyx_vtab;
   struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData core;
+  PyObject *cached_uuid;
 };
 
 
@@ -1746,7 +1747,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_4cash___pyx_scope_struct___
  * 
  * cdef class Account:             # <<<<<<<<<<<<<<
  *     cdef readonly AccountCoreData core
- * 
+ *     cdef object cached_uuid
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account {
@@ -1758,6 +1759,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account {
   struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*clone)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
   PyObject *(*serialize)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
   PyObject *(*to_schema)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
+  struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData (*get_snapshot)(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Account *__pyx_vtabptr_8backtest_9execution_4core_7finance_7account_Account;
 

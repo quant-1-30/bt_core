@@ -31,6 +31,7 @@ cdef struct AccountCoreData:
 
 cdef class Account:
     cdef readonly AccountCoreData core
+    cdef object cached_uuid
 
     cdef void set_cash(self, CashData body, bint reset=*)
     
@@ -47,3 +48,5 @@ cdef class Account:
     cdef object serialize(self)
     
     cdef object to_schema(self)
+    
+    cdef AccountCoreData get_snapshot(self)

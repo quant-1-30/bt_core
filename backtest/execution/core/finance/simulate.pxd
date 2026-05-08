@@ -18,15 +18,17 @@ cdef class ActorMessage:
 cdef class TrackerActor:
     cdef bytes experiment_id
     cdef int32_t buffer_size
+    cdef AsyncCashManager cash_manager      
+    cdef AssetCache asset_cache  
+
     cdef object _queue        
     cdef object _ready_event
     cdef object _put_buffer 
     cdef object _writer 
-    
-    cdef AsyncCashManager cash_manager      
-    cdef AssetCache asset_cache       
+    cdef object _latest_snapshot
+    cdef object cached_uuid
+
     cdef dict positions, _fillers
-    cdef object _latest_snapshot 
     
     cdef tuple set_cash(self, object event)
 
@@ -37,6 +39,8 @@ cdef class TrackerActor:
     cdef object get_snapshot(self)
     
     cdef _flush(self)
+    
+    cdef void _collect(self)
 
 
 cdef class Simulator:

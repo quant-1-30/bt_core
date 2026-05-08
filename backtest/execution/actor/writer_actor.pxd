@@ -17,9 +17,3 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
     cpdef void push(self, list data)
     
     cdef _sync_write_file(self, str path, list data)
-
-
-cdef class RayWriterProxy(IBatchWriter):
-    cdef object _handle
-
-    cpdef void push(self, list data)

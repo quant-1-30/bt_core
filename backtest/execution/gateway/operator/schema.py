@@ -157,7 +157,7 @@ class OrderBit(Base):
     vtorder: Mapped["vtOrder"] = relationship(back_populates="order_bits")
 
     def serialize(self, include_id=False) -> dict:      
-        body = TradeBody(vtorder_id=self.order_id, executed_dt=self.executed_dt, executed_size=self.executed_size, 
+        body = TradeBody(order_id=self.order_id, executed_dt=self.executed_dt, executed_size=self.executed_size, 
                         executed_price=self.executed_price, comm=self.comm, isbuy=self.isbuy)
 
         return Resp(body=body)
