@@ -1,6 +1,7 @@
 import uuid
 import numpy as np
 import polars as pl
+from functools import wraps
 import backtest as bt
 import backtest.indicators as btind
 from backtest.utils.dateintern import ts2intdt
@@ -10,13 +11,25 @@ from collections import defaultdict
 from dotenv import load_dotenv
 
 
+def consume_time(func):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print('{} cost {}s'.format(func.__name__, round(end_time - start_time, 3)))
+        return result
+    return wrapper
+
+
 class PanelRanker(bt.Indicator):
     lines = ('dummy',) 
 
     params = (
         ("parquet_path", None),
         ('thres', 0.0), 
-        ('top_k', 5),
+        ('top_k', 10),
     )
 
     def __init__(self):
@@ -61,7 +74,7 @@ class PanelRanker(bt.Indicator):
 class FsmStrategy(bt.Strategy):
 
     params = (
-        ("parquet_path", "/Users/hengxinliu/startup/backtest/workflow/data/fsm/*"),
+        ("parquet_path", "./data/fsm/*"),
     )
 
     def __init__(self):
@@ -113,7 +126,7 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
     cerebro.addstore() 
-    cerebro.addcontrol(5, "fixed", stake=0.9)
+    cerebro.addpnc("fixed", days_held=5, stake=0.9)
 
     # ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     # wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)

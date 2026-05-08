@@ -53,6 +53,7 @@ cdef class Position:
                 bytes sid, 
                 dict asset_info,
                 int64_t datetime=0, 
+                int64_t created_dt=0,
                 int32_t size=0, 
                 int32_t available=0, 
                 double cost_basis=0.0,
@@ -61,6 +62,7 @@ cdef class Position:
         self.core.experiment_id = experiment_id
         self.core.sid = sid
         self.core.datetime = datetime
+        self.core.created_dt = created_dt
 
         self.core.size = size
         self.core.available = available # due to T + 1
@@ -69,7 +71,6 @@ cdef class Position:
         self.core.pval = 0.0
         
         self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
-
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
     
     # property closed:
@@ -211,7 +212,7 @@ cdef class Position:
         self.core.datetime = end_dt
 
     cdef void on_dt_over(self, int32_t end_dt, double close):
-        print("position on_dt_over: ", end_dt, close)
+        # print("position on_dt_over: ", end_dt, close)
         # sync size due to T + 1
         cdef int32_t size = self.core.size
         self.core.available = size
@@ -225,6 +226,7 @@ cdef class Position:
         core.experiment_id = self.core.experiment_id
         core.sid = self.core.sid
         core.datetime = self.core.datetime
+        core.created_dt = self.core.created_dt
         core.size = self.core.size
         core.available = self.core.available
         core.pnl = self.core.pnl
@@ -238,17 +240,15 @@ cdef class Position:
         cdef object body, resp
         
         body = PositionBody(experiment_id=self.core.experiment_id, sid=self.core.sid, size=self.core.size, available=self.core.available,
-                            cost_basis=self.core.cost_basis, datetime=self.core.datetime, pnl=self.core.pnl)
+                            cost_basis=self.core.cost_basis, datetime=self.core.datetime, pnl=self.core.pnl, created_dt=self.core.created_dt)
         resp = Resp(body=body)
         return resp
 
     cdef object to_schema(self):
-        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
 
         return vtPosition(experiment_id=self.cached_uuid, sid=self.core.sid, 
                         datetime=self.core.datetime, size=self.core.size, available=self.core.available,
-                        cost_basis=self.core.cost_basis, pnl=self.core.pnl)
+                        cost_basis=self.core.cost_basis, pnl=self.core.pnl, created_dt=self.core.created_dt)
 
     cdef PositionCoreData get_snapshot(self):
         return self.core
@@ -260,13 +260,14 @@ cdef class Position:
         return bool(self.core.size != 0)
 
     def __reduce__(self): # sq same as __init__
-        return (Position, (self.core.experiment_id, self.core.sid, self.asset_info, self.core.datetime, self.core.size, self.core.available, self.core.cost_basis, self.core.pnl))
+        return (Position, (self.core.experiment_id, self.core.sid, self.asset_info, self.core.datetime, self.core.size, self.core.available, self.core.cost_basis, self.core.pnl, self.core.created_dt))
     
     def __repr__(self):
         template = "Position(experiment_id={experiment_id} ," \
                    "sid={sid} ," \
                    "asset_info={asset_info} , "\
                    "datetime={datetime} ," \
+                   "created_dt={created_dt} ," \
                    "size={size} ," \
                    "available={available} ," \
                    "cost_basis={cost_basis} ," \
@@ -278,6 +279,7 @@ cdef class Position:
             sid=self.core.sid,
             asset_info=formatted_asset_info,
             datetime=self.core.datetime,
+            created_dt=self.core.created_dt,
             size=self.core.size,
             available=self.core.available,
             cost_basis=self.core.cost_basis,

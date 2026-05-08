@@ -1,7 +1,16 @@
+[project] # used for setuptools
+name = "btacktest"
+version = "0.2.0"
+description = "adapt backtest support universe"
+authors = [
+    {name = "hengxin.liu", email = "john@example.com"}
+]
+readme = "README.md"
+
 [tool.poetry]
 name = "backtest"
-version = "0.1.0"
-description = "backtest"
+version = "0.2.0"
+description = "adapt backtest support universe"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 
@@ -9,8 +18,6 @@ readme = "README.md"
 python = "^3.11"
 ipython = "7.31.1"
 colorama = "^0.4.6"
-pyqt6 = "^6.9.0"
-statsmodels = "^0.14.4"
 exceptiongroup = "^1.3.0"
 idna = "^3.10"
 certifi = "^2025.6.15"
@@ -22,11 +29,6 @@ pydantic-core = "2.41.5"
 dotenv = "^0.9.9"
 twine = "^6.2.0"
 bokeh = "^3.8.1"
-reportlib = "^3.4.0"
-selenium = "^4.38.0"
-chromedriver = "^2.24.1"
-chromium = "^0.0.0"
-geckodriver = "^0.0.1"
 memray = "^1.19.1"
 py-spy = "^0.4.1"
 reactivex = "^4.1.0"
@@ -44,20 +46,13 @@ asyncpg = "^0.31.0"
 greenlet = "^3.3.2"
 fsspec = "^2026.2.0"
 ta-lib = "^0.6.8"
-stumpy = "^1.14.1"
 polar = "^0.0.127"
 polars = "^1.39.0"
 sphinx = "<9.0"
 sphinx-rtd-theme = "^3.1.0"
 grpcio = "^1.78.0"
-ray = "^2.54.1"
-opentelemetry-api = "^1.40.0"
-opentelemetry-sdk = "^1.40.0"
-opentelemetry-distro = "^0.61b0"
-dtaidistance = "^2.4.0"
-optuna = "^4.8.0"
-mlops = "^0.1.0"
 bt-sdk = "0.11.5"
+protobuf = "^7.34.1"
 
 [[tool.poetry.source]]
 name = "tuna"
@@ -72,6 +67,13 @@ url = "http://localhost:3141/bt_sdk/dev/+simple/"
 # optional: make this your default source for all installs
 priority = "supplemental"
 
+[tool.setuptools]
+packages = ["bt_sdk", "bt_sdk.core", "bt_sdk.core.client", "bt_sdk.core.rpc.serialize"]
+include-package-data = true 
+
+[tool.setuptools.package-data]
+"*" = ["*.pyx", "*.pxd", "*.so", "*.pyd", "*.h", "*.cpp", "*.proto", "*.pyi*"]
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core", "wheel", "pybind11", "cmake", "Cython>=3.0"]
+build-backend =  "setuptools.build_meta" # "poetry.core.masonry.api" # for pure python / scikit-build-core for cmake

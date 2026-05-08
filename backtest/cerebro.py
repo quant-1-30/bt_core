@@ -302,18 +302,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
         return dataname
 
 # ---------------------------------------------------------------- control ------------------------------------------------------------
+    
+    def addpnc(self, sizer_name: str="fixed", **kwargs):
+        '''Adds a TaskPlan instance to the system'''
+        self.pnc = Pnc(sizer_name, **kwargs)
+
+# ---------------------------------------------------------------- strategy ------------------------------------------------------------
 
     def addstore(self, store: str="local", **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[store]
         self.store = storecls(client_id=self.p.client_id, timeout=self.p.timeout, **kwargs)
     
-    def addcontrol(self, lock_days, sizer_name: str="fixed", **kwargs):
-        '''Adds a TaskPlan instance to the system'''
-        self.pnc = Pnc(lock_days, sizer_name, **kwargs)
-
-# ---------------------------------------------------------------- strategy ------------------------------------------------------------
-
     def addstrategy(self, strategy, *args, **kwargs):
         '''
         Adds a ``Strategy`` class to the mix for a single pass run.

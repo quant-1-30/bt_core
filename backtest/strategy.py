@@ -705,10 +705,12 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # Invalidate short leave if shortexit signals are available
         s_leave = not self._shortexit and s_leave
 
-        # execute
-        topk_info = {self.data0.sid[0]: {"close" :self.data0.close[0]}} if not self.topk_info else self.topk_info # only support one data feed for now
-        self.pnc.generate_plan(topk_info, self.snapshot, self.stats)  
-        plan= self.pnc.to_plan()
+        # control
+        # psids = [p.sid for p in self.snapshot.positions]
+        # current_prices = self.store.get_snapshot_tick(psids, int(current_tick))
+        current_prices = {self.data0.sid[0]: self.data0.close[0]}
+        topk_info = current_prices if not self.topk_info else self.topk_info # only support one data feed for now
+        plan = self.pnc.generate_plan(topk_info, current_prices, self.snapshot, self.stats)  
 
         if l_enter:
             if self.p._accumulate:

@@ -1884,6 +1884,7 @@ struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData {
   int32_t available;
   double cost_basis;
   double pnl;
+  int64_t created_dt;
   double pval;
 };
 

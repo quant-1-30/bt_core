@@ -365,7 +365,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         if not self.adj_factors:
             return
 
-        current_dt = int(num2date(self.lines.datetime[0]).strftime("%Y%m%d"))
+        current_dt = ts2intdt(self.lines.datetime[0])
 
         if current_dt in self.adj_factors and current_dt != self.adj_tmp_dt:
             factor = self.adj_factors[current_dt]
@@ -384,8 +384,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             self.adj_tmp_dt = current_dt
 
     def on_dt_over(self):
-        # minus >= oneday
-        if not np.isnan(self.lines.datetime[-1]): # nan ---> np.inf
+        if not np.isnan(self.lines.datetime[-1]): # nan ---> np.inf/ minus >= oneday
             body = QueryBody(
                     start_date=int(self.lines.datetime[-1]), 
                     end_date=int(self.lines.datetime[0]), 

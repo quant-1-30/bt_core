@@ -33,9 +33,10 @@ cdef class Pnc:
     sell first and buy after / risk control priority
     """
 
-    def __init__(self, int32_t lock_days, str sizer_name, **kwargs):
+    def __init__(self, str sizer_name, **kwargs):
 
-        self.interval = lock_days
+        # lastday data to generate plan
+        self.interval = kwargs.pop("days_held", 5) - 1 
         self.p_tolerance = kwargs.pop("p_thres", -0.1)
         self.act_tolerance = kwargs.pop("act_thres",  -0.25)
         self.sizer = _sizers[sizer_name](**kwargs)
@@ -44,95 +45,109 @@ cdef class Pnc:
         self.buys =[]
         self.pending_sells = {}
 
-    cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats):
+    cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats): # topk_info sort by score
         cdef bytes sid
-        cdef int days_held, current_day
+        cdef int32_t days_held, current_day, slots, buy_count=0
         cdef double pnl, wgt_ratio
         cdef bint signal
-        cdef object pos
         cdef TraderPlan tmp
+        
+        cdef object pos
         cdef list positions = snapshot.positions # msgspec List
-        cdef object account = snapshot.account 
-
+        cdef object account = snapshot.account  # msgspec
+        
         self.sells.clear()
         self.buys.clear()
         
-        current_day = ts2intdt(snapshot.account.datetime)
+        current_day = ts2intdt(snapshot.account.datetime) # lastday account
         
         # ==========================================
-        # risk control
+        # 1. Macro Control --- Drawdown
         # ==========================================
-
-        drawdown_obs = stats["drawdown"] # lowercase
+        drawdown_obs = stats["drawdown"]
         signal = drawdown_obs.lines.drawdown[0] <= self.act_tolerance
 
         if signal:
-            print("signal :", signal)
-            self.sells = [TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions]
-            return {} 
+            print("reach maxdd and sell all")
+            self.sells =[TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions if pos.size > 0]
+            return {"sell": self.sells, "buy":[]}
 
         # ==========================================
-        # selling first
+        # 2. Selling First
         # ==========================================
         s_wgt = self.sizer.getsizing(topk_info, snapshot, False)
 
-        for pos in positions: # msgspec list
+        for pos in positions:
             if pos.size == 0:
                 continue
 
             sid = pos.sid
-
-            current_price = current_prices.get(sid, pos.cost_basis) # suspending / missing 
+            current_price = current_prices.get(sid, pos.cost_basis) # lastday closes
             pnl = current_price / pos.cost_basis - 1.0
-            print("pnc pnl: ", pnl)
 
             # ------------------------------------------
-            # Priority A: hard control
+            # Priority A Hard Stop-Loss
             # ------------------------------------------
             if pnl <= self.p_tolerance: 
                 wgt_ratio = s_wgt.get(sid, 1.0) 
-                tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=0) # priority=0 最高级
+                tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=0) # 0 最高级
                 self.sells.append(tmp) 
                 self.pending_sells[sid] = tmp
                 
-                if sid in topk_info:
-                    topk_info.pop(sid, None)
-
+                # avoid conflict with buy 
+                topk_info.pop(sid, None)
                 continue 
                 
             # ------------------------------------------
-            # Priority B: normal switch
+            # Priority B Days and Conflict
             # ------------------------------------------
-            days_held = current_day - ts2intdt(pos.datetime) 
+            # based on created_dt(no change) not datetime
+            days_held = current_day - ts2intdt(pos.created_dt)
+            
             if days_held < self.interval:
                 continue
                 
             if sid in topk_info:
                 continue
         
-            wgt_ratio = s_wgt.get(sid, 0.0)
+            wgt_ratio = s_wgt.get(sid, 1.0)
             tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=1)
             self.sells.append(tmp)
             self.pending_sells[sid] = tmp
 
         self.sells.sort()
+
+        # ==========================================
+        # 3. Slot Calculation
+        # ==========================================
+
+        # **`Available Slots = TopK - (Positions - Sells)`**
+        slots = len(topk_info) - (len(positions) - len(self.pending_sells))
         
+        if slots <= 0:
+            return {"sell": self.sells, "buy": []}
+
         # ==========================================
-        # buy second
+        # 4. Buy Second & Slots Control
         # ==========================================
+         
+        if account.cash <= 10000: # cash safety
+            return {"sell": self.sells, "buy": []}
+
         b_wgt = self.sizer.getsizing(topk_info, snapshot, True)
-        print("b_wgt: ", b_wgt)
 
-        if account.cash <= 10000:
-            self.buys = []
-
-        for sid in topk_info:
+        for sid in topk_info: # 持仓里的由 Sizer 决定是否增仓 / Top-K 策略通常不重复买
             wgt_ratio = b_wgt.get(sid, 0.0)
-            tmp = TraderPlan(sid, wgt_ratio, True, 0, priority=1)
-            self.buys.append(tmp)
+            if wgt_ratio > 0:
+                tmp = TraderPlan(sid, wgt_ratio, True, 0, priority=1)
+                self.buys.append(tmp)
+            
+            buy_count +=1
+            if buy_count >= slots:
+                break
 
         self.buys.sort()
-        
+
         return {"sell": self.sells, "buy": self.buys}
 
     cpdef void on_filled(self, dict mtrades): # TradeBody
@@ -154,6 +169,4 @@ cdef class Pnc:
         return self.pending_sells
 
 
-#cdef class MultiPnc:
-#    # resolve differenct stratgey conflicts
-#    pass
+# how to extend to multistrategy and MultiPnc

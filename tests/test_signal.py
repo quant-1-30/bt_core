@@ -36,8 +36,9 @@ class WeekPriceSignal(btind.Indicator):
 
         self.lines.signal[0] = last_week_sma / self.data0.close[-1] - 1.0
 
+        print("WeekPriceSignal ", self.lines.signal[0])
         if self.lines.signal[0] > 10.0:
-            print("WeekPriceSignal ", self.lines.signal[0])
+            # print("WeekPriceSignal ", self.lines.signal[0])
             raise ValueError("WeekPriceSignal corrupted")
             
 
@@ -52,8 +53,9 @@ class DailyPriceSignal(btind.Indicator):
     
     def next(self):
         signal = self.lines.signal[0]
+        print("DailyPriceSignal ", signal)
         if signal > 10.0:
-            print("DailyPriceSignal ", signal)
+            # print("DailyPriceSignal ", signal)
             raise
 
 
@@ -69,10 +71,10 @@ class MACDSignal(btind.Indicator):
                             period_signal=self.p.period_signal) 
         self.lines.signal = macd 
 
-    # def next(self):
-    #     signal = self.lines.signal[0] # histo
-    #     if not np.isnan(signal):
-    #         print("MacdSignal :", signal)
+    def next(self):
+        signal = self.lines.signal[0] # histo
+        if not np.isnan(signal):
+            print("MacdSignal :", signal)
 
 
 class VolSignal(btind.Indicator):
@@ -86,9 +88,12 @@ class VolSignal(btind.Indicator):
 
     def next(self):
         signal = self.lines.signal[0]
-        if signal > 10.0: # prob > 0.0 
-            print("VolSignal ", signal)
+        print("VolSignal ", signal)
+        if signal > 10.0: # 71  2022年
+            # print("VolSignal ", signal)
+            import pdb; pdb.set_trace()
             # raise
+            pass
 
 
 class SellSignal(btind.Indicator): 
@@ -102,9 +107,11 @@ class SellSignal(btind.Indicator):
     
     def next(self):
         signal = self.lines.signal[0]
+        print("SellSignal ", signal)
         if signal > 10.0:
-            print("SellSignal ", signal)
-            raise
+            # print("SellSignal ", signal)
+            # raise
+            pass
 
 
 class DrawDownSignal(btind.Indicator): 
@@ -113,14 +120,15 @@ class DrawDownSignal(btind.Indicator):
     params = (("thres", 0.25),)
 
     def __init__(self):
-        self.stats = self._owner.stats
         self.thres = self.p.thres
+        import pdb; pdb.set_trace()
 
     def next(self):
-        dd_obs = self.stats["drawdown"] # lowercase
-        signal = self.thres - dd_obs.lines.drawdown[0]
+        self.dd = self._owner.stats["drawdown"]  
+        signal = self.thres - self.dd.lines.drawdown[0]
         # self.lines.signal[0] = np.nan_to_num(signal) # used for array not scalar
         self.lines.signal[0] = 0.0 if np.isnan(signal) else signal
+        print("DrawDownSignal ", signal)
 
 
 if __name__ == '__main__':
@@ -128,7 +136,7 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=True) 
     cerebro.addstore() 
-    cerebro.addcontrol(5, "fixed", stake=0.9)
+    cerebro.addpnc("fixed", days_held=5, stake=0.9)
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
@@ -142,4 +150,7 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20200101, todate=20260201, benchmark=[b"000001"], out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20230101, todate=20260201, benchmark=[b"000001"], out="signal.csv")
+
+    # 22年数据有问题重新入库 导致 vol > 70 /  resample volume ohlcv 聚合 / stats计算为空
+

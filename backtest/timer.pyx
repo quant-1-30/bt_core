@@ -232,7 +232,7 @@ cdef class Timer:
         else:
             d = num2date(dt)
 
-        print("check dt to date: ", d) 
+        # print("check dt to date: ", d) 
         ddate = d.date()
 
         if self._lastcall == ddate:

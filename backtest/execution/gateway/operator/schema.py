@@ -179,6 +179,7 @@ class vtPosition(Base):
     size: Mapped[int] = mapped_column(Integer, nullable=False)
     available: Mapped[int] = mapped_column(Integer, nullable=False)
     pnl: Mapped[float] = mapped_column(Float, nullable=False)
+    created_dt: Mapped[BigInteger] = mapped_column(BigInteger, nullable=False)
 
     experiment_id: Mapped[UUID] = mapped_column(ForeignKey("experiment.experiment_id", ondelete="CASCADE"))
 

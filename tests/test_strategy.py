@@ -54,7 +54,7 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
     cerebro.addstore() 
-    cerebro.addcontrol(5, "fixed", stake=0.9)
+    cerebro.addpnc("fixed", days_held=5, stake=0.9)
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)

@@ -48,7 +48,6 @@ cdef class OrderExecutionBit:
         obj.core.executed_size = self.core.executed_size
         obj.core.executed_price = self.core.executed_price
         obj.core.comm = self.core.comm
-        # obj.core.cash = self.core.cash
         obj.core.val = self.core.val
         obj.core.isbuy = self.core.isbuy
         return obj 

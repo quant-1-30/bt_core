@@ -12,7 +12,8 @@ from backtest.execution.core.finance.common cimport Exchange
 from backtest.execution.utils.util cimport fast_uuid4_bytes
 
 cimport numpy as cnp
-cnp.import_array() # 必须调用以初始化 numpy C-API
+# 必须调用以初始化 numpy C-API
+cnp.import_array() 
 
 
 cdef class Order:
@@ -30,9 +31,9 @@ cdef class Order:
         self.core.experiment_id = experiment_id
         self.core.sid = sid
         self.core.size = 0
-        self.core.sizer_ratio = sizer_ratio  #  sizer_ratio / 100
+        self.core.sizer_ratio = sizer_ratio  
         self.core.price = 0.0
-        self.core.pricelimit = pricelimit # pricelimit / 100
+        self.core.pricelimit = pricelimit 
         self.core.order_type = order_type
         self.core.exec_type = exec_type
         self.core.created_dt = created_dt
@@ -164,9 +165,6 @@ cdef class Order:
         return data
     
     cdef object to_schema(self):
-        # cdef OrderExecutionBit exbit
-        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)
 
         vtorder = vtOrder(
             # experiment_id=experiment_id,
@@ -179,8 +177,6 @@ cdef class Order:
             exec_type = self.core.exec_type,
             created_dt=self.core.created_dt
         )
-        # orderBits = [exbit.to_schema() for exbit in self._exbits] # complex object need to be serialized used for insert into pg
-        # vtorder.order_bits.extend(orderBits)
 
         vtorder.order_bits.extend(self._exbits_schema)
         return vtorder

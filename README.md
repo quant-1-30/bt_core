@@ -475,3 +475,7 @@ RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0 #
 
 **深度原理解析：**
 1. **参数爆炸**：`asyncpg`（PG 数据库驱动）在执行 `bulk_insert` 时，底层使用的是扩展查询协议。PostgreSQL 对单个查询语句的参数占位符（如 `$1, $2...`）有一个严格的硬性上限：**老版本是 32,767 个，新版本 (PG 14+) 是 65,535 个**。
+
+
+python -m build --wheel --no-isolation
+poetry build --format wheel # pure python

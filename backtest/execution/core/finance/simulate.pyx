@@ -238,7 +238,7 @@ cdef class TrackerActor:
         asset_info = await self.asset_cache.addinfo(sid)
         # p_objs = self.positions.setdefault(experiment_id, {}) # default value if key not exists
         if sid not in self.positions: 
-            self.positions[sid] = Position(sid=sid, experiment_id=experiment_id, asset_info=asset_info)
+            self.positions[sid] = Position(sid=sid, experiment_id=experiment_id, asset_info=asset_info, created_dt=core.created_dt)
         p_sid = self.positions[sid]
 
         acct = self.cash_manager.get_account(experiment_id)
