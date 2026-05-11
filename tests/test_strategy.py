@@ -61,6 +61,6 @@ if __name__ == '__main__':
 
     cerebro.addstrategy(TestStrategy, ddata)
 
-    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"000001"], out="strategy.csv")
+    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"1A0001"], out="strategy.csv")
 
     # 20040101 - 20260201 100s

@@ -134,4 +134,4 @@ if __name__ == '__main__':
     cerebro.addstrategy(FsmStrategy)
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20100101, todate=20121231, benchmark=[b"000001"], out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20100101, todate=20121231, benchmark=[b"1A0001"], out="signal.csv")

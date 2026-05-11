@@ -123,7 +123,8 @@ cdef class TrackerActor:
                                 size = body.size,
                                 available = body.available,
                                 cost_basis = body.cost_basis,
-                                pnl = body.pnl)
+                                pnl = body.pnl,
+                                created_dt = body.created_dt)
                 self.positions[sid] = p_obj # setdefault return default object
             # print(f"TrackerActor _start positions: {self.positions}")
             await self.cash_manager._start()
@@ -261,7 +262,6 @@ cdef class TrackerActor:
         cdef object body = event.body
 
         self._collect() # # avoid self.position explode
-
         psids = list(self.positions.keys())
 
         if not psids:

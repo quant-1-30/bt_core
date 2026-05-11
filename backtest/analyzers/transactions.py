@@ -57,6 +57,9 @@ class Transactions(bt.TimeFrameAnalyzerBase):
         # super(Transactions, self).next()  # let dtkey update
         dt_txns = self._owner._trades
         self.rets[self.dtcmp] = dt_txns
+        if dt_txns:
+            import pdb; pdb.set_trace()
+            print("Transactions on_dt_over ", self.dtcmp, dt_txns)
 
     def stop(self):
         super(Transactions, self).stop()

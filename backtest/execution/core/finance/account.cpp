@@ -4304,7 +4304,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_sync(s
  * 
  *         self.core.portfolio_value = _v             # <<<<<<<<<<<<<<
  *         self.core.pnl = _pnl
- *         # self.core.datetime = max_dt
+ *         self.core.datetime = ts2intdt(max_dt)
 */
   __pyx_v_self->core.portfolio_value = __pyx_v__v;
 
@@ -4312,19 +4312,19 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_sync(s
  * 
  *         self.core.portfolio_value = _v
  *         self.core.pnl = _pnl             # <<<<<<<<<<<<<<
- *         # self.core.datetime = max_dt
  *         self.core.datetime = ts2intdt(max_dt)
+ * 
 */
   __pyx_v_self->core.pnl = __pyx_v__pnl;
 
-  /* "backtest/execution/core/finance/account.pyx":115
+  /* "backtest/execution/core/finance/account.pyx":114
+ *         self.core.portfolio_value = _v
  *         self.core.pnl = _pnl
- *         # self.core.datetime = max_dt
  *         self.core.datetime = ts2intdt(max_dt)             # <<<<<<<<<<<<<<
  * 
  *     cdef Account clone(self):
 */
-  __pyx_t_2 = __pyx_f_8backtest_9execution_5utils_4util_ts2intdt(__pyx_v_max_dt, NULL); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_2 = __pyx_f_8backtest_9execution_5utils_4util_ts2intdt(__pyx_v_max_dt, NULL); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 114, __pyx_L1_error)
   __pyx_v_self->core.datetime = __pyx_t_2;
 
   /* "backtest/execution/core/finance/account.pyx":96
@@ -4346,7 +4346,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_sync(s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "backtest/execution/core/finance/account.pyx":117
+/* "backtest/execution/core/finance/account.pyx":116
  *         self.core.datetime = ts2intdt(max_dt)
  * 
  *     cdef Account clone(self):             # <<<<<<<<<<<<<<
@@ -4368,19 +4368,19 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("clone", 0);
 
-  /* "backtest/execution/core/finance/account.pyx":118
+  /* "backtest/execution/core/finance/account.pyx":117
  * 
  *     cdef Account clone(self):
  *         cdef Account obj = Account.__new__(Account) # only allocate memory             # <<<<<<<<<<<<<<
  *         cdef AccountCoreData core
  * 
 */
-  __pyx_t_1 = ((PyObject *)__pyx_tp_new_8backtest_9execution_4core_7finance_7account_Account(((PyTypeObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account), __pyx_mstate_global->__pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 118, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_tp_new_8backtest_9execution_4core_7finance_7account_Account(((PyTypeObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account), __pyx_mstate_global->__pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 117, __pyx_L1_error)
   __Pyx_GOTREF((PyObject *)__pyx_t_1);
   __pyx_v_obj = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/account.pyx":121
+  /* "backtest/execution/core/finance/account.pyx":120
  *         cdef AccountCoreData core
  * 
  *         core.experiment_id = self.core.experiment_id             # <<<<<<<<<<<<<<
@@ -4390,7 +4390,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_2 = __pyx_v_self->core.experiment_id;
   __pyx_v_core.experiment_id = __PYX_STD_MOVE_IF_SUPPORTED(__pyx_t_2);
 
-  /* "backtest/execution/core/finance/account.pyx":122
+  /* "backtest/execution/core/finance/account.pyx":121
  * 
  *         core.experiment_id = self.core.experiment_id
  *         core.portfolio_value=self.core.portfolio_value             # <<<<<<<<<<<<<<
@@ -4400,7 +4400,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_3 = __pyx_v_self->core.portfolio_value;
   __pyx_v_core.portfolio_value = __pyx_t_3;
 
-  /* "backtest/execution/core/finance/account.pyx":123
+  /* "backtest/execution/core/finance/account.pyx":122
  *         core.experiment_id = self.core.experiment_id
  *         core.portfolio_value=self.core.portfolio_value
  *         core.cash=self.core.cash             # <<<<<<<<<<<<<<
@@ -4410,7 +4410,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_3 = __pyx_v_self->core.cash;
   __pyx_v_core.cash = __pyx_t_3;
 
-  /* "backtest/execution/core/finance/account.pyx":124
+  /* "backtest/execution/core/finance/account.pyx":123
  *         core.portfolio_value=self.core.portfolio_value
  *         core.cash=self.core.cash
  *         core.pnl=self.core.pnl             # <<<<<<<<<<<<<<
@@ -4420,7 +4420,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_3 = __pyx_v_self->core.pnl;
   __pyx_v_core.pnl = __pyx_t_3;
 
-  /* "backtest/execution/core/finance/account.pyx":125
+  /* "backtest/execution/core/finance/account.pyx":124
  *         core.cash=self.core.cash
  *         core.pnl=self.core.pnl
  *         core.leverage=self.core.leverage             # <<<<<<<<<<<<<<
@@ -4430,7 +4430,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_3 = __pyx_v_self->core.leverage;
   __pyx_v_core.leverage = __pyx_t_3;
 
-  /* "backtest/execution/core/finance/account.pyx":126
+  /* "backtest/execution/core/finance/account.pyx":125
  *         core.pnl=self.core.pnl
  *         core.leverage=self.core.leverage
  *         core.margin=self.core.margin             # <<<<<<<<<<<<<<
@@ -4440,7 +4440,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_3 = __pyx_v_self->core.margin;
   __pyx_v_core.margin = __pyx_t_3;
 
-  /* "backtest/execution/core/finance/account.pyx":127
+  /* "backtest/execution/core/finance/account.pyx":126
  *         core.leverage=self.core.leverage
  *         core.margin=self.core.margin
  *         core.datetime = self.core.datetime             # <<<<<<<<<<<<<<
@@ -4450,7 +4450,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_t_4 = __pyx_v_self->core.datetime;
   __pyx_v_core.datetime = __pyx_t_4;
 
-  /* "backtest/execution/core/finance/account.pyx":128
+  /* "backtest/execution/core/finance/account.pyx":127
  *         core.margin=self.core.margin
  *         core.datetime = self.core.datetime
  *         obj.core = core             # <<<<<<<<<<<<<<
@@ -4459,7 +4459,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
 */
   __pyx_v_obj->core = __pyx_v_core;
 
-  /* "backtest/execution/core/finance/account.pyx":129
+  /* "backtest/execution/core/finance/account.pyx":128
  *         core.datetime = self.core.datetime
  *         obj.core = core
  *         return obj             # <<<<<<<<<<<<<<
@@ -4471,7 +4471,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   __pyx_r = __pyx_v_obj;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/account.pyx":117
+  /* "backtest/execution/core/finance/account.pyx":116
  *         self.core.datetime = ts2intdt(max_dt)
  * 
  *     cdef Account clone(self):             # <<<<<<<<<<<<<<
@@ -4491,7 +4491,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/account.pyx":131
+/* "backtest/execution/core/finance/account.pyx":130
  *         return obj
  * 
  *     cdef object serialize(self):             # <<<<<<<<<<<<<<
@@ -4521,7 +4521,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("serialize", 0);
 
-  /* "backtest/execution/core/finance/account.pyx":134
+  /* "backtest/execution/core/finance/account.pyx":133
  *         cdef object body, resp
  * 
  *         body = AccountBody(experiment_id=self.core.experiment_id, datetime=self.core.datetime, portfolio_value=self.core.portfolio_value,             # <<<<<<<<<<<<<<
@@ -4529,29 +4529,29 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
  *         resp = Resp(body=body)
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_AccountBody); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_AccountBody); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __pyx_convert_PyBytes_string_to_py_6libcpp_6string_std__in_string(__pyx_v_self->core.experiment_id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_PyBytes_string_to_py_6libcpp_6string_std__in_string(__pyx_v_self->core.experiment_id); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
-  /* "backtest/execution/core/finance/account.pyx":135
+  /* "backtest/execution/core/finance/account.pyx":134
  * 
  *         body = AccountBody(experiment_id=self.core.experiment_id, datetime=self.core.datetime, portfolio_value=self.core.portfolio_value,
  *                             cash=self.core.cash, pnl=self.core.pnl, leverage=self.core.leverage, margin=self.core.margin)             # <<<<<<<<<<<<<<
  *         resp = Resp(body=body)
  *         return resp
 */
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_9 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_10 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_10 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 134, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_11 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -4567,15 +4567,15 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
   #endif
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 7 : 0)] = {__pyx_t_2, NULL};
-    __pyx_t_12 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_t_4, __pyx_t_12, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_5, __pyx_t_12, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_6, __pyx_t_12, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_7, __pyx_t_12, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_8, __pyx_t_12, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_9, __pyx_t_12, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_10, __pyx_t_12, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 134, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_t_4, __pyx_t_12, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_5, __pyx_t_12, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_6, __pyx_t_12, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_7, __pyx_t_12, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_8, __pyx_t_12, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_9, __pyx_t_12, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_10, __pyx_t_12, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 133, __pyx_L1_error)
     __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_12);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4587,13 +4587,13 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_body = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/account.pyx":136
+  /* "backtest/execution/core/finance/account.pyx":135
  *         body = AccountBody(experiment_id=self.core.experiment_id, datetime=self.core.datetime, portfolio_value=self.core.portfolio_value,
  *                             cash=self.core.cash, pnl=self.core.pnl, leverage=self.core.leverage, margin=self.core.margin)
  *         resp = Resp(body=body)             # <<<<<<<<<<<<<<
@@ -4601,7 +4601,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
  * 
 */
   __pyx_t_3 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_Resp); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_12, __pyx_mstate_global->__pyx_n_u_Resp); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 135, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __pyx_t_11 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -4617,20 +4617,20 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
   #endif
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_3, NULL};
-    __pyx_t_10 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 136, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 135, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_body, __pyx_v_body, __pyx_t_10, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 136, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_body, __pyx_v_body, __pyx_t_10, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 135, __pyx_L1_error)
     __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_12, __pyx_callargs+__pyx_t_11, (1-__pyx_t_11) | (__pyx_t_11*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_10);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 135, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_resp = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/core/finance/account.pyx":137
+  /* "backtest/execution/core/finance/account.pyx":136
  *                             cash=self.core.cash, pnl=self.core.pnl, leverage=self.core.leverage, margin=self.core.margin)
  *         resp = Resp(body=body)
  *         return resp             # <<<<<<<<<<<<<<
@@ -4642,7 +4642,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
   __pyx_r = __pyx_v_resp;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/account.pyx":131
+  /* "backtest/execution/core/finance/account.pyx":130
  *         return obj
  * 
  *     cdef object serialize(self):             # <<<<<<<<<<<<<<
@@ -4673,7 +4673,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_s
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/account.pyx":139
+/* "backtest/execution/core/finance/account.pyx":138
  *         return resp
  * 
  *     cdef object to_schema(self): # not suit for snapshot because sqlchemy object has state             # <<<<<<<<<<<<<<
@@ -4700,7 +4700,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_t
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("to_schema", 0);
 
-  /* "backtest/execution/core/finance/account.pyx":143
+  /* "backtest/execution/core/finance/account.pyx":142
  *         # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)  # 16 / 32 / 4
  * 
  *         return vtAccount(experiment_id=self.cached_uuid,             # <<<<<<<<<<<<<<
@@ -4709,67 +4709,67 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_t
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_vtAccount); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_vtAccount); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "backtest/execution/core/finance/account.pyx":144
+  /* "backtest/execution/core/finance/account.pyx":143
  * 
  *         return vtAccount(experiment_id=self.cached_uuid,
  *                          datetime=self.core.datetime,             # <<<<<<<<<<<<<<
  *                          portfolio_value=self.core.portfolio_value,
  *                          cash=self.core.cash,
 */
-  __pyx_t_4 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "backtest/execution/core/finance/account.pyx":145
+  /* "backtest/execution/core/finance/account.pyx":144
  *         return vtAccount(experiment_id=self.cached_uuid,
  *                          datetime=self.core.datetime,
  *                          portfolio_value=self.core.portfolio_value,             # <<<<<<<<<<<<<<
  *                          cash=self.core.cash,
  *                          pnl=self.core.pnl,
 */
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "backtest/execution/core/finance/account.pyx":146
+  /* "backtest/execution/core/finance/account.pyx":145
  *                          datetime=self.core.datetime,
  *                          portfolio_value=self.core.portfolio_value,
  *                          cash=self.core.cash,             # <<<<<<<<<<<<<<
  *                          pnl=self.core.pnl,
  *                          leverage=self.core.leverage,
 */
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
-  /* "backtest/execution/core/finance/account.pyx":147
+  /* "backtest/execution/core/finance/account.pyx":146
  *                          portfolio_value=self.core.portfolio_value,
  *                          cash=self.core.cash,
  *                          pnl=self.core.pnl,             # <<<<<<<<<<<<<<
  *                          leverage=self.core.leverage,
  *                          margin=self.core.margin)
 */
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
 
-  /* "backtest/execution/core/finance/account.pyx":148
+  /* "backtest/execution/core/finance/account.pyx":147
  *                          cash=self.core.cash,
  *                          pnl=self.core.pnl,
  *                          leverage=self.core.leverage,             # <<<<<<<<<<<<<<
  *                          margin=self.core.margin)
  * 
 */
-  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
 
-  /* "backtest/execution/core/finance/account.pyx":149
+  /* "backtest/execution/core/finance/account.pyx":148
  *                          pnl=self.core.pnl,
  *                          leverage=self.core.leverage,
  *                          margin=self.core.margin)             # <<<<<<<<<<<<<<
  * 
  *     cdef AccountCoreData get_snapshot(self):
 */
-  __pyx_t_9 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_9 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_10 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -4785,15 +4785,15 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_t
   #endif
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 7 : 0)] = {__pyx_t_2, NULL};
-    __pyx_t_11 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_v_self->cached_uuid, __pyx_t_11, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_4, __pyx_t_11, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_5, __pyx_t_11, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_6, __pyx_t_11, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_7, __pyx_t_11, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_8, __pyx_t_11, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_9, __pyx_t_11, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 143, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_v_self->cached_uuid, __pyx_t_11, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_4, __pyx_t_11, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_5, __pyx_t_11, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_6, __pyx_t_11, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_7, __pyx_t_11, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_8, __pyx_t_11, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_9, __pyx_t_11, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 142, __pyx_L1_error)
     __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_10, (1-__pyx_t_10) | (__pyx_t_10*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4804,14 +4804,14 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_t
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/account.pyx":139
+  /* "backtest/execution/core/finance/account.pyx":138
  *         return resp
  * 
  *     cdef object to_schema(self): # not suit for snapshot because sqlchemy object has state             # <<<<<<<<<<<<<<
@@ -4839,7 +4839,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_t
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/account.pyx":151
+/* "backtest/execution/core/finance/account.pyx":150
  *                          margin=self.core.margin)
  * 
  *     cdef AccountCoreData get_snapshot(self):             # <<<<<<<<<<<<<<
@@ -4850,7 +4850,7 @@ static PyObject *__pyx_f_8backtest_9execution_4core_7finance_7account_7Account_t
 static struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_get_snapshot(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_v_self) {
   struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreData __pyx_r;
 
-  /* "backtest/execution/core/finance/account.pyx":152
+  /* "backtest/execution/core/finance/account.pyx":151
  * 
  *     cdef AccountCoreData get_snapshot(self):
  *         return self.core             # <<<<<<<<<<<<<<
@@ -4860,7 +4860,7 @@ static struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreDa
   __pyx_r = __pyx_v_self->core;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/account.pyx":151
+  /* "backtest/execution/core/finance/account.pyx":150
  *                          margin=self.core.margin)
  * 
  *     cdef AccountCoreData get_snapshot(self):             # <<<<<<<<<<<<<<
@@ -4873,7 +4873,7 @@ static struct __pyx_t_8backtest_9execution_4core_7finance_7account_AccountCoreDa
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/account.pyx":154
+/* "backtest/execution/core/finance/account.pyx":153
  *         return self.core
  * 
  *     def __reduce__(self):#  class / args             # <<<<<<<<<<<<<<
@@ -4939,7 +4939,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__reduce__", 0);
 
-  /* "backtest/execution/core/finance/account.pyx":155
+  /* "backtest/execution/core/finance/account.pyx":154
  * 
  *     def __reduce__(self):#  class / args
  *         return (Account, (self.core.experiment_id,             # <<<<<<<<<<<<<<
@@ -4947,92 +4947,92 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
  *                           self.core.portfolio_value,
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_PyBytes_string_to_py_6libcpp_6string_std__in_string(__pyx_v_self->core.experiment_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_PyBytes_string_to_py_6libcpp_6string_std__in_string(__pyx_v_self->core.experiment_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "backtest/execution/core/finance/account.pyx":156
+  /* "backtest/execution/core/finance/account.pyx":155
  *     def __reduce__(self):#  class / args
  *         return (Account, (self.core.experiment_id,
  *                           self.core.datetime,             # <<<<<<<<<<<<<<
  *                           self.core.portfolio_value,
  *                           self.core.cash,
 */
-  __pyx_t_2 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "backtest/execution/core/finance/account.pyx":157
+  /* "backtest/execution/core/finance/account.pyx":156
  *         return (Account, (self.core.experiment_id,
  *                           self.core.datetime,
  *                           self.core.portfolio_value,             # <<<<<<<<<<<<<<
  *                           self.core.cash,
  *                           self.core.pnl,
 */
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "backtest/execution/core/finance/account.pyx":158
+  /* "backtest/execution/core/finance/account.pyx":157
  *                           self.core.datetime,
  *                           self.core.portfolio_value,
  *                           self.core.cash,             # <<<<<<<<<<<<<<
  *                           self.core.pnl,
  *                           self.core.leverage,
 */
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "backtest/execution/core/finance/account.pyx":159
+  /* "backtest/execution/core/finance/account.pyx":158
  *                           self.core.portfolio_value,
  *                           self.core.cash,
  *                           self.core.pnl,             # <<<<<<<<<<<<<<
  *                           self.core.leverage,
  *                           self.core.margin))
 */
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 158, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "backtest/execution/core/finance/account.pyx":160
+  /* "backtest/execution/core/finance/account.pyx":159
  *                           self.core.cash,
  *                           self.core.pnl,
  *                           self.core.leverage,             # <<<<<<<<<<<<<<
  *                           self.core.margin))
  * 
 */
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
-  /* "backtest/execution/core/finance/account.pyx":161
+  /* "backtest/execution/core/finance/account.pyx":160
  *                           self.core.pnl,
  *                           self.core.leverage,
  *                           self.core.margin))             # <<<<<<<<<<<<<<
  * 
  *     def __repr__(self):
 */
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 161, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
 
-  /* "backtest/execution/core/finance/account.pyx":155
+  /* "backtest/execution/core/finance/account.pyx":154
  * 
  *     def __reduce__(self):#  class / args
  *         return (Account, (self.core.experiment_id,             # <<<<<<<<<<<<<<
  *                           self.core.datetime,
  *                           self.core.portfolio_value,
 */
-  __pyx_t_8 = PyTuple_New(7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_8 = PyTuple_New(7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_GIVEREF(__pyx_t_1);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_1) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_2);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 1, __pyx_t_2) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_3);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 2, __pyx_t_3) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 2, __pyx_t_3) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 3, __pyx_t_4) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 3, __pyx_t_4) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_5);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 4, __pyx_t_5) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 4, __pyx_t_5) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_6);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 5, __pyx_t_6) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 5, __pyx_t_6) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_7);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 6, __pyx_t_7) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_8, 6, __pyx_t_7) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
@@ -5040,19 +5040,19 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
   __pyx_t_5 = 0;
   __pyx_t_6 = 0;
   __pyx_t_7 = 0;
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 154, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
   __Pyx_GIVEREF((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account)) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account)) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_8);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_8) != (0)) __PYX_ERR(0, 155, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_8) != (0)) __PYX_ERR(0, 154, __pyx_L1_error);
   __pyx_t_8 = 0;
   __pyx_r = __pyx_t_7;
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/account.pyx":154
+  /* "backtest/execution/core/finance/account.pyx":153
  *         return self.core
  * 
  *     def __reduce__(self):#  class / args             # <<<<<<<<<<<<<<
@@ -5078,7 +5078,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
   return __pyx_r;
 }
 
-/* "backtest/execution/core/finance/account.pyx":163
+/* "backtest/execution/core/finance/account.pyx":162
  *                           self.core.margin))
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -5121,7 +5121,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "backtest/execution/core/finance/account.pyx":164
+  /* "backtest/execution/core/finance/account.pyx":163
  * 
  *     def __repr__(self):
  *         template = "Account(experiment_id={experiment_id} ," \             # <<<<<<<<<<<<<<
@@ -5131,7 +5131,7 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
   __Pyx_INCREF(__pyx_mstate_global->__pyx_kp_u_Account_experiment_id_experiment);
   __pyx_v_template = __pyx_mstate_global->__pyx_kp_u_Account_experiment_id_experiment;
 
-  /* "backtest/execution/core/finance/account.pyx":171
+  /* "backtest/execution/core/finance/account.pyx":170
  *                    "leverage={leverage} ," \
  *                    "margin={margin})"
  *         return template.format(             # <<<<<<<<<<<<<<
@@ -5142,87 +5142,87 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
   __pyx_t_2 = __pyx_v_template;
   __Pyx_INCREF(__pyx_t_2);
 
-  /* "backtest/execution/core/finance/account.pyx":172
+  /* "backtest/execution/core/finance/account.pyx":171
  *                    "margin={margin})"
  *         return template.format(
  *             experiment_id=self.core.experiment_id,             # <<<<<<<<<<<<<<
  *             datetime=self.core.datetime,
  *             portfolio_value=self.core.portfolio_value,
 */
-  __pyx_t_3 = __pyx_convert_PyBytes_string_to_py_6libcpp_6string_std__in_string(__pyx_v_self->core.experiment_id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 172, __pyx_L1_error)
+  __pyx_t_3 = __pyx_convert_PyBytes_string_to_py_6libcpp_6string_std__in_string(__pyx_v_self->core.experiment_id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "backtest/execution/core/finance/account.pyx":173
+  /* "backtest/execution/core/finance/account.pyx":172
  *         return template.format(
  *             experiment_id=self.core.experiment_id,
  *             datetime=self.core.datetime,             # <<<<<<<<<<<<<<
  *             portfolio_value=self.core.portfolio_value,
  *             cash=self.core.cash,
 */
-  __pyx_t_4 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int64_t(__pyx_v_self->core.datetime); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 172, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "backtest/execution/core/finance/account.pyx":174
+  /* "backtest/execution/core/finance/account.pyx":173
  *             experiment_id=self.core.experiment_id,
  *             datetime=self.core.datetime,
  *             portfolio_value=self.core.portfolio_value,             # <<<<<<<<<<<<<<
  *             cash=self.core.cash,
  *             pnl=self.core.pnl,
 */
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_self->core.portfolio_value); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "backtest/execution/core/finance/account.pyx":175
+  /* "backtest/execution/core/finance/account.pyx":174
  *             datetime=self.core.datetime,
  *             portfolio_value=self.core.portfolio_value,
  *             cash=self.core.cash,             # <<<<<<<<<<<<<<
  *             pnl=self.core.pnl,
  *             leverage=self.core.leverage,
 */
-  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_self->core.cash); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
 
-  /* "backtest/execution/core/finance/account.pyx":176
+  /* "backtest/execution/core/finance/account.pyx":175
  *             portfolio_value=self.core.portfolio_value,
  *             cash=self.core.cash,
  *             pnl=self.core.pnl,             # <<<<<<<<<<<<<<
  *             leverage=self.core.leverage,
  *             margin=self.core.margin,
 */
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 176, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_self->core.pnl); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
 
-  /* "backtest/execution/core/finance/account.pyx":177
+  /* "backtest/execution/core/finance/account.pyx":176
  *             cash=self.core.cash,
  *             pnl=self.core.pnl,
  *             leverage=self.core.leverage,             # <<<<<<<<<<<<<<
  *             margin=self.core.margin,
  *         )
 */
-  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __pyx_t_8 = PyFloat_FromDouble(__pyx_v_self->core.leverage); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 176, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
 
-  /* "backtest/execution/core/finance/account.pyx":178
+  /* "backtest/execution/core/finance/account.pyx":177
  *             pnl=self.core.pnl,
  *             leverage=self.core.leverage,
  *             margin=self.core.margin,             # <<<<<<<<<<<<<<
  *         )
  * 
 */
-  __pyx_t_9 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_9 = PyFloat_FromDouble(__pyx_v_self->core.margin); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_10 = 0;
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 7 : 0)] = {__pyx_t_2, NULL};
-    __pyx_t_11 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 171, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_MakeVectorcallBuilderKwds(7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 170, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_t_3, __pyx_t_11, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_4, __pyx_t_11, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_5, __pyx_t_11, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_6, __pyx_t_11, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_7, __pyx_t_11, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_8, __pyx_t_11, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_9, __pyx_t_11, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 171, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_experiment_id, __pyx_t_3, __pyx_t_11, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_datetime, __pyx_t_4, __pyx_t_11, __pyx_callargs+1, 1) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_portfolio_value, __pyx_t_5, __pyx_t_11, __pyx_callargs+1, 2) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_cash, __pyx_t_6, __pyx_t_11, __pyx_callargs+1, 3) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_pnl, __pyx_t_7, __pyx_t_11, __pyx_callargs+1, 4) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_leverage, __pyx_t_8, __pyx_t_11, __pyx_callargs+1, 5) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_margin, __pyx_t_9, __pyx_t_11, __pyx_callargs+1, 6) < (0)) __PYX_ERR(0, 170, __pyx_L1_error)
     __pyx_t_1 = __Pyx_Object_VectorcallMethod_CallFromBuilder((PyObject*)__pyx_mstate_global->__pyx_n_u_format, __pyx_callargs+__pyx_t_10, (1-__pyx_t_10) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_11);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5233,14 +5233,14 @@ static PyObject *__pyx_pf_8backtest_9execution_4core_7finance_7account_7Account_
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 170, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "backtest/execution/core/finance/account.pyx":163
+  /* "backtest/execution/core/finance/account.pyx":162
  *                           self.core.margin))
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -6039,19 +6039,19 @@ __Pyx_RefNannySetupContext("PyInit_account", 0);
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/execution/core/finance/account.pyx":154
+  /* "backtest/execution/core/finance/account.pyx":153
  *         return self.core
  * 
  *     def __reduce__(self):#  class / args             # <<<<<<<<<<<<<<
  *         return (Account, (self.core.experiment_id,
  *                           self.core.datetime,
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_7finance_7account_7Account_3__reduce__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Account___reduce, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_4core_7finance_7account_7Account_3__reduce__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_Account___reduce, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_core_finance, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account, __pyx_mstate_global->__pyx_n_u_reduce, __pyx_t_2) < (0)) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account, __pyx_mstate_global->__pyx_n_u_reduce, __pyx_t_2) < (0)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "backtest/execution/core/finance/account.pyx":1
@@ -6224,7 +6224,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 154};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 153};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_core_finance_2, __pyx_mstate->__pyx_n_u_reduce, __pyx_mstate->__pyx_kp_b_iso88591_A_e1_e1_e1_e1_e1_e1_e1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }

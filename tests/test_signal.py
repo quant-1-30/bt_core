@@ -38,7 +38,6 @@ class WeekPriceSignal(btind.Indicator):
 
         print("WeekPriceSignal ", self.lines.signal[0])
         if self.lines.signal[0] > 10.0:
-            # print("WeekPriceSignal ", self.lines.signal[0])
             raise ValueError("WeekPriceSignal corrupted")
             
 
@@ -55,7 +54,6 @@ class DailyPriceSignal(btind.Indicator):
         signal = self.lines.signal[0]
         print("DailyPriceSignal ", signal)
         if signal > 10.0:
-            # print("DailyPriceSignal ", signal)
             raise
 
 
@@ -89,11 +87,8 @@ class VolSignal(btind.Indicator):
     def next(self):
         signal = self.lines.signal[0]
         print("VolSignal ", signal)
-        if signal > 10.0: # 71  2022年
-            # print("VolSignal ", signal)
-            import pdb; pdb.set_trace()
-            # raise
-            pass
+        if signal > 30.0: 
+            raise
 
 
 class SellSignal(btind.Indicator): 
@@ -109,9 +104,7 @@ class SellSignal(btind.Indicator):
         signal = self.lines.signal[0]
         print("SellSignal ", signal)
         if signal > 10.0:
-            # print("SellSignal ", signal)
-            # raise
-            pass
+            raise
 
 
 class DrawDownSignal(btind.Indicator): 
@@ -121,14 +114,21 @@ class DrawDownSignal(btind.Indicator):
 
     def __init__(self):
         self.thres = self.p.thres
-        import pdb; pdb.set_trace()
+        self.stats = self._owner.stats
 
     def next(self):
-        self.dd = self._owner.stats["drawdown"]  
-        signal = self.thres - self.dd.lines.drawdown[0]
-        # self.lines.signal[0] = np.nan_to_num(signal) # used for array not scalar
-        self.lines.signal[0] = 0.0 if np.isnan(signal) else signal
-        print("DrawDownSignal ", signal)
+        dd_stats = self.stats["drawdown"]  
+        dd = dd_stats.lines.drawdown[0]
+        # dd = dd_stats.lines.maxdrawdown[0]
+
+        # used for test
+        # signal = dd
+        # print("DrawDownSignal ", signal)
+        # if not np.isnan(signal) and abs(signal) > 0.0:
+        #     pass
+
+        signal = self.thres - dd
+        self.lines.signal[0] = 0.0 if np.isnan(signal) else signal # np.nan_to_num(signal) used for array not scalar
 
 
 if __name__ == '__main__':
@@ -150,7 +150,4 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"300308"], fromdate=20230101, todate=20260201, benchmark=[b"000001"], out="signal.csv")
-
-    # 22年数据有问题重新入库 导致 vol > 70 /  resample volume ohlcv 聚合 / stats计算为空
-
+    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040401, todate=20250201, benchmark=[b"1A0001"], out="signal.csv")

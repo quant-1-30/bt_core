@@ -14,6 +14,15 @@ from backtest.execution.gateway.interface import async_gt
 logger = logging.getLogger(__name__)
 
 
+cdef _sync_write_file(str path, list data):
+    try:
+        with open(path, 'w') as f:
+            json.dump(data, f, default=str, indent=4)
+    except TypeError:
+        with open(path, 'w') as f:
+            f.write(str(data))
+
+
 cdef class IBatchWriter:
 
     cpdef void push(self, list data):
@@ -22,7 +31,7 @@ cdef class IBatchWriter:
 
 cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
 
-    def __init__(self, int32_t q_size, int32_t batch_size, int32_t retries=3):
+    def __init__(self, int32_t q_size, int32_t batch_size, int32_t retries=1):
         self._buffer = []
         self._running = True
         self.retries = retries
@@ -142,19 +151,11 @@ cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
             filepath = f"{dump_dir}/{prefix}_{timestamp}.json"
             
             loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, self._sync_write_file, filepath, data)
+            await loop.run_in_executor(None, _sync_write_file, filepath, data)
             logger.info(f"Data saved to {filepath}")
         except Exception as e:
             logger.critical(f"FATAL: Could not dump data! Data lost. {e}")
 
-    cdef _sync_write_file(self, str path, list data):
-        try:
-            with open(path, 'w') as f:
-                json.dump(data, f, default=str, indent=4)
-        except TypeError:
-             with open(path, 'w') as f:
-                f.write(str(data))
-
-    async def wait_until_finished(self):
+    async def wait_until_finished(self): # wait to exit from run
         await self._finished_event.wait()
 

@@ -118,7 +118,7 @@ cdef class AsyncGateway:
                 .where(vtOrder.created_dt.between(body.start_date, body.end_date))
                 .options(
                     # load_only(vtOrder.id, vtOrder.experiment_id), # 加载必要的字段减少内存占用
-                    # selectinload 代替 subqueryload 在处理ID 列表时通常比子查询更快 / row.order_bits 已在内存中 无额外IO
+                    # selectinload 代替 subqueryload 在处理ID 列表时通常比子查询更快 / row.order_bits 已在内存中无额外IO
                     selectinload(vtOrder.order_bits) 
                 )
             )

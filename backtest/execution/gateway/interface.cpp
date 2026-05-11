@@ -7040,7 +7040,7 @@ static PyObject *__pyx_gb_8backtest_9execution_7gateway_9interface_12AsyncGatewa
 
           /* "backtest/execution/gateway/interface.pyx":122
  *                     # load_only(vtOrder.id, vtOrder.experiment_id), #
- *                     # selectinload  subqueryload ID  / row.order_bits  IO
+ *                     # selectinload  subqueryload ID  / row.order_bits IO
  *                     selectinload(vtOrder.order_bits)             # <<<<<<<<<<<<<<
  *                 )
  *             )

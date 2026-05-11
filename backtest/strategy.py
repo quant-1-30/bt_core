@@ -74,18 +74,21 @@ class MetaStrategy(StrategyBase.__class__):
         
         _obj._minperiods = list()
 
-        # _obj.stats = _obj.observers = ItemCollection()
         # _obj.analyzers = ItemCollection()
         # _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
-        _obj.stats = {}
         _obj.analyzers = list()
         _obj.observers = list()
+
+        _obj.stats = {}
+        # _obj.stats = _obj.observers = ItemCollection()
+
         _obj.writers = list()
         _obj._orders = list()
         _obj._trades = list()
 
         _obj.snapshot = None # cache position and account
         _obj.topk_info = None # strategy context info from indicator notify
+
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -350,10 +353,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
  
     # -------------------------------------------------------------------------------------------------------------------------
  
-    def buy(self, buys, plimit: int=0, execType=0, filler=b"oco"):
+    def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 
           
-          - ``plimit`` (default: ``0``) means set price limit or not
+          - ``plimit`` (default: ``0.0``) means set price limit or not
 
           - ``exectype`` (default: ``int``)
 
@@ -413,7 +416,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.notify_trade(order, trades)
                 self.snapshot = snapshot
         
-    def sell(self, sells, plimit: int=0, execType=0, filler=b"oco"):
+    def sell(self, sells, plimit: float=0.0, execType=0, filler=b"oco"):
         '''
         To create a selll (short) order and send it to the broker
 

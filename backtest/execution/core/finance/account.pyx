@@ -111,7 +111,6 @@ cdef class Account:
         
         self.core.portfolio_value = _v
         self.core.pnl = _pnl
-        # self.core.datetime = max_dt
         self.core.datetime = ts2intdt(max_dt)
 
     cdef Account clone(self):

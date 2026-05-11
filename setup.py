@@ -28,6 +28,13 @@ extensions = [
         extra_compile_args=["-O3", "-std=c++11"],
     ),
     Extension(
+        name="backtest.shm", 
+        sources=["backtest/shm.pyx"],
+        include_dirs=[np.get_include(), current_dir],
+        language="c++", # vector/map
+        extra_compile_args=["-O3", "-std=c++11"],
+    ),
+    Extension(
         name="backtest.utils.dateintern", 
         sources=["backtest/utils/dateintern.pyx"],
         include_dirs=[np.get_include(), current_dir],
