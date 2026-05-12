@@ -123,6 +123,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.writers = list()
         self._plot = Plot()
 
+    def addpnc(self, sizer_name: str="fixed", **kwargs):
+        '''Adds a TaskPlan instance to the system'''
+        self.pnc = Pnc(sizer_name, **kwargs)
+
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
     def addtz(self, tz):
@@ -262,7 +266,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     continue
                 print("_check_timer trigger", dt0)
                 for strat in runstrats:
-                    strat.notify_timer(dt0)
+                    strat.on_timer(dt0)
 
             for _t in self._mcstimers: # mcstimers: metricstimer
                 self.notify_timer()
@@ -300,12 +304,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         dataname.resample(**kwargs)
         self.adddata(dataname)
         return dataname
-
-# ---------------------------------------------------------------- control ------------------------------------------------------------
-    
-    def addpnc(self, sizer_name: str="fixed", **kwargs):
-        '''Adds a TaskPlan instance to the system'''
-        self.pnc = Pnc(sizer_name, **kwargs)
 
 # ---------------------------------------------------------------- strategy ------------------------------------------------------------
 

@@ -44,7 +44,6 @@ cdef struct OrderData:
 cdef struct DtOverData:
     int64_t datetime
 
-
 cdef union EventData:
     AccountData account # 48
     PositionData position # 48
@@ -78,21 +77,23 @@ cdef class SharedRingBuffer:
     cdef RingHeader* header
     cdef EventMsg* buffer
     cdef int32_t capacity
-    cdef object _shm          # Python SharedMemory 对象的引用防止被GC
+    cdef object _shm  # Python SharedMemory avoid gc
 
     cpdef int register_consumer(self)
     
-    cdef void _wait_if(self, RingHeader* h) noexcept nogil# nogil 函数不能接收 self必须接收 C 指针
-
-    cpdef publish_account(self, object py_account)
+    cdef void _wait_if(self, RingHeader* h) noexcept nogil # nogil 函数不能接收 self必须接收 C 指针
     
-    cpdef publish_position(self, object py_pos)
+    cdef void publish_account(self, object py_account)
+    
+    cdef void publish_position(self, object py_pos)
 
-    cpdef publish_order(self, object py_order)
+    cdef void publish_order(self, object py_order)
 
-    cpdef publish_dt_over(self, int64_t tick)
+    cdef void publish_dt_over(self, int64_t tick)
+    
+    cpdef publish_snapshot(self, object py_snapshot, object py_order)
 
-    cpdef get_events(self, int consumer_id)
+    cpdef get_events(self, int32_t consumer_id)
 
     cdef close(self)
 

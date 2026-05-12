@@ -101,7 +101,7 @@ cdef class TrackerActor:
             self._queue.put_nowait(msg) # cause oom
         except asyncio.QueueFull:
             await self._queue.put(msg) # backpressure
-
+    
     async def _start(self):
         cdef bytes sid, experiment_id
         cdef Position p_obj
@@ -132,14 +132,7 @@ cdef class TrackerActor:
 
         except Exception as e:
             logger.exception(f"Error starting position tracker: {e}")
-    
-    cdef object get_snapshot(self):
-        return Resp(body=self._latest_snapshot)
-    
-    cdef tuple set_cash(self, object event):
-        """set cash and accout wrt"""
-        self.cash_manager.set_cash(event)
-
+     
     async def run(self):
         cdef ActorMessage msg
         cdef Order order_obj
@@ -188,7 +181,7 @@ cdef class TrackerActor:
                     if order_bits:
                         self._put_buffer.append({"order": [order_dict, order_bits]})
                 
-                    self._create_and_send_snapshot(reason="order_sync", msg=msg, writer=False, ord_body=order_obj.serialize())
+                    self._create_and_send_snapshot(reason="order_sync", msg=msg, writer=False, trades=order_obj.serialize())
 
                 elif msg.actor_id.MsgType == MsgType.Tplus1:
                     await self.on_dt_over(payload)
@@ -200,7 +193,7 @@ cdef class TrackerActor:
                     self._create_and_send_snapshot(reason="query", msg=msg, writer=False)
 
                 if msg.reply_future and not msg.reply_future.done():
-                    result = self.get_snapshot()
+                    result = Resp(body=self._latest_snapshot)
                     msg.reply_future.set_result(result)
 
             except Exception as e:
@@ -228,6 +221,10 @@ cdef class TrackerActor:
         rgt_task = remote(RpcTopic.Rightment, event_body)
         closes_df, adjs_df, rgts_df = await asyncio.gather(close_task, adj_task, rgt_task) 
         return (closes_df, adjs_df, rgts_df)
+    
+    cdef tuple set_cash(self, object event):
+        """set cash and accout wrt"""
+        self.cash_manager.set_cash(event)
     
     async def process_order(self, Order order):
         cdef OrderCoreData core = order.core
@@ -348,7 +345,7 @@ cdef class TrackerActor:
         for sid_key in dead_sids:
             del self.positions[sid_key]
  
-    cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=False, list ord_body=[]):
+    cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=False, list trades=[]):
         # separate order --- event stream  from snapshot
         # 1 position / order and  1 account  daily avoid `UniqueConstraint`
         cdef bytes experiment_id
@@ -385,7 +382,7 @@ cdef class TrackerActor:
         self._latest_snapshot = SnapshotBody(
             account=acct.serialize().body, 
             positions=pobj_body,
-            order=ord_body
+            trades=trades
         )
 
         if writer:
@@ -464,7 +461,7 @@ cdef class Simulator:
         result = await future
         return result
 
-    async def getvalue(self, object event):
+    async def get_snapshot(self, object event):
         cdef bytes experiment_id = event.experiment_id
         cdef TrackerActor actor = self._get_or_create_actor(experiment_id)
         cdef object future = self._loop.create_future()

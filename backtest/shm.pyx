@@ -38,11 +38,6 @@ cdef extern from *:
     void usleep(unsigned int usec) nogil
 
 
-# **`shared_memory.SharedMemory`**：在底层，它在 Linux / macOS 下调用的是 `shm_open()` + `ftruncate()` + `mmap(..., MAP_SHARED, ...)`。这就保证了这块内存在 OS 层面是唯一的，并且所有进程映射后的修改都能互现。
-# bytearray is allocate on heaq
-# 此处省略：通过 mmap 或 sysv ipc 分配 SHM，并将指针绑定到 header 和 buffer
-# 此处省略 OS 级别的 mmap/shmget 内存分配
-
 cdef class SharedRingBuffer:
 
     def __cinit__(self, str shm_name, int capacity, bint is_creator=False):
@@ -96,7 +91,7 @@ cdef class SharedRingBuffer:
                 return i
         raise RuntimeError("共享内存槽位已满")
 
-    cdef void _wait_if(self, RingHeader* h)  noexcept nogil: 
+    cdef void _wait_if(self, RingHeader* h) noexcept nogil: 
 
         cdef int64_t min_tail
         cdef int32_t i, counter=0
@@ -111,15 +106,16 @@ cdef class SharedRingBuffer:
             # slot avoid spin
             if h.head - min_tail < h.capacity:
                 break
-            
-            # 自旋cpu_relax 等指令减小负担
-                counter += 1
+
+            # self spin cpu_relax
+            counter += 1 
+
             if counter < 1000:
                 cpu_relax()
             else:
                 sched_yield()
-
-    cpdef publish_account(self, object py_account):
+    
+    cdef void publish_account(self, object py_account):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
 
@@ -129,7 +125,7 @@ cdef class SharedRingBuffer:
         cdef int64_t pos = h.head % self.header.capacity
         cdef EventMsg* msg = &buf[pos]
         
-        # union 结构清空该条消息的内存防止旧数据
+        # union avoi data corruption
         memset(msg, 0, sizeof(EventMsg))
 
         # Zero-Copy
@@ -142,7 +138,7 @@ cdef class SharedRingBuffer:
         msg.data.account.margin = py_account.margin
         msg.data.account.experiment_id = py_account.experiment_id
 
-    cpdef publish_position(self, object py_pos):
+    cdef void publish_position(self, object py_pos):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
         cdef int32_t cap = self.capacity
@@ -153,7 +149,7 @@ cdef class SharedRingBuffer:
         cdef int64_t pos = h.head % cap
         cdef EventMsg* msg = &buf[pos]
 
-        # union 结构清空该条消息的内存防止旧数据
+        # union avoi data corruption
         memset(msg, 0, sizeof(EventMsg))
 
         msg.type = EPOSITION
@@ -167,7 +163,7 @@ cdef class SharedRingBuffer:
         
         self.header.head += 1
     
-    cpdef publish_order(self, object py_order):
+    cdef void publish_order(self, object py_order):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
         cdef int32_t cap = self.capacity
@@ -178,7 +174,7 @@ cdef class SharedRingBuffer:
         cdef int64_t pos = h.head % cap
         cdef EventMsg* msg = &buf[pos]
 
-        # union 结构清空该条消息的内存防止旧数据
+        # union avoi data corruption
         memset(msg, 0, sizeof(EventMsg))
 
         msg.type = EORDER
@@ -193,7 +189,7 @@ cdef class SharedRingBuffer:
         
         self.header.head += 1
 
-    cpdef publish_dt_over(self, int64_t tick):
+    cdef void publish_dt_over(self, int64_t tick):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
         cdef int32_t cap = self.capacity
@@ -204,7 +200,6 @@ cdef class SharedRingBuffer:
         cdef int64_t pos = h.head % cap
         cdef EventMsg* msg = &buf[pos]
         
-        # union 结构清空该条消息的内存防止旧数据
         memset(msg, 0, sizeof(EventMsg))
 
         msg.type = EDTOVER
@@ -212,7 +207,20 @@ cdef class SharedRingBuffer:
 
         self.header.head += 1
 
-    cpdef get_events(self, int consumer_id):
+
+    cpdef publish_snapshot(self, object py_snapshot, object py_order):
+        self.publish_order(py_order)
+
+        if py_snapshot.trades:
+            for trade in py_snapshot.trades:
+                self.publish_trade(trade)
+        
+        for pos in py_snapshot.positions:
+            self.publish_position(pos)
+        
+        self.publish_account(py_snapshot.account)
+
+    cpdef get_events(self, int32_t consumer_id):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
 
@@ -254,6 +262,7 @@ cdef class SharedRingBuffer:
                 })
 
             self.header.tails[consumer_id] += 1
+            return events
 
     cdef close(self):
         if self._shm is not None:

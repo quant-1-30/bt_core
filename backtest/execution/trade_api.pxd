@@ -53,7 +53,7 @@ cdef class TdApi:
 
     cpdef object on_dt_over(self, bytes experiment_id, object body)
     
-    cpdef object getvalue(self, bytes experiment_id)
+    cpdef object get_snapshot(self, bytes experiment_id)
     
     cpdef object subscribe(self, int topic, bytes experiment_id, object body)
     

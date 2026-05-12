@@ -26,6 +26,7 @@ import pyarrow.compute as pc
 import polars as pl
 import reactivex.operators as ops
 
+from toolz import valmap
 from typing import List, Mapping, Any
 
 from backtest.feed import DataBase
@@ -105,7 +106,7 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
         close = raw_data[body.sid[0]]
 
-        self.bench_ret = close.with_columns(
+        self.benchmark_ret = close.with_columns(
             pl.col("close").pct_change().fill_null(0).alias("ret")
         ).select(["day", "ret"])
 
@@ -114,7 +115,6 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         df = self.mdapi.get_subscribe(body, FactorTopic.Raw)
         snapshot = {}
         if df:
-            from toolz import valmap
             snapshot = valmap(lambda x : x["close"][0], df)
         return snapshot
 

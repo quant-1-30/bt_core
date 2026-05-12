@@ -113,6 +113,7 @@ class VWR(bt.TimeFrameAnalyzerBase):
         # Add an initial placeholder for [-1] operation
             
         self._pis = self.strat.get_snapshot()  # keep initial value
+        snap = self.get_shm_events()[-1]  # --- IGNORE ---
 
         self._pns = [None]  # keep final prices (value)
     

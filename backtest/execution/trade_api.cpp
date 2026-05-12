@@ -1593,7 +1593,7 @@ struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct__register_as
 struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_1_set_cash_async;
 struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_2_submit_async;
 struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async;
-struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async;
+struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async;
 struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async;
 struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_6_close;
 
@@ -1856,14 +1856,14 @@ struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerAct
 /* "backtest/execution/core/finance/simulate.pxd":37
  *     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table)
  * 
- *     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*, list ord_body=*)             # <<<<<<<<<<<<<<
+ *     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*, list trades=*)             # <<<<<<<<<<<<<<
  * 
- *     cdef object get_snapshot(self)
+ *     cdef _flush(self)
 */
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot {
   int __pyx_n;
   int writer;
-  PyObject *ord_body;
+  PyObject *trades;
 };
 
 /* "backtest/execution/core/engine/engine.pxd":5
@@ -1878,7 +1878,7 @@ enum __pyx_t_8backtest_9execution_4core_6engine_6engine_EngineTopic {
   __pyx_e_8backtest_9execution_4core_6engine_6engine_SetCash = 1,
   __pyx_e_8backtest_9execution_4core_6engine_6engine_Submit = 2,
   __pyx_e_8backtest_9execution_4core_6engine_6engine_Tplus1 = 3,
-  __pyx_e_8backtest_9execution_4core_6engine_6engine_GetValue = 4,
+  __pyx_e_8backtest_9execution_4core_6engine_6engine_Snapshot = 4,
   __pyx_e_8backtest_9execution_4core_6engine_6engine_Subscribe = 5
 };
 
@@ -2123,7 +2123,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor {
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":46
+/* "backtest/execution/core/finance/simulate.pxd":44
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2255,11 +2255,11 @@ struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over
 /* "backtest/execution/trade_api.pyx":58
  *         return await self.engine.on_dt_over(event)
  * 
- *     async def getvalue_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *     async def get_snapshot_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
- *             topic=EngineTopic.GetValue,
+ *             topic=EngineTopic.Snapshot,
 */
-struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async {
+struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async {
   PyObject_HEAD
   PyObject *__pyx_v_event;
   PyObject *__pyx_v_experiment_id;
@@ -2268,7 +2268,7 @@ struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_a
 
 
 /* "backtest/execution/trade_api.pyx":65
- *         return await self.engine.getvalue(event)
+ *         return await self.engine.get_snapshot(event)
  * 
  *     async def subscribe_async(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
@@ -2451,14 +2451,13 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerAct
   PyObject *(*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *, PyObject *);
   void (*_sync_event)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *, PyObject *, PyObject *, PyObject *, PyObject *);
   void (*_create_and_send_snapshot)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *, PyObject *, struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage *, struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot *__pyx_optional_args);
-  PyObject *(*get_snapshot)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *);
   PyObject *(*_flush)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *);
   void (*_collect)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":46
+/* "backtest/execution/core/finance/simulate.pxd":44
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2515,7 +2514,7 @@ struct __pyx_vtabstruct_8backtest_9execution_9trade_api_TdApi {
   PyObject *(*set_cash)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*submit)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*on_dt_over)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, PyObject *, int __pyx_skip_dispatch);
-  PyObject *(*getvalue)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, int __pyx_skip_dispatch);
+  PyObject *(*get_snapshot)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*subscribe)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, int, PyObject *, PyObject *, int __pyx_skip_dispatch);
   PyObject *(*stop)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, int __pyx_skip_dispatch);
 };
@@ -3566,7 +3565,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_register(struct 
 static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_set_cash(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_submit(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, int __pyx_v_topic, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 
@@ -3631,7 +3630,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_2register_as
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_5set_cash_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_8submit_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_11on_dt_over_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14getvalue_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14get_snapshot_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_17subscribe_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, int __pyx_v_topic, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_20close(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_23__reduce_cython__(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self); /* proto */
@@ -3643,7 +3642,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_6register(struc
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_8set_cash(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_10submit(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_12on_dt_over(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
-static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14getvalue(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id); /* proto */
+static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14get_snapshot(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_16subscribe(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, int __pyx_v_topic, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_body); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_18stop(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_20__exit__(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_exc_type, PyObject *__pyx_v_exc_val, PyObject *__pyx_v_exc_tb); /* proto */
@@ -3657,7 +3656,7 @@ static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct
 static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_1_set_cash_async(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_2_submit_async(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
-static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_6_close(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 /* #### Code section: late_includes ### */
@@ -3699,7 +3698,7 @@ typedef struct {
   PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_1_set_cash_async;
   PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_2_submit_async;
   PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async;
-  PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async;
+  PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async;
   PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async;
   PyObject *__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_6_close;
   PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api_AsyncApi;
@@ -3708,7 +3707,7 @@ typedef struct {
   PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_1_set_cash_async;
   PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_2_submit_async;
   PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async;
+  PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async;
   PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async;
   PyTypeObject *__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_6_close;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
@@ -3716,7 +3715,7 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
   PyObject *__pyx_tuple[1];
   PyObject *__pyx_codeobj_tab[23];
-  PyObject *__pyx_string_tab[174];
+  PyObject *__pyx_string_tab[175];
   PyObject *__pyx_number_tab[2];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
@@ -3758,8 +3757,8 @@ int __pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_o
 #endif
 
 #if CYTHON_USE_FREELISTS
-struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *__pyx_freelist_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async[8];
-int __pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async;
+struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *__pyx_freelist_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async[8];
+int __pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async;
 #endif
 
 #if CYTHON_USE_FREELISTS
@@ -3828,7 +3827,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_AsyncApi___reduce_cython __pyx_string_tab[18]
 #define __pyx_n_u_AsyncApi___setstate_cython __pyx_string_tab[19]
 #define __pyx_n_u_AsyncApi_close __pyx_string_tab[20]
-#define __pyx_n_u_AsyncApi_getvalue_async __pyx_string_tab[21]
+#define __pyx_n_u_AsyncApi_get_snapshot_async __pyx_string_tab[21]
 #define __pyx_n_u_AsyncApi_on_dt_over_async __pyx_string_tab[22]
 #define __pyx_n_u_AsyncApi_register_async __pyx_string_tab[23]
 #define __pyx_n_u_AsyncApi_set_cash_async __pyx_string_tab[24]
@@ -3839,20 +3838,20 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_EngineTopic __pyx_string_tab[29]
 #define __pyx_n_u_Event __pyx_string_tab[30]
 #define __pyx_n_u_ExecType __pyx_string_tab[31]
-#define __pyx_n_u_GetValue __pyx_string_tab[32]
-#define __pyx_n_u_Historical __pyx_string_tab[33]
-#define __pyx_n_u_IntEnum __pyx_string_tab[34]
-#define __pyx_n_u_IntFlag __pyx_string_tab[35]
-#define __pyx_n_u_Limit __pyx_string_tab[36]
-#define __pyx_n_u_Market __pyx_string_tab[37]
-#define __pyx_n_u_Open __pyx_string_tab[38]
-#define __pyx_n_u_Order __pyx_string_tab[39]
-#define __pyx_n_u_OrderType __pyx_string_tab[40]
-#define __pyx_n_u_Position __pyx_string_tab[41]
-#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[42]
-#define __pyx_n_u_Register __pyx_string_tab[43]
-#define __pyx_n_u_Sell __pyx_string_tab[44]
-#define __pyx_n_u_SetCash __pyx_string_tab[45]
+#define __pyx_n_u_Historical __pyx_string_tab[32]
+#define __pyx_n_u_IntEnum __pyx_string_tab[33]
+#define __pyx_n_u_IntFlag __pyx_string_tab[34]
+#define __pyx_n_u_Limit __pyx_string_tab[35]
+#define __pyx_n_u_Market __pyx_string_tab[36]
+#define __pyx_n_u_Open __pyx_string_tab[37]
+#define __pyx_n_u_Order __pyx_string_tab[38]
+#define __pyx_n_u_OrderType __pyx_string_tab[39]
+#define __pyx_n_u_Position __pyx_string_tab[40]
+#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[41]
+#define __pyx_n_u_Register __pyx_string_tab[42]
+#define __pyx_n_u_Sell __pyx_string_tab[43]
+#define __pyx_n_u_SetCash __pyx_string_tab[44]
+#define __pyx_n_u_Snapshot __pyx_string_tab[45]
 #define __pyx_n_u_Stop __pyx_string_tab[46]
 #define __pyx_n_u_StopLimit __pyx_string_tab[47]
 #define __pyx_n_u_StopTrail __pyx_string_tab[48]
@@ -3865,7 +3864,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_TdApi___exit __pyx_string_tab[55]
 #define __pyx_n_u_TdApi___reduce_cython __pyx_string_tab[56]
 #define __pyx_n_u_TdApi___setstate_cython __pyx_string_tab[57]
-#define __pyx_n_u_TdApi_getvalue __pyx_string_tab[58]
+#define __pyx_n_u_TdApi_get_snapshot __pyx_string_tab[58]
 #define __pyx_n_u_TdApi_on_dt_over_2 __pyx_string_tab[59]
 #define __pyx_n_u_TdApi_register __pyx_string_tab[60]
 #define __pyx_n_u_TdApi_set_cash __pyx_string_tab[61]
@@ -3902,9 +3901,9 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_experiment_id __pyx_string_tab[92]
 #define __pyx_n_u_func __pyx_string_tab[93]
 #define __pyx_n_u_get __pyx_string_tab[94]
-#define __pyx_n_u_getstate __pyx_string_tab[95]
-#define __pyx_n_u_getvalue __pyx_string_tab[96]
-#define __pyx_n_u_getvalue_async __pyx_string_tab[97]
+#define __pyx_n_u_get_snapshot __pyx_string_tab[95]
+#define __pyx_n_u_get_snapshot_async __pyx_string_tab[96]
+#define __pyx_n_u_getstate __pyx_string_tab[97]
 #define __pyx_n_u_is_coroutine __pyx_string_tab[98]
 #define __pyx_n_u_is_running __pyx_string_tab[99]
 #define __pyx_n_u_items __pyx_string_tab[100]
@@ -3967,20 +3966,21 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b__2 __pyx_string_tab[157]
 #define __pyx_kp_b_iso88591_1F __pyx_string_tab[158]
 #define __pyx_kp_b_iso88591_A_4_7_QR_W_QfD_vWA __pyx_string_tab[159]
-#define __pyx_kp_b_iso88591_A_4_W_QfD_vWA __pyx_string_tab[160]
-#define __pyx_kp_b_iso88591_A_4_W_QfD_vWA_2 __pyx_string_tab[161]
-#define __pyx_kp_b_iso88591_A_4_q_q_W_QfD_6_A_1A __pyx_string_tab[162]
-#define __pyx_kp_b_iso88591_A_4wd_fKq_W_5Qd_V4tST __pyx_string_tab[163]
-#define __pyx_kp_b_iso88591_A_9G1_1Kq_1 __pyx_string_tab[164]
-#define __pyx_kp_b_iso88591_A_IQ_KvQa __pyx_string_tab[165]
-#define __pyx_kp_b_iso88591_A_Qa_4_1O1_W_QfD_vWA __pyx_string_tab[166]
-#define __pyx_kp_b_iso88591_A_q __pyx_string_tab[167]
-#define __pyx_kp_b_iso88591_T_Q_G1F_a_vWE_Q_q_t7_c_uCtS_bbc __pyx_string_tab[168]
-#define __pyx_kp_b_iso88591_T_d_G1F_a_vWE_Q_q_t_we3d_q_d_7 __pyx_string_tab[169]
-#define __pyx_kp_b_iso88591__5 __pyx_string_tab[170]
-#define __pyx_kp_b_iso88591_avQ __pyx_string_tab[171]
-#define __pyx_kp_b_iso88591_q_0_kQR_5_7_q_a_1 __pyx_string_tab[172]
-#define __pyx_kp_b_iso88591_q_0_kQR_881A_7_nA_1 __pyx_string_tab[173]
+#define __pyx_kp_b_iso88591_A_4_Qa_W_QfD_vWA __pyx_string_tab[160]
+#define __pyx_kp_b_iso88591_A_4_W_QfD_vWA __pyx_string_tab[161]
+#define __pyx_kp_b_iso88591_A_4_W_QfD_vWA_2 __pyx_string_tab[162]
+#define __pyx_kp_b_iso88591_A_4_q_q_W_QfD_6_A_1A __pyx_string_tab[163]
+#define __pyx_kp_b_iso88591_A_4wd_fKq_W_5Qd_V4tST __pyx_string_tab[164]
+#define __pyx_kp_b_iso88591_A_9G1_1Kq_1 __pyx_string_tab[165]
+#define __pyx_kp_b_iso88591_A_IQ_KvQa __pyx_string_tab[166]
+#define __pyx_kp_b_iso88591_A_Qa_4_1O1_W_QfD_vWA __pyx_string_tab[167]
+#define __pyx_kp_b_iso88591_A_q __pyx_string_tab[168]
+#define __pyx_kp_b_iso88591_T_Q_G1F_a_vWE_Q_q_t7_c_uCtS_bbc __pyx_string_tab[169]
+#define __pyx_kp_b_iso88591_T_d_G1F_a_vWE_Q_q_t_we3d_q_d_7 __pyx_string_tab[170]
+#define __pyx_kp_b_iso88591__5 __pyx_string_tab[171]
+#define __pyx_kp_b_iso88591_avQ __pyx_string_tab[172]
+#define __pyx_kp_b_iso88591_q_0_kQR_5_7_q_a_1 __pyx_string_tab[173]
+#define __pyx_kp_b_iso88591_q_0_kQR_881A_7_nA_1 __pyx_string_tab[174]
 #define __pyx_int_38662300 __pyx_number_tab[0]
 #define __pyx_int_89062620 __pyx_number_tab[1]
 /* #### Code section: module_state_clear ### */
@@ -4022,15 +4022,15 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_2_submit_async);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async);
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async);
-  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async);
+  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async);
+  Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async);
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_6_close);
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_6_close);
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<23; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<174; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<175; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<2; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
@@ -4083,15 +4083,15 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_2_submit_async);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async);
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_3_on_dt_over_async);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async);
-  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async);
+  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async);
+  Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async);
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_5_subscribe_async);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_6_close);
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_6_close);
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<23; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<174; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<175; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<2; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
@@ -4440,8 +4440,8 @@ static PyObject *__Pyx_Enum_56d084__8backtest_9execution_4core_6engine_6engine_e
  *         return __pyx_enum.Submit
  *     elif c_val == EngineTopic.Tplus1:
  *         return __pyx_enum.Tplus1             # <<<<<<<<<<<<<<
- *     elif c_val == EngineTopic.GetValue:
- *         return __pyx_enum.GetValue
+ *     elif c_val == EngineTopic.Snapshot:
+ *         return __pyx_enum.Snapshot
 */
     __Pyx_XDECREF(__pyx_r);
     __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v___pyx_enum, __pyx_mstate_global->__pyx_n_u_Tplus1); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 36, __pyx_L1_error)
@@ -4455,20 +4455,20 @@ static PyObject *__Pyx_Enum_56d084__8backtest_9execution_4core_6engine_6engine_e
  *         return __pyx_enum.Submit
  *     elif c_val == EngineTopic.Tplus1:             # <<<<<<<<<<<<<<
  *         return __pyx_enum.Tplus1
- *     elif c_val == EngineTopic.GetValue:
+ *     elif c_val == EngineTopic.Snapshot:
 */
     break;
-    case __pyx_e_8backtest_9execution_4core_6engine_6engine_GetValue:
+    case __pyx_e_8backtest_9execution_4core_6engine_6engine_Snapshot:
 
     /* "EnumTypeToPy":38
  *         return __pyx_enum.Tplus1
- *     elif c_val == EngineTopic.GetValue:
- *         return __pyx_enum.GetValue             # <<<<<<<<<<<<<<
+ *     elif c_val == EngineTopic.Snapshot:
+ *         return __pyx_enum.Snapshot             # <<<<<<<<<<<<<<
  *     elif c_val == EngineTopic.Subscribe:
  *         return __pyx_enum.Subscribe
 */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v___pyx_enum, __pyx_mstate_global->__pyx_n_u_GetValue); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 38, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v___pyx_enum, __pyx_mstate_global->__pyx_n_u_Snapshot); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 38, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __pyx_r = __pyx_t_10;
     __pyx_t_10 = 0;
@@ -4477,15 +4477,15 @@ static PyObject *__Pyx_Enum_56d084__8backtest_9execution_4core_6engine_6engine_e
     /* "EnumTypeToPy":37
  *     elif c_val == EngineTopic.Tplus1:
  *         return __pyx_enum.Tplus1
- *     elif c_val == EngineTopic.GetValue:             # <<<<<<<<<<<<<<
- *         return __pyx_enum.GetValue
+ *     elif c_val == EngineTopic.Snapshot:             # <<<<<<<<<<<<<<
+ *         return __pyx_enum.Snapshot
  *     elif c_val == EngineTopic.Subscribe:
 */
     break;
     case __pyx_e_8backtest_9execution_4core_6engine_6engine_Subscribe:
 
     /* "EnumTypeToPy":40
- *         return __pyx_enum.GetValue
+ *         return __pyx_enum.Snapshot
  *     elif c_val == EngineTopic.Subscribe:
  *         return __pyx_enum.Subscribe             # <<<<<<<<<<<<<<
  *     else:
@@ -4499,8 +4499,8 @@ static PyObject *__Pyx_Enum_56d084__8backtest_9execution_4core_6engine_6engine_e
     goto __pyx_L0;
 
     /* "EnumTypeToPy":39
- *     elif c_val == EngineTopic.GetValue:
- *         return __pyx_enum.GetValue
+ *     elif c_val == EngineTopic.Snapshot:
+ *         return __pyx_enum.Snapshot
  *     elif c_val == EngineTopic.Subscribe:             # <<<<<<<<<<<<<<
  *         return __pyx_enum.Subscribe
  *     else:
@@ -6008,7 +6008,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_13generator3
  *         )
  *         return await self.engine.on_dt_over(event)             # <<<<<<<<<<<<<<
  * 
- *     async def getvalue_async(self, bytes experiment_id):
+ *     async def get_snapshot_async(self, bytes experiment_id):
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_3 = ((PyObject *)__pyx_cur_scope->__pyx_v_self->engine);
@@ -6080,21 +6080,21 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
 /* "backtest/execution/trade_api.pyx":58
  *         return await self.engine.on_dt_over(event)
  * 
- *     async def getvalue_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *     async def get_snapshot_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
- *             topic=EngineTopic.GetValue,
+ *             topic=EngineTopic.Snapshot,
 */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15getvalue_async(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15get_snapshot_async(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_9trade_api_8AsyncApi_15getvalue_async = {"getvalue_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15getvalue_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15getvalue_async(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_9trade_api_8AsyncApi_15get_snapshot_async = {"get_snapshot_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15get_snapshot_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15get_snapshot_async(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -6112,7 +6112,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getvalue_async (wrapper)", 0);
+  __Pyx_RefNannySetupContext("get_snapshot_async (wrapper)", 0);
   #if !CYTHON_METH_FASTCALL
   #if CYTHON_ASSUME_SAFE_SIZE
   __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
@@ -6135,9 +6135,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "getvalue_async", 0) < (0)) __PYX_ERR(0, 58, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_snapshot_async", 0) < (0)) __PYX_ERR(0, 58, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("getvalue_async", 1, 1, 1, i); __PYX_ERR(0, 58, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_snapshot_async", 1, 1, 1, i); __PYX_ERR(0, 58, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -6149,19 +6149,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getvalue_async", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 58, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_snapshot_async", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 58, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.trade_api.AsyncApi.getvalue_async", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.trade_api.AsyncApi.get_snapshot_async", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 58, __pyx_L1_error)
-  __pyx_r = __pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14getvalue_async(((struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *)__pyx_v_self), __pyx_v_experiment_id);
+  __pyx_r = __pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14get_snapshot_async(((struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *)__pyx_v_self), __pyx_v_experiment_id);
 
   /* function exit code */
   goto __pyx_L0;
@@ -6180,17 +6180,17 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14getvalue_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id) {
-  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *__pyx_cur_scope;
+static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14get_snapshot_async(struct __pyx_obj_8backtest_9execution_9trade_api_AsyncApi *__pyx_v_self, PyObject *__pyx_v_experiment_id) {
+  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *__pyx_cur_scope;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("getvalue_async", 0);
-  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *)__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async, __pyx_mstate_global->__pyx_empty_tuple, NULL);
+  __Pyx_RefNannySetupContext("get_snapshot_async", 0);
+  __pyx_cur_scope = (struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *)__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async, __pyx_mstate_global->__pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
-    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *)Py_None);
+    __pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *)Py_None);
     __Pyx_INCREF(Py_None);
     __PYX_ERR(0, 58, __pyx_L1_error)
   } else {
@@ -6203,7 +6203,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14getvalue_a
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_experiment_id);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_experiment_id);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_getvalue_async, __pyx_mstate_global->__pyx_n_u_AsyncApi_getvalue_async, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api); if (unlikely(!gen)) __PYX_ERR(0, 58, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Coroutine_New((__pyx_coroutine_body_t) __pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4]), (PyObject *) __pyx_cur_scope, __pyx_mstate_global->__pyx_n_u_get_snapshot_async, __pyx_mstate_global->__pyx_n_u_AsyncApi_get_snapshot_async, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api); if (unlikely(!gen)) __PYX_ERR(0, 58, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -6211,7 +6211,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14getvalue_a
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("backtest.execution.trade_api.AsyncApi.getvalue_async", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.trade_api.AsyncApi.get_snapshot_async", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_DECREF((PyObject *)__pyx_cur_scope);
   __Pyx_XGIVEREF(__pyx_r);
@@ -6221,7 +6221,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_8AsyncApi_14getvalue_a
 
 static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value) /* generator body */
 {
-  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *)__pyx_generator->closure);
+  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *__pyx_cur_scope = ((struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *)__pyx_generator->closure);
   PyObject *__pyx_r = NULL;
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -6234,7 +6234,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getvalue_async", 0);
+  __Pyx_RefNannySetupContext("get_snapshot_async", 0);
   switch (__pyx_generator->resume_label) {
     case 0: goto __pyx_L3_first_run;
     case 1: goto __pyx_L4_resume_from_await;
@@ -6250,9 +6250,9 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
 
   /* "backtest/execution/trade_api.pyx":59
  * 
- *     async def getvalue_async(self, bytes experiment_id):
+ *     async def get_snapshot_async(self, bytes experiment_id):
  *         cdef object event = Event(             # <<<<<<<<<<<<<<
- *             topic=EngineTopic.GetValue,
+ *             topic=EngineTopic.Snapshot,
  *             experiment_id=experiment_id
 */
   __pyx_t_2 = NULL;
@@ -6260,21 +6260,21 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
   __Pyx_GOTREF(__pyx_t_3);
 
   /* "backtest/execution/trade_api.pyx":60
- *     async def getvalue_async(self, bytes experiment_id):
+ *     async def get_snapshot_async(self, bytes experiment_id):
  *         cdef object event = Event(
- *             topic=EngineTopic.GetValue,             # <<<<<<<<<<<<<<
+ *             topic=EngineTopic.Snapshot,             # <<<<<<<<<<<<<<
  *             experiment_id=experiment_id
  *         )
 */
-  __pyx_t_4 = __Pyx_Enum_56d084__8backtest_9execution_4core_6engine_6engine_enu__etc_to_py(__pyx_e_8backtest_9execution_4core_6engine_6engine_GetValue); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Enum_56d084__8backtest_9execution_4core_6engine_6engine_enu__etc_to_py(__pyx_e_8backtest_9execution_4core_6engine_6engine_Snapshot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
   /* "backtest/execution/trade_api.pyx":61
  *         cdef object event = Event(
- *             topic=EngineTopic.GetValue,
+ *             topic=EngineTopic.Snapshot,
  *             experiment_id=experiment_id             # <<<<<<<<<<<<<<
  *         )
- *         return await self.engine.getvalue(event)
+ *         return await self.engine.get_snapshot(event)
 */
   __pyx_t_5 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -6309,7 +6309,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
   /* "backtest/execution/trade_api.pyx":63
  *             experiment_id=experiment_id
  *         )
- *         return await self.engine.getvalue(event)             # <<<<<<<<<<<<<<
+ *         return await self.engine.get_snapshot(event)             # <<<<<<<<<<<<<<
  * 
  *     async def subscribe_async(self, int topic, bytes experiment_id, object body):
 */
@@ -6319,7 +6319,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
   __pyx_t_5 = 0;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_cur_scope->__pyx_v_event};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_getvalue, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_get_snapshot, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -6352,9 +6352,9 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
   /* "backtest/execution/trade_api.pyx":58
  *         return await self.engine.on_dt_over(event)
  * 
- *     async def getvalue_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *     async def get_snapshot_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
- *             topic=EngineTopic.GetValue,
+ *             topic=EngineTopic.Snapshot,
 */
 
   /* function exit code */
@@ -6366,7 +6366,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
   __Pyx_XDECREF(__pyx_t_6);
   if (__Pyx_PyErr_Occurred()) {
     __Pyx_Generator_Replace_StopIteration(0);
-    __Pyx_AddTraceback("getvalue_async", __pyx_clineno, __pyx_lineno, __pyx_filename);
+    __Pyx_AddTraceback("get_snapshot_async", __pyx_clineno, __pyx_lineno, __pyx_filename);
   }
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -6381,7 +6381,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_16generator4
 static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_19generator5(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
 /* "backtest/execution/trade_api.pyx":65
- *         return await self.engine.getvalue(event)
+ *         return await self.engine.get_snapshot(event)
  * 
  *     async def subscribe_async(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
@@ -6679,7 +6679,7 @@ static PyObject *__pyx_gb_8backtest_9execution_9trade_api_8AsyncApi_19generator5
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
   /* "backtest/execution/trade_api.pyx":65
- *         return await self.engine.getvalue(event)
+ *         return await self.engine.get_snapshot(event)
  * 
  *     async def subscribe_async(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
@@ -9117,7 +9117,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struc
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
  *         return future.result()             # <<<<<<<<<<<<<<
  * 
- *     cpdef object getvalue(self, bytes experiment_id):
+ *     cpdef object get_snapshot(self, bytes experiment_id):
 */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_3 = __pyx_v_future;
@@ -9290,19 +9290,19 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_12on_dt_over(st
 /* "backtest/execution/trade_api.pyx":141
  *         return future.result()
  * 
- *     cpdef object getvalue(self, bytes experiment_id):             # <<<<<<<<<<<<<<
- *         cdef object coro = self._async_api.getvalue_async(experiment_id)
+ *     cpdef object get_snapshot(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
 */
 
-static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15getvalue(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15get_snapshot(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, int __pyx_skip_dispatch) {
+static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_coro = 0;
   PyObject *__pyx_v_future = 0;
   PyObject *__pyx_r = NULL;
@@ -9315,7 +9315,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("getvalue", 0);
+  __Pyx_RefNannySetupContext("get_snapshot", 0);
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -9332,9 +9332,9 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_getvalue); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_snapshot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_9trade_api_5TdApi_15getvalue)) {
+      if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_9trade_api_5TdApi_15get_snapshot)) {
         __Pyx_XDECREF(__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
@@ -9379,8 +9379,8 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
 
   /* "backtest/execution/trade_api.pyx":142
  * 
- *     cpdef object getvalue(self, bytes experiment_id):
- *         cdef object coro = self._async_api.getvalue_async(experiment_id)             # <<<<<<<<<<<<<<
+ *     cpdef object get_snapshot(self, bytes experiment_id):
+ *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)             # <<<<<<<<<<<<<<
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
  *         return future.result()
 */
@@ -9389,7 +9389,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
   __pyx_t_5 = 0;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_v_experiment_id};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_getvalue_async, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_get_snapshot_async, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -9398,8 +9398,8 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
   __pyx_t_1 = 0;
 
   /* "backtest/execution/trade_api.pyx":143
- *     cpdef object getvalue(self, bytes experiment_id):
- *         cdef object coro = self._async_api.getvalue_async(experiment_id)
+ *     cpdef object get_snapshot(self, bytes experiment_id):
+ *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)             # <<<<<<<<<<<<<<
  *         return future.result()
  * 
@@ -9434,7 +9434,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
   __pyx_t_1 = 0;
 
   /* "backtest/execution/trade_api.pyx":144
- *         cdef object coro = self._async_api.getvalue_async(experiment_id)
+ *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
  *         return future.result()             # <<<<<<<<<<<<<<
  * 
@@ -9458,8 +9458,8 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
   /* "backtest/execution/trade_api.pyx":141
  *         return future.result()
  * 
- *     cpdef object getvalue(self, bytes experiment_id):             # <<<<<<<<<<<<<<
- *         cdef object coro = self._async_api.getvalue_async(experiment_id)
+ *     cpdef object get_snapshot(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
 */
 
@@ -9469,7 +9469,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("backtest.execution.trade_api.TdApi.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.trade_api.TdApi.get_snapshot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_coro);
@@ -9480,15 +9480,15 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(struct 
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15getvalue(PyObject *__pyx_v_self, 
+static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15get_snapshot(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_8backtest_9execution_9trade_api_5TdApi_15getvalue = {"getvalue", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15getvalue, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15getvalue(PyObject *__pyx_v_self, 
+static PyMethodDef __pyx_mdef_8backtest_9execution_9trade_api_5TdApi_15get_snapshot = {"get_snapshot", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15get_snapshot, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_15get_snapshot(PyObject *__pyx_v_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -9506,7 +9506,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getvalue (wrapper)", 0);
+  __Pyx_RefNannySetupContext("get_snapshot (wrapper)", 0);
   #if !CYTHON_METH_FASTCALL
   #if CYTHON_ASSUME_SAFE_SIZE
   __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
@@ -9529,9 +9529,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "getvalue", 0) < (0)) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_snapshot", 0) < (0)) __PYX_ERR(0, 141, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("getvalue", 1, 1, 1, i); __PYX_ERR(0, 141, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_snapshot", 1, 1, 1, i); __PYX_ERR(0, 141, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -9543,19 +9543,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getvalue", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 141, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_snapshot", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 141, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
     Py_XDECREF(values[__pyx_temp]);
   }
-  __Pyx_AddTraceback("backtest.execution.trade_api.TdApi.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.trade_api.TdApi.get_snapshot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 141, __pyx_L1_error)
-  __pyx_r = __pyx_pf_8backtest_9execution_9trade_api_5TdApi_14getvalue(((struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *)__pyx_v_self), __pyx_v_experiment_id);
+  __pyx_r = __pyx_pf_8backtest_9execution_9trade_api_5TdApi_14get_snapshot(((struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *)__pyx_v_self), __pyx_v_experiment_id);
 
   /* function exit code */
   goto __pyx_L0;
@@ -9574,16 +9574,16 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14getvalue(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id) {
+static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14get_snapshot(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *__pyx_v_self, PyObject *__pyx_v_experiment_id) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("getvalue", 0);
+  __Pyx_RefNannySetupContext("get_snapshot", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue(__pyx_v_self, __pyx_v_experiment_id, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(__pyx_v_self, __pyx_v_experiment_id, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9592,7 +9592,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14getvalue(stru
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("backtest.execution.trade_api.TdApi.getvalue", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("backtest.execution.trade_api.TdApi.get_snapshot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -11528,7 +11528,7 @@ static PyMethodDef __pyx_methods_8backtest_9execution_9trade_api_AsyncApi[] = {
   {"set_cash_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_6set_cash_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"submit_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_9submit_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"on_dt_over_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_12on_dt_over_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
-  {"getvalue_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15getvalue_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
+  {"get_snapshot_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_15get_snapshot_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"subscribe_async", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_18subscribe_async, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"close", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_21close, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_9execution_9trade_api_8AsyncApi_24__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
@@ -12465,16 +12465,16 @@ static PyTypeObject __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struc
 };
 #endif
 
-static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
   PyObject *o;
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async, sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async > 0) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(t, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async, sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async))))
   {
-    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async];
+    o = (PyObject*)__pyx_mstate_global->__pyx_freelist_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async[--__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async];
     #if CYTHON_USE_TYPE_SPECS
     Py_DECREF(Py_TYPE(o));
     #endif
-    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async));
+    memset(o, 0, sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async));
     #if CYTHON_COMPILING_IN_LIMITED_API
     (void) PyObject_Init(o, t);
     #else
@@ -12490,11 +12490,11 @@ static PyObject *__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct
   return o;
 }
 
-static void __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async(PyObject *o) {
-  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *p = (struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *)o;
+static void __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async(PyObject *o) {
+  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *p = (struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(__Pyx_PyObject_GetSlot(o, tp_finalize, destructor)) && !__Pyx_PyObject_GC_IsFinalized(o)) {
-    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async) {
+    if (__Pyx_PyObject_GetSlot(o, tp_dealloc, destructor) == __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async) {
       if (PyObject_CallFinalizerFromDealloc(o)) return;
     }
   }
@@ -12504,9 +12504,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_
   Py_CLEAR(p->__pyx_v_experiment_id);
   Py_CLEAR(p->__pyx_v_self);
   #if CYTHON_USE_FREELISTS
-  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async, sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async))))
+  if (likely((int)(__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async < 8) & __PYX_CHECK_FINAL_TYPE_FOR_FREELISTS(Py_TYPE(o), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async, sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async))))
   {
-    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async++] = ((struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *)o);
+    __pyx_mstate_global->__pyx_freelist_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async[__pyx_mstate_global->__pyx_freecount_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async++] = ((struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *)o);
   } else
   #endif
   {
@@ -12525,9 +12525,9 @@ static void __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_
   }
 }
 
-static int __pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *p = (struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async *)o;
+  struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *p = (struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async *)o;
   {
     e = __Pyx_call_type_traverse(o, 1, v, a);
     if (e) return e;
@@ -12541,27 +12541,27 @@ static int __pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_
   return 0;
 }
 #if CYTHON_USE_TYPE_SPECS
-static PyType_Slot __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async_slots[] = {
-  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async},
-  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async},
-  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async},
+static PyType_Slot __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async_slots[] = {
+  {Py_tp_dealloc, (void *)__pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async},
+  {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async},
+  {Py_tp_new, (void *)__pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async},
   {0, 0},
 };
-static PyType_Spec __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async_spec = {
-  "backtest.execution.trade_api.__pyx_scope_struct_4_getvalue_async",
-  sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async),
+static PyType_Spec __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async_spec = {
+  "backtest.execution.trade_api.__pyx_scope_struct_4_get_snapshot_async",
+  sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async),
   0,
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC,
-  __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async_slots,
+  __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async_slots,
 };
 #else
 
-static PyTypeObject __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async = {
+static PyTypeObject __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async = {
   PyVarObject_HEAD_INIT(0, 0)
-  "backtest.execution.trade_api.""__pyx_scope_struct_4_getvalue_async", /*tp_name*/
-  sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async), /*tp_basicsize*/
+  "backtest.execution.trade_api.""__pyx_scope_struct_4_get_snapshot_async", /*tp_name*/
+  sizeof(struct __pyx_obj_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async, /*tp_dealloc*/
+  __pyx_tp_dealloc_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async, /*tp_dealloc*/
   0, /*tp_vectorcall_offset*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -12578,7 +12578,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struc
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
   0, /*tp_doc*/
-  __pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async, /*tp_traverse*/
+  __pyx_tp_traverse_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
@@ -12596,7 +12596,7 @@ static PyTypeObject __pyx_type_8backtest_9execution_9trade_api___pyx_scope_struc
   #endif
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async, /*tp_new*/
+  __pyx_tp_new_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -13043,7 +13043,7 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_vtable_8backtest_9execution_9trade_api_TdApi.set_cash = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_set_cash;
   __pyx_vtable_8backtest_9execution_9trade_api_TdApi.submit = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_submit;
   __pyx_vtable_8backtest_9execution_9trade_api_TdApi.on_dt_over = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over;
-  __pyx_vtable_8backtest_9execution_9trade_api_TdApi.getvalue = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_getvalue;
+  __pyx_vtable_8backtest_9execution_9trade_api_TdApi.get_snapshot = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot;
   __pyx_vtable_8backtest_9execution_9trade_api_TdApi.subscribe = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, int, PyObject *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe;
   __pyx_vtable_8backtest_9execution_9trade_api_TdApi.stop = (PyObject *(*)(struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *, int __pyx_skip_dispatch))__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop;
   #if CYTHON_USE_TYPE_SPECS
@@ -13146,22 +13146,22 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async)) __PYX_ERR(0, 58, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async)) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async_spec, __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
   #else
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async = &__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async;
+  __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async = &__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
-  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async);
+  PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async);
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async->tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_getvalue_async->tp_getattro = PyObject_GenericGetAttr;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async->tp_dictoffset && __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async->tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_mstate->__pyx_ptype_8backtest_9execution_9trade_api___pyx_scope_struct_4_get_snapshot_async->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
   #if CYTHON_USE_TYPE_SPECS
@@ -13360,8 +13360,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 46, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 46, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 44, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 44, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.engine.engine"); if (unlikely(!__pyx_t_1)) __PYX_ERR(11, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -14402,20 +14402,20 @@ __Pyx_RefNannySetupContext("PyInit_trade_api", 0);
   /* "backtest/execution/trade_api.pyx":58
  *         return await self.engine.on_dt_over(event)
  * 
- *     async def getvalue_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *     async def get_snapshot_async(self, bytes experiment_id):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
- *             topic=EngineTopic.GetValue,
+ *             topic=EngineTopic.Snapshot,
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_8AsyncApi_15getvalue_async, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_AsyncApi_getvalue_async, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_8AsyncApi_15get_snapshot_async, __Pyx_CYFUNCTION_CCLASS | __Pyx_CYFUNCTION_COROUTINE, __pyx_mstate_global->__pyx_n_u_AsyncApi_get_snapshot_async, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[4])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_AsyncApi, __pyx_mstate_global->__pyx_n_u_getvalue_async, __pyx_t_4) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_AsyncApi, __pyx_mstate_global->__pyx_n_u_get_snapshot_async, __pyx_t_4) < (0)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "backtest/execution/trade_api.pyx":65
- *         return await self.engine.getvalue(event)
+ *         return await self.engine.get_snapshot(event)
  * 
  *     async def subscribe_async(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
  *         cdef object event = Event(
@@ -14564,16 +14564,16 @@ __Pyx_RefNannySetupContext("PyInit_trade_api", 0);
   /* "backtest/execution/trade_api.pyx":141
  *         return future.result()
  * 
- *     cpdef object getvalue(self, bytes experiment_id):             # <<<<<<<<<<<<<<
- *         cdef object coro = self._async_api.getvalue_async(experiment_id)
+ *     cpdef object get_snapshot(self, bytes experiment_id):             # <<<<<<<<<<<<<<
+ *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_15getvalue, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_getvalue, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[15])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_15get_snapshot, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_get_snapshot, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[15])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_getvalue, __pyx_t_4) < (0)) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_get_snapshot, __pyx_t_4) < (0)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "backtest/execution/trade_api.pyx":146
@@ -14794,25 +14794,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{7},{179},{15},{18},{2},{1},{8},{28},{32},{7},{6},{181},{2},{9},{14},{7},{8},{26},{28},{14},{23},{25},{23},{23},{21},{24},{3},{3},{11},{5},{8},{8},{10},{7},{7},{5},{6},{4},{5},{9},{8},{20},{8},{4},{7},{4},{9},{9},{14},{8},{6},{9},{5},{15},{14},{23},{25},{14},{16},{14},{14},{11},{10},{12},{15},{18},{6},{5},{6},{5},{7},{18},{9},{37},{28},{4},{20},{11},{9},{18},{5},{18},{8},{5},{9},{4},{5},{6},{8},{7},{8},{13},{8},{3},{12},{8},{14},{13},{10},{5},{5},{8},{14},{11},{6},{10},{8},{7},{4},{10},{16},{3},{5},{14},{12},{11},{10},{23},{20},{14},{6},{12},{10},{17},{13},{8},{14},{6},{24},{4},{4},{8},{14},{12},{10},{12},{19},{5},{5},{4},{9},{6},{12},{9},{15},{8},{9},{5},{5},{6},{6},{12},{5},{6},{4},{8},{0},{11},{46},{40},{42},{69},{49},{30},{20},{50},{7},{128},{111},{2},{11},{55},{55}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1570 bytes) */
-const char* const cstring = "BZh91AY&SYju\032\246\000\000\214\377\377\346\377\276\316\355\277\357\377\277\357\377\254\277\377\377\376@@@@@@@@@@@@@\000@\000P\005\276n5\221Z5k\005V\306\340\270JJ\2154\321\247\244\321\264L\236\223M4\032\014\2324\000h\r\000h\320\032\003F\200\320\311\204i\351\006\204#\010\324\301)\352zd\021\265= z\201\265\r\000\320\000\000\000\006\200hi\344\200\004\240\200\204\3240&\"\237\210I\345\033Sj4\310\036\210\000\320\000\000\000\000\321\221\210\016\000\000\000h\000\000\001\240\006\200\000h\000\001\240\000\000\000H\240\246\206\212h\375(\332\236\247\244\017S\020\000\032h\321\240\000\000\000\000\000\320\3104\323\365I\235\221\177?:z#\010@\2035\001\177\206Y-\212\202\262sHm\2644\3224\377\2671B\311\023P\260(\221Z\262U\204E[\013W\312\344:\252\242t\016\3336\224\304\365\243\000]\017Q\006\231\004h\373~u\275AR\215<\231659\373\006\210\377\226\256_\276\271\332[y\360E\177^\345\256=\326S\366^\317\016\032\322\231fe\211k\264\245,\037\366}\360\325\301\301\001\265\236.\255H;t\315\374\224\331e\217\"\244m#\315i\366\337\223'at\"e;Z`\032\020X\202\342FD$Aj`\357\344n\334\273x\315\274\211NG\217\265\330\244\020\215<\305G\300W\216\020\236\315\235;.\311\033\035\024c\325\337\232\312m\266\333m\266\233co_\230X\2220F\320c\356\365@ww\227\335\311L\031\236hk\207\311.j\267o9'c\006\336q\3322\346\211\271?\003\372\225\226:*\321\315\275\350\2232\207\r\331g\313M*\030\026A,X\216\373\340N\026\252\257*J.\335J\364*\002\267\207H\363[\014\262\310\301\275z\255\215y]\236\261`\033C\266B\212\356\023\327@\002\020\306\242\016\242iK\342\303\211\000ev\345\031a\225\344\331\237N&\256J\r^\354v,\r\002\226\227\330\361\201|\036\001y\241\335\224q\356\024);\244$GAQ\225\022#R0B\023k\335\006\004\244]\320\237ro*1\0356F,\303.T\251\013\026UPH\337Z\311\003+P\316\252\271\377Z\236\374\212\0058\026\351\344XI\037\254\302\301\245\020\031x\303H\0366&K\212\010\353\241Lp\216\377\202\234<Y\213tb\243\032\342p\260iU[\372\342DGh\336\336\267\373\236\024\003)\200bQ\272\037\033\364\242\344\2507\321\240\265\004:rH`\313\316\311\007KE\337\245\307A\013\231Bw+;\tA:X""0\302*\235\244D\2456\265\263\205\317\272\330\314\004^\333\331\356\212\027!\270\234\272\265\034\246\316=\375\255\266{\266\226\"\301\263C\016\225\\\304\311\206\242v\016\263n\364wR\265\026\224UUZ\330\266\243\301\363_[iN\364\204l\221\010A\310-;d\342\222\001!\275\233\370\322\016\323\344\230\363\200um\277\230\025-\365*\023\232\033(\312\253\227\215pB\017\275y\033\267/\255\021(\346*a\327\331\340\202\"\250(RKm\273j\205V\001\254\302\331\227\005r\344;\207f\013K+\360\237GxBp\325\260\030z,\022\0202\023\232\320\251R\36102\332\226\020K\010c8\003kGdF7I\343\027\207z\307\351DL\306\336 \345\241\211\341K\316u*\201!\022\340\372\224\307\220\313|\026\013F\201qH \255kr\227\250\2369\246\356\034*\335Y\004u\304\307\300f!\005K\311\213\\\2164\211+\"RS\254B\220$\214M\241'EB\003F-'fA\224FY*\014\256t\375\354\024<4\002\212\004\353J\201\235J\321\210'8\254\206\034_\335\326XF\260(\274L\265dK\026\316\226r#\266\203\026|\033\231g\321\252\n*\204x\210Y\031u\363A\n\361#\032\026\312\261DUHL\246D\344Y\367t\323\\\023:\035\363m\t~\211\320<\336\026\352\002g\030\"0\322\2100\260\333\035\230\313&\270\243*\010\214\307\027\030\315\3049\243K\021\361\006\214\014\314\025P5\006\340\357\207t\313\004\330\233\037\217\010\246#y\3625\217\272%\227\340\\\326\242\370Pr\244(\255\370Q\2547CB\211\002\324\201\246Pe\343\033\214$\035\206g\033\245\242\002\252\3053A\014k\270\205\3279\321\200`\022\260\302*\241z\017\006\273\267\221\210\222\312\304\331N\202\361$R%q\224\335'Pd\267\006\245\014\250,\0164\301\266\341;\345\022$\022\035\262\033V\343\224\020\205\271RpFo\232A\000eA\006\310K\254\206\022%\212h\270\000\203`\3215X\304LC\022\236\324^\235\300\241;*!a\332r\000\341\023\223n9\302\201\253D\344`\3003\002\351\010\221]\010\025a\334#:t\016\"\0270&m3\327[\t`\237\370\303\007\002\206\326n\203\330\204\271\016P\317\313*\343\311Rr\326MQ\0258\232\347AU\007\306o\363hn\200\227OE\320\220\370KV\312\001\341\025\007\205\313\177i2au4\232\321\210\210\321]\2026\356\t\201\3374\311,\272\020\226\245\213\262`Xm\036\003\"\253\016\212\273+\007\246\207\250V\251\317""\024\237W\360\213(\246\275\004#NS\260\256\361z'\332\n\203a:\221\t\017w\321\035.\346\230\341$\324\240(\177\003\"\\q\370\313X\026\344\372\351\230\217\337\2448p\0075\2065(\2607\223\215([\372\331\232O\272J\231\257E5ZA~\315t\025!d($\027|\221\361\020l\261\253\260F\236\203\271\324\245\345\361\332\003\327\014\nC\024\372\313y\314\277?\221\311\324-\365\206\336\331\373\223\"\220Q\220\332\034\211\004\226\311\302\223b\022=Z\347mJ\t\300\377\213\271\"\234(H5:\215S\000";
-    PyObject *data = __Pyx_DecompressString(cstring, 1570, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{7},{179},{15},{18},{2},{1},{8},{28},{32},{7},{6},{181},{2},{9},{14},{7},{8},{26},{28},{14},{27},{25},{23},{23},{21},{24},{3},{3},{11},{5},{8},{10},{7},{7},{5},{6},{4},{5},{9},{8},{20},{8},{4},{7},{8},{4},{9},{9},{14},{8},{6},{9},{5},{15},{14},{23},{25},{18},{16},{14},{14},{11},{10},{12},{15},{18},{6},{5},{6},{5},{7},{18},{9},{37},{28},{4},{20},{11},{9},{18},{5},{18},{8},{5},{9},{4},{5},{6},{8},{7},{8},{13},{8},{3},{12},{18},{12},{13},{10},{5},{5},{8},{14},{11},{6},{10},{8},{7},{4},{10},{16},{3},{5},{14},{12},{11},{10},{23},{20},{14},{6},{12},{10},{17},{13},{8},{14},{6},{24},{4},{4},{8},{14},{12},{10},{12},{19},{5},{5},{4},{9},{6},{12},{9},{15},{8},{9},{5},{5},{6},{6},{12},{5},{6},{4},{8},{0},{11},{46},{41},{40},{42},{69},{49},{30},{20},{50},{7},{128},{111},{2},{11},{55},{55}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1593 bytes) */
+const char* const cstring = "BZh91AY&SYC~\220\300\000\000\221\177\377\346\377\276\316\355\277\357\377\277\357\377\254\277\377\377\376@@@@@@@@@@@@@\000@\000P\005\276Z\275\354\211\356\347k\247k\233\231kx<%\022\231'\251\345=&\206\322\231\262\247\240CF\230\322z\23210\207\2422\031\032`\206\t\265\032=C\303E0\3104@\2314\3204\204\323MM\246F\246G\251\240\323@\000\000\000\000\r\0002\007\250\0004\002&\251\342S\3246&P\364\3244\r\r\000\003@\000\000\000\000\000\0004\003\022!\240SI\372\243\362\247\344\2044~T\003@\365\001\220\000\000\000\000\000\001\240\000$Q\024\364\304\032\247\264\223\324\332\217Q\264\200\006\200\323M\000\000\000\000\000\000hhi\246\236\244\247d_\317\326\246\220\321\010\020f\250/\360\313\005\002\230\306K(&\333CM\013S\373g2\026\010\232\246@\242ETI\214\"\2266\023\3371\310;\267f\226a\320\325\304\274GZc`\324\267d\010\342\210\307\n\3354\371\211\027G\2268\353\350kWV1\332\236\2536?\253zo\342\301g\263\371zBf\225\273G\363\305[\232\333r\013k\017J\030\306C\375v\370\031\370p\250#\000\326\303\303\022C(\235\330\034\305u\331\022K\264m\341\272\017\024\345A\006\312\316D\232G\013A9\005l\026$\202 \300\243p\2066\014\311\216\233\0056\211\272i_c\244\325\002[y&I\200v\335J\223CC\235\005\000\350\335\314\006\312\273Q\234\022I$\222I\024\220I[\276\021\274\213\2351\027\260oH\005UX\364\354\247e\365\220,\326\357\306\205I\367\314\020\250,\314\tu\343A\305\331l\377\021K\035:q_\316\36336\227\r\301g\311UI\032*\"E\212\023\352\373\211\302\212\362\331\"L]\272\210\340\254\004\2709\0168\254\313+\0262J\233CfL\364\213\010[;@\251\215\302r\250\000KN\375$\024\301b+]\002\202`\020\324\323j\024\332\362\302_\\Z\201\031f)W\356Y\r\206\020c([Ev\026\262\261\035\243\n)\242(Z\301\2019W\000\234)\003$0N\021\030\310,%\252A\000):\251\010\375I\200h\242\010\305Gt@\207x\244\032\206\307\030$7aD\200\270\244m\253\214?\\/j\004\300YO\022$\242\t\206\323\304F8\000\274\323\016 5\353A@4\022N\351\210\251y\332\205\207\021\333\017\273\026\240g\254a@\031\246g?\030R\212-\033\312\350\323\227\002\001\224\3001(\332\017\205\372QfI\215\354f'\202\035;\000\327a\302\255\3563""\205\235\n\005\344P\310\t(L\346\006\000\350SS\342GL\223\010b\315E\002\265\300\232\221`u\312\265\026\267!Y\013\245\237\217\030\317\0316:\273\232dZ\356\033\203d\276\332qx@\2001\210\250)\302i=\362\230\224\214\314\316u\035\tYoY:NzP\t\026@ \203\220'vS5\200\263r\265aH9\334\307\235\360\035[o]\t\222\362R\370\032\023 \311*\366J\227\275\331\231B*5\031R\300\2308g\302\255s\021\236\002I $\211M-\t\226\250\201\260\262\313&*\344\372\235\263\216*\024W\237\014:\200\240\032\242\2500(\023\310\031\013ea*\245\342`E\033X(`\004\260\005\307\000m}\360\221\215\242[\205c\2132\224\342e\266\361\007)\006 \372\2458%4\206\021)\362\326\225\312C\355\234\013\025\006\200\251\320\364\0079\323\030\234\301k\213\323a\254\321\254\300\027\201b\315\001p)FS\211\001\272\322B\030 \320N%S\2016\020H$\215\nFA\202;\244*!\0040Hpd \342p;\226\254\033J\303|\200\241\201=4R\006\006SD\t\026\200\340\213\331?\2734P=L&y\310u!\025\016\233l!\302\246!\227\212\313\270%\264\250\201\2030\03785\0364\256y\022\340Xf\251\245a\002\221|\202\025\212\000[D\320\375fK\232\363q\032\326\313\007\0269 \007\026\366\310\001\326 J\0208\202\017\020\256\\qWE\263\020\3669d\2447\371\006\034\323\226n3^q\263\245\266\r\240\313\013\244c^\270\252E\205b\216\336\350\312\315\204ra*s\001K<\016\343\310\365T\344\260\247T\270\320\325\233\237\202\226\005%\001\246O]\343\032X\310;\034\3167IK\305q\025L\362\026\035@D\201\302\n\005\221@N\nUD\031\220\240\202^\324\351\316\302!\035\214$d0W\222'\004\320\204\364\210\252\002\364\231\027\266\0218\253\232t\222Q\352\304#zP\002 \253\"\326\002\\\220\004B\270\232\220R\232\210\304\340\312\222\ra*F\304\2062&\n\251\270\000\204\260h\226\274\202\203\017\335&V\241Z\327\002D%\251\027\235\311\347-\274\214\303\230Tr\252\264\230\301\260\312E\263(\201\033\316\372oY\226s\207\334\321E\372\241j+%\002\227.7\310(\271\244\227\020^\230\310B\356F:\313N\0223\000\220\311F\366\241\304$C\265#;s\216r\001\262\321i\034;\201\232\010\001`\320\006\301T\375\024\251cp\265\310\3249H\322\237Q\034\342\016\000\343\344<\203{\302|U\362q\300\014\264s\026\305\3530\013Z""\317\241\371\321\350\016\253;\371eK_\363/l\216eQ(s\254\010\\\2332\261\\E\304g=\203\030O\336\026V\004\311q\222\223^\315QH\247\346\356Q\"-\311\237zT\270\236d\212$\310\310\236K\352!\325\255\010\366\277\217l\177\256\363\262\306\027\tg\317\202,\227\365\014~\313h\213\250\372%d\304\203\347G\304#\217\236\232E\017\340\220S\271\271\235\362\273\014\031P\212&J}\307\264\211\274z\036\034\341\357x\310\261j\227Ch\322\214\n\340P\341\212\017\",\247%\017\003\241\376z\023!\032\017\370\273\222)\302\204\202\033\364\206\000";
+    PyObject *data = __Pyx_DecompressString(cstring, 1593, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1408 bytes) */
-const char* const cstring = "x\332\215UKo\0337\020\256\001\027Q\0237\206\233\004)\320\006\245\321 F^r\205:u\232\244-T\307N\203\264\261\025\2531\212\024 \250\345H\336z\265\\\221\\=\372\000|\324q\217{\324QG\035u\324\321G\035u\364O\350O\350\220\253]\371\221\0069,9\034\316p\036\337\314l~SJ!\037\221\227B\003\321\373L\223\215\216\336\027>q\025\341\340\271\025\220L\203\327!JK\327\321 \215\220Ov6w\356\257=\\#\314\347D\302\037\340hETXq<\246\024(\"\252\244\022\272\236v}\242;\001\250<y^%\035\021\022\037\200\023-H\200r'\025\364>\370D\2016\004Ya\276/4\323\256\360)\252\273~m\205pW\242\021\267\tF{\213y\n\362\273a\245\356jRe\256\007\374\021)\363b\340\022T\341\232\212&:z\361\036\371\201qN\361-\2500\347@\203\322yh\203\023\232\227\363Z2\016\224\005nz\267\232\335\255fw\371\240\323\346\256b\025\017\300O\326\260N\254\327d\323\257\271>\224E\340:\004m\020\267\036\010\251\215\020\251JQ'o\261\351\010\ty\260z\351F~\303\2640\t$\220\242\202\312\035\022*\214\2300\342\004\034\252\304\032\344\200&%\246\016\023\312H>hsR\305\250\023\300\270\300\004\032\007\366\031\246\307\\w\010\021\322\354m+\226\2579\256J\334\347O\014\216~M\211P:\360}\321qD\350\353\242\352\370\016f/\335\363\224\242\261\320\001\352\330b\240\364\304\r\242\244\020\234\267\3349\236P\220\235j\240\233\314\0131\215\226\223\262g\000\235\271\220Ps\225>\307Fs\324aj\377,\333\202\177\236\251\034\2115\233\360\177\014;\033\333\033'`\332l\202\2577\021\2152\026\3453\320\257\215\177?\241U\201\265\315\274\347x\211\331\306m\313c\265\237]4\360\013\223\007\240\267\003\360\267%\007i\027\243\274#\224k\353\223\356t\332\370=\305\336\240/\241\255_A\365\3254\220]\360\274]\320\033\350\374\256\026\201\371\354\233\206(K\254\332\214H\330a\305:\231\224\365n\032\212-k\273`\356\321}L\020\315\216mLAv:\003Y\312>\207Wr\221\302\223\234f\250$\347\024\214\344\224b0=i&uJb\004|\206GFO}\337\227\300\370\216\020\336\246m\001!\313\201\027\252B9\014<\370\325?\020-\2379\310\265h\271b\272\231.\021\330/>(JY\213\231\030\337\253\227\336\331\344\202w*\232*~\220(b\267i\341\010\257\022V\253\230R\345\376\211-\346b~""\251\313\221\360\201\2728|$s\354\253\266\262\035\341;\241\224(\223\257\206:\224\306=npO\267):\246c\301T\032\264\035\252+v\305\2221;f<E\r\332\001H\267\236X\244\264\032\372\016\245\010\212]\022\300h\212\321\351V\242\256\242Y\212\220\226\241\357cK\273\032\352\212zB\004\224\326\031z\217\033\324q~S\237\325\215\257\323#Ru\301C\017f;\265\"v\207\226Y\332zV\020g\0336\020A\200#\004\035\305\371B\235}p\016TXON\230\223\320\233\336Lc0\244\t?\241B\037+\374\000m\246={\206m\013(\3415\355(\245\264a\301\301=d^\352\346\264\324\351\271\242\317\030\3206dR\304\247'K\342#&m\226D\252m\241*V\005\005^\025g%OK\376\364\370\261\3354M\026R8\237\231\2157\3531\372\226~\263\375bY\246]\2609\2506}\236t\314\3119\226\365\315\2319F\251Q\245S/\021j$D\313>\222\374\036\303\200\343\353\241\202\314\270-\027\273\250\026\223\276\371\314\324?\234\233\314\177\331+\364\266\372\313\207\305I\356\263x-\376k|\347\321py\270>Z\035\227^Mr7\342\275\361\315\357\206\245au\364\364hn\222[\3546\243\275\270\230I\367W\207K\303\345\367\224[=Zz\207\344\361T\362\376\2401\\\0345\316J\036\347>\232,\\\211\276\211\257\367\254\326?qq\262\260\024-\215?1\021 \375Id\203\270\324]\353\266\"\036\337\214\253\275\027\375\306d\341Z\2647\376\374\301\2404\340\303\273\243\327GkGz\274[6\342+\361R\242\360m\364,.\330\307\242\333q!~\321k\364/\016\226\007\005s\273\320}\036\225\314\366\"j\306\245\230\031\336\307\335R\227e\351z<,\014\267\217\n\357\314\301b\267q8\367o\356\203\017/w\313\321\247\361\325\370\367\376\325~i2\277\320}\026\025\242\255\370^\217M\346/\0346\273{\321&\336\242A\214f\222\273\0365\216q\321\361zo\245\177\255\357\014\256\016\336\214.\214\302\243\r\023\304\233\361\233\312\270\342\030E\314\326\342x\361\266y\264_\2632\250x\21237\263\177#\346\275\345\367\267\375\244\327\352\303\340kL\337\312\350:\306\225\231\273\325\343\375\345\376\372\340\356poT<>\315)u\227Mq\335\352\261^\263_:\234;\236\377\"n\214\311W\203K\303\307\243\003SZ\363W\242\007q\2567\327[2/\376\035\255\307ht\005S\237\033\\\036\242G\227\272\205\377Q{\030?\264\210\317\324\356\240""\325\307\003\177T\264j\377\001\300)G\341";
-    PyObject *data = __Pyx_DecompressString(cstring, 1408, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1415 bytes) */
+const char* const cstring = "x\332\215UKo\0337\020\256\001\027Q\0237\206\233\004)\320\006\245\321 F^r\205:u\232\244-T\307N\203\264\261\025\2535\212\024 \250\345H\332zE\256H\256,\365\001\370\250\343\036\367\250\243\216:\352\250\243\217:\352\350\237\320\237\320!W\017?\3224\207%\207\363\340\314|3\303\315n*%\325#\362R\032 \246\312\014\331h\231\252\024\304\327\204C\340\227@1\003A\213h\243|\317\200\262J\202\354l\356\334_{\270F\230\340D\301\357\340\031MtT\362\002\2465h\"\313\244\024\371\201\361\0051\255\020t\226</\223\226\214\210\000\340\304H\022\242\336I\003S\005A4\030K\220\025&\2044\314\370RP4\367Ee\205p_\241\023\277\001\326z\213\005\032\262\273Q\251\346\033Rf~\000\374\021)\362|\350\0234\341\206\312\006\006z\361\036\371\216qN\361.(1o\337\2006Yh\202\027\331\233\263F1\016\224\205\376D\266:\225\255Ne\331\260\325\344\276f\245\000@\244kT#.j\262)*\276\200\242\014}\217\240\017\342\327B\251\214U\"e%k\344\r>=\251 \013\316n\262\221_\021\026\246\200\204J\226\320\270E\"\215\031\023F\274\220C\2318\207\034\320\245B\350\020PF\262a\223\2232f\235\026\214K\004\320\006Pe\010\217\025\267\010\221\312\356M\247\226\255x\276N\303\347Ol\035EE\313Hy\360m\336\363d$L^\267\204\207\350M\366,\245\350,\362\200z\256\031(=!\301*i,\316\033d^ 5LO\0250T\013\026\352\2524\2249\356D4+\322\031\201\202\212\257\31596\272\244\036\323\325\263l\327\000\347\231\332S\330\267)\377\373\250\265\261\275q\242T\233\r\020f\023+R\304\306\374\001\275I\354k\026<G&\"\215\333V\300*?\372x\361OL\355\203\331\016Al+\016\312-\326hGj\337\365&\335i5\361{\212sA_B\323\274\202\362\253q\002\273\020\004\273`60\350\3351\006\273F\206\366sw[\242\250\260s\247D\312\216J.\310\264\265w'\251\270\326v\013\342\217\341#@tzl\"\004\323\323\231\262M\330\347j\226\nN\226(\345\314*\223\236'\005IO\223:\214O\206)3!1\013>\253\311\224\036\307_U\300\370\216\224\301\246\033\005\251\212a\020\351\\1\n\003\370Y\354\313\003\301<\344\272\212\371r\274\331i\22187\0024\245\354\200\331<\337i\246\336:\354\222\267J\2305\337O\rq\352\214\364dP\212\312e\204U\373\177\340\250\371\2101\3659\022\002\250\217""\217\220b\236\273\325u\270'\205\027)\205:\331rd\"e\303\343\266\007&\333\270Bvr\301v\0334=jJn\305\366\261{\203\005\223\312A3\004\345\327R\217\224\226#\341Q\212\2059Y\233\363\243\344T\322\222R\352k:\205\ni\025\t\201#\356\033\250i\032H\031RZc\230\005nP\303\367\234\nV\2631\217\217H\325$\217\002\230\355\324\251\270\035\016\354\3224\263\3068;\274\241\014C|R0\025|o\250W\005o_G\265\364\204\330D\301X2\216\326\222\026\206\224\212\004v\373>\372\234\314\357\031\266k\244\224\327pO+\245uW$\334#\026L\302\034\267==7\000S\0064-\2316\363\351W&\215\021A\233\201H\215kX\315\312\240!(\343\333\311'\255\177\372)r\2235\006\013)|\257\231\313W\317\212s~\366\334\3348\226\035\033\034\022j\354\314\247\223s\362M\233\316\317\2317\215RkJ\307Qb\251\221\220\007\356\222\364w\031\205\034o\2174L\235c\303E\351\242\017\230\022\366\263\177\201\303\271\321\374\347\235\\g\253\273|\230\037e>I\326\222?\207w\036\365\227\373\353\203\325a\341\325(s#\331\033\336\374\246_\350\227\007O\217\346F\231\305v#\336K\362'\264\255\220\375\277bw\265\277\324_~G\275\325\243\245\267h\036\2175\357\367\352\375\305A\375\254\346q\346\203\321\302\225\370\253\344z\307Y\375\235\344G\013K\361\322\360#\233*\322\037\305.\333K\355\265\366A\314\223\233I\271\363\242[\037-\\\213\367\206\237>\350\025z\274\177w\360\313\321\332\221\031\356\026\255\372J\262\224\032|\035?Kr\356\262\370v\222K^t\352\335\213\275\345^\316J\027\332\317\343\202\335^\304\215\244\2200\313\373\260]h\263)R\217\373\271\376\366Q\356\255\030,\266\353\207s\377d\336{\377r\273\030\177\234\\M~\353^\355\026F\363\013\355gq.\336J\356u\330h\376\302a\243\275\027o\242\024\035b6\243\314\365\270~\214\213I\326;+\335k]\257w\265\367zpa\020\035m\330$^\017_\227\206%\317\032\"Z\213\303\305\333\366\322n\305\351\240\341)\316\334\314\377\215\204w\226\337\335\367\223\316A\027z_\"|+\203\353\230\327\324\335\255\016\357.w\327{w\373{\203\374\361iN\241\275l\273\360V\207u\032\335\302\341\334\361\374gI}H\276\350]\352?\036\354\333\036\234\277\022?H2\235\271\316\222\275\361\257x=A\247+\010}\246w\031;o\376R;""\367\037f\017\223\207\256\3423\263;\350\365qO\014\362\316\354_~\234`\216";
+    PyObject *data = __Pyx_DecompressString(cstring, 1415, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (2756 bytes) */
-const char* const bytes = ".Error: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Submit failed: TdApi on_dt_over \n, ?add_notebacktest.execution.trade_apibacktest/execution/trade_api.pyxdisableenableenum class EngineTopic not importable from backtest.execution.core.engine.engine. You are probably using a cpdef enum declared in a .pxd file that does not have a .py  or .pyx file.gcisenabled<stringsource>AccountAsyncApiAsyncApi.__reduce_cython__AsyncApi.__setstate_cython__AsyncApi.closeAsyncApi.getvalue_asyncAsyncApi.on_dt_over_asyncAsyncApi.register_asyncAsyncApi.set_cash_asyncAsyncApi.submit_asyncAsyncApi.subscribe_asyncBuyCOCEngineTopicEventExecTypeGetValueHistoricalIntEnumIntFlagLimitMarketOpenOrderOrderTypePosition__Pyx_PyDict_NextRefRegisterSellSetCashStopStopLimitStopTrailStopTrailLimitSubTopicSubmitSubscribeTdApiTdApi.__enter__TdApi.__exit__TdApi.__reduce_cython__TdApi.__setstate_cython__TdApi.getvalueTdApi.on_dt_overTdApi.registerTdApi.set_cashTdApi.startTdApi.stopTdApi.submitTdApi.subscribeThreadPoolExecutorTplus1TupleUnkownactorasyncioasyncio.coroutines__await__backtest.execution.core.engine.enginebacktest.execution.trade_apibodybt_sdk.core.protocolbuffer_sizeclient_idcline_in_tracebackcloseconcurrent.futures__dict___dict__enter__enumeventexc_tbexc_typeexc_val__exit__experiment_id__func__get__getstate__getvaluegetvalue_async_is_coroutineis_runningitems_loop__main___member_names___members__module__module____name____new__nexton_dt_overon_dt_over_asyncpopprint__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AsyncApi__pyx_unpickle_TdApi__pyx_vtable__q_size__qualname____reduce____reduce_cython____reduce_ex__registerregister_asyncresultrun_coroutine_threadsafeselfsendset_cashset_cash_async__set_name__setdefault__setstate____setstate_cython__startstatestopsub_topicsubmitsubmit_asyncsubscribesubscribe_async__test__threadingthrowtopictypingupdateuse_""setstatevaluevalueswarnwarnings\200\001\330\004#\2401\240F\250!\200A\330\010\033\2304\230{\320*:\270!\2707\300/\320QR\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270!\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270/\310\021\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\340\010\033\2304\230{\250-\260q\270\017\300q\330\010\035\230W\320$=\270Q\270f\300D\310\001\340\010\t\330\014\023\2206\230\027\240\001\330\010\017\210}\230A\330\014\021\220\021\320\022#\2401\240A\330\014\022\220!\200A\330\010\013\2104\210w\220d\230$\230f\240K\250q\330\014\025\220W\320\0345\260Q\260d\270+\300V\3104\310t\320ST\330\014\022\220'\230\021\200A\330\010\013\2109\220G\2301\330\014\021\220\021\220)\2301\230K\240q\250\n\260!\2601\200A\330\010\014\210I\220Q\330\010\014\210K\220v\230Q\230a\200A\330\010\r\210Q\210a\330\010\033\2304\230{\320*;\2701\270O\3101\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\017\210q\200\001\360\010\000\005\016\210T\220\030\230\024\230\\\250\024\250Q\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2307\240'\250\025\250c\260\024\260[\300\007\300u\310C\310t\320S[\320[b\320bc\330\004\007\200q\330\010\017\320\017)\250\024\250Q\250g\260[\300\007\300q\340\010\017\320\017)\250\024\250Q\250g\260[\300\001\200\001\360\010\000\005\016\210T\220\035\230d\240!\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230<\240w\250e\2603\260d\270'\300\027\310\001\330\004\007\200q\330\010\017\320\017&\240d\250!\2507\260+\270W\300A\340\010\017\320\017&\240d\250!\2507\260+\270Q\210!\200\001\330\004&\240a\240v\250Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2205\230\010\240\001\240\021\330\004\007\200|\2207\230!""\330\010'\240q\250\010\260\016\270a\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2208\2308\2401\240A\330\004\007\200|\2207\230!\330\010*\250!\250;\260n\300A\330\004\013\2101";
+    #else /* compression: none (2813 bytes) */
+const char* const bytes = ".Error: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Submit failed: TdApi on_dt_over \n, ?add_notebacktest.execution.trade_apibacktest/execution/trade_api.pyxdisableenableenum class EngineTopic not importable from backtest.execution.core.engine.engine. You are probably using a cpdef enum declared in a .pxd file that does not have a .py  or .pyx file.gcisenabled<stringsource>AccountAsyncApiAsyncApi.__reduce_cython__AsyncApi.__setstate_cython__AsyncApi.closeAsyncApi.get_snapshot_asyncAsyncApi.on_dt_over_asyncAsyncApi.register_asyncAsyncApi.set_cash_asyncAsyncApi.submit_asyncAsyncApi.subscribe_asyncBuyCOCEngineTopicEventExecTypeHistoricalIntEnumIntFlagLimitMarketOpenOrderOrderTypePosition__Pyx_PyDict_NextRefRegisterSellSetCashSnapshotStopStopLimitStopTrailStopTrailLimitSubTopicSubmitSubscribeTdApiTdApi.__enter__TdApi.__exit__TdApi.__reduce_cython__TdApi.__setstate_cython__TdApi.get_snapshotTdApi.on_dt_overTdApi.registerTdApi.set_cashTdApi.startTdApi.stopTdApi.submitTdApi.subscribeThreadPoolExecutorTplus1TupleUnkownactorasyncioasyncio.coroutines__await__backtest.execution.core.engine.enginebacktest.execution.trade_apibodybt_sdk.core.protocolbuffer_sizeclient_idcline_in_tracebackcloseconcurrent.futures__dict___dict__enter__enumeventexc_tbexc_typeexc_val__exit__experiment_id__func__getget_snapshotget_snapshot_async__getstate___is_coroutineis_runningitems_loop__main___member_names___members__module__module____name____new__nexton_dt_overon_dt_over_asyncpopprint__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AsyncApi__pyx_unpickle_TdApi__pyx_vtable__q_size__qualname____reduce____reduce_cython____reduce_ex__registerregister_asyncresultrun_coroutine_threadsafeselfsendset_cashset_cash_async__set_name__setdefault__setstate____setstate_cython__startstatestopsub_topicsubmitsubmit_asyncsubscribesubscribe_async__test__threadingthrowtopic""typingupdateuse_setstatevaluevalueswarnwarnings\200\001\330\004#\2401\240F\250!\200A\330\010\033\2304\230{\320*:\270!\2707\300/\320QR\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\320*=\270Q\270a\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270!\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270/\310\021\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\340\010\033\2304\230{\250-\260q\270\017\300q\330\010\035\230W\320$=\270Q\270f\300D\310\001\340\010\t\330\014\023\2206\230\027\240\001\330\010\017\210}\230A\330\014\021\220\021\320\022#\2401\240A\330\014\022\220!\200A\330\010\013\2104\210w\220d\230$\230f\240K\250q\330\014\025\220W\320\0345\260Q\260d\270+\300V\3104\310t\320ST\330\014\022\220'\230\021\200A\330\010\013\2109\220G\2301\330\014\021\220\021\220)\2301\230K\240q\250\n\260!\2601\200A\330\010\014\210I\220Q\330\010\014\210K\220v\230Q\230a\200A\330\010\r\210Q\210a\330\010\033\2304\230{\320*;\2701\270O\3101\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\017\210q\200\001\360\010\000\005\016\210T\220\030\230\024\230\\\250\024\250Q\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2307\240'\250\025\250c\260\024\260[\300\007\300u\310C\310t\320S[\320[b\320bc\330\004\007\200q\330\010\017\320\017)\250\024\250Q\250g\260[\300\007\300q\340\010\017\320\017)\250\024\250Q\250g\260[\300\001\200\001\360\010\000\005\016\210T\220\035\230d\240!\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230<\240w\250e\2603\260d\270'\300\027\310\001\330\004\007\200q\330\010\017\320\017&\240d\250!\2507\260+\270W\300A\340\010\017\320\017&\240d\250!\2507\260+\270Q\210!\200\001\330\004&\240a""\240v\250Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2205\230\010\240\001\240\021\330\004\007\200|\2207\230!\330\010'\240q\250\010\260\016\270a\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2208\2308\2401\240A\330\004\007\200|\2207\230!\330\010*\250!\250;\260n\300A\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -14829,7 +14829,7 @@ const char* const bytes = ".Error: Note that Cython is deliberately stricter tha
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 157; i < 174; i++) {
+    for (int i = 157; i < 175; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -14840,7 +14840,7 @@ const char* const bytes = ".Error: Note that Cython is deliberately stricter tha
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 174; i++) {
+    for (Py_ssize_t i = 0; i < 175; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
@@ -14848,7 +14848,7 @@ const char* const bytes = ".Error: Note that Cython is deliberately stricter tha
     #if CYTHON_IMMORTAL_CONSTANTS
     {
       PyObject **table = stringtab + 157;
-      for (Py_ssize_t i=0; i<17; ++i) {
+      for (Py_ssize_t i=0; i<18; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
         if (_Py_IsOwnedByCurrentThread(table[i]) && Py_REFCNT(table[i]) == 1)
@@ -14942,7 +14942,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 58};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_experiment_id, __pyx_mstate->__pyx_n_u_event};
-    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_getvalue_async, __pyx_mstate->__pyx_kp_b_iso88591__5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_get_snapshot_async, __pyx_mstate->__pyx_kp_b_iso88591__5, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 5, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS|CO_COROUTINE), 65};
@@ -14997,7 +14997,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 141};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_experiment_id};
-    __pyx_mstate_global->__pyx_codeobj_tab[15] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_getvalue, __pyx_mstate->__pyx_kp_b_iso88591_A_4_W_QfD_vWA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[15])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[15] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_get_snapshot, __pyx_mstate->__pyx_kp_b_iso88591_A_4_Qa_W_QfD_vWA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[15])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 146};

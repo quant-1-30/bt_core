@@ -62,9 +62,11 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         self.rets.total.total = 0
 
     def on_dt_over(self):
-        snap = self._owner.get_snapshot()
-        p = snap.positions
-        for p_obj in p:
+        # snap = self._owner.get_snapshot()
+        snap = self.get_shm_events()  # --- IGNORE ---
+        positions = [_p for _p in snaps if _p["type"] == "position"]
+
+        for p_obj in positions:
             pnl = p_obj.pnl
 
             if p_obj.isclosed:
@@ -89,6 +91,7 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
     def calcuate_total(self):
         # caculate total
         _trades = self._owner._trades
+        snap = self.get_shm_events()[-1]  # --- IGNORE ---
 
         _size = np.array([_t.executed_size for _t in _trades])
         _isbuy = np.array([1 if _t.isbuy else -1 for _t in _trades ])

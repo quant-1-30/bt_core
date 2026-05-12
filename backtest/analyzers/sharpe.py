@@ -137,38 +137,31 @@ class SharpeRatio(bt.Analyzer):
 
     def stop(self):
         super(SharpeRatio, self).stop()
+        rate = self.p.riskfreerate  #
+        factor = None
+
         if self.p.legacyannual:
-            rate = self.p.riskfreerate
             # retavg = average([r - rate for r in self.anret.rets])
             # retdev = standarddev(self.anret.rets)
             retavg = np.mean([r - rate for r in self.anret.rets])
             retdev = np.std(self.anret.rets)
-
             self.ratio = retavg / retdev
         else:
             # Get the returns from the subanalyzer
             returns = list(self.timereturn.get_analysis().values())
-
-            rate = self.p.riskfreerate  #
-
-            factor = None
-
             # Hack to identify old code
             if self.p.timeframe == TimeFrame.Days and \
-               self.p.daysfactor is not None:
-
-                factor = self.p.daysfactor
-
+              self.p.daysfactor is not None:
+              factor = self.p.daysfactor
             else:
-                if self.p.factor is not None:
-                    factor = self.p.factor  # user specified factor
-                elif self.p.timeframe in self.RATEFACTORS:
-                    # Get the conversion factor from the default table
-                    factor = self.RATEFACTORS[self.p.timeframe]
+              if self.p.factor is not None:
+                  factor = self.p.factor  # user specified factor
+              elif self.p.timeframe in self.RATEFACTORS:
+                  # Get the conversion factor from the default table
+                  factor = self.RATEFACTORS[self.p.timeframe]
 
             if factor is not None:
                 # A factor was found
-
                 if self.p.convertrate:
                     # Standard: downgrade annual returns to timeframe factor
                     rate = pow(1.0 + rate, 1.0 / factor) - 1.0
@@ -185,22 +178,19 @@ class SharpeRatio(bt.Analyzer):
                 # retdev = standarddev(ret_free, avgx=ret_free_avg,
                 #                      bessel=self.p.stddev_sample)
                 retdev = np.std(ret_free)
-
                 try:
                     ratio = ret_free_avg / retdev
-
                     if factor is not None and \
                        self.p.convertrate and self.p.annualize:
-
+                        
                         ratio = math.sqrt(factor) * ratio
                 except (ValueError, TypeError, ZeroDivisionError):
                     ratio = None
             else:
                 # no returns or stddev_sample was active and 1 return
                 ratio = None
-
+            
             self.ratio = ratio
-
         self.rets['sharperatio'] = self.ratio
 
 

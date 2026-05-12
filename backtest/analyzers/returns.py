@@ -100,11 +100,11 @@ class Returns(bt.TimeFrameAnalyzerBase):
 
     def stop(self):
         super(Returns, self).stop()
-        
-        v = self._owner.get_snapshot()
-        acct = v.account
+        # v = self._owner.get_snapshot()
+        snap = self.get_shm_events()
+        acct = [act for act in snaps if act["type"] == "account"][-1]
+
         self._value_end = acct.portofolio_value + acct.cash
-        
         # Compound return
         try:
             nlrtot = self._value_end / self._value_start

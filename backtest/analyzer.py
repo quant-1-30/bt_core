@@ -79,7 +79,10 @@ class MetaAnalyzer(MetaParams):
         if _obj._parent is not None:
             _obj._parent._register(_obj) # analyzer with analyzer
 
-        # Return to the normal chain
+        # Register to shm
+        shm = _obj._owner.shm_chan
+        _obj.shm_id = shm.register_consumer()
+        _obj.shm = shm
         return _obj, args, kwargs
 
 
@@ -219,6 +222,10 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
         '''
         return self.rets
+
+    def get_shm_events(self):
+        '''Returns the events from the shared memory channel for this analyzer'''
+        return self.shm.get_events(self.shm_id)
 
     def print(self, *args, **kwargs):
         '''Prints the results returned by ``get_analysis`` via a standard

@@ -54,9 +54,7 @@ class AnnualReturn(bt.Analyzer):
         self.rets = list()
         self.ret = OrderedDict()
 
-        store = self._owner.store
-
-        v = store.subscribe(self._owner.experiment_id, "account") # AccountBody
+        v = self._owner.store.subscribe(self._owner.experiment_id, "account") # AccountBody
 
         for i in range(len(v) - 1, -1, -1):
             dt = num2date(v[i].datetime)

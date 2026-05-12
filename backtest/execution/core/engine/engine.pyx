@@ -96,12 +96,10 @@ cdef class BackEngine:
         resp = await self.simulator.on_dt_over(event)
         return resp
 
-    async def getvalue(self, object event): # macht case in suited for cython
-        cdef Position p_obj
-        cdef Account acct_obj
+    async def get_snapshot(self, object event): # macht case in suited for cython
         cdef object resp
  
-        resp = await self.simulator.getvalue(event)
+        resp = await self.simulator.get_snapshot(event)
         return resp
 
     async def subscribe(self, object event):

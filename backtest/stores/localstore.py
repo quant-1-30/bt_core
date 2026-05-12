@@ -71,7 +71,7 @@ class LocalStore(Store):
 
         self._runner = AsyncRunner()
         self.actor = actor
-    
+
     def start(self, *args, **kwargs):
         self._runner.start() # new_event_loop
         _loop = self._runner.get_loop()
@@ -95,16 +95,10 @@ class LocalStore(Store):
         '''Returns the assets data'''
         return self._feed.instrument
     
-    def get_bench_ret(self) -> pa.Table:
-        table = self._feed.bench_ret
+    def get_benchmark_ret(self) -> pa.Table:
+        table = self._feed.benchmark_ret
         return table
-
-    def get_snapshot_tick(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
-        '''Returns the current snapshot'''
-        snapshot = self._feed.get_snapshot(psids, tick)
-        # print("LocalStore get_snapshot_tick snapshot ", snapshot)   
-        return snapshot
-    
+ 
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------
 
     def register(self, strategy: str, strat_info: str) -> bytes:
@@ -112,30 +106,36 @@ class LocalStore(Store):
         resp = self.broker.register(body)
         return resp
     
-    def set_cash(self, experiment_id: bytes, session: int, cash: float) -> List[SnapshotBody]:
+    def set_cash(self, experiment_id: bytes, session: int, cash: float) -> SnapshotBody:
         body = CashBody(cash=cash, session=session)
         resp = self.broker.set_cash(experiment_id, body)
         return resp
     
-    def submit(self, experiment_id: bytes, body: OrderBody) -> List[SnapshotBody]:
+    def submit(self, experiment_id: bytes, body: OrderBody) -> SnapshotBody:
         resp = self.broker.submit(experiment_id, body)
         return resp
     
-    def getvalue(self, experiment_id: bytes) -> List[SnapshotBody]:
-        resp = self.broker.getvalue(experiment_id)
-        return resp
-    
-    def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[SnapshotBody]:
-        return self.broker.subscribe(topic, experiment_id, body)
-    
-    def on_dt_over(self, experiment_id: bytes) -> List[SnapshotBody]:
+    def on_dt_over(self, experiment_id: bytes) -> SnapshotBody:
         body = self._feed.on_dt_over()
         if body:
-            # import pdb; pdb.set_trace()
             resp = self.broker.on_dt_over(experiment_id, body)
             return resp
         return None
     
+    def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Union[AccountBody, PositionBody]]:
+        return self.broker.subscribe(topic, experiment_id, body)
+
+# ------------------------------------------------------------------- snapshot api --------------------------------------------------------------------
+
+    def get_snapshot(self, experiment_id: bytes) -> SnapshotBody:
+        resp = self.broker.get_snapshot(experiment_id)
+        return resp
+    
+    def getdata(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
+        '''Returns the current snapshot'''
+        snapshot = self._feed.get_snapshot(psids, tick)
+        return snapshot
+
     def cancel(self, order_id: bytes):
         raise NotImplementedError("cancel not implemented in BTStore")
     

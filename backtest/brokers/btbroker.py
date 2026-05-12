@@ -84,25 +84,25 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
         data = self.tdapi.register(body)
         return data.body.experiment_id
     
-    def set_cash(self, experiment_id:bytes, body:CashBody) -> List[SnapshotBody]:
+    def set_cash(self, experiment_id:bytes, body:CashBody) -> SnapshotBody:
         data = self.tdapi.set_cash(experiment_id, body)
         return data.body
     
-    def submit(self, experiment_id:bytes, body:OrderBody) -> List[SnapshotBody]:
+    def submit(self, experiment_id:bytes, body:OrderBody) -> SnapshotBody:
         data = self.tdapi.submit(experiment_id, body) 
         return data.body
-
-    def getvalue(self, experiment_id:bytes) -> List[SnapshotBody]:
-        data = self.tdapi.getvalue(experiment_id) 
-        return data.body
     
+    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> SnapshotBody:
+        data = self.tdapi.on_dt_over(experiment_id, body)
+        return data.body
+
     def subscribe(self, topic:int, experiment_id:bytes) -> List[Union[AccountBody, PositionBody]]: 
         data = self.tdapi.subscribe(topic, experiment_id, body)
         body = [r.body for r in data] 
         return body
-
-    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> List[SnapshotBody]:
-        data = self.tdapi.on_dt_over(experiment_id, body)
+    
+    def get_snapshot(self, experiment_id:bytes) -> SnapshotBody:
+        data = self.tdapi.get_snapshot(experiment_id) 
         return data.body
     
     def stop(self):

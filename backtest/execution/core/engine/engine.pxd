@@ -7,7 +7,7 @@ cpdef enum EngineTopic:
     SetCash = 1
     Submit = 2
     Tplus1 = 3 
-    GetValue = 4
+    Snapshot = 4
     Subscribe = 5
 
 

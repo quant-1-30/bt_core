@@ -96,11 +96,8 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
 
     def start(self):
         super(Benchmark, self).start()
-        ret_table = self._owner.store.get_bench_ret()
 
-        # close = rawtable["close"].to_numpy() # concat memory not sequence so zero_copy_only=True valueError
-        # rets = close[1:] / close[:-1]
-        # padded = np.pad(rets, (1,0), mode='constant', constant_values=0.0) # left and right / 2 stand both
+        ret_table = self._owner.store.get_benchmark_ret()
         self.dts = ret_table["day"].to_numpy()
         self.returns = ret_table["ret"].to_numpy()
 
@@ -108,5 +105,4 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         loc = np.searchsorted(self.dts, self.dtcmp)
         loc_ret = self.returns[loc] if loc < len(self.dts) else np.nan
         self.rets[self.dtcmp] = loc_ret
-
           

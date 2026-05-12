@@ -55,10 +55,11 @@ class Transactions(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         # super(Transactions, self).next()  # let dtkey update
-        dt_txns = self._owner._trades
+        snap = self.get_shm_events()  # --- IGNORE ---
+        dt_txns = [_t for _t in snaps if _t["type"] == "trade"]
+
         self.rets[self.dtcmp] = dt_txns
         if dt_txns:
-            import pdb; pdb.set_trace()
             print("Transactions on_dt_over ", self.dtcmp, dt_txns)
 
     def stop(self):

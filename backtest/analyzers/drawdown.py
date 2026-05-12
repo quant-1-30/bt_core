@@ -80,8 +80,9 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.maxddlen = 0
 
     def on_dt_over(self):
-        snap = self._owner.get_snapshot()
-        acct = snap.account
+        # snap = self._owner.get_snapshot()
+        snap = self.get_shm_events()
+        acct = [act for act in snaps if act["type"] == "account"][-1]
         value = acct.portfolio_value + acct.cash
 
         # update the maximum seen peak
@@ -102,5 +103,4 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
 
         self.rets['maxDrawdown'] = maxdd
         self.rets['maxDrawdownLength'] = maxddlen
-        # import pdb; pdb.set_trace() 
         print(f"DrawDown on_dt_over: dtcmp {self.dtcmp}, value {value}, peak {self.peak}, dd {dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")

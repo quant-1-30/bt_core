@@ -55,12 +55,12 @@ cdef class AsyncApi:
         )
         return await self.engine.on_dt_over(event)
 
-    async def getvalue_async(self, bytes experiment_id):
+    async def get_snapshot_async(self, bytes experiment_id):
         cdef object event = Event(
-            topic=EngineTopic.GetValue,
+            topic=EngineTopic.Snapshot,
             experiment_id=experiment_id
         )
-        return await self.engine.getvalue(event)
+        return await self.engine.get_snapshot(event)
 
     async def subscribe_async(self, int topic, bytes experiment_id, object body):
         cdef object event = Event(
@@ -138,8 +138,8 @@ cdef class TdApi:
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
         return future.result() 
 
-    cpdef object getvalue(self, bytes experiment_id):
-        cdef object coro = self._async_api.getvalue_async(experiment_id)
+    cpdef object get_snapshot(self, bytes experiment_id):
+        cdef object coro = self._async_api.get_snapshot_async(experiment_id)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
         return future.result()
     

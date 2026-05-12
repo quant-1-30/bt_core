@@ -536,3 +536,10 @@ volatile int64_t head 保证你读到的是内存里的值。
 
 #### 3. 如果消费者崩溃了，槽位怎么回收？
 这是共享内存最头疼的问题。如果消费者 `i=2` 异常退出了，`active_consumers[2]` 依然是 `True`，会导致槽位浪费，甚至导致主进程因为等待这个永远不会移动的 `tail[2]` 而永久阻塞。
+
+
+# **`shared_memory.SharedMemory`**：在底层，它在 Linux / macOS 下调用的是 `shm_open()` + `ftruncate()` + `mmap(..., MAP_SHARED, ...)`。这就保证了这块内存在 OS 层面是唯一的，并且所有进程映射后的修改都能互现。
+# bytearray is allocate on heaq
+# 此处省略：通过 mmap 或 sysv ipc 分配 SHM，并将指针绑定到 header 和 buffer
+# 此处省略 OS 级别的 mmap/shmget 内存分配
+
