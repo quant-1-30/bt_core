@@ -2,11 +2,11 @@
 from libc.stdint cimport int64_t, int32_t, uint8_t
 
 cdef enum EventType:
-    EACCOUNT = 1
-    EPOSITION = 2
-    ETRADE = 3
-    EORDER = 4
-    EDTOVER = 5
+    eACCOUNT = 1
+    ePOSITION = 2
+    eTRADE = 3
+    eORDER = 4
+    eSENTINEL = 5
 
 cdef struct AccountData:
     int64_t datetime
@@ -19,6 +19,7 @@ cdef struct AccountData:
 cdef struct PositionData:
     char sid[16]          # bytes char数组 
     int64_t datetime
+    int64_t created_dt
     double cost_basis
     double pnl
     int32_t size
@@ -41,7 +42,7 @@ cdef struct OrderData:
     int32_t order_type
     int32_t exec_type
 
-cdef struct DtOverData:
+cdef struct SENTINEL:
     int64_t datetime
 
 cdef union EventData:
@@ -49,8 +50,7 @@ cdef union EventData:
     PositionData position # 48
     TradeData trade # 64
     OrderData order #
-    DtOverData dtover 
-
+    SENTINEL sentinel
 
 cdef struct EventMsg:
     int32_t type
@@ -81,20 +81,26 @@ cdef class SharedRingBuffer:
 
     cpdef int register_consumer(self)
     
+    cdef void _advance(self) noexcept nogil
+    
     cdef void _wait_if(self, RingHeader* h) noexcept nogil # nogil 函数不能接收 self必须接收 C 指针
+   
+    cdef EventMsg* _get_msg(self) noexcept nogil
+    
+    cpdef publish_sentinel(self, int64_t tick)
     
     cdef void publish_account(self, object py_account)
     
     cdef void publish_position(self, object py_pos)
 
-    cdef void publish_order(self, object py_order)
-
-    cdef void publish_dt_over(self, int64_t tick)
+    cdef void publish_trade(self, object py_trade)
     
-    cpdef publish_snapshot(self, object py_snapshot, object py_order)
+    cpdef publish_snapshot(self, object py_snapshot)
+    
+    cpdef publish_order(self, object py_order)
 
     cpdef get_events(self, int32_t consumer_id)
 
-    cdef close(self)
+    cpdef close(self)
 
-    cdef unlink(self)
+    cpdef unlink(self)

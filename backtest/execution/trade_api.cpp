@@ -3715,7 +3715,7 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
   PyObject *__pyx_tuple[1];
   PyObject *__pyx_codeobj_tab[23];
-  PyObject *__pyx_string_tab[175];
+  PyObject *__pyx_string_tab[174];
   PyObject *__pyx_number_tab[2];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
@@ -3810,161 +3810,161 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_u_Error __pyx_string_tab[1]
 #define __pyx_kp_u_Note_that_Cython_is_deliberately __pyx_string_tab[2]
 #define __pyx_kp_u_Submit_failed __pyx_string_tab[3]
-#define __pyx_kp_u_TdApi_on_dt_over __pyx_string_tab[4]
-#define __pyx_kp_u__3 __pyx_string_tab[5]
-#define __pyx_kp_u__4 __pyx_string_tab[6]
-#define __pyx_kp_u_add_note __pyx_string_tab[7]
-#define __pyx_kp_u_backtest_execution_trade_api __pyx_string_tab[8]
-#define __pyx_kp_u_backtest_execution_trade_api_pyx __pyx_string_tab[9]
-#define __pyx_kp_u_disable __pyx_string_tab[10]
-#define __pyx_kp_u_enable __pyx_string_tab[11]
-#define __pyx_kp_u_enum_class_EngineTopic_not_impor __pyx_string_tab[12]
-#define __pyx_kp_u_gc __pyx_string_tab[13]
-#define __pyx_kp_u_isenabled __pyx_string_tab[14]
-#define __pyx_kp_u_stringsource __pyx_string_tab[15]
-#define __pyx_n_u_Account __pyx_string_tab[16]
-#define __pyx_n_u_AsyncApi __pyx_string_tab[17]
-#define __pyx_n_u_AsyncApi___reduce_cython __pyx_string_tab[18]
-#define __pyx_n_u_AsyncApi___setstate_cython __pyx_string_tab[19]
-#define __pyx_n_u_AsyncApi_close __pyx_string_tab[20]
-#define __pyx_n_u_AsyncApi_get_snapshot_async __pyx_string_tab[21]
-#define __pyx_n_u_AsyncApi_on_dt_over_async __pyx_string_tab[22]
-#define __pyx_n_u_AsyncApi_register_async __pyx_string_tab[23]
-#define __pyx_n_u_AsyncApi_set_cash_async __pyx_string_tab[24]
-#define __pyx_n_u_AsyncApi_submit_async __pyx_string_tab[25]
-#define __pyx_n_u_AsyncApi_subscribe_async __pyx_string_tab[26]
-#define __pyx_n_u_Buy __pyx_string_tab[27]
-#define __pyx_n_u_COC __pyx_string_tab[28]
-#define __pyx_n_u_EngineTopic __pyx_string_tab[29]
-#define __pyx_n_u_Event __pyx_string_tab[30]
-#define __pyx_n_u_ExecType __pyx_string_tab[31]
-#define __pyx_n_u_Historical __pyx_string_tab[32]
-#define __pyx_n_u_IntEnum __pyx_string_tab[33]
-#define __pyx_n_u_IntFlag __pyx_string_tab[34]
-#define __pyx_n_u_Limit __pyx_string_tab[35]
-#define __pyx_n_u_Market __pyx_string_tab[36]
-#define __pyx_n_u_Open __pyx_string_tab[37]
-#define __pyx_n_u_Order __pyx_string_tab[38]
-#define __pyx_n_u_OrderType __pyx_string_tab[39]
-#define __pyx_n_u_Position __pyx_string_tab[40]
-#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[41]
-#define __pyx_n_u_Register __pyx_string_tab[42]
-#define __pyx_n_u_Sell __pyx_string_tab[43]
-#define __pyx_n_u_SetCash __pyx_string_tab[44]
-#define __pyx_n_u_Snapshot __pyx_string_tab[45]
-#define __pyx_n_u_Stop __pyx_string_tab[46]
-#define __pyx_n_u_StopLimit __pyx_string_tab[47]
-#define __pyx_n_u_StopTrail __pyx_string_tab[48]
-#define __pyx_n_u_StopTrailLimit __pyx_string_tab[49]
-#define __pyx_n_u_SubTopic __pyx_string_tab[50]
-#define __pyx_n_u_Submit __pyx_string_tab[51]
-#define __pyx_n_u_Subscribe __pyx_string_tab[52]
-#define __pyx_n_u_TdApi __pyx_string_tab[53]
-#define __pyx_n_u_TdApi___enter __pyx_string_tab[54]
-#define __pyx_n_u_TdApi___exit __pyx_string_tab[55]
-#define __pyx_n_u_TdApi___reduce_cython __pyx_string_tab[56]
-#define __pyx_n_u_TdApi___setstate_cython __pyx_string_tab[57]
-#define __pyx_n_u_TdApi_get_snapshot __pyx_string_tab[58]
-#define __pyx_n_u_TdApi_on_dt_over_2 __pyx_string_tab[59]
-#define __pyx_n_u_TdApi_register __pyx_string_tab[60]
-#define __pyx_n_u_TdApi_set_cash __pyx_string_tab[61]
-#define __pyx_n_u_TdApi_start __pyx_string_tab[62]
-#define __pyx_n_u_TdApi_stop __pyx_string_tab[63]
-#define __pyx_n_u_TdApi_submit __pyx_string_tab[64]
-#define __pyx_n_u_TdApi_subscribe __pyx_string_tab[65]
-#define __pyx_n_u_ThreadPoolExecutor __pyx_string_tab[66]
-#define __pyx_n_u_Tplus1 __pyx_string_tab[67]
-#define __pyx_n_u_Tuple __pyx_string_tab[68]
-#define __pyx_n_u_Unkown __pyx_string_tab[69]
-#define __pyx_n_u_actor __pyx_string_tab[70]
-#define __pyx_n_u_asyncio __pyx_string_tab[71]
-#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[72]
-#define __pyx_n_u_await __pyx_string_tab[73]
-#define __pyx_n_u_backtest_execution_core_engine_e __pyx_string_tab[74]
-#define __pyx_n_u_backtest_execution_trade_api __pyx_string_tab[75]
-#define __pyx_n_u_body __pyx_string_tab[76]
-#define __pyx_n_u_bt_sdk_core_protocol __pyx_string_tab[77]
-#define __pyx_n_u_buffer_size __pyx_string_tab[78]
-#define __pyx_n_u_client_id __pyx_string_tab[79]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[80]
-#define __pyx_n_u_close __pyx_string_tab[81]
-#define __pyx_n_u_concurrent_futures __pyx_string_tab[82]
-#define __pyx_n_u_dict __pyx_string_tab[83]
-#define __pyx_n_u_dict_2 __pyx_string_tab[84]
-#define __pyx_n_u_enter __pyx_string_tab[85]
-#define __pyx_n_u_enum __pyx_string_tab[86]
-#define __pyx_n_u_event __pyx_string_tab[87]
-#define __pyx_n_u_exc_tb __pyx_string_tab[88]
-#define __pyx_n_u_exc_type __pyx_string_tab[89]
-#define __pyx_n_u_exc_val __pyx_string_tab[90]
-#define __pyx_n_u_exit __pyx_string_tab[91]
-#define __pyx_n_u_experiment_id __pyx_string_tab[92]
-#define __pyx_n_u_func __pyx_string_tab[93]
-#define __pyx_n_u_get __pyx_string_tab[94]
-#define __pyx_n_u_get_snapshot __pyx_string_tab[95]
-#define __pyx_n_u_get_snapshot_async __pyx_string_tab[96]
-#define __pyx_n_u_getstate __pyx_string_tab[97]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[98]
-#define __pyx_n_u_is_running __pyx_string_tab[99]
-#define __pyx_n_u_items __pyx_string_tab[100]
-#define __pyx_n_u_loop __pyx_string_tab[101]
-#define __pyx_n_u_main __pyx_string_tab[102]
-#define __pyx_n_u_member_names __pyx_string_tab[103]
-#define __pyx_n_u_members __pyx_string_tab[104]
-#define __pyx_n_u_module __pyx_string_tab[105]
-#define __pyx_n_u_module_2 __pyx_string_tab[106]
-#define __pyx_n_u_name __pyx_string_tab[107]
-#define __pyx_n_u_new __pyx_string_tab[108]
-#define __pyx_n_u_next __pyx_string_tab[109]
-#define __pyx_n_u_on_dt_over __pyx_string_tab[110]
-#define __pyx_n_u_on_dt_over_async __pyx_string_tab[111]
-#define __pyx_n_u_pop __pyx_string_tab[112]
-#define __pyx_n_u_print __pyx_string_tab[113]
-#define __pyx_n_u_pyx_checksum __pyx_string_tab[114]
-#define __pyx_n_u_pyx_result __pyx_string_tab[115]
-#define __pyx_n_u_pyx_state __pyx_string_tab[116]
-#define __pyx_n_u_pyx_type __pyx_string_tab[117]
-#define __pyx_n_u_pyx_unpickle_AsyncApi __pyx_string_tab[118]
-#define __pyx_n_u_pyx_unpickle_TdApi __pyx_string_tab[119]
-#define __pyx_n_u_pyx_vtable __pyx_string_tab[120]
-#define __pyx_n_u_q_size __pyx_string_tab[121]
-#define __pyx_n_u_qualname __pyx_string_tab[122]
-#define __pyx_n_u_reduce __pyx_string_tab[123]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[124]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[125]
-#define __pyx_n_u_register __pyx_string_tab[126]
-#define __pyx_n_u_register_async __pyx_string_tab[127]
-#define __pyx_n_u_result __pyx_string_tab[128]
-#define __pyx_n_u_run_coroutine_threadsafe __pyx_string_tab[129]
-#define __pyx_n_u_self __pyx_string_tab[130]
-#define __pyx_n_u_send __pyx_string_tab[131]
-#define __pyx_n_u_set_cash __pyx_string_tab[132]
-#define __pyx_n_u_set_cash_async __pyx_string_tab[133]
-#define __pyx_n_u_set_name __pyx_string_tab[134]
-#define __pyx_n_u_setdefault __pyx_string_tab[135]
-#define __pyx_n_u_setstate __pyx_string_tab[136]
-#define __pyx_n_u_setstate_cython __pyx_string_tab[137]
-#define __pyx_n_u_start __pyx_string_tab[138]
-#define __pyx_n_u_state __pyx_string_tab[139]
-#define __pyx_n_u_stop __pyx_string_tab[140]
-#define __pyx_n_u_sub_topic __pyx_string_tab[141]
-#define __pyx_n_u_submit __pyx_string_tab[142]
-#define __pyx_n_u_submit_async __pyx_string_tab[143]
-#define __pyx_n_u_subscribe __pyx_string_tab[144]
-#define __pyx_n_u_subscribe_async __pyx_string_tab[145]
-#define __pyx_n_u_test __pyx_string_tab[146]
-#define __pyx_n_u_threading __pyx_string_tab[147]
-#define __pyx_n_u_throw __pyx_string_tab[148]
-#define __pyx_n_u_topic __pyx_string_tab[149]
-#define __pyx_n_u_typing __pyx_string_tab[150]
-#define __pyx_n_u_update __pyx_string_tab[151]
-#define __pyx_n_u_use_setstate __pyx_string_tab[152]
-#define __pyx_n_u_value __pyx_string_tab[153]
-#define __pyx_n_u_values __pyx_string_tab[154]
-#define __pyx_n_u_warn __pyx_string_tab[155]
-#define __pyx_n_u_warnings __pyx_string_tab[156]
-#define __pyx_kp_b__2 __pyx_string_tab[157]
-#define __pyx_kp_b_iso88591_1F __pyx_string_tab[158]
+#define __pyx_kp_u__3 __pyx_string_tab[4]
+#define __pyx_kp_u__4 __pyx_string_tab[5]
+#define __pyx_kp_u_add_note __pyx_string_tab[6]
+#define __pyx_kp_u_backtest_execution_trade_api __pyx_string_tab[7]
+#define __pyx_kp_u_backtest_execution_trade_api_pyx __pyx_string_tab[8]
+#define __pyx_kp_u_disable __pyx_string_tab[9]
+#define __pyx_kp_u_enable __pyx_string_tab[10]
+#define __pyx_kp_u_enum_class_EngineTopic_not_impor __pyx_string_tab[11]
+#define __pyx_kp_u_gc __pyx_string_tab[12]
+#define __pyx_kp_u_isenabled __pyx_string_tab[13]
+#define __pyx_kp_u_stringsource __pyx_string_tab[14]
+#define __pyx_n_u_Account __pyx_string_tab[15]
+#define __pyx_n_u_AsyncApi __pyx_string_tab[16]
+#define __pyx_n_u_AsyncApi___reduce_cython __pyx_string_tab[17]
+#define __pyx_n_u_AsyncApi___setstate_cython __pyx_string_tab[18]
+#define __pyx_n_u_AsyncApi_close __pyx_string_tab[19]
+#define __pyx_n_u_AsyncApi_get_snapshot_async __pyx_string_tab[20]
+#define __pyx_n_u_AsyncApi_on_dt_over_async __pyx_string_tab[21]
+#define __pyx_n_u_AsyncApi_register_async __pyx_string_tab[22]
+#define __pyx_n_u_AsyncApi_set_cash_async __pyx_string_tab[23]
+#define __pyx_n_u_AsyncApi_submit_async __pyx_string_tab[24]
+#define __pyx_n_u_AsyncApi_subscribe_async __pyx_string_tab[25]
+#define __pyx_n_u_Buy __pyx_string_tab[26]
+#define __pyx_n_u_COC __pyx_string_tab[27]
+#define __pyx_n_u_EngineTopic __pyx_string_tab[28]
+#define __pyx_n_u_Event __pyx_string_tab[29]
+#define __pyx_n_u_ExecType __pyx_string_tab[30]
+#define __pyx_n_u_Historical __pyx_string_tab[31]
+#define __pyx_n_u_IntEnum __pyx_string_tab[32]
+#define __pyx_n_u_IntFlag __pyx_string_tab[33]
+#define __pyx_n_u_Limit __pyx_string_tab[34]
+#define __pyx_n_u_Market __pyx_string_tab[35]
+#define __pyx_n_u_Open __pyx_string_tab[36]
+#define __pyx_n_u_Order __pyx_string_tab[37]
+#define __pyx_n_u_OrderType __pyx_string_tab[38]
+#define __pyx_n_u_Position __pyx_string_tab[39]
+#define __pyx_n_u_Pyx_PyDict_NextRef __pyx_string_tab[40]
+#define __pyx_n_u_Register __pyx_string_tab[41]
+#define __pyx_n_u_Sell __pyx_string_tab[42]
+#define __pyx_n_u_SetCash __pyx_string_tab[43]
+#define __pyx_n_u_Snapshot __pyx_string_tab[44]
+#define __pyx_n_u_Stop __pyx_string_tab[45]
+#define __pyx_n_u_StopLimit __pyx_string_tab[46]
+#define __pyx_n_u_StopTrail __pyx_string_tab[47]
+#define __pyx_n_u_StopTrailLimit __pyx_string_tab[48]
+#define __pyx_n_u_SubTopic __pyx_string_tab[49]
+#define __pyx_n_u_Submit __pyx_string_tab[50]
+#define __pyx_n_u_Subscribe __pyx_string_tab[51]
+#define __pyx_n_u_TdApi __pyx_string_tab[52]
+#define __pyx_n_u_TdApi___enter __pyx_string_tab[53]
+#define __pyx_n_u_TdApi___exit __pyx_string_tab[54]
+#define __pyx_n_u_TdApi___reduce_cython __pyx_string_tab[55]
+#define __pyx_n_u_TdApi___setstate_cython __pyx_string_tab[56]
+#define __pyx_n_u_TdApi_get_snapshot __pyx_string_tab[57]
+#define __pyx_n_u_TdApi_on_dt_over __pyx_string_tab[58]
+#define __pyx_n_u_TdApi_register __pyx_string_tab[59]
+#define __pyx_n_u_TdApi_set_cash __pyx_string_tab[60]
+#define __pyx_n_u_TdApi_start __pyx_string_tab[61]
+#define __pyx_n_u_TdApi_stop __pyx_string_tab[62]
+#define __pyx_n_u_TdApi_submit __pyx_string_tab[63]
+#define __pyx_n_u_TdApi_subscribe __pyx_string_tab[64]
+#define __pyx_n_u_ThreadPoolExecutor __pyx_string_tab[65]
+#define __pyx_n_u_Tplus1 __pyx_string_tab[66]
+#define __pyx_n_u_Tuple __pyx_string_tab[67]
+#define __pyx_n_u_Unkown __pyx_string_tab[68]
+#define __pyx_n_u_actor __pyx_string_tab[69]
+#define __pyx_n_u_asyncio __pyx_string_tab[70]
+#define __pyx_n_u_asyncio_coroutines __pyx_string_tab[71]
+#define __pyx_n_u_await __pyx_string_tab[72]
+#define __pyx_n_u_backtest_execution_core_engine_e __pyx_string_tab[73]
+#define __pyx_n_u_backtest_execution_trade_api __pyx_string_tab[74]
+#define __pyx_n_u_body __pyx_string_tab[75]
+#define __pyx_n_u_bt_sdk_core_protocol __pyx_string_tab[76]
+#define __pyx_n_u_buffer_size __pyx_string_tab[77]
+#define __pyx_n_u_client_id __pyx_string_tab[78]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[79]
+#define __pyx_n_u_close __pyx_string_tab[80]
+#define __pyx_n_u_concurrent_futures __pyx_string_tab[81]
+#define __pyx_n_u_dict __pyx_string_tab[82]
+#define __pyx_n_u_dict_2 __pyx_string_tab[83]
+#define __pyx_n_u_enter __pyx_string_tab[84]
+#define __pyx_n_u_enum __pyx_string_tab[85]
+#define __pyx_n_u_event __pyx_string_tab[86]
+#define __pyx_n_u_exc_tb __pyx_string_tab[87]
+#define __pyx_n_u_exc_type __pyx_string_tab[88]
+#define __pyx_n_u_exc_val __pyx_string_tab[89]
+#define __pyx_n_u_exit __pyx_string_tab[90]
+#define __pyx_n_u_experiment_id __pyx_string_tab[91]
+#define __pyx_n_u_func __pyx_string_tab[92]
+#define __pyx_n_u_get __pyx_string_tab[93]
+#define __pyx_n_u_get_snapshot __pyx_string_tab[94]
+#define __pyx_n_u_get_snapshot_async __pyx_string_tab[95]
+#define __pyx_n_u_getstate __pyx_string_tab[96]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[97]
+#define __pyx_n_u_is_running __pyx_string_tab[98]
+#define __pyx_n_u_items __pyx_string_tab[99]
+#define __pyx_n_u_loop __pyx_string_tab[100]
+#define __pyx_n_u_main __pyx_string_tab[101]
+#define __pyx_n_u_member_names __pyx_string_tab[102]
+#define __pyx_n_u_members __pyx_string_tab[103]
+#define __pyx_n_u_module __pyx_string_tab[104]
+#define __pyx_n_u_module_2 __pyx_string_tab[105]
+#define __pyx_n_u_name __pyx_string_tab[106]
+#define __pyx_n_u_new __pyx_string_tab[107]
+#define __pyx_n_u_next __pyx_string_tab[108]
+#define __pyx_n_u_on_dt_over __pyx_string_tab[109]
+#define __pyx_n_u_on_dt_over_async __pyx_string_tab[110]
+#define __pyx_n_u_pop __pyx_string_tab[111]
+#define __pyx_n_u_print __pyx_string_tab[112]
+#define __pyx_n_u_pyx_checksum __pyx_string_tab[113]
+#define __pyx_n_u_pyx_result __pyx_string_tab[114]
+#define __pyx_n_u_pyx_state __pyx_string_tab[115]
+#define __pyx_n_u_pyx_type __pyx_string_tab[116]
+#define __pyx_n_u_pyx_unpickle_AsyncApi __pyx_string_tab[117]
+#define __pyx_n_u_pyx_unpickle_TdApi __pyx_string_tab[118]
+#define __pyx_n_u_pyx_vtable __pyx_string_tab[119]
+#define __pyx_n_u_q_size __pyx_string_tab[120]
+#define __pyx_n_u_qualname __pyx_string_tab[121]
+#define __pyx_n_u_reduce __pyx_string_tab[122]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[123]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[124]
+#define __pyx_n_u_register __pyx_string_tab[125]
+#define __pyx_n_u_register_async __pyx_string_tab[126]
+#define __pyx_n_u_result __pyx_string_tab[127]
+#define __pyx_n_u_run_coroutine_threadsafe __pyx_string_tab[128]
+#define __pyx_n_u_self __pyx_string_tab[129]
+#define __pyx_n_u_send __pyx_string_tab[130]
+#define __pyx_n_u_set_cash __pyx_string_tab[131]
+#define __pyx_n_u_set_cash_async __pyx_string_tab[132]
+#define __pyx_n_u_set_name __pyx_string_tab[133]
+#define __pyx_n_u_setdefault __pyx_string_tab[134]
+#define __pyx_n_u_setstate __pyx_string_tab[135]
+#define __pyx_n_u_setstate_cython __pyx_string_tab[136]
+#define __pyx_n_u_start __pyx_string_tab[137]
+#define __pyx_n_u_state __pyx_string_tab[138]
+#define __pyx_n_u_stop __pyx_string_tab[139]
+#define __pyx_n_u_sub_topic __pyx_string_tab[140]
+#define __pyx_n_u_submit __pyx_string_tab[141]
+#define __pyx_n_u_submit_async __pyx_string_tab[142]
+#define __pyx_n_u_subscribe __pyx_string_tab[143]
+#define __pyx_n_u_subscribe_async __pyx_string_tab[144]
+#define __pyx_n_u_test __pyx_string_tab[145]
+#define __pyx_n_u_threading __pyx_string_tab[146]
+#define __pyx_n_u_throw __pyx_string_tab[147]
+#define __pyx_n_u_topic __pyx_string_tab[148]
+#define __pyx_n_u_typing __pyx_string_tab[149]
+#define __pyx_n_u_update __pyx_string_tab[150]
+#define __pyx_n_u_use_setstate __pyx_string_tab[151]
+#define __pyx_n_u_value __pyx_string_tab[152]
+#define __pyx_n_u_values __pyx_string_tab[153]
+#define __pyx_n_u_warn __pyx_string_tab[154]
+#define __pyx_n_u_warnings __pyx_string_tab[155]
+#define __pyx_kp_b__2 __pyx_string_tab[156]
+#define __pyx_kp_b_iso88591_1F __pyx_string_tab[157]
+#define __pyx_kp_b_iso88591_A_4_1O1_W_QfD_vWA __pyx_string_tab[158]
 #define __pyx_kp_b_iso88591_A_4_7_QR_W_QfD_vWA __pyx_string_tab[159]
 #define __pyx_kp_b_iso88591_A_4_Qa_W_QfD_vWA __pyx_string_tab[160]
 #define __pyx_kp_b_iso88591_A_4_W_QfD_vWA __pyx_string_tab[161]
@@ -3973,14 +3973,13 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b_iso88591_A_4wd_fKq_W_5Qd_V4tST __pyx_string_tab[164]
 #define __pyx_kp_b_iso88591_A_9G1_1Kq_1 __pyx_string_tab[165]
 #define __pyx_kp_b_iso88591_A_IQ_KvQa __pyx_string_tab[166]
-#define __pyx_kp_b_iso88591_A_Qa_4_1O1_W_QfD_vWA __pyx_string_tab[167]
-#define __pyx_kp_b_iso88591_A_q __pyx_string_tab[168]
-#define __pyx_kp_b_iso88591_T_Q_G1F_a_vWE_Q_q_t7_c_uCtS_bbc __pyx_string_tab[169]
-#define __pyx_kp_b_iso88591_T_d_G1F_a_vWE_Q_q_t_we3d_q_d_7 __pyx_string_tab[170]
-#define __pyx_kp_b_iso88591__5 __pyx_string_tab[171]
-#define __pyx_kp_b_iso88591_avQ __pyx_string_tab[172]
-#define __pyx_kp_b_iso88591_q_0_kQR_5_7_q_a_1 __pyx_string_tab[173]
-#define __pyx_kp_b_iso88591_q_0_kQR_881A_7_nA_1 __pyx_string_tab[174]
+#define __pyx_kp_b_iso88591_A_q __pyx_string_tab[167]
+#define __pyx_kp_b_iso88591_T_Q_G1F_a_vWE_Q_q_t7_c_uCtS_bbc __pyx_string_tab[168]
+#define __pyx_kp_b_iso88591_T_d_G1F_a_vWE_Q_q_t_we3d_q_d_7 __pyx_string_tab[169]
+#define __pyx_kp_b_iso88591__5 __pyx_string_tab[170]
+#define __pyx_kp_b_iso88591_avQ __pyx_string_tab[171]
+#define __pyx_kp_b_iso88591_q_0_kQR_5_7_q_a_1 __pyx_string_tab[172]
+#define __pyx_kp_b_iso88591_q_0_kQR_881A_7_nA_1 __pyx_string_tab[173]
 #define __pyx_int_38662300 __pyx_number_tab[0]
 #define __pyx_int_89062620 __pyx_number_tab[1]
 /* #### Code section: module_state_clear ### */
@@ -4030,7 +4029,7 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_6_close);
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<23; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<175; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<174; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<2; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
@@ -4091,7 +4090,7 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_9execution_9trade_api___pyx_scope_struct_6_close);
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<23; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<175; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<174; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<2; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
@@ -8952,8 +8951,8 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_10submit(struct
  *             raise e
  * 
  *     cpdef object on_dt_over(self, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
- *         print("TdApi on_dt_over \n")
  *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
+ *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
 */
 
 static PyObject *__pyx_pw_8backtest_9execution_9trade_api_5TdApi_13on_dt_over(PyObject *__pyx_v_self, 
@@ -9041,24 +9040,6 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struc
   /* "backtest/execution/trade_api.pyx":136
  * 
  *     cpdef object on_dt_over(self, bytes experiment_id, object body):
- *         print("TdApi on_dt_over \n")             # <<<<<<<<<<<<<<
- *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
- *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
-*/
-  __pyx_t_2 = NULL;
-  __pyx_t_5 = 1;
-  {
-    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_mstate_global->__pyx_kp_u_TdApi_on_dt_over};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_print, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-  }
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "backtest/execution/trade_api.pyx":137
- *     cpdef object on_dt_over(self, bytes experiment_id, object body):
- *         print("TdApi on_dt_over \n")
  *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)             # <<<<<<<<<<<<<<
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
  *         return future.result()
@@ -9070,23 +9051,23 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struc
     PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_v_experiment_id, __pyx_v_body};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_on_dt_over_async, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_coro = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/trade_api.pyx":138
- *         print("TdApi on_dt_over \n")
+  /* "backtest/execution/trade_api.pyx":137
+ *     cpdef object on_dt_over(self, bytes experiment_id, object body):
  *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)             # <<<<<<<<<<<<<<
  *         return future.result()
  * 
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_5 = 1;
@@ -9106,13 +9087,13 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struc
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_future = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/trade_api.pyx":139
+  /* "backtest/execution/trade_api.pyx":138
  *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
  *         return future.result()             # <<<<<<<<<<<<<<
@@ -9127,7 +9108,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struc
     PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_result, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 139, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
@@ -9138,8 +9119,8 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_on_dt_over(struc
  *             raise e
  * 
  *     cpdef object on_dt_over(self, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
- *         print("TdApi on_dt_over \n")
  *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
+ *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
 */
 
   /* function exit code */
@@ -9287,7 +9268,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_12on_dt_over(st
   return __pyx_r;
 }
 
-/* "backtest/execution/trade_api.pyx":141
+/* "backtest/execution/trade_api.pyx":140
  *         return future.result()
  * 
  *     cpdef object get_snapshot(self, bytes experiment_id):             # <<<<<<<<<<<<<<
@@ -9332,7 +9313,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_snapshot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_get_snapshot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 140, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_9trade_api_5TdApi_15get_snapshot)) {
         __Pyx_XDECREF(__pyx_r);
@@ -9356,7 +9337,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
           __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 140, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __pyx_r = __pyx_t_2;
@@ -9377,7 +9358,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
     #endif
   }
 
-  /* "backtest/execution/trade_api.pyx":142
+  /* "backtest/execution/trade_api.pyx":141
  * 
  *     cpdef object get_snapshot(self, bytes experiment_id):
  *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)             # <<<<<<<<<<<<<<
@@ -9391,13 +9372,13 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
     PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_v_experiment_id};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_get_snapshot_async, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_coro = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/trade_api.pyx":143
+  /* "backtest/execution/trade_api.pyx":142
  *     cpdef object get_snapshot(self, bytes experiment_id):
  *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)             # <<<<<<<<<<<<<<
@@ -9405,9 +9386,9 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
  * 
 */
   __pyx_t_2 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_5 = 1;
@@ -9427,13 +9408,13 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_future = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/trade_api.pyx":144
+  /* "backtest/execution/trade_api.pyx":143
  *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
  *         return future.result()             # <<<<<<<<<<<<<<
@@ -9448,14 +9429,14 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(str
     PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_result, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "backtest/execution/trade_api.pyx":141
+  /* "backtest/execution/trade_api.pyx":140
  *         return future.result()
  * 
  *     cpdef object get_snapshot(self, bytes experiment_id):             # <<<<<<<<<<<<<<
@@ -9518,32 +9499,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_experiment_id,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 141, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 140, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 141, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 140, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_snapshot", 0) < (0)) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_snapshot", 0) < (0)) __PYX_ERR(0, 140, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_snapshot", 1, 1, 1, i); __PYX_ERR(0, 141, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_snapshot", 1, 1, 1, i); __PYX_ERR(0, 140, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 141, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 140, __pyx_L3_error)
     }
     __pyx_v_experiment_id = ((PyObject*)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_snapshot", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 141, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_snapshot", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 140, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9554,7 +9535,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 140, __pyx_L1_error)
   __pyx_r = __pyx_pf_8backtest_9execution_9trade_api_5TdApi_14get_snapshot(((struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *)__pyx_v_self), __pyx_v_experiment_id);
 
   /* function exit code */
@@ -9583,7 +9564,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14get_snapshot(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_snapshot", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(__pyx_v_self, __pyx_v_experiment_id, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_get_snapshot(__pyx_v_self, __pyx_v_experiment_id, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 140, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9600,7 +9581,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_14get_snapshot(
   return __pyx_r;
 }
 
-/* "backtest/execution/trade_api.pyx":146
+/* "backtest/execution/trade_api.pyx":145
  *         return future.result()
  * 
  *     cpdef object subscribe(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
@@ -9646,14 +9627,14 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_subscribe); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_subscribe); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_9trade_api_5TdApi_17subscribe)) {
         __Pyx_XDECREF(__pyx_r);
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_topic); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 146, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyLong_From_int(__pyx_v_topic); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 145, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_6 = 1;
         #if CYTHON_UNPACK_METHODS
@@ -9673,7 +9654,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __pyx_r = __pyx_t_2;
@@ -9694,7 +9675,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
     #endif
   }
 
-  /* "backtest/execution/trade_api.pyx":147
+  /* "backtest/execution/trade_api.pyx":146
  * 
  *     cpdef object subscribe(self, int topic, bytes experiment_id, object body):
  *         cdef object coro = self._async_api.subscribe_async(topic, experiment_id, body)             # <<<<<<<<<<<<<<
@@ -9703,7 +9684,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
 */
   __pyx_t_2 = ((PyObject *)__pyx_v_self->_async_api);
   __Pyx_INCREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_topic); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyLong_From_int(__pyx_v_topic); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_6 = 0;
   {
@@ -9711,13 +9692,13 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_subscribe_async, __pyx_callargs+__pyx_t_6, (4-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_coro = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/trade_api.pyx":148
+  /* "backtest/execution/trade_api.pyx":147
  *     cpdef object subscribe(self, int topic, bytes experiment_id, object body):
  *         cdef object coro = self._async_api.subscribe_async(topic, experiment_id, body)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)             # <<<<<<<<<<<<<<
@@ -9725,9 +9706,9 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
  * 
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_6 = 1;
@@ -9747,13 +9728,13 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_6, (3-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_v_future = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "backtest/execution/trade_api.pyx":149
+  /* "backtest/execution/trade_api.pyx":148
  *         cdef object coro = self._async_api.subscribe_async(topic, experiment_id, body)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
  *         return future.result()             # <<<<<<<<<<<<<<
@@ -9768,14 +9749,14 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(struct
     PyObject *__pyx_callargs[2] = {__pyx_t_5, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_result, __pyx_callargs+__pyx_t_6, (1-__pyx_t_6) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "backtest/execution/trade_api.pyx":146
+  /* "backtest/execution/trade_api.pyx":145
  *         return future.result()
  * 
  *     cpdef object subscribe(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
@@ -9841,46 +9822,46 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_topic,&__pyx_mstate_global->__pyx_n_u_experiment_id,&__pyx_mstate_global->__pyx_n_u_body,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 146, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 145, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 146, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 145, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 146, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 145, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 146, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 145, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "subscribe", 0) < (0)) __PYX_ERR(0, 146, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "subscribe", 0) < (0)) __PYX_ERR(0, 145, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("subscribe", 1, 3, 3, i); __PYX_ERR(0, 146, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("subscribe", 1, 3, 3, i); __PYX_ERR(0, 145, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 146, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 145, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 146, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 145, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 146, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 145, __pyx_L3_error)
     }
-    __pyx_v_topic = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_topic == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 146, __pyx_L3_error)
+    __pyx_v_topic = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_topic == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 145, __pyx_L3_error)
     __pyx_v_experiment_id = ((PyObject*)values[1]);
     __pyx_v_body = values[2];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("subscribe", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 146, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("subscribe", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 145, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9891,7 +9872,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 146, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 145, __pyx_L1_error)
   __pyx_r = __pyx_pf_8backtest_9execution_9trade_api_5TdApi_16subscribe(((struct __pyx_obj_8backtest_9execution_9trade_api_TdApi *)__pyx_v_self), __pyx_v_topic, __pyx_v_experiment_id, __pyx_v_body);
 
   /* function exit code */
@@ -9920,7 +9901,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_16subscribe(str
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("subscribe", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(__pyx_v_self, __pyx_v_topic, __pyx_v_experiment_id, __pyx_v_body, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_subscribe(__pyx_v_self, __pyx_v_topic, __pyx_v_experiment_id, __pyx_v_body, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9937,7 +9918,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_16subscribe(str
   return __pyx_r;
 }
 
-/* "backtest/execution/trade_api.pyx":151
+/* "backtest/execution/trade_api.pyx":150
  *         return future.result()
  * 
  *     cpdef stop(self):             # <<<<<<<<<<<<<<
@@ -9984,7 +9965,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_stop); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_stop); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_9execution_9trade_api_5TdApi_19stop)) {
         __Pyx_XDECREF(__pyx_r);
@@ -10008,7 +9989,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
           __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 151, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 150, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __pyx_r = __pyx_t_2;
@@ -10029,14 +10010,14 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
     #endif
   }
 
-  /* "backtest/execution/trade_api.pyx":152
+  /* "backtest/execution/trade_api.pyx":151
  * 
  *     cpdef stop(self):
  *         if self._loop and self._loop.is_running():             # <<<<<<<<<<<<<<
  *             future = asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
  *             future.result()
 */
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_self->_loop); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_v_self->_loop); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 151, __pyx_L1_error)
   if (__pyx_t_7) {
   } else {
     __pyx_t_6 = __pyx_t_7;
@@ -10049,16 +10030,16 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
     __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_is_running, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 151, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_6 = __pyx_t_7;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_6) {
 
-    /* "backtest/execution/trade_api.pyx":153
+    /* "backtest/execution/trade_api.pyx":152
  *     cpdef stop(self):
  *         if self._loop and self._loop.is_running():
  *             future = asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)             # <<<<<<<<<<<<<<
@@ -10066,9 +10047,9 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
  * 
 */
     __pyx_t_2 = NULL;
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_asyncio); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_run_coroutine_threadsafe); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_8 = ((PyObject *)__pyx_v_self->_async_api);
@@ -10078,7 +10059,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
       PyObject *__pyx_callargs[2] = {__pyx_t_8, NULL};
       __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_close, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     }
     __pyx_t_5 = 1;
@@ -10099,13 +10080,13 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     __pyx_v_future = __pyx_t_1;
     __pyx_t_1 = 0;
 
-    /* "backtest/execution/trade_api.pyx":154
+    /* "backtest/execution/trade_api.pyx":153
  *         if self._loop and self._loop.is_running():
  *             future = asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
  *             future.result()             # <<<<<<<<<<<<<<
@@ -10119,12 +10100,12 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
       PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
       __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_result, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 154, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "backtest/execution/trade_api.pyx":152
+    /* "backtest/execution/trade_api.pyx":151
  * 
  *     cpdef stop(self):
  *         if self._loop and self._loop.is_running():             # <<<<<<<<<<<<<<
@@ -10133,7 +10114,7 @@ static PyObject *__pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(struct __py
 */
   }
 
-  /* "backtest/execution/trade_api.pyx":151
+  /* "backtest/execution/trade_api.pyx":150
  *         return future.result()
  * 
  *     cpdef stop(self):             # <<<<<<<<<<<<<<
@@ -10210,7 +10191,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_18stop(struct _
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("stop", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_9execution_9trade_api_5TdApi_stop(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10227,7 +10208,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_18stop(struct _
   return __pyx_r;
 }
 
-/* "backtest/execution/trade_api.pyx":156
+/* "backtest/execution/trade_api.pyx":155
  *             future.result()
  * 
  *     def __exit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -10276,38 +10257,38 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_exc_type,&__pyx_mstate_global->__pyx_n_u_exc_val,&__pyx_mstate_global->__pyx_n_u_exc_tb,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 156, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 155, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 156, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 155, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 156, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 155, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 156, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 155, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__exit__", 0) < (0)) __PYX_ERR(0, 156, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "__exit__", 0) < (0)) __PYX_ERR(0, 155, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__exit__", 1, 3, 3, i); __PYX_ERR(0, 156, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("__exit__", 1, 3, 3, i); __PYX_ERR(0, 155, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 156, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 155, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 156, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 155, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 156, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 155, __pyx_L3_error)
     }
     __pyx_v_exc_type = values[0];
     __pyx_v_exc_val = values[1];
@@ -10315,7 +10296,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__exit__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 156, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__exit__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 155, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -10353,7 +10334,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_20__exit__(CYTH
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__exit__", 0);
 
-  /* "backtest/execution/trade_api.pyx":157
+  /* "backtest/execution/trade_api.pyx":156
  * 
  *     def __exit__(self, exc_type, exc_val, exc_tb):
  *         if exc_type is not None:             # <<<<<<<<<<<<<<
@@ -10362,17 +10343,17 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_20__exit__(CYTH
   __pyx_t_1 = (__pyx_v_exc_type != Py_None);
   if (__pyx_t_1) {
 
-    /* "backtest/execution/trade_api.pyx":158
+    /* "backtest/execution/trade_api.pyx":157
  *     def __exit__(self, exc_type, exc_val, exc_tb):
  *         if exc_type is not None:
  *             print(f"Error: {exc_type}, {exc_val}, {exc_tb}")             # <<<<<<<<<<<<<<
 */
     __pyx_t_3 = NULL;
-    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_exc_type, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 158, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_FormatSimple(__pyx_v_exc_type, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_v_exc_val, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 158, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_v_exc_val, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_v_exc_tb, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 158, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_v_exc_tb, __pyx_mstate_global->__pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 157, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_7[0] = __pyx_mstate_global->__pyx_kp_u_Error;
     __pyx_t_7[1] = __pyx_t_4;
@@ -10381,7 +10362,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_20__exit__(CYTH
     __pyx_t_7[4] = __pyx_mstate_global->__pyx_kp_u__3;
     __pyx_t_7[5] = __pyx_t_6;
     __pyx_t_8 = __Pyx_PyUnicode_Join(__pyx_t_7, 6, 7 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_4) + 2 * 2 + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_5) + __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6), 127 | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_5) | __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6));
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 158, __pyx_L1_error)
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 157, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -10392,12 +10373,12 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_20__exit__(CYTH
       __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_print, __pyx_callargs+__pyx_t_9, (2-__pyx_t_9) | (__pyx_t_9*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 158, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "backtest/execution/trade_api.pyx":157
+    /* "backtest/execution/trade_api.pyx":156
  * 
  *     def __exit__(self, exc_type, exc_val, exc_tb):
  *         if exc_type is not None:             # <<<<<<<<<<<<<<
@@ -10405,7 +10386,7 @@ static PyObject *__pyx_pf_8backtest_9execution_9trade_api_5TdApi_20__exit__(CYTH
 */
   }
 
-  /* "backtest/execution/trade_api.pyx":156
+  /* "backtest/execution/trade_api.pyx":155
  *             future.result()
  * 
  *     def __exit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
@@ -14550,10 +14531,10 @@ __Pyx_RefNannySetupContext("PyInit_trade_api", 0);
  *             raise e
  * 
  *     cpdef object on_dt_over(self, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
- *         print("TdApi on_dt_over \n")
  *         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
+ *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_13on_dt_over, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_on_dt_over_2, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[14])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_13on_dt_over, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_on_dt_over, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[14])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 135, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
@@ -14561,64 +14542,64 @@ __Pyx_RefNannySetupContext("PyInit_trade_api", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_on_dt_over, __pyx_t_4) < (0)) __PYX_ERR(0, 135, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "backtest/execution/trade_api.pyx":141
+  /* "backtest/execution/trade_api.pyx":140
  *         return future.result()
  * 
  *     cpdef object get_snapshot(self, bytes experiment_id):             # <<<<<<<<<<<<<<
  *         cdef object coro = self._async_api.get_snapshot_async(experiment_id)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_15get_snapshot, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_get_snapshot, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[15])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_15get_snapshot, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_get_snapshot, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[15])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 140, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_get_snapshot, __pyx_t_4) < (0)) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_get_snapshot, __pyx_t_4) < (0)) __PYX_ERR(0, 140, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "backtest/execution/trade_api.pyx":146
+  /* "backtest/execution/trade_api.pyx":145
  *         return future.result()
  * 
  *     cpdef object subscribe(self, int topic, bytes experiment_id, object body):             # <<<<<<<<<<<<<<
  *         cdef object coro = self._async_api.subscribe_async(topic, experiment_id, body)
  *         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_17subscribe, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_subscribe, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[16])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_17subscribe, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_subscribe, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[16])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_subscribe, __pyx_t_4) < (0)) __PYX_ERR(0, 146, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_subscribe, __pyx_t_4) < (0)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "backtest/execution/trade_api.pyx":151
+  /* "backtest/execution/trade_api.pyx":150
  *         return future.result()
  * 
  *     cpdef stop(self):             # <<<<<<<<<<<<<<
  *         if self._loop and self._loop.is_running():
  *             future = asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_19stop, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_stop, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[17])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_19stop, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi_stop, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[17])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_stop, __pyx_t_4) < (0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_stop, __pyx_t_4) < (0)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "backtest/execution/trade_api.pyx":156
+  /* "backtest/execution/trade_api.pyx":155
  *             future.result()
  * 
  *     def __exit__(self, exc_type, exc_val, exc_tb):             # <<<<<<<<<<<<<<
  *         if exc_type is not None:
  *             print(f"Error: {exc_type}, {exc_val}, {exc_tb}")
 */
-  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_21__exit__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi___exit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[18])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_9execution_9trade_api_5TdApi_21__exit__, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_TdApi___exit, NULL, __pyx_mstate_global->__pyx_n_u_backtest_execution_trade_api, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[18])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_4);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_exit, __pyx_t_4) < (0)) __PYX_ERR(0, 156, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_9execution_9trade_api_TdApi, __pyx_mstate_global->__pyx_n_u_exit, __pyx_t_4) < (0)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
   /* "(tree fragment)":1
@@ -14794,34 +14775,34 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{1},{7},{179},{15},{18},{2},{1},{8},{28},{32},{7},{6},{181},{2},{9},{14},{7},{8},{26},{28},{14},{27},{25},{23},{23},{21},{24},{3},{3},{11},{5},{8},{10},{7},{7},{5},{6},{4},{5},{9},{8},{20},{8},{4},{7},{8},{4},{9},{9},{14},{8},{6},{9},{5},{15},{14},{23},{25},{18},{16},{14},{14},{11},{10},{12},{15},{18},{6},{5},{6},{5},{7},{18},{9},{37},{28},{4},{20},{11},{9},{18},{5},{18},{8},{5},{9},{4},{5},{6},{8},{7},{8},{13},{8},{3},{12},{18},{12},{13},{10},{5},{5},{8},{14},{11},{6},{10},{8},{7},{4},{10},{16},{3},{5},{14},{12},{11},{10},{23},{20},{14},{6},{12},{10},{17},{13},{8},{14},{6},{24},{4},{4},{8},{14},{12},{10},{12},{19},{5},{5},{4},{9},{6},{12},{9},{15},{8},{9},{5},{5},{6},{6},{12},{5},{6},{4},{8},{0},{11},{46},{41},{40},{42},{69},{49},{30},{20},{50},{7},{128},{111},{2},{11},{55},{55}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1593 bytes) */
-const char* const cstring = "BZh91AY&SYC~\220\300\000\000\221\177\377\346\377\276\316\355\277\357\377\277\357\377\254\277\377\377\376@@@@@@@@@@@@@\000@\000P\005\276Z\275\354\211\356\347k\247k\233\231kx<%\022\231'\251\345=&\206\322\231\262\247\240CF\230\322z\23210\207\2422\031\032`\206\t\265\032=C\303E0\3104@\2314\3204\204\323MM\246F\246G\251\240\323@\000\000\000\000\r\0002\007\250\0004\002&\251\342S\3246&P\364\3244\r\r\000\003@\000\000\000\000\000\0004\003\022!\240SI\372\243\362\247\344\2044~T\003@\365\001\220\000\000\000\000\000\001\240\000$Q\024\364\304\032\247\264\223\324\332\217Q\264\200\006\200\323M\000\000\000\000\000\000hhi\246\236\244\247d_\317\326\246\220\321\010\020f\250/\360\313\005\002\230\306K(&\333CM\013S\373g2\026\010\232\246@\242ETI\214\"\2266\023\3371\310;\267f\226a\320\325\304\274GZc`\324\267d\010\342\210\307\n\3354\371\211\027G\2268\353\350kWV1\332\236\2536?\253zo\342\301g\263\371zBf\225\273G\363\305[\232\333r\013k\017J\030\306C\375v\370\031\370p\250#\000\326\303\303\022C(\235\330\034\305u\331\022K\264m\341\272\017\024\345A\006\312\316D\232G\013A9\005l\026$\202 \300\243p\2066\014\311\216\233\0056\211\272i_c\244\325\002[y&I\200v\335J\223CC\235\005\000\350\335\314\006\312\273Q\234\022I$\222I\024\220I[\276\021\274\213\2351\027\260oH\005UX\364\354\247e\365\220,\326\357\306\205I\367\314\020\250,\314\tu\343A\305\331l\377\021K\035:q_\316\36336\227\r\301g\311UI\032*\"E\212\023\352\373\211\302\212\362\331\"L]\272\210\340\254\004\2709\0168\254\313+\0262J\233CfL\364\213\010[;@\251\215\302r\250\000KN\375$\024\301b+]\002\202`\020\324\323j\024\332\362\302_\\Z\201\031f)W\356Y\r\206\020c([Ev\026\262\261\035\243\n)\242(Z\301\2019W\000\234)\003$0N\021\030\310,%\252A\000):\251\010\375I\200h\242\010\305Gt@\207x\244\032\206\307\030$7aD\200\270\244m\253\214?\\/j\004\300YO\022$\242\t\206\323\304F8\000\274\323\016 5\353A@4\022N\351\210\251y\332\205\207\021\333\017\273\026\240g\254a@\031\246g?\030R\212-\033\312\350\323\227\002\001\224\3001(\332\017\205\372QfI\215\354f'\202\035;\000\327a\302\255\3563""\205\235\n\005\344P\310\t(L\346\006\000\350SS\342GL\223\010b\315E\002\265\300\232\221`u\312\265\026\267!Y\013\245\237\217\030\317\0316:\273\232dZ\356\033\203d\276\332qx@\2001\210\250)\302i=\362\230\224\214\314\316u\035\tYoY:NzP\t\026@ \203\220'vS5\200\263r\265aH9\334\307\235\360\035[o]\t\222\362R\370\032\023 \311*\366J\227\275\331\231B*5\031R\300\2308g\302\255s\021\236\002I $\211M-\t\226\250\201\260\262\313&*\344\372\235\263\216*\024W\237\014:\200\240\032\242\2500(\023\310\031\013ea*\245\342`E\033X(`\004\260\005\307\000m}\360\221\215\242[\205c\2132\224\342e\266\361\007)\006 \372\2458%4\206\021)\362\326\225\312C\355\234\013\025\006\200\251\320\364\0079\323\030\234\301k\213\323a\254\321\254\300\027\201b\315\001p)FS\211\001\272\322B\030 \320N%S\2016\020H$\215\nFA\202;\244*!\0040Hpd \342p;\226\254\033J\303|\200\241\201=4R\006\006SD\t\026\200\340\213\331?\2734P=L&y\310u!\025\016\233l!\302\246!\227\212\313\270%\264\250\201\2030\03785\0364\256y\022\340Xf\251\245a\002\221|\202\025\212\000[D\320\375fK\232\363q\032\326\313\007\0269 \007\026\366\310\001\326 J\0208\202\017\020\256\\qWE\263\020\3669d\2447\371\006\034\323\226n3^q\263\245\266\r\240\313\013\244c^\270\252E\205b\216\336\350\312\315\204ra*s\001K<\016\343\310\365T\344\260\247T\270\320\325\233\237\202\226\005%\001\246O]\343\032X\310;\034\3167IK\305q\025L\362\026\035@D\201\302\n\005\221@N\nUD\031\220\240\202^\324\351\316\302!\035\214$d0W\222'\004\320\204\364\210\252\002\364\231\027\266\0218\253\232t\222Q\352\304#zP\002 \253\"\326\002\\\220\004B\270\232\220R\232\210\304\340\312\222\ra*F\304\2062&\n\251\270\000\204\260h\226\274\202\203\017\335&V\241Z\327\002D%\251\027\235\311\347-\274\214\303\230Tr\252\264\230\301\260\312E\263(\201\033\316\372oY\226s\207\334\321E\372\241j+%\002\227.7\310(\271\244\227\020^\230\310B\356F:\313N\0223\000\220\311F\366\241\304$C\265#;s\216r\001\262\321i\034;\201\232\010\001`\320\006\301T\375\024\251cp\265\310\3249H\322\237Q\034\342\016\000\343\344<\203{\302|U\362q\300\014\264s\026\305\3530\013Z""\317\241\371\321\350\016\253;\371eK_\363/l\216eQ(s\254\010\\\2332\261\\E\304g=\203\030O\336\026V\004\311q\222\223^\315QH\247\346\356Q\"-\311\237zT\270\236d\212$\310\310\236K\352!\325\255\010\366\277\217l\177\256\363\262\306\027\tg\317\202,\227\365\014~\313h\213\250\372%d\304\203\347G\304#\217\236\232E\017\340\220S\271\271\235\362\273\014\031P\212&J}\307\264\211\274z\036\034\341\357x\310\261j\227Ch\322\214\n\340P\341\212\017\",\247%\017\003\241\376z\023!\032\017\370\273\222)\302\204\202\033\364\206\000";
-    PyObject *data = __Pyx_DecompressString(cstring, 1593, 2);
+    const struct { const unsigned int length: 8; } index[] = {{1},{7},{179},{15},{2},{1},{8},{28},{32},{7},{6},{181},{2},{9},{14},{7},{8},{26},{28},{14},{27},{25},{23},{23},{21},{24},{3},{3},{11},{5},{8},{10},{7},{7},{5},{6},{4},{5},{9},{8},{20},{8},{4},{7},{8},{4},{9},{9},{14},{8},{6},{9},{5},{15},{14},{23},{25},{18},{16},{14},{14},{11},{10},{12},{15},{18},{6},{5},{6},{5},{7},{18},{9},{37},{28},{4},{20},{11},{9},{18},{5},{18},{8},{5},{9},{4},{5},{6},{8},{7},{8},{13},{8},{3},{12},{18},{12},{13},{10},{5},{5},{8},{14},{11},{6},{10},{8},{7},{4},{10},{16},{3},{5},{14},{12},{11},{10},{23},{20},{14},{6},{12},{10},{17},{13},{8},{14},{6},{24},{4},{4},{8},{14},{12},{10},{12},{19},{5},{5},{4},{9},{6},{12},{9},{15},{8},{9},{5},{5},{6},{6},{12},{5},{6},{4},{8},{0},{11},{43},{46},{41},{40},{42},{69},{49},{30},{20},{7},{128},{111},{2},{11},{55},{55}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1573 bytes) */
+const char* const cstring = "BZh91AY&SY+9\211\302\000\000\216\377\377\346\375\276\316\355\277\357\377\277\357\377\254\277\377\377\376@@@@@@@@@@@@@\000@\000P\005\276]ww#\271dk3\247%i\027\014\221\006\204\324\362\223\331S=\032\247\212<\243OSj42\032\033SC@\0324\000\003\324\032z\2326e&\324\315A\2424\214&\201\251'\250~\242m'\251\275P6\240\001\241\240\000\000\000\r\000\001\352h\000%LF\220\247\212OI\341\rG\243P\006\206\200\000\000\000\000\000\000\000\006\23248\000\000\000\006\200\000\000\0004\032\000\000\000\006@\032\000\002E\004&@\024\362y#Rx\247\345F\232m\020\362FOP\036\240\000\001\221\220\r\000\r\250\303Rg\276/\373\273\336\376\306\210@\203<\000\274#*+\025'19\2446\332\032h]\356\375\367I\003\300LQ\"b%\314\021K\231\205Z\016i\017&JgH\353m\206\241}\2456\003Q>\260X\200\251\203\177\005\377\220\304\301\247E\030\265Y\211H\376\035zq\356$I\007\022\311'\313K!\206\256\252>i\303\271D\347y\313\322*ewz\3652\365\201\213\0368\213\234n\361b\n\325\317\023\312\313O\276\267\003\305\270\003n\2760C$\235\344\304L\242\212\315\0011\010\330\t\001Q\020\230!\270Q\2430\303A\325!^\002n\325l\353\364Z\200\230\336A\222\342\035z$\371\370\272\r:\211Q\037\\Z2\374\264\032\333m\266\333m\246\330\333\267\210\242H\2725\243E\274P\006fg\365\354\350\263\003L\206||/\243J\376s\007e,\314\026\344\237FE\311\355?OU\332m]\2764\377\027+F\360\272l\273\032\205\305\222\251\032\020\363v\313\006fm5]Z\t\246U\250\300S\003\024\304\315m\r.6/<\272\343q\333+\025H\225$\007>\256qy\250\200\017\307\246\262\026\200\327\205\262Q\210D\025\031\027n2F\373:\340l:\261\357!U?\311\343H\231\242\031\005\2654\242[\026\214\022\3235Y\025Xj\304\n'[\220\220\300\220T!!V)\001\235m`P\204\344\315\001\364\247\020\213\324\243\341\252RU\025/\302djG\245\002SuP\224\031%\215\225\262\217\353\207\354P\240\014\025\351\310\220\202\343\362\200\220\276 3ba\304\016\256X,\005B\213\271\231\245=\317!o\231\312\355\313L\016|\315\350\005\315\274\034b\230\242\321\322\313_\373;\220\014\262\001\272\243\200;\232,E\371RpF\222\364\020\354\337!n\276\276b,\240\0175\264\014d(Q\201=\006\245\250\023Ad\215\250\303,""\240\211\255\253=K\002\206\313[\245\204\233\"\325j\344\025\300\271\r\014X\215\003?e\255\311\325+W\222\222\022+\2029E\361\307\014\341\351\031\035t\345\202\024\023\232\"\"QJU\006\213_\262\212\250\243M\310-\333\005\200r\205.\3263`\0147&H\326\016\227M\003\316\001\326\266\355\200\\\367.\0216\032\214(\314\363/8\242.\352C(\262\2274\211\253\032\r\267\022\210h\000ff`N\303{\352[\354\220\032\254-i\361\333>S\327\034\261\324\205t#\263\333\202\210j\025\202`\200\240@\310R$\003\n\307\274\300\2126ACJB\322\030\234\001\265\374\352#\034\004\361\031\207\232\216\352\302_cn \344Q\210\302\307\234V\272\304\304I\007\332\266<\207\3334\026:\215A)T\024\034\347V\205\250C~a\257]\224\213\274p\226|\213\270\314\004b\220\264\230\224\336a\\tR\207\2352\n\"<\024\232\305\332\t\002\"\312J\354\253\001P\202\243\240*1\272\354\331Q\2570u\020\025\260/Y]\200ie\225\300\222\353\216\010\347g\345\277]d\357H\251\354\203\275\004\253u\360i&F\033f}\274\031-\247\243y\014l6\021\256S\343\272H\253bP\235 yA\205\020\264\350d\242\240\tu\024\314\225\336\235\2430\026U\0301Vu\200v.+\205#\236\304\231R\3042EY\357i\236{\366\326\211AcI\263\217\204\325\323=3\241\323}R\277\025\260m\006\350e#\034\326\230\344\265-\350\370\371Ff7#\236\025\306\321W\207\003\303\002=\3229s\025(\373\324\326\033\241\212\271\202-A\246Pe\3064o \353\350q\272z\340-\220\262\210\020\300v\001\"\007\030\240-$\002\220OI\0032\025\020Z*9`\240\301F\210\024\301\233\036\264\213\004\257\262\314\004\362\206\266\340\324\241\262qN\350X\333n\215\242\252$\335A1\347\013`\027\270j\021Vy\303\000\233\256\375\005\203X\321U\nS\266D/\"\230Y^\020\004_\026\207\333\244*1\014\213{T\233\374!b,\254\206\003\251\3160\2727\317P\306zX\360&0l.F\022\342\004y\317i7\223u\341,\332\327\rY!\226\253e\240_\247\225\003\242,\356J\336\001\276X\274D\327\234zI^\016\271h:\204\241\270\252\213#h\216cWSM\210\026\213KQ\350\\*\352`h8\005\240\313gs\223\223\177\350\227n[}%&vEWh>p\355\236Q\362\013\340w\313\217\230!\312}\207\204}\363)\313\311}\037\217[\360\006J}7\206\035\357\350\275\262(\223\370\017;\002JF^,\233\243""\020)mX1\216@;sh\325\222:\006a\330\247\366\020OcKk\240'\034.X\210a\312u\014\363\235\r\013\002<\202\275\375\372\342\r\215\035\221\017\372\247\0069\275b\236\236xG!\326\026\3708IK\360\223\272mK\346\350\335\005\220\215~\320\322\375\003/\327.\326\247\225\340\267\016\330\305\321_ig\031\243\265\326\350q\026{\20477\277\202\222jN\002\304D\231$Q\014s\242q\"\347ORUB+\004S\376.\344\212p\241 Vs\023\204";
+    PyObject *data = __Pyx_DecompressString(cstring, 1573, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1415 bytes) */
-const char* const cstring = "x\332\215UKo\0337\020\256\001\027Q\0237\206\233\004)\320\006\245\321 F^r\205:u\232\244-T\307N\203\264\261\025\2535\212\024 \250\345H\332zE\256H\256,\365\001\370\250\343\036\367\250\243\216:\352\250\243\217:\352\350\237\320\237\320!W\017?\3224\207%\207\363\340\314|3\303\315n*%\325#\362R\032 \246\312\014\331h\231\252\024\304\327\204C\340\227@1\003A\213h\243|\317\200\262J\202\354l\356\334_{\270F\230\340D\301\357\340\031MtT\362\002\2465h\"\313\244\024\371\201\361\0051\255\020t\226</\223\226\214\210\000\340\304H\022\242\336I\003S\005A4\030K\220\025&\2044\314\370RP4\367Ee\205p_\241\023\277\001\326z\213\005\032\262\273Q\251\346\033Rf~\000\374\021)\362|\350\0234\341\206\312\006\006z\361\036\371\216qN\361.(1o\337\2006Yh\202\027\331\233\263F1\016\224\205\376D\266:\225\255Ne\331\260\325\344\276f\245\000@\244kT#.j\262)*\276\200\242\014}\217\240\017\342\327B\251\214U\"e%k\344\r>=\251 \013\316n\262\221_\021\026\246\200\204J\226\320\270E\"\215\031\023F\274\220C\2318\207\034\320\245B\350\020PF\262a\223\2232f\235\026\214K\004\320\006Pe\010\217\025\267\010\221\312\356M\247\226\255x\276N\303\347Ol\035EE\313Hy\360m\336\363d$L^\267\204\207\350M\366,\245\350,\362\200z\256\031(=!\301*i,\316\033d^ 5LO\0250T\013\026\352\2524\2249\356D4+\322\031\201\202\212\257\31596\272\244\036\323\325\263l\327\000\347\231\332S\330\267)\377\373\250\265\261\275q\242T\233\r\020f\023+R\304\306\374\001\275I\354k\026<G&\"\215\333V\300*?\372x\361OL\355\203\331\016Al+\016\312-\326hGj\337\365&\335i5\361{\212sA_B\323\274\202\362\253q\002\273\020\004\273`60\350\3351\006\273F\206\366sw[\242\250\260s\247D\312\216J.\310\264\265w'\251\270\326v\013\342\217\341#@tzl\"\004\323\323\231\262M\330\347j\226\nN\226(\345\314*\223\236'\005IO\223:\214O\206)3!1\013>\253\311\224\036\307_U\300\370\216\224\301\246\033\005\251\212a\020\351\\1\n\003\370Y\354\313\003\301<\344\272\212\371r\274\331i\22187\0024\245\354\200\331<\337i\246\336:\354\222\267J\2305\337O\rq\352\214\364dP\212\312e\204U\373\177\340\250\371\2101\3659\022\002\250\217""\217\220b\236\273\325u\270'\205\027)\205:\331rd\"e\303\343\266\007&\333\270Bvr\301v\0334=jJn\305\366\261{\203\005\223\312A3\004\345\327R\217\224\226#\341Q\212\2059Y\233\363\243\344T\322\222R\352k:\205\ni\025\t\201#\356\033\250i\032H\031RZc\230\005nP\303\367\234\nV\2631\217\217H\325$\217\002\230\355\324\251\270\035\016\354\3224\263\3068;\274\241\014C|R0\025|o\250W\005o_G\265\364\204\330D\301X2\216\326\222\026\206\224\212\004v\373>\372\234\314\357\031\266k\244\224\327pO+\245uW$\334#\026L\302\034\267==7\000S\0064-\2316\363\351W&\215\021A\233\201H\215kX\315\312\240!(\343\333\311'\255\177\372)r\2235\006\013)|\257\231\313W\317\212s~\366\334\3348\226\035\033\034\022j\354\314\247\223s\362M\233\316\317\2317\215RkJ\307Qb\251\221\220\007\356\222\364w\031\205\034o\2174L\235c\303E\351\242\017\230\022\366\263\177\201\303\271\321\374\347\235\\g\253\273|\230\037e>I\326\222?\207w\036\365\227\373\353\203\325a\341\325(s#\331\033\336\374\246_\350\227\007O\217\346F\231\305v#\336K\362'\264\255\220\375\277bw\265\277\324_~G\275\325\243\245\267h\036\2175\357\367\352\375\305A\375\254\346q\346\203\321\302\225\370\253\344z\307Y\375\235\344G\013K\361\322\360#\233*\322\037\305.\333K\355\265\366A\314\223\233I\271\363\242[\037-\\\213\367\206\237>\350\025z\274\177w\360\313\321\332\221\031\356\026\255\372J\262\224\032|\035?Kr\356\262\370v\222K^t\352\335\213\275\345^\316J\027\332\317\343\202\335^\304\215\244\2200\313\373\260]h\263)R\217\373\271\376\366Q\356\255\030,\266\353\207s\377d\336{\377r\273\030\177\234\\M~\353^\355\026F\363\013\355gq.\336J\356u\330h\376\302a\243\275\027o\242\024\035b6\243\314\365\270~\214\213I\326;+\335k]\257w\265\367zpa\020\035m\330$^\017_\227\206%\317\032\"Z\213\303\305\333\366\322n\305\351\240\341)\316\334\314\377\215\204w\226\337\335\367\223\316A\027z_\"|+\203\353\230\327\324\335\255\016\357.w\327{w\373{\203\374\361iN\241\275l\273\360V\207u\032\335\302\341\334\361\374gI}H\276\350]\352?\036\354\333\036\234\277\022?H2\235\271\316\222\275\361\257x=A\247+\010}\246w\031;o\376R;""\367\037f\017\223\207\256\3423\263;\350\365qO\014\362\316\354_~\234`\216";
-    PyObject *data = __Pyx_DecompressString(cstring, 1415, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1400 bytes) */
+const char* const cstring = "x\332\215UIo\0337\024\256\001\027Q\033#\206\263 \005\332\2404\032\304\310&W\250S\247I\332Bu\3544H\033[\261Z\243H\001\202\032>IS\217\310\021\311\221\245.\200\217:\316q\216:\352\250\243\216:\372\250\243\216\376\t\375\t}\344h\361\222\266>\014\371\370\026\276\345{\217\223\335TJ\252'\344\2654@L\225\031\262\3212U)\210\257\t\207\300/\201b\006\202\026\321F\371\236\001e\225\004\331\331\334y\270\366x\2150\301\211\202\337\3003\232\350\250\344\005Lk\320D\226I)\362\003\343\013bZ!\350,yY&-\031\021\001\300\211\221$D\275\223\006\246\n\202h0\226 +L\010i\230\361\245\240h\356\213\312\n\341\276B'~\003\254\365\026\0134dw\243R\3157\244\314\374\000\370\023\362\200|\3138\247h\t%\346\355\033\320&\013M\360\"{O\326(\306\201\262\320\237\310V\247\262\325\251,\033\266\232\334\327\254\024\000\210t\215j\304\305H6E\305\027P\224\241\357\021\364A\374Z(\225\261J\244\254d\215\274\303\247'\025d\301\331M6\362\013\026\201) \241\222%4n\221Hc~\204\021/\344P&\316!\007t\251\260PX>F\262a\223\2232\346\230\302\303%\226\313\006PeX\014+n\021\"\225\335\233N-[\361|\235\206\317\237Y\324DE\313Hy\360M\336\363d$L^\267\204\227\017\375\311\236\245\024\235E\036P\317AO\351\t\tb\242\021\212w\310\274@j\230\236*`\250\026,\324Ui(s\334\211\010\255\270\241\262\001\352\214@A\305\327\346\034\033]R\217\351\352Y\266\203\373<S{\n\2734\345\177\027\2656\2667N@\265\331\000a6\021\221\"\266\341\367\350Mb\027\263\340%2\261\322\270m\005\254\362\203\217\027\377\310\324>\230\355\020\304\266\342\240\334b\215v\244\366]'\322\235V\023\277\3478\005\36454\315\033(\277\031'\260\013A\260\013f\003\203\336\035\327`\327\310\320~\356nK\024\025\366\351\224H\331Q\311\005\2316\362\356$\225\"\307\314\334\202\365\307\360\261@tzlb\t\246\2473\260M\330\3470K\005'!J93d\322\363\004\220\3644\301a|2L\231\t\211Y\360\031&Sz\034\177U\001\343;R\006\233n\024\244*\206A\244s\305(\014\340'\261/\017\004\363\220\353\020\363\345x\263\323\"qn\004hJ\331\001\263y^h\246\376s\330%o\2250k\276\237\032\342\324\031\351\311\240\024\225\313XV\355\377\216\243\346c\215\251\317\221\020@}|r""\024\363\334\255\256\303=)\274H)\324\311\226#\023)\033\036\267=0\331\306\010\331\311\005\333m\320\364\250)\271\025\333\307\356\r\026L\220\203f\010\312\257\245\036)-G\302\243\024\2019\211\315\371Qr*)\244\224\372\232NK\205\264\212\204\300\021\367\r\3244\r\244\014)\2551\314\0027\250\341\353M\005\253\331\230\307G\244j\222G\001\314v\352T\334\016\007vi\232Yc\234\035\336P\206!>)\230\n\2767\324\253\202\267\257\243Zz\302\332D\301X2\216\326\222\266\014)\025\t\354\366}\3649\231\3373l\327H)\257\341\236VJ\353\016$\334#\026L\302\034\267==7\000S\0064-\2316\363\351W&\215\021\2136+\"5\256a5+\203\206\240\214o'\237\264\376\351\247\310M\326\270XH\341{\315\\\276z\006\316\371\331ss\343XvlpH\250\2613\237N\316\3117m:?g\3364J\255)\035G\211P#!\017\334%\351\3171\n9\336\036i\230:\307\206\213\322E\0370%\354g\377\002\207s\243\371\317:\271\316Vw\3710?\312|\234\254%\177\014\357=\355\347\372\333G\271Q\346V\2627\274\375u\277\320/\017\236\037\315\2152\213\355F\274\227\344O\250>\351/\367\327\007\253\303\302\233\213h[!\373\177\305\356j\177\251\277|A\275\325\243\245\377\320<\036k>\354\325\373\213\203\372Y\315\343\314\007\243\205k\361\227\311\315\216\263\372+\311\217\026\226\342\245\341U[\025\244\257\306\2560\227\333k\355\203\230'\267\223r\347U\267>Z\270\021\357\r?y\324+\364x\377\376\340\347\243\265#3\334-Z\365\225d)5\370*~\221\344\334e\361\335$\227\274\352\324\273\037\366\226{9+]h\277\214\013v{\0257\222B\302,o\261]?\234\373;\363\336\373W\332\305\370\243\344z\362k\367z\2670\232_h\277\210s\361V\362\240\303F\363\227\016\033\355\275x\023\245h\216\261\21527\343\3721.&Y\357\254tot\275\336\365\336\333\301\245At\264aCz;|[\032\226<k\210\271/\016\027\357\332K\273\025\247\203\206\2478s3\377\267\022\336Y\276\270\357g\235\203.\364\276\300b\254\014nb\375\247\356\356txw\271\273\336\273\337\337\033\344\217Os\n\355e\333~w:\254\323\350\026\016\347\216\347?M\352C\362y\357r\377\351`\337v\324\374\265\370Q\222\351\314u\226\354\215\177\306\353\t:]\301BfzW\260\217\346/\267s\377b\3668y\354\360\233\231\335C\257O{b\220wf\377\000""\357WW\224";
+    PyObject *data = __Pyx_DecompressString(cstring, 1400, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (2813 bytes) */
-const char* const bytes = ".Error: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Submit failed: TdApi on_dt_over \n, ?add_notebacktest.execution.trade_apibacktest/execution/trade_api.pyxdisableenableenum class EngineTopic not importable from backtest.execution.core.engine.engine. You are probably using a cpdef enum declared in a .pxd file that does not have a .py  or .pyx file.gcisenabled<stringsource>AccountAsyncApiAsyncApi.__reduce_cython__AsyncApi.__setstate_cython__AsyncApi.closeAsyncApi.get_snapshot_asyncAsyncApi.on_dt_over_asyncAsyncApi.register_asyncAsyncApi.set_cash_asyncAsyncApi.submit_asyncAsyncApi.subscribe_asyncBuyCOCEngineTopicEventExecTypeHistoricalIntEnumIntFlagLimitMarketOpenOrderOrderTypePosition__Pyx_PyDict_NextRefRegisterSellSetCashSnapshotStopStopLimitStopTrailStopTrailLimitSubTopicSubmitSubscribeTdApiTdApi.__enter__TdApi.__exit__TdApi.__reduce_cython__TdApi.__setstate_cython__TdApi.get_snapshotTdApi.on_dt_overTdApi.registerTdApi.set_cashTdApi.startTdApi.stopTdApi.submitTdApi.subscribeThreadPoolExecutorTplus1TupleUnkownactorasyncioasyncio.coroutines__await__backtest.execution.core.engine.enginebacktest.execution.trade_apibodybt_sdk.core.protocolbuffer_sizeclient_idcline_in_tracebackcloseconcurrent.futures__dict___dict__enter__enumeventexc_tbexc_typeexc_val__exit__experiment_id__func__getget_snapshotget_snapshot_async__getstate___is_coroutineis_runningitems_loop__main___member_names___members__module__module____name____new__nexton_dt_overon_dt_over_asyncpopprint__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AsyncApi__pyx_unpickle_TdApi__pyx_vtable__q_size__qualname____reduce____reduce_cython____reduce_ex__registerregister_asyncresultrun_coroutine_threadsafeselfsendset_cashset_cash_async__set_name__setdefault__setstate____setstate_cython__startstatestopsub_topicsubmitsubmit_asyncsubscribesubscribe_async__test__threadingthrowtopic""typingupdateuse_setstatevaluevalueswarnwarnings\200\001\330\004#\2401\240F\250!\200A\330\010\033\2304\230{\320*:\270!\2707\300/\320QR\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\320*=\270Q\270a\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270!\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270/\310\021\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\340\010\033\2304\230{\250-\260q\270\017\300q\330\010\035\230W\320$=\270Q\270f\300D\310\001\340\010\t\330\014\023\2206\230\027\240\001\330\010\017\210}\230A\330\014\021\220\021\320\022#\2401\240A\330\014\022\220!\200A\330\010\013\2104\210w\220d\230$\230f\240K\250q\330\014\025\220W\320\0345\260Q\260d\270+\300V\3104\310t\320ST\330\014\022\220'\230\021\200A\330\010\013\2109\220G\2301\330\014\021\220\021\220)\2301\230K\240q\250\n\260!\2601\200A\330\010\014\210I\220Q\330\010\014\210K\220v\230Q\230a\200A\330\010\r\210Q\210a\330\010\033\2304\230{\320*;\2701\270O\3101\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\017\210q\200\001\360\010\000\005\016\210T\220\030\230\024\230\\\250\024\250Q\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2307\240'\250\025\250c\260\024\260[\300\007\300u\310C\310t\320S[\320[b\320bc\330\004\007\200q\330\010\017\320\017)\250\024\250Q\250g\260[\300\007\300q\340\010\017\320\017)\250\024\250Q\250g\260[\300\001\200\001\360\010\000\005\016\210T\220\035\230d\240!\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230<\240w\250e\2603\260d\270'\300\027\310\001\330\004\007\200q\330\010\017\320\017&\240d\250!\2507\260+\270W\300A\340\010\017\320\017&\240d\250!\2507\260+\270Q\210!\200\001\330\004&\240a""\240v\250Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2205\230\010\240\001\240\021\330\004\007\200|\2207\230!\330\010'\240q\250\010\260\016\270a\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2208\2308\2401\240A\330\004\007\200|\2207\230!\330\010*\250!\250;\260n\300A\330\004\013\2101";
+    #else /* compression: none (2788 bytes) */
+const char* const bytes = ".Error: Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Submit failed: , ?add_notebacktest.execution.trade_apibacktest/execution/trade_api.pyxdisableenableenum class EngineTopic not importable from backtest.execution.core.engine.engine. You are probably using a cpdef enum declared in a .pxd file that does not have a .py  or .pyx file.gcisenabled<stringsource>AccountAsyncApiAsyncApi.__reduce_cython__AsyncApi.__setstate_cython__AsyncApi.closeAsyncApi.get_snapshot_asyncAsyncApi.on_dt_over_asyncAsyncApi.register_asyncAsyncApi.set_cash_asyncAsyncApi.submit_asyncAsyncApi.subscribe_asyncBuyCOCEngineTopicEventExecTypeHistoricalIntEnumIntFlagLimitMarketOpenOrderOrderTypePosition__Pyx_PyDict_NextRefRegisterSellSetCashSnapshotStopStopLimitStopTrailStopTrailLimitSubTopicSubmitSubscribeTdApiTdApi.__enter__TdApi.__exit__TdApi.__reduce_cython__TdApi.__setstate_cython__TdApi.get_snapshotTdApi.on_dt_overTdApi.registerTdApi.set_cashTdApi.startTdApi.stopTdApi.submitTdApi.subscribeThreadPoolExecutorTplus1TupleUnkownactorasyncioasyncio.coroutines__await__backtest.execution.core.engine.enginebacktest.execution.trade_apibodybt_sdk.core.protocolbuffer_sizeclient_idcline_in_tracebackcloseconcurrent.futures__dict___dict__enter__enumeventexc_tbexc_typeexc_val__exit__experiment_id__func__getget_snapshotget_snapshot_async__getstate___is_coroutineis_runningitems_loop__main___member_names___members__module__module____name____new__nexton_dt_overon_dt_over_asyncpopprint__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_AsyncApi__pyx_unpickle_TdApi__pyx_vtable__q_size__qualname____reduce____reduce_cython____reduce_ex__registerregister_asyncresultrun_coroutine_threadsafeselfsendset_cashset_cash_async__set_name__setdefault__setstate____setstate_cython__startstatestopsub_topicsubmitsubmit_asyncsubscribesubscribe_async__test__threadingthrowtopictypingupdateuse_set""statevaluevalueswarnwarnings\200\001\330\004#\2401\240F\250!\200A\330\010\033\2304\230{\320*;\2701\270O\3101\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\320*:\270!\2707\300/\320QR\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\320*=\270Q\270a\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270!\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\330\010\033\2304\230{\250/\270\021\270/\310\021\330\010\035\230W\320$=\270Q\270f\300D\310\001\330\010\017\210v\220W\230A\200A\340\010\033\2304\230{\250-\260q\270\017\300q\330\010\035\230W\320$=\270Q\270f\300D\310\001\340\010\t\330\014\023\2206\230\027\240\001\330\010\017\210}\230A\330\014\021\220\021\320\022#\2401\240A\330\014\022\220!\200A\330\010\013\2104\210w\220d\230$\230f\240K\250q\330\014\025\220W\320\0345\260Q\260d\270+\300V\3104\310t\320ST\330\014\022\220'\230\021\200A\330\010\013\2109\220G\2301\330\014\021\220\021\220)\2301\230K\240q\250\n\260!\2601\200A\330\010\014\210I\220Q\330\010\014\210K\220v\230Q\230a\200A\330\010\017\210q\200\001\360\010\000\005\016\210T\220\030\230\024\230\\\250\024\250Q\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2307\240'\250\025\250c\260\024\260[\300\007\300u\310C\310t\320S[\320[b\320bc\330\004\007\200q\330\010\017\320\017)\250\024\250Q\250g\260[\300\007\300q\340\010\017\320\017)\250\024\250Q\250g\260[\300\001\200\001\360\010\000\005\016\210T\220\035\230d\240!\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\230<\240w\250e\2603\260d\270'\300\027\310\001\330\004\007\200q\330\010\017\320\017&\240d\250!\2507\260+\270W\300A\340\010\017\320\017&\240d\250!\2507\260+\270Q\210!\200\001\330\004&\240a\240v\250Q\200\001\340\004\037\230q\320 0""\260\013\270;\300k\320QR\330\004\023\2205\230\010\240\001\240\021\330\004\007\200|\2207\230!\330\010'\240q\250\010\260\016\270a\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2208\2308\2401\240A\330\004\007\200|\2207\230!\330\010*\250!\250;\260n\300A\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 157; i++) {
+    for (int i = 0; i < 156; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
-      if (likely(string) && i >= 16) PyUnicode_InternInPlace(&string);
+      if (likely(string) && i >= 15) PyUnicode_InternInPlace(&string);
       if (unlikely(!string)) {
         Py_XDECREF(data);
         __PYX_ERR(0, 1, __pyx_L1_error)
@@ -14829,7 +14810,7 @@ const char* const bytes = ".Error: Note that Cython is deliberately stricter tha
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 157; i < 175; i++) {
+    for (int i = 156; i < 174; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -14840,14 +14821,14 @@ const char* const bytes = ".Error: Note that Cython is deliberately stricter tha
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 175; i++) {
+    for (Py_ssize_t i = 0; i < 174; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 157;
+      PyObject **table = stringtab + 156;
       for (Py_ssize_t i=0; i<18; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
@@ -14992,25 +14973,25 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 135};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_experiment_id, __pyx_mstate->__pyx_n_u_body};
-    __pyx_mstate_global->__pyx_codeobj_tab[14] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_on_dt_over, __pyx_mstate->__pyx_kp_b_iso88591_A_Qa_4_1O1_W_QfD_vWA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[14])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[14] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_on_dt_over, __pyx_mstate->__pyx_kp_b_iso88591_A_4_1O1_W_QfD_vWA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[14])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 141};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 140};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_experiment_id};
     __pyx_mstate_global->__pyx_codeobj_tab[15] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_get_snapshot, __pyx_mstate->__pyx_kp_b_iso88591_A_4_Qa_W_QfD_vWA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[15])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 146};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 145};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_topic, __pyx_mstate->__pyx_n_u_experiment_id, __pyx_mstate->__pyx_n_u_body};
     __pyx_mstate_global->__pyx_codeobj_tab[16] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_subscribe, __pyx_mstate->__pyx_kp_b_iso88591_A_4_7_QR_W_QfD_vWA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[16])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 151};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 150};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[17] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_stop, __pyx_mstate->__pyx_kp_b_iso88591_A_4wd_fKq_W_5Qd_V4tST, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[17])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 156};
+    const __Pyx_PyCode_New_function_description descr = {4, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 155};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_exc_type, __pyx_mstate->__pyx_n_u_exc_val, __pyx_mstate->__pyx_n_u_exc_tb};
     __pyx_mstate_global->__pyx_codeobj_tab[18] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_execution_trade_api_pyx, __pyx_mstate->__pyx_n_u_exit, __pyx_mstate->__pyx_kp_b_iso88591_A_9G1_1Kq_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[18])) goto bad;
   }

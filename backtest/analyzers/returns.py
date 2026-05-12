@@ -101,37 +101,38 @@ class Returns(bt.TimeFrameAnalyzerBase):
     def stop(self):
         super(Returns, self).stop()
         # v = self._owner.get_snapshot()
-        snap = self.get_shm_events()
-        acct = [act for act in snaps if act["type"] == "account"][-1]
+        snapshots = self.get_shm_events()
+        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        if accts:
+            acct = accts[-1]
 
-        self._value_end = acct.portofolio_value + acct.cash
-        # Compound return
-        try:
-            nlrtot = self._value_end / self._value_start
-        except ZeroDivisionError:
-            rtot = float('-inf')
-        else:
-            if nlrtot < 0.0:
+            self._value_end = acct["portfolio_value"] + acct["cash"]
+            try:
+                nlrtot = self._value_end / self._value_start
+            except ZeroDivisionError:
                 rtot = float('-inf')
             else:
-                rtot = math.log(nlrtot)
+                if nlrtot < 0.0:
+                    rtot = float('-inf')
+                else:
+                    rtot = math.log(nlrtot)
 
-        self.rets['rtot'] = rtot
+            self.rets['rtot'] = rtot
 
-        # Average return
-        self.rets['ravg'] = ravg = rtot / self._tcount
+            # Average return
+            self.rets['ravg'] = ravg = rtot / self._tcount
 
-        # Annualized normalized return
-        tann = self.p.tann or self._TANN.get(self.timeframe, None)
-        if tann is None:
-            tann = self._TANN.get(self.data._timeframe, 1.0)  # assign default
+            # Annualized normalized return
+            tann = self.p.tann or self._TANN.get(self.timeframe, None)
+            if tann is None:
+                tann = self._TANN.get(self.data._timeframe, 1.0)  # assign default
 
-        if ravg > float('-inf'):
-            self.rets['rnorm'] = rnorm = math.expm1(ravg * tann)
-        else:
-            self.rets['rnorm'] = rnorm = ravg
+            if ravg > float('-inf'):
+                self.rets['rnorm'] = rnorm = math.expm1(ravg * tann)
+            else:
+                self.rets['rnorm'] = rnorm = ravg
 
-        self.rets['rnorm100'] = rnorm * 100.0  # human readable %
+            self.rets['rnorm100'] = rnorm * 100.0  # human readable %
 
     def on_dt_over(self):
         self._tcount += 1  # count the subperiod

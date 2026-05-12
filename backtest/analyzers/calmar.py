@@ -82,16 +82,18 @@ class Calmar(bt.TimeFrameAnalyzerBase):
         self._values.append(snap.account)
 
     def on_dt_over(self):
-        snap = self.get_shm_events()
-        acct = [act for act in snaps if act["type"] == "account"][-1]
+        snapshots = self.get_shm_events()
+        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        if accts:
+          acct = accts[-1]
 
-        self.rets[self.dtcmp] = acct
-        self._values.append(acct)
-        rann = math.log(self._values[-1].portfolio_value / self._values[0].portfolio_value) / len(self._values)
-        self._mdd = max(self._mdd, self._maxdd.maxdd)
-        self.calmar = calmar = rann / (self._mdd or float('Inf'))
+          self.rets[self.dtcmp] = acct
+          self._values.append(acct)
+          rann = math.log(self._values[-1]["portfolio_value"] / self._values[0]["portfolio_value"]) / len(self._values)
+          self._mdd = max(self._mdd, self._maxdd.maxdd)
+          self.calmar = calmar = rann / (self._mdd or float('Inf'))
 
-        self.rets[self.dtcmp] = calmar
+          self.rets[self.dtcmp] = calmar
 
     def stop(self):
         self.on_dt_over()  # update last values

@@ -87,16 +87,20 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         super(TimeReturn, self)._start()
         snap = self._owner.get_snapshot()
         acct = snap.account
+
         self._value_start = acct.portfolio_value + acct.cash
         self._value = None
 
     def on_dt_over(self):
         # next is called in a new timeframe period
-        snap = self._owner.get_snapshot()
-        snap = self.get_shm_events()[-1]  # --- IGNORE ---
-        acct = snap.account
-        self._value = acct.portfolio_value + acct.cash
-        # self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
-        self.rets[self.dtcmp] = (self._value / self._value_start) - 1.0
-        self._value_start = self._value  # keep last value
+        # snap = self._owner.get_snapshot()
+        snapshots = self.get_shm_events()
+        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        if accts:
+          acct = accts[-1]
+
+          self._value = acct["portfolio_value"] + acct["cash"]
+          # self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
+          self.rets[self.dtcmp] = (self._value / self._value_start) - 1.0
+          self._value_start = self._value  # keep last value
           

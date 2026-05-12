@@ -55,7 +55,7 @@ class Trades(Observer):
         dtcmp = self.preturn.dtcmp
         pnl_obj = self.preturn.rets.get(dtcmp, None)
         if dtcmp > self.dtcmp:
-            pnl = np.sum([p.pnl for p in pnl_obj]) if pnl_obj else np.nan
+            pnl = np.sum([p["pnl"] for p in pnl_obj]) if pnl_obj else np.nan
 
             if pnl > 0.0:
                 self.lines.pnlplus[0] = pnl

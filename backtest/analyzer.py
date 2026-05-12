@@ -302,6 +302,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         self.next()
 
     def on_dt_over(self): # hook
+
         pass
     
     # def _dt_over(self):

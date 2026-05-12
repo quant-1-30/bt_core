@@ -63,16 +63,16 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         # snap = self._owner.get_snapshot()
-        snap = self.get_shm_events()  # --- IGNORE ---
-        positions = [_p for _p in snaps if _p["type"] == "position"]
+        snapshots = self.get_shm_events()  # --- IGNORE ---
+        positions = [_p["data"] for _p in snapshots if _p["type"] == "position"]
 
-        for p_obj in positions:
-            pnl = p_obj.pnl
+        for p_data in positions:
+            pnl = p_data.pnl
 
-            if p_obj.isclosed:
+            if p_data.isclosed:
                 # Trade just closed
                 self.total.closed += 1
-                won = int(p_obj.pnl >= 0.0)
+                won = int(p_data.pnl >= 0.0)
                 if won:
                     ret_won = self.rets.won
                     ret_won.count += won
@@ -88,19 +88,6 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
                 trpnl.net.total += pnl
                 trpnl.net.average = self.rets.pnl.net.total / self.rets.total.closed
 
-    def calcuate_total(self):
-        # caculate total
-        _trades = self._owner._trades
-        snap = self.get_shm_events()[-1]  # --- IGNORE ---
-
-        _size = np.array([_t.executed_size for _t in _trades])
-        _isbuy = np.array([1 if _t.isbuy else -1 for _t in _trades ])
-        executed_size = _size * _isbuy
-        cum_size = np.cumsum(executed_size)
-        zero_indices = np.nonzero(cum_size == 0)
-        total = len(zero_indices) + 1
-        return total
-
     def stop(self):
         super(TradeAnalyzer, self).stop()
         self.rets.total.total = self.calcuate_total()
@@ -110,3 +97,16 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         self.rets.loss.lost_rate = self.rets.lost.count / self.rets.total.total
 
         self.rets._close()  # . notation cannot create more keys
+
+    def calcuate_total(self):
+        # _trades = self._owner._trades
+        snapshots = self.get_shm_events()  # --- IGNORE ---
+        _trades = [item["data"] for item in snapshots if item["type"] == "trade"]
+
+        _size = np.array([_t["executed_size"] for _t in _trades])
+        _isbuy = np.array([1 if _t["isbuy"] else -1 for _t in _trades ])
+        executed_size = _size * _isbuy
+        cum_size = np.cumsum(executed_size)
+        zero_indices = np.nonzero(cum_size == 0)
+        total = len(zero_indices) + 1
+        return total

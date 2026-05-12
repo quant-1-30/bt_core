@@ -74,6 +74,7 @@ class Broker(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         # snap = self._owner.get_snapshot()
-        snaps = self.get_shm_events()
-        acct = [act for act in snaps if act["type"] == "account"][-1]
-        self.rets[self.dtcmp] = acct
+        snapshots = self.get_shm_events()
+        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        if accts:
+          self.rets[self.dtcmp] = accts[-1]

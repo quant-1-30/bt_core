@@ -45,11 +45,12 @@ class GrossLeverage(bt.TimeFrameAnalyzerBase):
         
     def on_dt_over(self):
         # snap = self._owner.get_snapshot()
-        snap = self.get_shm_events()
-        acct = [act for act in snaps if act["type"] == "account"][-1]
+        snapshots = self.get_shm_events()
+        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        if accts:
+            acct = accts[-1]
 
-        # Updates the leverage for "dtkey" (see base class) for each cycle
-        # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
-        lev = (acct.portfolio_value - acct.cash) / acct.portfolio_value
-        # self.rets[self.dtkey] = lev
-        self.rets[self.dtcmp] = lev
+            # Updates the leverage for "dtkey" (see base class) for each cycle
+            # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
+            lev = (acct["portfolio_value"] - acct["cash"]) / acct["portfolio_value"] if acct["portfolio_value"] > 0 else 0.0
+            self.rets[self.dtcmp] = lev

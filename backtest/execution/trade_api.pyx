@@ -133,7 +133,6 @@ cdef class TdApi:
             raise e
 
     cpdef object on_dt_over(self, bytes experiment_id, object body):
-        print("TdApi on_dt_over \n")
         cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
         return future.result() 

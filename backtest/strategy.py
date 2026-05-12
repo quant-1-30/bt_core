@@ -66,10 +66,9 @@ class MetaStrategy(StrategyBase.__class__):
         # register strategy to store with unique id
         _obj.store = store = env.store
         _obj.experiment_id = experiment_id = store.register(_obj.__class__.__name__, env.u_id)
+
         # setup shared memory channel for strategy to publish data to writer
-        # import uuid
-        # shm_name = uuid.UUID(bytes=experiment_id) # file name 36 too long
-        shm_name = hashlib.md5(experiment_id).hexdigest()[:24]
+        shm_name = hashlib.md5(experiment_id).hexdigest()[:24] # uuid.UUID(bytes=experiment_id) # file name 36 too long
         _obj.shm_chan = SharedRingBuffer(shm_name=str(shm_name), capacity=100000, is_creator=True)
         return _obj, args, kwargs
 
@@ -79,18 +78,10 @@ class MetaStrategy(StrategyBase.__class__):
         
         _obj._minperiods = list()
 
-        # _obj.analyzers = ItemCollection()
-        # _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
-        _obj.analyzers = list()
+        _obj.analyzers = list() # ItemCollection()
         _obj.observers = list()
 
-        _obj.stats = {}
-        # _obj.stats = _obj.observers = ItemCollection()
-
-        # _obj.writers = list()
-        # _obj._orders = list()
-        # _obj._trades = list()
-
+        _obj.stats = {} # ItemCollection() 
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -98,6 +89,7 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
 
         _obj._periodset()
+        # _obj.on_dt_over = False
         return _obj, args, kwargs
 
 
@@ -109,7 +101,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     _ltype = LineIterator.StratType
 
-    lines = ('datetime', 'buy', 'sell') # lines = ('datetime',)
+    lines = ('datetime', 'buy', 'sell') # ('datetime',)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -177,18 +169,19 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
     
-    def notify(self, snapshot):
-        # need to know if quicknotify is on, to not reprocess pendingorders
-        # and pendingtrades, which have to exist for things like observers
-        # which look into it
-        self.shm_chan.publish_snapshot(self.experiment_id, snapshot) # publish trade to shared memory for writer to consume
-
     def on_timer(self, dts):
-        self.on_dt_over = True
+        # self.on_dt_over = True
         snapshot = self.store.on_dt_over(self.experiment_id) 
         if snapshot:
-            self.shm_chan.publish_snapshot(self.experiment_id, snapshot) # publish snapshot to shared memory for writer to consume
-        self.on_dt_over = False
+            self.shm_chan.publish_snapshot(snapshot) # publish snapshot to shared memory for writer to consume
+        # self.on_dt_over = False
+
+        self.shm_chan.publish_sentinel(dts) # publish sentinel to shared memory for writer to consume
+
+    def set_cash(self, **kwargs):
+        cash = kwargs.pop("cash", 100000)
+        session = kwargs["fromdate"]
+        self.store.set_cash(self.experiment_id, session, cash)
 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
@@ -208,7 +201,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
-        self.on_dt_over = False
+
+        self.shm_chan.publish_sentinel(0.0)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -280,14 +274,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
         super(Strategy, self)._next()
+        print("Strategy _next ", self.lines.datetime[0])
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
-
-    def set_cash(self, **kwargs):
-        cash = kwargs.pop("cash", 100000)
-        session = kwargs["fromdate"]
-        self.store.set_cash(self.experiment_id, session, cash)
-    
+ 
     def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 
           
@@ -345,8 +335,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         filler=filler)
             snapshot = self.store.submit(self.experiment_id, order)
             if snapshot.trades:
-                self.lines.buy[0] = 1 
+                self.lines.buy[0] = 1
                 self.notify(snapshot)
+
+            self.shm_chan.publish_order(order)
         
     def sell(self, sells, plimit: float=0.0, execType=0, filler=b"oco"):
         '''
@@ -377,8 +369,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.lines.sell[0] = -1
                 self.notify(snapshot)
                 filled[core["sid"]] = trades 
-        
+            
+            self.shm_chan.publish_order(order)
         self.pnc.on_filled(filled)
+    
+    def notify(self, snapshot):
+        print("Strategy notify ", snapshot.positions)
+        self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
     
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
@@ -460,6 +457,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
         self.store.stop(self.experiment_id)
+        self.shm_chan.close()
     
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类
@@ -622,5 +620,4 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
                 self.buy(plan["buy"])
         # elif l_exit or l_rev or l_leave:
         else:
-            # closing position - not relevant for concurrency
-            self.sell(plan["sell"]) # sell means close
+            self.sell(plan["sell"]) 

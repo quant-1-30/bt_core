@@ -157,12 +157,12 @@ cdef class Order:
         return obj 
 
     cdef object serialize(self):
-        cdef data = []
+        cdef data_body = []
         cdef OrderExecutionBit exbit
 
         for exbit in self._exbits:
-            data.append(exbit.serialize())
-        return data
+            data_body.append(exbit.serialize().body)
+        return data_body
     
     cdef object to_schema(self):
 

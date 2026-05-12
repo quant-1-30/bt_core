@@ -49,8 +49,8 @@ class Orders(bt.TimeFrameAnalyzerBase):
     )
 
     def on_dt_over(self):
-        snap = self.get_shm_events()  # --- IGNORE ---
-        self.rets[self.dtcmp] = [item["type"] == "order" for item in snap.events]
+        snapshots = self.get_shm_events()  # --- IGNORE ---
+        self.rets[self.dtcmp] = [item["data"] for item in snapshots if item["type"] == "order"]
 
     def stop(self):
         super(Orders, self).stop()

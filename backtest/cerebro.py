@@ -264,7 +264,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for t in self._pretimers:
                 if not t.check(dt0):
                     continue
-                print("_check_timer trigger", dt0)
                 for strat in runstrats:
                     strat.on_timer(dt0)
 
@@ -550,7 +549,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 
             for writer in self.runwriters:
                 writer.start()
-
             self._runnext(runstrats)
 
             self.stop_writers(runstrats) 
@@ -594,7 +592,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 dts = []
                 for i, ret in enumerate(drets):
                     dts.append(datas[i].datetime[0] if ret else None)
-                # print("dts ", dts)
 
                 if not drets[0]: # last for resamplefilter
                     for d in datas: 

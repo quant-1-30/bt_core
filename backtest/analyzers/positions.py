@@ -75,6 +75,6 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
         self._usedate = tf >= bt.TimeFrame.Days
 
     def on_dt_over(self):
-        snap = self.get_shm_events()
-        pos = [_p for _p in snaps if _p["type"] == "position"]
-        self.rets[self.dtcmp] = pos
+        snapshots = self.get_shm_events()
+        positions = [_p["data"] for _p in snapshots if _p["type"] == "position"]
+        self.rets[self.dtcmp] = positions

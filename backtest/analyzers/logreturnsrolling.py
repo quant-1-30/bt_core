@@ -90,13 +90,15 @@ class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
     def start(self):
         super(LogReturnsRolling, self).start()
         snap = self._owner.get_snapshot()
-        self.startvalue = snap.account
+        self.startvalue = snap.account.portfolio_value
 
     def on_dt_over(self):
-        # snap = self._owner.get_snapshot  # --- IGNORE ---
-        snap = self.get_shm_events()
-        acct = [act for act in snaps if act["type"] == "account"][-1]
-
         super(LogReturnsRolling, self).next()
-        self.rets[self.dtcmp] = math.log(acct.portfolio_value / self.startvalue.portfolio_value)
-        self.startvalue = acct
+        # snap = self._owner.get_snapshot  # --- IGNORE ---
+        snapshots = self.get_shm_events()
+        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        if accts:
+          acct = accts[-1]
+
+          self.rets[self.dtcmp] = math.log(acct["portfolio_value"] / self.startvalue) if self.startvalue > 0 else 0.0
+          self.startvalue = acct["portfolio_value"]

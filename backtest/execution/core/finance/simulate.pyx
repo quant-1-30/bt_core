@@ -274,7 +274,6 @@ cdef class TrackerActor:
                 for day, close in close_df.select(["day", "close"]).rows():
                     close_dt = int(day)
                     close_price = float(close)
-                    print("position on_dt_over")
                     p_obj.on_dt_over(close_dt, close_price)
             else: # suspend 
                 close_dt = ts2intdt(sync_tick)

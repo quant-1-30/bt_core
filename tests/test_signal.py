@@ -35,8 +35,7 @@ class WeekPriceSignal(btind.Indicator):
             last_week_sma = self.sma_weekly[0]
 
         self.lines.signal[0] = last_week_sma / self.data0.close[-1] - 1.0
-
-        print("WeekPriceSignal ", self.lines.signal[0])
+        # print("WeekPriceSignal ", self.lines.signal[0])
         if self.lines.signal[0] > 10.0:
             raise ValueError("WeekPriceSignal corrupted")
             
@@ -52,7 +51,7 @@ class DailyPriceSignal(btind.Indicator):
     
     def next(self):
         signal = self.lines.signal[0]
-        print("DailyPriceSignal ", signal)
+        # print("DailyPriceSignal ", signal)
         if signal > 10.0:
             raise
 
@@ -72,8 +71,8 @@ class MACDSignal(btind.Indicator):
     def next(self):
         signal = self.lines.signal[0] # histo
         if not np.isnan(signal):
-            print("MacdSignal :", signal)
-
+            # print("MacdSignal :", signal)
+            pass
 
 class VolSignal(btind.Indicator):
 
@@ -86,7 +85,7 @@ class VolSignal(btind.Indicator):
 
     def next(self):
         signal = self.lines.signal[0]
-        print("VolSignal ", signal)
+        # print("VolSignal ", signal)
         if signal > 30.0: 
             raise
 
@@ -102,7 +101,7 @@ class SellSignal(btind.Indicator):
     
     def next(self):
         signal = self.lines.signal[0]
-        print("SellSignal ", signal)
+        # print("SellSignal ", signal)
         if signal > 10.0:
             raise
 
