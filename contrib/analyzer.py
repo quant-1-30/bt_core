@@ -268,7 +268,8 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         self.timeframe = self.p.timeframe or self.data._timeframe
         self.compression = self.p.compression or self.data._compression
 
-        self.dtcmp = 0 # boundary
+        # self.dtcmp, self.dtkey = self._get_dt_cmpkey(datetime.datetime.min) # dtkey is boundary
+        self.dtcmp = 0
         # self.dtkey = datetime.datetime.min
 
         super(TimeFrameAnalyzerBase, self)._start()
@@ -299,6 +300,26 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
             self.on_dt_over()
 
         self.next()
+
+    def on_dt_over(self): # hook
+
+        pass
+    
+    # def _dt_over(self):
+    #     if self.timeframe == TimeFrame.NoTimeFrame:
+    #         dtcmp, dtkey = np.iinfo(np.int_).max, datetime.datetime.max
+    #     else:
+    #         # With >= 1.9.x the system datetime is in the strategy
+    #         # dt = self._owner.datetime.datetime()
+    #         dt = self._owner._clock.datetime.datetime() 
+    #         dtcmp, dtkey = self._get_dt_cmpkey(dt)
+
+    #     # if self.dtcmp is None or dtcmp > self.dtcmp:
+    #     if dtcmp > self.dtcmp:
+    #         self.dtkey, self.dtkey1 = dtkey, self.dtkey
+    #         self.dtcmp, self.dtcmp1 = dtcmp, self.dtcmp
+    #         return True
+    #     return False
     
     def _dt_over(self):
         if self.timeframe == TimeFrame.NoTimeFrame:
@@ -314,6 +335,91 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
             return True
         return False
 
-    def on_dt_over(self): # hook
+    # def _get_dt_cmpkey(self, dt):
+    #     if self.timeframe == TimeFrame.NoTimeFrame:
+    #         return None, None
 
-        pass
+    #     if self.timeframe == TimeFrame.Years:
+    #         dtcmp = dt.year
+    #         dtkey = datetime.date(dt.year, 12, 31)
+
+    #     elif self.timeframe == TimeFrame.Months:
+    #         dtcmp = dt.year * 100 + dt.month
+    #         _, lastday = bt.calendar.monthrange(dt.year, dt.month)
+    #         dtkey = datetime.datetime(dt.year, dt.month, lastday)
+
+    #     elif self.timeframe == TimeFrame.Weeks:
+    #         isoyear, isoweek, isoweekday = dt.isocalendar()
+    #         dtcmp = isoyear * 100 + isoweek
+    #         sunday = dt + datetime.timedelta(days=7 - isoweekday)
+    #         dtkey = datetime.datetime(sunday.year, sunday.month, sunday.day) # last day of the week
+
+    #     elif self.timeframe == TimeFrame.Days:
+    #         dtcmp = dt.year * 10000 + dt.month * 100 + dt.day
+    #         dtkey = datetime.datetime(dt.year, dt.month, dt.day)
+
+    #     else:
+    #         dtcmp, dtkey = self._get_subday_cmpkey(dt)
+
+    #     return dtcmp, dtkey
+
+    # def _get_subday_cmpkey(self, dt):
+    #     # Calculate intraday position
+    #     point = dt.hour * 60 + dt.minute
+
+    #     if self.timeframe < TimeFrame.Minutes:
+    #         point = point * 60 + dt.second
+
+    #     if self.timeframe < TimeFrame.Seconds:
+    #         point = point * 1e6 + dt.microsecond
+
+    #     # Apply compression to update point position (comp 5 -> 200 // 5)
+    #     point = point // self.compression
+
+    #     # Move to next boundary
+    #     point += 1
+
+    #     # Restore point to the timeframe units by de-applying compression
+    #     point *= self.compression
+
+    #     # Get hours, minutes, seconds and microseconds
+    #     if self.timeframe == TimeFrame.Minutes:
+    #         ph, pm = divmod(point, 60)
+    #         ps = 0
+    #         pus = 0
+    #     elif self.timeframe == TimeFrame.Seconds:
+    #         ph, pm = divmod(point, 60 * 60)
+    #         pm, ps = divmod(pm, 60)
+    #         pus = 0
+    #     elif self.timeframe == TimeFrame.MicroSeconds:
+    #         ph, pm = divmod(point, 60 * 60 * 1e6)
+    #         pm, psec = divmod(pm, 60 * 1e6)
+    #         ps, pus = divmod(psec, 1e6)
+
+    #     extradays = 0
+    #     if ph > 23:  # went over midnight:
+    #         extradays = ph // 24
+    #         ph %= 24
+
+    #     # moving 1 minor unit to the left to be in the boundary
+    #     # pm -= self.timeframe == TimeFrame.Minutes
+    #     # ps -= self.timeframe == TimeFrame.Seconds
+    #     # pus -= self.timeframe == TimeFrame.MicroSeconds
+
+    #     tadjust = datetime.timedelta(
+    #         minutes=self.timeframe == TimeFrame.Minutes,
+    #         seconds=self.timeframe == TimeFrame.Seconds,
+    #         microseconds=self.timeframe == TimeFrame.MicroSeconds)
+
+    #     # Add extra day if present
+    #     if extradays:
+    #         dt += datetime.timedelta(days=extradays)
+
+    #     # Replace intraday parts with the calculated ones and update it
+    #     dtcmp = dt.replace(hour=ph, minute=pm, second=ps, microsecond=pus)
+    #     dtcmp -= tadjust
+    #     dtkey = dtcmp
+
+    #     # return dtcmp, dtkey
+    #     return int(dtcmp.timestamp()), dtkey
+ 

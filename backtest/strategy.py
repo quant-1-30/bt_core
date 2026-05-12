@@ -89,7 +89,6 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopostinit(_obj, *args, **kwargs)
 
         _obj._periodset()
-        # _obj.on_dt_over = False
         return _obj, args, kwargs
 
 
@@ -170,18 +169,18 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.minbuffer()
     
     def on_timer(self, dts):
-        # self.on_dt_over = True
         snapshot = self.store.on_dt_over(self.experiment_id) 
         if snapshot:
-            self.shm_chan.publish_snapshot(snapshot) # publish snapshot to shared memory for writer to consume
-        # self.on_dt_over = False
-
-        self.shm_chan.publish_sentinel(dts) # publish sentinel to shared memory for writer to consume
+            self.shm_chan.publish_snapshot(snapshot) 
+        # publish sentinel to shared memory for writer to consume
+        self.shm_chan.publish_sentinel(dts) 
+        # import pdb; pdb.set_trace()
 
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
-        self.store.set_cash(self.experiment_id, session, cash)
+        snapshot = self.store.set_cash(self.experiment_id, session, cash)
+        self.shm_chan.publish_snapshot(snapshot) 
 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
@@ -458,6 +457,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Called right before the backtesting is about to be stopped'''
         self.store.stop(self.experiment_id)
         self.shm_chan.close()
+        self.shm_chan.unlink()
     
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类

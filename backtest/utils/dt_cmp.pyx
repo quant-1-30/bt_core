@@ -4,18 +4,8 @@ from libc.math cimport floor
 from cpython.datetime cimport datetime_new, import_datetime
 
 
-# 初始化 CPython datetime API (必须调用)
+# 初始化 CPython datetime API
 import_datetime()
-
-cdef enum:
-    TF_MicroSeconds = 0
-    TF_Seconds = 1
-    TF_Minutes = 2
-    TF_Days = 3
-    TF_Weeks = 4
-    TF_Months = 5
-    TF_Years = 6
-    TF_NoTimeFrame = 7
 
 
 cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression):
@@ -33,42 +23,47 @@ cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression
         int64_t days_to_sunday
         
     if timeframe == TF_NoTimeFrame:
-        return None, None
+        return <int64_t>dt_ts
 
-    # timestamp ---> C struct tm (本地时间) / UTC gmtime
+    # timestamp ---> C struct tm 
     ts_sec = <time_t>dt_ts
+
+    # t_ptr = gmtime(&ts_sec) # utc
+    # if t_ptr == NULL: return 0
+    # t_struct = t_ptr[0] 
+
     t_struct = localtime(&ts_sec)[0] 
 
     if timeframe == TF_Years:
         t_struct.tm_mon = 11    # 12月 (0-11)
         t_struct.tm_mday = 31   # 31日
-        t_struct.tm_hour = 0
-        t_struct.tm_min = 0
-        t_struct.tm_sec = 0
-        # mktime 会自动处理 DST 和正则化
+        t_struct.tm_hour = 223
+        t_struct.tm_min = 59
+        t_struct.tm_sec = 59
+        # mktime DST and re
         result_ts = <double>mktime(&t_struct)
 
     elif timeframe == TF_Months: # 逻辑技巧 下个月第 0 天 mktime 会自动回退到本月最后一天
         t_struct.tm_mon += 1    
         t_struct.tm_mday = 0    
-        t_struct.tm_hour = 0
-        t_struct.tm_min = 0
-        t_struct.tm_sec = 0
+        t_struct.tm_hour = 23
+        t_struct.tm_min = 59
+        t_struct.tm_sec = 59
         result_ts = <double>mktime(&t_struct)
 
     elif timeframe == TF_Weeks: # C tm_wday: 0=Sun, 1=Mon, ..., 6=Sat
         days_to_sunday = (7 - t_struct.tm_wday) % 7
         
         t_struct.tm_mday += days_to_sunday
-        t_struct.tm_hour = 0
-        t_struct.tm_min = 0
-        t_struct.tm_sec = 0
+        t_struct.tm_hour = 23
+        t_struct.tm_min = 59
+        t_struct.tm_sec = 59
         result_ts = <double>mktime(&t_struct)
 
     elif timeframe == TF_Days:
-        t_struct.tm_hour = 0
-        t_struct.tm_min = 0
-        t_struct.tm_sec = 0
+        t_struct.tm_hour = 23
+        t_struct.tm_min = 59
+        t_struct.tm_sec = 59
         result_ts = <double>mktime(&t_struct)
     else:
         result_ts = _get_subday_cmpkey_c(dt_ts, &t_struct, timeframe, compression)

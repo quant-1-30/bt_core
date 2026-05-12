@@ -175,7 +175,7 @@ cdef class Position:
         cdef double event_bonus = 0.0
         cdef double sizer_ratio , bonus_ratio
         cdef double cost_basis = self.core.cost_basis
-        cdef int32_t origin_size = self.core.size 
+        cdef int32_t origin_size = self.core.size, available = self.core.available
         
         if item.event_type == 0:  # adjustment
             cr = calc_ratio(item.adj)
@@ -183,16 +183,19 @@ cdef class Position:
             bonus_ratio = cr.bonus_ratio
 
             self.core.size = <int32_t>(origin_size * sizer_ratio)
+            self.core.available = <int32_t>(available * sizer_ratio)
             self.core.cost_basis = cost_basis / sizer_ratio
             event_bonus = origin_size * bonus_ratio
-            # print("_process_event", origin_size, sizer_ratio, bonus_ratio)
             return event_bonus
         else: 
             sizer_ratio = item.rgt.ratio / 10
-            right_price = cost_basis + item.rgt.price * sizer_ratio
-            self.core.cost_basis = right_price / (1 + sizer_ratio)
-            return 0.0
- 
+            event_bonus = -(origin_size * sizer_ratio * item.rgt.price)
+
+            self.core.size = <int32_t>(origin_size * (1.0 + sizer_ratio))
+            self.core.available = available 
+            self.core.cost_basis = (cost_basis + sizer_ratio * item.rgt.price) / (1.0 + sizer_ratio)
+            return event_bonus
+
     cdef void _dt_over(self, int32_t end_dt, double close):
         cdef int32_t size = self.core.size
         cdef double cost_basis = self.core.cost_basis

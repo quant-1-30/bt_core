@@ -1632,22 +1632,24 @@ struct __pyx_opt_args_7cpython_8datetime_datetime_from_timestamp {
   PyObject *tz;
 };
 
-/* "backtest/utils/dt_cmp.pyx":10
- * import_datetime()
+/* "backtest/utils/dt_cmp.pxd":4
+ * from libc.stdint cimport int64_t
  * 
  * cdef enum:             # <<<<<<<<<<<<<<
- *     TF_MicroSeconds = 0
- *     TF_Seconds = 1
+ *     TF_TICK=0
+ *     TF_MicroSeconds = 1
 */
 enum  {
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_MicroSeconds = 0,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_Seconds = 1,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_Minutes = 2,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_Days = 3,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_Weeks = 4,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_Months = 5,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_Years = 6,
-  __pyx_e_8backtest_5utils_6dt_cmp_TF_NoTimeFrame = 7
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_TICK = 0,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_MicroSeconds = 1,
+  __pyx_e_8backtest_5utils_6dt_cmp_MilliSecond = 2,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_Seconds = 3,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_Minutes = 4,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_Days = 5,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_Weeks = 6,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_Months = 7,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_Years = 8,
+  __pyx_e_8backtest_5utils_6dt_cmp_TF_NoTimeFrame = 9
 };
 /* #### Code section: utility_code_proto ### */
 
@@ -2445,7 +2447,6 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
-  PyObject *__pyx_tuple[1];
   PyObject *__pyx_codeobj_tab[1];
   PyObject *__pyx_string_tab[25];
   PyObject *__pyx_number_tab[1];
@@ -2513,7 +2514,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_timeframe __pyx_string_tab[21]
 #define __pyx_n_u_values __pyx_string_tab[22]
 #define __pyx_kp_b_double_double_struct_tm_int64_t __pyx_string_tab[23]
-#define __pyx_kp_b_iso88591_1_z_A_vQ_XQ_y_z_A_1_1_HF_1A_3a __pyx_string_tab[24]
+#define __pyx_kp_b_iso88591_1_z_A_y_XQ_y_z_A_1_1_HF_1A_3a_1 __pyx_string_tab[24]
 #define __pyx_int_3600000000 __pyx_number_tab[0]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
@@ -2535,7 +2536,6 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_ptype_7cpython_8datetime_datetime);
   Py_CLEAR(clear_module_state->__pyx_ptype_7cpython_8datetime_timedelta);
   Py_CLEAR(clear_module_state->__pyx_ptype_7cpython_8datetime_tzinfo);
-  for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<25; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
@@ -2567,7 +2567,6 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_ptype_7cpython_8datetime_datetime);
   Py_VISIT(traverse_module_state->__pyx_ptype_7cpython_8datetime_timedelta);
   Py_VISIT(traverse_module_state->__pyx_ptype_7cpython_8datetime_tzinfo);
-  for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
   for (int i=0; i<25; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
@@ -4607,7 +4606,7 @@ static CYTHON_INLINE double __pyx_f_7cpython_8datetime_total_seconds(PyDateTime_
   return __pyx_r;
 }
 
-/* "backtest/utils/dt_cmp.pyx":21
+/* "backtest/utils/dt_cmp.pyx":11
  * 
  * 
  * cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression):             # <<<<<<<<<<<<<<
@@ -4629,61 +4628,59 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
   int64_t __pyx_v_days_to_sunday;
   int64_t __pyx_r;
   int __pyx_t_1;
-  int64_t __pyx_t_2;
-  double __pyx_t_3;
+  double __pyx_t_2;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
 
-  /* "backtest/utils/dt_cmp.pyx":35
+  /* "backtest/utils/dt_cmp.pyx":25
  *         int64_t days_to_sunday
  * 
  *     if timeframe == TF_NoTimeFrame:             # <<<<<<<<<<<<<<
- *         return None, None
+ *         return <int64_t>dt_ts
  * 
 */
   __pyx_t_1 = (__pyx_v_timeframe == __pyx_e_8backtest_5utils_6dt_cmp_TF_NoTimeFrame);
   if (__pyx_t_1) {
 
-    /* "backtest/utils/dt_cmp.pyx":36
+    /* "backtest/utils/dt_cmp.pyx":26
  * 
  *     if timeframe == TF_NoTimeFrame:
- *         return None, None             # <<<<<<<<<<<<<<
+ *         return <int64_t>dt_ts             # <<<<<<<<<<<<<<
  * 
- *     # timestamp ---> C struct tm () / UTC gmtime
+ *     # timestamp ---> C struct tm
 */
-    __pyx_t_2 = __Pyx_PyLong_As_int64_t(__pyx_mstate_global->__pyx_tuple[0]); if (unlikely((__pyx_t_2 == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L1_error)
-    __pyx_r = __pyx_t_2;
+    __pyx_r = ((int64_t)__pyx_v_dt_ts);
     goto __pyx_L0;
 
-    /* "backtest/utils/dt_cmp.pyx":35
+    /* "backtest/utils/dt_cmp.pyx":25
  *         int64_t days_to_sunday
  * 
  *     if timeframe == TF_NoTimeFrame:             # <<<<<<<<<<<<<<
- *         return None, None
+ *         return <int64_t>dt_ts
  * 
 */
   }
 
-  /* "backtest/utils/dt_cmp.pyx":39
+  /* "backtest/utils/dt_cmp.pyx":29
  * 
- *     # timestamp ---> C struct tm () / UTC gmtime
+ *     # timestamp ---> C struct tm
  *     ts_sec = <time_t>dt_ts             # <<<<<<<<<<<<<<
- *     t_struct = localtime(&ts_sec)[0]
  * 
+ *     # t_ptr = gmtime(&ts_sec) # utc
 */
   __pyx_v_ts_sec = ((time_t)__pyx_v_dt_ts);
 
-  /* "backtest/utils/dt_cmp.pyx":40
- *     # timestamp ---> C struct tm () / UTC gmtime
- *     ts_sec = <time_t>dt_ts
+  /* "backtest/utils/dt_cmp.pyx":35
+ *     # t_struct = t_ptr[0]
+ * 
  *     t_struct = localtime(&ts_sec)[0]             # <<<<<<<<<<<<<<
  * 
  *     if timeframe == TF_Years:
 */
   __pyx_v_t_struct = (localtime((&__pyx_v_ts_sec))[0]);
 
-  /* "backtest/utils/dt_cmp.pyx":42
+  /* "backtest/utils/dt_cmp.pyx":37
  *     t_struct = localtime(&ts_sec)[0]
  * 
  *     if timeframe == TF_Years:             # <<<<<<<<<<<<<<
@@ -4693,61 +4690,61 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
   switch (__pyx_v_timeframe) {
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Years:
 
-    /* "backtest/utils/dt_cmp.pyx":43
+    /* "backtest/utils/dt_cmp.pyx":38
  * 
  *     if timeframe == TF_Years:
  *         t_struct.tm_mon = 11    # 12 (0-11)             # <<<<<<<<<<<<<<
  *         t_struct.tm_mday = 31   # 31
- *         t_struct.tm_hour = 0
+ *         t_struct.tm_hour = 223
 */
     __pyx_v_t_struct.tm_mon = 11;
 
-    /* "backtest/utils/dt_cmp.pyx":44
+    /* "backtest/utils/dt_cmp.pyx":39
  *     if timeframe == TF_Years:
  *         t_struct.tm_mon = 11    # 12 (0-11)
  *         t_struct.tm_mday = 31   # 31             # <<<<<<<<<<<<<<
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
+ *         t_struct.tm_hour = 223
+ *         t_struct.tm_min = 59
 */
     __pyx_v_t_struct.tm_mday = 31;
 
-    /* "backtest/utils/dt_cmp.pyx":45
+    /* "backtest/utils/dt_cmp.pyx":40
  *         t_struct.tm_mon = 11    # 12 (0-11)
  *         t_struct.tm_mday = 31   # 31
- *         t_struct.tm_hour = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 223             # <<<<<<<<<<<<<<
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
 */
-    __pyx_v_t_struct.tm_hour = 0;
+    __pyx_v_t_struct.tm_hour = 0xDF;
 
-    /* "backtest/utils/dt_cmp.pyx":46
+    /* "backtest/utils/dt_cmp.pyx":41
  *         t_struct.tm_mday = 31   # 31
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_sec = 0
- *         # mktime  DST
+ *         t_struct.tm_hour = 223
+ *         t_struct.tm_min = 59             # <<<<<<<<<<<<<<
+ *         t_struct.tm_sec = 59
+ *         # mktime DST and re
 */
-    __pyx_v_t_struct.tm_min = 0;
+    __pyx_v_t_struct.tm_min = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":47
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0             # <<<<<<<<<<<<<<
- *         # mktime  DST
+    /* "backtest/utils/dt_cmp.pyx":42
+ *         t_struct.tm_hour = 223
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59             # <<<<<<<<<<<<<<
+ *         # mktime DST and re
  *         result_ts = <double>mktime(&t_struct)
 */
-    __pyx_v_t_struct.tm_sec = 0;
+    __pyx_v_t_struct.tm_sec = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":49
- *         t_struct.tm_sec = 0
- *         # mktime  DST
+    /* "backtest/utils/dt_cmp.pyx":44
+ *         t_struct.tm_sec = 59
+ *         # mktime DST and re
  *         result_ts = <double>mktime(&t_struct)             # <<<<<<<<<<<<<<
  * 
  *     elif timeframe == TF_Months: #   0  mktime
 */
     __pyx_v_result_ts = ((double)mktime((&__pyx_v_t_struct)));
 
-    /* "backtest/utils/dt_cmp.pyx":42
+    /* "backtest/utils/dt_cmp.pyx":37
  *     t_struct = localtime(&ts_sec)[0]
  * 
  *     if timeframe == TF_Years:             # <<<<<<<<<<<<<<
@@ -4757,61 +4754,61 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Months:
 
-    /* "backtest/utils/dt_cmp.pyx":52
+    /* "backtest/utils/dt_cmp.pyx":47
  * 
  *     elif timeframe == TF_Months: #   0  mktime
  *         t_struct.tm_mon += 1             # <<<<<<<<<<<<<<
  *         t_struct.tm_mday = 0
- *         t_struct.tm_hour = 0
+ *         t_struct.tm_hour = 23
 */
     __pyx_v_t_struct.tm_mon = (__pyx_v_t_struct.tm_mon + 1);
 
-    /* "backtest/utils/dt_cmp.pyx":53
+    /* "backtest/utils/dt_cmp.pyx":48
  *     elif timeframe == TF_Months: #   0  mktime
  *         t_struct.tm_mon += 1
  *         t_struct.tm_mday = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59
 */
     __pyx_v_t_struct.tm_mday = 0;
 
-    /* "backtest/utils/dt_cmp.pyx":54
+    /* "backtest/utils/dt_cmp.pyx":49
  *         t_struct.tm_mon += 1
  *         t_struct.tm_mday = 0
- *         t_struct.tm_hour = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 23             # <<<<<<<<<<<<<<
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
 */
-    __pyx_v_t_struct.tm_hour = 0;
+    __pyx_v_t_struct.tm_hour = 23;
 
-    /* "backtest/utils/dt_cmp.pyx":55
+    /* "backtest/utils/dt_cmp.pyx":50
  *         t_struct.tm_mday = 0
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59             # <<<<<<<<<<<<<<
+ *         t_struct.tm_sec = 59
  *         result_ts = <double>mktime(&t_struct)
 */
-    __pyx_v_t_struct.tm_min = 0;
+    __pyx_v_t_struct.tm_min = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":56
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0             # <<<<<<<<<<<<<<
+    /* "backtest/utils/dt_cmp.pyx":51
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59             # <<<<<<<<<<<<<<
  *         result_ts = <double>mktime(&t_struct)
  * 
 */
-    __pyx_v_t_struct.tm_sec = 0;
+    __pyx_v_t_struct.tm_sec = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":57
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+    /* "backtest/utils/dt_cmp.pyx":52
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
  *         result_ts = <double>mktime(&t_struct)             # <<<<<<<<<<<<<<
  * 
  *     elif timeframe == TF_Weeks: # C tm_wday: 0=Sun, 1=Mon, ..., 6=Sat
 */
     __pyx_v_result_ts = ((double)mktime((&__pyx_v_t_struct)));
 
-    /* "backtest/utils/dt_cmp.pyx":51
+    /* "backtest/utils/dt_cmp.pyx":46
  *         result_ts = <double>mktime(&t_struct)
  * 
  *     elif timeframe == TF_Months: #   0  mktime             # <<<<<<<<<<<<<<
@@ -4821,7 +4818,7 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Weeks:
 
-    /* "backtest/utils/dt_cmp.pyx":60
+    /* "backtest/utils/dt_cmp.pyx":55
  * 
  *     elif timeframe == TF_Weeks: # C tm_wday: 0=Sun, 1=Mon, ..., 6=Sat
  *         days_to_sunday = (7 - t_struct.tm_wday) % 7             # <<<<<<<<<<<<<<
@@ -4830,52 +4827,52 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
 */
     __pyx_v_days_to_sunday = ((7 - __pyx_v_t_struct.tm_wday) % 7);
 
-    /* "backtest/utils/dt_cmp.pyx":62
+    /* "backtest/utils/dt_cmp.pyx":57
  *         days_to_sunday = (7 - t_struct.tm_wday) % 7
  * 
  *         t_struct.tm_mday += days_to_sunday             # <<<<<<<<<<<<<<
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59
 */
     __pyx_v_t_struct.tm_mday = (__pyx_v_t_struct.tm_mday + __pyx_v_days_to_sunday);
 
-    /* "backtest/utils/dt_cmp.pyx":63
+    /* "backtest/utils/dt_cmp.pyx":58
  * 
  *         t_struct.tm_mday += days_to_sunday
- *         t_struct.tm_hour = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 23             # <<<<<<<<<<<<<<
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
 */
-    __pyx_v_t_struct.tm_hour = 0;
+    __pyx_v_t_struct.tm_hour = 23;
 
-    /* "backtest/utils/dt_cmp.pyx":64
+    /* "backtest/utils/dt_cmp.pyx":59
  *         t_struct.tm_mday += days_to_sunday
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59             # <<<<<<<<<<<<<<
+ *         t_struct.tm_sec = 59
  *         result_ts = <double>mktime(&t_struct)
 */
-    __pyx_v_t_struct.tm_min = 0;
+    __pyx_v_t_struct.tm_min = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":65
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0             # <<<<<<<<<<<<<<
+    /* "backtest/utils/dt_cmp.pyx":60
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59             # <<<<<<<<<<<<<<
  *         result_ts = <double>mktime(&t_struct)
  * 
 */
-    __pyx_v_t_struct.tm_sec = 0;
+    __pyx_v_t_struct.tm_sec = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":66
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+    /* "backtest/utils/dt_cmp.pyx":61
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
  *         result_ts = <double>mktime(&t_struct)             # <<<<<<<<<<<<<<
  * 
  *     elif timeframe == TF_Days:
 */
     __pyx_v_result_ts = ((double)mktime((&__pyx_v_t_struct)));
 
-    /* "backtest/utils/dt_cmp.pyx":59
+    /* "backtest/utils/dt_cmp.pyx":54
  *         result_ts = <double>mktime(&t_struct)
  * 
  *     elif timeframe == TF_Weeks: # C tm_wday: 0=Sun, 1=Mon, ..., 6=Sat             # <<<<<<<<<<<<<<
@@ -4885,65 +4882,65 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Days:
 
-    /* "backtest/utils/dt_cmp.pyx":69
+    /* "backtest/utils/dt_cmp.pyx":64
  * 
  *     elif timeframe == TF_Days:
- *         t_struct.tm_hour = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 23             # <<<<<<<<<<<<<<
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
 */
-    __pyx_v_t_struct.tm_hour = 0;
+    __pyx_v_t_struct.tm_hour = 23;
 
-    /* "backtest/utils/dt_cmp.pyx":70
+    /* "backtest/utils/dt_cmp.pyx":65
  *     elif timeframe == TF_Days:
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0             # <<<<<<<<<<<<<<
- *         t_struct.tm_sec = 0
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59             # <<<<<<<<<<<<<<
+ *         t_struct.tm_sec = 59
  *         result_ts = <double>mktime(&t_struct)
 */
-    __pyx_v_t_struct.tm_min = 0;
+    __pyx_v_t_struct.tm_min = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":71
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0             # <<<<<<<<<<<<<<
+    /* "backtest/utils/dt_cmp.pyx":66
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59             # <<<<<<<<<<<<<<
  *         result_ts = <double>mktime(&t_struct)
  *     else:
 */
-    __pyx_v_t_struct.tm_sec = 0;
+    __pyx_v_t_struct.tm_sec = 59;
 
-    /* "backtest/utils/dt_cmp.pyx":72
- *         t_struct.tm_min = 0
- *         t_struct.tm_sec = 0
+    /* "backtest/utils/dt_cmp.pyx":67
+ *         t_struct.tm_min = 59
+ *         t_struct.tm_sec = 59
  *         result_ts = <double>mktime(&t_struct)             # <<<<<<<<<<<<<<
  *     else:
  *         result_ts = _get_subday_cmpkey_c(dt_ts, &t_struct, timeframe, compression)
 */
     __pyx_v_result_ts = ((double)mktime((&__pyx_v_t_struct)));
 
-    /* "backtest/utils/dt_cmp.pyx":68
+    /* "backtest/utils/dt_cmp.pyx":63
  *         result_ts = <double>mktime(&t_struct)
  * 
  *     elif timeframe == TF_Days:             # <<<<<<<<<<<<<<
- *         t_struct.tm_hour = 0
- *         t_struct.tm_min = 0
+ *         t_struct.tm_hour = 23
+ *         t_struct.tm_min = 59
 */
     break;
     default:
 
-    /* "backtest/utils/dt_cmp.pyx":74
+    /* "backtest/utils/dt_cmp.pyx":69
  *         result_ts = <double>mktime(&t_struct)
  *     else:
  *         result_ts = _get_subday_cmpkey_c(dt_ts, &t_struct, timeframe, compression)             # <<<<<<<<<<<<<<
  * 
  *     return <int64_t>result_ts
 */
-    __pyx_t_3 = __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(__pyx_v_dt_ts, (&__pyx_v_t_struct), __pyx_v_timeframe, __pyx_v_compression); if (unlikely(__pyx_t_3 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
-    __pyx_v_result_ts = __pyx_t_3;
+    __pyx_t_2 = __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(__pyx_v_dt_ts, (&__pyx_v_t_struct), __pyx_v_timeframe, __pyx_v_compression); if (unlikely(__pyx_t_2 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
+    __pyx_v_result_ts = __pyx_t_2;
     break;
   }
 
-  /* "backtest/utils/dt_cmp.pyx":76
+  /* "backtest/utils/dt_cmp.pyx":71
  *         result_ts = _get_subday_cmpkey_c(dt_ts, &t_struct, timeframe, compression)
  * 
  *     return <int64_t>result_ts             # <<<<<<<<<<<<<<
@@ -4953,7 +4950,7 @@ static int64_t __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(double __pyx_v_dt_
   __pyx_r = ((int64_t)__pyx_v_result_ts);
   goto __pyx_L0;
 
-  /* "backtest/utils/dt_cmp.pyx":21
+  /* "backtest/utils/dt_cmp.pyx":11
  * 
  * 
  * cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression):             # <<<<<<<<<<<<<<
@@ -5011,46 +5008,46 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_dt_ts,&__pyx_mstate_global->__pyx_n_u_timeframe,&__pyx_mstate_global->__pyx_n_u_compression,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 21, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 11, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  3:
         values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 21, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 11, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 21, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 11, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 21, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 11, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_dt_cmpkey", 0) < (0)) __PYX_ERR(0, 21, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "get_dt_cmpkey", 0) < (0)) __PYX_ERR(0, 11, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 3; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_dt_cmpkey", 1, 3, 3, i); __PYX_ERR(0, 21, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("get_dt_cmpkey", 1, 3, 3, i); __PYX_ERR(0, 11, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 21, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 11, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 21, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 11, __pyx_L3_error)
       values[2] = __Pyx_ArgRef_FASTCALL(__pyx_args, 2);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 21, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[2])) __PYX_ERR(0, 11, __pyx_L3_error)
     }
-    __pyx_v_dt_ts = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_dt_ts == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 21, __pyx_L3_error)
-    __pyx_v_timeframe = __Pyx_PyLong_As_int64_t(values[1]); if (unlikely((__pyx_v_timeframe == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 21, __pyx_L3_error)
-    __pyx_v_compression = __Pyx_PyLong_As_int64_t(values[2]); if (unlikely((__pyx_v_compression == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 21, __pyx_L3_error)
+    __pyx_v_dt_ts = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_dt_ts == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_timeframe = __Pyx_PyLong_As_int64_t(values[1]); if (unlikely((__pyx_v_timeframe == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+    __pyx_v_compression = __Pyx_PyLong_As_int64_t(values[2]); if (unlikely((__pyx_v_compression == ((int64_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_dt_cmpkey", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 21, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_dt_cmpkey", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 11, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5081,8 +5078,8 @@ static PyObject *__pyx_pf_8backtest_5utils_6dt_cmp_get_dt_cmpkey(CYTHON_UNUSED P
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_dt_cmpkey", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(__pyx_v_dt_ts, __pyx_v_timeframe, __pyx_v_compression, 1); if (unlikely(__pyx_t_1 == ((int64_t)-1L) && PyErr_Occurred())) __PYX_ERR(0, 21, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyLong_From_int64_t(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_5utils_6dt_cmp_get_dt_cmpkey(__pyx_v_dt_ts, __pyx_v_timeframe, __pyx_v_compression, 1); if (unlikely(__pyx_t_1 == ((int64_t)-1L) && PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyLong_From_int64_t(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -5099,7 +5096,7 @@ static PyObject *__pyx_pf_8backtest_5utils_6dt_cmp_get_dt_cmpkey(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "backtest/utils/dt_cmp.pyx":79
+/* "backtest/utils/dt_cmp.pyx":74
  * 
  * 
  * cdef double _get_subday_cmpkey_c(double dt_ts, tm* tm_ptr, int64_t timeframe, int64_t compression):             # <<<<<<<<<<<<<<
@@ -5126,7 +5123,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_get_subday_cmpkey_c", 0);
 
-  /* "backtest/utils/dt_cmp.pyx":81
+  /* "backtest/utils/dt_cmp.pyx":76
  * cdef double _get_subday_cmpkey_c(double dt_ts, tm* tm_ptr, int64_t timeframe, int64_t compression):
  *     cdef:
  *         long point = 0             # <<<<<<<<<<<<<<
@@ -5135,7 +5132,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_point = 0;
 
-  /* "backtest/utils/dt_cmp.pyx":82
+  /* "backtest/utils/dt_cmp.pyx":77
  *     cdef:
  *         long point = 0
  *         long ph=0, pm=0, ps=0, pus=0             # <<<<<<<<<<<<<<
@@ -5147,7 +5144,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   __pyx_v_ps = 0;
   __pyx_v_pus = 0;
 
-  /* "backtest/utils/dt_cmp.pyx":83
+  /* "backtest/utils/dt_cmp.pyx":78
  *         long point = 0
  *         long ph=0, pm=0, ps=0, pus=0
  *         long extradays = 0             # <<<<<<<<<<<<<<
@@ -5156,7 +5153,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_extradays = 0;
 
-  /* "backtest/utils/dt_cmp.pyx":88
+  /* "backtest/utils/dt_cmp.pyx":83
  *     # Calculate intraday position (Point)
  *     # ---------------------------------------
  *     point = tm_ptr.tm_hour * 60 + tm_ptr.tm_min             # <<<<<<<<<<<<<<
@@ -5165,7 +5162,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_point = ((__pyx_v_tm_ptr->tm_hour * 60) + __pyx_v_tm_ptr->tm_min);
 
-  /* "backtest/utils/dt_cmp.pyx":90
+  /* "backtest/utils/dt_cmp.pyx":85
  *     point = tm_ptr.tm_hour * 60 + tm_ptr.tm_min
  * 
  *     if timeframe < TF_Minutes: # Seconds or Micros             # <<<<<<<<<<<<<<
@@ -5175,7 +5172,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   __pyx_t_1 = (__pyx_v_timeframe < __pyx_e_8backtest_5utils_6dt_cmp_TF_Minutes);
   if (__pyx_t_1) {
 
-    /* "backtest/utils/dt_cmp.pyx":91
+    /* "backtest/utils/dt_cmp.pyx":86
  * 
  *     if timeframe < TF_Minutes: # Seconds or Micros
  *         point = point * 60 + tm_ptr.tm_sec             # <<<<<<<<<<<<<<
@@ -5184,7 +5181,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_point = ((__pyx_v_point * 60) + __pyx_v_tm_ptr->tm_sec);
 
-    /* "backtest/utils/dt_cmp.pyx":90
+    /* "backtest/utils/dt_cmp.pyx":85
  *     point = tm_ptr.tm_hour * 60 + tm_ptr.tm_min
  * 
  *     if timeframe < TF_Minutes: # Seconds or Micros             # <<<<<<<<<<<<<<
@@ -5193,7 +5190,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   }
 
-  /* "backtest/utils/dt_cmp.pyx":93
+  /* "backtest/utils/dt_cmp.pyx":88
  *         point = point * 60 + tm_ptr.tm_sec
  * 
  *     if timeframe < TF_Seconds: # Micros 1e6             # <<<<<<<<<<<<<<
@@ -5203,7 +5200,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   __pyx_t_1 = (__pyx_v_timeframe < __pyx_e_8backtest_5utils_6dt_cmp_TF_Seconds);
   if (__pyx_t_1) {
 
-    /* "backtest/utils/dt_cmp.pyx":94
+    /* "backtest/utils/dt_cmp.pyx":89
  * 
  *     if timeframe < TF_Seconds: # Micros 1e6
  *         pus = <long>((dt_ts - floor(dt_ts)) * 1e6)             # <<<<<<<<<<<<<<
@@ -5212,7 +5209,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_pus = ((long)((__pyx_v_dt_ts - floor(__pyx_v_dt_ts)) * 1e6));
 
-    /* "backtest/utils/dt_cmp.pyx":95
+    /* "backtest/utils/dt_cmp.pyx":90
  *     if timeframe < TF_Seconds: # Micros 1e6
  *         pus = <long>((dt_ts - floor(dt_ts)) * 1e6)
  *         point = point * 1000000 + pus             # <<<<<<<<<<<<<<
@@ -5221,7 +5218,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_point = ((__pyx_v_point * 0xF4240) + __pyx_v_pus);
 
-    /* "backtest/utils/dt_cmp.pyx":93
+    /* "backtest/utils/dt_cmp.pyx":88
  *         point = point * 60 + tm_ptr.tm_sec
  * 
  *     if timeframe < TF_Seconds: # Micros 1e6             # <<<<<<<<<<<<<<
@@ -5230,7 +5227,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   }
 
-  /* "backtest/utils/dt_cmp.pyx":98
+  /* "backtest/utils/dt_cmp.pyx":93
  * 
  *     # Apply Compression
  *     point = point // compression             # <<<<<<<<<<<<<<
@@ -5239,7 +5236,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_point = (__pyx_v_point / __pyx_v_compression);
 
-  /* "backtest/utils/dt_cmp.pyx":101
+  /* "backtest/utils/dt_cmp.pyx":96
  * 
  *     # Move to next boundary
  *     point += 1             # <<<<<<<<<<<<<<
@@ -5248,7 +5245,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_point = (__pyx_v_point + 1);
 
-  /* "backtest/utils/dt_cmp.pyx":104
+  /* "backtest/utils/dt_cmp.pyx":99
  * 
  *     # Restore
  *     point *= compression             # <<<<<<<<<<<<<<
@@ -5257,7 +5254,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_point = (__pyx_v_point * __pyx_v_compression);
 
-  /* "backtest/utils/dt_cmp.pyx":108
+  /* "backtest/utils/dt_cmp.pyx":103
  *     # Decode back to H:M:S:us
  *     # ---------------------------------------
  *     if timeframe == TF_Minutes:             # <<<<<<<<<<<<<<
@@ -5267,7 +5264,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   switch (__pyx_v_timeframe) {
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Minutes:
 
-    /* "backtest/utils/dt_cmp.pyx":109
+    /* "backtest/utils/dt_cmp.pyx":104
  *     # ---------------------------------------
  *     if timeframe == TF_Minutes:
  *         ph = point // 60             # <<<<<<<<<<<<<<
@@ -5276,7 +5273,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_ph = (__pyx_v_point / 60);
 
-    /* "backtest/utils/dt_cmp.pyx":110
+    /* "backtest/utils/dt_cmp.pyx":105
  *     if timeframe == TF_Minutes:
  *         ph = point // 60
  *         pm = point % 60             # <<<<<<<<<<<<<<
@@ -5285,7 +5282,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_pm = (__pyx_v_point % 60);
 
-    /* "backtest/utils/dt_cmp.pyx":111
+    /* "backtest/utils/dt_cmp.pyx":106
  *         ph = point // 60
  *         pm = point % 60
  *         ps = 0             # <<<<<<<<<<<<<<
@@ -5294,7 +5291,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_ps = 0;
 
-    /* "backtest/utils/dt_cmp.pyx":112
+    /* "backtest/utils/dt_cmp.pyx":107
  *         pm = point % 60
  *         ps = 0
  *         pus = 0             # <<<<<<<<<<<<<<
@@ -5303,7 +5300,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_pus = 0;
 
-    /* "backtest/utils/dt_cmp.pyx":108
+    /* "backtest/utils/dt_cmp.pyx":103
  *     # Decode back to H:M:S:us
  *     # ---------------------------------------
  *     if timeframe == TF_Minutes:             # <<<<<<<<<<<<<<
@@ -5313,7 +5310,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Seconds:
 
-    /* "backtest/utils/dt_cmp.pyx":115
+    /* "backtest/utils/dt_cmp.pyx":110
  * 
  *     elif timeframe == TF_Seconds:
  *         ph = point // 3600             # <<<<<<<<<<<<<<
@@ -5322,7 +5319,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_ph = (__pyx_v_point / 0xE10);
 
-    /* "backtest/utils/dt_cmp.pyx":116
+    /* "backtest/utils/dt_cmp.pyx":111
  *     elif timeframe == TF_Seconds:
  *         ph = point // 3600
  *         pm = (point % 3600) // 60             # <<<<<<<<<<<<<<
@@ -5331,7 +5328,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_pm = ((__pyx_v_point % 0xE10) / 60);
 
-    /* "backtest/utils/dt_cmp.pyx":117
+    /* "backtest/utils/dt_cmp.pyx":112
  *         ph = point // 3600
  *         pm = (point % 3600) // 60
  *         ps = point % 60             # <<<<<<<<<<<<<<
@@ -5340,7 +5337,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_ps = (__pyx_v_point % 60);
 
-    /* "backtest/utils/dt_cmp.pyx":118
+    /* "backtest/utils/dt_cmp.pyx":113
  *         pm = (point % 3600) // 60
  *         ps = point % 60
  *         pus = 0             # <<<<<<<<<<<<<<
@@ -5349,7 +5346,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_pus = 0;
 
-    /* "backtest/utils/dt_cmp.pyx":114
+    /* "backtest/utils/dt_cmp.pyx":109
  *         pus = 0
  * 
  *     elif timeframe == TF_Seconds:             # <<<<<<<<<<<<<<
@@ -5359,23 +5356,23 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_MicroSeconds:
 
-    /* "backtest/utils/dt_cmp.pyx":121
+    /* "backtest/utils/dt_cmp.pyx":116
  * 
  *     elif timeframe == TF_MicroSeconds:
  *         ph = point // 3600000000             # <<<<<<<<<<<<<<
  *         pass
  * 
 */
-    __pyx_t_2 = __Pyx_PyLong_From_long(__pyx_v_point); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyLong_From_long(__pyx_v_point); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 116, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyNumber_FloorDivide(__pyx_t_2, __pyx_mstate_global->__pyx_int_3600000000); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_FloorDivide(__pyx_t_2, __pyx_mstate_global->__pyx_int_3600000000); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 116, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_4 = __Pyx_PyLong_As_long(__pyx_t_3); if (unlikely((__pyx_t_4 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 121, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyLong_As_long(__pyx_t_3); if (unlikely((__pyx_t_4 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 116, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_ph = __pyx_t_4;
 
-    /* "backtest/utils/dt_cmp.pyx":120
+    /* "backtest/utils/dt_cmp.pyx":115
  *         pus = 0
  * 
  *     elif timeframe == TF_MicroSeconds:             # <<<<<<<<<<<<<<
@@ -5386,7 +5383,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
     default: break;
   }
 
-  /* "backtest/utils/dt_cmp.pyx":126
+  /* "backtest/utils/dt_cmp.pyx":121
  *     # Handle Day Overflow
  *     # ---------------------------------------
  *     extradays = 0             # <<<<<<<<<<<<<<
@@ -5395,7 +5392,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_extradays = 0;
 
-  /* "backtest/utils/dt_cmp.pyx":127
+  /* "backtest/utils/dt_cmp.pyx":122
  *     # ---------------------------------------
  *     extradays = 0
  *     if ph > 23:             # <<<<<<<<<<<<<<
@@ -5405,7 +5402,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   __pyx_t_1 = (__pyx_v_ph > 23);
   if (__pyx_t_1) {
 
-    /* "backtest/utils/dt_cmp.pyx":128
+    /* "backtest/utils/dt_cmp.pyx":123
  *     extradays = 0
  *     if ph > 23:
  *         extradays = ph // 24             # <<<<<<<<<<<<<<
@@ -5414,7 +5411,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_extradays = (__pyx_v_ph / 24);
 
-    /* "backtest/utils/dt_cmp.pyx":129
+    /* "backtest/utils/dt_cmp.pyx":124
  *     if ph > 23:
  *         extradays = ph // 24
  *         ph = ph % 24             # <<<<<<<<<<<<<<
@@ -5423,7 +5420,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_ph = (__pyx_v_ph % 24);
 
-    /* "backtest/utils/dt_cmp.pyx":127
+    /* "backtest/utils/dt_cmp.pyx":122
  *     # ---------------------------------------
  *     extradays = 0
  *     if ph > 23:             # <<<<<<<<<<<<<<
@@ -5432,7 +5429,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   }
 
-  /* "backtest/utils/dt_cmp.pyx":133
+  /* "backtest/utils/dt_cmp.pyx":128
  *     # Update Struct TM
  *     # ---------------------------------------
  *     tm_ptr.tm_hour = <int64_t>ph             # <<<<<<<<<<<<<<
@@ -5441,7 +5438,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_tm_ptr->tm_hour = ((int64_t)__pyx_v_ph);
 
-  /* "backtest/utils/dt_cmp.pyx":134
+  /* "backtest/utils/dt_cmp.pyx":129
  *     # ---------------------------------------
  *     tm_ptr.tm_hour = <int64_t>ph
  *     tm_ptr.tm_min = <int64_t>pm             # <<<<<<<<<<<<<<
@@ -5450,7 +5447,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_tm_ptr->tm_min = ((int64_t)__pyx_v_pm);
 
-  /* "backtest/utils/dt_cmp.pyx":135
+  /* "backtest/utils/dt_cmp.pyx":130
  *     tm_ptr.tm_hour = <int64_t>ph
  *     tm_ptr.tm_min = <int64_t>pm
  *     tm_ptr.tm_sec = <int64_t>ps             # <<<<<<<<<<<<<<
@@ -5459,7 +5456,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_tm_ptr->tm_sec = ((int64_t)__pyx_v_ps);
 
-  /* "backtest/utils/dt_cmp.pyx":137
+  /* "backtest/utils/dt_cmp.pyx":132
  *     tm_ptr.tm_sec = <int64_t>ps
  * 
  *     if extradays > 0:             # <<<<<<<<<<<<<<
@@ -5469,7 +5466,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   __pyx_t_1 = (__pyx_v_extradays > 0);
   if (__pyx_t_1) {
 
-    /* "backtest/utils/dt_cmp.pyx":138
+    /* "backtest/utils/dt_cmp.pyx":133
  * 
  *     if extradays > 0:
  *         tm_ptr.tm_mday += <int64_t>extradays             # <<<<<<<<<<<<<<
@@ -5478,7 +5475,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_tm_ptr->tm_mday = (__pyx_v_tm_ptr->tm_mday + ((int64_t)__pyx_v_extradays));
 
-    /* "backtest/utils/dt_cmp.pyx":137
+    /* "backtest/utils/dt_cmp.pyx":132
  *     tm_ptr.tm_sec = <int64_t>ps
  * 
  *     if extradays > 0:             # <<<<<<<<<<<<<<
@@ -5487,7 +5484,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   }
 
-  /* "backtest/utils/dt_cmp.pyx":142
+  /* "backtest/utils/dt_cmp.pyx":137
  *     # Make Timestamp (Canonicalize)
  *     # ---------------------------------------
  *     result_ts = <double>mktime(tm_ptr)             # <<<<<<<<<<<<<<
@@ -5496,7 +5493,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
   __pyx_v_result_ts = ((double)mktime(__pyx_v_tm_ptr));
 
-  /* "backtest/utils/dt_cmp.pyx":146
+  /* "backtest/utils/dt_cmp.pyx":141
  *     # Apply tadjust
  *     # ---------------------------------------
  *     if timeframe == TF_Minutes:             # <<<<<<<<<<<<<<
@@ -5506,7 +5503,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   switch (__pyx_v_timeframe) {
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Minutes:
 
-    /* "backtest/utils/dt_cmp.pyx":147
+    /* "backtest/utils/dt_cmp.pyx":142
  *     # ---------------------------------------
  *     if timeframe == TF_Minutes:
  *         result_ts -= 60.0             # <<<<<<<<<<<<<<
@@ -5515,7 +5512,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_result_ts = (__pyx_v_result_ts - 60.0);
 
-    /* "backtest/utils/dt_cmp.pyx":146
+    /* "backtest/utils/dt_cmp.pyx":141
  *     # Apply tadjust
  *     # ---------------------------------------
  *     if timeframe == TF_Minutes:             # <<<<<<<<<<<<<<
@@ -5525,7 +5522,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_Seconds:
 
-    /* "backtest/utils/dt_cmp.pyx":149
+    /* "backtest/utils/dt_cmp.pyx":144
  *         result_ts -= 60.0
  *     elif timeframe == TF_Seconds:
  *         result_ts -= 1.0             # <<<<<<<<<<<<<<
@@ -5534,7 +5531,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_result_ts = (__pyx_v_result_ts - 1.0);
 
-    /* "backtest/utils/dt_cmp.pyx":148
+    /* "backtest/utils/dt_cmp.pyx":143
  *     if timeframe == TF_Minutes:
  *         result_ts -= 60.0
  *     elif timeframe == TF_Seconds:             # <<<<<<<<<<<<<<
@@ -5544,7 +5541,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
     break;
     case __pyx_e_8backtest_5utils_6dt_cmp_TF_MicroSeconds:
 
-    /* "backtest/utils/dt_cmp.pyx":151
+    /* "backtest/utils/dt_cmp.pyx":146
  *         result_ts -= 1.0
  *     elif timeframe == TF_MicroSeconds:
  *         result_ts -= 0.000001             # <<<<<<<<<<<<<<
@@ -5553,7 +5550,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
 */
     __pyx_v_result_ts = (__pyx_v_result_ts - 0.000001);
 
-    /* "backtest/utils/dt_cmp.pyx":150
+    /* "backtest/utils/dt_cmp.pyx":145
  *     elif timeframe == TF_Seconds:
  *         result_ts -= 1.0
  *     elif timeframe == TF_MicroSeconds:             # <<<<<<<<<<<<<<
@@ -5564,7 +5561,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
     default: break;
   }
 
-  /* "backtest/utils/dt_cmp.pyx":153
+  /* "backtest/utils/dt_cmp.pyx":148
  *         result_ts -= 0.000001
  * 
  *     return result_ts             # <<<<<<<<<<<<<<
@@ -5572,7 +5569,7 @@ static double __pyx_f_8backtest_5utils_6dt_cmp__get_subday_cmpkey_c(double __pyx
   __pyx_r = __pyx_v_result_ts;
   goto __pyx_L0;
 
-  /* "backtest/utils/dt_cmp.pyx":79
+  /* "backtest/utils/dt_cmp.pyx":74
  * 
  * 
  * cdef double _get_subday_cmpkey_c(double dt_ts, tm* tm_ptr, int64_t timeframe, int64_t compression):             # <<<<<<<<<<<<<<
@@ -6037,26 +6034,26 @@ __Pyx_RefNannySetupContext("PyInit_dt_cmp", 0);
 
   /* "backtest/utils/dt_cmp.pyx":8
  * 
- * #  CPython datetime API ()
+ * #  CPython datetime API
  * import_datetime()             # <<<<<<<<<<<<<<
  * 
- * cdef enum:
+ * 
 */
   __pyx_f_7cpython_8datetime_import_datetime();
 
-  /* "backtest/utils/dt_cmp.pyx":21
+  /* "backtest/utils/dt_cmp.pyx":11
  * 
  * 
  * cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression):             # <<<<<<<<<<<<<<
  *     """
  *     :param dt_ts:  (float/double),  datetime
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_6dt_cmp_1get_dt_cmpkey, 0, __pyx_mstate_global->__pyx_n_u_get_dt_cmpkey, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dt_cmp, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_6dt_cmp_1get_dt_cmpkey, 0, __pyx_mstate_global->__pyx_n_u_get_dt_cmpkey, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dt_cmp, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_get_dt_cmpkey, __pyx_t_2) < (0)) __PYX_ERR(0, 21, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_get_dt_cmpkey, __pyx_t_2) < (0)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "backtest/utils/dt_cmp.pyx":1
@@ -6121,66 +6118,33 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_RefNannyDeclarations
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
-
-  /* "backtest/utils/dt_cmp.pyx":36
- * 
- *     if timeframe == TF_NoTimeFrame:
- *         return None, None             # <<<<<<<<<<<<<<
- * 
- *     # timestamp ---> C struct tm () / UTC gmtime
-*/
-  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(2, Py_None, Py_None); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 36, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
-  #if CYTHON_IMMORTAL_CONSTANTS
-  {
-    PyObject **table = __pyx_mstate->__pyx_tuple;
-    for (Py_ssize_t i=0; i<1; ++i) {
-      #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
-      #if PY_VERSION_HEX < 0x030E0000
-      if (_Py_IsOwnedByCurrentThread(table[i]) && Py_REFCNT(table[i]) == 1)
-      #else
-      if (PyUnstable_Object_IsUniquelyReferenced(table[i]))
-      #endif
-      {
-        Py_SET_REFCNT(table[i], _Py_IMMORTAL_REFCNT_LOCAL);
-      }
-      #else
-      Py_SET_REFCNT(table[i], _Py_IMMORTAL_INITIAL_REFCNT);
-      #endif
-    }
-  }
-  #endif
   __Pyx_RefNannyFinishContext();
   return 0;
-  __pyx_L1_error:;
-  __Pyx_RefNannyFinishContext();
-  return -1;
 }
 /* #### Code section: init_constants ### */
 
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 9; } index[] = {{1},{25},{20},{18},{21},{18},{11},{5},{8},{13},{13},{5},{8},{10},{8},{3},{12},{12},{12},{10},{8},{9},{6},{141},{288}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (469 bytes) */
-const char* const cstring = "BZh91AY&SY\323\255\347N\000\000Y\177\377\367\375\354\234p\365\255(\265Ap@\277\377\377p@@@@@@@@@\000@@@\000@\0000\001\230\331\026\206\212\236Dj?T\336\246\247\240j\0144\214\020\032\00021\240#\324\331\032'\240\320\211\220b\236\224\315L\236\243@\365\000\000\000\000\000\001\240\004\246\242\024\365=\032\231\032h\000\000\000\006\200\000\00044\375\n[\222\031W\027\010}\376\336))\254Ua\354\004HI+.h0D\200}\247\246\002j-\264\205\230\330\235O<\367{}]\2622\256\023\200\245sj\032>2=6\324\307\275\337\230\334\253\004\300Zk\214D\305\024\364F\322_\002\202\007\206c\"Y^\016\203\230F\007\305\257S\205\206\221\266\223\007\316\201\0141\210'\025\265\212Y\200\324\344 \240\345`\363,h\366\262LN\205g\r\002\221\2673(\t\3128\233D\242RHFo\313v{Lp\2762LHS\333@\246H\243\256\212R\243]4\024afl\304\341R%\212\2475\352Z\224N\262\342\003\315\030\rMT\273o\314c\311\250++\211\014P\244\205\010K80\205\347H##f\261\254\004*\231 \202%tH\306EP2\240\353@\370\344\276p\250\203\226\212D\2638\326\260*S\316\272P\006\205\020\261n^\020\023\000r\244\367D\365\0030\344\224\377\022\222\251\316u\312\261\332-f\336\0010\034\246\244:L\246A{\353\0167\306B\000H3\224F=\000\377\275\254\247\346\320@A\372\262/\350!\334\004/P\022\377\004\003\313\252\304*u\0304\341\343U\351\\\024\341\256\347\263\336\231$\207\204Qo\027rE8P\220\323\255\347N";
-    PyObject *data = __Pyx_DecompressString(cstring, 469, 2);
+    const struct { const unsigned int length: 9; } index[] = {{1},{25},{20},{18},{21},{18},{11},{5},{8},{13},{13},{5},{8},{10},{8},{3},{12},{12},{12},{10},{8},{9},{6},{141},{290}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (481 bytes) */
+const char* const cstring = "BZh91AY&SYrT\360\"\000\000Z\377\377\367\375\354\234p\365\255(\265Ap@\277\377\377p@@@@@@@@@\000@@@\000@\0000\001\230\3316\241\242\251\371\024\332\233\324\310i3@\203\324\323\004\311\200\002\001\265\030\206di6\240\320\221\224\303*~\244\323\324i\3521\r\006\200\301\006\231\031\003@\032i\220\004\246\244#M=)\246\215\251\240\001\240\000\006\200\000\00044\362jMQ\363\345\335\\!\367\373}\313\001]\251\261K\001\n\022J\313\232v\010S4J\033I0\025\250\306h\2148\230\225K,\227\273}]\2622xJ\002\215\315\250\\\361\251\002m\251\017{\33719W\t\000\305k\254B\305\030:\"j\225AN\202\000\315e\034p\003\247s\006`e\320\3707W4}$\21064\010akA\030\235\213T\006\003\023\250\202\204\252\315\354T\241\342\271-%\366\215\376\222\212S\177J\002J\216\tH\346%$\204'\247\236|\306\026\217\244=\031!N\361\001\302D\335\363R\225\033N \241\r\031\257\003e8\232\035f\313\263\267(\247\256\332\003\254\030\0142\246Rn\332\332LA9i#\265\202\221\322!@nY\nr\302\037\013\"\256\305\202\023D\216@\362\324\020\255oS\214\2449\3205\373\r\214)\340\350IDP\212S\202\000&SNz(\003\002\230\271\013\341\304\n\300\243t\226\311&\022\036\350\325\016\262\323=\357\2656mR\305\260W\325U\035\016\025P\230\205\357_\177\207\2362\000D5\024\0061\201\313y65l ?\177\031\"\333\261\377\340O~\200\217\370'\017.\233\023\322\352,\340\265o\316\270'\206\253\240h L\222D\001Z\225\277\305\334\221N\024$\034\225<\010\200";
+    PyObject *data = __Pyx_DecompressString(cstring, 481, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (410 bytes) */
-const char* const cstring = "x\332\225\220=O#1\020\2067(\034\341C\007\210HH@\261\24198\241\240\010\204\204(P\020BT\010\256\272n\344x\035\360e\277X\217\021KE\231\322\245\313-)SR\362\023(S\346'\360\023\230\315\022\270\003$t.\346}\345y\336\321\330\373-\306;(\024nj\224\276\332\364\020x\020\327\343\364\032\340\224\312iz(9\302\211\270\306_\242\315T\032r\031\325y\224D\304\207B\215\342\365a\274^\304\271O-\220!`\302\270\310\021\036\005q\"\224\222QH\010*\200\266\0169\300\271@(2\035\221\202T\360:Y\242\010\010\013\030\215\241\023D\236\366E\356B\026\220\306QL\205\026\344,\226\371\365\245f~\321\002P4\265\360\344<Z[\373\010\220\257IU\006\242\235P\363\212\371Z(/\322-_\270k\205n\270\n\023\315\321\305\300\375\271\341\312\020w\266\001_\315\272\363b\336\370\367\310\320\270\305j\252#c\360\244\212\031\362\213ug\370X\245[\036KG\017\346\316?\037\360\350,\333\306\323\2123^\271\2751\013\246\331\257\314v\257\314\331\3237g\374{\367\2679\353\227g\273\251-\331y\373#\233\317j\203\362\304\210\2333S\266\226\313\264m\374%/\227$\203J\325\034\333\243\254\2265\262\346`r\301l\031\366\221\377\020\353\177\032[\262\253\366\300^d\177zc=\232<gfl\363?\342_\202\225\352cu\355\256t\267\330+\365\226\356\367\036\330\240<\335\3355\315gsI\377\351";
-    PyObject *data = __Pyx_DecompressString(cstring, 410, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (411 bytes) */
+const char* const cstring = "x\332\225\220=O\033A\020\206\317\010\007\363\241\304\010KH@qN\023@\310\310\002!!\nd\204\020\025\202T\351F\353\2755l|_\334\316\"\216\212\322\345\226[^I\351\222\222\237@I\351\237\340\237\300\234\017C\002HQ\256\230\367\325\314\363\216fo\277\315x\027\205\302M\215\322W\233\036\002\017\342F\234^\003\234R9M\017%G8\021\327\370St\230JC.\243\006\217\222\210\370P\250q\2741\2127\2128\367i\0042\004L\030\0279\302\243 N\204R2\n\tA\005\320\321!\0078\027\010E\246+R\220\n^7K\024\001a\001\2435\364\005\221\247}\221\273\220\005\244q\024S\241\0039\213e\336\276\324\314/F\000\212\266\026\236\234Ggk\037\001\3623\251\312@t\022\032^1_\013\345E\272\355\013w\265\320\rWa\2429\272\030\270\353\033\256\014qg\033\360\325\2549/\346\215\177\217\214\214[\234\246\2722\006O\252\230!\277XsF\217U\272\355\261t\374`\356\374\365\003\036\235e\333\034\2568\345\312\355\215Y0\255\247\312\267^jK\303/N\371k\357\2279\033\3169\345j\336\261\363\366G6\237\325\007\223Sc\262jfl=\227Y\333\374C^\232$\203J\315\034\333\243\254\2365\263\326`z\301l\031\366\221\377\020{\3724\266d\277\333\003{\221\375\356O\364is\325\314\331\326\177\304\377\tVj\217\265\325\273\322\335b\277\324_\272\337{`\203\311\331\336\256i=\003\232\377\377\312";
+    PyObject *data = __Pyx_DecompressString(cstring, 411, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (685 bytes) */
-const char* const bytes = "?backtest/utils/dt_cmp.pyx__Pyx_PyDict_NextRefasyncio.coroutinesbacktest.utils.dt_cmpcline_in_tracebackcompressiondt_ts__func__get_dt_cmpkey_is_coroutineitems__main____module____name__pop__pyx_capi____qualname____set_name__setdefault__test__timeframevaluesdouble (double, struct tm *, int64_t, int64_t)\000int64_t (double, int64_t, int64_t, int __pyx_skip_dispatch)\000_get_subday_cmpkey_c\000get_dt_cmpkey\320\000\033\2301\360\034\000\005\010\200z\220\023\220A\330\010\017\210v\220Q\360\006\000\005\016\210X\220Q\330\004\017\210y\230\001\230\021\230'\240\021\240!\340\004\007\200z\220\023\220A\330\010\020\220\n\230!\330\010\020\220\013\2301\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\340\010\024\220H\230F\240!\2401\240A\340\t\023\2203\220a\330\010\020\220\013\2301\330\010\020\220\013\2301\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\330\010\024\220H\230F\240!\2401\240A\340\t\023\2203\220a\330\010\032\230\"\230B\230h\240j\260\002\260!\340\010\020\220\014\230A\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\330\010\024\220H\230F\240!\2401\240A\340\t\023\2203\220a\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\330\010\024\220H\230F\240!\2401\240A\340\010\024\320\024(\250\001\250\027\260\001\260\032\270;\300a\340\004\013\2109\220A";
+    #else /* compression: none (687 bytes) */
+const char* const bytes = "?backtest/utils/dt_cmp.pyx__Pyx_PyDict_NextRefasyncio.coroutinesbacktest.utils.dt_cmpcline_in_tracebackcompressiondt_ts__func__get_dt_cmpkey_is_coroutineitems__main____module____name__pop__pyx_capi____qualname____set_name__setdefault__test__timeframevaluesdouble (double, struct tm *, int64_t, int64_t)\000int64_t (double, int64_t, int64_t, int __pyx_skip_dispatch)\000_get_subday_cmpkey_c\000get_dt_cmpkey\320\000\033\2301\360\034\000\005\010\200z\220\023\220A\330\010\017\210y\230\001\360\006\000\005\016\210X\220Q\360\014\000\005\020\210y\230\001\230\021\230'\240\021\240!\340\004\007\200z\220\023\220A\330\010\020\220\n\230!\330\010\020\220\013\2301\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\340\010\024\220H\230F\240!\2401\240A\340\t\023\2203\220a\330\010\020\220\013\2301\330\010\020\220\013\2301\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\330\010\024\220H\230F\240!\2401\240A\340\t\023\2203\220a\330\010\032\230\"\230B\230h\240j\260\002\260!\340\010\020\220\014\230A\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\330\010\024\220H\230F\240!\2401\240A\340\t\023\2203\220a\330\010\020\220\013\2301\330\010\020\220\n\230!\330\010\020\220\n\230!\330\010\024\220H\230F\240!\2401\240A\340\010\024\320\024(\250\001\250\027\260\001\260\032\270;\300a\340\004\013\2109\220A";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -6271,7 +6235,7 @@ typedef struct {
     unsigned int num_kwonly_args : 1;
     unsigned int nlocals : 2;
     unsigned int flags : 10;
-    unsigned int first_line : 5;
+    unsigned int first_line : 4;
 } __Pyx_PyCode_New_function_description;
 /* NewCodeObj.proto */
 static PyObject* __Pyx_PyCode_New(
@@ -6288,9 +6252,9 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 21};
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 11};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_dt_ts, __pyx_mstate->__pyx_n_u_timeframe, __pyx_mstate->__pyx_n_u_compression};
-    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dt_cmp_pyx, __pyx_mstate->__pyx_n_u_get_dt_cmpkey, __pyx_mstate->__pyx_kp_b_iso88591_1_z_A_vQ_XQ_y_z_A_1_1_HF_1A_3a, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dt_cmp_pyx, __pyx_mstate->__pyx_n_u_get_dt_cmpkey, __pyx_mstate->__pyx_kp_b_iso88591_1_z_A_y_XQ_y_z_A_1_1_HF_1A_3a_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);
   return 0;

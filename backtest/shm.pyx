@@ -65,8 +65,9 @@ cdef class SharedRingBuffer:
             self.header.head = 0
             # tails 和 active_consumers 数组会被 memset 自动置为 0 / False
 
-    cpdef int register_consumer(self):
+    cpdef int32_t register_consumer(self):
         cdef RingHeader* h = self.header
+        cdef int32_t i
 
         for i in range(32):
             if not h.active_consumers[i]:
@@ -111,7 +112,7 @@ cdef class SharedRingBuffer:
         memset(msg, 0, sizeof(EventMsg))
         return msg
  
-    cpdef publish_sentinel(self, int64_t tick):
+    cpdef void publish_sentinel(self, int64_t tick):
         cdef EventMsg* msg
 
         with nogil:
@@ -173,7 +174,7 @@ cdef class SharedRingBuffer:
         
         self._advance()
     
-    cpdef publish_order(self, object py_order):
+    cpdef void publish_order(self, object py_order):
         cdef EventMsg* msg
 
         with nogil:
@@ -191,7 +192,7 @@ cdef class SharedRingBuffer:
         
         self._advance()
     
-    cpdef publish_snapshot(self, object py_snapshot):
+    cpdef void publish_snapshot(self, object py_snapshot):
         # self.publish_order(py_order)
 
         if py_snapshot.trades:
@@ -203,7 +204,7 @@ cdef class SharedRingBuffer:
         
         self.publish_account(py_snapshot.account)
     
-    cpdef get_events(self, int32_t consumer_id):
+    cpdef object get_events(self, int32_t consumer_id):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
 
@@ -246,11 +247,11 @@ cdef class SharedRingBuffer:
 
             self.header.tails[consumer_id] += 1
 
-    cpdef close(self):
+    cpdef void close(self):
         if self._shm is not None:
             self._shm.close()
 
-    cpdef unlink(self):
+    cpdef void unlink(self):
         if self._shm is not None:
             self._shm.unlink() # incase shm is corruption
 

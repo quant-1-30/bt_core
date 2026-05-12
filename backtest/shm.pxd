@@ -79,7 +79,7 @@ cdef class SharedRingBuffer:
     cdef int32_t capacity
     cdef object _shm  # Python SharedMemory avoid gc
 
-    cpdef int register_consumer(self)
+    cpdef int32_t register_consumer(self)
     
     cdef void _advance(self) noexcept nogil
     
@@ -87,7 +87,7 @@ cdef class SharedRingBuffer:
    
     cdef EventMsg* _get_msg(self) noexcept nogil
     
-    cpdef publish_sentinel(self, int64_t tick)
+    cpdef void publish_sentinel(self, int64_t tick)
     
     cdef void publish_account(self, object py_account)
     
@@ -95,12 +95,12 @@ cdef class SharedRingBuffer:
 
     cdef void publish_trade(self, object py_trade)
     
-    cpdef publish_snapshot(self, object py_snapshot)
+    cpdef void publish_snapshot(self, object py_snapshot)
     
-    cpdef publish_order(self, object py_order)
+    cpdef void publish_order(self, object py_order)
 
-    cpdef get_events(self, int32_t consumer_id)
+    cpdef object get_events(self, int32_t consumer_id)
 
-    cpdef close(self)
+    cpdef void close(self)
 
-    cpdef unlink(self)
+    cpdef void unlink(self)
