@@ -32,9 +32,6 @@ cdef class OrderExecutionBit:
         self.core.executed_price = executed_price
         self.core.executed_size = executed_size
         self.core.comm = comm
-
-        self.core.val = executed_price * executed_size if isbuy else -1 * executed_price * executed_size 
-
         self.core.isbuy = isbuy
 
     # property val:
@@ -48,7 +45,6 @@ cdef class OrderExecutionBit:
         obj.core.executed_size = self.core.executed_size
         obj.core.executed_price = self.core.executed_price
         obj.core.comm = self.core.comm
-        obj.core.val = self.core.val
         obj.core.isbuy = self.core.isbuy
         return obj 
     

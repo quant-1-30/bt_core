@@ -1624,7 +1624,6 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData {
   int64_t executed_size;
   double executed_price;
   double comm;
-  double val;
   int isbuy;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
@@ -1885,7 +1884,6 @@ struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData {
   double cost_basis;
   double pnl;
   int64_t created_dt;
-  double pval;
 };
 
 /* "backtest/execution/core/engine/engine.pxd":5
@@ -1916,7 +1914,7 @@ struct __pyx_obj_8backtest_9execution_7gateway_9interface_AsyncGateway {
 };
 
 
-/* "backtest/execution/core/finance/trade.pxd":27
+/* "backtest/execution/core/finance/trade.pxd":26
  *     bint isbuy
  * 
  * cdef class OrderExecutionBit:             # <<<<<<<<<<<<<<
@@ -2103,7 +2101,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator {
 };
 
 
-/* "backtest/execution/core/finance/position.pxd":36
+/* "backtest/execution/core/finance/position.pxd":35
  * 
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
@@ -2276,7 +2274,7 @@ struct __pyx_obj_8backtest_9execution_4core_6engine_6engine___pyx_scope_struct_8
 
 
 
-/* "backtest/execution/core/finance/trade.pxd":27
+/* "backtest/execution/core/finance/trade.pxd":26
  *     bint isbuy
  * 
  * cdef class OrderExecutionBit:             # <<<<<<<<<<<<<<
@@ -2450,7 +2448,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator 
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator;
 
 
-/* "backtest/execution/core/finance/position.pxd":36
+/* "backtest/execution/core/finance/position.pxd":35
  * 
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
@@ -9777,7 +9775,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #endif
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_7gateway_9interface_AsyncGateway) __PYX_ERR(2, 7, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.trade"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 27, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.trade"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.trade", "OrderExecutionBit",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9787,8 +9785,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit) __PYX_ERR(3, 27, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) __PYX_ERR(3, 27, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit) __PYX_ERR(3, 26, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) __PYX_ERR(3, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.asset"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -9910,7 +9908,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 44, __pyx_L1_error)
   __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 44, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(11, 36, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(11, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.position", "Position",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -9920,8 +9918,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position) __PYX_ERR(11, 36, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position)) __PYX_ERR(11, 36, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position) __PYX_ERR(11, 35, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position)) __PYX_ERR(11, 35, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;

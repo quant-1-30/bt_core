@@ -68,7 +68,6 @@ cdef class Position:
         self.core.available = available # due to T + 1
         self.core.cost_basis = cost_basis
         self.core.pnl = pnl
-        self.core.pval = 0.0
         
         self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
@@ -158,7 +157,6 @@ cdef class Position:
 
         self.core.datetime = trade_dts
         self.core.pnl = self.core.size * (trade_price - self.core.cost_basis)
-        self.core.pval += trade_core.val
  
     cdef double process_events(self, vector[EventItem]& events):
         cdef double total_bonus = 0.0
@@ -201,13 +199,12 @@ cdef class Position:
         cdef double cost_basis = self.core.cost_basis
         cdef int32_t delist = self.asset_info.delist
 
-        if delist > 0 and delist <= end_dt:
+        if delist > 0 and delist <= end_dt: # bug forward operation
             self.core.size = 0
             self.core.available = 0
             self.core.pnl = 0
         elif close > 0:
             self.core.pnl = size * (close - cost_basis)
-            self.core.pval = size * close
         else:
             pass # close == 0.0 means suspend stay
         

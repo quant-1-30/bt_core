@@ -30,7 +30,6 @@ cdef struct PositionCoreData:
     double cost_basis
     double pnl
     int64_t created_dt
-    double pval
     
 
 cdef class Position:

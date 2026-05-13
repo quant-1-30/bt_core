@@ -175,7 +175,6 @@ cdef class TrackerActor:
 
                     for ordbit in order_obj.exbits:
                         ordbit_dict = ordbit.get_snapshot()
-                        ordbit_dict.pop("val")
                         order_bits.append(ordbit_dict)
 
                     if order_bits:
@@ -246,7 +245,7 @@ cdef class TrackerActor:
         if order.exbits:
             for ordbit in order.exbits:
                 p_sid.update(ordbit)
-            self.cash_manager.update(experiment_id, order.exbits, p_sid.core.pnl)
+            self.cash_manager.update(experiment_id, order.exbits, p_sid.core.pnl) # avoid position update increment
 
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
@@ -373,7 +372,6 @@ cdef class TrackerActor:
             # struct auto dict 
             p_dict = p_obj.get_snapshot() # p.core 
             p_dict['experiment_id'] = self.cached_uuid
-            p_dict.pop("pval")
             
             pos_snaps.append(p_dict)
             pobj_body.append(p_obj.serialize().body)

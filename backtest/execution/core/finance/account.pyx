@@ -74,7 +74,7 @@ cdef class Account:
 
     cdef void update(self, list trades, double pnl):
         '''
-        Updates the current position on Account
+        Updates the current Trade on Account
         '''
         cdef OrderExbitData core 
         cdef OrderExecutionBit trade
@@ -84,7 +84,7 @@ cdef class Account:
         
         for trade in trades:
             core = trade.core
-            _val += core.val
+            _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size 
             _comm += core.comm
             max_dt = max(core.executed_dt, max_dt)
         
@@ -105,7 +105,7 @@ cdef class Account:
 
         # cdef pair[int, Position] item # pair ---> C++ for(auto& item : pobjs)
         for p in pobjs.values():
-            _v += p.core.pval
+            _v += p.core.size * p.core.cost_basis + p.core.pnl
             _pnl += p.core.pnl
             max_dt = max(p.core.datetime, max_dt)
         

@@ -21,7 +21,6 @@ cdef struct OrderExbitData:
     int64_t executed_size
     double executed_price
     double comm
-    double val
     bint isbuy
 
 cdef class OrderExecutionBit:

@@ -1660,7 +1660,6 @@ struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData {
   int64_t executed_size;
   double executed_price;
   double comm;
-  double val;
   int isbuy;
 };
 struct __pyx_t_8backtest_9execution_4core_7finance_5asset_AssetCore;
@@ -1696,7 +1695,6 @@ struct __pyx_t_8backtest_9execution_4core_7finance_8position_PositionCoreData {
   double cost_basis;
   double pnl;
   int64_t created_dt;
-  double pval;
 };
 struct __pyx_t_8backtest_9execution_5utils_4util_uuid128;
 struct __pyx_t_8backtest_9execution_5utils_4util_MarketTime;
@@ -1808,7 +1806,7 @@ struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_
   int reset;
 };
 
-/* "backtest/execution/core/finance/trade.pxd":27
+/* "backtest/execution/core/finance/trade.pxd":26
  *     bint isbuy
  * 
  * cdef class OrderExecutionBit:             # <<<<<<<<<<<<<<
@@ -1838,7 +1836,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5asset_Asset {
 };
 
 
-/* "backtest/execution/core/finance/position.pxd":36
+/* "backtest/execution/core/finance/position.pxd":35
  * 
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
@@ -1870,7 +1868,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account {
 
 
 
-/* "backtest/execution/core/finance/trade.pxd":27
+/* "backtest/execution/core/finance/trade.pxd":26
  *     bint isbuy
  * 
  * cdef class OrderExecutionBit:             # <<<<<<<<<<<<<<
@@ -1902,7 +1900,7 @@ struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset {
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset *__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset;
 
 
-/* "backtest/execution/core/finance/position.pxd":36
+/* "backtest/execution/core/finance/position.pxd":35
  * 
  * 
  * cdef class Position:             # <<<<<<<<<<<<<<
@@ -3973,7 +3971,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_add_ca
  * 
  *     cdef void update(self, list trades, double pnl):             # <<<<<<<<<<<<<<
  *         '''
- *         Updates the current position on Account
+ *         Updates the current Trade on Account
 */
 
 static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update(struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_v_self, PyObject *__pyx_v_trades, double __pyx_v_pnl) {
@@ -3987,10 +3985,11 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update
   Py_ssize_t __pyx_t_2;
   PyObject *__pyx_t_3 = NULL;
   struct __pyx_t_8backtest_9execution_4core_7finance_5trade_OrderExbitData __pyx_t_4;
-  int64_t __pyx_t_5;
+  double __pyx_t_5;
   int64_t __pyx_t_6;
   int64_t __pyx_t_7;
-  int __pyx_t_8;
+  int64_t __pyx_t_8;
+  int __pyx_t_9;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -4028,7 +4027,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update
  * 
  *         for trade in trades:             # <<<<<<<<<<<<<<
  *             core = trade.core
- *             _val += core.val
+ *             _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size
 */
   if (unlikely(__pyx_v_trades == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
@@ -4056,7 +4055,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update
  * 
  *         for trade in trades:
  *             core = trade.core             # <<<<<<<<<<<<<<
- *             _val += core.val
+ *             _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size
  *             _comm += core.comm
 */
     __pyx_t_4 = __pyx_v_trade->core;
@@ -4065,15 +4064,20 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update
     /* "backtest/execution/core/finance/account.pyx":87
  *         for trade in trades:
  *             core = trade.core
- *             _val += core.val             # <<<<<<<<<<<<<<
+ *             _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size             # <<<<<<<<<<<<<<
  *             _comm += core.comm
  *             max_dt = max(core.executed_dt, max_dt)
 */
-    __pyx_v__val = (__pyx_v__val + __pyx_v_core.val);
+    if (__pyx_v_core.isbuy) {
+      __pyx_t_5 = (__pyx_v_core.executed_price * __pyx_v_core.executed_size);
+    } else {
+      __pyx_t_5 = ((-1.0 * __pyx_v_core.executed_price) * __pyx_v_core.executed_size);
+    }
+    __pyx_v__val = (__pyx_v__val + __pyx_t_5);
 
     /* "backtest/execution/core/finance/account.pyx":88
  *             core = trade.core
- *             _val += core.val
+ *             _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size
  *             _comm += core.comm             # <<<<<<<<<<<<<<
  *             max_dt = max(core.executed_dt, max_dt)
  * 
@@ -4081,28 +4085,28 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update
     __pyx_v__comm = (__pyx_v__comm + __pyx_v_core.comm);
 
     /* "backtest/execution/core/finance/account.pyx":89
- *             _val += core.val
+ *             _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size
  *             _comm += core.comm
  *             max_dt = max(core.executed_dt, max_dt)             # <<<<<<<<<<<<<<
  * 
  *         self.core.portfolio_value += _val
 */
-    __pyx_t_5 = __pyx_v_max_dt;
-    __pyx_t_6 = __pyx_v_core.executed_dt;
-    __pyx_t_8 = (__pyx_t_5 > __pyx_t_6);
-    if (__pyx_t_8) {
-      __pyx_t_7 = __pyx_t_5;
+    __pyx_t_6 = __pyx_v_max_dt;
+    __pyx_t_7 = __pyx_v_core.executed_dt;
+    __pyx_t_9 = (__pyx_t_6 > __pyx_t_7);
+    if (__pyx_t_9) {
+      __pyx_t_8 = __pyx_t_6;
     } else {
-      __pyx_t_7 = __pyx_t_6;
+      __pyx_t_8 = __pyx_t_7;
     }
-    __pyx_v_max_dt = __pyx_t_7;
+    __pyx_v_max_dt = __pyx_t_8;
 
     /* "backtest/execution/core/finance/account.pyx":85
  *         cdef int64_t max_dt = 0
  * 
  *         for trade in trades:             # <<<<<<<<<<<<<<
  *             core = trade.core
- *             _val += core.val
+ *             _val += core.executed_price * core.executed_size if core.isbuy else -1 * core.executed_price * core.executed_size
 */
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4148,7 +4152,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_update
  * 
  *     cdef void update(self, list trades, double pnl):             # <<<<<<<<<<<<<<
  *         '''
- *         Updates the current position on Account
+ *         Updates the current Trade on Account
 */
 
   /* function exit code */
@@ -4240,7 +4244,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_sync(s
  * 
  *         # cdef pair[int, Position] item # pair ---> C++ for(auto& item : pobjs)
  *         for p in pobjs.values():             # <<<<<<<<<<<<<<
- *             _v += p.core.pval
+ *             _v += p.core.size * p.core.cost_basis + p.core.pnl
  *             _pnl += p.core.pnl
 */
   __pyx_t_6 = 0;
@@ -4265,15 +4269,15 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_sync(s
     /* "backtest/execution/core/finance/account.pyx":108
  *         # cdef pair[int, Position] item # pair ---> C++ for(auto& item : pobjs)
  *         for p in pobjs.values():
- *             _v += p.core.pval             # <<<<<<<<<<<<<<
+ *             _v += p.core.size * p.core.cost_basis + p.core.pnl             # <<<<<<<<<<<<<<
  *             _pnl += p.core.pnl
  *             max_dt = max(p.core.datetime, max_dt)
 */
-    __pyx_v__v = (__pyx_v__v + __pyx_v_p->core.pval);
+    __pyx_v__v = (__pyx_v__v + ((__pyx_v_p->core.size * __pyx_v_p->core.cost_basis) + __pyx_v_p->core.pnl));
 
     /* "backtest/execution/core/finance/account.pyx":109
  *         for p in pobjs.values():
- *             _v += p.core.pval
+ *             _v += p.core.size * p.core.cost_basis + p.core.pnl
  *             _pnl += p.core.pnl             # <<<<<<<<<<<<<<
  *             max_dt = max(p.core.datetime, max_dt)
  * 
@@ -4281,7 +4285,7 @@ static void __pyx_f_8backtest_9execution_4core_7finance_7account_7Account_sync(s
     __pyx_v__pnl = (__pyx_v__pnl + __pyx_v_p->core.pnl);
 
     /* "backtest/execution/core/finance/account.pyx":110
- *             _v += p.core.pval
+ *             _v += p.core.size * p.core.cost_basis + p.core.pnl
  *             _pnl += p.core.pnl
  *             max_dt = max(p.core.datetime, max_dt)             # <<<<<<<<<<<<<<
  * 
@@ -5589,7 +5593,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_import_code", 0);
   /*--- Type import code ---*/
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.trade"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 27, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.trade"); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.trade", "OrderExecutionBit",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -5599,8 +5603,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit) __PYX_ERR(3, 27, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) __PYX_ERR(3, 27, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit) __PYX_ERR(3, 26, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5trade_OrderExecutionBit)) __PYX_ERR(3, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.asset"); if (unlikely(!__pyx_t_1)) __PYX_ERR(4, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -5615,7 +5619,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset) __PYX_ERR(4, 25, __pyx_L1_error)
   __pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_5asset_Asset*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_5asset_Asset); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_5asset_Asset)) __PYX_ERR(4, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(5, 36, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(5, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.core.finance.position", "Position",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
@@ -5625,8 +5629,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8position_Position),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position) __PYX_ERR(5, 36, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position)) __PYX_ERR(5, 36, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position) __PYX_ERR(5, 35, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Position*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8position_Position); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8position_Position)) __PYX_ERR(5, 35, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_RefNannyFinishContext();
   return 0;
