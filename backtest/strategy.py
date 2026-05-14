@@ -62,6 +62,7 @@ class MetaStrategy(StrategyBase.__class__):
         # Find the _owner and store it
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.pnc = env.pnc # pnc contain sizer and risk
+        _obj.log_shm = env.log_shm 
 
         # register strategy to store with unique id
         _obj.store = store = env.store
@@ -447,7 +448,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             aname = analyzer.__class__.__name__.lower()
             ainfo[aname].Params = analyzer.p._getkwargs() or None
             ainfo[aname].Analysis = analyzer.get_analysis()
-
         return wrinfo
     
     def _stop(self):

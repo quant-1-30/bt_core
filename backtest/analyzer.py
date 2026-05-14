@@ -39,13 +39,18 @@ class MetaAnalyzer(MetaParams):
 
         _obj._children = list()
 
+        # inherit from strategy
         _obj._owner = strategy = findowner(_obj, bt.Strategy)
         _obj.datas = strategy.datas
-        
-        _obj._parent = findowner(_obj, Analyzer)
+       
+        # setup shm for analyzers
+        _obj.log_shm = strategy.log_shm
+        _obj.shm = _obj._owner.shm_chan
 
+        _obj._parent = findowner(_obj, Analyzer)
         # Register with a master observer if created inside one
         masterobs = findowner(_obj, bt.Observer)
+
         if masterobs is not None:
             masterobs._register_analyzer(_obj)
 
@@ -80,9 +85,8 @@ class MetaAnalyzer(MetaParams):
             _obj._parent._register(_obj) # analyzer with analyzer
 
         # Register to shm
-        shm = _obj._owner.shm_chan
-        _obj.shm_id = shm.register_consumer()
-        _obj.shm = shm
+        shm_id = _obj.shm.register_consumer()
+        _obj.shm_id = shm_id
         return _obj, args, kwargs
 
 
@@ -225,7 +229,15 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
     def get_shm_events(self):
         '''Returns the events from the shared memory channel for this analyzer'''
-        return self.shm.get_events(self.shm_id)
+        # return self.shm.get_events(self.shm_id)
+        current_events = []
+        while True:
+            events, is_sentinel = self.shm.drain_events(self.shm_id)
+            if is_sentinel:
+                break
+            if events:
+                current_events.extend(events)
+        return current_events
 
     def print(self, *args, **kwargs):
         '''Prints the results returned by ``get_analysis`` via a standard

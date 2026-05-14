@@ -102,5 +102,7 @@ class LogReturns2(LogReturns):
         super(LogReturns2, self).next()
         dtcmp = self.logret2.dtcmp
         if dtcmp > self.dtcmp:
-            self.lines.logret2[0] = self.logret2.rets.get(dtcmp, float('NaN'))
+            self.lines.logret2[0] = log_ret = self.logret2.rets.get(dtcmp, float('NaN'))
             self.dtcmp = dtcmp
+
+            self.log_shm.publish_metric(b"LogReturn2", log_ret, dtcmp) # log the log return of the second instrument for the current datetime

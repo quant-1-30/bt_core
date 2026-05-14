@@ -63,3 +63,5 @@ class Trades(Observer):
                 self.lines.pnlminus[0] = pnl
 
             self.dtcmp = dtcmp
+
+            self.log_shm.publish_metric(b"TradePnL", pnl, dtcmp) # log the PnL of the trade for the current datetime 

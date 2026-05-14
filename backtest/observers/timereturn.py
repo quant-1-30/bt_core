@@ -81,6 +81,7 @@ class TimeReturn(Observer):
     def next(self):
         dtcmp = self.treturn.dtcmp
         if dtcmp > self.dtcmp:
-            self.lines.timereturn[0] = self.treturn.rets.get(dtcmp,
-                                                         float('NaN'))
+            self.lines.timereturn[0] = tr = self.treturn.rets.get(dtcmp, float('NaN'))
+
             self.dtcmp = dtcmp
+            self.log_shm.publish_metric(b"TimeReturn", tr, dtcmp) # log the time return for the current datetime

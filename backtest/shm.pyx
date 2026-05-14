@@ -2,6 +2,10 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 
+import numpy as np
+cimport numpy as cnp
+# np create array / cnp cdef 
+
 import multiprocessing as mp
 from multiprocessing import shared_memory
 
@@ -24,12 +28,14 @@ cdef extern from *:
         #define cpu_relax() ((void)0)
     #endif
     #define mem_barrier() __sync_synchronize()
+    #include <sched.h>
     """
     void mem_barrier() nogil # 引入内存屏障防止CPU或编译器重排指令保证无锁队列安全性
     void cpu_relax() nogil
+    int sched_yield() nogil
 
 
-cdef class SharedRingBuffer:
+cdef class SharedRingBuffer: # SPMC
 
     def __cinit__(self, str shm_name, int64_t capacity, bint is_creator=False):
         """
@@ -47,8 +53,7 @@ cdef class SharedRingBuffer:
             try:
                 self._shm = shared_memory.SharedMemory(name=shm_name, create=True, size=total_size)
             except FileExistsError:
-                old_shm = shared_memory.SharedMemory(name=shm_name, create=False)
-                old_shm.unlink()
+                shared_memory.SharedMemory(name=shm_name, create=False).unlink()
                 self._shm = shared_memory.SharedMemory(name=shm_name, create=True, size=total_size)
         else:
             self._shm = shared_memory.SharedMemory(name=shm_name, create=False)
@@ -80,7 +85,7 @@ cdef class SharedRingBuffer:
     cdef void _wait_if(self, RingHeader* h) noexcept nogil: 
 
         cdef int64_t min_tail
-        cdef int32_t i
+        cdef int32_t i, counter = 0
 
         while True:
             min_tail = h.head
@@ -93,8 +98,11 @@ cdef class SharedRingBuffer:
             if h.head - min_tail < h.capacity:
                 break
 
-            # self spin cpu_relax
-            cpu_relax()
+            counter += 1
+            if counter < 1000:
+                cpu_relax() # self spin cpu_relax
+            else:
+                sched_yield() # layoff cpu 
     
     cdef void _advance(self) noexcept nogil:
         mem_barrier()
@@ -104,7 +112,6 @@ cdef class SharedRingBuffer:
         cdef EventMsg* msg
         cdef RingHeader* h = self.header
         cdef int32_t pos, cap = self.header.capacity
-
 
         self._wait_if(h)
         pos = self.header.head % cap
@@ -148,6 +155,8 @@ cdef class SharedRingBuffer:
 
         msg.type = ePOSITION
         strncpy(msg.data.position.sid, <bytes>py_pos.sid, 15) # bytes ---> char[]
+        msg.data.position.sid[15] = 0
+
         msg.data. position.datetime = py_pos.datetime
         msg.data.position.size = py_pos.size
         msg.data.position.available = py_pos.available
@@ -165,6 +174,7 @@ cdef class SharedRingBuffer:
 
         msg.type = eORDER
         strncpy(msg.data.trade.order_id, <bytes>py_trade.order_id, 16) # bytest -> char[] 
+        msg.data.trade.order_id[15] = 0  
 
         msg.data.trade.executed_dt = py_trade.executed_dt
         msg.data.trade.executed_price = py_trade.executed_price
@@ -181,8 +191,10 @@ cdef class SharedRingBuffer:
             msg = self._get_msg()
 
         msg.type = eORDER
-        strncpy(msg.data.order.sid, <bytes>py_order.sid, 16) # bytest -> char[] 
+        strncpy(msg.data.order.sid, <bytes>py_order.sid, 16) # bytest -> char[]
+        msg.data.order.sid[15] = 0  
         strncpy(msg.data.order.filler, <bytes>py_order.filler, 16) 
+        msg.data.order.filler[15] = 0  
 
         msg.data.order.pricelimit = py_order.pricelimit
         msg.data.order.sizer_ratio = py_order.sizer_ratio
@@ -193,8 +205,6 @@ cdef class SharedRingBuffer:
         self._advance()
     
     cpdef void publish_snapshot(self, object py_snapshot):
-        # self.publish_order(py_order)
-
         if py_snapshot.trades:
             for trade in py_snapshot.trades:
                 self.publish_trade(trade)
@@ -204,48 +214,42 @@ cdef class SharedRingBuffer:
         
         self.publish_account(py_snapshot.account)
     
-    cpdef object get_events(self, int32_t consumer_id):
+    cpdef tuple drain_events(self, int32_t consumer_id):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
-
-        cdef int32_t event_tail, cap = self.header.capacity
         cdef EventMsg* msg
-        cdef list events =[]  
+        cdef int32_t event_tail, cap = self.header.capacity
+        cdef bint is_sentinel = False
+        cdef list events = []  
+        
+        cdef int32_t count = 0
 
         while True:
             event_tail = h.tails[consumer_id]
             
-            if event_tail >= self.header.head:
-                continue # null 
+            if event_tail >= h.head:
+                break # avoid blocking 
 
             msg = &buf[event_tail % cap]
             
             if msg.type == eSENTINEL:
-                self.header.tails[consumer_id] += 1
-                return events
+                h.tails[consumer_id] += 1
+                is_sentinel = True
+                break 
             
             elif msg.type == eACCOUNT:
-                events.append({
-                    "type": "account",
-                    "data": msg.data.account 
-                })
+                events.append({"type": "account", "data": msg.data.account})
             elif msg.type == ePOSITION:
-                events.append({
-                    "type": "position",
-                    "data": msg.data.position
-                })
+                events.append({"type": "position", "data": msg.data.position})
             elif msg.type == eTRADE:
-                events.append({
-                    "type": "trade",
-                    "data": msg.data.trade,
-                })
+                events.append({"type": "trade", "data": msg.data.trade})
             elif msg.type == eORDER:
-                events.append({
-                    "type": "order",
-                    "data": msg.data.order,
-                })
+                events.append({"type": "order", "data": msg.data.order})
 
-            self.header.tails[consumer_id] += 1
+            h.tails[consumer_id] += 1
+            count += 1
+
+        return events, is_sentinel
 
     cpdef void close(self):
         if self._shm is not None:
@@ -255,3 +259,99 @@ cdef class SharedRingBuffer:
         if self._shm is not None:
             self._shm.unlink() # incase shm is corruption
 
+
+cdef class LogRingBuffer: # MPSC
+
+    def __cinit__(self, str shm_name, int32_t capacity, bint is_creator=False):
+        # cdef size_t header_size = (sizeof(LogRingHeader) + 63) & ~63
+        cdef size_t header_size = sizeof(LogRingHeader)
+        cdef size_t total_size = header_size + (capacity * sizeof(MetricMsg))
+        self.capacity = capacity
+
+        if is_creator:
+            try:
+                self._shm = shared_memory.SharedMemory(name=shm_name, create=True, size=total_size)
+            except FileExistsError:
+                shared_memory.SharedMemory(name=shm_name).unlink()
+                self._shm = shared_memory.SharedMemory(name=shm_name, create=True, size=total_size)
+        else:
+            self._shm = shared_memory.SharedMemory(name=shm_name, create=False)
+
+        cdef unsigned char[:] mem_view = self._shm.buf
+        self.header = <LogRingHeader*> &mem_view[0]
+        self.buffer = <MetricMsg*> &mem_view[header_size]
+
+        if is_creator:
+            memset(&mem_view[0], 0, total_size)
+            self.header.capacity = capacity
+            self.header.head = 0
+            self.header.tail = 0
+
+    cdef void _wait_if_full(self) noexcept nogil:
+        cdef LogRingHeader* h = self.header
+        cdef int32_t counter = 0
+
+        while h.head - h.tail >= h.capacity:
+            counter += 1
+            if counter < 1000:
+                cpu_relax()
+            else:
+                sched_yield()
+
+    cpdef void publish_metric(self, bytes metrics, double value, int64_t dt):
+        cdef LogRingHeader* h = self.header
+        cdef int64_t pos = h.head % self.capacity
+        cdef MetricMsg* msg
+        
+        with nogil:
+            self._wait_if_full()
+            
+        msg = &self.buffer[pos]
+        
+        msg.datetime = dt
+        msg.value = value
+        
+        strncpy(msg.metrics, <char*>metrics, 15)
+        msg.metrics[15] = b'\0'
+        
+        with nogil:
+            mem_barrier()
+            h.head += 1
+
+    cpdef object drain_metrics(self, int32_t max_batch=50000):
+        cdef LogRingHeader* h = self.header
+        cdef int64_t current_tail = h.tail
+        cdef int64_t current_head = h.head
+        cdef int32_t i
+
+        cdef int64_t available = current_head - current_tail
+        cdef int64_t count = min(available, <int64_t>max_batch)
+
+        if available <= 0:
+            return None
+            
+        # dtype ---> numpy Structured Arrays C struct
+        # 'i8' = int64, 'f8' = float64, 'S16' = 16 bytes
+        dtype = cnp.dtype([
+            ('datetime', 'i8'), 
+            ('value', 'f8'), 
+            ('metric', 'S16')
+        ])
+        
+        cdef cnp.ndarray arr = np.empty(count, dtype=dtype)  
+        cdef MetricMsg* dest = <MetricMsg*>arr.data
+        cdef MetricMsg* src = self.buffer
+        
+        for i in range(count):
+            dest[i] = src[(current_tail + i) % self.capacity] # C struct ---> slot of array`
+            
+        h.tail = current_tail + count
+        return arr
+
+    cpdef void close(self):
+        if self._shm is not None:
+            self._shm.close()
+
+    cpdef void unlink(self):
+        if self._shm is not None:
+            self._shm.unlink()

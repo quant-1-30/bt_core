@@ -20,13 +20,16 @@
 ###############################################################################
 
 from .lineiterator import LineIterator, ObserverBase
-from .metabase import with_metaclass
+from .metabase import with_metaclass, findowner
 from .strategy import Strategy
 
 
 class MetaObserver(ObserverBase.__class__):
     def donew(cls, *args, **kwargs):
         _obj, args, kwargs = super(MetaObserver, cls).donew(*args, **kwargs)
+        
+        _obj._owner = strategy = findowner(_obj, Strategy)
+        _obj.log_shm = strategy.log_shm # setup shm for observers
         _obj._analyzers = list()  # keep children analyzers
 
         return _obj, args, kwargs  # return the instantiated object and args

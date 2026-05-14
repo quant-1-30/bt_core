@@ -78,6 +78,8 @@ class AnnualReturn(bt.Analyzer):
             annualret = (value_end / value_start) - 1.0
             self.rets.append(annualret)
             self.ret[cur_year] = annualret
+            # log the last annual return
+            # self.log_shm.publish_metric("AnnualReturn", annualret, v[-1].datetime)
 
     def get_analysis(self):
         return self.ret

@@ -128,3 +128,5 @@ class DrawDownLength(Observer):
             self.lines.len[0] = ddlen  
             self.lines.maxlen[0] = self._dd.rets["maxDrawdownLength"]
             self.dtcmp = dtcmp
+
+            self.log_shm.publish_metric(b"DrawDownLength", ddlen, dtcmp) # log the drawdown length for the current datetime

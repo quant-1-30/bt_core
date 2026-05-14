@@ -105,4 +105,5 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         loc = np.searchsorted(self.dts, self.dtcmp)
         loc_ret = self.returns[loc] if loc < len(self.dts) else np.nan
         self.rets[self.dtcmp] = loc_ret
+        # self.log_shm.publish_metric("BenchmarkReturn", loc_ret, self.dtcmp)
           

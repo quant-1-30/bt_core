@@ -35,6 +35,7 @@ from .timer import Timer, Session
 from .errors import *
 from .stores import _stores
 from .plot import Plot
+from .shm import LogRingBuffer
 from .utils.wrapper import consume_time
 from .utils.encoder import CustomJSONEncoder
 
@@ -122,6 +123,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         
         self.writers = list()
         self._plot = Plot()
+
+        # logshm
+        self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000, is_creator=True) 
 
     def addpnc(self, sizer_name: str="fixed", **kwargs):
         '''Adds a TaskPlan instance to the system'''

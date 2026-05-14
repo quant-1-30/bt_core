@@ -57,20 +57,26 @@ cdef struct EventMsg:
     uint8_t _pad1[4]
     int64_t dt_over_time
     EventData data         
-    # 末尾对齐到 64 字节的倍数（比如总长 128）
-    uint8_t _pad2[56]      
-
+    uint8_t _pad2[56] # 末尾对齐到 64 字节
 
 cdef struct RingHeader:
-    # 强制 volatile 保证内存可见性
-    volatile int64_t head             
+    volatile int64_t head # 编译器不优化访问 / 内存可见性        
     volatile int64_t tails[32]     
     int32_t capacity                  
     uint8_t _pad[4]      
-    
     volatile int32_t active_consumers[32] # 32 * 4 = 128
-    
     uint8_t _pad1[48] # (400 + 63) & ~63 = 448
+
+cdef struct MetricMsg:
+    int64_t datetime    
+    double value    
+    char metrics[16] # 15 bytes + '\0' 
+
+cdef struct LogRingHeader:
+    volatile int64_t head
+    volatile int64_t tail  
+    int32_t capacity
+    uint8_t _pad[4]          
 
 
 cdef class SharedRingBuffer:
@@ -99,7 +105,24 @@ cdef class SharedRingBuffer:
     
     cpdef void publish_order(self, object py_order)
 
-    cpdef object get_events(self, int32_t consumer_id)
+    cpdef tuple drain_events(self, int32_t consumer_id)
+
+    cpdef void close(self)
+
+    cpdef void unlink(self)
+
+
+cdef class LogRingBuffer: # MPSC
+    cdef LogRingHeader* header
+    cdef MetricMsg* buffer
+    cdef int32_t capacity
+    cdef object _shm
+
+    cdef void _wait_if_full(self) noexcept nogil
+
+    cpdef void publish_metric(self, bytes metrics, double value, int64_t dt)
+
+    cpdef object drain_metrics(self, int32_t max_batch=*)
 
     cpdef void close(self)
 

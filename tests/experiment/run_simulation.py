@@ -29,7 +29,7 @@ class PanelRanker(bt.Indicator):
     params = (
         ("parquet_path", None),
         ('thres', 0.0), 
-        ('top_k', 10),
+        ('top_k', 5),
     )
 
     def __init__(self):
