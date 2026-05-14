@@ -60,6 +60,7 @@ class PanelRanker(bt.Indicator):
             self.context_info[day] = {
                 item["sid"]: item for item in row["topk_info"]
             }
+        self._current_metadata = None
 
     def next(self):
         current_day = ts2intdt(self.data.datetime[0])
@@ -68,7 +69,7 @@ class PanelRanker(bt.Indicator):
 
         if current_day in self.context_info:
             info = self.context_info[current_day]
-            self._owner.topk_info = info 
+            self._current_metadata = info
 
 
 class FsmStrategy(bt.Strategy):
@@ -102,9 +103,9 @@ class FsmStrategy(bt.Strategy):
         # stage2 14:55 —— FSM 
         # =========================================================
         elif seconds_in_day == 53700:
-            topk_info = self.topk_info 
+            topk_info = self.pr._current_metadata
             if not topk_info: return
-            current_prices = self.store.get_snapshot_tick(psids, int(current_tick))
+            current_prices = self.store.getdata(psids, int(current_tick))
             plan = self.pnc.generate_plan(topk_info, current_prices, snapshot, self.stats)
             # print("plan ", plan)
 

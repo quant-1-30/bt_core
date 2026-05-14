@@ -149,4 +149,4 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040401, todate=20250201, benchmark=[b"1A0001"], out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040401, todate=20260401, benchmark=[b"1A0001"], out="signal.csv")

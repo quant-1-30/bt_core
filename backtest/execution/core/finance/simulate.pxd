@@ -30,14 +30,10 @@ cdef class TrackerActor:
 
     cdef dict positions, _fillers
     
-    cdef tuple set_cash(self, object event)
-
     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table)
 
     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*, list trades=*)
 
-    cdef _flush(self)
-    
     cdef void _collect(self)
 
 

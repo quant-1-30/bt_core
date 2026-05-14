@@ -7,7 +7,7 @@ cdef class AsyncCashManager:
 
     cdef Account get_account(self, bytes experiment_id)
     
-    cdef Account set_cash(self, object event)
+    cdef void set_cash(self, object event)
 
     cdef void add_cash(self, bytes experiment_id, double cash)
     

@@ -44,7 +44,7 @@ cdef class AsyncCashManager:
         acct = self.acct.setdefault(experiment_id, Account(experiment_id=experiment_id))
         return acct
 
-    cdef Account set_cash(self, object event):  
+    cdef void set_cash(self, object event):  
         """set cash from start"""
         cdef CashData meta
         cdef Account acct 

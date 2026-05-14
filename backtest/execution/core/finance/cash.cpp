@@ -1774,7 +1774,7 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Acco
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager {
   struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*get_account)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
-  struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
+  void (*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
   void (*add_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, double);
   void (*update)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, PyObject *, double);
   void (*sync)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, int64_t, PyObject *);
@@ -2755,7 +2755,7 @@ static int __Pyx_State_RemoveModule(void*);
 #define __PYX_TYPE_MODULE_PREFIX __PYX_ABI_MODULE_NAME "."
 
 static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_get_account(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_experiment_id); /* proto*/
-static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_set_cash(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_event); /* proto*/
+static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_set_cash(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_event); /* proto*/
 static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_add_cash(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_experiment_id, double __pyx_v_cash); /* proto*/
 static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_update(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_trades, double __pyx_v_pnl); /* proto*/
 static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_sync(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_experiment_id, int64_t __pyx_v_sync_tick, PyObject *__pyx_v_pobjs); /* proto*/
@@ -3570,7 +3570,7 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
  *         acct = self.acct.setdefault(experiment_id, Account(experiment_id=experiment_id))
  *         return acct             # <<<<<<<<<<<<<<
  * 
- *     cdef Account set_cash(self, object event):
+ *     cdef void set_cash(self, object event):
 */
   __Pyx_XDECREF((PyObject *)__pyx_r);
   if (!(likely(((__pyx_v_acct) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_acct, __pyx_mstate_global->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account))))) __PYX_ERR(0, 45, __pyx_L1_error)
@@ -3605,17 +3605,16 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
 /* "backtest/execution/core/finance/cash.pyx":47
  *         return acct
  * 
- *     cdef Account set_cash(self, object event):             # <<<<<<<<<<<<<<
+ *     cdef void set_cash(self, object event):             # <<<<<<<<<<<<<<
  *         """set cash from start"""
  *         cdef CashData meta
 */
 
-static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_set_cash(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_event) {
+static void __pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_set_cash(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_v_self, PyObject *__pyx_v_event) {
   struct __pyx_t_8backtest_9execution_4core_7finance_6common_CashData __pyx_v_meta;
   struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_v_acct = 0;
   PyObject *__pyx_v_experiment_id = 0;
   PyObject *__pyx_v_body = 0;
-  struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   double __pyx_t_2;
@@ -3700,25 +3699,21 @@ static struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *__
   /* "backtest/execution/core/finance/cash.pyx":47
  *         return acct
  * 
- *     cdef Account set_cash(self, object event):             # <<<<<<<<<<<<<<
+ *     cdef void set_cash(self, object event):             # <<<<<<<<<<<<<<
  *         """set cash from start"""
  *         cdef CashData meta
 */
 
   /* function exit code */
-  __pyx_r = ((struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *)Py_None); __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_AddTraceback("backtest.execution.core.finance.cash.AsyncCashManager.set_cash", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_acct);
   __Pyx_XDECREF(__pyx_v_experiment_id);
   __Pyx_XDECREF(__pyx_v_body);
-  __Pyx_XGIVEREF((PyObject *)__pyx_r);
   __Pyx_RefNannyFinishContext();
-  return __pyx_r;
 }
 
 /* "backtest/execution/core/finance/cash.pyx":59
@@ -5028,7 +5023,7 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   /*--- Type init code ---*/
   __pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = &__pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
   __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.get_account = (struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_get_account;
-  __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.set_cash = (struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_set_cash;
+  __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.set_cash = (void (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_set_cash;
   __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.add_cash = (void (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, double))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_add_cash;
   __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.update = (void (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, PyObject *, double))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_update;
   __pyx_vtable_8backtest_9execution_4core_7finance_4cash_AsyncCashManager.sync = (void (*)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, int64_t, PyObject *))__pyx_f_8backtest_9execution_4core_7finance_4cash_16AsyncCashManager_sync;

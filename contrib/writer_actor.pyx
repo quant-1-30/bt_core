@@ -1,13 +1,9 @@
-# cython: language_level=3
-# cython: boundscheck=False
-# cython: wraparound=False
-
 import os
 import time
 import json
 import asyncio
 import logging
-from libc.stdint cimport int32_t, int64_t
+from libc.stdint cimport int32_t
 
 from backtest.execution.core.finance.position cimport Position 
 from backtest.execution.core.finance.order cimport Order
@@ -18,15 +14,7 @@ from backtest.execution.gateway.interface import async_gt
 logger = logging.getLogger(__name__)
 
 
-cdef inline bytes _normalize_sid(object raw_sid) noexcept:
-    if isinstance(raw_sid, bytes): return raw_sid
-    if isinstance(raw_sid, str): return raw_sid.encode('utf-8')
-    if isinstance(raw_sid, memoryview): return raw_sid.tobytes()
-    if isinstance(raw_sid, bytearray): return bytes(raw_sid)
-    return str(raw_sid).encode('utf-8')
-
-
-cdef inline _sync_write(str path, list data):
+cdef _sync_write_file(str path, list data):
     try:
         with open(path, 'w') as f:
             json.dump(data, f, default=str, indent=4)
@@ -35,7 +23,13 @@ cdef inline _sync_write(str path, list data):
             f.write(str(data))
 
 
-cdef class BatchWriterActor: 
+cdef class IBatchWriter:
+
+    cpdef void push(self, list data):
+        raise NotImplementedError
+
+
+cdef class BatchWriterActor(IBatchWriter): # CPU Intensive
 
     def __init__(self, int32_t q_size, int32_t batch_size, int32_t retries=1):
         self._buffer = []
@@ -45,9 +39,8 @@ cdef class BatchWriterActor:
         self._queue = asyncio.Queue(maxsize=q_size)
         self._finished_event = asyncio.Event()
 
-    async def push(self, list snapshots):
-        # self._queue.put_nowait(snapshots) # may cause oom
-        await self._queue.put(snapshots)
+    cpdef void push(self, list snapshots):
+        self._queue.put_nowait(snapshots) # may cause oom
 
     async def run(self):
         logger.info("BatchWriterActor started.")
@@ -82,6 +75,7 @@ cdef class BatchWriterActor:
         
         if not self._buffer:
             return
+        
         try:
             for item in self._buffer:
                 if "order" in item:
@@ -92,23 +86,36 @@ cdef class BatchWriterActor:
 
                 if "positions" in item:
                     for p_dict in item["positions"]:
-                        key = (<int64_t>(p_dict['datetime']), _normalize_sid(p_dict['sid']), str(p_dict['experiment_id']))
+
+                        raw_sid = p_dict['sid']
+                        if isinstance(raw_sid, bytes):
+                            safe_sid = raw_sid
+                        elif isinstance(raw_sid, str):
+                            safe_sid = raw_sid.encode('utf-8') 
+                        elif isinstance(raw_sid, memoryview):
+                            safe_sid = raw_sid.tobytes() # memoryview != bytes
+                        elif isinstance(raw_sid, bytearray):
+                            safe_sid = bytes(raw_sid) # bytearray 
+                        else:
+                            safe_sid = str(raw_sid).encode('utf-8') 
+
+                        key = (int(p_dict['datetime']), safe_sid, str(p_dict['experiment_id']))
                         dedup_positions[key] = p_dict
                 
                 if "account" in item:
                     a_dict = item["account"]
-                    key = (<int64_t>(a_dict['datetime']), str(a_dict['experiment_id']))
+                    key = (int(a_dict['datetime']), str(a_dict['experiment_id']))
                     dedup_accounts[key] = a_dict
             
             if order_data:
-                await self._chunked_write("vtorder", order_data)
+                await self._retry_write("vtorder", order_data)
             if orderbit_data:
-                await self._chunked_write("order_bit", orderbit_data)
+                await self._retry_write("order_bit", orderbit_data)
             
             if dedup_positions:
-                await self._chunked_write("vtposition", list(dedup_positions.values()))
+                await self._retry_write("vtposition", list(dedup_positions.values()))
             if dedup_accounts:
-                await self._chunked_write("account", list(dedup_accounts.values()))
+                await self._retry_write("account", list(dedup_accounts.values()))
 
         except Exception as e:
             logger.error(f"Critical error during flush: {e}", exc_info=True)
@@ -118,20 +125,9 @@ cdef class BatchWriterActor:
         finally:
             self._buffer.clear()
 
-    async def _chunked_write(self, str table, list data):
-        if not data:
-            return
-            
-        cdef int32_t, start, safe_size = 500 
-        cdef list chunk
-        
-        for start in range(0, len(data), safe_size): # seq occupy one conn avoid gather tasks(cons)
-            chunk = data[start : start + safe_size]
-            await self._retry_write(table, chunk)
-
     async def _retry_write(self, str table, list data):
-        cdef int32_t i=0
-
+        cdef int i = 0
+        
         while i < self.retries:
             try:
                 await async_gt.bulk_insert(table, data) 
@@ -155,10 +151,11 @@ cdef class BatchWriterActor:
             filepath = f"{dump_dir}/{prefix}_{timestamp}.json"
             
             loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, _sync_write, filepath, data)
+            await loop.run_in_executor(None, _sync_write_file, filepath, data)
             logger.info(f"Data saved to {filepath}")
         except Exception as e:
             logger.critical(f"FATAL: Could not dump data! Data lost. {e}")
 
     async def wait_until_finished(self): # wait to exit from run
         await self._finished_event.wait()
+

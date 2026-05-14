@@ -9,7 +9,6 @@ from libc.stdint cimport int32_t
 
 from bt_sdk.core.protocol import Event
 from backtest.execution.core.engine.engine cimport BackEngine, EngineTopic
-from backtest.execution.actor.writer_actor cimport IBatchWriter
 
 
 cdef class AsyncApi:
@@ -125,7 +124,6 @@ cdef class TdApi:
         # run_coroutine_threadsafe return concurrent.futures.Future 
         cdef object coro = self._async_api.submit_async(experiment_id, body)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        
         try:
             return future.result() 
         except Exception as e:

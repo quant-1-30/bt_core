@@ -1582,7 +1582,6 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_5cache_AssetCache;
 struct __pyx_obj_8backtest_9execution_4core_7finance_5order_Order;
 struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account;
 struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
-struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter;
 struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor;
 struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage;
 struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
@@ -1854,12 +1853,12 @@ struct __pyx_opt_args_8backtest_9execution_4core_7finance_7account_7Account_set_
 };
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot;
 
-/* "backtest/execution/core/finance/simulate.pxd":37
+/* "backtest/execution/core/finance/simulate.pxd":35
  *     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_table, dict py_rgt_table)
  * 
  *     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=*, list trades=*)             # <<<<<<<<<<<<<<
  * 
- *     cdef _flush(self)
+ *     cdef void _collect(self)
 */
 struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot {
   int __pyx_n;
@@ -2009,32 +2008,19 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager {
 };
 
 
-/* "backtest/execution/actor/writer_actor.pxd":6
+/* "backtest/execution/actor/writer_actor.pxd":4
  * 
  * 
- * cdef class IBatchWriter:             # <<<<<<<<<<<<<<
- *     cpdef void push(self, list data)
- * 
-*/
-struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_IBatchWriter *__pyx_vtab;
-};
-
-
-/* "backtest/execution/actor/writer_actor.pxd":10
- * 
- * 
- * cdef class BatchWriterActor(IBatchWriter):             # <<<<<<<<<<<<<<
+ * cdef class BatchWriterActor:             # <<<<<<<<<<<<<<
  *     cdef int32_t batch_size
  *     cdef int32_t retries
 */
 struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor {
-  struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter __pyx_base;
+  PyObject_HEAD
   int32_t batch_size;
   int32_t retries;
+  int32_t timeout;
   int _running;
-  int remote;
   PyObject *_buffer;
   PyObject *_queue;
   PyObject *_finished_event;
@@ -2082,7 +2068,7 @@ struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor {
 };
 
 
-/* "backtest/execution/core/finance/simulate.pxd":44
+/* "backtest/execution/core/finance/simulate.pxd":40
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2378,41 +2364,13 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_7account_Acco
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager {
   struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*get_account)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
-  struct __pyx_obj_8backtest_9execution_4core_7finance_7account_Account *(*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
+  void (*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
   void (*add_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, double);
   void (*update)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, PyObject *, double);
   void (*sync)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *, int64_t, PyObject *);
   PyObject *(*remove_client)(struct __pyx_obj_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *, PyObject *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager *__pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
-
-
-/* "backtest/execution/actor/writer_actor.pxd":6
- * 
- * 
- * cdef class IBatchWriter:             # <<<<<<<<<<<<<<
- *     cpdef void push(self, list data)
- * 
-*/
-
-struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_IBatchWriter {
-  void (*push)(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter *, PyObject *, int __pyx_skip_dispatch);
-};
-static struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_IBatchWriter *__pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_IBatchWriter;
-
-
-/* "backtest/execution/actor/writer_actor.pxd":10
- * 
- * 
- * cdef class BatchWriterActor(IBatchWriter):             # <<<<<<<<<<<<<<
- *     cdef int32_t batch_size
- *     cdef int32_t retries
-*/
-
-struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor {
-  struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_IBatchWriter __pyx_base;
-};
-static struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_BatchWriterActor;
 
 
 /* "backtest/execution/core/finance/simulate.pxd":18
@@ -2424,16 +2382,14 @@ static struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchW
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor {
-  PyObject *(*set_cash)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *, PyObject *);
   void (*_sync_event)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *, PyObject *, PyObject *, PyObject *, PyObject *);
   void (*_create_and_send_snapshot)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *, PyObject *, struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_ActorMessage *, struct __pyx_opt_args_8backtest_9execution_4core_7finance_8simulate_12TrackerActor__create_and_send_snapshot *__pyx_optional_args);
-  PyObject *(*_flush)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *);
   void (*_collect)(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_TrackerActor *);
 };
 static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_TrackerActor *__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
 
 
-/* "backtest/execution/core/finance/simulate.pxd":44
+/* "backtest/execution/core/finance/simulate.pxd":40
  * 
  * 
  * cdef class Simulator:             # <<<<<<<<<<<<<<
@@ -2477,7 +2433,7 @@ static struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8position_Pos
  * 
  * cdef class BackEngine:             # <<<<<<<<<<<<<<
  * 
- *     def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):
+ *     def __init__(self, int32_t q_size, int32_t buffer_size, BatchWriterActor actor):
 */
 
 struct __pyx_vtabstruct_8backtest_9execution_4core_6engine_6engine_BackEngine {
@@ -3588,7 +3544,7 @@ int __pyx_module_is_main_backtest__execution__core__engine__engine = 0;
 /* #### Code section: string_decls ### */
 static const char __pyx_k_active_tasks_gt_simulator[] = "_active_tasks, gt, simulator";
 /* #### Code section: decls ### */
-static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_q_size, int32_t __pyx_v_buffer_size, struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter *__pyx_v_actor); /* proto */
+static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_q_size, int32_t __pyx_v_buffer_size, struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_v_actor); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_2__aenter__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_5start(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_loop); /* proto */
 static PyObject *__pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine_7register(CYTHON_UNUSED struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, PyObject *__pyx_v_event); /* proto */
@@ -3639,7 +3595,6 @@ typedef struct {
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager;
-  PyTypeObject *__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter;
   PyTypeObject *__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage;
   PyTypeObject *__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor;
@@ -3934,7 +3889,6 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
-  Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor);
@@ -3997,7 +3951,6 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_5order_Order);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_7account_Account);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager);
-  Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_ActorMessage);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_TrackerActor);
@@ -4047,7 +4000,7 @@ return 0;
 /* "backtest/execution/core/engine/engine.pyx":47
  * cdef class BackEngine:
  * 
- *     def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):             # <<<<<<<<<<<<<<
+ *     def __init__(self, int32_t q_size, int32_t buffer_size, BatchWriterActor actor):             # <<<<<<<<<<<<<<
  *         self.simulator = Simulator(q_size=q_size, buffer_size=buffer_size, actor=actor)
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 */
@@ -4057,7 +4010,7 @@ static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__i
 static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int32_t __pyx_v_q_size;
   int32_t __pyx_v_buffer_size;
-  struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter *__pyx_v_actor = 0;
+  struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_v_actor = 0;
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
   PyObject* values[3] = {0,0,0};
@@ -4111,7 +4064,7 @@ static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__i
     }
     __pyx_v_q_size = __Pyx_PyLong_As_int32_t(values[0]); if (unlikely((__pyx_v_q_size == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 47, __pyx_L3_error)
     __pyx_v_buffer_size = __Pyx_PyLong_As_int32_t(values[1]); if (unlikely((__pyx_v_buffer_size == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 47, __pyx_L3_error)
-    __pyx_v_actor = ((struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter *)values[2]);
+    __pyx_v_actor = ((struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *)values[2]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
@@ -4126,7 +4079,7 @@ static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__i
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_actor), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter, 1, "actor", 0))) __PYX_ERR(0, 47, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_actor), __pyx_mstate_global->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor, 1, "actor", 0))) __PYX_ERR(0, 47, __pyx_L1_error)
   __pyx_r = __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(((struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *)__pyx_v_self), __pyx_v_q_size, __pyx_v_buffer_size, __pyx_v_actor);
 
   /* function exit code */
@@ -4146,7 +4099,7 @@ static int __pyx_pw_8backtest_9execution_4core_6engine_6engine_10BackEngine_1__i
   return __pyx_r;
 }
 
-static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_q_size, int32_t __pyx_v_buffer_size, struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter *__pyx_v_actor) {
+static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___init__(struct __pyx_obj_8backtest_9execution_4core_6engine_6engine_BackEngine *__pyx_v_self, int32_t __pyx_v_q_size, int32_t __pyx_v_buffer_size, struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor *__pyx_v_actor) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4162,7 +4115,7 @@ static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___in
 
   /* "backtest/execution/core/engine/engine.pyx":48
  * 
- *     def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):
+ *     def __init__(self, int32_t q_size, int32_t buffer_size, BatchWriterActor actor):
  *         self.simulator = Simulator(q_size=q_size, buffer_size=buffer_size, actor=actor)             # <<<<<<<<<<<<<<
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
  * 
@@ -4195,7 +4148,7 @@ static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___in
   __pyx_t_1 = 0;
 
   /* "backtest/execution/core/engine/engine.pyx":49
- *     def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):
+ *     def __init__(self, int32_t q_size, int32_t buffer_size, BatchWriterActor actor):
  *         self.simulator = Simulator(q_size=q_size, buffer_size=buffer_size, actor=actor)
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type             # <<<<<<<<<<<<<<
  * 
@@ -4215,7 +4168,7 @@ static int __pyx_pf_8backtest_9execution_4core_6engine_6engine_10BackEngine___in
   /* "backtest/execution/core/engine/engine.pyx":47
  * cdef class BackEngine:
  * 
- *     def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):             # <<<<<<<<<<<<<<
+ *     def __init__(self, int32_t q_size, int32_t buffer_size, BatchWriterActor actor):             # <<<<<<<<<<<<<<
  *         self.simulator = Simulator(q_size=q_size, buffer_size=buffer_size, actor=actor)
  *         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 */
@@ -9853,18 +9806,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager) __PYX_ERR(8, 5, __pyx_L1_error)
   __pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_4cash_AsyncCashManager*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_4cash_AsyncCashManager); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_4cash_AsyncCashManager)) __PYX_ERR(8, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyImport_ImportModule("backtest.execution.actor.writer_actor"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 6, __pyx_L1_error)
+  __pyx_t_1 = PyImport_ImportModule("backtest.execution.actor.writer_actor"); if (unlikely(!__pyx_t_1)) __PYX_ERR(9, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.actor.writer_actor", "IBatchWriter",
-  #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
-  sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter),
-  #elif CYTHON_COMPILING_IN_LIMITED_API
-  sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter),
-  #else
-  sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_IBatchWriter),
-  #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter) __PYX_ERR(9, 6, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_IBatchWriter = (struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_IBatchWriter*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_IBatchWriter); if (unlikely(!__pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_IBatchWriter)) __PYX_ERR(9, 6, __pyx_L1_error)
   __pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor = __Pyx_ImportType_3_2_4(__pyx_t_1, "backtest.execution.actor.writer_actor", "BatchWriterActor",
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor),
@@ -9873,8 +9816,7 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_5actor_12writer_actor_BatchWriterActor),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor) __PYX_ERR(9, 10, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_BatchWriterActor = (struct __pyx_vtabstruct_8backtest_9execution_5actor_12writer_actor_BatchWriterActor*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor); if (unlikely(!__pyx_vtabptr_8backtest_9execution_5actor_12writer_actor_BatchWriterActor)) __PYX_ERR(9, 10, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_5actor_12writer_actor_BatchWriterActor) __PYX_ERR(9, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.simulate"); if (unlikely(!__pyx_t_1)) __PYX_ERR(10, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -9905,8 +9847,8 @@ static int __Pyx_modinit_type_import_code(__pyx_mstatetype *__pyx_mstate) {
   #else
   sizeof(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator), __PYX_GET_STRUCT_ALIGNMENT_3_2_4(struct __pyx_obj_8backtest_9execution_4core_7finance_8simulate_Simulator),
   #endif
-  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 44, __pyx_L1_error)
-  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 44, __pyx_L1_error)
+  __Pyx_ImportType_CheckSize_Warn_3_2_4); if (!__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator) __PYX_ERR(10, 40, __pyx_L1_error)
+  __pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator = (struct __pyx_vtabstruct_8backtest_9execution_4core_7finance_8simulate_Simulator*)__Pyx_GetVtable(__pyx_mstate->__pyx_ptype_8backtest_9execution_4core_7finance_8simulate_Simulator); if (unlikely(!__pyx_vtabptr_8backtest_9execution_4core_7finance_8simulate_Simulator)) __PYX_ERR(10, 40, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("backtest.execution.core.finance.position"); if (unlikely(!__pyx_t_1)) __PYX_ERR(11, 35, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -10630,7 +10572,7 @@ __Pyx_RefNannySetupContext("PyInit_engine", 0);
  * from backtest.execution.core.finance.position cimport Position
  * from backtest.execution.core.finance.simulate cimport Simulator
  * from backtest.execution.gateway.interface import async_gt # singleton cast to cdef class type             # <<<<<<<<<<<<<<
- * from backtest.execution.actor.writer_actor cimport IBatchWriter
+ * from backtest.execution.actor.writer_actor cimport BatchWriterActor
  * 
 */
   {

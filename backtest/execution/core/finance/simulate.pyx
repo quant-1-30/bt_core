@@ -55,7 +55,7 @@ from backtest.execution.core.finance.common cimport EventItem, AdjustmentData, R
 from backtest.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Likehood 
 from backtest.execution.core.finance.simulate_types cimport MsgType
 from backtest.execution.utils.util cimport ts2intdt, num2date
-from backtest.execution.actor.writer_actor cimport IBatchWriter
+from backtest.execution.actor.writer_actor cimport BatchWriterActor
 
 
 cimport numpy as cnp
@@ -75,7 +75,7 @@ cdef class ActorMessage:
 
 cdef class TrackerActor:
 
-    def __init__(self, bytes experiment_id, IBatchWriter writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
+    def __init__(self, bytes experiment_id, BatchWriterActor writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
         
         self.positions = {}
         self._put_buffer = [] 
@@ -95,13 +95,7 @@ cdef class TrackerActor:
         self._latest_snapshot = None 
         
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
-    
-    async def push(self, ActorMessage msg):
-        try:
-            self._queue.put_nowait(msg) # cause oom
-        except asyncio.QueueFull:
-            await self._queue.put(msg) # backpressure
-    
+     
     async def _start(self):
         cdef bytes sid, experiment_id
         cdef Position p_obj
@@ -133,6 +127,10 @@ cdef class TrackerActor:
         except Exception as e:
             logger.exception(f"Error starting position tracker: {e}")
      
+    async def push(self, ActorMessage msg):
+        # self._queue.put_nowait(msg) # cause oom
+        await self._queue.put(msg) # backpressure
+    
     async def run(self):
         cdef ActorMessage msg
         cdef Order order_obj
@@ -158,7 +156,8 @@ cdef class TrackerActor:
                     break 
                 
                 elif msg.actor_id.MsgType == MsgType.Account:
-                    self.set_cash(payload)
+                    """set cash and accout wrt"""
+                    self.cash_manager.set_cash(payload)
                     self._create_and_send_snapshot(reason="account_sync", msg=msg, writer=False)
                 
                 elif msg.actor_id.MsgType == MsgType.Order:
@@ -191,6 +190,10 @@ cdef class TrackerActor:
 
                     self._create_and_send_snapshot(reason="query", msg=msg, writer=False)
 
+                # async put avoid put_nowait oom 
+                if len(self._put_buffer) >= self.buffer_size:
+                    await self._flush()
+
                 if msg.reply_future and not msg.reply_future.done():
                     result = Resp(body=self._latest_snapshot)
                     msg.reply_future.set_result(result)
@@ -220,11 +223,7 @@ cdef class TrackerActor:
         rgt_task = remote(RpcTopic.Rightment, event_body)
         closes_df, adjs_df, rgts_df = await asyncio.gather(close_task, adj_task, rgt_task) 
         return (closes_df, adjs_df, rgts_df)
-    
-    cdef tuple set_cash(self, object event):
-        """set cash and accout wrt"""
-        self.cash_manager.set_cash(event)
-    
+     
     async def process_order(self, Order order):
         cdef OrderCoreData core = order.core
         cdef bytes sid = core.sid
@@ -388,23 +387,21 @@ cdef class TrackerActor:
                 "account": a_dict,
             }
             self._put_buffer.append(payload)
-            if len(self._put_buffer) >= self.buffer_size:
-                self._flush()
 
-    cdef _flush(self):
+    async def _flush(self):
         if not self._put_buffer: return
 
-        self._writer.push(self._put_buffer)
+        await self._writer.push(self._put_buffer)
         self._put_buffer = []
     
     async def shutdown(self):
-        self._flush()
-        self._writer.push([MsgType.Sentinel])
+        await self._flush()
+        await self._writer.push([MsgType.Sentinel])
 
 
 cdef class Simulator:
     
-    def __init__(self, int32_t q_size, int32_t buffer_size, IBatchWriter actor):
+    def __init__(self, int32_t q_size, int32_t buffer_size, BatchWriterActor actor):
         self._loop = None # avoid initialize loop in __init__
         self._actors = {}
         self.q_size = q_size 
@@ -475,8 +472,7 @@ cdef class Simulator:
         for actor in self._actors.values():
             await actor.push(msg)
             await actor.shutdown()
-        # if self._actor_tasks:
-        #     await asyncio.gather(*self._actor_tasks, return_exceptions=True)
+        # await asyncio.gather(*self._actor_tasks, return_exceptions=True)
         logger.info("All TrackerActors stopped.")
         await self._writer.wait_until_finished()
         logger.info("Simulator shutdown complete.")

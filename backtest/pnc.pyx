@@ -157,7 +157,7 @@ cdef class Pnc:
         cdef object trade
 
         for sid, trades in mtrades.items():
-            executed_size = sum([trade.body.executed_size for trade in trades])
+            executed_size = sum([trade.executed_size for trade in trades])
 
             if sid in self.pending_sells:
                 tp = self.pending_sells[sid]

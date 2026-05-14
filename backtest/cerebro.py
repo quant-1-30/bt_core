@@ -484,7 +484,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 # Still None, create a default one
                 signalst, sargs, skwargs = SignalStrategy, tuple(), dict()
 
-            # Add the signal strategy
+            # Add the signal strategy #  _obj.p.signals
             self.addstrategy(signalst,
                              _accumulate=self._signal_accumulate,
                              signals=self.signals,
