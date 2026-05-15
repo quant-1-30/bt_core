@@ -62,8 +62,7 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         self.rets.total.total = 0
 
     def on_dt_over(self):
-        # snap = self._owner.get_snapshot()
-        snapshots = self.get_shm_events()  # --- IGNORE ---
+        snapshots = self.get_shm_events()  
         positions = [_p["data"] for _p in snapshots if _p["type"] == "position"]
 
         for p_data in positions:

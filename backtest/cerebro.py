@@ -104,9 +104,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
     )
 
     def __init__(self):
-        self.cash = 0.0
-        self.u_id = "" 
-
         self.datas = list()
         self.strats = list()
         self.observers = list()
@@ -119,18 +116,16 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.storecbs = list()
 
         self._pretimers = list()
-        self._mcstimers = list()
         
         self.writers = list()
         self._plot = Plot()
+        
+        self.cerebro_id = "" 
 
         # logshm
-        self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000, is_creator=True) 
-
-    def addpnc(self, sizer_name: str="fixed", **kwargs):
-        '''Adds a TaskPlan instance to the system'''
-        self.pnc = Pnc(sizer_name, **kwargs)
-
+        self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000, is_creator=True)
+        self.log_thread = LogConsumerThread(self.log_shm, f"log_{self.experiment_id}.csv")
+ 
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
     def addtz(self, tz):
@@ -264,15 +259,25 @@ class Cerebro(with_metaclass(MetaParams, object)):
             tzdata=tzdata)
     
     def _check_timers(self, runstrats, dt0):
+        '''Receives a timer notification where ``timer`` is the timer which was
+        returned by ``add_timer``, and ``when`` is the calling time. ``args``
+        and ``kwargs`` are any additional arguments passed to ``add_timer``
+
+        The actual ``when`` time can be later, but the system may have not be
+        able to call the timer before. This value is the timer value and no the
+        system time.
+        '''
         if dt0:
-            for t in self._pretimers:
+            for _t in self._pretimers:
                 if not t.check(dt0):
                     continue
-                for strat in runstrats:
-                    strat.on_timer(dt0)
 
-            for _t in self._mcstimers: # mcstimers: metricstimer
-                self.notify_timer()
+                for strat in runstrats: # T + 1 / log_metrics
+                    if _t.event_type == 0:
+                        strat.on_dt_over(dt0)
+                
+                    elif _t.event_type == 1:
+                        strat.notify_timer(_t, dt0)
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
@@ -308,8 +313,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.adddata(dataname)
         return dataname
 
-# ---------------------------------------------------------------- strategy ------------------------------------------------------------
-
+# ---------------------------------------------------------------- risk and strategy ------------------------------------------------------------
+    
+    def addpnc(self, sizer_name: str="fixed", **kwargs):
+        '''Adds a TaskPlan instance to the system'''
+        self.pnc = Pnc(sizer_name, **kwargs)
+    
     def addstore(self, store: str="local", **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''
         storecls = _stores[store]
@@ -390,7 +399,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         return self.runstrategies(iterstrat)
 
-    def _next_stid(self, run_kwargs):
+    def _next_id(self, run_kwargs):
         # self.stcount = itertools.count(0)
         # return next(self.stcount)
         extra_info = [f"RunKwargs: {json.dumps(run_kwargs, cls=CustomJSONEncoder, indent=2)}"]
@@ -398,7 +407,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             sig_type, args, kwargs = strat[0]
             _info = f" {sig_type.__class__.__name__}({json.dumps(kwargs)})"
             extra_info.append(_info)
-        self.u_id = ','.join(extra_info)
+        self.cerebro_id = ','.join(extra_info)
 
     @consume_time
     def run(self, **kwargs):
@@ -416,7 +425,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
-        self._next_stid(kwargs) 
+        self._next_id(kwargs) 
+
+        # 启动消费者线程 (开始在后台循环吸取)
+        self.log_thread.start()
+
 
         # Prepare feed
         print("cerebro run data start")
@@ -429,7 +442,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         # Prepare timers
         if not self._pretimers:
-            self._pretimers.append(Timer(when=Session.SESSION_START)) # T + 1 policy to update on 9:30 
+            self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) # T + 1 policy to update on 9:30 
         for timer in itertools.chain(self._pretimers, self._mcstimers):
             timer.start(self.datas[0]) # preprocess tzdata if needed
 
@@ -511,9 +524,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
                             num_obs=len(dstrat._lineiterators[2]),
                             out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
         
-        # metrics
-        # return {"sharpe": np.random.randn(), "pnl": np.random.randn()}
-
+        # stop log thread
+        self._shutdown()
      
     def runstrategies(self, iterstrat, **kwargs):
         '''
@@ -655,41 +667,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for writer in self.runwriters:
             # writer.writedict(dict(Cerebro=cerebroinfo))
             writer.stop()
-    
-    def runstop(self):
-        '''If invoked from inside a strategy or anywhere else, including other
-        threads the execution will stop as soon as possible.'''
-        self._event_stop = True  # signal a stop has been requested
 
-# ---------------------------------------------------------------------- writer ------------------------------------------------------------
-    
-    def collector_timer(self, when,
-                  offset=datetime.timedelta(), repeat=datetime.timedelta(),
-                  weekdays=[], weekcarry=False,
-                  monthdays=[], monthcarry=True,
-                  allow=None,
-                  tzdata=None):
-        """
-            timer to collector metrics such as CPU Memory
-        """
-        _timer = self._add_timer(when=when, offset=offset, repeat=repeat,
-            weekdays=weekdays, weekcarry=weekcarry,
-            monthdays=monthdays, monthcarry=monthcarry,
-            allow=allow,
-            tzdata=tzdata)
-        self._mtimers.append(_timer)
-
-    def notify_timer(self): # connect to monitor system
-        '''Receives a timer notification where ``timer`` is the timer which was
-        returned by ``add_timer``, and ``when`` is the calling time. ``args``
-        and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-        The actual ``when`` time can be later, but the system may have not be
-        able to call the timer before. This value is the timer value and no the
-        system time.
-        '''
-        pass
-    
+# ---------------------------------------------------------------------- plot ------------------------------------------------------------
+ 
     def plot(self, num_data=0, num_ind=1, num_obs=1, source="", freq="D", **kwargs):
         '''
         Plots the strategies inside cerebro
@@ -716,3 +696,19 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ``tight``: only save actual content and not the frame of the figure
         '''
         self._plot.plot(num_data=num_data, num_ind=num_ind, num_obs=num_obs, source=source, freq=freq, **kwargs)
+
+# ---------------------------------------------------------------------- exit ------------------------------------------------------------
+
+    def runstop(self):
+        '''If invoked from inside a strategy or anywhere else, including other
+        threads the execution will stop as soon as possible.'''
+        self._event_stop = True  # signal a stop has been requested
+
+    def _shutdown(self):
+        print("Cerebro shutting down...")
+        self.log_thread.stop() # exit from while
+        self.log_thread.join()
+        
+        self.log_shm.close()
+        self.log_shm.unlink()
+        print("Cerebro shutdown complete.")

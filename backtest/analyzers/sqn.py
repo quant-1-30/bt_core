@@ -68,7 +68,6 @@ class SQN(bt.TimeFrameAnalyzerBase):
         self.count = 0
 
     def on_dt_over(self):
-        # snap = self._owner.get_snapshot()
         snapshots = self.get_shm_events()
         positions = [item["data"] for item in snapshots if item["type"] == "position"] # if pobj.status == trade.Closed:
         for p_data in positions:

@@ -45,7 +45,7 @@ class MetaAnalyzer(MetaParams):
        
         # setup shm for analyzers
         _obj.log_shm = strategy.log_shm
-        _obj.shm = _obj._owner.shm_chan
+        _obj.shm = strategy.shm_chan
 
         _obj._parent = findowner(_obj, Analyzer)
         # Register with a master observer if created inside one
@@ -289,28 +289,26 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         for child in self._children:
             child._prenext()
 
+        self.prenext()
         if self._dt_over():
             self.on_dt_over()
-
         self.prenext()
 
     def _nextstart(self):
         for child in self._children:
             child._nextstart()
 
+        self.nextstart()
         if self._dt_over():  # exec if no prenext
             self.on_dt_over()
-
-        self.nextstart()
 
     def _next(self):
         for child in self._children:
             child._next()
 
+        self.next() 
         if self._dt_over():
             self.on_dt_over()
-
-        self.next()
     
     def _dt_over(self):
         if self.timeframe == TimeFrame.NoTimeFrame:
@@ -322,10 +320,8 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         # if self.dtcmp is None or dtcmp > self.dtcmp:
         if dtcmp > self.dtcmp:
             self.dtcmp, self.dtcmp1 = dtcmp, self.dtcmp
-            # import pdb; pdb.set_trace()
             return True
         return False
 
     def on_dt_over(self): # hook
-
         pass

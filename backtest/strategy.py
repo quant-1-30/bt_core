@@ -62,13 +62,13 @@ class MetaStrategy(StrategyBase.__class__):
         # Find the _owner and store it
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.pnc = env.pnc # pnc contain sizer and risk
-        _obj.log_shm = env.log_shm 
+        _obj.log_shm = env.log_shm
+        _obj.log_meta = [] 
 
-        # register strategy to store with unique id
+        # register strategy to generate unique id and setup shm for strategy
         _obj.store = store = env.store
         _obj.experiment_id = experiment_id = store.register(_obj.__class__.__name__, env.u_id)
 
-        # setup shared memory channel for strategy to publish data to writer
         shm_name = hashlib.md5(experiment_id).hexdigest()[:24] # uuid.UUID(bytes=experiment_id) # file name 36 too long
         _obj.shm_chan = SharedRingBuffer(shm_name=str(shm_name), capacity=100000, is_creator=True)
         return _obj, args, kwargs
@@ -102,6 +102,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     _ltype = LineIterator.StratType
 
     lines = ('datetime', 'buy', 'sell') # ('datetime',)
+    
+    def _settz(self, tz):
+        self.lines.datetime._settz(tz)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -169,25 +172,29 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
     
-    def on_timer(self, dts):
-        snapshot = self.store.on_dt_over(self.experiment_id) 
-        if snapshot:
-            self.shm_chan.publish_snapshot(snapshot) 
-        # publish sentinel to shared memory for writer to consume
-        self.shm_chan.publish_sentinel(dts) 
-        # import pdb; pdb.set_trace()
+    def _setupLog(self):
+        for obj in self.getindicators_lines():
+            if not getattr(obj, 'csv', True):
+                continue
+
+            base_name = obj.plotinfo.plotname or obj.__class__.__name__
+            for i, line_alias in enumerate(obj.lines.getlinealiases()):
+                metric_name = f"{base_name}_{line_alias}"
+                self.log_meta.append((obj.lines[i], metric_name))
 
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
         snapshot = self.store.set_cash(self.experiment_id, session, cash)
-        self.shm_chan.publish_snapshot(snapshot) 
-
+        self.shm_chan.publish_snapshot(snapshot)
+ 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
-        self.set_cash(**kwargs)
         self.qbuffer(savemem=savemem)
         self._periodrecalc()
+        self._setupLog()
+
+        self.set_cash(**kwargs)
 
         for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
             analyzer._start()
@@ -202,11 +209,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
 
-        self.shm_chan.publish_sentinel(0.0)
+        # self.shm_chan.publish_sentinel(0) # dts
 
-    def _settz(self, tz):
-        self.lines.datetime._settz(tz)
-    
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
 
@@ -255,6 +259,33 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.lines.datetime[0] = np.max([d.datetime[0]
                                      for d in self.datas if len(d)])      
         self._dlens = newdlens
+
+    def on_dt_over(self, dts: int): 
+        snapshot = self.store.on_dt_over(self.experiment_id) 
+        if snapshot:
+            self.shm_chan.publish_snapshot(snapshot) 
+        # publish sentinel to shared memory for writer to consume
+        self.shm_chan.publish_sentinel(dts)
+
+    def notify_timer(self, dts: int): # intended for timer
+        """
+        This method is called when a timer event is triggered. 
+        It can be used to log indicator metrics and notify analyzers and observers that are interested in timer events.
+        """
+        # indicator
+        for line_obj, metric in self.log_meta:
+            val = line_obj[0]
+            if np.isnan(val):
+                continue
+            self.log_shm.publish_metric(metric, val, dts)
+
+        for analyzer in self.analyzers:
+            if hasattr(analyzer, 'notify_timer'):
+                analyzer.notify_timer(dts)
+
+        for observer in self.observers:
+            if hasattr(observer, 'notify_timer'):
+                observer.notify_timer(dts)
 
     # @profile
     def _next_observers(self, minperstatus):
@@ -336,7 +367,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             if snapshot.trades:
                 self.lines.buy[0] = 1
-                self.notify(snapshot)
+                self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
 
             self.shm_chan.publish_order(order)
         
@@ -367,89 +398,20 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             trades = snapshot.trades
             if trades:
                 self.lines.sell[0] = -1
-                self.notify(snapshot)
+                self.shm_chan.publish_snapshot(snapshot) 
                 filled[core["sid"]] = trades 
             
             self.shm_chan.publish_order(order)
         self.pnc.on_filled(filled)
-    
-    def notify(self, snapshot):
-        print("Strategy notify ", snapshot.positions)
-        self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
-    
-    def cancel(self, order_id):
-        '''Cancels the order in the broker'''
-        self.store.cancel(order_id)
-
+ 
     def get_snapshot(self)-> SnapshotBody: 
         snapshot = self.store.get_snapshot(self.experiment_id) 
         return snapshot
-         
-    def getwriterheaders(self):
-        self.indobscsv = [self]
 
-        indobs = itertools.chain(
-            self.getindicators_lines(), self.getobservers())
-        self.indobscsv.extend(filter(lambda x: x.csv, indobs))
-
-        headers = list()
-
-        # prepare the indicators/observers data headers
-        for iocsv in self.indobscsv:
-            name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
-            headers.append(name)
-            col_alias = ",".join(iocsv.getlinealiases())
-            headers.append(col_alias)
-        
-        return headers
-
-    def getwritervalues(self):
-        values = list()
-
-        for iocsv in self.indobscsv:
-            name = iocsv.plotinfo.plotname or iocsv.__class__.__name__
-            values.append(name)
-            lio = len(iocsv)
-            if lio:
-                v = map(lambda l: str(l[0]), iocsv.lines.itersize())
-            else:
-                v = [''] * iocsv.lines.size()
-            values.append(",".join(v))
-
-        return values
-
-    def getwriterinfo(self):
-        wrinfo = AutoOrderedDict()
-
-        wrinfo['Params'] = self.p._getkwargs()
-
-        sections = [
-            ['Indicators', self.getindicators_lines()],
-            ['Observers', self.getobservers()]
-        ]
-
-        for sectname, sectitems in sections:
-            sinfo = wrinfo[sectname]
-            for item in sectitems:
-                itname = item.__class__.__name__
-                sinfo[itname].Lines = item.lines.getlinealiases() or None
-                sinfo[itname].Params = item.p._getkwargs() or None
-
-        ainfo = wrinfo.Analyzers
-
-        # Internal Value Analyzer
-        snapshot = self.get_snapshot()
-        acct = snapshot.account
-        ainfo.Value.End = acct.portfolio_value if acct else 0
-
-        # no slave analyzers for writer
-        # for aname, analyzer in self.analyzers.getitems():
-        for analyzer in self.analyzers:
-            aname = analyzer.__class__.__name__.lower()
-            ainfo[aname].Params = analyzer.p._getkwargs() or None
-            ainfo[aname].Analysis = analyzer.get_analysis()
-        return wrinfo
-    
+    def cancel(self, order_id):
+        '''Cancels the order in the broker'''
+        self.store.cancel(order_id)
+   
     def _stop(self):
         self.stop()
 

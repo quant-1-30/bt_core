@@ -54,8 +54,7 @@ class Transactions(bt.TimeFrameAnalyzerBase):
     )
 
     def on_dt_over(self):
-        # super(Transactions, self).next()  # let dtkey update
-        snapshots = self.get_shm_events()  # --- IGNORE ---
+        snapshots = self.get_shm_events() 
         trades = [_t["data"] for _t in snapshots if _t["type"] == "trade"]
 
         self.rets[self.dtcmp] = trades

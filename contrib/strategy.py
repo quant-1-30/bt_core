@@ -25,6 +25,7 @@ import collections
 import itertools
 import operator
 import json
+import hashlib
 from collections import defaultdict
 from bt_sdk.core.protocol import OrderBody, SnapshotBody
 
@@ -33,6 +34,7 @@ from .lineiterator import LineIterator, StrategyBase
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, findowner
 from .utils.autodict import AutoOrderedDict
+from .shm import SharedRingBuffer
 
 MAXINT = np.iinfo(np.int_).max
 
@@ -60,12 +62,15 @@ class MetaStrategy(StrategyBase.__class__):
         # Find the _owner and store it
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.pnc = env.pnc # pnc contain sizer and risk
+        _obj.log_shm = env.log_shm 
 
         # register strategy to store with unique id
-        store = cerebro.store # add store to strategy
-        _obj.experiment_id = store.register(_obj.__class__.__name__, env.u_id) 
-        _obj.store = store
+        _obj.store = store = env.store
+        _obj.experiment_id = experiment_id = store.register(_obj.__class__.__name__, env.u_id)
 
+        # setup shared memory channel for strategy to publish data to writer
+        shm_name = hashlib.md5(experiment_id).hexdigest()[:24] # uuid.UUID(bytes=experiment_id) # file name 36 too long
+        _obj.shm_chan = SharedRingBuffer(shm_name=str(shm_name), capacity=100000, is_creator=True)
         return _obj, args, kwargs
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -74,17 +79,10 @@ class MetaStrategy(StrategyBase.__class__):
         
         _obj._minperiods = list()
 
-        # _obj.analyzers = ItemCollection()
-        # _obj._alnames = collections.defaultdict(itertools.count) # unique analyzer id
-        _obj.analyzers = list()
+        _obj.analyzers = list() # ItemCollection()
         _obj.observers = list()
 
-        _obj.stats = {} # ItemCollection 
-        _obj.snapshot = None # cache position and account
-
-        # _obj.writers = list()
-        # _obj._orders = list()
-        # _obj._trades = list()
+        _obj.stats = {} # ItemCollection() 
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -103,7 +101,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     _ltype = LineIterator.StratType
 
-    lines = ('datetime', 'buy', 'sell') # lines = ('datetime',)
+    lines = ('datetime', 'buy', 'sell') # ('datetime',)
 
     def _periodset(self):
         dataids = [id(data) for data in self.datas]
@@ -171,10 +169,19 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
     
+    def on_timer(self, dts):
+        snapshot = self.store.on_dt_over(self.experiment_id) 
+        if snapshot:
+            self.shm_chan.publish_snapshot(snapshot) 
+        # publish sentinel to shared memory for writer to consume
+        self.shm_chan.publish_sentinel(dts) 
+        # import pdb; pdb.set_trace()
+
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
-        self.snapshot = self.store.set_cash(self.experiment_id, session, cash)
+        snapshot = self.store.set_cash(self.experiment_id, session, cash)
+        self.shm_chan.publish_snapshot(snapshot) 
 
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
@@ -194,11 +201,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
-        self.on_dt_over = False
 
-        # self._fast_analyzers = [ analyzer._next for analyzer in self.analyzers]
-        # self._fast_observers = [observer._next for observer in self.observers]
-        # # self._flat_fast = self._flat_collect() 
+        self.shm_chan.publish_sentinel(0.0)
 
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -252,26 +256,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                      for d in self.datas if len(d)])      
         self._dlens = newdlens
 
-    # def _next_observers(self, minperstatus, once=False):
-    #         for observer in self._lineiterators[LineIterator.ObsType]:
-    #             for analyzer in observer._analyzers:
-    #                 if minperstatus < 0:
-    #                     analyzer._next()
-    #                 elif minperstatus == 0:
-    #                     analyzer._nextstart()  # only called for the 1st value
-    #                 else:
-    #                     analyzer._prenext()
-    #             observer._next()
-
-    #     def _next_analyzers(self, minperstatus, once=False):
-    #         for analyzer in self.analyzers:
-    #             if minperstatus < 0:
-    #                 analyzer._next()
-    #             elif minperstatus == 0:
-    #                 analyzer._nextstart()  # only called for the 1st value
-    #             else:
-    #                 analyzer._prenext()
-    
     # @profile
     def _next_observers(self, minperstatus):
         if minperstatus < 0:
@@ -287,67 +271,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for observer in self.observers:
             observer._next()
 
-    # def _next(self):
-    #     minperstatus = self._getminperstatus() # datas already next 
-    #     self._next_observers(minperstatus)
-    #     super(Strategy, self)._next() # lineiterator _next
-
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
         super(Strategy, self)._next()
+        print("Strategy _next ", self.lines.datetime[0])
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
-    
-    # --------------------------------------------------------------flat next --------------------------------------------------
-
-    # # @profile
-    # def _next_observers_fast(self): # avoid attr
-    #     for aly in self._fast_analyzers:
-    #         aly()
-    #     for obs in self._fast_observers:
-    #         obs()
-
-    # # @profile
-    # def _next_flat_fast(self):
-    #     self.clk_update()
-    #     self.lines.datetime[0] = np.max([d.datetime[0]
-    #                                  for d in self.datas if len(d)])      
-    #     self._next_observers_fast()
-
-    #     for indicactor in self._flat_fast:
-    #         indicactor() # _next_fast
-    #     self.next()
-
-    # # @profile
-    # def _next(self):
-    #     self.clk_update() # differ from lineiterator _clk_update 
-    #     minperstatus = self._getminperstatus()
-    #     self._next_observers(minperstatus)
-    #     super(Strategy, self)._next() # lineiterator _next
-
-    #     if minperstatus < 0:
-    #         self.next()
-    #         # self._next = self._next_flat_fast
-    #     elif minperstatus == 0:
-    #         self.nextstart()  # only called for the 1st value
-    #     else:
-    #         self.prenext()
-
-    # def _next_recursive(self, indicator):
-    #     recursive = []
-    #     for c_ind in indicator._lineiterators[LineIterator.IndType]:
-    #         recursive.extend(self._next_recursive(c_ind))
-    #     if hasattr(self, '_next_fast'):
-    #         recursive.append(self._next_fast)
-    #     return recursive
-    
-    # def _flat_collect(self):
-    #         _flat_chain = []
-    #         for ind in self._lineiterators[LineIterator.IndType]:
-    #             _flat_chain.extend(self._next_recursive(ind))
-    #         return _flat_chain
- 
-    # -------------------------------------------------------------------------------------------------------------------------
  
     def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 
@@ -405,12 +334,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         created_dt=int(created_dt),
                         filler=filler)
             snapshot = self.store.submit(self.experiment_id, order)
-            trades = snapshot.order
-            if trades:
-                # import pdb; pdb.set_trace()
-                self.lines.buy[0] = 1 
-                self.notify_trade(order, trades)
-                self.snapshot = snapshot
+            if snapshot.trades:
+                self.lines.buy[0] = 1
+                self.notify(snapshot)
+
+            self.shm_chan.publish_order(order)
         
     def sell(self, sells, plimit: float=0.0, execType=0, filler=b"oco"):
         '''
@@ -422,7 +350,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
-        updated = {}
+        filled = {}
 
         for splan in sells:
             core = splan.core
@@ -436,42 +364,25 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         filler=filler)
         
             snapshot = self.store.submit(self.experiment_id, order)
-            trades = snapshot.order
+            trades = snapshot.trades
             if trades:
-                # import pdb; pdb.set_trace()
                 self.lines.sell[0] = -1
-                self.notify_trade(order, trades)
-                self.snapshot = snapshot
-                updated[core["sid"]] = trades # RuntimeError: dictionary changed size during iteration
-        
-        self.pnc.on_filled(updated)
-
-    def notify_trade(self, qorder, qtrades=[]):
-        # need to know if quicknotify is on, to not reprocess pendingorders
-        # and pendingtrades, which have to exist for things like observers
-        # which look into it
-        self._orders.append(qorder)
-        if qtrades:
-            self._trades.extend(qtrades)
-
-    def notify_timer(self, dts):
-        self.on_dt_over = True
-        snapshot = self.store.on_dt_over(self.experiment_id) 
-        if snapshot:
-            self.snapshot = snapshot
-        self.reset()
-
+                self.notify(snapshot)
+                filled[core["sid"]] = trades 
+            
+            self.shm_chan.publish_order(order)
+        self.pnc.on_filled(filled)
+    
+    def notify(self, snapshot):
+        print("Strategy notify ", snapshot.positions)
+        self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
+    
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
         self.store.cancel(order_id)
 
-    def get_snapshot(self):
-        '''Returns the portfolio value and positions of strategy
-        '''
-        return self.snapshot
-
-    def getvalue(self)-> SnapshotBody: 
-        snapshot = self.store.getvalue(self.experiment_id) 
+    def get_snapshot(self)-> SnapshotBody: 
+        snapshot = self.store.get_snapshot(self.experiment_id) 
         return snapshot
          
     def getwriterheaders(self):
@@ -537,13 +448,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             aname = analyzer.__class__.__name__.lower()
             ainfo[aname].Params = analyzer.p._getkwargs() or None
             ainfo[aname].Analysis = analyzer.get_analysis()
-
         return wrinfo
-    
-    def reset(self):
-        self._orders.clear()
-        self._trades.clear()
-        self.on_dt_over = False
     
     def _stop(self):
         self.stop()
@@ -551,6 +456,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
         self.store.stop(self.experiment_id)
+        self.shm_chan.close()
+        self.shm_chan.unlink()
     
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类
@@ -704,17 +611,13 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # Invalidate short leave if shortexit signals are available
         s_leave = not self._shortexit and s_leave
 
-        # control
-        # psids = [p.sid for p in self.snapshot.positions]
-        # current_prices = self.store.get_snapshot_tick(psids, int(current_tick))
-        current_prices = {self.data0.sid[0]: self.data0.close[0]}
-        topk_info = current_prices if not self.topk_info else self.topk_info # only support one data feed for now
-        plan = self.pnc.generate_plan(topk_info, current_prices, self.snapshot, self.stats)  
+        current_prices = {self.data0.sid[0]: self.data0.close[0]} # only support one data feed for now
+        snapshot = self.get_snapshot()
+        plan = self.pnc.generate_plan(current_prices, current_prices, snapshot, self.stats)  
 
         if l_enter:
             if self.p._accumulate:
                 self.buy(plan["buy"])
         # elif l_exit or l_rev or l_leave:
         else:
-            # closing position - not relevant for concurrency
-            self.sell(plan["sell"]) # sell means close
+            self.sell(plan["sell"]) 

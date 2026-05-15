@@ -1,4 +1,12 @@
-from libc.stdint cimport int64_t
+from libc.stdint cimport int64_t, int32_t
+
+
+cpdef enum TimerEvent:
+    EOD = 0       
+    METRIC = 1   
+    RISK = 2     
+    UNKOWN = 3 
+
 
 cpdef enum Session:
     SESSION_START = 0
@@ -7,8 +15,8 @@ cpdef enum Session:
 
 cdef class Timer:
     cdef object when
-    cdef int offset
-    cdef int repeat
+    cdef int32_t offset
+    cdef int32_t repeat
     cdef list weekdays
     cdef list monthdays
     cdef bint weekcarry
@@ -22,21 +30,22 @@ cdef class Timer:
     cdef object _lastcall
     cdef object _rstwhen
     
-    cdef int _curmonth
-    cdef int _curweek
-    cdef int _curmonth_idx
-    cdef int _curweek_idx
+    cdef int32_t _curmonth
+    cdef int32_t _curweek
+    cdef int32_t _curmonth_idx
+    cdef int32_t _curweek_idx
 
     cdef object _curdate
     cdef double _nextdteos
+    cdef int32_t event_type
 
     cpdef void start(self, object data)
 
     cdef void _reset_when(self, object ddate=?)
 
-    cdef bint _check_month(self, int dday, int dmonth)
+    cdef bint _check_month(self, int32_t dday, int32_t dmonth)
 
-    cdef bint _check_week(self, int dwkday, int dweek)
+    cdef bint _check_week(self, int32_t dwkday, int32_t dweek)
 
     cpdef bint check(self, double dt)
     

@@ -137,6 +137,9 @@ cdef class Timer:
         self._nextdteos = 0.0
         self._curdate = date.min
 
+        # add timerEvent
+        self.event_type = kwargs.get("event_type", 3)
+
     cpdef void start(self, object data):
         self._tzdata = data
 
@@ -160,11 +163,11 @@ cdef class Timer:
 
         self._lastcall = ddate
 
-    cdef bint _check_month(self, int dday, int dmonth):
+    cdef bint _check_month(self, int32_t dday, int32_t dmonth):
         cdef bint curday = False
         cdef bint daycarry = False
-        cdef int length = len(self.monthdays)
-        cdef int val
+        cdef int32_t length = len(self.monthdays)
+        cdef int32_t val
         
         if not self.monthdays:
             return True
@@ -189,11 +192,11 @@ cdef class Timer:
                 break
         return daycarry or curday
 
-    cdef bint _check_week(self, int dwkday, int dweek):
-        cdef int length = len(self.weekdays)
+    cdef bint _check_week(self, int32_t dwkday, int32_t dweek):
+        cdef int32_t length = len(self.weekdays)
         cdef bint daycarry = False
         cdef bint curday = False
-        cdef int val
+        cdef int32_t val
         
         if not self.weekdays:
             return True
@@ -220,7 +223,7 @@ cdef class Timer:
 
     cpdef bint check(self, double dt):
         cdef object d, ddate
-        cdef int dday, dmonth, dweek, dwkday
+        cdef int32_t dday, dmonth, dweek, dwkday
         cdef bint valid
         cdef double repeat_ordinal 
 

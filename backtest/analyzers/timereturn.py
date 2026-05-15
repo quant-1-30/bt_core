@@ -93,7 +93,6 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         # next is called in a new timeframe period
-        # snap = self._owner.get_snapshot()
         snapshots = self.get_shm_events()
         accts = [act["data"] for act in snapshots if act["type"] == "account"]
         if accts:
