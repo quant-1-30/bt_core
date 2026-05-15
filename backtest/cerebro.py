@@ -22,11 +22,12 @@ import json
 import numpy as np
 import datetime
 import itertools
+import threading
 from collections import OrderedDict
 from pytz import timezone
 
 from . import observers
-from .writer import WriterFile
+# from .writer import WriterFile
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import _sizers
@@ -36,8 +37,72 @@ from .errors import *
 from .stores import _stores
 from .plot import Plot
 from .shm import LogRingBuffer
+from .sink import ParquetSink, CSVSink, JSONSink
 from .utils.wrapper import consume_time
 from .utils.encoder import CustomJSONEncoder
+
+
+class LogConsumerThread(threading.Thread):
+    def __init__(self, log_shm, output_dir, experiment_id, 
+                 fmt="parquet", 
+                 max_file_size_mb=512, 
+                 flush_threshold=50000):
+        super().__init__(daemon=True)
+        self.log_shm = log_shm
+        self.max_size_bytes = max_file_size_mb * 1024 * 1024
+        self.flush_threshold = flush_threshold
+        
+        self._running = True
+        
+        # align to Cython struct
+        self.schema = pa.schema([
+            ('datetime', pa.int64()),
+            ('value', pa.float64()),
+            ('metrics', pa.int32()),
+            # ('_pad', pa.int32())
+        ])
+        
+        sinks = {
+            "parquet": ParquetSink,
+            "csv": CSVSink,
+            "json": JSONSink 
+        }
+        self.sink = sinks.get(fmt.lower(), ParquetSink)(experiment_id, output_dir, self.schema)
+        
+        self._buffer = []
+        self._pending_count = 0
+
+    def run(self):
+        while self._running or self.log_shm.has_data():
+            arr = self.log_shm.drain_metrics_ndarray(max_batch=10000)
+            
+            if arr is not None and len(arr) > 0:
+                table = pa.Table.from_array(arr, schema=self.schema) # zero_copy
+                self._buffer.append(table)
+                self._pending_count += len(arr)
+                
+                if self._pending_count >= self.flush_threshold:
+                    self._flush()
+            else:
+                time.sleep(0.001)
+                if not self._running and self._buffer: self._flush()
+
+        self.sink.close()
+
+    def _flush(self):
+        if not self._buffer: return
+        
+        big_table = pa.concat_tables(self._buffer)
+        
+        self.sink.check_rotation(self.max_size_bytes)
+        
+        self.sink.write(big_table)
+        
+        self._buffer = []
+        self._pending_count = 0
+
+    def stop(self):
+        self._running = False
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -426,10 +491,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
             Strategy classes added with ``addstrategy``
         '''
         self._next_id(kwargs) 
-
-        # 启动消费者线程 (开始在后台循环吸取)
+        
         self.log_thread.start()
-
 
         # Prepare feed
         print("cerebro run data start")

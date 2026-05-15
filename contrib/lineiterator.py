@@ -240,52 +240,52 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             self.forward()
         return clock_len
 
-    # def _next(self):
-    #     clock_len = self._clk_update()
-
-    #     for indicator in self._lineiterators[LineIterator.IndType]:
-    #         indicator._next()
-
-    #     if self._ltype == LineIterator.StratType:
-    #         minperstatus = self._getminperstatus()
-    #         if minperstatus < 0:
-    #             self.next()
-    #         elif minperstatus == 0:
-    #             self.nextstart()  # only called for the 1st value
-    #         else:
-    #             self.prenext()
-    #     else:
-    #         # assume indicators and others operate on same length datas
-    #         # although the above operation can be generalized
-    #         if clock_len > self._minperiod:
-    #             self.next()
-    #         elif clock_len == self._minperiod:
-    #             self.nextstart()  # only called for the 1st value
-    #         elif clock_len:
-    #             self.prenext()
-
-    # @profile
     def _next(self):
         clock_len = self._clk_update()
 
         for indicator in self._lineiterators[LineIterator.IndType]:
             indicator._next()
 
-        # assume indicators and others operate on same length datas
-        # although the above operation can be generalized
-        if clock_len > self._minperiod:
-            self.next()
-        elif clock_len == self._minperiod:
-            self.nextstart()  # only called for the 1st value
-        elif clock_len:
-            self.prenext()
-    
-    # @profile
-    def _next_fast(self): # cpu soft
-        # self._clk_update()
-        self.forward()
-        self.next()
+        if self._ltype == LineIterator.StratType:
+            minperstatus = self._getminperstatus()
+            if minperstatus < 0:
+                self.next()
+            elif minperstatus == 0:
+                self.nextstart()  # only called for the 1st value
+            else:
+                self.prenext()
+        else:
+            # assume indicators and others operate on same length datas
+            # although the above operation can be generalized
+            if clock_len > self._minperiod:
+                self.next()
+            elif clock_len == self._minperiod:
+                self.nextstart()  # only called for the 1st value
+            elif clock_len:
+                self.prenext()
 
+    # # @profile
+    # def _next_fast(self): # cpu soft
+    #     # self._clk_update()
+    #     self.forward()
+    #     self.next()
+
+    # # @profile
+    # def _next(self):
+    #     clock_len = self._clk_update()
+
+    #     for indicator in self._lineiterators[LineIterator.IndType]:
+    #         indicator._next()
+
+    #     # assume indicators and others operate on same length datas
+    #     # although the above operation can be generalized
+    #     if clock_len > self._minperiod:
+    #         self.next()
+    #     elif clock_len == self._minperiod:
+    #         self.nextstart()  # only called for the 1st value
+    #     elif clock_len:
+    #         self.prenext()
+    
     def prenext(self):
         '''
         This method will be called before the minimum period of all

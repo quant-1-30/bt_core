@@ -29,7 +29,7 @@ from .dataseries import *
 from .sizer import *
 from .strategy import *
 from .stores import *
-from .writer import *
+# from .writer import *
 from .signal import *
 from .timer import *
 from .flt import *
