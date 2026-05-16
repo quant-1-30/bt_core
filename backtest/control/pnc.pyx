@@ -5,8 +5,8 @@
 from libc.stdint cimport int32_t, int64_t
 from libcpp.string cimport string as cpp_string
 
-from .sizers import _sizers
-from .utils.dateintern import ts2intdt
+from backtest.sizers import _sizers
+from backtest.utils.dateintern import ts2intdt
 
 
 cdef class TraderPlan:

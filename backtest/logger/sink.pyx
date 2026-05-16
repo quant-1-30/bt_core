@@ -100,3 +100,9 @@ cdef class JSONSink(FileSink):
             line = json.dumps(row).encode('utf-8') + b'\n' # jsonlines
             self.writer.write(line)
 
+
+sinks = {
+    "parquet": ParquetSink,
+    "csv": CSVSink,
+    "json": JSONSink 
+}

@@ -21,22 +21,22 @@ extensions = [
         # "-Wno-sign-compare" 
     ),
     Extension(
-        name="backtest.pnc", 
-        sources=["backtest/pnc.pyx"],
+        name="backtest.control.pnc", 
+        sources=["backtest/control/pnc.pyx"],
         include_dirs=[np.get_include(), current_dir],
         language="c++", # vector/map
         extra_compile_args=["-O3", "-std=c++11"],
     ),
     Extension(
-        name="backtest.shm", 
-        sources=["backtest/shm.pyx"],
+        name="backtest.shm.shm_buffer", 
+        sources=["backtest/shm/shm_buffer.pyx"],
         include_dirs=[np.get_include(), current_dir],
         language="c++", # vector/map
         extra_compile_args=["-O3", "-std=c++11"],
     ),
     Extension(
-        name="backtest.sink", 
-        sources=["backtest/sink.pyx"],
+        name="backtest.logger.sink", 
+        sources=["backtest/logger/sink.pyx"],
         include_dirs=[np.get_include(), current_dir],
         language="c++", # vector/map
         extra_compile_args=["-O3", "-std=c++11"],
