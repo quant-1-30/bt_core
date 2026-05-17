@@ -2053,7 +2053,7 @@ struct __pyx_t_8backtest_3shm_10shm_buffer_LogRingHeader {
 /* "backtest/shm/shm_buffer.pxd":125
  *     cpdef void publish_metric(self, bytes metrics, double value, int64_t dt)
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=*)             # <<<<<<<<<<<<<<
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=*)             # <<<<<<<<<<<<<<
  * 
  *     cpdef bint has_data(self)
 */
@@ -2210,7 +2210,7 @@ static struct __pyx_vtabstruct_8backtest_3shm_10shm_buffer_SharedRingBuffer *__p
 struct __pyx_vtabstruct_8backtest_3shm_10shm_buffer_LogRingBuffer {
   void (*_wait_if_full)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *);
   void (*publish_metric)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, PyObject *, double, int64_t, int __pyx_skip_dispatch);
-  PyObject *(*drain_metrics)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args);
+  PyObject *(*drain_metrics)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int32_t, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args);
   int (*has_data)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch);
   void (*close)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch);
   void (*unlink)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch);
@@ -3626,7 +3626,7 @@ static void __pyx_f_8backtest_3shm_10shm_buffer_16SharedRingBuffer_close(struct 
 static void __pyx_f_8backtest_3shm_10shm_buffer_16SharedRingBuffer_unlink(struct __pyx_obj_8backtest_3shm_10shm_buffer_SharedRingBuffer *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer__wait_if_full(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self); /* proto*/
 static void __pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_publish_metric(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, PyObject *__pyx_v_metrics, double __pyx_v_value, int64_t __pyx_v_dt, int __pyx_skip_dispatch); /* proto*/
-static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args); /* proto*/
+static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int32_t __pyx_v_min_batch, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args); /* proto*/
 static int __pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_has_data(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_close(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
 static void __pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_unlink(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
@@ -3771,7 +3771,7 @@ static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_16SharedRingBuffer_16__red
 static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_16SharedRingBuffer_18__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_8backtest_3shm_10shm_buffer_SharedRingBuffer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer___cinit__(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, PyObject *__pyx_v_shm_name, int32_t __pyx_v_capacity, int __pyx_v_is_creator); /* proto */
 static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_2publish_metric(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, PyObject *__pyx_v_metrics, double __pyx_v_value, int64_t __pyx_v_dt); /* proto */
-static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int32_t __pyx_v_max_batch); /* proto */
+static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int32_t __pyx_v_min_batch, int32_t __pyx_v_max_batch); /* proto */
 static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_6has_data(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_8close(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_10unlink(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self); /* proto */
@@ -4013,8 +4013,8 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_margin __pyx_string_tab[131]
 #define __pyx_n_u_max_batch __pyx_string_tab[132]
 #define __pyx_n_u_memview __pyx_string_tab[133]
-#define __pyx_n_u_metric __pyx_string_tab[134]
-#define __pyx_n_u_metrics __pyx_string_tab[135]
+#define __pyx_n_u_metrics __pyx_string_tab[134]
+#define __pyx_n_u_min_batch __pyx_string_tab[135]
 #define __pyx_n_u_mode __pyx_string_tab[136]
 #define __pyx_n_u_module __pyx_string_tab[137]
 #define __pyx_n_u_mp __pyx_string_tab[138]
@@ -4081,16 +4081,16 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_value __pyx_string_tab[199]
 #define __pyx_n_u_values __pyx_string_tab[200]
 #define __pyx_n_u_x __pyx_string_tab[201]
-#define __pyx_kp_b_iso88591_7q_A_AQ_AQ_b_IQ_S_1_6_a_q_r_q_v __pyx_string_tab[202]
-#define __pyx_kp_b_iso88591_A_4vWA_V1 __pyx_string_tab[203]
-#define __pyx_kp_b_iso88591_A_4vWA_WA __pyx_string_tab[204]
-#define __pyx_kp_b_iso88591_A_A_1F_D_a_at7_1_q_9A_q_WIQ_81F __pyx_string_tab[205]
-#define __pyx_kp_b_iso88591_A_T_E_aq_t1_Qa_5_q_Q_q_l_1 __pyx_string_tab[206]
-#define __pyx_kp_b_iso88591_A_T_T_t7_1_q_Qa_1_xr_1_a_3a_A_3a __pyx_string_tab[207]
-#define __pyx_kp_b_iso88591_A_a_A_N_1_G_a_A __pyx_string_tab[208]
-#define __pyx_kp_b_iso88591_A_iq_81_5_Q_IQ __pyx_string_tab[209]
-#define __pyx_kp_b_iso88591_A_iq_81_q_5_fG86_5_d_6_q_5_iwhiq __pyx_string_tab[210]
-#define __pyx_kp_b_iso88591_A_t7_gQ __pyx_string_tab[211]
+#define __pyx_kp_b_iso88591_A_4vWA_V1 __pyx_string_tab[202]
+#define __pyx_kp_b_iso88591_A_4vWA_WA __pyx_string_tab[203]
+#define __pyx_kp_b_iso88591_A_A_1F_D_a_at7_1_q_9A_q_WIQ_81F __pyx_string_tab[204]
+#define __pyx_kp_b_iso88591_A_T_E_aq_t1_Qa_5_q_Q_q_l_1 __pyx_string_tab[205]
+#define __pyx_kp_b_iso88591_A_T_T_t7_1_q_Qa_1_xr_1_a_3a_A_3a __pyx_string_tab[206]
+#define __pyx_kp_b_iso88591_A_a_A_N_1_G_a_A __pyx_string_tab[207]
+#define __pyx_kp_b_iso88591_A_iq_81_5_Q_IQ __pyx_string_tab[208]
+#define __pyx_kp_b_iso88591_A_iq_81_q_5_fG86_5_d_6_q_5_iwhiq __pyx_string_tab[209]
+#define __pyx_kp_b_iso88591_A_t7_gQ __pyx_string_tab[210]
+#define __pyx_kp_b_iso88591_J_A_AQ_AQ_b_IQ_Rq_1_6_a_r_q_vQ __pyx_string_tab[211]
 #define __pyx_kp_b_iso88591_Q __pyx_string_tab[212]
 #define __pyx_n_b_O __pyx_string_tab[213]
 #define __pyx_int_0 __pyx_number_tab[0]
@@ -24195,7 +24195,7 @@ static void __pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_publish_metric(s
  *             mem_barrier()
  *             h.head += 1             # <<<<<<<<<<<<<<
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):
 */
         __pyx_v_h->head = (__pyx_v_h->head + 1);
       }
@@ -24380,7 +24380,7 @@ static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_2publish_m
 /* "backtest/shm/shm_buffer.pyx":327
  *             h.head += 1
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
  *         cdef LogRingHeader* h = self.header
  *         cdef int64_t current_tail = h.tail
 */
@@ -24392,7 +24392,7 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args) {
+static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int32_t __pyx_v_min_batch, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args) {
   int32_t __pyx_v_max_batch = ((int32_t)0xC350);
   struct __pyx_t_8backtest_3shm_10shm_buffer_LogRingHeader *__pyx_v_h;
   int64_t __pyx_v_current_tail;
@@ -24411,14 +24411,15 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
-  size_t __pyx_t_6;
-  struct __pyx_t_8backtest_3shm_10shm_buffer_LogRingHeader *__pyx_t_7;
-  int64_t __pyx_t_8;
+  PyObject *__pyx_t_6 = NULL;
+  size_t __pyx_t_7;
+  struct __pyx_t_8backtest_3shm_10shm_buffer_LogRingHeader *__pyx_t_8;
   int64_t __pyx_t_9;
   int64_t __pyx_t_10;
-  int __pyx_t_11;
-  struct __pyx_t_8backtest_3shm_10shm_buffer_MetricMsg *__pyx_t_12;
-  int32_t __pyx_t_13;
+  int64_t __pyx_t_11;
+  int __pyx_t_12;
+  struct __pyx_t_8backtest_3shm_10shm_buffer_MetricMsg *__pyx_t_13;
+  int32_t __pyx_t_14;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -24451,9 +24452,11 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
         __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; 
-        __pyx_t_5 = __Pyx_PyLong_From_int32_t(__pyx_v_max_batch); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 327, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyLong_From_int32_t(__pyx_v_min_batch); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 327, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = 1;
+        __pyx_t_6 = __Pyx_PyLong_From_int32_t(__pyx_v_max_batch); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 327, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __pyx_t_7 = 1;
         #if CYTHON_UNPACK_METHODS
         if (unlikely(PyMethod_Check(__pyx_t_4))) {
           __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
@@ -24462,14 +24465,15 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
           __Pyx_INCREF(__pyx_t_3);
           __Pyx_INCREF(__pyx__function);
           __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
-          __pyx_t_6 = 0;
+          __pyx_t_7 = 0;
         }
         #endif
         {
-          PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_t_5};
-          __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+          PyObject *__pyx_callargs[3] = {__pyx_t_3, __pyx_t_5, __pyx_t_6};
+          __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_7, (3-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+          __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
           if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 327, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
@@ -24494,23 +24498,23 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
 
   /* "backtest/shm/shm_buffer.pyx":328
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):
  *         cdef LogRingHeader* h = self.header             # <<<<<<<<<<<<<<
  *         cdef int64_t current_tail = h.tail
  *         cdef int64_t current_head = h.head
 */
-  __pyx_t_7 = __pyx_v_self->header;
-  __pyx_v_h = __pyx_t_7;
+  __pyx_t_8 = __pyx_v_self->header;
+  __pyx_v_h = __pyx_t_8;
 
   /* "backtest/shm/shm_buffer.pyx":329
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):
  *         cdef LogRingHeader* h = self.header
  *         cdef int64_t current_tail = h.tail             # <<<<<<<<<<<<<<
  *         cdef int64_t current_head = h.head
  *         cdef int32_t i
 */
-  __pyx_t_8 = __pyx_v_h->tail;
-  __pyx_v_current_tail = __pyx_t_8;
+  __pyx_t_9 = __pyx_v_h->tail;
+  __pyx_v_current_tail = __pyx_t_9;
 
   /* "backtest/shm/shm_buffer.pyx":330
  *         cdef LogRingHeader* h = self.header
@@ -24519,8 +24523,8 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
  *         cdef int32_t i
  * 
 */
-  __pyx_t_8 = __pyx_v_h->head;
-  __pyx_v_current_head = __pyx_t_8;
+  __pyx_t_9 = __pyx_v_h->head;
+  __pyx_v_current_head = __pyx_t_9;
 
   /* "backtest/shm/shm_buffer.pyx":333
  *         cdef int32_t i
@@ -24536,31 +24540,31 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
  *         cdef int64_t available = current_head - current_tail
  *         cdef int64_t count = min(available, <int64_t>max_batch)             # <<<<<<<<<<<<<<
  * 
- *         if available <= 0:
+ *         if available < min_batch: # avoid 0 to accumulate
 */
-  __pyx_t_8 = ((int64_t)__pyx_v_max_batch);
-  __pyx_t_9 = __pyx_v_available;
-  __pyx_t_11 = (__pyx_t_8 < __pyx_t_9);
-  if (__pyx_t_11) {
-    __pyx_t_10 = __pyx_t_8;
+  __pyx_t_9 = ((int64_t)__pyx_v_max_batch);
+  __pyx_t_10 = __pyx_v_available;
+  __pyx_t_12 = (__pyx_t_9 < __pyx_t_10);
+  if (__pyx_t_12) {
+    __pyx_t_11 = __pyx_t_9;
   } else {
-    __pyx_t_10 = __pyx_t_9;
+    __pyx_t_11 = __pyx_t_10;
   }
-  __pyx_v_count = __pyx_t_10;
+  __pyx_v_count = __pyx_t_11;
 
   /* "backtest/shm/shm_buffer.pyx":336
  *         cdef int64_t count = min(available, <int64_t>max_batch)
  * 
- *         if available <= 0:             # <<<<<<<<<<<<<<
+ *         if available < min_batch: # avoid 0 to accumulate             # <<<<<<<<<<<<<<
  *             return None
  * 
 */
-  __pyx_t_11 = (__pyx_v_available <= 0);
-  if (__pyx_t_11) {
+  __pyx_t_12 = (__pyx_v_available < __pyx_v_min_batch);
+  if (__pyx_t_12) {
 
     /* "backtest/shm/shm_buffer.pyx":337
  * 
- *         if available <= 0:
+ *         if available < min_batch: # avoid 0 to accumulate
  *             return None             # <<<<<<<<<<<<<<
  * 
  *         # dtype ---> numpy Structured Arrays C struct
@@ -24572,7 +24576,7 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
     /* "backtest/shm/shm_buffer.pyx":336
  *         cdef int64_t count = min(available, <int64_t>max_batch)
  * 
- *         if available <= 0:             # <<<<<<<<<<<<<<
+ *         if available < min_batch: # avoid 0 to accumulate             # <<<<<<<<<<<<<<
  *             return None
  * 
 */
@@ -24590,7 +24594,7 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
   /* "backtest/shm/shm_buffer.pyx":344
  *             ('datetime', 'i8'),
  *             ('value', 'f8'),
- *             ('metric', 'S16')             # <<<<<<<<<<<<<<
+ *             ('metrics', 'S16')             # <<<<<<<<<<<<<<
  *         ])
  * 
 */
@@ -24605,10 +24609,10 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
   __Pyx_INCREF(__pyx_mstate_global->__pyx_tuple[3]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[3]);
   if (__Pyx_PyList_SET_ITEM(__pyx_t_4, 2, __pyx_mstate_global->__pyx_tuple[3]) != (0)) __PYX_ERR(0, 341, __pyx_L1_error);
-  __pyx_t_6 = 1;
+  __pyx_t_7 = 1;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_t_4};
-    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_mstate_global->__pyx_ptype_5numpy_dtype, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_mstate_global->__pyx_ptype_5numpy_dtype, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 341, __pyx_L1_error)
@@ -24627,33 +24631,33 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
   __pyx_t_4 = NULL;
   __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_empty); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 347, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_mstate_global->__pyx_n_u_empty); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 347, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = __Pyx_PyLong_From_int64_t(__pyx_v_count); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = 1;
+  __pyx_t_7 = 1;
   #if CYTHON_UNPACK_METHODS
-  if (unlikely(PyMethod_Check(__pyx_t_5))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_5);
+  if (unlikely(PyMethod_Check(__pyx_t_6))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_6);
     assert(__pyx_t_4);
-    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_5);
+    PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_6);
     __Pyx_INCREF(__pyx_t_4);
     __Pyx_INCREF(__pyx__function);
-    __Pyx_DECREF_SET(__pyx_t_5, __pyx__function);
-    __pyx_t_6 = 0;
+    __Pyx_DECREF_SET(__pyx_t_6, __pyx__function);
+    __pyx_t_7 = 0;
   }
   #endif
   {
     PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_4, __pyx_t_2};
-    __pyx_t_3 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 347, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_dtype, __pyx_v_dtype, __pyx_t_3, __pyx_callargs+2, 0) < (0)) __PYX_ERR(0, 347, __pyx_L1_error)
-    __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_5, __pyx_callargs+__pyx_t_6, (2-__pyx_t_6) | (__pyx_t_6*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_3);
+    __pyx_t_5 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 347, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_dtype, __pyx_v_dtype, __pyx_t_5, __pyx_callargs+2, 0) < (0)) __PYX_ERR(0, 347, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
@@ -24677,8 +24681,8 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
  * 
  *         for i in range(count):
 */
-  __pyx_t_12 = __pyx_v_self->buffer;
-  __pyx_v_src = __pyx_t_12;
+  __pyx_t_13 = __pyx_v_self->buffer;
+  __pyx_v_src = __pyx_t_13;
 
   /* "backtest/shm/shm_buffer.pyx":351
  *         cdef MetricMsg* src = self.buffer
@@ -24687,10 +24691,10 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
  *             dest[i] = src[(current_tail + i) % self.capacity] # C struct ---> slot of array`
  * 
 */
-  __pyx_t_10 = __pyx_v_count;
-  __pyx_t_8 = __pyx_t_10;
-  for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_8; __pyx_t_13+=1) {
-    __pyx_v_i = __pyx_t_13;
+  __pyx_t_11 = __pyx_v_count;
+  __pyx_t_9 = __pyx_t_11;
+  for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_9; __pyx_t_14+=1) {
+    __pyx_v_i = __pyx_t_14;
 
     /* "backtest/shm/shm_buffer.pyx":352
  * 
@@ -24726,7 +24730,7 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
   /* "backtest/shm/shm_buffer.pyx":327
  *             h.head += 1
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
  *         cdef LogRingHeader* h = self.header
  *         cdef int64_t current_tail = h.tail
 */
@@ -24738,6 +24742,7 @@ static PyObject *__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metri
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("backtest.shm.shm_buffer.LogRingBuffer.drain_metrics", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
@@ -24764,12 +24769,13 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ) {
+  int32_t __pyx_v_min_batch;
   int32_t __pyx_v_max_batch;
   #if !CYTHON_METH_FASTCALL
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   #endif
   CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
-  PyObject* values[1] = {0};
+  PyObject* values[2] = {0,0};
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -24785,11 +24791,15 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   #endif
   __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_max_batch,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_min_batch,&__pyx_mstate_global->__pyx_n_u_max_batch,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 327, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
+        case  2:
+        values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 327, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 327, __pyx_L3_error)
@@ -24799,25 +24809,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
       if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "drain_metrics", 0) < (0)) __PYX_ERR(0, 327, __pyx_L3_error)
+      for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("drain_metrics", 0, 1, 2, i); __PYX_ERR(0, 327, __pyx_L3_error) }
+      }
     } else {
       switch (__pyx_nargs) {
+        case  2:
+        values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 327, __pyx_L3_error)
+        CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
         if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 327, __pyx_L3_error)
-        CYTHON_FALLTHROUGH;
-        case  0: break;
+        break;
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    if (values[0]) {
-      __pyx_v_max_batch = __Pyx_PyLong_As_int32_t(values[0]); if (unlikely((__pyx_v_max_batch == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 327, __pyx_L3_error)
+    __pyx_v_min_batch = __Pyx_PyLong_As_int32_t(values[0]); if (unlikely((__pyx_v_min_batch == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 327, __pyx_L3_error)
+    if (values[1]) {
+      __pyx_v_max_batch = __Pyx_PyLong_As_int32_t(values[1]); if (unlikely((__pyx_v_max_batch == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(0, 327, __pyx_L3_error)
     } else {
       __pyx_v_max_batch = ((int32_t)0xC350);
     }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("drain_metrics", 0, 0, 1, __pyx_nargs); __PYX_ERR(0, 327, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("drain_metrics", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 327, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -24828,7 +24845,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_metrics(((struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *)__pyx_v_self), __pyx_v_max_batch);
+  __pyx_r = __pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_metrics(((struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *)__pyx_v_self), __pyx_v_min_batch, __pyx_v_max_batch);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -24838,7 +24855,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int32_t __pyx_v_max_batch) {
+static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_metrics(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *__pyx_v_self, int32_t __pyx_v_min_batch, int32_t __pyx_v_max_batch) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -24850,7 +24867,7 @@ static PyObject *__pyx_pf_8backtest_3shm_10shm_buffer_13LogRingBuffer_4drain_met
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.max_batch = __pyx_v_max_batch;
-  __pyx_t_1 = __pyx_vtabptr_8backtest_3shm_10shm_buffer_LogRingBuffer->drain_metrics(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 327, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_8backtest_3shm_10shm_buffer_LogRingBuffer->drain_metrics(__pyx_v_self, __pyx_v_min_batch, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 327, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -26951,7 +26968,7 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_vtabptr_8backtest_3shm_10shm_buffer_LogRingBuffer = &__pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer;
   __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer._wait_if_full = (void (*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer__wait_if_full;
   __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer.publish_metric = (void (*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, PyObject *, double, int64_t, int __pyx_skip_dispatch))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_publish_metric;
-  __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer.drain_metrics = (PyObject *(*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics;
+  __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer.drain_metrics = (PyObject *(*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int32_t, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics *__pyx_optional_args))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics;
   __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer.has_data = (int (*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_has_data;
   __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer.close = (void (*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_close;
   __pyx_vtable_8backtest_3shm_10shm_buffer_LogRingBuffer.unlink = (void (*)(struct __pyx_obj_8backtest_3shm_10shm_buffer_LogRingBuffer *, int __pyx_skip_dispatch))__pyx_f_8backtest_3shm_10shm_buffer_13LogRingBuffer_unlink;
@@ -28291,7 +28308,7 @@ __Pyx_RefNannySetupContext("PyInit_shm_buffer", 0);
   /* "backtest/shm/shm_buffer.pyx":327
  *             h.head += 1
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
  *         cdef LogRingHeader* h = self.header
  *         cdef int64_t current_tail = h.tail
 */
@@ -28478,7 +28495,7 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
  *         dtype = cnp.dtype([
  *             ('datetime', 'i8'),             # <<<<<<<<<<<<<<
  *             ('value', 'f8'),
- *             ('metric', 'S16')
+ *             ('metrics', 'S16')
 */
   __pyx_mstate_global->__pyx_tuple[1] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_datetime, __pyx_mstate_global->__pyx_n_u_i8); if (unlikely(!__pyx_mstate_global->__pyx_tuple[1])) __PYX_ERR(0, 342, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[1]);
@@ -28488,7 +28505,7 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
  *         dtype = cnp.dtype([
  *             ('datetime', 'i8'),
  *             ('value', 'f8'),             # <<<<<<<<<<<<<<
- *             ('metric', 'S16')
+ *             ('metrics', 'S16')
  *         ])
 */
   __pyx_mstate_global->__pyx_tuple[2] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_value, __pyx_mstate_global->__pyx_n_u_f8); if (unlikely(!__pyx_mstate_global->__pyx_tuple[2])) __PYX_ERR(0, 343, __pyx_L1_error)
@@ -28498,18 +28515,18 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   /* "backtest/shm/shm_buffer.pyx":344
  *             ('datetime', 'i8'),
  *             ('value', 'f8'),
- *             ('metric', 'S16')             # <<<<<<<<<<<<<<
+ *             ('metrics', 'S16')             # <<<<<<<<<<<<<<
  *         ])
  * 
 */
-  __pyx_mstate_global->__pyx_tuple[3] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_metric, __pyx_mstate_global->__pyx_n_u_S16); if (unlikely(!__pyx_mstate_global->__pyx_tuple[3])) __PYX_ERR(0, 344, __pyx_L1_error)
+  __pyx_mstate_global->__pyx_tuple[3] = PyTuple_Pack(2, __pyx_mstate_global->__pyx_n_u_metrics, __pyx_mstate_global->__pyx_n_u_S16); if (unlikely(!__pyx_mstate_global->__pyx_tuple[3])) __PYX_ERR(0, 344, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[3]);
   __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[3]);
 
   /* "backtest/shm/shm_buffer.pyx":327
  *             h.head += 1
  * 
- *     cpdef object drain_metrics(self, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
+ *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):             # <<<<<<<<<<<<<<
  *         cdef LogRingHeader* h = self.header
  *         cdef int64_t current_tail = h.tail
 */
@@ -28565,25 +28582,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 9; } index[] = {{2},{68},{35},{54},{37},{60},{24},{52},{26},{34},{29},{33},{45},{22},{15},{179},{37},{30},{32},{1},{1},{1},{1},{1},{8},{5},{6},{27},{15},{23},{25},{7},{6},{2},{6},{35},{9},{30},{50},{39},{34},{8},{20},{32},{22},{14},{30},{37},{5},{8},{13},{31},{33},{19},{27},{22},{28},{20},{20},{3},{8},{12},{16},{34},{36},{22},{29},{30},{33},{33},{34},{23},{15},{24},{3},{7},{15},{18},{9},{23},{4},{3},{1},{8},{4},{9},{17},{18},{5},{4},{11},{10},{5},{6},{10},{4},{8},{8},{12},{13},{2},{5},{15},{5},{6},{9},{5},{9},{11},{14},{13},{2},{6},{5},{5},{6},{7},{8},{12},{8},{2},{2},{10},{5},{13},{10},{5},{5},{8},{8},{8},{6},{9},{7},{6},{7},{4},{10},{2},{15},{4},{8},{4},{7},{2},{5},{3},{5},{8},{10},{4},{3},{3},{15},{8},{9},{10},{14},{13},{16},{16},{8},{11},{14},{11},{10},{19},{14},{12},{10},{17},{13},{8},{17},{4},{12},{16},{10},{12},{19},{5},{13},{8},{3},{4},{11},{5},{5},{4},{4},{6},{8},{4},{5},{6},{4},{6},{6},{6},{5},{6},{1},{169},{22},{22},{102},{73},{282},{58},{41},{167},{19},{9},{1}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (2173 bytes) */
-const char* const cstring = "BZh91AY&SYNg\357\265\000\0013\177\377\377\377\377\357\377\357\357\377\277\347\377\350\277\377\377\374CB@@`\312p\332@\000@@G\000@\000`\007\356m\231J\220@\210\221\n\244\203\356\007CB\022j\217j\2154h\365\000i\274*\032\r\003jz\217S hh\375Q\372P\032\007\250h\321\344\203M\244\375S\312lCPyOSL\364\240\224@\010\023!4\302'\246\243F\240\323j4d\320\006\200\000\000\000\000\000\003@\000\000\0100\230\2310\023\002bh\323\021\200\002`\021\246F\214\004\323&\00120\000\000\021\202h\300@\304 \201\00424\032$m\020\315M\001\240\000\001\240\003@\000\000\032\032\006M\000\000\002\014&&L\004\300\230\2324\304`\000\230\004i\221\243\0014\311\200L\214\000\000\004`\2320\020E4\232\231\r3S \304\300F\231\006L\000F\023M\032\031\030\020\365\031\030\231\014\201\243\020\006\020\304\304\030\323f\013\306E\245\243b\251\332\262\313\240\302\315\242]\261\253\252\320`e\342$\"A)Z\302Q\021\242\202I\022\210H\224\201V\214`c\250Z\250\200%4\222\004$.r\036ps\350\016d+\262\304@Kh\326\244\213 \026\016\237pc\031\033+\007H\321H\243h\310\304\263t$\353\022\021p4\236\306\275\373#e_\204!\212KmOcR\265\241R\250*\217\200UUF\177*\025\245.%5\220\231\322\332\215m\313l#\215\0303\205A\251\373\004\033\020\337\023V\316\204\356\014\361\037%[\005\201]\347\327\307\345Ey\267\345\361+Jb\022\304\035\253\217\001\030\3317\3257W\211\016}\257h\204\365\275\007\025\310\375\t\311s\353K\232\332\246z\010\301\323;\201\302\305\221{\255le]P\310\275\036\341\3045\246\316\315\333\016\027\362\3322\\\226\243P\217/\225QC\246\217\024\030\351\032\370<\334\321\t\250W\213wI\322\345o\270\342|M\325\325\252[\200\321\320\032kS$\r7\237\213\002# \346g\032\351\000\264imd\373m\"\333~\207/`\021!I\0171\3536\023\352\371;\375\n\222\250I\276\362\315V\363f\304\035\350\333\323\346\023G\222\331\274\264\354\013\221X\252\250\255\024\261F\2339\002\006\235\352qM\372\370\317\246\377\267\207/),H^\331\004}hU\223\006\304\246\266\375\343>N&\313[\243=/\324\346G\273\022\022\301\ra\215\306\226r\031\206}\254\022H\"\220Q^\020\327\353\372y2\3303\033y\325\263=\367\330\231\371\017\372WL\002\031""\032\313@\265J\372\246\002\037\220-A\311\311\267#\013\037'\220\366\311\266\035\235\001\0348\014\341Spa\242S\201V2\244\223`s\212\014B`\241\002\361`\207\2050\235Q\230N\314\005D\027\265\207\2518\031\034\344(\240\341Dk\034\261\243\311\262\3515\274+tK\177&A\027;-XR\234\357\245T\\\t\373OJ7\354\312exr\234VC\256\367\234\227!\265\321\314\222\003\003\222\334\036\020E\004\2565\345,\036c\222\343\274%R\300\320\020\311!f\214Ta\021\345c\232\354fZ\341\352\225\254F\251\275\255C\216\273\312laY\271\036!\322\233\205\206\336\260r\003\200q% \213},\340\325\267^\2527>\313\223o\021|\257\021\264\242\275g+\363\254\344MU\006Q\312\3006\221\277:\347\262{+\200l\0066i\311\242\351\214\226\326\013\022\020\325`\310\031\010\007k\024\020\210\366&\2302r\343T1\006\021\275\n\326\325=\3326`\305Nk80$.\002\262dE\214\030\242\207V\355<\263Y(.\224\241R\344\rg\217s\027\013\355\250u\321\266\313_\to\271\3178\236jf\032\354\225Yhj2\336\244\240E\214\323I$\263E\204\274\354\332\214oW?b\t\001V\243\265\014\256-!\232\331P\220\202A\242\260\r\317Y\312y~\211\007\235MR\235\363\234Xq\017\234\240\030\005\216\230jlx\216!\220\2031E\234\316+\025\004-\233Ee\3137\273i\230, \221\2522\317adK\331\t\340Q!t\202\016\314\366\210\346\252J\020\322]\251\022\265(9v\261E[\250\371\227\225\200s V\361\205\231P\021@K;\013,\211|\270\034\354Z\314\020B\340#\306\177\005Pp\245\203\217W\203\303#\215\201\306@H\r\322B\342b\203\270\240\206`C\0365\333\321\261\225!\270\354G7KHh\275\310WX9\311\"\250\366\033\216\336\334\242\366\"\375{\220\022\251\016\351\021\020\004\257\305\305\004\013\337-\017\t\232\rB\t\"\325\004t\200Z_V\225}\034\370\201D\320\367S\217)r\3057\355\204\234\206\243{\233\300\227\255\244\321\025r\336\375y\336\031\244\034\245\320\262\210\304d\222\332\014\235I\306\204@\346\266}\\\302\t$\224\335RQ1\203\035U\215\300\025(\034\355\214\317]\255\213\252\213\212#X\006\200JCB8J\372\352K\002\002\221\310\366\224xy\252\372-\030X\311\004\321\270\357\000\004\314\210V\016t\306j`q\031\313J\264\201\306\270\321\230\t\205\202\002\021 \271\305\201z\021e3$\242\250\244""\244,P\240\221f5G\212\216C\005\206\355v\020\3013<+Q.-'v\t\034\306\326fq$\035\0007a\025\250|\231c\000cy\343\004z&\027>b\255\324\257\250i!\321\203I \302\324\006\027\"\225?E\310\252*\205\302\234,\303Y\003V\204\307\210\332\317\251k|cH\"\234e\006,\025\330lv6\230\305\234\352\204\264\327\2329mEY\3327\266\026\252\325Y$%\rq\022\351\354\350\210\315\300\272\2048\210\361J\307DP$\340WX1\030\225\332\014\313\004\014\246\010m\344\020\312\t<\024S\035M\224\352\215t\025\010u\033\354\317\033\315d\006\024\001\000\301\221\nl@\3120\0316\030e\010M\232Y\326\014|\034\215U\302\017{\n\014a\005\034\372\031\324\212\327\013\311\227\260\255S\036\271\304\010#\354\311\360\013\273\225\035Y\200\215\246\254B\321cux=.\215\010\314E\310\250\350?X2\003)\302\356IA5\\n\324\263\335\245\013\265\326\2429\002\0025\306A\020*\232a\023\272\354'\215\354\211\211PX)\300\303\t\200,w\326\242xA\"\005\2265\345J\016T\257\206\247*b2D\252\214&^\205\231\220/\226$snh\262\225\212\307\301\324\240\205\220\216*\245l\2114I\"q\326\312\224r\020\206J\225\224\304(\311\263\"l\341\273\355\2010&%J\354\023}>q\021U\005Gd7\t\341\272\301\212\251\315o\026\321\206]\274\2165\243u\321\301R\363\364#\014W\\UY\241Q\254\320n%P\322h\220\020\026l\322\324\222\271\214P\357\325\2104\0249\034p\303K\305\027#7\r\323\236\366\243G\233\321{\255x\300\005\334\037\000\001\306\302.\003b\206@\006\010\261\211\002\t\026\266[\341\0169,\343\221\377\364(\\\263\006\000\002\212\000\305\021\230D\341\320\007\257\344\277#\025\210\214\317\252/\374\243*\2352z\030`@\312\202\220\242\300\226+\340\260\207\336!\354\370\216\300\265\232+\2139\341Y\301\000\256\020\202\010\264\003\300\301\210\254:\350\245\030\350\342\016\225\236\367\013\337\3710\021p=Y\343C>%\255\023\017\351\370L\007P\013\004\376;\270\363\231eO\r.\270\243\331\246\002\356\277\224l\023\036\374Dx\313E%\252f\373\257\207\3657\355\21770\253\0102\334#\242P}]\341\237\253\203.uL, 5\357[\216tzs\367\220\334\206\033e\275\233s\266\356L\335\014[\222zf\346\214\214M\256\006\005\r\245iWds\366'\340\313\311\023&Ay\363\326|jg\341\373\262""\361\273\243\017\255\212\026\244\034\323b)F\304[\020v\251\227.\215J3\271a\036\272\010K\302\362k+-e:\332DDK\257z+\252\205]\243\010\215\261m6\244\014R\t39\022;'\316\363w\327\333'\014l\377\342\356H\247\n\022\t\314\375\366\240";
-    PyObject *data = __Pyx_DecompressString(cstring, 2173, 2);
+    const struct { const unsigned int length: 9; } index[] = {{2},{68},{35},{54},{37},{60},{24},{52},{26},{34},{29},{33},{45},{22},{15},{179},{37},{30},{32},{1},{1},{1},{1},{1},{8},{5},{6},{27},{15},{23},{25},{7},{6},{2},{6},{35},{9},{30},{50},{39},{34},{8},{20},{32},{22},{14},{30},{37},{5},{8},{13},{31},{33},{19},{27},{22},{28},{20},{20},{3},{8},{12},{16},{34},{36},{22},{29},{30},{33},{33},{34},{23},{15},{24},{3},{7},{15},{18},{9},{23},{4},{3},{1},{8},{4},{9},{17},{18},{5},{4},{11},{10},{5},{6},{10},{4},{8},{8},{12},{13},{2},{5},{15},{5},{6},{9},{5},{9},{11},{14},{13},{2},{6},{5},{5},{6},{7},{8},{12},{8},{2},{2},{10},{5},{13},{10},{5},{5},{8},{8},{8},{6},{9},{7},{7},{9},{4},{10},{2},{15},{4},{8},{4},{7},{2},{5},{3},{5},{8},{10},{4},{3},{3},{15},{8},{9},{10},{14},{13},{16},{16},{8},{11},{14},{11},{10},{19},{14},{12},{10},{17},{13},{8},{17},{4},{12},{16},{10},{12},{19},{5},{13},{8},{3},{4},{11},{5},{5},{4},{4},{6},{8},{4},{5},{6},{4},{6},{6},{6},{5},{6},{1},{22},{22},{102},{73},{282},{58},{41},{167},{19},{169},{9},{1}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (2164 bytes) */
+const char* const cstring = "BZh91AY&SY\263\272\333\224\000\0013\177\377\377\377\377\357\377\357\357\377\277\367\377\350\277\377\377\374CB@@`\312p\332@@@@G\000@\000`\007\363\203\345\265b\255\205VLA\022\222\325\300\301\251\244(\r\006\201\240\r\036\236\222\001\2404\3204\000\036\246@\r\000\r4\003L\232\0321\000\000\032\006(\000\246\230\215&\232eF\3056\223A\352=L\207\250\320\032\000\000\000\000\014\20044\032\032hh\006\201\220`M0\232bbh\311\200&\000\232\014\004\323\000\004\311\200\000\021\20211\030\004\320\3042h\301)\241\004\t\244\320\004\315I\202\231\006\231\001\240h\000\0322\003@\000\000\323F\231<\243\324\321\240\000\036\241\006\004\323\t\246&&\214\230\002`\t\240\300M0\000L\230\000\001\030#\023\021\200M\014C&\214\022\210@\230\232\023$\323\321\352\236\321OSM\0311\r\003F\201\240\000\000\000\032\000\000\001\240\000\000!$\017\234O7\231\367}K\361w\360\02759@\267\365\035\016\204\003\303\377\362XK\004[\376\010\222\221A$\211D$J@\252\013@\266AeD\000\370$\220!!Xb+-\311\316CP\277C\261\"]f\275\331\214$g!GQ\251\265\370\034\204\320\"\315\030\275\254i\274/:5m!\006\035\230\247f\332e\3741\252\333u\263*<6r\355\370=\003\272~2;\261\351/;\314\357Z|\270\257\301\177?*\372S|\256>uB^T\025\36789\210\376{\337\017N\271\017\023>\205\337E\243/\205\373=w\307\233\3729\360yw\265\266\024\330C\337]\t\325\323\376\252\302\314\241\337\3061%E\363D\027\333\036\235h\273\367\266O\215\323\305\211\322\023\304\003\205\201\220<\352m\202\031#~\272\350\347-\024%\315\223\256\030\377\267\362\0342,V\243P\207#\036B3\032\013\240\307B[\321so\240\010\224$\253k\000\322^\267\270\342*-,\363\303\236\006\216|im5\020\326\354G\211$\316\323\363\362\034\251\002\347\336\374J:^\214\375?W\315\346\030\241j\037F%6\t\356\356s(h\370\267\345RJ\341\265\264C\275\233:\355`tz-\233\3061\334\013JbH\253E%Q\245\274\021\002\315\024\256\027d\317\275J\357j\266\236\301\rD*\266\020\203\252\374u\3536\0028w;\226\014\367\360\264\262\273\031\343f^S\275\367<<\346\027\\x\014i\014`\317\252\304\222\010\242(\260>\020[\353fW\261(\313\306\344\312\3135dK:\027f\256\005P~\273YL\njI\251`\304x""\306(\206m\2754iZ\371\0364cG\346\207\204\023\334\221\340V\3524\347\245d\273\265\036\324Q\243r\0266\025\031\022f\\\230\225QB\263\271\\4.KF.Q\030T\342\231c\024\022!\241\345[\032\030>\267\210\361\326\2666\1777\253.w\330\237\245K'5TZ\304]\227\222\223}\226\013\017\006;\211\007\362\273\256I\220\275\303\210\205\001\201\212\335\324\n\262\006\316\331\361\232\0248n\270x\002\371*\235\001S\212\342\301\2353\226(H9\256\274,H\377P\221`\032\245\272\0240V\332\227\030HO\005\244\304'%/\250\007\020\034\000p\222\020*\372Y\303\325\257\213U\033\243n\323\257p\276W\202\332Q=NW\350\nw*\256\207S\345h>\363\271~L)\320\274S\230v\276\375\274\372\324\333\215\345\235\230G\013\216\206\241#u\266K\t\217\273T\343\250h8Ga\2456h\275\361U\353\331\370\307eZ\256A\244\241\220^\216\230\301\307d\310\366p\365\340\252\333c*RU\262C^\272\365l\354z\227!v\237\241\363\224\273\220\334\225\232\361\333\214\345t\256\353\235\354\353\302\265$\234\030\310$\222Y\2352[\t\351u\255\223O\340\202@I\221k\"_R\307\214\324|I\020\220\363y\033(\275i^\016\365\010\255\332\351W:\326pm\207u\2208-m\246M\267\202\341\014\004\031tY\277\3231\020F9\264&Z\246\367k3\"\204\014k\031h\260Y\023\201\353\206\343\026\256\267\n\317-!\211\204\327\255z\306\275,\331\243\022W&\333(\351;\313\032\260j\237$xa-\204\004P\022]|\262\300U\207\t\316\251AY\004&\002\013\257aF\344\226\010\214HZ\344\272\206\034\2512\002\250ZD\027\006\233\222ur\014\030 \304\303\217\302\236n\004\216\250p\364w\275\016|\341\205\226\007}$\312\321\203d\335=4\234\335\214\371rAK\366\020L\244\305(\025\323_\014`\3227Y\273.\362\327\020\222g\270\307\210\005\013\353\251>\216|@\024:^\352p\245.(B\374p\223\210\3246\267\370f\365\214L\224\263^\375\235\017\003<\200\353V\302\224C\013$q\3202u<\030D\001\276\331\366S\002\006FSuLS\013\213\270\223f\350Q\210i\32436Zu\353$Z\"\214\234\014@{\310\321\272\231\336\365\315\201Q\266\306,\233\267\307x\347\304\323\007HO=Q\022\002wC,\016\375N;h\332\265i\275b\301\353rk;\205E\242\tL\303Cl\321\242\314an$\220\220\213\334Vc\021\254\374)\250&\2267*\357\317B\273\233\222\201\232""\033Sa\206\273\232\334\2077+\365\356\037\254\r\365\262\310\245\337G\001\343\337\2165\031\267kL\004\265\307?c\005\311\265`\273\016l`sVFT\350\325\222\022\rDx\357\273d@j\3309n\032\3325,O\214i\002\207\005\000\305\004\354\233n\312\321\224)\316\260\226\234Y\343\233\031R\205\006\316\272\312\262\253\236\036\346T\207\365\223\333#6\352\336@\364\347\034\021@\223\210\256\000\014,5\260\006a\002\006\002\3623\345\004`\001\235\350!\222\255\224\353\034T\0101\n{n\361=w\302G,\010\034t\302\253\260m46\362\271\300\"\256\367\346UzVZ\022\335ZQ\314Gr\250\232bs\"\313:\360\030\034\016f\233\207\257\204@\020/\263\016P]&b\354C -\246\233\202\242\215\270\262<\333\032\010\314\025\202.\203\370\207A\300\332e\355Y\t\357\006\373\263\306]H\313\225nM\264A<\246\322d\272z\211\233|9]c\t\251K\030\026\361\\\322\240a\004qYD\241&\0140|\312\024\016G\026\365\\\215\303\010\212\321\202b\362,\316@\276W\0276\326\205)X\230\370:\224\004Y\010\335Yc\220\223H\221;\212\312\240\342!\014*\231K\202\014\2330;[\326\372\2250\003\001\262S\271\273m\336\031\222a4\361\035F\033\267\270\3517\221\035\255\203\234|\325\334P\215\242\223\2025\313\262\214*M1\034\205\225F\262\311:F\375\371f\020\037\026&_\265\256\245\335\007\230\235\210\004\033|?T\035j\010\\O\324o>\005!\240\241\330\302\223\261\344\007\365\327\3001\"|J\205\200\205o&\0352\333\273\266f[*dr\335\375\371.\377\245\230\200r\036\000CX=1\230\026P/\327\214LB\031\214DW\301\213\301\241\277\276d.\273S\205 \215\341\252\240<X\214\3240\352t6\370\206\030\360\340\021\004h\001'\340\340D\00708w\314\032\r3\234Q\305UP\373\234]\266\027\261\262\332\356\371\020\007M\252!\240\216EW\341\326An\334\342\001\241\300\212e\234\264r\341H\311 va\213\374F\240'\360\214\362P2i\342\350\256\223:G\357|HU\001\035\324\262A\345\231\272\002\333\014\014Z\206[\231Z\222\326\247\225q\002\242\240\017\337\357XN!v\334\321/\354\272\376\206\243o\355\216\256+x6\276\261\365[\357\014\026\323S\223\2313=\037\021\330y\013\226r\230\241\223%\277\220_\210\035\217\376\333=\331r\354V`\267\t\244q\"J\035$\211C\246\243\236\361:\363l\363W\2133""\224\373hD|\237\235\2050\305\3268b\304\314\323\333\305\2267E\342\250w\275&\267\207)\016x>\347\257\360v\274\036w\376\276\0333ti\377\305\334\221N\024$,\356\266\345\000";
+    PyObject *data = __Pyx_DecompressString(cstring, 2164, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
     #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (2013 bytes) */
-const char* const cstring = "x\332}V\315o\033\307\025\017c\307\241\033\311\226\034Ev\341\270\035Z\266\345\2401\033\302_\252\243\270`m9\025\220:\246\3258-zX\014w\207\344T\2733\313\235Y\212\214s\360%\005/\005\366\270\307\355\251\013\024\005\330^*\264\010\340?AG\036y\210s\316\237\320\367f\227\244(\3129\354\354\354\314\233\367\361{\357\375f\357\221\252\353\022\207{L(.\205\"~\300l\346p\321\234.\222\253\016\361B\245I\235\021.\034\326e\016\241\302!Bj\242\\\016\342\277\t\033\r\026\220\016g{\304\221L\231-\326\365\245bD\351\200;L=\240\202H\341\366\210\0350\252\031\241\244\236\035\322-\252\tW\304\226B\363f(C\005F\210\307<\031\364\312p\nUQ\245xS\020-\t\034vn\030=\231\004\232\314\205r\305{\001\327\264\356\262\\ s\252\021H\357\307\316\232\260\310\036\327-\242{>#\353\371\272\016\250P&\214\351\221L\014Np\200J\037\302\356\341a\300x\006B&\264\345\371\272GT\213\202j\035\372\340\\C\006\304\356\351\226\024e\032\004\264\267m\034\220\241&\262A\3522\024\216\"\327i\027\264\\u>\330\236\267\225\201\037\372\276\0144s\266E\207\272\034\262$\035\366!\002\017\302\220\244u{\235\200\235u0\206\201\254\177H\232pj,\234\271\003X\0333\233\2773\001>\303\000\301\205\307\022\2404\251y`\274\304x\034\346\362:\013\000d\200\020\323\nFL\376\004y\262\365\344\306\255\215[\246,\002\366g0\257\300\273\272\355B\346\240\0340\246\220\273\032\214!\274\252L\266\033\244'C\"\030\270\ti\365A\356\360\001\335b\202(\246qB\326M.\250\206\270-8\016\265\271\236\343\312;\014O?\242\256b\345\317g\300\003\227\363\002\243\266\315\324\030\315\035\315|\342\321\236\301\017\352\371+\026\310)\320_\010S9\240\022\252\261\303\002(\014\315<\374\226u\014\252|\177\375\203_S\307\261\004\302\203\301\022@\350\243n\235\332\273\232)\375K\325\362\360\2612\323e\277\327\265\245\353\242\247\220\2632\255\333\233\207\312\034\317gq\334?\272<\256\256\373\016W\350\0223\2165mr\0353\3304\205\205\026\260OYW3\241M\327L[\226\253\354\210\203\001(\376\025#\233\237\220\217\346\312NH\310j\203\206\256&\226\0250'\264\231e\021'4\030\010)n@\226;\234\272\260ks\301\265e\211\320\363{e\313\226\001+{p\216""\033=\244A\271\233\245\222{X\223\207\305B\217B\303\034\225\310!\275\277\231\021\2043\003\307\374\032\026\362\004\225\231\375\331U\321T2\014lv?\234\344\222\272\256\264\r\347\030W\035\252i\371\230\335\254\037PcNY\345\352\316\203\355\355-\327\345\276\342\3523\331|\n\3323\252\233\371(O\240\313\240\265\254\243\333P\311\n\n\370u\002\266\013\0143\273\344\004\224\013\313c\330e\263\246\313-\252,\214av\325\017\353.W\255\374\310\354^(\\.v-\353I\257\013\317C\350[\3531T\315S\326\330\251\334\331a\355\220\t\233\355\264(D\221\261@6\237j8\372=\037\3611\022sA\317\311\230\270\347V\263\320Y\007\213zns\034\246\014\234c\334\032\357B\361\003\3270\367\365\002\202\372\252%\365\234@\300\232\\\001\255A\345\n\025z\307\330\310\300D\236,O)\363\3257\377\372\356\277\377x\365\227o^\3753\376\376\357\337~\367\355__\375\347\337\337\377\357o\320\361@?\300Hz\\f95P\325\0236\227eh\020 }\360U\321\0164\010\026\345\230L\312@$\345)\231\324\251b0\263m\352S\233\353\236M!\016\313\020\246e\215'M\246\261\341\361\023tZ\200#\020\277mT\032\260m\351y\343\310,\356\330Ri\013\024se|\314n\320lt,Gc\225\301\003:=\240\005\007\353\306:\234\235\231\"\005q\344v3X\\YY{3\274\371\240\274\340bb\002\255\202:\026\004@\013]f#\2333\234\204\231\275\311\324\007\205\323\r\244\257\306F\203\003\221\006\r\2276\025\260\230\315`\000^\311\2576\313j\204\302F\034\232\343\252\263\306}\3027\270cY\031\351\300\033/Z\364o\202<\3161d\031pU\017{\031a\346\254\351B\240\001m\2026\017C\2051hr\341\321.\240\246\355\026\374\024\340\037A\206@\216\003\336\301 (\235\320\305\267oH\322\017$^BPE\202\"\226\371\010|\r#\333\203\3017\214\t\240\231\3126\003$({#L\220\364]_\270\2764W~C\272\\Zp\217\207\014\376N8^/\343\2672\340\271\334\343z\226\023fZ\347h\247\034m\014\277\227\313\365&K\226\005\327\231e\267\230\275\013\365\223}\345P\343\324\344\335\314B\341s{\027\242\337\022c\271\216\371%\303\374\264C\352f\321O/\23496\231,@\252\254qK\316\265\246bn\303\320L\016'\316\300!\3102\004\334\222\016|\347\227\333!2\262\216!&\303\374\3124\272\225\375\347a\333\241R\305\035,\003|\002+""\300_\020\345\323=a\254\200/\276\322\022\236 \304\316\300\236\205\021B\207\212t\230\031\024\242\2221\006\240\002)\014}l(\22383\250\356\301\311\273\203\366\260H\222\223IuX\274\222T\223Z\376\372\341\324\033\247/'\227\322\372\2400,\226\222\213\351\366\2406*\276\323\277\027\355\304\205\341\302\273Q\345\207\342\033\247W\242;\361r\\\032.\3764^\036.\256Ft\270x>j\343Y\022\007\311j\322N\337N;\003\320\371\363\370\353\364fJ\207\305\237\305NR\032\025\027\372[\321{\021\215\332\303\205\245\250\000S;>\027\177\222\276\231\256\245OS=\250\214\212\247\373\027\242Kq=\001\363g\373\355\027\340\336;\375[\375N\364e\\\3053oE\317\342\3121\2530\301\325<\242\213q%~\224\\N\036\246\005p\352\314Y\2249\023\323Q\361L\237\366ut7.\305\025\214j\023\034\201\327\257\242\352\010\255E'\242{\361\227\311vZ\303\325\215\250\022=\212K\243\3053\303\205\363\350\361b\377\217\021E+\227\342\337'\313\030\355\3424\234\263\240\267r\260r5\251%t\270\264|\260|9)%\267\323\302hi9Z\215\332\361[qm\270\204j\300\007\027\355O\024\345\257Qq=\321\351\335A\311\270?\002\350\332\200\306p\001 \216\257%\005\020\000\033\317\343\265\270\026\203\001\020\031\276\267:\\9\037u\001\361\345\341\205\022\010\\XK*`{\264\200\031Y8\027\225\242\233\340\334s\000\242\n\336.\276{x\001\265\251\350Z|\"\306#\350\342\301\205\353i\001\217/\257@\334k\350\357j\324\214\237\306\335\344\371\340\372\376\332\376\027/K\303\371\275\257\007\033\3737\367\331\313\3121{\275Aq\377\304\376\355\227\205\037\333\033\001\260\317\020\273+\230\272I\322?\306\030\226\242\323\361EX^Z\211\036\003\236\025\254\240O\243\217c\334:X\202\230MQ\035,\274\037W\343?\245\205\027\325<\335\347\242+\021G\000M\032Q\335m\320\364~RC\005\333Q\355\265\202Y\025\334\216O\305\215\344\323tcpg\1779;}*r kw0]S\031\236\354\245\255\001\337o\217e\232\220\235\006\200\233\177\212\344\267iu\274'\223?d\2055\2673\363\341%\033ie\342&Z\303\202\275\226\274\231\\I\232i\355Eax\362'\375_D\265\317\377\017\270\362\366l";
+const char* const cstring = "x\332}V\315o\033\307\025\017c\307\225Z\311\226\034EQ\341\270\031Z\266\345\2401\033\302\037Q\035\305\205j\313\211\212\3261\245\306i\321\303`\270;$\247\332\235Y\355\314Jd\234C.)x)\260\307=nO]\240(\240\366R\241E\000\037s\324\221G\036\342\234\363'\364\275\331%)\212r\016;;;\363\346}\374\336\357\275\331{d\335\363\210+|.\265PR\223 \344\016w\205l\216\026\3115\227\370\2216\244\316\211\220.os\2270\351\022\251\014\321\236\000\361_G\215\006\017\311\236\340\373\304U\\\333-\336\016\224\346D\233P\270\\?`\222(\351u\210\023rf8a\244\236\0372-f\210\320\304Q\322\210f\244\"\rF\210\317}\025v*p\nU1\255ES\022\243\010\034voZ=\271\004\232,\204\n\305\373\2410\254\356\361B w\252\021*\377\207\316\332\260\310\2760-b:\001'+\305\272\t\231\3246\214\321\221\\\014N\010\200\312\034\303\356\341q\300D\016B.\264\341\007\246Ct\213\201j\023\005\340\\C\205\304\351\230\226\222\025\026\206\254\263i\035P\221!\252A\352*\222\256&7X\033\264\\s\337\331\234\264\225\203\037\005\201\n\rw7\345\036\363\004dI\271\374]\004\036\204!I+\316\n\001;+`\014\003Yy\2274\341\324@8w\007\260\266f\326~g\003|\212\001\202\013\217\025@iS\363\300z\211\361\270\334\023u\036\002\310\000!\246\025\214\330\374I\362d\343\311\315\333\253\267--B\376g0\257\301\273\272\343A\346\200\016\030S$<\003\306\020^]!\233\r\322Q\021\221\034\334\204\264\006 w\374\200iqI478!+6\027\314@\334\024\216\0037W\n\\\305\036\307\323\217\230\247y\345\2231\360\300\345\202`\314q\270\036\240\271mx@|\326\261\370\001\237?\347\241\032\001\375\251\264\314\001\225\300\306=\036\0021\014\367\361[\3251\250\312\375\225w~\305\\\227J\204\007\203%\200\320{\355:sv\014\327\346\027\272\345\343Cs\323\225\240\323v\224\347\241\247\220\263\n\253;k\307h\216\347\3638\356\237\\\036\260\353\276+4\272\304\255cM\207\334\300\0146-\261\320\002\326)o\033.\215\255\232Q\311\n\235\037q1\000->\347d\355C\362\336\004\355\244\202\2546X\344\031Bi\310\335\310\341\224\0227\262\030H%oB\226\367\004\363`\327\021R\030Je\344\007\235\nuT\310+>\234\023V\017i0\341\345\251\024>r\362\270X\3443(\230\223\022\005\244\367""\327\362\006\341\216\3011\271\206D\036\2422\266?\276*\233ZE\241\303\357G\303\\2\317S\216\3559\326U\227\031V9e7\257\007\324X\264\254\312\372\366\203\315\315\r\317\023\201\026\372\267\252\271\005\332\363V7\366Q\031B\227CK\351\311m`\262\006\002\277L\300\361\240\303\214/\271!\023\222\372\034\253l\334t\245\3054\305\030\306W\203\250\356\t\335*\216\214\357E\322\023r\207\322'\2356<\017\241n\351c`\315\026olW\357n\363\335\210K\207o\267\030D\221w\201|>\322p\362{2\342S$&\202\236\220\261qO\254\346\241\363=$\365\304\346 L\025\272\247\2705\330\005\362C\257\341\336\313\005$\013tK\231\t\201\2207\205\206\266\006\314\225:\362O\261\221\203\211}\2622j\231/\276\372\327\267\377\375\307\213\277|\365\342\237\311w\177\377\372\333\257\377\372\342?\377\376\356\177\177\203\212\207\366\003\035\311\014hV\264\006\246;\322\021\252\002\005\002M\037|\325l\017\n\004I9h&\025h$\225Q3\2513\315a\3468,`\2160\035\207A\034\3246LJ\007\223&7X\360\370\t:)\340\010\215\337\261*-\330\216\362\375AdT\270\216\322\206\202b\241\255\217\371\r\232\217.u\r\262\014\036\320\351C[p\2217\364xv\306H\n\342\330\333\355@\205\246yys\274\371\200^p1q\211VA\035\017Ch\013m\356`7\3478\211r{\303i\000\nG\033\330\276\032\253\r\001\2154lx\254\251\241\2139\034\006\350+\305\325Fi#\222\016\342\320\034\260\216\016\352D\254\n\227\322\274\351\300\033/Z\364o\210<\3161d\025\n]\217:y\303,\272\246\007\201\206\254\t\332|\014\025\306\260)\244\317\332\200\232qZ\360S\200\177\004\005\002>H\344\313\020-\310*7\362\360\035\330>\031\204\n\357! \222d\010g1B\313\206\221\357\303\020\330\246\t\270Yr\333\001r\224\277\021)\310\373N \275@\331[\277\241<\241(\\\345\021\207\037\024\2017\314\340\255-~\236\360\205\031o\013c\325s\262XN\326F\320)\344:\303%J\341F\243N\213;;@\241\374\253@\033\2476\365v\026\311@8;\020\375\206\034\310\355\331\2772L\321n\304\274<\372\321\2353\321P\206\013\220-:\250\312\211\352\324\334k\330NS\300\2113p\010\022\r\001\267\224\013\337\305\375v\254\037\321Sz\223m\376\332\326:\315\177\365\260\362P\251\026.2\001\237\220\206\370\027\242\003\266/\255""\025\360%\320F\301\023FX\034X\2660B\350@J\227\333A#*y\323\000T \205Q\2005e\023g\007\335\376r\2757\365\223\356\355\356^\374Y\262\336\233\231\213_\213\237&\325SVa\202\253$=\233\302\353RRM\036\245W\322\207Y\351\373s\257\234\277\2002\347\023\326\237:\337e]\023\277\237\224\223j\037T\254\305\273\250\351\227\361z\177\352Bw7>\023\337K>K7\263\032\256\256\306\325\370QR\356\317\236\357\315\274\t\2023\263\335?\306\014\255\\N~\237\316\203\342\351\331\356F\374F\314p\363\002\350\255\036-\\Kk)\353\315\315\037\315_I\313\351\235\254\324\237\233\217\027\343\335\344\265\244\326\233C5\340\203\207\366\207\212\212W\177j%5\331\373\007e\353~\177\352\355d\267?5\335\233\371i2\237\\OK \0006\236%\313I-\001\003 \322{c\261\267\360f\334NB\320\261T\006\201\245\345\264\n\266\3733\2131\353\315\\\214\313\361-p\356\031\000\261\016\336\316\276~|\001\265\351\370zr&\301#\350\342\321\322\215\254\204\307\347\027 \356e\364w1n&[I;}vp\343p\371\360\323\347\345\336\344\336\027\007\253\207\267\016\371\363\352){\235\203\251\3033\207w\236\227~h\257\017\300>E\354\256b\352 \ryz?\300\030\346\342\351\344\022,\317-\304\217\001O\200e\246\373Q\374A\202[Gs\020sZ\206\245\243\231\267\222\365\344OY\351\313\365\"\335\027\343\253\261@\000m\032Q\335\035\320\364VZC\005\233q\355\245\2029\013\356$\347\222F\372Q\266zp\367p>?}.v!kw1]#\031\221\356g\255\003q\270;\220iBv\032\000n\361)\323\217\263\365\301\236J\377\220\023kbg\354\303OW\263\352\320M\264\206\204\275\236\276\232^M\233Y\355\350\354o\276)\017\211\016\220\245\265\342\205\204\274\222^\316\352\007\245\336T9\275\224m\036\324\320\221{\361\026\022\364\365\270\372\375\324+\323\013\361] T\2717\013\274\352\315\"Qf\227\022\254\222i\002DZLw\263\037e{\007\240\363\355\344\213\354V\306zS?K\\\213\362\210\353sq\t\246Nr1\3710{5[\316\2662s\000.Ow\227\342\313I=-\345Y,\365\316\376\270\373\363\270\366\311\377\001mZ\367h";
     PyObject *data = __Pyx_DecompressString(cstring, 2013, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (3911 bytes) */
-const char* const bytes = ": All dimensions preceding dimension %d must be indexed and not slicedBuffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayIndex out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Step may not be zero (axis %d)Unable to convert item to object.>')?add_note and  at 0xbacktest/shm/shm_buffer.pyxcollections.abc<contiguous and direct><contiguous and indirect>disableenablegc (got got differing extents in dimension isenableditemsize <= 0 for cython.arrayno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect><stringsource>unable to allocate array data.unable to allocate shape and strides.ASCIIEllipsisLogRingBufferLogRingBuffer.__reduce_cython__LogRingBuffer.__setstate_cython__LogRingBuffer.closeLogRingBuffer.drain_metricsLogRingBuffer.has_dataLogRingBuffer.publish_metricLogRingBuffer.unlink__Pyx_PyDict_NextRefS16SequenceSharedMemorySharedRingBufferSharedRingBuffer.__reduce_cython__SharedRingBuffer.__setstate_cython__SharedRingBuffer.closeSharedRingBuffer.drain_eventsSharedRingBuffer.publish_orderSharedRingBuffer.publish_sentinelSharedRingBuffer.publish_snapshotSharedRingBuffer.register_consumerSharedRingBuffer.unlinkView.MemoryView\345\205\261\344\272\253\345\206\205\345\255\230\346\247\275\344\275\215\345\267\262\346\273\241abcaccountallocate_bufferasyncio.coroutin""esavailablebacktest.shm.shm_bufferbasebufccapacitycash__class____class_getitem__cline_in_tracebackclosecommconsumer_idcost_basiscountcreatecreated_dtdatadatetime__dict__drain_eventsdrain_metricsdtdtypedtype_is_objectemptyencodeenumerateerrorexec_typeexecuted_dtexecuted_priceexecuted_sizef8fillerflagsforceformatfortran__func____getstate__has_datai8id__import__index_is_coroutineis_creatorisbuyitemsitemsizeleverage__main__marginmax_batchmemviewmetricmetricsmode__module__mpmultiprocessingname__name__ndim__new__npnumpyobjorderorder_idorder_typepackpnlpopportfolio_valuepositionpositionspricelimitpublish_metricpublish_orderpublish_sentinelpublish_snapshotpy_orderpy_snapshot__pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerregister_consumerself__set_name__set_start_methodsetdefault__setstate____setstate_cython__shapeshared_memoryshm_namesidsizesizer_ratiospawnstartstepstopstruct__test__ticktradetradestypeunlinkunpackupdatevaluevaluesx\320\0047\260q\330\010 \240\004\240A\330\010$\240A\240Q\330\010$\240A\240Q\360\006\000\t\"\240\035\250b\260\001\330\010!\240\033\250I\260Q\340\010\013\210:\220S\230\001\330\014\023\2201\360\010\000\t\024\2206\230\021\230!\330\r\031\230\021\330\r\026\220a\330\r\027\220q\360\006\000\t \230r\240\026\240q\250\007\250v\260Q\330\010\037\230|\2503\250a\330\010\036\230d\240!\340\010\014\210E\220\025\220a\220q\330\014\020\220\001\220\025\220c\230\022\230=\250\002\250#\250R\250t\2601\340\010\t\210\030\220\035\230b\240\001\330\010\017\210q\200A\330\010\013\2104\210v\220W\230A\330\014\020\220\005\220V\2301\200A\330\010\013\2104\210v\220W\230A\330\014\020\220\005\220W\230A\200A\330\010 \240\004\240A\330\010\033\2301\230F\240\"\240D\250\001\360\006\000\016\017\330\014\020\220\016\230a\340\010\016\210a\210t\2207\230!\2301\340\010\013\210<\220q\330\010\013\2109\220A\340\010\017\210q\220\003\220:\230W\240I\250Q\330\010\013\2108\2201\220F\230!\340\r\016\330\014\027\220q\330\014\r\210Y""\220a\200A\330\010\035\230T\240\021\360\006\000\t\r\210E\220\025\220a\220q\330\014\017\210t\2201\320\024%\240Q\240a\330\020\021\320\021\"\240!\2405\250\001\340\020\021\220\026\220q\230\005\230Q\330\020\027\220q\330\010\016\210l\230!\2301\200A\330\010\035\230T\240\021\330\010\035\230T\240\021\340\010'\240t\2507\260!\330\010\033\2301\340\010\037\230q\340\010\t\330\014\031\230\021\230&\240\001\240\021\340\014\017\210{\230#\230Q\230a\330\020\033\2301\330\025\026\330\024\027\220x\230r\240\021\330\030!\240\021\340\030#\2401\330\020\021\340\014\026\220a\330\014\022\220!\2203\220a\220{\240\"\240A\360\006\000\r\023\220!\2203\220a\220{\240\"\240A\340\014\017\210s\220&\230\003\2301\330\020\021\220\026\220q\320\030(\250\001\330\020\021\340\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240{\260(\270#\270U\300!\330\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240|\2608\2703\270e\3001\330\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240y\260\010\270\003\2705\300\001\330\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240y\260\010\270\003\2705\300\001\340\014\r\210V\2201\320\024$\240A\330\010\017\210q\200A\330\010\013\210;\220a\330\014\020\220\t\230\033\240A\330\020\024\220N\240!\2401\340\010\014\210G\220;\230a\330\014\020\320\020!\240\021\240!\340\010\014\320\014\034\230A\230[\250\001\200A\360\006\000\016\017\330\014\022\220$\220i\230q\340\010\013\2108\2201\330\010\013\2105\220\t\230\034\240Q\340\010\014\210I\220Q\200A\360\006\000\016\017\330\014\022\220$\220i\230q\340\010\013\2108\2201\330\010\017\210q\220\003\2205\230\006\230f\240G\2508\2606\270\021\330\010\013\2105\220\006\220d\230!\2306\240\021\330\010\017\210q\220\003\2205\230\006\230i\240w\250h\260i\270q\330\010\013\2105\220\006\220g\230Q\230f\240A\340\010\013\2105\220\006\220n\240H\250A\330\010\013\2105\220\006\220o\240X\250Q\330\010\013\2105\220\006\220n\240H\250A\330\010\013\2105\220\006\220n\240H\250A\330\010\013\2105\220\006\220m\2408\2501\340\010\014\210I\220Q\200A\330\010\017\210t\2207\230&\240\002""\240$\240g\250Q\200\001\330\004\n\210+\220QO";
+    #else /* compression: none (3914 bytes) */
+const char* const bytes = ": All dimensions preceding dimension %d must be indexed and not slicedBuffer view does not expose stridesCan only create a buffer that is contiguous in memory.Cannot assign to read-only memoryviewCannot create writable memory view from read-only memoryviewCannot index with type 'Cannot transpose memoryview with indirect dimensionsDimension %d is not directEmpty shape tuple for cython.arrayIndex out of bounds (axis %d)Indirect dimensions not supportedInvalid mode, expected 'c' or 'fortran', got Invalid shape in axis <MemoryView of Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.Out of bounds on buffer access (axis Step may not be zero (axis %d)Unable to convert item to object.>')?add_note and  at 0xbacktest/shm/shm_buffer.pyxcollections.abc<contiguous and direct><contiguous and indirect>disableenablegc (got got differing extents in dimension isenableditemsize <= 0 for cython.arrayno default __reduce__ due to non-trivial __cinit__numpy._core.multiarray failed to importnumpy._core.umath failed to import object><strided and direct><strided and direct or indirect><strided and indirect><stringsource>unable to allocate array data.unable to allocate shape and strides.ASCIIEllipsisLogRingBufferLogRingBuffer.__reduce_cython__LogRingBuffer.__setstate_cython__LogRingBuffer.closeLogRingBuffer.drain_metricsLogRingBuffer.has_dataLogRingBuffer.publish_metricLogRingBuffer.unlink__Pyx_PyDict_NextRefS16SequenceSharedMemorySharedRingBufferSharedRingBuffer.__reduce_cython__SharedRingBuffer.__setstate_cython__SharedRingBuffer.closeSharedRingBuffer.drain_eventsSharedRingBuffer.publish_orderSharedRingBuffer.publish_sentinelSharedRingBuffer.publish_snapshotSharedRingBuffer.register_consumerSharedRingBuffer.unlinkView.MemoryView\345\205\261\344\272\253\345\206\205\345\255\230\346\247\275\344\275\215\345\267\262\346\273\241abcaccountallocate_bufferasyncio.coroutin""esavailablebacktest.shm.shm_bufferbasebufccapacitycash__class____class_getitem__cline_in_tracebackclosecommconsumer_idcost_basiscountcreatecreated_dtdatadatetime__dict__drain_eventsdrain_metricsdtdtypedtype_is_objectemptyencodeenumerateerrorexec_typeexecuted_dtexecuted_priceexecuted_sizef8fillerflagsforceformatfortran__func____getstate__has_datai8id__import__index_is_coroutineis_creatorisbuyitemsitemsizeleverage__main__marginmax_batchmemviewmetricsmin_batchmode__module__mpmultiprocessingname__name__ndim__new__npnumpyobjorderorder_idorder_typepackpnlpopportfolio_valuepositionpositionspricelimitpublish_metricpublish_orderpublish_sentinelpublish_snapshotpy_orderpy_snapshot__pyx_checksum__pyx_state__pyx_type__pyx_unpickle_Enum__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__registerregister_consumerself__set_name__set_start_methodsetdefault__setstate____setstate_cython__shapeshared_memoryshm_namesidsizesizer_ratiospawnstartstepstopstruct__test__ticktradetradestypeunlinkunpackupdatevaluevaluesx\200A\330\010\013\2104\210v\220W\230A\330\014\020\220\005\220V\2301\200A\330\010\013\2104\210v\220W\230A\330\014\020\220\005\220W\230A\200A\330\010 \240\004\240A\330\010\033\2301\230F\240\"\240D\250\001\360\006\000\016\017\330\014\020\220\016\230a\340\010\016\210a\210t\2207\230!\2301\340\010\013\210<\220q\330\010\013\2109\220A\340\010\017\210q\220\003\220:\230W\240I\250Q\330\010\013\2108\2201\220F\230!\340\r\016\330\014\027\220q\330\014\r\210Y\220a\200A\330\010\035\230T\240\021\360\006\000\t\r\210E\220\025\220a\220q\330\014\017\210t\2201\320\024%\240Q\240a\330\020\021\320\021\"\240!\2405\250\001\340\020\021\220\026\220q\230\005\230Q\330\020\027\220q\330\010\016\210l\230!\2301\200A\330\010\035\230T\240\021\330\010\035\230T\240\021\340\010'\240t\2507\260!\330\010\033\2301\340\010\037\230q\340\010\t\330\014\031\230\021\230&\240\001\240\021\340\014\017\210{\230#\230Q\230a\330\020\033\2301\330\025\026\330\024\027\220x\230r\240\021\330\030!\240\021\340\030#\2401\330\020""\021\340\014\026\220a\330\014\022\220!\2203\220a\220{\240\"\240A\360\006\000\r\023\220!\2203\220a\220{\240\"\240A\340\014\017\210s\220&\230\003\2301\330\020\021\220\026\220q\320\030(\250\001\330\020\021\340\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240{\260(\270#\270U\300!\330\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240|\2608\2703\270e\3001\330\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240y\260\010\270\003\2705\300\001\330\021\024\220F\230#\230Q\330\020\026\220g\230R\230x\240y\260\010\270\003\2705\300\001\340\014\r\210V\2201\320\024$\240A\330\010\017\210q\200A\330\010\013\210;\220a\330\014\020\220\t\230\033\240A\330\020\024\220N\240!\2401\340\010\014\210G\220;\230a\330\014\020\320\020!\240\021\240!\340\010\014\320\014\034\230A\230[\250\001\200A\360\006\000\016\017\330\014\022\220$\220i\230q\340\010\013\2108\2201\330\010\013\2105\220\t\230\034\240Q\340\010\014\210I\220Q\200A\360\006\000\016\017\330\014\022\220$\220i\230q\340\010\013\2108\2201\330\010\017\210q\220\003\2205\230\006\230f\240G\2508\2606\270\021\330\010\013\2105\220\006\220d\230!\2306\240\021\330\010\017\210q\220\003\2205\230\006\230i\240w\250h\260i\270q\330\010\013\2105\220\006\220g\230Q\230f\240A\340\010\013\2105\220\006\220n\240H\250A\330\010\013\2105\220\006\220o\240X\250Q\330\010\013\2105\220\006\220n\240H\250A\330\010\013\2105\220\006\220n\240H\250A\330\010\013\2105\220\006\220m\2408\2501\340\010\014\210I\220Q\200A\330\010\017\210t\2207\230&\240\002\240$\240g\250Q\320\004J\310!\330\010 \240\004\240A\330\010$\240A\240Q\330\010$\240A\240Q\360\006\000\t\"\240\035\250b\260\001\330\010!\240\033\250I\260Q\340\010\013\210:\220R\220q\330\014\023\2201\360\010\000\t\024\2206\230\021\230!\330\r\031\230\021\330\r\026\220a\330\r\030\230\001\360\006\000\t \230r\240\026\240q\250\007\250v\260Q\330\010\037\230|\2503\250a\330\010\036\230d\240!\340\010\014\210E\220\025\220a\220q\330\014\020\220\001\220\025\220c\230\022\230=\250\002\250#\250R\250t\2601\340\010\t\210\030\220\035\230b\240\001""\330\010\017\210q\200\001\330\004\n\210+\220QO";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -28742,9 +28759,9 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_shm_shm_buffer_pyx, __pyx_mstate->__pyx_n_u_publish_metric, __pyx_mstate->__pyx_kp_b_iso88591_A_A_1F_D_a_at7_1_q_9A_q_WIQ_81F, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 327};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_max_batch};
-    __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_shm_shm_buffer_pyx, __pyx_mstate->__pyx_n_u_drain_metrics, __pyx_mstate->__pyx_kp_b_iso88591_7q_A_AQ_AQ_b_IQ_S_1_6_a_q_r_q_v, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
+    const __Pyx_PyCode_New_function_description descr = {3, 0, 0, 3, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 327};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_min_batch, __pyx_mstate->__pyx_n_u_max_batch};
+    __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_shm_shm_buffer_pyx, __pyx_mstate->__pyx_n_u_drain_metrics, __pyx_mstate->__pyx_kp_b_iso88591_J_A_AQ_AQ_b_IQ_Rq_1_6_a_r_q_vQ, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 357};

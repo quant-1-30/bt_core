@@ -125,8 +125,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.cerebro_id = "" 
 
         # logshm
-        self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000, is_creator=True)
-        self.log_background = LogConsumerThread(self.log_shm, b"log_test", output_dir=".")
+        self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000000, is_creator=True)
+        self.log_background = LogConsumerThread(self.log_shm, "log_test", output_dir="/Users/hengxinliu/startup/backtest/tests")
  
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
@@ -527,6 +527,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self.runstrats.append(runstrat)
             for cb in self.optcbs:
                 cb(runstrat)  # callback receives finished strategy
+        
+        # stop log thread and shm
+        self._shutdown()
 
         if self.p.isplot:
             dstrat = self.runningstrats[0]
@@ -535,8 +538,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                             num_obs=len(dstrat._lineiterators[2]),
                             out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
         
-        # stop log thread
-        self._shutdown()
      
     def runstrategies(self, iterstrat, **kwargs):
         '''

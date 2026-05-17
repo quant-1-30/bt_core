@@ -203,7 +203,7 @@ def except_debug(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            pdb.set_trace()
+            # pdb.set_trace()
             print(e)
             return func(*args, **kwargs)
     return wrapper

@@ -324,7 +324,7 @@ cdef class LogRingBuffer: # MPSC
             mem_barrier()
             h.head += 1
 
-    cpdef object drain_metrics(self, int32_t max_batch=50000):
+    cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):
         cdef LogRingHeader* h = self.header
         cdef int64_t current_tail = h.tail
         cdef int64_t current_head = h.head
@@ -333,7 +333,7 @@ cdef class LogRingBuffer: # MPSC
         cdef int64_t available = current_head - current_tail
         cdef int64_t count = min(available, <int64_t>max_batch)
 
-        if available <= 0:
+        if available < min_batch: # avoid 0 to accumulate
             return None
             
         # dtype ---> numpy Structured Arrays C struct
@@ -341,7 +341,7 @@ cdef class LogRingBuffer: # MPSC
         dtype = cnp.dtype([
             ('datetime', 'i8'), 
             ('value', 'f8'), 
-            ('metric', 'S16')
+            ('metrics', 'S16')
         ])
         
         cdef cnp.ndarray arr = np.empty(count, dtype=dtype)  

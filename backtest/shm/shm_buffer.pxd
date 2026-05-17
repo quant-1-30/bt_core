@@ -122,10 +122,10 @@ cdef class LogRingBuffer: # MPSC
 
     cpdef void publish_metric(self, bytes metrics, double value, int64_t dt)
 
-    cpdef object drain_metrics(self, int32_t max_batch=*)
+    cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=*)
 
     cpdef bint has_data(self)
-    
+
     cpdef void close(self)
 
     cpdef void unlink(self)

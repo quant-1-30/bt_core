@@ -130,3 +130,4 @@ class DrawDownLength(Observer):
             self.dtcmp = dtcmp
 
             self.log_shm.publish_metric(b"DrawDownLength", ddlen, dtcmp) # log the drawdown length for the current datetime
+            # import pdb; pdb.set_trace()

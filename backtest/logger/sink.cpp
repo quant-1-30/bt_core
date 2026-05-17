@@ -1555,13 +1555,13 @@ struct __pyx_obj_8backtest_6logger_4sink_JSONSink;
  * 
  * 
  * cdef class FileSink:             # <<<<<<<<<<<<<<
- *     cdef bytes experiment_id
+ *     cdef str cerebro_id
  *     cdef str output_dir
 */
 struct __pyx_obj_8backtest_6logger_4sink_FileSink {
   PyObject_HEAD
   struct __pyx_vtabstruct_8backtest_6logger_4sink_FileSink *__pyx_vtab;
-  PyObject *experiment_id;
+  PyObject *cerebro_id;
   PyObject *output_dir;
   PyObject *backend;
   PyObject *current_path;
@@ -1612,8 +1612,8 @@ struct __pyx_obj_8backtest_6logger_4sink_JSONSink {
  * 
  * 
  * cdef class FileSink:             # <<<<<<<<<<<<<<
- *     def __init__(self, bytes experiment_id, str output_dir, object schema, str backend):
- *         self.experiment_id = experiment_id
+ *     def __init__(self, str cerebro_id, str output_dir, object schema, str backend):
+ *         self.cerebro_id = cerebro_id
 */
 
 struct __pyx_vtabstruct_8backtest_6logger_4sink_FileSink {
@@ -1654,7 +1654,7 @@ struct __pyx_vtabstruct_8backtest_6logger_4sink_CSVSink {
 static struct __pyx_vtabstruct_8backtest_6logger_4sink_CSVSink *__pyx_vtabptr_8backtest_6logger_4sink_CSVSink;
 
 
-/* "backtest/logger/sink.pyx":86
+/* "backtest/logger/sink.pyx":87
  * 
  * 
  * cdef class JSONSink(FileSink):             # <<<<<<<<<<<<<<
@@ -2054,45 +2054,8 @@ static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_ve
 static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
 #endif
 
-/* decode_c_string_utf16.proto (used by decode_c_bytes) */
-static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16(const char *s, Py_ssize_t size, const char *errors) {
-    int byteorder = 0;
-    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
-}
-static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16LE(const char *s, Py_ssize_t size, const char *errors) {
-    int byteorder = -1;
-    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
-}
-static CYTHON_INLINE PyObject *__Pyx_PyUnicode_DecodeUTF16BE(const char *s, Py_ssize_t size, const char *errors) {
-    int byteorder = 1;
-    return PyUnicode_DecodeUTF16(s, size, errors, &byteorder);
-}
-
-/* decode_c_bytes.proto (used by decode_bytes) */
-static CYTHON_INLINE PyObject* __Pyx_decode_c_bytes(
-         const char* cstring, Py_ssize_t length, Py_ssize_t start, Py_ssize_t stop,
-         const char* encoding, const char* errors,
-         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors));
-
-/* decode_bytes.proto */
-static CYTHON_INLINE PyObject* __Pyx_decode_bytes(
-         PyObject* string, Py_ssize_t start, Py_ssize_t stop,
-         const char* encoding, const char* errors,
-         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors)) {
-    char* as_c_string;
-    Py_ssize_t size;
-#if CYTHON_ASSUME_SAFE_MACROS && CYTHON_ASSUME_SAFE_SIZE
-    as_c_string = PyBytes_AS_STRING(string);
-    size = PyBytes_GET_SIZE(string);
-#else
-    if (PyBytes_AsStringAndSize(string, &as_c_string, &size) < 0) {
-        return NULL;
-    }
-#endif
-    return __Pyx_decode_c_bytes(
-        as_c_string, size,
-        start, stop, encoding, errors, decode_func);
-}
+/* PyUnicode_Unicode.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj);
 
 /* BuildPyUnicode.proto (used by COrdinalToPyUnicode) */
 static PyObject* __Pyx_PyUnicode_BuildFromAscii(Py_ssize_t ulength, const char* chars, int clength,
@@ -2118,9 +2081,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyUnicode_FromOrdinal_Padded(int value, Py_
     )
 static CYTHON_INLINE PyObject* __Pyx_uchar___Pyx_PyUnicode_From_int32_t(int32_t value, Py_ssize_t width, char padding_char);
 static CYTHON_INLINE PyObject* __Pyx____Pyx_PyUnicode_From_int32_t(int32_t value, Py_ssize_t width, char padding_char, char format_char);
-
-/* PyUnicode_Unicode.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj);
 
 /* JoinPyUnicode.export */
 static PyObject* __Pyx_PyUnicode_Join(PyObject** values, Py_ssize_t value_count, Py_ssize_t result_ulength,
@@ -2213,40 +2173,6 @@ static int __Pyx_VectorcallBuilder_AddArgStr(const char *key, PyObject *value, P
 #define __Pyx_MakeVectorcallBuilderKwds(n) __Pyx_PyDict_NewPresized(n)
 #define __Pyx_VectorcallBuilder_AddArg(key, value, builder, args, n) PyDict_SetItem(builder, key, value)
 #define __Pyx_VectorcallBuilder_AddArgStr(key, value, builder, args, n) PyDict_SetItemString(builder, key, value)
-#endif
-
-/* PyObjectLookupSpecial.proto */
-#if CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-#define __Pyx_PyObject_LookupSpecialNoError(obj, attr_name)  __Pyx__PyObject_LookupSpecial(obj, attr_name, 0)
-#define __Pyx_PyObject_LookupSpecial(obj, attr_name)  __Pyx__PyObject_LookupSpecial(obj, attr_name, 1)
-static CYTHON_INLINE PyObject* __Pyx__PyObject_LookupSpecial(PyObject* obj, PyObject* attr_name, int with_error);
-#else
-#define __Pyx_PyObject_LookupSpecialNoError(o,n) __Pyx_PyObject_GetAttrStrNoError(o,n)
-#define __Pyx_PyObject_LookupSpecial(o,n) __Pyx_PyObject_GetAttrStr(o,n)
-#endif
-
-/* GetTopmostException.proto (used by SaveResetException) */
-#if CYTHON_USE_EXC_INFO_STACK && CYTHON_FAST_THREAD_STATE
-static _PyErr_StackItem * __Pyx_PyErr_GetTopmostException(PyThreadState *tstate);
-#endif
-
-/* SaveResetException.proto */
-#if CYTHON_FAST_THREAD_STATE
-#define __Pyx_ExceptionSave(type, value, tb)  __Pyx__ExceptionSave(__pyx_tstate, type, value, tb)
-static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
-#define __Pyx_ExceptionReset(type, value, tb)  __Pyx__ExceptionReset(__pyx_tstate, type, value, tb)
-static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb);
-#else
-#define __Pyx_ExceptionSave(type, value, tb)   PyErr_GetExcInfo(type, value, tb)
-#define __Pyx_ExceptionReset(type, value, tb)  PyErr_SetExcInfo(type, value, tb)
-#endif
-
-/* GetException.proto */
-#if CYTHON_FAST_THREAD_STATE
-#define __Pyx_GetException(type, value, tb)  __Pyx__GetException(__pyx_tstate, type, value, tb)
-static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
-#else
-static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb);
 #endif
 
 /* AllocateExtensionType.proto */
@@ -2627,9 +2553,9 @@ int __pyx_module_is_main_backtest__logger__sink = 0;
 static PyObject *__pyx_builtin_super;
 static PyObject *__pyx_builtin_open;
 /* #### Code section: string_decls ### */
-static const char __pyx_k_backend_current_path_experiment[] = "backend, current_path, experiment_id, file_index, output_dir, schema, writer";
+static const char __pyx_k_backend_cerebro_id_current_path[] = "backend, cerebro_id, current_path, file_index, output_dir, schema, writer";
 /* #### Code section: decls ### */
-static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_output_dir, PyObject *__pyx_v_schema, PyObject *__pyx_v_backend); /* proto */
+static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self, PyObject *__pyx_v_cerebro_id, PyObject *__pyx_v_output_dir, PyObject *__pyx_v_schema, PyObject *__pyx_v_backend); /* proto */
 static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_2write(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self, PyObject *__pyx_v_table); /* proto */
 static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_4close(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self); /* proto */
@@ -2685,9 +2611,8 @@ typedef struct {
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_items;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_pop;
   __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_values;
-  PyObject *__pyx_tuple[1];
   PyObject *__pyx_codeobj_tab[17];
-  PyObject *__pyx_string_tab[122];
+  PyObject *__pyx_string_tab[120];
   PyObject *__pyx_number_tab[1];
 /* #### Code section: module_state_contents ### */
 /* CommonTypesMetaclass.module_state_decls */
@@ -2768,90 +2693,88 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_asyncio_coroutines __pyx_string_tab[36]
 #define __pyx_n_u_backend __pyx_string_tab[37]
 #define __pyx_n_u_backtest_logger_sink __pyx_string_tab[38]
-#define __pyx_n_u_cline_in_traceback __pyx_string_tab[39]
-#define __pyx_n_u_close __pyx_string_tab[40]
-#define __pyx_n_u_compression __pyx_string_tab[41]
-#define __pyx_n_u_csv __pyx_string_tab[42]
-#define __pyx_n_u_dict __pyx_string_tab[43]
-#define __pyx_n_u_dict_2 __pyx_string_tab[44]
-#define __pyx_n_u_dumps __pyx_string_tab[45]
-#define __pyx_n_u_encode __pyx_string_tab[46]
-#define __pyx_n_u_enter __pyx_string_tab[47]
+#define __pyx_n_u_cerebro_id __pyx_string_tab[39]
+#define __pyx_n_u_cline_in_traceback __pyx_string_tab[40]
+#define __pyx_n_u_close __pyx_string_tab[41]
+#define __pyx_n_u_compression __pyx_string_tab[42]
+#define __pyx_n_u_csv __pyx_string_tab[43]
+#define __pyx_n_u_dict __pyx_string_tab[44]
+#define __pyx_n_u_dict_2 __pyx_string_tab[45]
+#define __pyx_n_u_dumps __pyx_string_tab[46]
+#define __pyx_n_u_encode __pyx_string_tab[47]
 #define __pyx_n_u_exists __pyx_string_tab[48]
-#define __pyx_n_u_exit __pyx_string_tab[49]
-#define __pyx_n_u_experiment_id __pyx_string_tab[50]
-#define __pyx_n_u_func __pyx_string_tab[51]
-#define __pyx_n_u_getsize __pyx_string_tab[52]
-#define __pyx_n_u_getstate __pyx_string_tab[53]
-#define __pyx_n_u_include_header __pyx_string_tab[54]
-#define __pyx_n_u_init __pyx_string_tab[55]
-#define __pyx_n_u_is_coroutine __pyx_string_tab[56]
-#define __pyx_n_u_items __pyx_string_tab[57]
-#define __pyx_n_u_join __pyx_string_tab[58]
-#define __pyx_n_u_json __pyx_string_tab[59]
-#define __pyx_n_u_log __pyx_string_tab[60]
-#define __pyx_n_u_main __pyx_string_tab[61]
-#define __pyx_n_u_module __pyx_string_tab[62]
-#define __pyx_n_u_name __pyx_string_tab[63]
-#define __pyx_n_u_new __pyx_string_tab[64]
-#define __pyx_n_u_open __pyx_string_tab[65]
-#define __pyx_n_u_os __pyx_string_tab[66]
-#define __pyx_n_u_output_dir __pyx_string_tab[67]
-#define __pyx_n_u_pacsv __pyx_string_tab[68]
-#define __pyx_n_u_parquet __pyx_string_tab[69]
-#define __pyx_n_u_path __pyx_string_tab[70]
-#define __pyx_n_u_pop __pyx_string_tab[71]
-#define __pyx_n_u_pq __pyx_string_tab[72]
-#define __pyx_n_u_pyarrow_csv __pyx_string_tab[73]
-#define __pyx_n_u_pyarrow_parquet __pyx_string_tab[74]
-#define __pyx_n_u_pyx_checksum __pyx_string_tab[75]
-#define __pyx_n_u_pyx_result __pyx_string_tab[76]
-#define __pyx_n_u_pyx_state __pyx_string_tab[77]
-#define __pyx_n_u_pyx_type __pyx_string_tab[78]
-#define __pyx_n_u_pyx_unpickle_CSVSink __pyx_string_tab[79]
-#define __pyx_n_u_pyx_unpickle_FileSink __pyx_string_tab[80]
-#define __pyx_n_u_pyx_unpickle_JSONSink __pyx_string_tab[81]
-#define __pyx_n_u_pyx_unpickle_ParquetSink __pyx_string_tab[82]
-#define __pyx_n_u_pyx_vtable __pyx_string_tab[83]
-#define __pyx_n_u_qualname __pyx_string_tab[84]
-#define __pyx_n_u_reduce __pyx_string_tab[85]
-#define __pyx_n_u_reduce_cython __pyx_string_tab[86]
-#define __pyx_n_u_reduce_ex __pyx_string_tab[87]
-#define __pyx_n_u_schema __pyx_string_tab[88]
-#define __pyx_n_u_self __pyx_string_tab[89]
-#define __pyx_n_u_set_name __pyx_string_tab[90]
-#define __pyx_n_u_setdefault __pyx_string_tab[91]
-#define __pyx_n_u_setstate __pyx_string_tab[92]
-#define __pyx_n_u_setstate_cython __pyx_string_tab[93]
-#define __pyx_n_u_sinks __pyx_string_tab[94]
-#define __pyx_n_u_snappy __pyx_string_tab[95]
-#define __pyx_n_u_state __pyx_string_tab[96]
-#define __pyx_n_u_super __pyx_string_tab[97]
-#define __pyx_n_u_table __pyx_string_tab[98]
-#define __pyx_n_u_test __pyx_string_tab[99]
-#define __pyx_n_u_to_pylist __pyx_string_tab[100]
-#define __pyx_n_u_update __pyx_string_tab[101]
-#define __pyx_n_u_use_setstate __pyx_string_tab[102]
-#define __pyx_n_u_values __pyx_string_tab[103]
-#define __pyx_n_u_write __pyx_string_tab[104]
-#define __pyx_n_u_write_options __pyx_string_tab[105]
-#define __pyx_n_u_write_table __pyx_string_tab[106]
-#define __pyx_kp_b__4 __pyx_string_tab[107]
-#define __pyx_kp_b_iso88591_A_4q_q __pyx_string_tab[108]
-#define __pyx_kp_b_iso88591_A_4t1_q_E_a_t2U_QRRVVW_j__D_Oaab __pyx_string_tab[109]
-#define __pyx_kp_b_iso88591_A_4t1_q_N_4_d_WX_G_q __pyx_string_tab[110]
-#define __pyx_kp_b_iso88591_A_4t1_q_at_uJa_G1_4vQd_2Q_vQa __pyx_string_tab[111]
-#define __pyx_kp_b_iso88591_A_a __pyx_string_tab[112]
-#define __pyx_kp_b_iso88591_QfA __pyx_string_tab[113]
-#define __pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE __pyx_string_tab[114]
-#define __pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE_2 __pyx_string_tab[115]
-#define __pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE_3 __pyx_string_tab[116]
-#define __pyx_kp_b_iso88591__6 __pyx_string_tab[117]
-#define __pyx_kp_b_iso88591_avQ __pyx_string_tab[118]
-#define __pyx_kp_b_iso88591_q_0_kQR_7_1_7_N_1 __pyx_string_tab[119]
-#define __pyx_kp_b_iso88591_q_0_kQR_881A_7_nA_1 __pyx_string_tab[120]
-#define __pyx_kp_b_iso88591_q_0_kQR_haq_7_QnN_1 __pyx_string_tab[121]
-#define __pyx_int_90464840 __pyx_number_tab[0]
+#define __pyx_n_u_func __pyx_string_tab[49]
+#define __pyx_n_u_getsize __pyx_string_tab[50]
+#define __pyx_n_u_getstate __pyx_string_tab[51]
+#define __pyx_n_u_include_header __pyx_string_tab[52]
+#define __pyx_n_u_init __pyx_string_tab[53]
+#define __pyx_n_u_is_coroutine __pyx_string_tab[54]
+#define __pyx_n_u_items __pyx_string_tab[55]
+#define __pyx_n_u_join __pyx_string_tab[56]
+#define __pyx_n_u_json __pyx_string_tab[57]
+#define __pyx_n_u_log __pyx_string_tab[58]
+#define __pyx_n_u_main __pyx_string_tab[59]
+#define __pyx_n_u_module __pyx_string_tab[60]
+#define __pyx_n_u_name __pyx_string_tab[61]
+#define __pyx_n_u_new __pyx_string_tab[62]
+#define __pyx_n_u_open __pyx_string_tab[63]
+#define __pyx_n_u_os __pyx_string_tab[64]
+#define __pyx_n_u_output_dir __pyx_string_tab[65]
+#define __pyx_n_u_pacsv __pyx_string_tab[66]
+#define __pyx_n_u_parquet __pyx_string_tab[67]
+#define __pyx_n_u_path __pyx_string_tab[68]
+#define __pyx_n_u_pop __pyx_string_tab[69]
+#define __pyx_n_u_pq __pyx_string_tab[70]
+#define __pyx_n_u_pyarrow_csv __pyx_string_tab[71]
+#define __pyx_n_u_pyarrow_parquet __pyx_string_tab[72]
+#define __pyx_n_u_pyx_checksum __pyx_string_tab[73]
+#define __pyx_n_u_pyx_result __pyx_string_tab[74]
+#define __pyx_n_u_pyx_state __pyx_string_tab[75]
+#define __pyx_n_u_pyx_type __pyx_string_tab[76]
+#define __pyx_n_u_pyx_unpickle_CSVSink __pyx_string_tab[77]
+#define __pyx_n_u_pyx_unpickle_FileSink __pyx_string_tab[78]
+#define __pyx_n_u_pyx_unpickle_JSONSink __pyx_string_tab[79]
+#define __pyx_n_u_pyx_unpickle_ParquetSink __pyx_string_tab[80]
+#define __pyx_n_u_pyx_vtable __pyx_string_tab[81]
+#define __pyx_n_u_qualname __pyx_string_tab[82]
+#define __pyx_n_u_reduce __pyx_string_tab[83]
+#define __pyx_n_u_reduce_cython __pyx_string_tab[84]
+#define __pyx_n_u_reduce_ex __pyx_string_tab[85]
+#define __pyx_n_u_schema __pyx_string_tab[86]
+#define __pyx_n_u_self __pyx_string_tab[87]
+#define __pyx_n_u_set_name __pyx_string_tab[88]
+#define __pyx_n_u_setdefault __pyx_string_tab[89]
+#define __pyx_n_u_setstate __pyx_string_tab[90]
+#define __pyx_n_u_setstate_cython __pyx_string_tab[91]
+#define __pyx_n_u_sinks __pyx_string_tab[92]
+#define __pyx_n_u_snappy __pyx_string_tab[93]
+#define __pyx_n_u_state __pyx_string_tab[94]
+#define __pyx_n_u_super __pyx_string_tab[95]
+#define __pyx_n_u_table __pyx_string_tab[96]
+#define __pyx_n_u_test __pyx_string_tab[97]
+#define __pyx_n_u_to_pylist __pyx_string_tab[98]
+#define __pyx_n_u_update __pyx_string_tab[99]
+#define __pyx_n_u_use_setstate __pyx_string_tab[100]
+#define __pyx_n_u_values __pyx_string_tab[101]
+#define __pyx_n_u_write __pyx_string_tab[102]
+#define __pyx_n_u_write_options __pyx_string_tab[103]
+#define __pyx_n_u_write_table __pyx_string_tab[104]
+#define __pyx_kp_b__4 __pyx_string_tab[105]
+#define __pyx_kp_b_iso88591_A_4q_q __pyx_string_tab[106]
+#define __pyx_kp_b_iso88591_A_4t1_q_N_4_d_WX_G_q __pyx_string_tab[107]
+#define __pyx_kp_b_iso88591_A_4t1_q_at_uJa_G1_4vQd_2Q_vQa __pyx_string_tab[108]
+#define __pyx_kp_b_iso88591_A_4xs_q_E_a_a_z_oT_XY_G_q __pyx_string_tab[109]
+#define __pyx_kp_b_iso88591_A_a __pyx_string_tab[110]
+#define __pyx_kp_b_iso88591_QfA __pyx_string_tab[111]
+#define __pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE __pyx_string_tab[112]
+#define __pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE_2 __pyx_string_tab[113]
+#define __pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE_3 __pyx_string_tab[114]
+#define __pyx_kp_b_iso88591__6 __pyx_string_tab[115]
+#define __pyx_kp_b_iso88591_avQ __pyx_string_tab[116]
+#define __pyx_kp_b_iso88591_q_0_kQR_7_1_7_N_1 __pyx_string_tab[117]
+#define __pyx_kp_b_iso88591_q_0_kQR_881A_7_nA_1 __pyx_string_tab[118]
+#define __pyx_kp_b_iso88591_q_0_kQR_haq_7_QnN_1 __pyx_string_tab[119]
+#define __pyx_int_222536102 __pyx_number_tab[0]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
 static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
@@ -2874,9 +2797,8 @@ static CYTHON_SMALL_CODE int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_6logger_4sink_CSVSink);
   Py_CLEAR(clear_module_state->__pyx_ptype_8backtest_6logger_4sink_JSONSink);
   Py_CLEAR(clear_module_state->__pyx_type_8backtest_6logger_4sink_JSONSink);
-  for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_tuple[i]); }
   for (int i=0; i<17; ++i) { Py_CLEAR(clear_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<122; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<120; ++i) { Py_CLEAR(clear_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<1; ++i) { Py_CLEAR(clear_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_clear_contents ### */
 /* CommonTypesMetaclass.module_state_clear */
@@ -2908,9 +2830,8 @@ static CYTHON_SMALL_CODE int __pyx_m_traverse(PyObject *m, visitproc visit, void
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_6logger_4sink_CSVSink);
   Py_VISIT(traverse_module_state->__pyx_ptype_8backtest_6logger_4sink_JSONSink);
   Py_VISIT(traverse_module_state->__pyx_type_8backtest_6logger_4sink_JSONSink);
-  for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_tuple[i]); }
   for (int i=0; i<17; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_codeobj_tab[i]); }
-  for (int i=0; i<122; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
+  for (int i=0; i<120; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_string_tab[i]); }
   for (int i=0; i<1; ++i) { __Pyx_VISIT_CONST(traverse_module_state->__pyx_number_tab[i]); }
 /* #### Code section: module_state_traverse_contents ### */
 /* CommonTypesMetaclass.module_state_traverse */
@@ -2928,15 +2849,15 @@ return 0;
 /* "backtest/logger/sink.pyx":31
  * 
  * cdef class FileSink:
- *     def __init__(self, bytes experiment_id, str output_dir, object schema, str backend):             # <<<<<<<<<<<<<<
- *         self.experiment_id = experiment_id
+ *     def __init__(self, str cerebro_id, str output_dir, object schema, str backend):             # <<<<<<<<<<<<<<
+ *         self.cerebro_id = cerebro_id
  *         self.backend = backend
 */
 
 /* Python wrapper */
 static int __pyx_pw_8backtest_6logger_4sink_8FileSink_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_8backtest_6logger_4sink_8FileSink_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyObject *__pyx_v_experiment_id = 0;
+  PyObject *__pyx_v_cerebro_id = 0;
   PyObject *__pyx_v_output_dir = 0;
   PyObject *__pyx_v_schema = 0;
   PyObject *__pyx_v_backend = 0;
@@ -2956,7 +2877,7 @@ static int __pyx_pw_8backtest_6logger_4sink_8FileSink_1__init__(PyObject *__pyx_
   #endif
   __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_experiment_id,&__pyx_mstate_global->__pyx_n_u_output_dir,&__pyx_mstate_global->__pyx_n_u_schema,&__pyx_mstate_global->__pyx_n_u_backend,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_cerebro_id,&__pyx_mstate_global->__pyx_n_u_output_dir,&__pyx_mstate_global->__pyx_n_u_schema,&__pyx_mstate_global->__pyx_n_u_backend,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_VARARGS(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 31, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
@@ -2997,7 +2918,7 @@ static int __pyx_pw_8backtest_6logger_4sink_8FileSink_1__init__(PyObject *__pyx_
       values[3] = __Pyx_ArgRef_VARARGS(__pyx_args, 3);
       if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[3])) __PYX_ERR(0, 31, __pyx_L3_error)
     }
-    __pyx_v_experiment_id = ((PyObject*)values[0]);
+    __pyx_v_cerebro_id = ((PyObject*)values[0]);
     __pyx_v_output_dir = ((PyObject*)values[1]);
     __pyx_v_schema = values[2];
     __pyx_v_backend = ((PyObject*)values[3]);
@@ -3015,10 +2936,10 @@ static int __pyx_pw_8backtest_6logger_4sink_8FileSink_1__init__(PyObject *__pyx_
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_experiment_id), (&PyBytes_Type), 1, "experiment_id", 1))) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_cerebro_id), (&PyUnicode_Type), 1, "cerebro_id", 1))) __PYX_ERR(0, 31, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_output_dir), (&PyUnicode_Type), 1, "output_dir", 1))) __PYX_ERR(0, 31, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_backend), (&PyUnicode_Type), 1, "backend", 1))) __PYX_ERR(0, 31, __pyx_L1_error)
-  __pyx_r = __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(((struct __pyx_obj_8backtest_6logger_4sink_FileSink *)__pyx_v_self), __pyx_v_experiment_id, __pyx_v_output_dir, __pyx_v_schema, __pyx_v_backend);
+  __pyx_r = __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(((struct __pyx_obj_8backtest_6logger_4sink_FileSink *)__pyx_v_self), __pyx_v_cerebro_id, __pyx_v_output_dir, __pyx_v_schema, __pyx_v_backend);
 
   /* function exit code */
   goto __pyx_L0;
@@ -3037,27 +2958,27 @@ static int __pyx_pw_8backtest_6logger_4sink_8FileSink_1__init__(PyObject *__pyx_
   return __pyx_r;
 }
 
-static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self, PyObject *__pyx_v_experiment_id, PyObject *__pyx_v_output_dir, PyObject *__pyx_v_schema, PyObject *__pyx_v_backend) {
+static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_8backtest_6logger_4sink_FileSink *__pyx_v_self, PyObject *__pyx_v_cerebro_id, PyObject *__pyx_v_output_dir, PyObject *__pyx_v_schema, PyObject *__pyx_v_backend) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__", 0);
 
   /* "backtest/logger/sink.pyx":32
  * cdef class FileSink:
- *     def __init__(self, bytes experiment_id, str output_dir, object schema, str backend):
- *         self.experiment_id = experiment_id             # <<<<<<<<<<<<<<
+ *     def __init__(self, str cerebro_id, str output_dir, object schema, str backend):
+ *         self.cerebro_id = cerebro_id             # <<<<<<<<<<<<<<
  *         self.backend = backend
  *         self.output_dir = output_dir
 */
-  __Pyx_INCREF(__pyx_v_experiment_id);
-  __Pyx_GIVEREF(__pyx_v_experiment_id);
-  __Pyx_GOTREF(__pyx_v_self->experiment_id);
-  __Pyx_DECREF(__pyx_v_self->experiment_id);
-  __pyx_v_self->experiment_id = __pyx_v_experiment_id;
+  __Pyx_INCREF(__pyx_v_cerebro_id);
+  __Pyx_GIVEREF(__pyx_v_cerebro_id);
+  __Pyx_GOTREF(__pyx_v_self->cerebro_id);
+  __Pyx_DECREF(__pyx_v_self->cerebro_id);
+  __pyx_v_self->cerebro_id = __pyx_v_cerebro_id;
 
   /* "backtest/logger/sink.pyx":33
- *     def __init__(self, bytes experiment_id, str output_dir, object schema, str backend):
- *         self.experiment_id = experiment_id
+ *     def __init__(self, str cerebro_id, str output_dir, object schema, str backend):
+ *         self.cerebro_id = cerebro_id
  *         self.backend = backend             # <<<<<<<<<<<<<<
  *         self.output_dir = output_dir
  *         self.schema = schema
@@ -3069,7 +2990,7 @@ static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_
   __pyx_v_self->backend = __pyx_v_backend;
 
   /* "backtest/logger/sink.pyx":34
- *         self.experiment_id = experiment_id
+ *         self.cerebro_id = cerebro_id
  *         self.backend = backend
  *         self.output_dir = output_dir             # <<<<<<<<<<<<<<
  *         self.schema = schema
@@ -3132,8 +3053,8 @@ static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_
   /* "backtest/logger/sink.pyx":31
  * 
  * cdef class FileSink:
- *     def __init__(self, bytes experiment_id, str output_dir, object schema, str backend):             # <<<<<<<<<<<<<<
- *         self.experiment_id = experiment_id
+ *     def __init__(self, str cerebro_id, str output_dir, object schema, str backend):             # <<<<<<<<<<<<<<
+ *         self.cerebro_id = cerebro_id
  *         self.backend = backend
 */
 
@@ -3147,7 +3068,7 @@ static int __pyx_pf_8backtest_6logger_4sink_8FileSink___init__(struct __pyx_obj_
  *         self.current_path = ""
  * 
  *     cdef void _generate_path(self):             # <<<<<<<<<<<<<<
- *         path = os.path.join(self.output_dir, f"log_{self.experiment_id.decode('utf-8')}_{self.file_index}.{self.backend}")
+ *         path = os.path.join(self.output_dir, f"log_{self.cerebro_id}_{self.file_index}.{self.backend}")
  *         self.current_path = path
 */
 
@@ -3171,7 +3092,7 @@ static void __pyx_f_8backtest_6logger_4sink_8FileSink__generate_path(struct __py
   /* "backtest/logger/sink.pyx":42
  * 
  *     cdef void _generate_path(self):
- *         path = os.path.join(self.output_dir, f"log_{self.experiment_id.decode('utf-8')}_{self.file_index}.{self.backend}")             # <<<<<<<<<<<<<<
+ *         path = os.path.join(self.output_dir, f"log_{self.cerebro_id}_{self.file_index}.{self.backend}")             # <<<<<<<<<<<<<<
  *         self.current_path = path
  *         self.file_index += 1 # only consumer so safety
 */
@@ -3182,11 +3103,7 @@ static void __pyx_f_8backtest_6logger_4sink_8FileSink__generate_path(struct __py
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_2 = __pyx_t_4;
   __Pyx_INCREF(__pyx_t_2);
-  if (unlikely(__pyx_v_self->experiment_id == Py_None)) {
-    PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "decode");
-    __PYX_ERR(0, 42, __pyx_L1_error)
-  }
-  __pyx_t_3 = __Pyx_decode_bytes(__pyx_v_self->experiment_id, 0, PY_SSIZE_T_MAX, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyUnicode_Unicode(__pyx_v_self->cerebro_id); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = __Pyx_PyUnicode_From_int32_t(__pyx_v_self->file_index, 0, ' ', 'd'); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
@@ -3219,7 +3136,7 @@ static void __pyx_f_8backtest_6logger_4sink_8FileSink__generate_path(struct __py
 
   /* "backtest/logger/sink.pyx":43
  *     cdef void _generate_path(self):
- *         path = os.path.join(self.output_dir, f"log_{self.experiment_id.decode('utf-8')}_{self.file_index}.{self.backend}")
+ *         path = os.path.join(self.output_dir, f"log_{self.cerebro_id}_{self.file_index}.{self.backend}")
  *         self.current_path = path             # <<<<<<<<<<<<<<
  *         self.file_index += 1 # only consumer so safety
  * 
@@ -3234,7 +3151,7 @@ static void __pyx_f_8backtest_6logger_4sink_8FileSink__generate_path(struct __py
   __pyx_t_1 = 0;
 
   /* "backtest/logger/sink.pyx":44
- *         path = os.path.join(self.output_dir, f"log_{self.experiment_id.decode('utf-8')}_{self.file_index}.{self.backend}")
+ *         path = os.path.join(self.output_dir, f"log_{self.cerebro_id}_{self.file_index}.{self.backend}")
  *         self.current_path = path
  *         self.file_index += 1 # only consumer so safety             # <<<<<<<<<<<<<<
  * 
@@ -3246,7 +3163,7 @@ static void __pyx_f_8backtest_6logger_4sink_8FileSink__generate_path(struct __py
  *         self.current_path = ""
  * 
  *     cdef void _generate_path(self):             # <<<<<<<<<<<<<<
- *         path = os.path.join(self.output_dir, f"log_{self.experiment_id.decode('utf-8')}_{self.file_index}.{self.backend}")
+ *         path = os.path.join(self.output_dir, f"log_{self.cerebro_id}_{self.file_index}.{self.backend}")
  *         self.current_path = path
 */
 
@@ -3966,7 +3883,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
   /* "(tree fragment)":5
  *     cdef object _dict
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:
 */
@@ -3977,12 +3894,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
   __Pyx_INCREF(__pyx_v_self->backend);
   __Pyx_GIVEREF(__pyx_v_self->backend);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_self->backend) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  __Pyx_INCREF(__pyx_v_self->cerebro_id);
+  __Pyx_GIVEREF(__pyx_v_self->cerebro_id);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->cerebro_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->current_path);
   __Pyx_GIVEREF(__pyx_v_self->current_path);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
-  __Pyx_INCREF(__pyx_v_self->experiment_id);
-  __Pyx_GIVEREF(__pyx_v_self->experiment_id);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->experiment_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_1);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_t_1) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->output_dir);
@@ -4000,7 +3917,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
 
   /* "(tree fragment)":6
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)             # <<<<<<<<<<<<<<
  *     if _dict is not None and _dict:
  *         state += (_dict,)
@@ -4011,7 +3928,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -4051,12 +3968,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
  *         state += (_dict,)
  *         use_setstate = True             # <<<<<<<<<<<<<<
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
 */
     __pyx_v_use_setstate = 1;
 
     /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -4068,9 +3985,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
   /* "(tree fragment)":11
  *         use_setstate = True
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
  *     if use_setstate:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, None), state
 */
   /*else*/ {
     __pyx_t_4 = (__pyx_v_self->backend != ((PyObject*)Py_None));
@@ -4079,13 +3996,13 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->current_path != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->cerebro_id != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->experiment_id != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->current_path != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
@@ -4112,19 +4029,19 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
 
   /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   if (__pyx_v_use_setstate) {
 
     /* "(tree fragment)":13
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, None), state             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, None), state             # <<<<<<<<<<<<<<
  *     else:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, state)
 */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_FileSink); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -4134,9 +4051,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, Py_None) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
@@ -4157,17 +4074,17 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
 
     /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   }
 
   /* "(tree fragment)":15
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, None), state
  *     else:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, state)             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, state)             # <<<<<<<<<<<<<<
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_FileSink__set_state(self, __pyx_state)
 */
@@ -4180,9 +4097,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
     __Pyx_INCREF(__pyx_v_state);
     __Pyx_GIVEREF(__pyx_v_state);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_state) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
@@ -4222,7 +4139,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_6__reduce_cython__(s
 
 /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_FileSink__set_state(self, __pyx_state)
 */
@@ -4323,7 +4240,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_8__setstate_cython__
   __Pyx_RefNannySetupContext("__setstate_cython__", 0);
 
   /* "(tree fragment)":17
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_FileSink__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
 */
@@ -4341,7 +4258,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8FileSink_8__setstate_cython__
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_FileSink__set_state(self, __pyx_state)
 */
@@ -4849,7 +4766,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
   /* "(tree fragment)":5
  *     cdef object _dict
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:
 */
@@ -4860,12 +4777,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
   __Pyx_INCREF(__pyx_v_self->__pyx_base.backend);
   __Pyx_GIVEREF(__pyx_v_self->__pyx_base.backend);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_self->__pyx_base.backend) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  __Pyx_INCREF(__pyx_v_self->__pyx_base.cerebro_id);
+  __Pyx_GIVEREF(__pyx_v_self->__pyx_base.cerebro_id);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->__pyx_base.cerebro_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->__pyx_base.current_path);
   __Pyx_GIVEREF(__pyx_v_self->__pyx_base.current_path);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->__pyx_base.current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
-  __Pyx_INCREF(__pyx_v_self->__pyx_base.experiment_id);
-  __Pyx_GIVEREF(__pyx_v_self->__pyx_base.experiment_id);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->__pyx_base.experiment_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->__pyx_base.current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_1);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_t_1) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->__pyx_base.output_dir);
@@ -4883,7 +4800,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
 
   /* "(tree fragment)":6
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)             # <<<<<<<<<<<<<<
  *     if _dict is not None and _dict:
  *         state += (_dict,)
@@ -4894,7 +4811,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -4934,12 +4851,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
  *         state += (_dict,)
  *         use_setstate = True             # <<<<<<<<<<<<<<
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
 */
     __pyx_v_use_setstate = 1;
 
     /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -4951,9 +4868,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
   /* "(tree fragment)":11
  *         use_setstate = True
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
  *     if use_setstate:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, None), state
 */
   /*else*/ {
     __pyx_t_4 = (__pyx_v_self->__pyx_base.backend != ((PyObject*)Py_None));
@@ -4962,13 +4879,13 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->__pyx_base.current_path != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->__pyx_base.cerebro_id != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->__pyx_base.experiment_id != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->__pyx_base.current_path != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
@@ -4995,19 +4912,19 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
 
   /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   if (__pyx_v_use_setstate) {
 
     /* "(tree fragment)":13
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, None), state             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, None), state             # <<<<<<<<<<<<<<
  *     else:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, state)
 */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_ParquetSink); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -5017,9 +4934,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, Py_None) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
@@ -5040,17 +4957,17 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
 
     /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   }
 
   /* "(tree fragment)":15
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, None), state
  *     else:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, state)             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, state)             # <<<<<<<<<<<<<<
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_ParquetSink__set_state(self, __pyx_state)
 */
@@ -5063,9 +4980,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
     __Pyx_INCREF(__pyx_v_state);
     __Pyx_GIVEREF(__pyx_v_state);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_state) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
@@ -5105,7 +5022,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_4__reduce_cython
 
 /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_ParquetSink__set_state(self, __pyx_state)
 */
@@ -5206,7 +5123,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_6__setstate_cyth
   __Pyx_RefNannySetupContext("__setstate_cython__", 0);
 
   /* "(tree fragment)":17
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_ParquetSink__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
 */
@@ -5224,7 +5141,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_11ParquetSink_6__setstate_cyth
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_ParquetSink__set_state(self, __pyx_state)
 */
@@ -5359,7 +5276,7 @@ static int __pyx_pf_8backtest_6logger_4sink_7CSVSink___init__(struct __pyx_obj_8
  *         super().__init__(*args, backend="csv", **kwargs)
  * 
  *     cpdef void write(self, object table): # pa.Table             # <<<<<<<<<<<<<<
- *         if not self.writer:
+ *         if self.writer is None:
  *             self._generate_path()
 */
 
@@ -5372,7 +5289,6 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 ); /*proto*/
 static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8backtest_6logger_4sink_CSVSink *__pyx_v_self, PyObject *__pyx_v_table, int __pyx_skip_dispatch) {
   PyObject *__pyx_v_write_options = NULL;
-  PyObject *__pyx_v_dw = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -5380,15 +5296,6 @@ static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8bac
   PyObject *__pyx_t_4 = NULL;
   size_t __pyx_t_5;
   int __pyx_t_6;
-  int __pyx_t_7;
-  PyObject *__pyx_t_8 = NULL;
-  PyObject *__pyx_t_9 = NULL;
-  PyObject *__pyx_t_10 = NULL;
-  PyObject *__pyx_t_11 = NULL;
-  PyObject *__pyx_t_12 = NULL;
-  PyObject *__pyx_t_13 = NULL;
-  PyObject *__pyx_t_14 = NULL;
-  PyObject *__pyx_t_15 = NULL;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -5455,29 +5362,28 @@ static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8bac
   /* "backtest/logger/sink.pyx":79
  * 
  *     cpdef void write(self, object table): # pa.Table
- *         if not self.writer:             # <<<<<<<<<<<<<<
+ *         if self.writer is None:             # <<<<<<<<<<<<<<
  *             self._generate_path()
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
+ *             write_options = pacsv.WriteOptions(include_header=True)
 */
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_self->__pyx_base.writer); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 79, __pyx_L1_error)
-  __pyx_t_7 = (!__pyx_t_6);
-  if (__pyx_t_7) {
+  __pyx_t_6 = (__pyx_v_self->__pyx_base.writer == Py_None);
+  if (__pyx_t_6) {
 
     /* "backtest/logger/sink.pyx":80
  *     cpdef void write(self, object table): # pa.Table
- *         if not self.writer:
+ *         if self.writer is None:
  *             self._generate_path()             # <<<<<<<<<<<<<<
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
- *             with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:
+ *             write_options = pacsv.WriteOptions(include_header=True)
+ *             self.writer = pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options)
 */
     ((struct __pyx_vtabstruct_8backtest_6logger_4sink_CSVSink *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base._generate_path(((struct __pyx_obj_8backtest_6logger_4sink_FileSink *)__pyx_v_self)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L1_error)
 
     /* "backtest/logger/sink.pyx":81
- *         if not self.writer:
+ *         if self.writer is None:
  *             self._generate_path()
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))             # <<<<<<<<<<<<<<
- *             with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:
- *                 dw.write_table(table)
+ *             write_options = pacsv.WriteOptions(include_header=True)             # <<<<<<<<<<<<<<
+ *             self.writer = pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options)
+ * 
 */
     __pyx_t_2 = NULL;
     __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_pacsv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
@@ -5485,26 +5391,6 @@ static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8bac
     __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_WriteOptions); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 81, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_9);
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_path); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 81, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_10);
-    __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __pyx_t_8 = __pyx_t_10;
-    __Pyx_INCREF(__pyx_t_8);
-    __pyx_t_5 = 0;
-    {
-      PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_v_self->__pyx_base.current_path};
-      __pyx_t_4 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_exists, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-      __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-    }
-    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 81, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyBool_FromLong((!__pyx_t_7)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = 1;
     #if CYTHON_UNPACK_METHODS
     if (unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5519,13 +5405,12 @@ static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8bac
     #endif
     {
       PyObject *__pyx_callargs[2 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_2, NULL};
-      __pyx_t_10 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 81, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_10);
-      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_include_header, __pyx_t_4, __pyx_t_10, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 81, __pyx_L1_error)
-      __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_10);
+      __pyx_t_4 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_include_header, Py_True, __pyx_t_4, __pyx_callargs+1, 0) < (0)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
@@ -5535,199 +5420,80 @@ static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8bac
 
     /* "backtest/logger/sink.pyx":82
  *             self._generate_path()
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
- *             with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:             # <<<<<<<<<<<<<<
- *                 dw.write_table(table)
+ *             write_options = pacsv.WriteOptions(include_header=True)
+ *             self.writer = pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options)             # <<<<<<<<<<<<<<
  * 
+ *         self.writer.write_table(table)
 */
-    /*with:*/ {
-      __pyx_t_3 = NULL;
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_pacsv); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_mstate_global->__pyx_n_u_CSVWriter); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_5 = 1;
-      #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_4))) {
-        __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-        assert(__pyx_t_3);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_4);
-        __Pyx_INCREF(__pyx_t_3);
-        __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_4, __pyx__function);
-        __pyx_t_5 = 0;
-      }
-      #endif
-      {
-        PyObject *__pyx_callargs[3 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_3, __pyx_v_self->__pyx_base.current_path, __pyx_v_self->__pyx_base.schema};
-        __pyx_t_10 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 82, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_10);
-        if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_write_options, __pyx_v_write_options, __pyx_t_10, __pyx_callargs+3, 0) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
-        __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_10);
-        __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-        __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_1);
-      }
-      __pyx_t_11 = __Pyx_PyObject_LookupSpecial(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_exit); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_10 = NULL;
-      __pyx_t_3 = __Pyx_PyObject_LookupSpecial(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_enter); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L4_error)
-      __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_5 = 1;
-      #if CYTHON_UNPACK_METHODS
-      if (likely(PyMethod_Check(__pyx_t_3))) {
-        __pyx_t_10 = PyMethod_GET_SELF(__pyx_t_3);
-        assert(__pyx_t_10);
-        PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_3);
-        __Pyx_INCREF(__pyx_t_10);
-        __Pyx_INCREF(__pyx__function);
-        __Pyx_DECREF_SET(__pyx_t_3, __pyx__function);
-        __pyx_t_5 = 0;
-      }
-      #endif
-      {
-        PyObject *__pyx_callargs[2] = {__pyx_t_10, NULL};
-        __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_3, __pyx_callargs+__pyx_t_5, (1-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-        __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L4_error)
-        __Pyx_GOTREF(__pyx_t_4);
-      }
-      __pyx_t_3 = __pyx_t_4;
-      __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      /*try:*/ {
-        {
-          __Pyx_PyThreadState_declare
-          __Pyx_PyThreadState_assign
-          __Pyx_ExceptionSave(&__pyx_t_12, &__pyx_t_13, &__pyx_t_14);
-          __Pyx_XGOTREF(__pyx_t_12);
-          __Pyx_XGOTREF(__pyx_t_13);
-          __Pyx_XGOTREF(__pyx_t_14);
-          /*try:*/ {
-            __pyx_v_dw = __pyx_t_3;
-            __pyx_t_3 = 0;
-
-            /* "backtest/logger/sink.pyx":83
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
- *             with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:
- *                 dw.write_table(table)             # <<<<<<<<<<<<<<
- * 
- * 
-*/
-            __pyx_t_1 = __pyx_v_dw;
-            __Pyx_INCREF(__pyx_t_1);
-            __pyx_t_5 = 0;
-            {
-              PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_v_table};
-              __pyx_t_3 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_write_table, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
-              __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-              if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 83, __pyx_L8_error)
-              __Pyx_GOTREF(__pyx_t_3);
-            }
-            __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-
-            /* "backtest/logger/sink.pyx":82
- *             self._generate_path()
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
- *             with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:             # <<<<<<<<<<<<<<
- *                 dw.write_table(table)
- * 
-*/
-          }
-          __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
-          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
-          __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-          goto __pyx_L13_try_end;
-          __pyx_L8_error:;
-          __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-          __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
-          __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-          /*except:*/ {
-            __Pyx_AddTraceback("backtest.logger.sink.CSVSink.write", __pyx_clineno, __pyx_lineno, __pyx_filename);
-            if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_1, &__pyx_t_4) < 0) __PYX_ERR(0, 82, __pyx_L10_except_error)
-            __Pyx_XGOTREF(__pyx_t_3);
-            __Pyx_XGOTREF(__pyx_t_1);
-            __Pyx_XGOTREF(__pyx_t_4);
-            __pyx_t_10 = PyTuple_Pack(3, __pyx_t_3, __pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 82, __pyx_L10_except_error)
-            __Pyx_GOTREF(__pyx_t_10);
-            __pyx_t_15 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_10, NULL);
-            __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-            __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-            if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 82, __pyx_L10_except_error)
-            __Pyx_GOTREF(__pyx_t_15);
-            __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_15);
-            __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-            if (__pyx_t_7 < (0)) __PYX_ERR(0, 82, __pyx_L10_except_error)
-            __pyx_t_6 = (!__pyx_t_7);
-            if (unlikely(__pyx_t_6)) {
-              __Pyx_GIVEREF(__pyx_t_3);
-              __Pyx_GIVEREF(__pyx_t_1);
-              __Pyx_XGIVEREF(__pyx_t_4);
-              __Pyx_ErrRestoreWithState(__pyx_t_3, __pyx_t_1, __pyx_t_4);
-              __pyx_t_3 = 0;  __pyx_t_1 = 0;  __pyx_t_4 = 0; 
-              __PYX_ERR(0, 82, __pyx_L10_except_error)
-            }
-            __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-            __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-            goto __pyx_L9_exception_handled;
-          }
-          __pyx_L10_except_error:;
-          __Pyx_XGIVEREF(__pyx_t_12);
-          __Pyx_XGIVEREF(__pyx_t_13);
-          __Pyx_XGIVEREF(__pyx_t_14);
-          __Pyx_ExceptionReset(__pyx_t_12, __pyx_t_13, __pyx_t_14);
-          goto __pyx_L1_error;
-          __pyx_L9_exception_handled:;
-          __Pyx_XGIVEREF(__pyx_t_12);
-          __Pyx_XGIVEREF(__pyx_t_13);
-          __Pyx_XGIVEREF(__pyx_t_14);
-          __Pyx_ExceptionReset(__pyx_t_12, __pyx_t_13, __pyx_t_14);
-          __pyx_L13_try_end:;
-        }
-      }
-      /*finally:*/ {
-        /*normal exit:*/{
-          if (__pyx_t_11) {
-            __pyx_t_14 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_mstate_global->__pyx_tuple[0], NULL);
-            __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-            if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 82, __pyx_L1_error)
-            __Pyx_GOTREF(__pyx_t_14);
-            __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-          }
-          goto __pyx_L7;
-        }
-        __pyx_L7:;
-      }
-      goto __pyx_L17;
-      __pyx_L4_error:;
-      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      goto __pyx_L1_error;
-      __pyx_L17:;
+    __pyx_t_3 = NULL;
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_pacsv); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_CSVWriter); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_5 = 1;
+    #if CYTHON_UNPACK_METHODS
+    if (unlikely(PyMethod_Check(__pyx_t_2))) {
+      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+      assert(__pyx_t_3);
+      PyObject* __pyx__function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(__pyx__function);
+      __Pyx_DECREF_SET(__pyx_t_2, __pyx__function);
+      __pyx_t_5 = 0;
     }
+    #endif
+    {
+      PyObject *__pyx_callargs[3 + ((CYTHON_VECTORCALL) ? 1 : 0)] = {__pyx_t_3, __pyx_v_self->__pyx_base.current_path, __pyx_v_self->__pyx_base.schema};
+      __pyx_t_4 = __Pyx_MakeVectorcallBuilderKwds(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      if (__Pyx_VectorcallBuilder_AddArg(__pyx_mstate_global->__pyx_n_u_write_options, __pyx_v_write_options, __pyx_t_4, __pyx_callargs+3, 0) < (0)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_Object_Vectorcall_CallFromBuilder((PyObject*)__pyx_t_2, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET), __pyx_t_4);
+      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+    }
+    __Pyx_GIVEREF(__pyx_t_1);
+    __Pyx_GOTREF(__pyx_v_self->__pyx_base.writer);
+    __Pyx_DECREF(__pyx_v_self->__pyx_base.writer);
+    __pyx_v_self->__pyx_base.writer = __pyx_t_1;
+    __pyx_t_1 = 0;
 
     /* "backtest/logger/sink.pyx":79
  * 
  *     cpdef void write(self, object table): # pa.Table
- *         if not self.writer:             # <<<<<<<<<<<<<<
+ *         if self.writer is None:             # <<<<<<<<<<<<<<
  *             self._generate_path()
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
+ *             write_options = pacsv.WriteOptions(include_header=True)
 */
   }
+
+  /* "backtest/logger/sink.pyx":84
+ *             self.writer = pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options)
+ * 
+ *         self.writer.write_table(table)             # <<<<<<<<<<<<<<
+ * 
+ * 
+*/
+  __pyx_t_2 = __pyx_v_self->__pyx_base.writer;
+  __Pyx_INCREF(__pyx_t_2);
+  __pyx_t_5 = 0;
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_2, __pyx_v_table};
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_write_table, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+  }
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "backtest/logger/sink.pyx":78
  *         super().__init__(*args, backend="csv", **kwargs)
  * 
  *     cpdef void write(self, object table): # pa.Table             # <<<<<<<<<<<<<<
- *         if not self.writer:
+ *         if self.writer is None:
  *             self._generate_path()
 */
 
@@ -5738,13 +5504,9 @@ static void __pyx_f_8backtest_6logger_4sink_7CSVSink_write(struct __pyx_obj_8bac
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_XDECREF(__pyx_t_10);
   __Pyx_AddTraceback("backtest.logger.sink.CSVSink.write", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_write_options);
-  __Pyx_XDECREF(__pyx_v_dw);
   __Pyx_RefNannyFinishContext();
 }
 
@@ -5927,7 +5689,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
   /* "(tree fragment)":5
  *     cdef object _dict
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:
 */
@@ -5938,12 +5700,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
   __Pyx_INCREF(__pyx_v_self->__pyx_base.backend);
   __Pyx_GIVEREF(__pyx_v_self->__pyx_base.backend);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_self->__pyx_base.backend) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  __Pyx_INCREF(__pyx_v_self->__pyx_base.cerebro_id);
+  __Pyx_GIVEREF(__pyx_v_self->__pyx_base.cerebro_id);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->__pyx_base.cerebro_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->__pyx_base.current_path);
   __Pyx_GIVEREF(__pyx_v_self->__pyx_base.current_path);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->__pyx_base.current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
-  __Pyx_INCREF(__pyx_v_self->__pyx_base.experiment_id);
-  __Pyx_GIVEREF(__pyx_v_self->__pyx_base.experiment_id);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->__pyx_base.experiment_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->__pyx_base.current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_1);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_t_1) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->__pyx_base.output_dir);
@@ -5961,7 +5723,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
 
   /* "(tree fragment)":6
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)             # <<<<<<<<<<<<<<
  *     if _dict is not None and _dict:
  *         state += (_dict,)
@@ -5972,7 +5734,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -6012,12 +5774,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
  *         state += (_dict,)
  *         use_setstate = True             # <<<<<<<<<<<<<<
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
 */
     __pyx_v_use_setstate = 1;
 
     /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -6029,9 +5791,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
   /* "(tree fragment)":11
  *         use_setstate = True
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
  *     if use_setstate:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, None), state
 */
   /*else*/ {
     __pyx_t_4 = (__pyx_v_self->__pyx_base.backend != ((PyObject*)Py_None));
@@ -6040,13 +5802,13 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->__pyx_base.current_path != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->__pyx_base.cerebro_id != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->__pyx_base.experiment_id != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->__pyx_base.current_path != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
@@ -6073,19 +5835,19 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
 
   /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   if (__pyx_v_use_setstate) {
 
     /* "(tree fragment)":13
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, None), state             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, None), state             # <<<<<<<<<<<<<<
  *     else:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, state)
 */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_CSVSink); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -6095,9 +5857,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, Py_None) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
@@ -6118,17 +5880,17 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
 
     /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   }
 
   /* "(tree fragment)":15
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, None), state
  *     else:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, state)             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, state)             # <<<<<<<<<<<<<<
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_CSVSink__set_state(self, __pyx_state)
 */
@@ -6141,9 +5903,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
     __Pyx_INCREF(__pyx_v_state);
     __Pyx_GIVEREF(__pyx_v_state);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_state) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
@@ -6183,7 +5945,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_4__reduce_cython__(st
 
 /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_CSVSink__set_state(self, __pyx_state)
 */
@@ -6284,7 +6046,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_6__setstate_cython__(
   __Pyx_RefNannySetupContext("__setstate_cython__", 0);
 
   /* "(tree fragment)":17
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_CSVSink__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
 */
@@ -6302,7 +6064,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_6__setstate_cython__(
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_CSVSink__set_state(self, __pyx_state)
 */
@@ -6321,7 +6083,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_7CSVSink_6__setstate_cython__(
   return __pyx_r;
 }
 
-/* "backtest/logger/sink.pyx":87
+/* "backtest/logger/sink.pyx":88
  * 
  * cdef class JSONSink(FileSink):
  *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -6380,7 +6142,7 @@ static int __pyx_pf_8backtest_6logger_4sink_8JSONSink___init__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "backtest/logger/sink.pyx":88
+  /* "backtest/logger/sink.pyx":89
  * cdef class JSONSink(FileSink):
  *     def __init__(self, *args, **kwargs):
  *         super().__init__(*args, backend="json", **kwargs)             # <<<<<<<<<<<<<<
@@ -6393,25 +6155,25 @@ static int __pyx_pf_8backtest_6logger_4sink_8JSONSink___init__(struct __pyx_obj_
     PyObject *__pyx_callargs[3] = {__pyx_t_2, ((PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_JSONSink), ((PyObject *)__pyx_v_self)};
     __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_super, __pyx_callargs+__pyx_t_3, (3-__pyx_t_3) | (__pyx_t_3*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_init); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_backend, __pyx_mstate_global->__pyx_n_u_json) < (0)) __PYX_ERR(0, 88, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_backend, __pyx_mstate_global->__pyx_n_u_json) < (0)) __PYX_ERR(0, 89, __pyx_L1_error)
   __pyx_t_1 = __pyx_t_4;
   __pyx_t_4 = 0;
-  if (__Pyx_MergeKeywords(__pyx_t_1, __pyx_v_kwargs) < (0)) __PYX_ERR(0, 88, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_v_args, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 88, __pyx_L1_error)
+  if (__Pyx_MergeKeywords(__pyx_t_1, __pyx_v_kwargs) < (0)) __PYX_ERR(0, 89, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_v_args, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "backtest/logger/sink.pyx":87
+  /* "backtest/logger/sink.pyx":88
  * 
  * cdef class JSONSink(FileSink):
  *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -6433,7 +6195,7 @@ static int __pyx_pf_8backtest_6logger_4sink_8JSONSink___init__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "backtest/logger/sink.pyx":90
+/* "backtest/logger/sink.pyx":91
  *         super().__init__(*args, backend="json", **kwargs)
  * 
  *     cpdef void write(self, object table): # pa.Table             # <<<<<<<<<<<<<<
@@ -6485,7 +6247,7 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_typedict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_write); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_mstate_global->__pyx_n_u_write); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!__Pyx_IsSameCFunction(__pyx_t_1, (void(*)(void)) __pyx_pw_8backtest_6logger_4sink_8JSONSink_3write)) {
         __pyx_t_3 = NULL;
@@ -6508,7 +6270,7 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
           __pyx_t_2 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_4, __pyx_callargs+__pyx_t_5, (2-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
           __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
           __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 90, __pyx_L1_error)
+          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6528,32 +6290,32 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
     #endif
   }
 
-  /* "backtest/logger/sink.pyx":93
+  /* "backtest/logger/sink.pyx":94
  *         cdef object rows
  * 
  *         if not self.writer:             # <<<<<<<<<<<<<<
  *             self._generate_path()
- *             self.writer = open(self.current_path, 'ab') #
+ *             self.writer = open(self.current_path, 'ab')
 */
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_self->__pyx_base.writer); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_self->__pyx_base.writer); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 94, __pyx_L1_error)
   __pyx_t_7 = (!__pyx_t_6);
   if (__pyx_t_7) {
 
-    /* "backtest/logger/sink.pyx":94
+    /* "backtest/logger/sink.pyx":95
  * 
  *         if not self.writer:
  *             self._generate_path()             # <<<<<<<<<<<<<<
- *             self.writer = open(self.current_path, 'ab') #
+ *             self.writer = open(self.current_path, 'ab')
  * 
 */
-    ((struct __pyx_vtabstruct_8backtest_6logger_4sink_JSONSink *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base._generate_path(((struct __pyx_obj_8backtest_6logger_4sink_FileSink *)__pyx_v_self)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 94, __pyx_L1_error)
+    ((struct __pyx_vtabstruct_8backtest_6logger_4sink_JSONSink *)__pyx_v_self->__pyx_base.__pyx_vtab)->__pyx_base._generate_path(((struct __pyx_obj_8backtest_6logger_4sink_FileSink *)__pyx_v_self)); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 95, __pyx_L1_error)
 
-    /* "backtest/logger/sink.pyx":95
+    /* "backtest/logger/sink.pyx":96
  *         if not self.writer:
  *             self._generate_path()
- *             self.writer = open(self.current_path, 'ab') #             # <<<<<<<<<<<<<<
+ *             self.writer = open(self.current_path, 'ab')             # <<<<<<<<<<<<<<
  * 
- *         #  Arrow Table  Python  ()
+ *         rows = table.to_pylist()
 */
     __pyx_t_2 = NULL;
     __pyx_t_5 = 1;
@@ -6561,7 +6323,7 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
       PyObject *__pyx_callargs[3] = {__pyx_t_2, __pyx_v_self->__pyx_base.current_path, __pyx_mstate_global->__pyx_n_u_ab};
       __pyx_t_1 = __Pyx_PyObject_FastCall((PyObject*)__pyx_builtin_open, __pyx_callargs+__pyx_t_5, (3-__pyx_t_5) | (__pyx_t_5*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
     }
     __Pyx_GIVEREF(__pyx_t_1);
@@ -6570,18 +6332,18 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
     __pyx_v_self->__pyx_base.writer = __pyx_t_1;
     __pyx_t_1 = 0;
 
-    /* "backtest/logger/sink.pyx":93
+    /* "backtest/logger/sink.pyx":94
  *         cdef object rows
  * 
  *         if not self.writer:             # <<<<<<<<<<<<<<
  *             self._generate_path()
- *             self.writer = open(self.current_path, 'ab') #
+ *             self.writer = open(self.current_path, 'ab')
 */
   }
 
   /* "backtest/logger/sink.pyx":98
+ *             self.writer = open(self.current_path, 'ab')
  * 
- *         #  Arrow Table  Python  ()
  *         rows = table.to_pylist()             # <<<<<<<<<<<<<<
  *         for row in rows:
  *             line = json.dumps(row).encode('utf-8') + b'\n' # jsonlines
@@ -6600,7 +6362,7 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
   __pyx_t_1 = 0;
 
   /* "backtest/logger/sink.pyx":99
- *         #  Arrow Table  Python  ()
+ * 
  *         rows = table.to_pylist()
  *         for row in rows:             # <<<<<<<<<<<<<<
  *             line = json.dumps(row).encode('utf-8') + b'\n' # jsonlines
@@ -6728,7 +6490,7 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
     /* "backtest/logger/sink.pyx":99
- *         #  Arrow Table  Python  ()
+ * 
  *         rows = table.to_pylist()
  *         for row in rows:             # <<<<<<<<<<<<<<
  *             line = json.dumps(row).encode('utf-8') + b'\n' # jsonlines
@@ -6737,7 +6499,7 @@ static void __pyx_f_8backtest_6logger_4sink_8JSONSink_write(struct __pyx_obj_8ba
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "backtest/logger/sink.pyx":90
+  /* "backtest/logger/sink.pyx":91
  *         super().__init__(*args, backend="json", **kwargs)
  * 
  *     cpdef void write(self, object table): # pa.Table             # <<<<<<<<<<<<<<
@@ -6802,32 +6564,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_table,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 90, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 91, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 90, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 91, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "write", 0) < (0)) __PYX_ERR(0, 90, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "write", 0) < (0)) __PYX_ERR(0, 91, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("write", 1, 1, 1, i); __PYX_ERR(0, 90, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("write", 1, 1, 1, i); __PYX_ERR(0, 91, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 90, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 91, __pyx_L3_error)
     }
     __pyx_v_table = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("write", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 90, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("write", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 91, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6857,8 +6619,8 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_2write(struct __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("write", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_f_8backtest_6logger_4sink_8JSONSink_write(__pyx_v_self, __pyx_v_table, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_f_8backtest_6logger_4sink_8JSONSink_write(__pyx_v_self, __pyx_v_table, 1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6942,7 +6704,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
   /* "(tree fragment)":5
  *     cdef object _dict
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)             # <<<<<<<<<<<<<<
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:
 */
@@ -6953,12 +6715,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
   __Pyx_INCREF(__pyx_v_self->__pyx_base.backend);
   __Pyx_GIVEREF(__pyx_v_self->__pyx_base.backend);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_self->__pyx_base.backend) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  __Pyx_INCREF(__pyx_v_self->__pyx_base.cerebro_id);
+  __Pyx_GIVEREF(__pyx_v_self->__pyx_base.cerebro_id);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->__pyx_base.cerebro_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->__pyx_base.current_path);
   __Pyx_GIVEREF(__pyx_v_self->__pyx_base.current_path);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_self->__pyx_base.current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
-  __Pyx_INCREF(__pyx_v_self->__pyx_base.experiment_id);
-  __Pyx_GIVEREF(__pyx_v_self->__pyx_base.experiment_id);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->__pyx_base.experiment_id) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_self->__pyx_base.current_path) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_GIVEREF(__pyx_t_1);
   if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 3, __pyx_t_1) != (0)) __PYX_ERR(1, 5, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_self->__pyx_base.output_dir);
@@ -6976,7 +6738,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
 
   /* "(tree fragment)":6
  *     cdef bint use_setstate
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)             # <<<<<<<<<<<<<<
  *     if _dict is not None and _dict:
  *         state += (_dict,)
@@ -6987,7 +6749,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -7027,12 +6789,12 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
  *         state += (_dict,)
  *         use_setstate = True             # <<<<<<<<<<<<<<
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
 */
     __pyx_v_use_setstate = 1;
 
     /* "(tree fragment)":7
- *     state = (self.backend, self.current_path, self.experiment_id, self.file_index, self.output_dir, self.schema, self.writer)
+ *     state = (self.backend, self.cerebro_id, self.current_path, self.file_index, self.output_dir, self.schema, self.writer)
  *     _dict = getattr(self, '__dict__', None)
  *     if _dict is not None and _dict:             # <<<<<<<<<<<<<<
  *         state += (_dict,)
@@ -7044,9 +6806,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
   /* "(tree fragment)":11
  *         use_setstate = True
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None             # <<<<<<<<<<<<<<
  *     if use_setstate:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, None), state
 */
   /*else*/ {
     __pyx_t_4 = (__pyx_v_self->__pyx_base.backend != ((PyObject*)Py_None));
@@ -7055,13 +6817,13 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->__pyx_base.current_path != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->__pyx_base.cerebro_id != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
       goto __pyx_L6_bool_binop_done;
     }
-    __pyx_t_4 = (__pyx_v_self->__pyx_base.experiment_id != ((PyObject*)Py_None));
+    __pyx_t_4 = (__pyx_v_self->__pyx_base.current_path != ((PyObject*)Py_None));
     if (!__pyx_t_4) {
     } else {
       __pyx_t_3 = __pyx_t_4;
@@ -7088,19 +6850,19 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
 
   /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   if (__pyx_v_use_setstate) {
 
     /* "(tree fragment)":13
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, None), state             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, None), state             # <<<<<<<<<<<<<<
  *     else:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, state)
 */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_JSONSink); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -7110,9 +6872,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, Py_None) != (0)) __PYX_ERR(1, 13, __pyx_L1_error);
@@ -7133,17 +6895,17 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
 
     /* "(tree fragment)":12
  *     else:
- *         use_setstate = self.backend is not None or self.current_path is not None or self.experiment_id is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
+ *         use_setstate = self.backend is not None or self.cerebro_id is not None or self.current_path is not None or self.output_dir is not None or self.schema is not None or self.writer is not None
  *     if use_setstate:             # <<<<<<<<<<<<<<
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, None), state
  *     else:
 */
   }
 
   /* "(tree fragment)":15
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, None), state
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, None), state
  *     else:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, state)             # <<<<<<<<<<<<<<
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, state)             # <<<<<<<<<<<<<<
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_JSONSink__set_state(self, __pyx_state)
 */
@@ -7156,9 +6918,9 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
     __Pyx_INCREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     __Pyx_GIVEREF(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))));
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self)))) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
-    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_90464840);
-    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_90464840);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_90464840) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
+    __Pyx_INCREF(__pyx_mstate_global->__pyx_int_222536102);
+    __Pyx_GIVEREF(__pyx_mstate_global->__pyx_int_222536102);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_mstate_global->__pyx_int_222536102) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
     __Pyx_INCREF(__pyx_v_state);
     __Pyx_GIVEREF(__pyx_v_state);
     if (__Pyx_PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_v_state) != (0)) __PYX_ERR(1, 15, __pyx_L1_error);
@@ -7198,7 +6960,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_4__reduce_cython__(s
 
 /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_JSONSink__set_state(self, __pyx_state)
 */
@@ -7299,7 +7061,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_6__setstate_cython__
   __Pyx_RefNannySetupContext("__setstate_cython__", 0);
 
   /* "(tree fragment)":17
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):
  *     __pyx_unpickle_JSONSink__set_state(self, __pyx_state)             # <<<<<<<<<<<<<<
 */
@@ -7317,7 +7079,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_6__setstate_cython__
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_JSONSink__set_state(self, __pyx_state)
 */
@@ -7341,7 +7103,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_8JSONSink_6__setstate_cython__
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_FileSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
 /* Python wrapper */
@@ -7472,15 +7234,15 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink___pyx_unpickle_FileSink(CYTHON
   /* "(tree fragment)":6
  * def __pyx_unpickle_FileSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
  *     __pyx_result = FileSink.__new__(__pyx_type)
  *     if __pyx_state is not None:
 */
-  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, __pyx_k_backend_current_path_experiment); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, __pyx_k_backend_cerebro_id_current_path); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
 
   /* "(tree fragment)":7
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = FileSink.__new__(__pyx_type)             # <<<<<<<<<<<<<<
  *     if __pyx_state is not None:
  *         __pyx_unpickle_FileSink__set_state(<FileSink> __pyx_result, __pyx_state)
@@ -7499,7 +7261,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink___pyx_unpickle_FileSink(CYTHON
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = FileSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_FileSink__set_state(<FileSink> __pyx_result, __pyx_state)
@@ -7524,7 +7286,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink___pyx_unpickle_FileSink(CYTHON
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = FileSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_FileSink__set_state(<FileSink> __pyx_result, __pyx_state)
@@ -7537,7 +7299,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink___pyx_unpickle_FileSink(CYTHON
  *         __pyx_unpickle_FileSink__set_state(<FileSink> __pyx_result, __pyx_state)
  *     return __pyx_result             # <<<<<<<<<<<<<<
  * cdef __pyx_unpickle_FileSink__set_state(FileSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
 */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v___pyx_result);
@@ -7549,7 +7311,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink___pyx_unpickle_FileSink(CYTHON
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_FileSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
   /* function exit code */
@@ -7569,7 +7331,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink___pyx_unpickle_FileSink(CYTHON
  *         __pyx_unpickle_FileSink__set_state(<FileSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_FileSink__set_state(FileSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -7587,7 +7349,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_FileSink__set_st
   /* "(tree fragment)":12
  *     return __pyx_result
  * cdef __pyx_unpickle_FileSink__set_state(FileSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 0);
@@ -7602,17 +7364,17 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_FileSink__set_st
   __Pyx_INCREF(__pyx_t_1);
   if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->current_path);
-  __Pyx_DECREF(__pyx_v___pyx_result->current_path);
-  __pyx_v___pyx_result->current_path = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->cerebro_id);
+  __Pyx_DECREF(__pyx_v___pyx_result->cerebro_id);
+  __pyx_v___pyx_result->cerebro_id = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 2);
   __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->experiment_id);
-  __Pyx_DECREF(__pyx_v___pyx_result->experiment_id);
-  __pyx_v___pyx_result->experiment_id = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->current_path);
+  __Pyx_DECREF(__pyx_v___pyx_result->current_path);
+  __pyx_v___pyx_result->current_path = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_2 = __Pyx_PyLong_As_int32_t(__Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 3)); if (unlikely((__pyx_t_2 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __pyx_v___pyx_result->file_index = __pyx_t_2;
@@ -7641,7 +7403,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_FileSink__set_st
 
   /* "(tree fragment)":13
  * cdef __pyx_unpickle_FileSink__set_state(FileSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)             # <<<<<<<<<<<<<<
 */
   __pyx_t_3 = __Pyx_UpdateUnpickledDict(((PyObject *)__pyx_v___pyx_result), __pyx_v___pyx_state, 7); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -7650,7 +7412,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_FileSink__set_st
  *         __pyx_unpickle_FileSink__set_state(<FileSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_FileSink__set_state(FileSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -7672,7 +7434,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_FileSink__set_st
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_ParquetSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
 /* Python wrapper */
@@ -7803,15 +7565,15 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_2__pyx_unpickle_ParquetSink(CY
   /* "(tree fragment)":6
  * def __pyx_unpickle_ParquetSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
  *     __pyx_result = ParquetSink.__new__(__pyx_type)
  *     if __pyx_state is not None:
 */
-  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, __pyx_k_backend_current_path_experiment); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, __pyx_k_backend_cerebro_id_current_path); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
 
   /* "(tree fragment)":7
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = ParquetSink.__new__(__pyx_type)             # <<<<<<<<<<<<<<
  *     if __pyx_state is not None:
  *         __pyx_unpickle_ParquetSink__set_state(<ParquetSink> __pyx_result, __pyx_state)
@@ -7830,7 +7592,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_2__pyx_unpickle_ParquetSink(CY
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = ParquetSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_ParquetSink__set_state(<ParquetSink> __pyx_result, __pyx_state)
@@ -7855,7 +7617,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_2__pyx_unpickle_ParquetSink(CY
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = ParquetSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_ParquetSink__set_state(<ParquetSink> __pyx_result, __pyx_state)
@@ -7868,7 +7630,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_2__pyx_unpickle_ParquetSink(CY
  *         __pyx_unpickle_ParquetSink__set_state(<ParquetSink> __pyx_result, __pyx_state)
  *     return __pyx_result             # <<<<<<<<<<<<<<
  * cdef __pyx_unpickle_ParquetSink__set_state(ParquetSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
 */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v___pyx_result);
@@ -7880,7 +7642,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_2__pyx_unpickle_ParquetSink(CY
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_ParquetSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
   /* function exit code */
@@ -7900,7 +7662,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_2__pyx_unpickle_ParquetSink(CY
  *         __pyx_unpickle_ParquetSink__set_state(<ParquetSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_ParquetSink__set_state(ParquetSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -7918,7 +7680,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_ParquetSink__set
   /* "(tree fragment)":12
  *     return __pyx_result
  * cdef __pyx_unpickle_ParquetSink__set_state(ParquetSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 0);
@@ -7933,17 +7695,17 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_ParquetSink__set
   __Pyx_INCREF(__pyx_t_1);
   if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.current_path);
-  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.current_path);
-  __pyx_v___pyx_result->__pyx_base.current_path = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.cerebro_id);
+  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.cerebro_id);
+  __pyx_v___pyx_result->__pyx_base.cerebro_id = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 2);
   __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.experiment_id);
-  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.experiment_id);
-  __pyx_v___pyx_result->__pyx_base.experiment_id = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.current_path);
+  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.current_path);
+  __pyx_v___pyx_result->__pyx_base.current_path = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_2 = __Pyx_PyLong_As_int32_t(__Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 3)); if (unlikely((__pyx_t_2 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __pyx_v___pyx_result->__pyx_base.file_index = __pyx_t_2;
@@ -7972,7 +7734,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_ParquetSink__set
 
   /* "(tree fragment)":13
  * cdef __pyx_unpickle_ParquetSink__set_state(ParquetSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)             # <<<<<<<<<<<<<<
 */
   __pyx_t_3 = __Pyx_UpdateUnpickledDict(((PyObject *)__pyx_v___pyx_result), __pyx_v___pyx_state, 7); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -7981,7 +7743,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_ParquetSink__set
  *         __pyx_unpickle_ParquetSink__set_state(<ParquetSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_ParquetSink__set_state(ParquetSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -8003,7 +7765,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_ParquetSink__set
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_CSVSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
 /* Python wrapper */
@@ -8134,15 +7896,15 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_4__pyx_unpickle_CSVSink(CYTHON
   /* "(tree fragment)":6
  * def __pyx_unpickle_CSVSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
  *     __pyx_result = CSVSink.__new__(__pyx_type)
  *     if __pyx_state is not None:
 */
-  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, __pyx_k_backend_current_path_experiment); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, __pyx_k_backend_cerebro_id_current_path); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
 
   /* "(tree fragment)":7
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = CSVSink.__new__(__pyx_type)             # <<<<<<<<<<<<<<
  *     if __pyx_state is not None:
  *         __pyx_unpickle_CSVSink__set_state(<CSVSink> __pyx_result, __pyx_state)
@@ -8161,7 +7923,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_4__pyx_unpickle_CSVSink(CYTHON
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = CSVSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_CSVSink__set_state(<CSVSink> __pyx_result, __pyx_state)
@@ -8186,7 +7948,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_4__pyx_unpickle_CSVSink(CYTHON
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = CSVSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_CSVSink__set_state(<CSVSink> __pyx_result, __pyx_state)
@@ -8199,7 +7961,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_4__pyx_unpickle_CSVSink(CYTHON
  *         __pyx_unpickle_CSVSink__set_state(<CSVSink> __pyx_result, __pyx_state)
  *     return __pyx_result             # <<<<<<<<<<<<<<
  * cdef __pyx_unpickle_CSVSink__set_state(CSVSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
 */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v___pyx_result);
@@ -8211,7 +7973,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_4__pyx_unpickle_CSVSink(CYTHON
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_CSVSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
   /* function exit code */
@@ -8231,7 +7993,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_4__pyx_unpickle_CSVSink(CYTHON
  *         __pyx_unpickle_CSVSink__set_state(<CSVSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_CSVSink__set_state(CSVSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -8249,7 +8011,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_CSVSink__set_sta
   /* "(tree fragment)":12
  *     return __pyx_result
  * cdef __pyx_unpickle_CSVSink__set_state(CSVSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 0);
@@ -8264,17 +8026,17 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_CSVSink__set_sta
   __Pyx_INCREF(__pyx_t_1);
   if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.current_path);
-  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.current_path);
-  __pyx_v___pyx_result->__pyx_base.current_path = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.cerebro_id);
+  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.cerebro_id);
+  __pyx_v___pyx_result->__pyx_base.cerebro_id = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 2);
   __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.experiment_id);
-  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.experiment_id);
-  __pyx_v___pyx_result->__pyx_base.experiment_id = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.current_path);
+  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.current_path);
+  __pyx_v___pyx_result->__pyx_base.current_path = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_2 = __Pyx_PyLong_As_int32_t(__Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 3)); if (unlikely((__pyx_t_2 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __pyx_v___pyx_result->__pyx_base.file_index = __pyx_t_2;
@@ -8303,7 +8065,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_CSVSink__set_sta
 
   /* "(tree fragment)":13
  * cdef __pyx_unpickle_CSVSink__set_state(CSVSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)             # <<<<<<<<<<<<<<
 */
   __pyx_t_3 = __Pyx_UpdateUnpickledDict(((PyObject *)__pyx_v___pyx_result), __pyx_v___pyx_state, 7); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -8312,7 +8074,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_CSVSink__set_sta
  *         __pyx_unpickle_CSVSink__set_state(<CSVSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_CSVSink__set_state(CSVSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -8334,7 +8096,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_CSVSink__set_sta
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_JSONSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
 /* Python wrapper */
@@ -8465,15 +8227,15 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_6__pyx_unpickle_JSONSink(CYTHO
   /* "(tree fragment)":6
  * def __pyx_unpickle_JSONSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')             # <<<<<<<<<<<<<<
  *     __pyx_result = JSONSink.__new__(__pyx_type)
  *     if __pyx_state is not None:
 */
-  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, __pyx_k_backend_current_path_experiment); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CheckUnpickleChecksum(__pyx_v___pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, __pyx_k_backend_cerebro_id_current_path); if (unlikely(__pyx_t_1 == ((int)-1))) __PYX_ERR(1, 6, __pyx_L1_error)
 
   /* "(tree fragment)":7
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = JSONSink.__new__(__pyx_type)             # <<<<<<<<<<<<<<
  *     if __pyx_state is not None:
  *         __pyx_unpickle_JSONSink__set_state(<JSONSink> __pyx_result, __pyx_state)
@@ -8492,7 +8254,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_6__pyx_unpickle_JSONSink(CYTHO
   __pyx_t_2 = 0;
 
   /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = JSONSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_JSONSink__set_state(<JSONSink> __pyx_result, __pyx_state)
@@ -8517,7 +8279,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_6__pyx_unpickle_JSONSink(CYTHO
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
     /* "(tree fragment)":8
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
  *     __pyx_result = JSONSink.__new__(__pyx_type)
  *     if __pyx_state is not None:             # <<<<<<<<<<<<<<
  *         __pyx_unpickle_JSONSink__set_state(<JSONSink> __pyx_result, __pyx_state)
@@ -8530,7 +8292,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_6__pyx_unpickle_JSONSink(CYTHO
  *         __pyx_unpickle_JSONSink__set_state(<JSONSink> __pyx_result, __pyx_state)
  *     return __pyx_result             # <<<<<<<<<<<<<<
  * cdef __pyx_unpickle_JSONSink__set_state(JSONSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
 */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v___pyx_result);
@@ -8542,7 +8304,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_6__pyx_unpickle_JSONSink(CYTHO
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_JSONSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
 
   /* function exit code */
@@ -8562,7 +8324,7 @@ static PyObject *__pyx_pf_8backtest_6logger_4sink_6__pyx_unpickle_JSONSink(CYTHO
  *         __pyx_unpickle_JSONSink__set_state(<JSONSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_JSONSink__set_state(JSONSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -8580,7 +8342,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_JSONSink__set_st
   /* "(tree fragment)":12
  *     return __pyx_result
  * cdef __pyx_unpickle_JSONSink__set_state(JSONSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]             # <<<<<<<<<<<<<<
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 0);
@@ -8595,17 +8357,17 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_JSONSink__set_st
   __Pyx_INCREF(__pyx_t_1);
   if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.current_path);
-  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.current_path);
-  __pyx_v___pyx_result->__pyx_base.current_path = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.cerebro_id);
+  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.cerebro_id);
+  __pyx_v___pyx_result->__pyx_base.cerebro_id = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_1 = __Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 2);
   __Pyx_INCREF(__pyx_t_1);
-  if (!(likely(PyBytes_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("bytes", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_t_1))||((__pyx_t_1) == Py_None) || __Pyx_RaiseUnexpectedTypeError("str", __pyx_t_1))) __PYX_ERR(1, 12, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
-  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.experiment_id);
-  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.experiment_id);
-  __pyx_v___pyx_result->__pyx_base.experiment_id = ((PyObject*)__pyx_t_1);
+  __Pyx_GOTREF(__pyx_v___pyx_result->__pyx_base.current_path);
+  __Pyx_DECREF(__pyx_v___pyx_result->__pyx_base.current_path);
+  __pyx_v___pyx_result->__pyx_base.current_path = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
   __pyx_t_2 = __Pyx_PyLong_As_int32_t(__Pyx_PyTuple_GET_ITEM(__pyx_v___pyx_state, 3)); if (unlikely((__pyx_t_2 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(1, 12, __pyx_L1_error)
   __pyx_v___pyx_result->__pyx_base.file_index = __pyx_t_2;
@@ -8634,7 +8396,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_JSONSink__set_st
 
   /* "(tree fragment)":13
  * cdef __pyx_unpickle_JSONSink__set_state(JSONSink __pyx_result, __pyx_state: tuple):
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)             # <<<<<<<<<<<<<<
 */
   __pyx_t_3 = __Pyx_UpdateUnpickledDict(((PyObject *)__pyx_v___pyx_result), __pyx_v___pyx_state, 7); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(1, 13, __pyx_L1_error)
@@ -8643,7 +8405,7 @@ static PyObject *__pyx_f_8backtest_6logger_4sink___pyx_unpickle_JSONSink__set_st
  *         __pyx_unpickle_JSONSink__set_state(<JSONSink> __pyx_result, __pyx_state)
  *     return __pyx_result
  * cdef __pyx_unpickle_JSONSink__set_state(JSONSink __pyx_result, __pyx_state: tuple):             # <<<<<<<<<<<<<<
- *     __pyx_result.backend = __pyx_state[0]; __pyx_result.current_path = __pyx_state[1]; __pyx_result.experiment_id = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
+ *     __pyx_result.backend = __pyx_state[0]; __pyx_result.cerebro_id = __pyx_state[1]; __pyx_result.current_path = __pyx_state[2]; __pyx_result.file_index = __pyx_state[3]; __pyx_result.output_dir = __pyx_state[4]; __pyx_result.schema = __pyx_state[5]; __pyx_result.writer = __pyx_state[6]
  *     __Pyx_UpdateUnpickledDict(__pyx_result, __pyx_state, 7)
 */
 
@@ -8669,7 +8431,7 @@ static PyObject *__pyx_tp_new_8backtest_6logger_4sink_FileSink(PyTypeObject *t, 
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_8backtest_6logger_4sink_FileSink *)o);
   p->__pyx_vtab = __pyx_vtabptr_8backtest_6logger_4sink_FileSink;
-  p->experiment_id = ((PyObject*)Py_None); Py_INCREF(Py_None);
+  p->cerebro_id = ((PyObject*)Py_None); Py_INCREF(Py_None);
   p->output_dir = ((PyObject*)Py_None); Py_INCREF(Py_None);
   p->backend = ((PyObject*)Py_None); Py_INCREF(Py_None);
   p->current_path = ((PyObject*)Py_None); Py_INCREF(Py_None);
@@ -8688,7 +8450,7 @@ static void __pyx_tp_dealloc_8backtest_6logger_4sink_FileSink(PyObject *o) {
   }
   #endif
   PyObject_GC_UnTrack(o);
-  Py_CLEAR(p->experiment_id);
+  Py_CLEAR(p->cerebro_id);
   Py_CLEAR(p->output_dir);
   Py_CLEAR(p->backend);
   Py_CLEAR(p->current_path);
@@ -9303,12 +9065,12 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_vtable_8backtest_6logger_4sink_JSONSink.__pyx_base = *__pyx_vtabptr_8backtest_6logger_4sink_FileSink;
   __pyx_vtable_8backtest_6logger_4sink_JSONSink.__pyx_base.write = (void (*)(struct __pyx_obj_8backtest_6logger_4sink_FileSink *, PyObject *, int __pyx_skip_dispatch))__pyx_f_8backtest_6logger_4sink_8JSONSink_write;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_t_1 = PyTuple_Pack(1, (PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_FileSink); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_Pack(1, (PyObject *)__pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_FileSink); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_8backtest_6logger_4sink_JSONSink_spec, __pyx_t_1);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink)) __PYX_ERR(0, 86, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_6logger_4sink_JSONSink_spec, __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  if (unlikely(!__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink)) __PYX_ERR(0, 87, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_8backtest_6logger_4sink_JSONSink_spec, __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
   #else
   __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink = &__pyx_type_8backtest_6logger_4sink_JSONSink;
   #endif
@@ -9316,7 +9078,7 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_JSONSink->tp_base = __pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_FileSink;
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
   #endif
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount((PyObject*)__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink);
@@ -9326,10 +9088,10 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink->tp_getattro = PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink, __pyx_vtabptr_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_JSONSink, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 86, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink, __pyx_vtabptr_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_mstate_global->__pyx_n_u_JSONSink, (PyObject *) __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_mstate->__pyx_ptype_8backtest_6logger_4sink_JSONSink) < (0)) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -9737,7 +9499,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_FileSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_FileSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_FileSink__set_state(self, __pyx_state)
 */
@@ -9779,7 +9541,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_ParquetSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_ParquetSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_ParquetSink__set_state(self, __pyx_state)
 */
@@ -9795,7 +9557,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
  *         super().__init__(*args, backend="csv", **kwargs)
  * 
  *     cpdef void write(self, object table): # pa.Table             # <<<<<<<<<<<<<<
- *         if not self.writer:
+ *         if self.writer is None:
  *             self._generate_path()
 */
   __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_6logger_4sink_7CSVSink_3write, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_CSVSink_write, NULL, __pyx_mstate_global->__pyx_n_u_backtest_logger_sink, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[7])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
@@ -9821,7 +9583,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_CSVSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_CSVSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_CSVSink__set_state(self, __pyx_state)
 */
@@ -9833,19 +9595,19 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
   if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_CSVSink, __pyx_mstate_global->__pyx_n_u_setstate_cython, __pyx_t_2) < (0)) __PYX_ERR(1, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/logger/sink.pyx":90
+  /* "backtest/logger/sink.pyx":91
  *         super().__init__(*args, backend="json", **kwargs)
  * 
  *     cpdef void write(self, object table): # pa.Table             # <<<<<<<<<<<<<<
  *         cdef object rows
  * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_6logger_4sink_8JSONSink_3write, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_JSONSink_write, NULL, __pyx_mstate_global->__pyx_n_u_backtest_logger_sink, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_6logger_4sink_8JSONSink_3write, __Pyx_CYFUNCTION_CCLASS, __pyx_mstate_global->__pyx_n_u_JSONSink_write, NULL, __pyx_mstate_global->__pyx_n_u_backtest_logger_sink, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[10])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_JSONSink, __pyx_mstate_global->__pyx_n_u_write, __pyx_t_2) < (0)) __PYX_ERR(0, 90, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict(__pyx_mstate_global->__pyx_ptype_8backtest_6logger_4sink_JSONSink, __pyx_mstate_global->__pyx_n_u_write, __pyx_t_2) < (0)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "(tree fragment)":1
@@ -9863,7 +9625,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
 
   /* "(tree fragment)":16
  *     else:
- *         return __pyx_unpickle_JSONSink, (type(self), 0x5646248, state)
+ *         return __pyx_unpickle_JSONSink, (type(self), 0xd43a1a6, state)
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     __pyx_unpickle_JSONSink__set_state(self, __pyx_state)
 */
@@ -9910,7 +9672,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_FileSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
   __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_6logger_4sink_1__pyx_unpickle_FileSink, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_FileSink, NULL, __pyx_mstate_global->__pyx_n_u_backtest_logger_sink, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[13])); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -9938,7 +9700,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
  *     int __Pyx_UpdateUnpickledDict(object, object, Py_ssize_t) except -1
  * def __pyx_unpickle_CSVSink(__pyx_type, long __pyx_checksum, tuple __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_result
- *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0x5646248, 0x6c82762, 0x02b4a68, b'backend, current_path, experiment_id, file_index, output_dir, schema, writer')
+ *     __Pyx_CheckUnpickleChecksum(__pyx_checksum, 0xd43a1a6, 0x0ad7945, 0x263d94c, b'backend, cerebro_id, current_path, file_index, output_dir, schema, writer')
 */
   __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_6logger_4sink_5__pyx_unpickle_CSVSink, 0, __pyx_mstate_global->__pyx_n_u_pyx_unpickle_CSVSink, NULL, __pyx_mstate_global->__pyx_n_u_backtest_logger_sink, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[15])); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -10008,7 +9770,7 @@ __Pyx_RefNannySetupContext("PyInit_sink", 0);
 static int __Pyx_InitCachedBuiltins(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_super); if (!__pyx_builtin_super) __PYX_ERR(0, 65, __pyx_L1_error)
-  __pyx_builtin_open = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_open); if (!__pyx_builtin_open) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_builtin_open = __Pyx_GetBuiltinName(__pyx_mstate->__pyx_n_u_open); if (!__pyx_builtin_open) __PYX_ERR(0, 96, __pyx_L1_error)
 
   /* Cached unbound methods */
   __pyx_mstate->__pyx_umethod_PyDict_Type_items.type = (PyObject*)&PyDict_Type;
@@ -10027,72 +9789,39 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
   __Pyx_RefNannyDeclarations
   CYTHON_UNUSED_VAR(__pyx_mstate);
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
-
-  /* "backtest/logger/sink.pyx":82
- *             self._generate_path()
- *             write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
- *             with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:             # <<<<<<<<<<<<<<
- *                 dw.write_table(table)
- * 
-*/
-  __pyx_mstate_global->__pyx_tuple[0] = PyTuple_Pack(3, Py_None, Py_None, Py_None); if (unlikely(!__pyx_mstate_global->__pyx_tuple[0])) __PYX_ERR(0, 82, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_mstate_global->__pyx_tuple[0]);
-  __Pyx_GIVEREF(__pyx_mstate_global->__pyx_tuple[0]);
-  #if CYTHON_IMMORTAL_CONSTANTS
-  {
-    PyObject **table = __pyx_mstate->__pyx_tuple;
-    for (Py_ssize_t i=0; i<1; ++i) {
-      #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
-      #if PY_VERSION_HEX < 0x030E0000
-      if (_Py_IsOwnedByCurrentThread(table[i]) && Py_REFCNT(table[i]) == 1)
-      #else
-      if (PyUnstable_Object_IsUniquelyReferenced(table[i]))
-      #endif
-      {
-        Py_SET_REFCNT(table[i], _Py_IMMORTAL_REFCNT_LOCAL);
-      }
-      #else
-      Py_SET_REFCNT(table[i], _Py_IMMORTAL_INITIAL_REFCNT);
-      #endif
-    }
-  }
-  #endif
   __Pyx_RefNannyFinishContext();
   return 0;
-  __pyx_L1_error:;
-  __Pyx_RefNannyFinishContext();
-  return -1;
 }
 /* #### Code section: init_constants ### */
 
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 8; } index[] = {{0},{4},{179},{1},{1},{8},{24},{7},{6},{2},{9},{14},{5},{7},{25},{27},{13},{9},{8},{26},{28},{14},{14},{8},{26},{28},{14},{11},{29},{31},{17},{13},{20},{12},{1},{2},{18},{7},{20},{18},{5},{11},{3},{8},{5},{5},{6},{9},{6},{8},{13},{8},{7},{12},{14},{8},{13},{5},{4},{4},{4},{8},{10},{8},{7},{4},{2},{10},{5},{7},{4},{3},{2},{11},{15},{14},{12},{11},{10},{22},{23},{23},{26},{14},{12},{10},{17},{13},{6},{4},{12},{10},{12},{19},{5},{6},{5},{5},{5},{8},{9},{6},{12},{6},{5},{13},{11},{1},{23},{79},{53},{85},{7},{11},{250},{250},{250},{11},{11},{55},{55},{55}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1361 bytes) */
-const char* const cstring = "BZh91AY&SY\346\003\214\277\000\001.\177\377\377\375\375\227\367\367\366\355\277\271\377\330\277\377\377\377\300@@@@@@@@@@@@\000@\000P\004\276\024\007\266d\000\014\"5F\244\364\233M\023\3102&\206!\221\243#CL\215\032\006\232\032\000\r\006\215\006\230&\032FA\352\034\000\000\000\000\000\001\220\000\000\000\000\000\000\000\031\000\016\000\000\000\000\000\000\310\000\000\000\000\000\000\000\014\200\0044Q\246\222m@\032\007\251\241\240\000\00044\000\000\000\000\000\000\032\032\001$\200\232F\211\350\t\246\232i\252{I\204\232\036\247\251\241\246F\200\003 \000\001\241\243@0j\036\247:H(\252\036\002\354\262a\223!\220w\027\203\233\3008\356\240\376\227\250\275\205\330^\362\370W\310\276\265\332_\222\356***********\327\266\254^\342r\377\204\034\351\227\370cY\215\0109\214\257R\024\331\231\231&L\244\177\275\251\252\226\205b\2111\033\321Q<D\334\342\2518R\227\000\016\276\240\270\341E\377-\331\036,\305x\270\252\226\032-\206\341{S\2618j\2575\223\3633\254\312\363\"\272\331#\036\202\010\254\242\304\303\227c\000\031S\311\220vHY\232\323\006}B{N*\243\335rJ'\341d\255\2677\364\203/\203#?+\006\334\037\211s\254\026\254c\004\326X|\377\014\302X\326I\246O\t\351\233\344\r\036\202\320\374\370\361\337\370\252N\273\345\243\345Y:\206\026\257\037Eu\226\273\246O=j\302\262bU\336\260\263;\246\257/=gF5JL\243Ux\242\265v\321\037\232w\347\237\252\2151\351\336\275Y\006f\"\226J\315\207'+\220\325\371\205\252\325\333G\342)/B\316\275\036\367\275\317g\275\357{\336\367\276\013*\255j\270\256,B\227\350\301\342\335\256\265iZ\251Fk\270\277k\252\352\300c\021k\014\303X\341\334\316A\312\006\353\200t\020\315\023\227\2320\227$\272]\330\221\221\311/\013D\335\017 /mB0\013\357}\222g\210\254\200@F\020!\022@\213x\206F\300DJ\021\020\236P\014\244+\306\343E\034\346a\027\335\206\252K\264\252\"\364I\206\321 \324\244\022'\375\223v\216\010\2113\2269\003\236\345F\017\013/@\360h\220\204%\233n\307xs\236\343\205\264\331\260\305'\351\244z\020*\n8\312k\326\323#H>N\230D\210\210\270}\2330\236\2733lCy\\\036\332\356\245T\362y;K\211i\323-{</s`e$\212@""\016\255\024\304(\316\261\216\000\000\000\006<\255\021\035DXfO\276\246mK\210\210\256<\343\357\200\255\020\301\004g\243\2207\343\260\232B,V\030\020\272\014\301\006\240\004jN\207\310\2713w\341~\326\226\272\247\n\310\2177\024v\216eZ\226\310\344)-\030\226\265\255_\306\035\230\231.t\205\225\367u\304\243\312F\0309Pf`L[71t\337\233\243\277s#\256%\262\312\225\275\243\324d\221P\231\227\022cs\204Z\203\023\321B=,t\343\364bB\242\267\276\250as\324s\345\224o(,\352r\214\334\0030\314\3428\351\202\273\365N\2529\317\312\305l\t>1\330\256\201\023B\211\247\227R\331.6\035\373\370\027\0148\022&pcqn\246\221Q\204\233d\253pfY\370\357le\236]\327\276\260kc\232\334GJ\025\373\326b\233 \277\266\264(;\000\032\027\215\302\215\205\307\351/#\202+[\226\264\2606m\333\330\001\215\273_9\267L\344`a\266LEy\304M\315=.\035\271\001\365\352\245\366\244\254\254\275RW\333\203;\243{K\265\357\331b\330\342eQFF\363^\356\3328\224\333\201jY\037q\311\235|\3508R(;)\034\265B\376\274\322\021\2025\272\264]\001\2079\317b\227\212\342\241r\370`H\205\350\016\314W\"\253\262u\204Z\010\031\361m+B\323\275\241kXw\353:)Z<\016\213\341\201\235\313x4B\226\342\357=hXlS\236\313\212\344\270\0263\206+2\270SX4\014\271\336\302\0302t\360)g\304\237\325\320\"O\021\207R\320\260\246Z\027\214\264\257\037O_o\255\327]\370|\361\355\316\037B\017\245\036\3532>\245\2017`>\004\036\262\372\303\351Z\023}\237\352d\356\262\304\270\276\375\216\320\232\317ue\357&#\267\2051\324\230\367\256\261T\020\027\370\240k\320gY\024\201\235\010s\341\255su\334E_\336\027\025\350]\340U\3016+\276'\n\0375By\200\356J\244\221AL\252I+\254\007\001\373\252E|_\020\n\242\265\307\\\222yc\310\242\267\r\244\226\320\242\347\363\010\357\342\271\217\372#4\212r)\260*(%\r\206\263\030|\364J!(GP1\036\230\324\026\353\t\341}\226\302\330I!\010K\017\202b\210\2364\304P\320l\310g,\217@9\021\301\224\357\272k\312U\t\316e@o\323\005\025!6WW\306$\277\264\312\344f\277\361w$S\205\t\016`8\313\360";
-    PyObject *data = __Pyx_DecompressString(cstring, 1361, 2);
+    const struct { const unsigned int length: 8; } index[] = {{0},{4},{179},{1},{1},{8},{24},{7},{6},{2},{9},{14},{5},{7},{25},{27},{13},{9},{8},{26},{28},{14},{14},{8},{26},{28},{14},{11},{29},{31},{17},{13},{20},{12},{1},{2},{18},{7},{20},{10},{18},{5},{11},{3},{8},{5},{5},{6},{6},{8},{7},{12},{14},{8},{13},{5},{4},{4},{4},{8},{10},{8},{7},{4},{2},{10},{5},{7},{4},{3},{2},{11},{15},{14},{12},{11},{10},{22},{23},{23},{26},{14},{12},{10},{17},{13},{6},{4},{12},{10},{12},{19},{5},{6},{5},{5},{5},{8},{9},{6},{12},{6},{5},{13},{11},{1},{23},{53},{83},{68},{7},{11},{248},{248},{248},{11},{11},{55},{55},{55}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1338 bytes) */
+const char* const cstring = "BZh91AY&SY\235\\q0\000\001.\177\377\377\375\374\266\367\367\366\357\277\271\375\350\277\377\377\366\300@@@@@@@@@@@@\000@\000P\004\247\236\205\005\003\245\016\n\033RT\203\336\244jm\031OS\010\364hC#C\324\303Q\241\2154\002m&\232=M\240h5?HL\007\244e\010\232Tl\325=G\206\224\331M\006i\r\224\30442h2\00022\000\304\030\020\300\214\20048\000\r\000\000\310\000\000\003!\243@\000\000\000\000\000\000\010'\250\212mO(\323G\351&\206\2154\000\000\000\r\000\320\000\000\000\001\210\000\022D&D\312a0&Q\251\340M5?T\332j\036\247\250h\000\000\000\000\031\r\003#4\215,\200\223\310\226\200\212,0\303$\310\200\355\257\332\234\272\204\271\311\346\221\252Q6\013cl\250q\020\017\036<x\361\343\307\217\036E4\210\306\230\342\302\022\2621\3402,\372\220t\031\240\252\t\260\30333$\311\225_\215A5\245Z\277\322i\033\262R[\211\274\"j*'\027\n\013\340\351\346\277\345\022\"\221\202j{t[\026*\036\271\362&\326P\230\277`\357\212\376VR\240|)\307\036\206,%\374\326\233\010\241Z\211\210\320h=&D\253\230\253i\311\336\203\311D\352\335,8tp\240\315\321\225\241\231\203f0\304\274+\016U\214e\227\345\367\352\010\344YjL\240\024\016\234\341P4\267\326\250\027\350\261\343\330\340^J\261B\256Ts,\275c\033^\311ys-\353Q\267\205c\235\353\0134=K@\260\251\316D\332\253\226%\240\354\242_\034\356\226\217!\021\255V\276\353\270\326\305\244\331\230\202\331\264\300\351\325\321[}\245r\271vQ\370\007\341\007u\020\000( \000\000\000\021\0169\324H6\221\254\373\316\003\200\305\273\357<q\211\230\375\275\223(\027\225\344\346\026\031\206\261\307\364\035\007(\033n\003\305\014\3229|\022\344\356TR'%;\355#\304\ravh\312!\261\010[S@E\204]\323r\263\2049\036\021t*\230\0103\273\223\2032\036\245\t\265\335\320\350\375\253\320\260y\177\276K\027\371\307\330\206\370\255:\345\217\320_\257\020\030[+T\331\367\265\2361\301\335N\241\307\317\243M\257\336\332;\356(h\317\212\244\245\273\267e\\\022,\013\034\314[\275e\n\254\214&\364\t\022\021''\232\022\235\273\331\342\255\342RXK7\314\335u\255\27092Y.=\230RFCp\314\245\"0MBj\330\305\242#336Y\302\215d\237L\"\375\030k\202Tz\372\314\360""\214\343]l\320\243i\273\032\253\2441N\225\372\2505\266\3153i\223$\303V\354\302\201&\321w_R\326\265\255]\352O#W\275zq\270\221\002<\005\024q\016\205\267f\310{\331L\224\326,\265\343\211\\\n\347\035\217\035\006f\004\306\304\335\213M\371\274\267\357b\274\2266U\331\006\216u\235:H\254ZS\272\352+S\232\270E\323\014\260E\244\274\\\326qv\344F\205\220\205#\221\340\260g\224`\260\251J4p\031\206g%\222\2335\354Rt\255\336\031\230\261\201(JW\354\2541\252\216\227,\326b\307\205]\305W#\230-\220\200`m\202\201\332\024\000\301\212\010\213&P\004@\343\217\005S\262f\nT\200l1\315\207\031\231y\222\263\301vJ2\013\3755\r8\200\327\302\216/Ery\321\\.\250\267\226\350\260\266\323nK\0101\253\004&s\034\354\0147S9\214\263P\215*\355\265\027\263q\307\214C\003\0235#\212H*\220,b\020\343\235\224WJ?+\232)\246E\232\022\0300\204\201\000T\3678\024\020E\270\226G\312\257j\364\326U\241F\255\223[\212\302\347\332%\265\r\236\013$#$\253z\321x\006\035\336\014a+\212\205\230\203\"Dn\210\367\312\352)z\247\264\223E\003BM\272b[\274\013\007\r\ri_ \006\344#\201\237\232\320\325\032\357\342\357A`\224\2629N%\210\352\320\236\3604\315\226\\\013DXC\026\344\347\300\247\237\022\207chEP\021yq\254zq\256\272q\360W\263\345\346O?\036\017\337\037\216\321R\022\376\013]\231\033G\264mc]\251\211h\233\204$\264\333\335\343\016Y\204\223\032?\0019\207F\330<\335\206\033\207i\234g\352\340\253Z\355U&rm:\035\025\312_\030\\\336S\rJ\347\241#\022L\270H\273=\035d\213ul\267:\267\330\247\327\322\224\177`\324`Q\225\202d\305\007\315vH0\244\337J\341U\310G\037eZ\353\224\234\256\353\324X\261\211\312yR\225\225\014\321\254\252\036\251\257Y\304\322\326\013s6&Z]\367X\304t|\213\007\021@\271:L\275\377Y(\335\"\022JK\264\257-\365E\350r`\347\036\245\334\\j\n}\327\232\345T\023\273)VE\2415\341\214\242\354Z\224\320\027\343\021b\037\361w$S\205\t\t\325\307\023\000";
+    PyObject *data = __Pyx_DecompressString(cstring, 1338, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1179 bytes) */
-const char* const cstring = "x\332\335SKo\333F\020\266d\265q\342 q\036h\200\242\017\252H\3438p\224:P\021\027\t\032\270\261c4\005\224(N-#=,V\344JZ\233Z>vW\266\322\246\361QG\036y\344\221G\036u\344\321G\036y\364O\310O\350,)\251r\224\366\007\344@~\263\363\355\314\316\354|[\263\030\251Y\202h\242\203\205\366\244/:\026\323(\327\014b\322&q\261 f_\343\302\245\272 \256\332\304\264\027[/\356V\327\253\032f\206\346\222}\242\013\256q\331\324M\3149\341\232\325\322\232\222\232\2022M\364m\302+\332\257-\255oI\215\021bh\302\322l\3307\035 :\204i\234\010eh\313\2301K`A-\206 \234\262\366\262fP\027\016\241=\242\242\237b\223\223J\34516\014\004;I\023\353\007\202pq\317\264\332m\342\336\343\224\035T\354\376\221A9n\232\2040\365o\353\224\347\226\361H5\303\332\334\222\256N~\226\242uw\375\311\316\356\016D\215\240\202\220K\014\251\023\244g\267\201\320\277\004T\311\241\270Y\352\320\245\202\300\242\241\320}JM\242\334c\234M9\305\314\344\234p\272iq2YeG<\333y^S\2531\316f\236bf2O\270,\327\013\354:\222\010\345\2302g3\236%g\222N\323\323y\363\253\000\276\177\004\337&\010\010\325\310\221xIZ\031\363\334V3\346\01071\3573\235Z\025\335r-\t\262!\\\315\2240c<\332J>\332\212\032\255n\302\006DA\034.\326\263\341g\267\244[]\333%\234CJ\235\367\0202\324q9\030\262k\303\360u\313 \010\021\226\325D\216(\027<C\241\3766qi\0278D\r\204Z\222\351\010\265\241O\372\206\344F\3260\234\252\233\022\262t\0106T\026\312T4\242\034MJ\207\306\272|\337\242l\237[\014\312\006\272\213\241Z\205\226!M\242,\206\2739\222C\204,\2330\013\324(l)\240^\327\306\320\200\235_\241\215E\307\266l\333\261\373\330u\255\303\212\242F\346h\013B\240u\244w\210~\300e7_\301EHs\304\214JW\246z\215\271%\231M\365\003(f$\337\017\274c\311}\340\036\253\347\003\367\324\374s\246'\324CS\r:\022\233\343fG\242B3\362\2328\310\021\250\013:\351bN\314V\246\264\321U\201e\220\026\316\232\232\350\017}D\213J!\2343l\333\375\214\340\022&;*G)\t\376\026\324h\302\364\245m\300\006\311\311$K\017\233\222\360L\302\331\017F\223I4_dY.\034o\244\013\213\203\352\300I/.y\347\274\014.\370\345\261[xk\312s\331\007\342+\177+\370:\304""\311\275\307C\021\337\217\177?YN\352/\223\227\273\311n#\275\362\205\267\037\024\202\353\001\2126\207\347\343o\222\3478\301\315t\351\252\267\352c\337\371X:u\316w~-,\207\325\360\335\320\210WN\036%\215\275t\341\342`\333{\344;A\341x\343\375\347s\347/~$\354&\344\024\301\343\250\2546,\r\244\367\314\307y \354\273\346U\275\236_\367\215`9\274\022\256D\367\243z\336\233rbU\311\245\001>.\244\245\357\203z\320\n7\216\013\357\027\346>\2734x\345}\351W\375w\241\221\334\377%\276\031w\223\235F\3220\022\243\223t\234\304\221\211\354\245\245\354\010\357\251\277\032\340\264t\356\2707hx[\376u\277\236.\\\365\312\351\302\r\3179\205\237\360\177\n\266\303\037\243\371\250\032\375\0357N\266\222\372\253\344\325^\262\327N\332,a<\341\275\244\367\346\375\334\334\237\205\355\"\300v\261\246\240V\334Q\260S\334U\260[|\255\340u\261\251\240Y\244\nh\221)`EG\201S\224\nd\361\255\202\267\305\315y\200\315\371\255yU\233\223.\\N.\257\204\327\303z\330\216\376\210\317\305P\333\031O\341\223\356|5\334\214\n\321\215\341b\374\340\244|z\326\263\366Iw~;,\205\033a#\372mx\030\343\323\263\036G\t\177\005\336\305\255\250\240\314[\001\016za\375\270pZ\372\326w\022\355\207hq\3700>\200\207\235\226\256y\017\374\333A9XS\251\377\202\005t\253B\357D\265\270\234\226\026\007k\377\021\266\356\257\007k\301\306T\330\035x\345\017#\026o\374_\330C\277\003\3258SawA\251lX;\311O\373\007~X\323\243";
-    PyObject *data = __Pyx_DecompressString(cstring, 1179, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (1147 bytes) */
+const char* const cstring = "x\332\335TMo\333F\020\265d\265Qc#n\233\000A\213\026\245\212|9\210\225\272P\021\027v\033\250\261\0234\001\024+6\342\024=,V\344H\242E\355R\334\245,\031)\352\243\216<\362\310#\217<\352\250\243\217<\352\350\237\220\237\320YRR\345(\355\017\310A\373fgvf\337\354<\252\302\031T\270\004M6\251\324\236\364e\2233\315\024\232\001\226Y\003\207J\260\372\232\220\216\251Kp\324!\246\355\357\355o\224\266J\032e\206\346\3001\350Rh\302\255\351\026\025\002\204\306\353Z\3155-i2M\366m\020E\355\367\272\326\347\256\306\000\014Mr\315\306s\363\t\262\tL\023 \225\241\335\245\214qI\245\311\031\301t\2235\356j\206\351\340%f\027T\366Sj\t(\026\037S\303 x\022jToI\020\362\241\305\033\rp\036\n\223\265\212v\277g\230\202\326,\000\246\326\206n\212\3242vT3\254!\270\353\350\360\253+\353\033[O\016^\037`\326\004\212\2048`\270:\020=y\rB\376\r K\201\344\026C'\216)\0017G\n\235\247\246\005\312=\305\305\222s\221\205\232\263\230nq\001\263]r\305\363\203\227\025\265\233\342b\345\271\310B\345Y,\251\265O\235\216\013R9\346\314\305\212\227\203\013E\347\303\363u\323\247\300x\277\207\277]\024\020\251@O\276\202z\022yi\253\031\013BkT\364\231n\362\242\316\035\356\242l@\250\231\0023\246\243-\246\243-\252\321\352\340@\315\341\3044t\013\217\022\023e\342P=\221A\362^:o\333\016\010\201\305u\321%\304P\027\247`\270m\033e\240s\003\240g\n)\010\251\273L'\244\201=\231\247\220\032IsXW\267\\\003H\023\250\241\2720\231\251\312\230\202\314hb\023mq\314Mv,8C\212\030nS\344\243\220\033\256\005\312b\264\235\"\234\020\302m`\034\225'mW\"#\307\246H\321N\237\313\246\262is\333\356\330}\3528\374\244\250B\023sr\204\020\3245\321\233\240\267\204\333Nw\330\252kM\"\023\352\312T_^j\271\3146\365\026\222\231H\365=\357T^\357\271\247Jy\317=7\3534\322\225\352\243R\rv\\jM\233\235\010\210,Hi\346\200\036*\t;iS\001V=Q\325\344\251\3202\240N\223\246fZ#\037\320\235R\203\020\214\332v?\t\010\327\006gBG\251\006W\216\034-\034\264k\033x\300\0250\253\322\245\226\013\"\221k\262\340h\0229\246\233\244\312\325\263\3628\2772(\r:\343\325\317\275+^\002W\375\302\324-\275M\345Y\363'\201""\357\375JX\010K\341\337Cc\264~\276\023\037\275\031\347W\007\317\274\035\277\023d\316\312\357>]\372l\365\003i\267|\352\313\340qT\270\310\257\r\\\357\271O\3234<u\335+y]\277\352\033\301\335\360\213p=\3721\252\246T\224\223Ny\364<\341\027f%\277\361\367\202oC\212,hZ\377\266\177\212\311\267B><\034}u^\214\337\374q1Ok\234\2776\240g\231q\356vP\r\352a\371,\363.\277\364\311\265\301\241\367\265_\362\377\nw\243\265\241\034\375\022\357\037\306\2074\246\020\003\213\231\023;b\234KXzO\375\007\001\035\347\256\234u\007G\336\236\177\303\257\216\363_z\205q\376\246\327\271\300E\372?\007\317\302\237\242\345\250\024\275\035=:\277}.\342W\257\343\327Fl\264\342\226\035\333\"\026'\357\226\226z\231\335,\302n\366\205\202\027\331}\005\373\331\003\005\007\331#\005GY\242\200d\353\n\352\331\226\202V\226)`YG\201\223=Up\232-/#\224\227\177[V\324:\343\374Z\274\266\036\336\010\253a#\372ste\204\324.y2\037q\337\017\260\231Lts\270\202,\n\027\227=\233\037q\337\367\302\\X\016\217\242\027\303\223\021\275\270\354\351(\311\257\343\207q'\312(\363N@\203nX=\313\\\344\276\363;\261\366C\2642\334\036\265\342\352\253q\356\272\367\310\277\027\024\202MU\372-n\260Y\225z?\252\214\n\343\334\312`\363?\322\266\374\255`3(\317\245\335\307\177\210\355\210\215\312\377\227\266\3557\221Mg.m\003U\312\206\225\363\364\266\177\000\374Q\300\334";
+    PyObject *data = __Pyx_DecompressString(cstring, 1147, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (2522 bytes) */
-const char* const bytes = "NoneNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False..?add_notebacktest/logger/sink.pyxdisableenablegcisenabled<stringsource>utf-8CSVSinkCSVSink.__reduce_cython__CSVSink.__setstate_cython__CSVSink.writeCSVWriterFileSinkFileSink.__reduce_cython__FileSink.__setstate_cython__FileSink.closeFileSink.writeJSONSinkJSONSink.__reduce_cython__JSONSink.__setstate_cython__JSONSink.writeParquetSinkParquetSink.__reduce_cython__ParquetSink.__setstate_cython__ParquetSink.writeParquetWriter__Pyx_PyDict_NextRefWriteOptions_abasyncio.coroutinesbackendbacktest.logger.sinkcline_in_tracebackclosecompressioncsv__dict___dictdumpsencode__enter__exists__exit__experiment_id__func__getsize__getstate__include_header__init___is_coroutineitemsjoinjsonlog___main____module____name____new__openosoutput_dirpacsvparquetpathpoppqpyarrow.csvpyarrow.parquet__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_CSVSink__pyx_unpickle_FileSink__pyx_unpickle_JSONSink__pyx_unpickle_ParquetSink__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__schemaself__set_name__setdefault__setstate____setstate_cython__sinkssnappystatesupertable__test__to_pylistupdateuse_setstatevalueswritewrite_optionswrite_table\n\200A\330\010\013\2104\210q\330\014\020\220\007\220q\330\014\020\220\n\230!\200A\330\010\013\2104\210t\2201\330\014\020\220\017\230q\330\014\034\230E\240\035\250a\320/?\270t\3002\300U\310'\320QR\320RV\320VW\330\021\026\220j\240\001\240\024\240_\260D\270\t\300\036\320Oa\320ab\330\020\022\220,\230a\230q\200A\330\010\013\2104\210t\2201\330\014\020\220\017\230q\330\014\020\220\n\230\"\230N\250!\2504\250\177\270d\300)\310<\320WX\330\010\014\210G\220<\230q\240\001\200A\360\006\000\t\014\2104\210t\2201\330\014\020\220\017\230q\330\014\020\220\n\230$\230a\230t\240?\260!\360\006\000\t\020\210u\220J\230a\330\010\014\210G\2201\330\014\023\2204\220v\230Q\230d\240'\250\021""\250)\2602\260Q\330\014\020\220\007\220v\230Q\230a\200A\330\010\016\210a\200\001\330\004%\240Q\240f\250A\200\001\360\010\000\005\016\210T\220\032\2304\230\177\250d\3202B\300$\300m\320SW\320Wd\320dh\320hq\320qu\320uv\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260~\300W\310E\320QT\320TX\320Xg\320gn\320ns\320sv\320vz\360\000\000{\001G\002\360\000\000G\002N\002\360\000\000N\002S\002\360\000\000S\002V\002\360\000\000V\002Z\002\360\000\000Z\002b\002\360\000\000b\002i\002\360\000\000i\002n\002\360\000\000n\002q\002\360\000\000q\002u\002\360\000\000u\002}\002\360\000\000}\002D\003\360\000\000D\003E\003\330\004\007\200q\330\010\017\320\017)\250\024\250Q\250g\260[\300\007\300q\340\010\017\320\017)\250\024\250Q\250g\260[\300\001\200\001\360\010\000\005\016\210T\220\032\2304\230\177\250d\3202B\300$\300m\320SW\320Wd\320dh\320hq\320qu\320uv\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260~\300W\310E\320QT\320TX\320Xg\320gn\320ns\320sv\320vz\360\000\000{\001G\002\360\000\000G\002N\002\360\000\000N\002S\002\360\000\000S\002V\002\360\000\000V\002Z\002\360\000\000Z\002b\002\360\000\000b\002i\002\360\000\000i\002n\002\360\000\000n\002q\002\360\000\000q\002u\002\360\000\000u\002}\002\360\000\000}\002D\003\360\000\000D\003E\003\330\004\007\200q\330\010\017\320\017,\250D\260\001\260\027\270\013\3007\310!\340\010\017\320\017,\250D\260\001\260\027\270\013\3001\200\001\360\010\000\005\016\210T\220\032\2304\230\177\250d\3202B\300$\300m\320SW\320Wd\320dh\320hq\320qu\320uv\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260~\300W\310E\320QT\320TX\320Xg\320gn\320ns\320sv\320vz\360\000\000{\001G\002\360\000\000G\002N\002\360\000\000N\002S\002\360\000\000S\002V\002\360""\000\000V\002Z\002\360\000\000Z\002b\002\360\000\000b\002i\002\360\000\000i\002n\002\360\000\000n\002q\002\360\000\000q\002u\002\360\000\000u\002}\002\360\000\000}\002D\003\360\000\000D\003E\003\330\004\007\200q\330\010\017\320\017(\250\004\250A\250W\260K\270w\300a\340\010\017\320\017(\250\004\250A\250W\260K\270q\200\001\330\004)\250\021\250&\260\001\200\001\330\004&\240a\240v\250Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2207\230(\240!\2401\330\004\007\200|\2207\230!\330\010)\250\021\250*\260N\300!\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2208\2308\2401\240A\330\004\007\200|\2207\230!\330\010*\250!\250;\260n\300A\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220;\230h\240a\240q\330\004\007\200|\2207\230!\330\010-\250Q\250n\270N\310!\330\004\013\2101";
+    #else /* compression: none (2483 bytes) */
+const char* const bytes = "NoneNote that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False..?add_notebacktest/logger/sink.pyxdisableenablegcisenabled<stringsource>utf-8CSVSinkCSVSink.__reduce_cython__CSVSink.__setstate_cython__CSVSink.writeCSVWriterFileSinkFileSink.__reduce_cython__FileSink.__setstate_cython__FileSink.closeFileSink.writeJSONSinkJSONSink.__reduce_cython__JSONSink.__setstate_cython__JSONSink.writeParquetSinkParquetSink.__reduce_cython__ParquetSink.__setstate_cython__ParquetSink.writeParquetWriter__Pyx_PyDict_NextRefWriteOptions_abasyncio.coroutinesbackendbacktest.logger.sinkcerebro_idcline_in_tracebackclosecompressioncsv__dict___dictdumpsencodeexists__func__getsize__getstate__include_header__init___is_coroutineitemsjoinjsonlog___main____module____name____new__openosoutput_dirpacsvparquetpathpoppqpyarrow.csvpyarrow.parquet__pyx_checksum__pyx_result__pyx_state__pyx_type__pyx_unpickle_CSVSink__pyx_unpickle_FileSink__pyx_unpickle_JSONSink__pyx_unpickle_ParquetSink__pyx_vtable____qualname____reduce____reduce_cython____reduce_ex__schemaself__set_name__setdefault__setstate____setstate_cython__sinkssnappystatesupertable__test__to_pylistupdateuse_setstatevalueswritewrite_optionswrite_table\n\200A\330\010\013\2104\210q\330\014\020\220\007\220q\330\014\020\220\n\230!\200A\330\010\013\2104\210t\2201\330\014\020\220\017\230q\330\014\020\220\n\230\"\230N\250!\2504\250\177\270d\300)\310<\320WX\330\010\014\210G\220<\230q\240\001\200A\360\006\000\t\014\2104\210t\2201\330\014\020\220\017\230q\330\014\020\220\n\230$\230a\230t\240?\260!\340\010\017\210u\220J\230a\330\010\014\210G\2201\330\014\023\2204\220v\230Q\230d\240'\250\021\250)\2602\260Q\330\014\020\220\007\220v\230Q\230a\200A\330\010\013\2104\210x\220s\230!\330\014\020\220\017\230q\330\014\034\230E\240\035\250a\250\177\270a\330\014\020\220\n\230%\230z\250\021\250$\250o\270T\300\031\310.\320XY\340\010\014\210G\220<\230q\240""\001\200A\330\010\016\210a\200\001\330\004%\240Q\240f\250A\200\001\360\010\000\005\016\210T\220\032\2304\230}\250D\260\017\270t\300=\320PT\320Ta\320ae\320en\320nr\320rs\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260|\3007\310%\310s\320RV\320Vd\320dk\320kp\320ps\320sw\360\000\000x\001D\002\360\000\000D\002K\002\360\000\000K\002P\002\360\000\000P\002S\002\360\000\000S\002W\002\360\000\000W\002_\002\360\000\000_\002f\002\360\000\000f\002k\002\360\000\000k\002n\002\360\000\000n\002r\002\360\000\000r\002z\002\360\000\000z\002A\003\360\000\000A\003B\003\330\004\007\200q\330\010\017\320\017)\250\024\250Q\250g\260[\300\007\300q\340\010\017\320\017)\250\024\250Q\250g\260[\300\001\200\001\360\010\000\005\016\210T\220\032\2304\230}\250D\260\017\270t\300=\320PT\320Ta\320ae\320en\320nr\320rs\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260|\3007\310%\310s\320RV\320Vd\320dk\320kp\320ps\320sw\360\000\000x\001D\002\360\000\000D\002K\002\360\000\000K\002P\002\360\000\000P\002S\002\360\000\000S\002W\002\360\000\000W\002_\002\360\000\000_\002f\002\360\000\000f\002k\002\360\000\000k\002n\002\360\000\000n\002r\002\360\000\000r\002z\002\360\000\000z\002A\003\360\000\000A\003B\003\330\004\007\200q\330\010\017\320\017,\250D\260\001\260\027\270\013\3007\310!\340\010\017\320\017,\250D\260\001\260\027\270\013\3001\200\001\360\010\000\005\016\210T\220\032\2304\230}\250D\260\017\270t\300=\320PT\320Ta\320ae\320en\320nr\320rs\330\004\014\210G\2201\220F\230,\240a\330\004\007\200v\210W\220E\230\024\230Q\330\010\022\220!\330\010\027\220q\340\010\027\220t\2309\240G\2505\260\003\2604\260|\3007\310%\310s\320RV\320Vd\320dk\320kp\320ps\320sw\360\000\000x\001D\002\360\000\000D\002K\002\360\000\000K\002P\002\360\000\000P\002S\002\360\000\000S\002W\002\360\000\000W\002_\002\360\000\000_""\002f\002\360\000\000f\002k\002\360\000\000k\002n\002\360\000\000n\002r\002\360\000\000r\002z\002\360\000\000z\002A\003\360\000\000A\003B\003\330\004\007\200q\330\010\017\320\017(\250\004\250A\250W\260K\270w\300a\340\010\017\320\017(\250\004\250A\250W\260K\270q\200\001\330\004)\250\021\250&\260\001\200\001\330\004&\240a\240v\250Q\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2207\230(\240!\2401\330\004\007\200|\2207\230!\330\010)\250\021\250*\260N\300!\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\2208\2308\2401\240A\330\004\007\200|\2207\230!\330\010*\250!\250;\260n\300A\330\004\013\2101\200\001\340\004\037\230q\320 0\260\013\270;\300k\320QR\330\004\023\220;\230h\240a\240q\330\004\007\200|\2207\230!\330\010-\250Q\250n\270N\310!\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
     PyObject **stringtab = __pyx_mstate->__pyx_string_tab;
     Py_ssize_t pos = 0;
-    for (int i = 0; i < 107; i++) {
+    for (int i = 0; i < 105; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyUnicode_DecodeUTF8(bytes + pos, bytes_length, NULL);
       if (likely(string) && i >= 13) PyUnicode_InternInPlace(&string);
@@ -10103,7 +9832,7 @@ const char* const bytes = "NoneNote that Cython is deliberately stricter than PE
       stringtab[i] = string;
       pos += bytes_length;
     }
-    for (int i = 107; i < 122; i++) {
+    for (int i = 105; i < 120; i++) {
       Py_ssize_t bytes_length = index[i].length;
       PyObject *string = PyBytes_FromStringAndSize(bytes + pos, bytes_length);
       stringtab[i] = string;
@@ -10114,14 +9843,14 @@ const char* const bytes = "NoneNote that Cython is deliberately stricter than PE
       }
     }
     Py_XDECREF(data);
-    for (Py_ssize_t i = 0; i < 122; i++) {
+    for (Py_ssize_t i = 0; i < 120; i++) {
       if (unlikely(PyObject_Hash(stringtab[i]) == -1)) {
         __PYX_ERR(0, 1, __pyx_L1_error)
       }
     }
     #if CYTHON_IMMORTAL_CONSTANTS
     {
-      PyObject **table = stringtab + 107;
+      PyObject **table = stringtab + 105;
       for (Py_ssize_t i=0; i<15; ++i) {
         #if CYTHON_COMPILING_IN_CPYTHON_FREETHREADING
         #if PY_VERSION_HEX < 0x030E0000
@@ -10141,7 +9870,7 @@ const char* const bytes = "NoneNote that Cython is deliberately stricter than PE
   }
   {
     PyObject **numbertab = __pyx_mstate->__pyx_number_tab + 0;
-    int32_t const cint_constants_4[] = {90464840L};
+    int32_t const cint_constants_4[] = {222536102L};
     for (int i = 0; i < 1; i++) {
       numbertab[i] = PyLong_FromLong(cint_constants_4[i - 0]);
       if (unlikely(!numbertab[i])) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -10206,7 +9935,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_state, __pyx_mstate->__pyx_n_u_dict_2, __pyx_mstate->__pyx_n_u_use_setstate};
-    __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16};
@@ -10221,7 +9950,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_state, __pyx_mstate->__pyx_n_u_dict_2, __pyx_mstate->__pyx_n_u_use_setstate};
-    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE_2, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[5] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE_2, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[5])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16};
@@ -10231,12 +9960,12 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 78};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_table};
-    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_logger_sink_pyx, __pyx_mstate->__pyx_n_u_write, __pyx_mstate->__pyx_kp_b_iso88591_A_4t1_q_E_a_t2U_QRRVVW_j__D_Oaab, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[7] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_logger_sink_pyx, __pyx_mstate->__pyx_n_u_write, __pyx_mstate->__pyx_kp_b_iso88591_A_4xs_q_E_a_a_z_oT_XY_G_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[7])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_state, __pyx_mstate->__pyx_n_u_dict_2, __pyx_mstate->__pyx_n_u_use_setstate};
-    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE_3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[8] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE_3, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[8])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16};
@@ -10244,14 +9973,14 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[9] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_setstate_cython, __pyx_mstate->__pyx_kp_b_iso88591_QfA, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[9])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 90};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 91};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_table};
     __pyx_mstate_global->__pyx_codeobj_tab[10] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_logger_sink_pyx, __pyx_mstate->__pyx_n_u_write, __pyx_mstate->__pyx_kp_b_iso88591_A_4t1_q_at_uJa_G1_4vQd_2Q_vQa, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[10])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 4, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 1};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self, __pyx_mstate->__pyx_n_u_state, __pyx_mstate->__pyx_n_u_dict_2, __pyx_mstate->__pyx_n_u_use_setstate};
-    __pyx_mstate_global->__pyx_codeobj_tab[11] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_d2B_mSWWddhhqquuv_G1F_a_vWE, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[11])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[11] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_stringsource, __pyx_mstate->__pyx_n_u_reduce_cython, __pyx_mstate->__pyx_kp_b_iso88591_T_4_D_t_PTTaaeennrrs_G1F_a_vWE, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[11])) goto bad;
   }
   {
     const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 16};
@@ -11643,31 +11372,11 @@ static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
     return __Pyx_GetBuiltinName(name);
 }
 
-/* decode_c_bytes (used by decode_bytes) */
-static CYTHON_INLINE PyObject* __Pyx_decode_c_bytes(
-         const char* cstring, Py_ssize_t length, Py_ssize_t start, Py_ssize_t stop,
-         const char* encoding, const char* errors,
-         PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors)) {
-    if (unlikely((start < 0) | (stop < 0))) {
-        if (start < 0) {
-            start += length;
-            if (start < 0)
-                start = 0;
-        }
-        if (stop < 0)
-            stop += length;
-    }
-    if (stop > length)
-        stop = length;
-    if (unlikely(stop <= start))
-        return __Pyx_NewRef(__pyx_mstate_global->__pyx_empty_unicode);
-    length = stop - start;
-    cstring += start;
-    if (decode_func) {
-        return decode_func(cstring, length, errors);
-    } else {
-        return PyUnicode_Decode(cstring, length, encoding, errors);
-    }
+/* PyUnicode_Unicode */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj) {
+    if (unlikely(obj == Py_None))
+        obj = __pyx_mstate_global->__pyx_kp_u_None;
+    return __Pyx_NewRef(obj);
 }
 
 /* CIntToDigits (used by CIntToPyUnicode) */
@@ -11912,13 +11621,6 @@ static CYTHON_INLINE PyObject* __Pyx____Pyx_PyUnicode_From_int32_t(int32_t value
         return PyUnicode_FromOrdinal(*dpos);
     }
     return __Pyx_PyUnicode_BuildFromAscii(ulength, dpos, (int) length, prepend_sign, padding_char);
-}
-
-/* PyUnicode_Unicode */
-static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj) {
-    if (unlikely(obj == Py_None))
-        obj = __pyx_mstate_global->__pyx_kp_u_None;
-    return __Pyx_NewRef(obj);
 }
 
 /* JoinPyUnicode */
@@ -12786,211 +12488,6 @@ CYTHON_UNUSED static int __Pyx_VectorcallBuilder_AddArg_Check(PyObject *key, PyO
     return PyDict_SetItem(builder, key, value);
 }
 #endif
-
-/* PyObjectLookupSpecial */
-#if CYTHON_USE_PYTYPE_LOOKUP && CYTHON_USE_TYPE_SLOTS
-static CYTHON_INLINE PyObject* __Pyx__PyObject_LookupSpecial(PyObject* obj, PyObject* attr_name, int with_error) {
-    PyObject *res;
-    PyTypeObject *tp = Py_TYPE(obj);
-    res = _PyType_Lookup(tp, attr_name);
-    if (likely(res)) {
-        descrgetfunc f = Py_TYPE(res)->tp_descr_get;
-        if (!f) {
-            Py_INCREF(res);
-        } else {
-            res = f(res, obj, (PyObject *)tp);
-        }
-    } else if (with_error) {
-        PyErr_SetObject(PyExc_AttributeError, attr_name);
-    }
-    return res;
-}
-#endif
-
-/* GetTopmostException (used by SaveResetException) */
-#if CYTHON_USE_EXC_INFO_STACK && CYTHON_FAST_THREAD_STATE
-static _PyErr_StackItem *
-__Pyx_PyErr_GetTopmostException(PyThreadState *tstate)
-{
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    while ((exc_info->exc_value == NULL || exc_info->exc_value == Py_None) &&
-           exc_info->previous_item != NULL)
-    {
-        exc_info = exc_info->previous_item;
-    }
-    return exc_info;
-}
-#endif
-
-/* SaveResetException */
-#if CYTHON_FAST_THREAD_STATE
-static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
-  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
-    _PyErr_StackItem *exc_info = __Pyx_PyErr_GetTopmostException(tstate);
-    PyObject *exc_value = exc_info->exc_value;
-    if (exc_value == NULL || exc_value == Py_None) {
-        *value = NULL;
-        *type = NULL;
-        *tb = NULL;
-    } else {
-        *value = exc_value;
-        Py_INCREF(*value);
-        *type = (PyObject*) Py_TYPE(exc_value);
-        Py_INCREF(*type);
-        *tb = PyException_GetTraceback(exc_value);
-    }
-  #elif CYTHON_USE_EXC_INFO_STACK
-    _PyErr_StackItem *exc_info = __Pyx_PyErr_GetTopmostException(tstate);
-    *type = exc_info->exc_type;
-    *value = exc_info->exc_value;
-    *tb = exc_info->exc_traceback;
-    Py_XINCREF(*type);
-    Py_XINCREF(*value);
-    Py_XINCREF(*tb);
-  #else
-    *type = tstate->exc_type;
-    *value = tstate->exc_value;
-    *tb = tstate->exc_traceback;
-    Py_XINCREF(*type);
-    Py_XINCREF(*value);
-    Py_XINCREF(*tb);
-  #endif
-}
-static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
-  #if CYTHON_USE_EXC_INFO_STACK && PY_VERSION_HEX >= 0x030B00a4
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    PyObject *tmp_value = exc_info->exc_value;
-    exc_info->exc_value = value;
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(type);
-    Py_XDECREF(tb);
-  #else
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-    #if CYTHON_USE_EXC_INFO_STACK
-    _PyErr_StackItem *exc_info = tstate->exc_info;
-    tmp_type = exc_info->exc_type;
-    tmp_value = exc_info->exc_value;
-    tmp_tb = exc_info->exc_traceback;
-    exc_info->exc_type = type;
-    exc_info->exc_value = value;
-    exc_info->exc_traceback = tb;
-    #else
-    tmp_type = tstate->exc_type;
-    tmp_value = tstate->exc_value;
-    tmp_tb = tstate->exc_traceback;
-    tstate->exc_type = type;
-    tstate->exc_value = value;
-    tstate->exc_traceback = tb;
-    #endif
-    Py_XDECREF(tmp_type);
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(tmp_tb);
-  #endif
-}
-#endif
-
-/* GetException */
-#if CYTHON_FAST_THREAD_STATE
-static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb)
-#else
-static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb)
-#endif
-{
-    PyObject *local_type = NULL, *local_value, *local_tb = NULL;
-#if CYTHON_FAST_THREAD_STATE
-    PyObject *tmp_type, *tmp_value, *tmp_tb;
-  #if PY_VERSION_HEX >= 0x030C0000
-    local_value = tstate->current_exception;
-    tstate->current_exception = 0;
-  #else
-    local_type = tstate->curexc_type;
-    local_value = tstate->curexc_value;
-    local_tb = tstate->curexc_traceback;
-    tstate->curexc_type = 0;
-    tstate->curexc_value = 0;
-    tstate->curexc_traceback = 0;
-  #endif
-#elif __PYX_LIMITED_VERSION_HEX > 0x030C0000
-    local_value = PyErr_GetRaisedException();
-#else
-    PyErr_Fetch(&local_type, &local_value, &local_tb);
-#endif
-#if __PYX_LIMITED_VERSION_HEX > 0x030C0000
-    if (likely(local_value)) {
-        local_type = (PyObject*) Py_TYPE(local_value);
-        Py_INCREF(local_type);
-        local_tb = PyException_GetTraceback(local_value);
-    }
-#else
-    PyErr_NormalizeException(&local_type, &local_value, &local_tb);
-#if CYTHON_FAST_THREAD_STATE
-    if (unlikely(tstate->curexc_type))
-#else
-    if (unlikely(PyErr_Occurred()))
-#endif
-        goto bad;
-    if (local_tb) {
-        if (unlikely(PyException_SetTraceback(local_value, local_tb) < 0))
-            goto bad;
-    }
-#endif // __PYX_LIMITED_VERSION_HEX > 0x030C0000
-    Py_XINCREF(local_tb);
-    Py_XINCREF(local_type);
-    Py_XINCREF(local_value);
-    *type = local_type;
-    *value = local_value;
-    *tb = local_tb;
-#if CYTHON_FAST_THREAD_STATE
-    #if CYTHON_USE_EXC_INFO_STACK
-    {
-        _PyErr_StackItem *exc_info = tstate->exc_info;
-      #if PY_VERSION_HEX >= 0x030B00a4
-        tmp_value = exc_info->exc_value;
-        exc_info->exc_value = local_value;
-        tmp_type = NULL;
-        tmp_tb = NULL;
-        Py_XDECREF(local_type);
-        Py_XDECREF(local_tb);
-      #else
-        tmp_type = exc_info->exc_type;
-        tmp_value = exc_info->exc_value;
-        tmp_tb = exc_info->exc_traceback;
-        exc_info->exc_type = local_type;
-        exc_info->exc_value = local_value;
-        exc_info->exc_traceback = local_tb;
-      #endif
-    }
-    #else
-    tmp_type = tstate->exc_type;
-    tmp_value = tstate->exc_value;
-    tmp_tb = tstate->exc_traceback;
-    tstate->exc_type = local_type;
-    tstate->exc_value = local_value;
-    tstate->exc_traceback = local_tb;
-    #endif
-    Py_XDECREF(tmp_type);
-    Py_XDECREF(tmp_value);
-    Py_XDECREF(tmp_tb);
-#elif __PYX_LIMITED_VERSION_HEX >= 0x030b0000
-    PyErr_SetHandledException(local_value);
-    Py_XDECREF(local_value);
-    Py_XDECREF(local_type);
-    Py_XDECREF(local_tb);
-#else
-    PyErr_SetExcInfo(local_type, local_value, local_tb);
-#endif
-    return 0;
-#if __PYX_LIMITED_VERSION_HEX <= 0x030C0000
-bad:
-    *type = 0;
-    *value = 0;
-    *tb = 0;
-    Py_XDECREF(local_type);
-    Py_XDECREF(local_value);
-    Py_XDECREF(local_tb);
-    return -1;
-#endif
-}
 
 /* AllocateExtensionType */
 static PyObject *__Pyx_AllocateExtensionType(PyTypeObject *t, int is_final) {

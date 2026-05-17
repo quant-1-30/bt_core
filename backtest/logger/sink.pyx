@@ -28,8 +28,8 @@ from libc.stdint cimport int32_t
 
 
 cdef class FileSink:
-    def __init__(self, bytes experiment_id, str output_dir, object schema, str backend):
-        self.experiment_id = experiment_id
+    def __init__(self, str cerebro_id, str output_dir, object schema, str backend):
+        self.cerebro_id = cerebro_id
         self.backend = backend
         self.output_dir = output_dir
         self.schema = schema
@@ -39,7 +39,7 @@ cdef class FileSink:
         self.current_path = ""
 
     cdef void _generate_path(self):
-        path = os.path.join(self.output_dir, f"log_{self.experiment_id.decode('utf-8')}_{self.file_index}.{self.backend}")
+        path = os.path.join(self.output_dir, f"log_{self.cerebro_id}_{self.file_index}.{self.backend}")
         self.current_path = path
         self.file_index += 1 # only consumer so safety
 
@@ -76,11 +76,12 @@ cdef class CSVSink(FileSink):
         super().__init__(*args, backend="csv", **kwargs)
 
     cpdef void write(self, object table): # pa.Table
-        if not self.writer:
+        if self.writer is None:
             self._generate_path()
-            write_options = pacsv.WriteOptions(include_header=(not os.path.exists(self.current_path)))
-            with pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options) as dw:
-                dw.write_table(table)
+            write_options = pacsv.WriteOptions(include_header=True)
+            self.writer = pacsv.CSVWriter(self.current_path, self.schema, write_options=write_options)
+        
+        self.writer.write_table(table)
 
 
 cdef class JSONSink(FileSink):
@@ -92,9 +93,8 @@ cdef class JSONSink(FileSink):
 
         if not self.writer:
             self._generate_path()
-            self.writer = open(self.current_path, 'ab') # 二进制追加模式
+            self.writer = open(self.current_path, 'ab')
 
-        # 将 Arrow Table 转为 Python 字典列表 (高效转换)
         rows = table.to_pylist()
         for row in rows:
             line = json.dumps(row).encode('utf-8') + b'\n' # jsonlines

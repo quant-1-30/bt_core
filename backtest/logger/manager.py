@@ -12,7 +12,7 @@ class LogConsumerThread(threading.Thread):
     def __init__(self, log_shm, cerebro_id, output_dir,
                  fmt="parquet", 
                  max_file_size_mb=512, 
-                 flush_threshold=50000):
+                 flush_threshold=500000):
         super().__init__(daemon=True)
 
         self.log_shm = log_shm
@@ -20,13 +20,12 @@ class LogConsumerThread(threading.Thread):
         self.max_size_bytes = max_file_size_mb * 1024 * 1024
         
         self._buffer = []
-        self._pending_count = 0
 
         # align to Cython struct
         self.schema = pa.schema([
             ('datetime', pa.int64()),
             ('value', pa.float64()),
-            ('metrics', pa.int32()),
+            ('metrics', pa.binary()),
             # ('_pad', pa.int32())
         ])
         
@@ -35,25 +34,48 @@ class LogConsumerThread(threading.Thread):
         self._stop_event = threading.Event()
 
     def run(self):
-        while not self._stop_event.is_set() or self.log_shm.has_data():
-            arr = self.log_shm.drain_metrics(max_batch=10000)
-            print("LogConumserThread run arr: ", len(arr))
-            
-            if arr is not None and len(arr) > 0:
-                table = pa.Table.from_array(arr, schema=self.schema) # zero_copy
-                self._buffer.append(table)
-                self._pending_count += len(arr)
-                
-                if self._pending_count >= self.flush_threshold:
-                    self._flush()
-            else:
-                time.sleep(0.001)
-                if not self._running and self._buffer: self._flush()
+        try:
+            while not self._stop_event.is_set() or self.log_shm.has_data():
+                arr = self.log_shm.drain_metrics(min_batch=5000, max_batch=100000)
 
-        if self._buffer:
-            self._flush()
+                if arr is not None and len(arr) > 0:
+                    print("LogConumserThread run arr: ", len(arr), arr)
+                    table = self._process_and_buffer(arr)
+                else:
+                    time.sleep(0.001)
+        except Exception as e:
+            import traceback
+            print(f"!!! FATAL ERROR IN LOG THREAD !!!: {e}")
+            traceback.print_exc()
+        finally:
+            print("LogConsumerThread fully exited.")
+
+        # drain
+        while True:
+            arr = self.log_shm.drain_metrics(min_batch=1, max_batch=50000)
+            if arr is None:
+                break
+            self._process_and_buffer(arr)
 
         self.sink.close()
+
+    # @staticmethod
+    def _process_and_buffer(self, arr):
+            """
+            Structured Array to Pyarrow Table
+            """
+            # 1D Structured Array to List of 1D Arrays / numpy_arr['column_name'] zero_copy view
+            arrays = [
+                pa.array(arr['datetime']),
+                pa.array(arr['value']),
+                pa.array(arr['metrics']),
+                # pa.array(arr['_pad'])
+            ]
+            table = pa.Table.from_arrays(arrays, schema=self.schema)
+            self._buffer.append(table)
+        
+            if len(self._buffer) >= self.flush_threshold:
+                self._flush()
 
     def _flush(self):
         if not self._buffer: return
@@ -65,7 +87,6 @@ class LogConsumerThread(threading.Thread):
         self.sink.write(big_table)
         
         self._buffer = []
-        self._pending_count = 0
 
     def stop(self):
-        self._stop_event.is_set() 
+        self._stop_event.is_set()

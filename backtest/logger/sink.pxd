@@ -2,7 +2,7 @@ from libc.stdint cimport int64_t, int32_t
 
 
 cdef class FileSink:
-    cdef bytes experiment_id
+    cdef str cerebro_id
     cdef str output_dir
     cdef str backend
     cdef str current_path
