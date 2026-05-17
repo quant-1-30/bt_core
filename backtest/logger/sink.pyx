@@ -43,7 +43,7 @@ cdef class FileSink:
         self.current_path = path
         self.file_index += 1 # only consumer so safety
 
-    cdef void check_rotation(self, int32_t max_size_bytes):
+    cpdef void check_rotation(self, int32_t max_size_bytes):
         if self.writer and os.path.exists(self.current_path):
             if os.path.getsize(self.current_path) >= max_size_bytes:
                 self.close()

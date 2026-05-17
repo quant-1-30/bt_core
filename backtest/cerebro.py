@@ -126,7 +126,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         # logshm
         self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000000, is_creator=True)
-        self.log_background = LogConsumerThread(self.log_shm, "log_test", output_dir="/Users/hengxinliu/startup/backtest/tests")
+        self.log_background = LogConsumerThread(self.log_shm, "log_test", fmt="csv", output_dir="/Users/hengxinliu/startup/backtest/tests")
  
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
@@ -529,14 +529,15 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 cb(runstrat)  # callback receives finished strategy
         
         # stop log thread and shm
+        print("_shutdown")
         self._shutdown()
 
-        if self.p.isplot:
-            dstrat = self.runningstrats[0]
-            self.plot(self, num_data=len(self.datas), 
-                            num_ind=len(dstrat._lineiterators[0]), 
-                            num_obs=len(dstrat._lineiterators[2]),
-                            out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
+        # if self.p.isplot:
+        #     dstrat = self.runningstrats[0]
+        #     self.plot(self, num_data=len(self.datas), 
+        #                     num_ind=len(dstrat._lineiterators[0]), 
+        #                     num_obs=len(dstrat._lineiterators[2]),
+        #                     out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
         
      
     def runstrategies(self, iterstrat, **kwargs):
@@ -719,9 +720,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._event_stop = True  # signal a stop has been requested
 
     def _shutdown(self):
+        print("_shutdown 1")
         self.log_background.stop() # exit from while
+        print("_shutdown 2")
         self.log_background.join()
-        
+        print("_shutdown 3")
         self.log_shm.close()
+        print("_shutdown 4")
         self.log_shm.unlink()
         print("Cerebro shutdown complete.")

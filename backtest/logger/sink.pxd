@@ -13,7 +13,7 @@ cdef class FileSink:
     
     cdef void _generate_path(self)
 
-    cdef void check_rotation(self, int32_t max_size_bytes)
+    cpdef void check_rotation(self, int32_t max_size_bytes)
 
     cpdef void write(self, object table)
 

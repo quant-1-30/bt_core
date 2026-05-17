@@ -70,7 +70,7 @@ cdef struct RingHeader:
 cdef struct MetricMsg:
     int64_t datetime    
     double value    
-    char metrics[16] # 15 bytes + '\0' 
+    char metrics[32] # 31 bytes + '\0' 
 
 cdef struct LogRingHeader:
     volatile int64_t head
@@ -123,8 +123,6 @@ cdef class LogRingBuffer: # MPSC
     cpdef void publish_metric(self, bytes metrics, double value, int64_t dt)
 
     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=*)
-
-    cpdef bint has_data(self)
 
     cpdef void close(self)
 

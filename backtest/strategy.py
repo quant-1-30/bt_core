@@ -424,7 +424,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         '''Called right before the backtesting is about to be stopped'''
         self.store.stop(self.experiment_id)
         self.shm_chan.close()
+        print("shm_chan close")
         self.shm_chan.unlink()
+        print("shm_chan unlink")
     
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类

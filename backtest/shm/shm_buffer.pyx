@@ -120,6 +120,9 @@ cdef class SharedRingBuffer: # SPMC
         return msg
  
     cpdef void publish_sentinel(self, int64_t tick):
+        if self.header == NULL:
+            return
+        
         cdef EventMsg* msg
 
         with nogil:
@@ -131,6 +134,9 @@ cdef class SharedRingBuffer: # SPMC
         self._advance()
     
     cdef void publish_account(self, object py_account):
+        if self.header == NULL:
+            return
+        
         cdef EventMsg* msg
 
         with nogil:
@@ -148,6 +154,9 @@ cdef class SharedRingBuffer: # SPMC
         self._advance()
 
     cdef void publish_position(self, object py_pos):
+        if self.header == NULL:
+            return
+        
         cdef EventMsg* msg
 
         with nogil:
@@ -167,6 +176,9 @@ cdef class SharedRingBuffer: # SPMC
         self._advance()
 
     cdef void publish_trade(self, object py_trade):
+        if self.header == NULL:
+            return
+        
         cdef EventMsg* msg
 
         with nogil:
@@ -185,6 +197,9 @@ cdef class SharedRingBuffer: # SPMC
         self._advance()
     
     cpdef void publish_order(self, object py_order):
+        if self.header == NULL:
+            return
+        
         cdef EventMsg* msg
 
         with nogil:
@@ -258,12 +273,25 @@ cdef class SharedRingBuffer: # SPMC
         return events
 
     cpdef void close(self):
+        # avoid suspending ptr
+        self.header = NULL 
+        self.buffer = NULL
+        
         if self._shm is not None:
             self._shm.close()
 
     cpdef void unlink(self):
         if self._shm is not None:
             self._shm.unlink() # incase shm is corruption
+
+
+# dtype ---> numpy Structured Arrays C struct
+# 'i8' = int64, 'f8' = float64, 'S16' = 16 bytes
+dtype = cnp.dtype([
+    ('datetime', 'i8'), 
+    ('value', 'f8'), 
+    ('metrics', 'S32')
+])
 
 
 cdef class LogRingBuffer: # MPSC
@@ -305,6 +333,9 @@ cdef class LogRingBuffer: # MPSC
                 sched_yield()
 
     cpdef void publish_metric(self, bytes metrics, double value, int64_t dt):
+        if self.header == NULL:
+            return
+
         cdef LogRingHeader* h = self.header
         cdef int64_t pos = h.head % self.capacity
         cdef MetricMsg* msg
@@ -318,7 +349,7 @@ cdef class LogRingBuffer: # MPSC
         msg.value = value
         
         strncpy(msg.metrics, <char*>metrics, 15)
-        msg.metrics[15] = b'\0'
+        msg.metrics[31] = '\0' # 0 / '0' in C , b'\0' pytho
         
         with nogil:
             mem_barrier()
@@ -328,36 +359,29 @@ cdef class LogRingBuffer: # MPSC
         cdef LogRingHeader* h = self.header
         cdef int64_t current_tail = h.tail
         cdef int64_t current_head = h.head
-        cdef int32_t i
+        cdef MetricMsg* src = self.buffer
 
         cdef int64_t available = current_head - current_tail
         cdef int64_t count = min(available, <int64_t>max_batch)
 
         if available < min_batch: # avoid 0 to accumulate
-            return None
-            
-        # dtype ---> numpy Structured Arrays C struct
-        # 'i8' = int64, 'f8' = float64, 'S16' = 16 bytes
-        dtype = cnp.dtype([
-            ('datetime', 'i8'), 
-            ('value', 'f8'), 
-            ('metrics', 'S16')
-        ])
+            return np.array([])
         
-        cdef cnp.ndarray arr = np.empty(count, dtype=dtype)  
-        cdef MetricMsg* dest = <MetricMsg*>arr.data
-        cdef MetricMsg* src = self.buffer
-        
+        cdef cnp.ndarray[cnp.uint8_t, ndim=1] raw_arr = np.empty(count * sizeof(MetricMsg), dtype=np.uint8) 
+        cdef MetricMsg* dest = <MetricMsg*> &raw_arr[0]
+
+        cdef int32_t i
+
         for i in range(count):
             dest[i] = src[(current_tail + i) % self.capacity] # C struct ---> slot of array`
             
         h.tail = current_tail + count
-        return arr
-    
-    cpdef bint has_data(self):
-        return self.header.head > self.header.tail
+        return raw_arr.view(dtype) # reinpreter
     
     cpdef void close(self):
+        self.header = NULL
+        self.buffer = NULL
+        
         if self._shm is not None:
             self._shm.close()
 
