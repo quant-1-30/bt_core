@@ -106,7 +106,7 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
         close = raw_data[body.sid[0]]
 
-        self.benchmark_ret = close.with_columns(
+        self.benchmark_dret = close.with_columns(
             pl.col("close").pct_change().fill_null(0).alias("ret")
         ).select(["day", "ret"])
 

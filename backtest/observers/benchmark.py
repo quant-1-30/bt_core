@@ -69,10 +69,12 @@ class Benchmark(Observer):
         self.rbench = self._owner._addanalyzer(bt.analyzers.Benchmark, **kwargs)
         self.dtcmp = np.iinfo(np.int_).min
 
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self.rbench.dtcmp
         if dtcmp > self.dtcmp:
             self.lines.benchmark[0] = ret = self.rbench.rets.get(dtcmp, float('NaN')) 
             self.dtcmp = dtcmp
 
-            # self.log_shm.publish_metric(b"BenchmarkReturn", ret, dtcmp) # log the benchmark return for the current datetime
+    def notify_timer(self):
+        # log the benchmark return for the current datetime
+        self.log_shm.publish_metric(b"Benchmark", self.lines.benchmark[0], self.dtcmp) 

@@ -98,38 +98,6 @@ class DataSeries(LineSeries):
     def getvalues(self):
         return [self.lines[i][0] for i in range(len(self.lines))]
 
-    def getwriterheaders(self):
-        headers= [self._name]
-        _alias = ','.join(self.getlinealiases())
-        headers.append(_alias)
-        # morelines = self.getlinealiases()[len(self.LineOrder):]
-        # headers.extend(morelines)
-        return headers
-    
-    def getwritervalues(self):
-        values = [self._name]
-
-        l = len(self)
-        if l:
-            v = [str(l[0]) for l in self.lines.itersize()]
-        else:
-            # v = [''] * self.lines.size()
-            v = [str(np.nan)] * self.lines.size()
-            
-        v_str = ','.join(v)
-        values.append(v_str)
-        return values
-
-    def getwriterinfo(self):
-        # returns dictionary with information
-        info = OrderedDict()
-        info['Name'] = self._name
-        # info['ExtraInfo'] = self.extra_info
-        info['Timeframe'] = TimeFrame.TName(self._timeframe)
-        info['Compression'] = self._compression
-
-        return info
-
 
 class OHLC(DataSeries):
     # lines = ('close', 'low', 'high', 'open', 'volume', 'openinterest',)

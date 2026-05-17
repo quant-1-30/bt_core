@@ -97,7 +97,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
     def start(self):
         super(Benchmark, self).start()
 
-        ret_table = self._owner.store.get_benchmark_ret()
+        ret_table = self._owner.store.get_benchmark_dret()
         self.dts = ret_table["day"].to_numpy()
         self.returns = ret_table["ret"].to_numpy()
 
@@ -105,5 +105,3 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         loc = np.searchsorted(self.dts, self.dtcmp)
         loc_ret = self.returns[loc] if loc < len(self.dts) else np.nan
         self.rets[self.dtcmp] = loc_ret
-        # self.log_shm.publish_metric("BenchmarkReturn", loc_ret, self.dtcmp)
-          

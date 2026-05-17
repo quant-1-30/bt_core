@@ -55,7 +55,7 @@ class Broker(Observer):
         self.plotlines.cash._plotskip = True
         # self.plotlines.value._name = 'FundValue'
 
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self.vb.dtcmp
         if dtcmp > self.dtcmp:
             v = self.vb.rets.get(dtcmp, None)
@@ -63,7 +63,8 @@ class Broker(Observer):
                 self.lines.cash[0] = v["cash"]
                 self.lines.netvalue[0] = v["portfolio_value"] + v["cash"]
 
-                # self.log_shm.publish_metric(b"Cash", v["cash"], dtcmp)
-                # self.log_shm.publish_metric(b"NetValue", v["portfolio_value"], dtcmp)
-
             self.dtcmp = dtcmp
+
+    def notify_timer(self):
+        self.log_shm.publish_metric(b"Cash", self.lines.cash[0], self.dtcmp)
+        self.log_shm.publish_metric(b"NetValue", self.lines.netvalue[0], self.dtcmp)

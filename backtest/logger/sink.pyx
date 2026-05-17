@@ -26,6 +26,8 @@ import pyarrow.csv as pacsv
 
 from libc.stdint cimport int32_t
 
+from backtest.utils.encoder import CustomJSONEncoder
+
 
 cdef class FileSink:
     def __init__(self, str cerebro_id, str output_dir, object schema, str backend):
@@ -97,7 +99,7 @@ cdef class JSONSink(FileSink):
 
         rows = table.to_pylist()
         for row in rows:
-            line = json.dumps(row).encode('utf-8') + b'\n' # jsonlines
+            line = json.dumps(row,  cls=CustomJSONEncoder, indent=2).encode('utf-8') + b',\n' # jsonlines
             self.writer.write(line)
 
 

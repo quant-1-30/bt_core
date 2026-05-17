@@ -51,17 +51,18 @@ class Trades(Observer):
         self.preturn = self._owner._addanalyzer(bt.analyzers.PositionsValue, **kwargs)
         self.dtcmp = np.iinfo(np.int_).min
 
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self.preturn.dtcmp
         pnl_obj = self.preturn.rets.get(dtcmp, None)
         if dtcmp > self.dtcmp:
             pnl = np.sum([p["pnl"] for p in pnl_obj]) if pnl_obj else np.nan
-
             if pnl > 0.0:
                 self.lines.pnlplus[0] = pnl
             elif pnl <= 0.0 :
                 self.lines.pnlminus[0] = pnl
-
             self.dtcmp = dtcmp
 
-            # self.log_shm.publish_metric(b"TradePnL", pnl, dtcmp) # log the PnL of the trade for the current datetime 
+    def notify_timer(self):
+        # log the PnL of the trade for the current datetime 
+        self.log_shm.publish_metric(b"TradePlusPnL", self.lines.pnlplus[0], self.dtcmp) 
+        self.log_shm.publish_metric(b"TradeMinusPnL", self.lines.pnlminus[0], self.dtcmp) 

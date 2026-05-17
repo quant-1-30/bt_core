@@ -78,11 +78,11 @@ class TimeReturn(Observer):
             bt.analyzers.TimeReturn, **kwargs)
         self.dtcmp = np.iinfo(np.int_).min
 
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self.treturn.dtcmp
         if dtcmp > self.dtcmp:
             self.lines.timereturn[0] = tr = self.treturn.rets.get(dtcmp, float('NaN'))
-
             self.dtcmp = dtcmp
-            
-            # self.log_shm.publish_metric(b"TimeReturn", tr, dtcmp) # log the time return for the current datetime
+
+    def notify_timer(self):
+        self.log_shm.publish_metric(b"TimeReturn", self.lines.timereturn[0], self.dtcmp) # log the time return for the current datetime

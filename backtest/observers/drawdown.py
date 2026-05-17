@@ -58,24 +58,7 @@ class DrawDown(Observer):
         self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
         self.dtcmp = np.iinfo(np.int_).min
 
-    # def forward(self, value=np.nan, size=1):
-    #     # 保留当前值，避免在 forward 后变成 np.nan。
-    #     # 这使得其他在 observer 之前执行的 indicators（如 Signal）
-    #     # 能读取到上一周期的有效值，而不是 np.nan。
-    #     if len(self.lines.drawdown) > 0:
-    #         dd_val = self.lines.drawdown[-1]
-    #         maxdd_val = self.lines.maxdrawdown[-1]
-    #     else:
-    #         dd_val = value
-    #         maxdd_val = value
-
-    #     super(DrawDown, self).forward(value=value, size=size)
-
-    #     if len(self.lines.drawdown) > 0:
-    #         self.lines.drawdown[0] = dd_val
-    #         self.lines.maxdrawdown[0] = maxdd_val
-
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self._dd.dtcmp
         if dtcmp > self.dtcmp:
             # import pdb; pdb.set_trace()
@@ -83,7 +66,6 @@ class DrawDown(Observer):
             self.lines.drawdown[0] = dd # update drawdown
             self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
             self.dtcmp = dtcmp
-            # print("DrawDown next ", dd, self.lines.maxdrawdown[0])
 
 
 class DrawDownLength(Observer):
@@ -107,21 +89,7 @@ class DrawDownLength(Observer):
         self._dd = self._owner._addanalyzer(bt.analyzers.DrawDown, **kwargs)
         self.dtcmp = np.iinfo(np.int_).min
 
-    # def forward(self, value=np.nan, size=1):
-    #     if len(self.lines.len) > 0:
-    #         len_val = self.lines.len[-1]
-    #         maxlen_val = self.lines.maxlen[-1]
-    #     else:
-    #         len_val = value
-    #         maxlen_val = value
-
-    #     super(DrawDownLength, self).forward(value=value, size=size)
-
-    #     if len(self.lines.len) > 0:
-    #         self.lines.len[0] = len_val
-    #         self.lines.maxlen[0] = maxlen_val
-
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self._dd.dtcmp
         if dtcmp > self.dtcmp:
             _, ddlen = self._dd.rets[dtcmp]
@@ -129,5 +97,7 @@ class DrawDownLength(Observer):
             self.lines.maxlen[0] = self._dd.rets["maxDrawdownLength"]
             self.dtcmp = dtcmp
 
-            self.log_shm.publish_metric(b"DrawDownLength", ddlen, dtcmp) # log the drawdown length for the current datetime
-            # import pdb; pdb.set_trace()
+    def notify_timer(self):
+        # log the drawdown length for the current datetime
+        self.log_shm.publish_metric(b"DrawDownLength", self.lines.len[0], self.dtcmp) 
+        self.log_shm.publish_metric(b"maxDrawdownLength", self.lines.maxlen[0], self.dtcmp) 

@@ -10,12 +10,13 @@ from .sink import sinks
 
 
 class LogConsumerThread(threading.Thread):
-    def __init__(self, log_shm, 
-                 cerebro_id, 
-                 fmt,
-                 output_dir, 
-                 max_file_size_mb=512, 
-                 flush_threshold=500000):
+    def __init__(self, 
+                 log_shm: object, 
+                 log_id: str, 
+                 fmt: str,
+                 output_dir: str, 
+                 max_file_size_mb: int =512, 
+                 flush_threshold: int =500000):
         super().__init__(daemon=False)
 
         self.log_shm = log_shm
@@ -32,7 +33,7 @@ class LogConsumerThread(threading.Thread):
             # ('_pad', pa.int32())
         ])
         
-        self.sink = sinks.get(fmt.lower())(cerebro_id, output_dir, self.schema)
+        self.sink = sinks.get(fmt.lower())(log_id, output_dir, self.schema)
         
         # self._stop_event = threading.Event()
         self._running = True
@@ -47,12 +48,10 @@ class LogConsumerThread(threading.Thread):
                     table = self._process_and_buffer(arr)
                 else:
                     time.sleep(0.001)
-            print("exit from while")
 
             # drain
             while True:
                 arr = self.log_shm.drain_metrics(min_batch=1, max_batch=50000)
-                print(" left arr: ", arr)
                 if not len(arr):
                     break
                 self._process_and_buffer(arr)

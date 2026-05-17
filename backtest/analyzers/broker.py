@@ -77,3 +77,4 @@ class Broker(bt.TimeFrameAnalyzerBase):
         accts = [act["data"] for act in snapshots if act["type"] == "account"]
         if accts:
           self.rets[self.dtcmp] = accts[-1]
+        

@@ -96,7 +96,6 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
             self.peak = value
             self.ddlen = 0 
 
-        # self.dd = dd = (self.peak - value) / self.peak if self.peak > 0.0 else 0.0
         self.dd = dd = 1.0 -  np.divide(value, self.peak) if self.peak > 0.0 else 0.0
         self.ddlen += bool(dd > 0.0)
 

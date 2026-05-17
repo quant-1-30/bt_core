@@ -68,3 +68,9 @@ class Observer(with_metaclass(MetaObserver, ObserverBase)):
 
     def start(self):
         pass
+
+    def notify_timer(self):
+        pass
+
+    def on_dt_over(self):
+        pass

@@ -95,8 +95,8 @@ class LocalStore(Store):
         '''Returns the assets data'''
         return self._feed.instrument
     
-    def get_benchmark_ret(self) -> pa.Table:
-        table = self._feed.benchmark_ret
+    def get_benchmark_dret(self) -> pa.Table:
+        table = self._feed.benchmark_dret
         return table
  
 # ------------------------------------------------------------------- broker api --------------------------------------------------------------------

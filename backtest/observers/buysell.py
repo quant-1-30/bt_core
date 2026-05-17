@@ -43,7 +43,7 @@ class BuySell(Observer):
 
       - ``bardist`` (default: ``0.015`` 1.5%) Distance to max/min when
     '''
-    lines = ('buy', 'sell') # 'comm'
+    lines = ('buy', 'sell', "comm") 
 
     plotinfo = dict(plot=True, subplot=False, plotlinelabels=True)
 
@@ -62,7 +62,7 @@ class BuySell(Observer):
         self.txns = self._owner._addanalyzer(bt.analyzers.Transactions)
         self.dtcmp = np.iinfo(np.int_).min
 
-    def next(self):
+    def on_dt_over(self):
         dtcmp = self.txns.dtcmp
         
         if dtcmp > self.dtcmp:
@@ -82,32 +82,25 @@ class BuySell(Observer):
                     else:
                         sell.append(trade)
 
-                # curbuy = self.lines.avg_buy[0]
                 # if curbuy != curbuy:  # NaN
                 #     curbuy = 0.0
 
-                # buyops =math.fsum([b.executed_price * b.executed_size for b in buy]) # fsum is suitable for floats
-                # buylen = sum([b.executed_size for b in buy])  
                 buyops = np.sum([b["executed_price"] * b["executed_size"] for b in buy]) # fsum is suitable for floats
                 buylen = np.sum([b["executed_size"] for b in buy])  
 
                 value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
                 self.lines.buy[0] = value 
                 
-                # self.log_shm.publish_metric(b"BuyPrice", value, dtcmp) # log the buy price for the current datetime
-
-                # sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
-                # selllen = sum([s.executed_size for s in sell])  
                 sellops = np.sum([s["executed_price"] * s["executed_size"] for s in sell]) # fsum is suitable for floats
                 selllen = np.sum([s["executed_size"] for s in sell])  
 
                 value = sellops / float(selllen or 'NaN')
                 self.lines.sell[0] = value 
-                
-                # self.log_shm.publish_metric(b"SellPrice", value, dtcmp) # log the sell price for the current datetime
-            
-                # # Write comm
-                # self.lines.comm[0] = comm
-                # self.log_shm.publish_metric(b"Commission", comm, dtcmp) # log the commission for the current datetime
+                self.lines.comm[0] = comm
 
             self.dtcmp = dtcmp
+
+    def notify_timer(self):
+        self.log_shm.publish_metric(b"SellPrice", self.lines.sell[0], dtcmp) # log the sell price for the current datetime
+        self.log_shm.publish_metric(b"BuyPrice", self.lines.buy[0], dtcmp) # log the buy price for the current datetime
+        self.log_shm.publish_metric(b"Commission", self.lines.comm[0], dtcmp) # log the commission for the current datetime

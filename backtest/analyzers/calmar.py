@@ -95,7 +95,5 @@ class Calmar(bt.TimeFrameAnalyzerBase):
 
           self.rets[self.dtcmp] = calmar
 
-          # self.log_shm.publish_metric("CalmarRatio", calmar, self.dtcmp)
-
     def stop(self):
         self.on_dt_over()  # update last values

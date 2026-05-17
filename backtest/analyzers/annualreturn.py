@@ -46,14 +46,12 @@ class AnnualReturn(bt.Analyzer):
 
     def stop(self):
         cur_year = -1
-
         value_start = 0.0
         value_cur = 0.0
         value_end = 0.0
 
         self.rets = list()
         self.ret = OrderedDict()
-
         v = self._owner.store.subscribe(self._owner.experiment_id, "account") # AccountBody
 
         for i in range(len(v) - 1, -1, -1):
@@ -65,21 +63,16 @@ class AnnualReturn(bt.Analyzer):
                     annualret = (value_end / value_start) - 1.0
                     self.rets.append(annualret)
                     self.ret[cur_year] = annualret
-
                     value_start = value_end
                 else:
                     value_start = value_cur
-
                 cur_year = dt.year
-
             value_end = value_cur
 
         if cur_year not in self.ret:
             annualret = (value_end / value_start) - 1.0
             self.rets.append(annualret)
             self.ret[cur_year] = annualret
-            # log the last annual return
-            # self.log_shm.publish_metric("AnnualReturn", annualret, v[-1].datetime)
-
+            
     def get_analysis(self):
         return self.ret

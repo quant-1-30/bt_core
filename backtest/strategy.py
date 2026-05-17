@@ -63,7 +63,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
         _obj.pnc = env.pnc # pnc contain sizer and risk
         _obj.log_shm = env.log_shm
-        _obj.log_meta = [] 
+        _obj.log_ind = [] 
 
         # register strategy to generate unique id and setup shm for strategy
         _obj.store = store = env.store
@@ -180,7 +180,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             base_name = obj.plotinfo.plotname or obj.__class__.__name__
             for i, line_alias in enumerate(obj.lines.getlinealiases()):
                 metric_name = f"{base_name}_{line_alias}"
-                self.log_meta.append((obj.lines[i], metric_name))
+                self.log_ind.append((obj.lines[i], metric_name))
 
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
@@ -266,11 +266,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.shm_chan.publish_snapshot(snapshot) 
         # publish sentinel to shared memory for writer to consume
         self.shm_chan.publish_sentinel(dts)
-        print("finish publish sentinel")
 
-        # for analyzer in self.analyzers:
-        #     if hasattr(analyzer, 'on_dt_over'):
-        #         analyzer.on_dt_over()
+        for analyzer in self.analyzers:
+            if hasattr(analyzer, 'on_dt_over'):
+                analyzer.on_dt_over()
 
     def notify_timer(self, dts: int): # intended for timer
         """
@@ -278,8 +277,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         It can be used to log indicator metrics and notify analyzers and observers that are interested in timer events.
         """
         # indicator
-        for line_obj, metric in self.log_meta:
-            val = line_obj[0]
+        import pdb; pdb.set_trace()
+        for ind_line, metric in self.log_ind:
+            val = ind_line[0]
             if np.isnan(val):
                 continue
             self.log_shm.publish_metric(metric, val, dts)

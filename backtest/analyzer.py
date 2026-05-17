@@ -232,12 +232,7 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         ``Writerfile`` object, which defaults to writing things to standard
         output
         '''
-        writer = bt.WriterFile(*args, **kwargs)
-        writer.start()
-        pdct = dict()
-        pdct[self.__class__.__name__] = self.get_analysis()
-        writer.writedict(pdct)
-        writer.stop()
+        pass
 
     def pprint(self, *args, **kwargs):
         '''Prints the results returned by ``get_analysis`` using the pretty
@@ -277,17 +272,11 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         for child in self._children:
             child._prenext()
 
-        if self._dt_over():
-            self.on_dt_over()
-
         self.prenext()
 
     def _nextstart(self):
         for child in self._children:
             child._nextstart()
-
-        if self._dt_over():  # exec if no prenext
-            self.on_dt_over()
 
         self.nextstart()
 
@@ -295,11 +284,16 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         for child in self._children:
             child._next()
 
-        if self._dt_over():
-            self.on_dt_over()
-        
-        # self.next() 
+        # if self._dt_over():
+        #     self.on_dt_over()
+        self.next() 
     
+    def notify_timer(self):
+        pass
+
+    def on_dt_over(self):
+        pass
+
     def _dt_over(self):
         if self.timeframe == TimeFrame.NoTimeFrame:
             dtcmp = np.iinfo(np.int_).max
@@ -312,6 +306,3 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
             self.dtcmp, self.dtcmp1 = dtcmp, self.dtcmp
             return True
         return False
-
-    def on_dt_over(self): # hook
-        pass
