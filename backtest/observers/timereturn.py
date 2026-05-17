@@ -84,4 +84,5 @@ class TimeReturn(Observer):
             self.lines.timereturn[0] = tr = self.treturn.rets.get(dtcmp, float('NaN'))
 
             self.dtcmp = dtcmp
-            self.log_shm.publish_metric(b"TimeReturn", tr, dtcmp) # log the time return for the current datetime
+            
+            # self.log_shm.publish_metric(b"TimeReturn", tr, dtcmp) # log the time return for the current datetime

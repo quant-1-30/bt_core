@@ -214,27 +214,35 @@ cdef class SharedRingBuffer: # SPMC
         
         self.publish_account(py_snapshot.account)
     
-    cpdef tuple drain_events(self, int32_t consumer_id):
+    cpdef list drain_events(self, int32_t consumer_id):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer
         cdef EventMsg* msg
         cdef int32_t event_tail, cap = self.header.capacity
-        cdef bint is_sentinel = False
         cdef list events = []  
         
-        cdef int32_t count = 0
+        cdef int32_t counter = 0
 
         while True:
             event_tail = h.tails[consumer_id]
             
             if event_tail >= h.head:
-                break # avoid blocking 
+                counter += 1
+                with nogil: # handover gil
+                    if counter < 1000:
+                        cpu_relax() 
+                    else:
+                        sched_yield() 
+                continue 
+            
+            counter = 0
+            msg = &buf[event_tail % cap]
+ 
 
             msg = &buf[event_tail % cap]
             
             if msg.type == eSENTINEL:
                 h.tails[consumer_id] += 1
-                is_sentinel = True
                 break 
             
             elif msg.type == eACCOUNT:
@@ -247,9 +255,7 @@ cdef class SharedRingBuffer: # SPMC
                 events.append({"type": "order", "data": msg.data.order})
 
             h.tails[consumer_id] += 1
-            count += 1
-
-        return events, is_sentinel
+        return events
 
     cpdef void close(self):
         if self._shm is not None:
@@ -347,7 +353,10 @@ cdef class LogRingBuffer: # MPSC
             
         h.tail = current_tail + count
         return arr
-
+    
+    cpdef bint has_data(self):
+        return self.header.head > self.header.tail
+    
     cpdef void close(self):
         if self._shm is not None:
             self._shm.close()

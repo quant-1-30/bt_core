@@ -82,7 +82,6 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
     def on_dt_over(self):
         snapshots = self.get_shm_events()
         accts = [act["data"] for act in snapshots if act["type"] == "account"]
-        # print("drawdown accts :", accts)
 
         if not accts:
           self.rets[self.dtcmp] = (0.0, 0)

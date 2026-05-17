@@ -63,7 +63,7 @@ class Broker(Observer):
                 self.lines.cash[0] = v["cash"]
                 self.lines.netvalue[0] = v["portfolio_value"] + v["cash"]
 
-                self.log_shm.publish_metric(b"Cash", v["cash"], dtcmp)
-                self.log_shm.publish_metric(b"NetValue", v["portfolio_value"], dtcmp)
+                # self.log_shm.publish_metric(b"Cash", v["cash"], dtcmp)
+                # self.log_shm.publish_metric(b"NetValue", v["portfolio_value"], dtcmp)
 
             self.dtcmp = dtcmp

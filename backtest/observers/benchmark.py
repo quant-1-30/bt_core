@@ -75,4 +75,4 @@ class Benchmark(Observer):
             self.lines.benchmark[0] = ret = self.rbench.rets.get(dtcmp, float('NaN')) 
             self.dtcmp = dtcmp
 
-            self.log_shm.publish_metric(b"BenchmarkReturn", ret, self.dtcmp) # log the benchmark return for the current datetime
+            # self.log_shm.publish_metric(b"BenchmarkReturn", ret, self.dtcmp) # log the benchmark return for the current datetime

@@ -192,7 +192,7 @@ class vtPosition(Base):
     )
 
     def serialize(self, include_id=False) -> dict:
-        body = PositionBody(sid=self.sid, datetime=self.datetime, size=self.size,
+        body = PositionBody(sid=self.sid, datetime=self.datetime, created_dt=self.created_dt, size=self.size,
                             available=self.available, cost_basis=self.cost_basis,
                             pnl=self.pnl, experiment_id=self.experiment_id.bytes)
         return Resp(body=body)

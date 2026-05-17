@@ -105,4 +105,4 @@ class LogReturns2(LogReturns):
             self.lines.logret2[0] = log_ret = self.logret2.rets.get(dtcmp, float('NaN'))
             self.dtcmp = dtcmp
 
-            self.log_shm.publish_metric(b"LogReturn2", log_ret, dtcmp) # log the log return of the second instrument for the current datetime
+            # self.log_shm.publish_metric(b"LogReturn2", log_ret, dtcmp) # log the log return of the second instrument for the current datetime

@@ -133,7 +133,7 @@ class DrawDownSignal(btind.Indicator):
 if __name__ == '__main__':
     
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=True) 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9)
 
@@ -149,4 +149,4 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040401, todate=20260401, benchmark=[b"1A0001"], out="signal.csv")
+    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260404, benchmark=[b"1A0001"])

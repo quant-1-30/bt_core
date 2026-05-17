@@ -94,7 +94,7 @@ class BuySell(Observer):
                 value = buyops / float(buylen or 'NaN') # buylen = 0 -> NaN
                 self.lines.buy[0] = value 
                 
-                self.log_shm.publish_metric(b"BuyPrice", value, dtcmp) # log the buy price for the current datetime
+                # self.log_shm.publish_metric(b"BuyPrice", value, dtcmp) # log the buy price for the current datetime
 
                 # sellops =math.fsum([s.executed_price * s.executed_size for s in sell]) # fsum is suitable for floats
                 # selllen = sum([s.executed_size for s in sell])  
@@ -104,10 +104,10 @@ class BuySell(Observer):
                 value = sellops / float(selllen or 'NaN')
                 self.lines.sell[0] = value 
                 
-                self.log_shm.publish_metric(b"SellPrice", value, dtcmp) # log the sell price for the current datetime
+                # self.log_shm.publish_metric(b"SellPrice", value, dtcmp) # log the sell price for the current datetime
             
                 # # Write comm
                 # self.lines.comm[0] = comm
-                self.log_shm.publish_metric(b"Commission", comm, dtcmp) # log the commission for the current datetime
+                # self.log_shm.publish_metric(b"Commission", comm, dtcmp) # log the commission for the current datetime
 
             self.dtcmp = dtcmp

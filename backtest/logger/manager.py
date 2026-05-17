@@ -14,13 +14,14 @@ class LogConsumerThread(threading.Thread):
                  max_file_size_mb=512, 
                  flush_threshold=50000):
         super().__init__(daemon=True)
+
         self.log_shm = log_shm
         self.flush_threshold = flush_threshold
         self.max_size_bytes = max_file_size_mb * 1024 * 1024
         
         self._buffer = []
         self._pending_count = 0
-        
+
         # align to Cython struct
         self.schema = pa.schema([
             ('datetime', pa.int64()),
@@ -29,13 +30,14 @@ class LogConsumerThread(threading.Thread):
             # ('_pad', pa.int32())
         ])
         
-        self.sink = sinks.get(fmt.lower(), ParquetSink)(cerebro_id, output_dir, self.schema)
+        self.sink = sinks.get(fmt.lower())(cerebro_id, output_dir, self.schema)
         
-        self._running = True
+        self._stop_event = threading.Event()
 
     def run(self):
-        while self._running or self.log_shm.has_data():
-            arr = self.log_shm.drain_metrics_ndarray(max_batch=10000)
+        while not self._stop_event.is_set() or self.log_shm.has_data():
+            arr = self.log_shm.drain_metrics(max_batch=10000)
+            print("LogConumserThread run arr: ", len(arr))
             
             if arr is not None and len(arr) > 0:
                 table = pa.Table.from_array(arr, schema=self.schema) # zero_copy
@@ -47,6 +49,9 @@ class LogConsumerThread(threading.Thread):
             else:
                 time.sleep(0.001)
                 if not self._running and self._buffer: self._flush()
+
+        if self._buffer:
+            self._flush()
 
         self.sink.close()
 
@@ -63,4 +68,4 @@ class LogConsumerThread(threading.Thread):
         self._pending_count = 0
 
     def stop(self):
-        self._running = False
+        self._stop_event.is_set() 

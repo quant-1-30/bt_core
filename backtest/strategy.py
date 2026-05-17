@@ -67,10 +67,10 @@ class MetaStrategy(StrategyBase.__class__):
 
         # register strategy to generate unique id and setup shm for strategy
         _obj.store = store = env.store
-        _obj.experiment_id = experiment_id = store.register(_obj.__class__.__name__, env.u_id)
+        _obj.experiment_id = experiment_id = store.register(_obj.__class__.__name__, env.cerebro_id)
 
         shm_name = hashlib.md5(experiment_id).hexdigest()[:24] # uuid.UUID(bytes=experiment_id) # file name 36 too long
-        _obj.shm_chan = SharedRingBuffer(shm_name=str(shm_name), capacity=100000, is_creator=True)
+        _obj.shm_chan = SharedRingBuffer(shm_name=str(shm_name), capacity=10000000, is_creator=True)
         return _obj, args, kwargs
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -209,7 +209,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
 
-        # self.shm_chan.publish_sentinel(0) # dts
+        self.shm_chan.publish_sentinel(0) # dts
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
@@ -266,6 +266,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.shm_chan.publish_snapshot(snapshot) 
         # publish sentinel to shared memory for writer to consume
         self.shm_chan.publish_sentinel(dts)
+        print("finish publish sentinel")
+
+        # for analyzer in self.analyzers:
+        #     if hasattr(analyzer, 'on_dt_over'):
+        #         analyzer.on_dt_over()
 
     def notify_timer(self, dts: int): # intended for timer
         """
@@ -305,7 +310,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
         super(Strategy, self)._next()
-        print("Strategy _next ", self.lines.datetime[0])
+        # print("Strategy _next ", self.lines.datetime[0])
         minperstatus = self._getminperstatus()
         self._next_observers(minperstatus)
  

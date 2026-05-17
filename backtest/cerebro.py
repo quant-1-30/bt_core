@@ -32,7 +32,7 @@ from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import _sizers
 from .control.pnc import Pnc
-from .timer import Timer, Session
+from .timer import Timer, Session, TimerEvent
 from .errors import *
 from .stores import _stores
 from .plot import Plot
@@ -102,7 +102,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("timeout", 10),
         ('stdstats', True),
         ("isplot", False),
-        ('writer', True),
+        # ('writer', True),
     )
 
     def __init__(self):
@@ -119,14 +119,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self._pretimers = list()
         
-        self.writers = list()
+        # self.writers = list()
         self._plot = Plot()
         
         self.cerebro_id = "" 
 
         # logshm
         self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=1000, is_creator=True)
-        self.log_thread = LogConsumerThread(self.log_shm, f"log_test.csv", output_dir=".")
+        self.log_background = LogConsumerThread(self.log_shm, b"log_test", output_dir=".")
  
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
@@ -260,7 +260,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             allow=allow,
             tzdata=tzdata)
     
-    def _check_timers(self, runstrats, dt0):
+    def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
         '''Receives a timer notification where ``timer`` is the timer which was
         returned by ``add_timer``, and ``when`` is the calling time. ``args``
         and ``kwargs`` are any additional arguments passed to ``add_timer``
@@ -269,17 +269,30 @@ class Cerebro(with_metaclass(MetaParams, object)):
         able to call the timer before. This value is the timer value and no the
         system time.
         '''
-        if dt0:
-            for _t in self._pretimers:
-                if not t.check(dt0):
-                    continue
+        if not dt0:
+            return
+            
+        if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+            print("check timer on_dt_over: ", dt0)
+            self._dispatch(runstrats, TimerEvent.EOD, dt0)
 
-                for strat in runstrats: # T + 1 / log_metrics
-                    if _t.event_type == 0:
-                        strat.on_dt_over(dt0)
-                
-                    elif _t.event_type == 1:
-                        strat.notify_timer(_t, dt0)
+        # --- Scheduled Timers ---
+        # self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) 
+        for t in self._pretimers:
+            if t.check(dt0):
+                self._dispatch(runstrats, t.event_type, dt0)
+
+    def _dispatch(self, runstrats: list, event_type: int, dt: int):
+        for strat in runstrats:
+            if event_type == TimerEvent.EOD: # on_dt_over ---> T+1 settlement
+                strat.on_dt_over(dt) 
+
+            elif event_type == TimerEvent.METRIC: # log shm
+                strat.notify_timer(event_type, dt)
+
+            elif event_type == TimerEvent.RISK: # risk control 
+                if hasattr(strat, 'check_risk'):
+                    strat.check_risk(dt)
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
@@ -427,7 +440,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
           - For Optimization: a list of lists which contain instances of the
             Strategy classes added with ``addstrategy``
         '''
-        self.log_thread.start()
+        self.log_background.start()
 
         self._next_id(kwargs) 
 
@@ -440,14 +453,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         print("cerebro run data._start finish")
 
-        # Prepare timers
-        if not self._pretimers:
-            self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) # T + 1 policy to update on 9:30 
-        for timer in itertools.chain(self._pretimers, self._mcstimers):
+        # timers trigger
+        for timer in self._pretimers: # itertools.chain(self._pretimers, self._mcstimers)
             timer.start(self.datas[0]) # preprocess tzdata if needed
 
         self.runstrats = list()
-        self.runwriters = list()
+        # self.runwriters = list()
         self._event_stop = False  # Stop is requested
 
         if not self.store:
@@ -459,28 +470,28 @@ class Cerebro(with_metaclass(MetaParams, object)):
             if key in pkeys:
                 setattr(self.params, key, val)
 
-        # Add the system default writer if requested
-        if self.p.writer is True:
-            wr = WriterFile(out=kwargs["out"], csv=True)
-            self.runwriters.append(wr)
+        # # Add the system default writer if requested
+        # if self.p.writer is True:
+        #     wr = WriterFile(out=kwargs["out"], csv=True)
+        #     self.runwriters.append(wr)
 
-        # Instantiate any other writers
-        for wrcls, wrargs, wrkwargs in self.writers:
-            wr = wrcls(*wrargs, **wrkwargs)
-            self.runwriters.append(wr)
+        # # Instantiate any other writers
+        # for wrcls, wrargs, wrkwargs in self.writers:
+        #     wr = wrcls(*wrargs, **wrkwargs)
+        #     self.runwriters.append(wr)
 
-        # Write down if any writer wants the full csv output
-        self.writers_csv = any(map(lambda x: x.p.csv, self.runwriters))
+        # # Write down if any writer wants the full csv output
+        # self.writers_csv = any(map(lambda x: x.p.csv, self.runwriters))
 
-        if self.writers_csv:
-            wheaders = list()
-            for data in self.datas:
-                if data.csv:
-                    wheaders.extend(data.getwriterheaders())
+        # if self.writers_csv:
+        #     wheaders = list()
+        #     for data in self.datas:
+        #         if data.csv:
+        #             wheaders.extend(data.getwriterheaders())
 
-            for writer in self.runwriters:
-                if writer.p.csv:
-                    writer.addheaders(wheaders)
+        #     for writer in self.runwriters:
+        #         if writer.p.csv:
+        #             writer.addheaders(wheaders)
 
         # signal strategy
         if self.signals:  # allow processing of signals
@@ -543,13 +554,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if runstrats:
             for _, strat in enumerate(runstrats):
                 if self.p.stdstats: # ('timeframe', bt.TimeFrame.Days) ('compression', None),
-                    strat._addobserver(False, observers.Broker, barplot=True)
-                    strat._addobserver(False, observers.Trades, barplot=True)
-                    strat._addobserver(False, observers.BuySell, barplot=True)
                     strat._addobserver(False, observers.DrawDown, barplot=True)
-                    strat._addobserver(False, observers.DrawDownLength, barplot=True)
+                    strat._addobserver(False, observers.DrawDownLength, barplot=True) # stuck
                     strat._addobserver(False, observers.TimeReturn, barplot=True)
-                    strat._addobserver(False, observers.Benchmark, barplot=True)
+                    strat._addobserver(False, observers.BuySell, barplot=True)
+                    strat._addobserver(False, observers.Trades, barplot=True) # stuck
+                    strat._addobserver(False, observers.Benchmark, barplot=True) # stuck
+                    strat._addobserver(False, observers.Broker, barplot=True) # stuck
 
                 for multi, obscls, obsargs, obskwargs in self.observers:
                     strat._addobserver(multi, obscls, *obsargs, **obskwargs)
@@ -557,18 +568,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
         
-                for writer in self.runwriters:
-                    if writer.p.csv:
-                        writer.addheaders(strat.getwriterheaders())
+                # for writer in self.runwriters:
+                #     if writer.p.csv:
+                #         writer.addheaders(strat.getwriterheaders())
                 
                 strat._start(self.p.savemem, **kwargs)
                 
-            for writer in self.runwriters:
-                writer.start()
+            # for writer in self.runwriters:
+            #     writer.start()
             self._runnext(runstrats)
 
-            self.stop_writers(runstrats) 
-            print("stop writer")     
+            # self.stop_writers(runstrats) 
+            # print("stop writer")     
 
             for strat in runstrats:
                 strat._stop()
@@ -606,67 +617,69 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             if d0ret:
                 dts = []
+                last_dts = [] # last dts
                 for i, ret in enumerate(drets):
                     dts.append(datas[i].datetime[0] if ret else None)
+                    last_dts.append(datas[i].datetime[-1] if ret else None)
 
                 if not drets[0]: # last for resamplefilter
                     for d in datas: 
                         d._last()
                     d0ret = False # alias break
 
-                self._check_timers(runstrats, dts[0]) # notify_timer to control next
+                self._check_timers(runstrats, dts[0], last_dts[0]) # notify_timer to control next
 
                 for strat in runstrats: # to process nan in indicator due to forward
                     strat._next()
                     
-                self._next_writers(runstrats)
+                # self._next_writers(runstrats)
         return
                 
 # ---------------------------------------------------------------------- writer ------------------------------------------------------------
 
-    def addwriter(self, wrtcls, *args, **kwargs):
-        '''Adds an ``Writer`` class to the mix. Instantiation will be done at
-        ``run`` time in cerebro
-        '''
-        self.writers.append((wrtcls, args, kwargs))
+    # def addwriter(self, wrtcls, *args, **kwargs):
+    #     '''Adds an ``Writer`` class to the mix. Instantiation will be done at
+    #     ``run`` time in cerebro
+    #     '''
+    #     self.writers.append((wrtcls, args, kwargs))
 
-    def _next_writers(self, runstrats):
-        if not self.runwriters:
-            return
+    # def _next_writers(self, runstrats):
+    #     if not self.runwriters:
+    #         return
 
-        if self.writers_csv:
-            wvalues = list()
-            for data in self.datas:
-                if data.csv:
-                    wvalues.extend(data.getwritervalues())
+    #     if self.writers_csv:
+    #         wvalues = list()
+    #         for data in self.datas:
+    #             if data.csv:
+    #                 wvalues.extend(data.getwritervalues())
 
-            for strat in runstrats:
-                wvalues.extend(strat.getwritervalues())
+    #         for strat in runstrats:
+    #             wvalues.extend(strat.getwritervalues())
 
-            for writer in self.runwriters:
-                if writer.p.csv:
-                    writer.addvalues(wvalues)
-                    writer.next()
+    #         for writer in self.runwriters:
+    #             if writer.p.csv:
+    #                 writer.addvalues(wvalues)
+    #                 writer.next()
 
-    def stop_writers(self, runstrats):
-        cerebroinfo = OrderedDict()
-        datainfos = OrderedDict()
+    # def stop_writers(self, runstrats):
+    #     cerebroinfo = OrderedDict()
+    #     datainfos = OrderedDict()
 
-        for i, data in enumerate(self.datas):
-            datainfos['Data%d' % i] = data.getwriterinfo()
+    #     for i, data in enumerate(self.datas):
+    #         datainfos['Data%d' % i] = data.getwriterinfo()
 
-        cerebroinfo['Datas'] = datainfos
+    #     cerebroinfo['Datas'] = datainfos
 
-        stratinfos = dict()
-        for strat in runstrats:
-            stname = strat.__class__.__name__
-            stratinfos[stname] = strat.getwriterinfo()
+    #     stratinfos = dict()
+    #     for strat in runstrats:
+    #         stname = strat.__class__.__name__
+    #         stratinfos[stname] = strat.getwriterinfo()
 
-        cerebroinfo['Strategies'] = stratinfos
+    #     cerebroinfo['Strategies'] = stratinfos
 
-        for writer in self.runwriters:
-            # writer.writedict(dict(Cerebro=cerebroinfo))
-            writer.stop()
+    #     for writer in self.runwriters:
+    #         # writer.writedict(dict(Cerebro=cerebroinfo))
+    #         writer.stop()
 
 # ---------------------------------------------------------------------- plot ------------------------------------------------------------
  
@@ -705,9 +718,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._event_stop = True  # signal a stop has been requested
 
     def _shutdown(self):
-        print("Cerebro shutting down...")
-        self.log_thread.stop() # exit from while
-        self.log_thread.join()
+        self.log_background.stop() # exit from while
+        self.log_background.join()
         
         self.log_shm.close()
         self.log_shm.unlink()

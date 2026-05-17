@@ -137,11 +137,6 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
     '''
     csv = True
 
-    # def __len__(self):
-    #     '''Support for invoking ``len`` on analyzers by actually returning the
-    #     current length of the strategy the analyzer operates on'''
-    #     return len(self.strategy)
-
     def _register(self, child):
         self._children.append(child)
 
@@ -229,15 +224,8 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
 
     def get_shm_events(self):
         '''Returns the events from the shared memory channel for this analyzer'''
-        # return self.shm.get_events(self.shm_id)
-        current_events = []
-        while True:
-            events, is_sentinel = self.shm.drain_events(self.shm_id)
-            if is_sentinel:
-                break
-            if events:
-                current_events.extend(events)
-        return current_events
+        events  = self.shm.drain_events(self.shm_id)
+        return events
 
     def print(self, *args, **kwargs):
         '''Prints the results returned by ``get_analysis`` via a standard
@@ -289,26 +277,28 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         for child in self._children:
             child._prenext()
 
-        self.prenext()
         if self._dt_over():
             self.on_dt_over()
+
         self.prenext()
 
     def _nextstart(self):
         for child in self._children:
             child._nextstart()
 
-        self.nextstart()
         if self._dt_over():  # exec if no prenext
             self.on_dt_over()
+
+        self.nextstart()
 
     def _next(self):
         for child in self._children:
             child._next()
 
-        self.next() 
         if self._dt_over():
             self.on_dt_over()
+        
+        # self.next() 
     
     def _dt_over(self):
         if self.timeframe == TimeFrame.NoTimeFrame:

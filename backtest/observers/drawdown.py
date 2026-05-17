@@ -83,7 +83,7 @@ class DrawDown(Observer):
             self.lines.drawdown[0] = dd # update drawdown
             self.lines.maxdrawdown[0] = self._dd.rets["maxDrawdown"]  # update max
             self.dtcmp = dtcmp
-            print("DrawDown next ", dd, self.lines.maxdrawdown[0])
+            # print("DrawDown next ", dd, self.lines.maxdrawdown[0])
 
 
 class DrawDownLength(Observer):

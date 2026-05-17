@@ -37,7 +37,7 @@ cdef class Timer:
 
     cdef object _curdate
     cdef double _nextdteos
-    cdef int32_t event_type
+    cdef public int32_t event_type
 
     cpdef void start(self, object data)
 

@@ -105,7 +105,7 @@ cdef class SharedRingBuffer:
     
     cpdef void publish_order(self, object py_order)
 
-    cpdef tuple drain_events(self, int32_t consumer_id)
+    cpdef list drain_events(self, int32_t consumer_id)
 
     cpdef void close(self)
 
@@ -124,6 +124,8 @@ cdef class LogRingBuffer: # MPSC
 
     cpdef object drain_metrics(self, int32_t max_batch=*)
 
+    cpdef bint has_data(self)
+    
     cpdef void close(self)
 
     cpdef void unlink(self)

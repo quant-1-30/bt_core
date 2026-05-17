@@ -52,7 +52,7 @@ class TestStrategy(bt.Strategy):
 if __name__ == '__main__':
     
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, writer=False) 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9)
 
@@ -61,6 +61,6 @@ if __name__ == '__main__':
 
     cerebro.addstrategy(TestStrategy, ddata)
 
-    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"1A0001"], out="strategy.csv")
+    cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"1A0001"])
 
     # 20040101 - 20260201 100s

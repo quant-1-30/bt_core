@@ -1370,6 +1370,7 @@ static const char *__pyx_filename;
 static const char* const __pyx_f[] = {
   "backtest/timer.pyx",
   "<stringsource>",
+  "backtest/timer.pxd",
 };
 /* #### Code section: utility_code_proto_before_types ### */
 /* Atomics.proto (used by UnpackUnboundCMethod) */
@@ -2523,6 +2524,8 @@ static const char __pyx_k_curdate__curmonth__curmonth_idx[] = "_curdate, _curmon
 static int __pyx_pf_8backtest_5timer_5Timer___init__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self, PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_8backtest_5timer_5Timer_2start(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self, PyObject *__pyx_v_data); /* proto */
 static PyObject *__pyx_pf_8backtest_5timer_5Timer_4check(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self, double __pyx_v_dt); /* proto */
+static PyObject *__pyx_pf_8backtest_5timer_5Timer_10event_type___get__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self); /* proto */
+static int __pyx_pf_8backtest_5timer_5Timer_10event_type_2__set__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_8backtest_5timer_5Timer_6__reduce_cython__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8backtest_5timer_5Timer_8__setstate_cython__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_8backtest_5timer___pyx_unpickle_Timer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
@@ -5971,6 +5974,89 @@ static PyObject *__pyx_pf_8backtest_5timer_5Timer_4check(struct __pyx_obj_8backt
   return __pyx_r;
 }
 
+/* "backtest/timer.pxd":40
+ *     cdef object _curdate
+ *     cdef double _nextdteos
+ *     cdef public int32_t event_type             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef void start(self, object data)
+*/
+
+/* Python wrapper */
+static PyObject *__pyx_pw_8backtest_5timer_5Timer_10event_type_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_8backtest_5timer_5Timer_10event_type_1__get__(PyObject *__pyx_v_self) {
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
+  __pyx_r = __pyx_pf_8backtest_5timer_5Timer_10event_type___get__(((struct __pyx_obj_8backtest_5timer_Timer *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_8backtest_5timer_5Timer_10event_type___get__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyLong_From_int32_t(__pyx_v_self->event_type); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 40, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("backtest.timer.Timer.event_type.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static int __pyx_pw_8backtest_5timer_5Timer_10event_type_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_8backtest_5timer_5Timer_10event_type_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
+  __pyx_kwvalues = __Pyx_KwValues_VARARGS(__pyx_args, __pyx_nargs);
+  __pyx_r = __pyx_pf_8backtest_5timer_5Timer_10event_type_2__set__(((struct __pyx_obj_8backtest_5timer_Timer *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static int __pyx_pf_8backtest_5timer_5Timer_10event_type_2__set__(struct __pyx_obj_8backtest_5timer_Timer *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  int32_t __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __pyx_t_1 = __Pyx_PyLong_As_int32_t(__pyx_v_value); if (unlikely((__pyx_t_1 == ((int32_t)-1)) && PyErr_Occurred())) __PYX_ERR(2, 40, __pyx_L1_error)
+  __pyx_v_self->event_type = __pyx_t_1;
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("backtest.timer.Timer.event_type.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  return __pyx_r;
+}
+
 /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     cdef tuple state
@@ -7032,10 +7118,29 @@ static int __pyx_tp_clear_8backtest_5timer_Timer(PyObject *o) {
   return 0;
 }
 
+static PyObject *__pyx_getprop_8backtest_5timer_5Timer_event_type(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_8backtest_5timer_5Timer_10event_type_1__get__(o);
+}
+
+static int __pyx_setprop_8backtest_5timer_5Timer_event_type(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_8backtest_5timer_5Timer_10event_type_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
 static PyMethodDef __pyx_methods_8backtest_5timer_Timer[] = {
   {"__reduce_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_5timer_5Timer_7__reduce_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {"__setstate_cython__", (PyCFunction)(void(*)(void))(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_8backtest_5timer_5Timer_9__setstate_cython__, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
+};
+
+static struct PyGetSetDef __pyx_getsets_8backtest_5timer_Timer[] = {
+  {"event_type", __pyx_getprop_8backtest_5timer_5Timer_event_type, __pyx_setprop_8backtest_5timer_5Timer_event_type, 0, 0},
+  {0, 0, 0, 0, 0}
 };
 #if CYTHON_USE_TYPE_SPECS
 static PyType_Slot __pyx_type_8backtest_5timer_Timer_slots[] = {
@@ -7044,6 +7149,7 @@ static PyType_Slot __pyx_type_8backtest_5timer_Timer_slots[] = {
   {Py_tp_traverse, (void *)__pyx_tp_traverse_8backtest_5timer_Timer},
   {Py_tp_clear, (void *)__pyx_tp_clear_8backtest_5timer_Timer},
   {Py_tp_methods, (void *)__pyx_methods_8backtest_5timer_Timer},
+  {Py_tp_getset, (void *)__pyx_getsets_8backtest_5timer_Timer},
   {Py_tp_init, (void *)__pyx_pw_8backtest_5timer_5Timer_1__init__},
   {Py_tp_new, (void *)__pyx_tp_new_8backtest_5timer_Timer},
   {0, 0},
@@ -7087,7 +7193,7 @@ static PyTypeObject __pyx_type_8backtest_5timer_Timer = {
   0, /*tp_iternext*/
   __pyx_methods_8backtest_5timer_Timer, /*tp_methods*/
   0, /*tp_members*/
-  0, /*tp_getset*/
+  __pyx_getsets_8backtest_5timer_Timer, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
