@@ -26,7 +26,6 @@ from collections import OrderedDict
 import backtest as bt
 from backtest.dataseries import TimeFrame
 from backtest.metabase import with_metaclass, MetaParams, findowner
-from backtest.utils.dt_cmp import get_dt_cmpkey
 
 
 class MetaAnalyzer(MetaParams):
@@ -48,10 +47,6 @@ class MetaAnalyzer(MetaParams):
         _obj.shm = strategy.shm_chan
 
         _obj._parent = findowner(_obj, Analyzer)
-        # Register with a master observer if created inside one
-        # masterobs = findowner(_obj, bt.Observer)
-        # if masterobs is not None:
-        #     masterobs._register_analyzer(_obj)
 
         # For each data add aliases: for first data: data and data0
         if _obj.datas:
@@ -71,9 +66,8 @@ class MetaAnalyzer(MetaParams):
                     if linealias:
                         setattr(_obj, 'data%d_%s' % (d, linealias), line)
                     setattr(_obj, 'data%d_%d' % (d, l), line)
-
+        
         _obj.create_analysis()
-
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -134,8 +128,6 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
     implementation dependent)
 
     '''
-    csv = True
-
     def _register(self, child):
         self._children.append(child)
 
@@ -150,53 +142,10 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         time to setup up needed things'''
         pass
 
-    def _prenext(self):
-        for child in self._children:
-            child._prenext()
-
-        self.prenext()
-
-    def _nextstart(self):
-        for child in self._children:
-            child._nextstart()
-
-        self.nextstart() 
-
-    def _next(self):
-        for child in self._children:
-            child._next()
-
-        self.next()
-
-    def prenext(self):
-        '''Invoked for each prenext invocation of the strategy, until the minimum
-        period of the strategy has been reached
-
-        The default behavior for an analyzer is to invoke ``next``
-        '''
-        self.next()
-
-    def nextstart(self):
-        '''Invoked exactly once for the nextstart invocation of the strategy,
-        when the minimum period has been first reached
-        '''
-        self.next()
-    
-    def next(self):
-        '''Invoked for each next invocation of the strategy, once the minum
-        preiod of the strategy has been reached'''
-        pass
-
-    def _stop(self):
-        for child in self._children:
-            child._stop()
-
-        self.stop()
-
-    def stop(self):
-        '''Invoked to indicate the end of operations, giving the analyzer
-        time to shut down needed things'''
-        pass
+    def get_shm_events(self): # get_analysis 
+        '''Returns the events from the shared memory channel for this analyzer'''
+        events  = self.shm.drain_events(self.shm_id)
+        return events
 
     def create_analysis(self):
         '''Meant to be overriden by subclasses. Gives a chance to create the
@@ -221,23 +170,16 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         '''
         return self.rets
 
-    def get_shm_events(self):
-        '''Returns the events from the shared memory channel for this analyzer'''
-        events  = self.shm.drain_events(self.shm_id)
-        return events
+    def _stop(self):
+        for child in self._children:
+            child._stop()
 
-    def print(self, *args, **kwargs):
-        '''Prints the results returned by ``get_analysis`` via a standard
-        ``Writerfile`` object, which defaults to writing things to standard
-        output
-        '''
+        self.stop()
+
+    def stop(self):
+        '''Invoked to indicate the end of operations, giving the analyzer
+        time to shut down needed things'''
         pass
-
-    def pprint(self, *args, **kwargs):
-        '''Prints the results returned by ``get_analysis`` using the pretty
-        print Python module (*pprint*)
-        '''
-        pp.pprint(self.get_analysis(), *args, **kwargs)
 
 
 class MetaTimeFrameAnalyzerBase(Analyzer.__class__):
@@ -267,41 +209,8 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
 
         super(TimeFrameAnalyzerBase, self)._start()
     
-    def _prenext(self):
-        for child in self._children:
-            child._prenext()
-
-        self.prenext()
-
-    def _nextstart(self):
-        for child in self._children:
-            child._nextstart()
-
-        self.nextstart()
-
-    def _next(self):
-        for child in self._children:
-            child._next()
-
-        # if self._dt_over():
-        #     self.on_dt_over()
-        self.next() 
-    
     def notify_timer(self):
         pass
 
     def on_dt_over(self):
         pass
-
-    def _dt_over(self):
-        if self.timeframe == TimeFrame.NoTimeFrame:
-            dtcmp = np.iinfo(np.int_).max
-        else:
-            dt = self._owner._clock.datetime[0] #
-            dtcmp = get_dt_cmpkey(dt, self.timeframe, self.compression)
-
-        # if self.dtcmp is None or dtcmp > self.dtcmp:
-        if dtcmp > self.dtcmp:
-            self.dtcmp, self.dtcmp1 = dtcmp, self.dtcmp
-            return True
-        return False

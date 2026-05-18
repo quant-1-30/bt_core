@@ -47,10 +47,18 @@ class Orders(bt.TimeFrameAnalyzerBase):
         ('timeframe', bt.TimeFrame.Days),
         ('compression', None),
     )
+    def __init__(self):
+        self.order_cnt = 0
 
     def on_dt_over(self):
-        snapshots = self.get_shm_events()  # --- IGNORE ---
-        self.rets[self.dtcmp] = [item["data"] for item in snapshots if item["type"] == "order"]
+        _ = self.get_shm_events()
+
+        self.log_shm.publish_metric(b"Orders", self.order_cnt, self.dtcmp)
+        self.order_cnt = 0 # reset 
+
+    def notify_timer(self):
+        events = self.get_shm_events()  
+        self.order_cnt += len([e["type"] == "order" for e in events])
 
     def stop(self):
         super(Orders, self).stop()

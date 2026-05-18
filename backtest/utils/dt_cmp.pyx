@@ -1,5 +1,5 @@
 # cython: language_level=3, boundscheck=False, wraparound=False, cdivision=True
-from libc.time cimport time_t, localtime, mktime, tm
+from libc.time cimport time_t, localtime_r, mktime, tm
 from libc.math cimport floor
 from cpython.datetime cimport datetime_new, import_datetime
 
@@ -8,7 +8,7 @@ from cpython.datetime cimport datetime_new, import_datetime
 import_datetime()
 
 
-cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression):
+cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression=1):
     """
     :param dt_ts: 输入的时间戳 (float/double), 替代原来的 datetime 对象
     :param timeframe: 周期类型 (int64_t)
@@ -32,12 +32,13 @@ cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression
     # if t_ptr == NULL: return 0
     # t_struct = t_ptr[0] 
 
-    t_struct = localtime(&ts_sec)[0] 
+    # replace localtime(&ts_sec)[0] to thread safe localtime_r
+    localtime_r(&ts_sec, &t_struct) 
 
     if timeframe == TF_Years:
         t_struct.tm_mon = 11    # 12月 (0-11)
         t_struct.tm_mday = 31   # 31日
-        t_struct.tm_hour = 223
+        t_struct.tm_hour = 23
         t_struct.tm_min = 59
         t_struct.tm_sec = 59
         # mktime DST and re
@@ -79,7 +80,6 @@ cdef double _get_subday_cmpkey_c(double dt_ts, tm* tm_ptr, int64_t timeframe, in
         double result_ts
         
     # Calculate intraday position (Point)
-    # ---------------------------------------
     point = tm_ptr.tm_hour * 60 + tm_ptr.tm_min
 
     if timeframe < TF_Minutes: # Seconds or Micros
@@ -89,13 +89,9 @@ cdef double _get_subday_cmpkey_c(double dt_ts, tm* tm_ptr, int64_t timeframe, in
         pus = <long>((dt_ts - floor(dt_ts)) * 1e6)
         point = point * 1000000 + pus 
 
-    # Apply Compression
-    point = point // compression
-    
-    # Move to next boundary
+    # 关键向上取整 
+    point = point // compression  
     point += 1
-    
-    # Restore
     point *= compression
 
     # Decode back to H:M:S:us

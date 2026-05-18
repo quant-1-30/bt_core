@@ -97,6 +97,9 @@ class Returns(bt.TimeFrameAnalyzerBase):
         acct = v.account
         self._value_start = acct.portofolio_value + acct.cash
         self._tcount = 0
+    
+    def on_dt_over(self):
+        self._tcount += 1  # count the subperiod
 
     def stop(self):
         super(Returns, self).stop()
@@ -134,5 +137,4 @@ class Returns(bt.TimeFrameAnalyzerBase):
 
             self.rets['rnorm100'] = rnorm * 100.0  # human readable %
 
-    def on_dt_over(self):
-        self._tcount += 1  # count the subperiod
+            self.log_shm.publish_metric(b"Returns", rnorm, acct["datetime"]) 

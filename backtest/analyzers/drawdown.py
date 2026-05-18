@@ -84,6 +84,7 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         accts = [act["data"] for act in snapshots if act["type"] == "account"]
 
         if not accts:
+          print("accts None")
           self.rets[self.dtcmp] = (0.0, 0)
           self.rets['maxDrawdown'] = 0.0
           self.rets['maxDrawdownLength'] = 0
@@ -108,5 +109,9 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
 
         self.rets['maxDrawdown'] = maxdd
         self.rets['maxDrawdownLength'] = maxddlen
-        
         print(f"DrawDown on_dt_over: dtcmp {self.dtcmp}, value {value}, peak {self.peak}, dd {dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")
+
+        self.log_shm.publish_metric(b"drawdown", dd, self.dtcmp)
+        self.log_shm.publish_metric(b"drawdownlength", self.ddlen, self.dtcmp)
+        self.log_shm.publish_metric(b"maxDrawdown", maxdd, self.dtcmp) 
+        self.log_shm.publish_metric(b"maxDrawdownLength", maxddlen, self.dtcmp) 

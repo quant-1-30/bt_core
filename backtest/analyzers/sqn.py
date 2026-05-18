@@ -87,4 +87,4 @@ class SQN(bt.TimeFrameAnalyzerBase):
             sqn = 0
 
         self.rets.sqn = sqn
-        # self.rets.trades = self.count
+        self.log_shm.publish_metric(b"SQN", sqn, self.data.datetime[0]) 

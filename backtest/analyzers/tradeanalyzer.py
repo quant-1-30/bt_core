@@ -86,6 +86,8 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
                 trpnl = self.rets.pnl
                 trpnl.net.total += pnl
                 trpnl.net.average = self.rets.pnl.net.total / self.rets.total.closed
+          
+            self.log_shm.publish_metric(b"LogReturnsRolling", logret, self.dtcmp) 
 
     def stop(self):
         super(TradeAnalyzer, self).stop()

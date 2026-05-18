@@ -17,7 +17,7 @@ class CustomJSONEncoder(json.JSONEncoder):
             return obj.tolist()
 
         if isinstance(obj, bytes):
-            return base64.b64encode(obj).decode('utf-8')
+            return base64.b64encode(obj).decode('utf-8') # base64.b64encode 将任意bytes 转为 ascii  / base64.b64decode
 
         if isinstance(obj, set):
             return list(obj)

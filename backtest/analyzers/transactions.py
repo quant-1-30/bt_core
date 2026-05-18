@@ -52,14 +52,25 @@ class Transactions(bt.TimeFrameAnalyzerBase):
         ('timeframe', bt.TimeFrame.Days),
         ('compression', 1),
     )
+    def __init__(self):
+        self.trades_cnt = 0
 
     def on_dt_over(self):
-        snapshots = self.get_shm_events() 
-        trades = [_t["data"] for _t in snapshots if _t["type"] == "trade"]
+        # events = self.get_shm_events() 
+        # trades = [_t["data"] for _t in events if _t["type"] == "trade"]
+        # # self.rets[self.dtcmp] = trades
+        # self.trades_cnt += len(trades)
+          
+        self.log_shm.publish_metric(b"Transactions", self.trades_cnt, self.dtcmp) 
+        self.trades_cnt = 0 # reset
 
-        self.rets[self.dtcmp] = trades
-        if trades:
-            print("Transactions on_dt_over ", self.dtcmp, trades)
+    def notify_timer(self):
+        events = self.get_shm_events() 
+        trades = [_t["data"] for _t in events if _t["type"] == "trade"]
+        print("Transactions on_dt_over ", self.dtcmp, trades)
+        # self.rets[self.dtcmp] = trades
+        self.trades_cnt += len(trades)
+
 
     def stop(self):
         super(Transactions, self).stop()

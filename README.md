@@ -543,3 +543,5 @@ volatile int64_t head 保证你读到的是内存里的值。
 # 此处省略：通过 mmap 或 sysv ipc 分配 SHM，并将指针绑定到 header 和 buffer
 # 此处省略 OS 级别的 mmap/shmget 内存分配
 
+pl.read_ndjson(...)
+jsonl

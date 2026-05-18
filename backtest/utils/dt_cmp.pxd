@@ -14,6 +14,6 @@ cdef enum:
     TF_NoTimeFrame = 9
 
 
-cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression)
+cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression=?)
 
 cdef double _get_subday_cmpkey_c(double dt_ts, tm* tm_ptr, int64_t timeframe, int64_t compression)

@@ -88,7 +88,7 @@ cdef class CSVSink(FileSink):
 
 cdef class JSONSink(FileSink):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, backend="json", **kwargs)
+        super().__init__(*args, backend="jsonl", **kwargs)
 
     cpdef void write(self, object table): # pa.Table
         cdef object rows
@@ -99,7 +99,7 @@ cdef class JSONSink(FileSink):
 
         rows = table.to_pylist()
         for row in rows:
-            line = json.dumps(row,  cls=CustomJSONEncoder, indent=2).encode('utf-8') + b',\n' # jsonlines
+            line = json.dumps(row,  cls=CustomJSONEncoder).encode('utf-8') + b'\n' # jsonlines
             self.writer.write(line)
 
 

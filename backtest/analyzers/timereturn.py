@@ -100,6 +100,8 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
 
           self._value = acct["portfolio_value"] + acct["cash"]
           # self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
-          self.rets[self.dtcmp] = (self._value / self._value_start) - 1.0
+          self.rets[self.dtcmp] = tret = (self._value / self._value_start) - 1.0
           self._value_start = self._value  # keep last value
+          
+          self.log_shm.publish_metric(b"TimeReturn", tret, self.dtcmp) 
           

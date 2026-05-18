@@ -103,5 +103,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self):
         loc = np.searchsorted(self.dts, self.dtcmp)
-        loc_ret = self.returns[loc] if loc < len(self.dts) else np.nan
-        self.rets[self.dtcmp] = loc_ret
+        loc_dret = self.returns[loc] if loc < len(self.dts) else np.nan
+        self.rets[self.dtcmp] = loc_dret
+        
+        self.log_shm.publish_metric(b"Benchmark", loc_dret, self.dtcmp) 

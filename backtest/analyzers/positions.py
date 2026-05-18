@@ -78,3 +78,5 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
         snapshots = self.get_shm_events()
         positions = [_p["data"] for _p in snapshots if _p["type"] == "position"]
         self.rets[self.dtcmp] = positions
+
+        self.log_shm.publish_metric(b"PositionsValue", logret, self.dtcmp) 

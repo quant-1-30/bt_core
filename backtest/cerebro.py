@@ -36,8 +36,8 @@ from .plot import Plot
 from .shm import LogRingBuffer
 from .utils.wrapper import consume_time
 from .utils.encoder import CustomJSONEncoder
+from .utils.dt_cmp import get_dt_cmpkey
 from .logger import LogConsumerThread
-
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -107,7 +107,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         
         self._plot = Plot()
         
-        self.cerebro_id = "" 
+        self.cerebro_id = ""
+        self.dtcmp = 0 # dtcmp = np.iinfo(np.int_).max
 
         # logshm
         self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=self.p.capacity, is_creator=True)
@@ -244,8 +245,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
             monthdays=monthdays, monthcarry=monthcarry,
             allow=allow,
             tzdata=tzdata)
+
+    def _dt_over(self, dt):
+        # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+        # enum in dt_cmp.pxd | TF_Days = 5
+        dtcmp = get_dt_cmpkey(dt, 5)
+        if dtcmp > self.dtcmp:
+            self.dtcmp = dtcmp
+            return True
+        return False
     
-    def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
+    # def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
+    def _check_timers(self, runstrats: list, dt0: int):
         '''Receives a timer notification where ``timer`` is the timer which was
         returned by ``add_timer``, and ``when`` is the calling time. ``args``
         and ``kwargs`` are any additional arguments passed to ``add_timer``
@@ -257,7 +268,10 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if not dt0:
             return
             
-        if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+        # if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): 
+        #     # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+        #     print("check timer on_dt_over: ", dt0)
+        if self._dt_over(dt0):
             print("check timer on_dt_over: ", dt0)
             self._dispatch(runstrats, TimerEvent.EOD, dt0)
 
@@ -556,17 +570,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             if d0ret:
                 dts = []
-                last_dts = [] # last dts
+                # last_dts = [] # last dts
                 for i, ret in enumerate(drets):
                     dts.append(datas[i].datetime[0] if ret else None)
-                    last_dts.append(datas[i].datetime[-1] if ret else None)
+                    # last_dts.append(datas[i].datetime[-1] if ret else None)
 
                 if not drets[0]: # last for resamplefilter
                     for d in datas: 
                         d._last()
                     d0ret = False # alias break
 
-                self._check_timers(runstrats, dts[0], last_dts[0]) # notify_timer to control next
+                # self._check_timers(runstrats, dts[0], last_dts[0]) # notify_timer to control next
+                self._check_timers(runstrats, dts[0]) # notify_timer to control next
 
                 for strat in runstrats: # to process nan in indicator due to forward
                     strat._next()

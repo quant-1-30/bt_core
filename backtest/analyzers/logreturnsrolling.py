@@ -100,5 +100,7 @@ class LogReturnsRolling(bt.TimeFrameAnalyzerBase):
         if accts:
           acct = accts[-1]
 
-          self.rets[self.dtcmp] = math.log(acct["portfolio_value"] / self.startvalue) if self.startvalue > 0 else 0.0
+          self.rets[self.dtcmp] = logret = math.log(acct["portfolio_value"] / self.startvalue) if self.startvalue > 0 else 0.0
           self.startvalue = acct["portfolio_value"]
+          
+          self.log_shm.publish_metric(b"LogReturnsRolling", logret, self.dtcmp) 

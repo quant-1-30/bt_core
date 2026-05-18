@@ -48,8 +48,9 @@ class GrossLeverage(bt.TimeFrameAnalyzerBase):
         accts = [act["data"] for act in snapshots if act["type"] == "account"]
         if accts:
             acct = accts[-1]
-
             # Updates the leverage for "dtkey" (see base class) for each cycle
             # 0.0 if 100% in cash, 1.0 if no short selling and fully invested
             lev = (acct["portfolio_value"] - acct["cash"]) / acct["portfolio_value"] if acct["portfolio_value"] > 0 else 0.0
             self.rets[self.dtcmp] = lev
+        
+            self.log_shm.publish_metric(b"GrossLeverage", lev, self.dtcmp) 

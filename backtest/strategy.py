@@ -272,7 +272,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super(Strategy, self)._next()
         # print("Strategy _next ", self.lines.datetime[0])
         minperstatus = self._getminperstatus()
-        self._next_analyzers(minperstatus)
+        # self._next_analyzers(minperstatus)
  
     def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 

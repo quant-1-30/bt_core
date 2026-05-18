@@ -145,7 +145,7 @@ class SharpeRatio(bt.Analyzer):
             # retdev = standarddev(self.anret.rets)
             retavg = np.mean([r - rate for r in self.anret.rets])
             retdev = np.std(self.anret.rets)
-            self.ratio = retavg / retdev
+            ratio = retavg / retdev
         else:
             # Get the returns from the subanalyzer
             returns = list(self.timereturn.get_analysis().values())
@@ -185,13 +185,14 @@ class SharpeRatio(bt.Analyzer):
                         
                         ratio = math.sqrt(factor) * ratio
                 except (ValueError, TypeError, ZeroDivisionError):
-                    ratio = None
+                    ratio = 0.0
             else:
                 # no returns or stddev_sample was active and 1 return
-                ratio = None
+                ratio = 0.0
             
-            self.ratio = ratio
-        self.rets['sharperatio'] = self.ratio
+        self.rets['sharperatio'] = ratio
+
+        self.log_shm.publish_metric(b"SharpeRatio", ratio, self.data.datetime[0]) 
 
 
 class SharpeRatio_A(SharpeRatio):

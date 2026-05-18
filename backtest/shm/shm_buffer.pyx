@@ -253,7 +253,7 @@ cdef class SharedRingBuffer: # SPMC
 
             msg = &buf[event_tail % cap]
             if msg.type == eSENTINEL:
-                # h.tails[consumer_id] += 1
+                h.tails[consumer_id] += 1
                 break 
             
             elif msg.type == eACCOUNT:
@@ -264,8 +264,8 @@ cdef class SharedRingBuffer: # SPMC
                 events.append({"type": "trade", "data": msg.data.trade})
             elif msg.type == eORDER:
                 events.append({"type": "order", "data": msg.data.order})
-
             h.tails[consumer_id] += 1
+            
         return events
 
     cpdef void close(self):

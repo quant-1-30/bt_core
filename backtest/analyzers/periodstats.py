@@ -76,6 +76,7 @@ class PeriodStats(bt.Analyzer):
         trets = self._tr.get_analysis()  # dict key = date, value = ret
         pos = nul = neg = 0
         trets = list(trets.values())
+        dtcmp = max(trets.keys())
         for tret in trets:
             if tret > 0.0:
                 pos += 1
@@ -98,3 +99,5 @@ class PeriodStats(bt.Analyzer):
 
         self.rets['best'] = max(trets)
         self.rets['worst'] = min(trets)
+        
+        self.log_shm.publish_metric(b"PeriodStats", trets, dtcmp) 
