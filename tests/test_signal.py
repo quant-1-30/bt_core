@@ -116,16 +116,7 @@ class DrawDownSignal(btind.Indicator):
         self.stats = self._owner.stats
 
     def next(self):
-        dd_stats = self.stats["drawdown"]  
-        dd = dd_stats.lines.drawdown[0]
-        # dd = dd_stats.lines.maxdrawdown[0]
-
-        # used for test
-        # signal = dd
-        # print("DrawDownSignal ", signal)
-        # if not np.isnan(signal) and abs(signal) > 0.0:
-        #     pass
-
+        dd = self.stats["drawdown"].rets.get("maxDrawDown", 0.0)
         signal = self.thres - dd
         self.lines.signal[0] = 0.0 if np.isnan(signal) else signal # np.nan_to_num(signal) used for array not scalar
 

@@ -64,8 +64,8 @@ cdef class Pnc:
         # ==========================================
         # 1. Macro Control --- Drawdown
         # ==========================================
-        drawdown_obs = stats["drawdown"]
-        signal = drawdown_obs.lines.drawdown[0] <= self.act_tolerance
+        drawdown = stats["drawdown"].rets.get("maxDrawDown", 0.0)
+        signal = drawdown <= self.act_tolerance
 
         if signal:
             print("reach maxdd and sell all")

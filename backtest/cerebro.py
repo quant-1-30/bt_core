@@ -24,7 +24,6 @@ from datetime import timedelta
 from pytz import timezone
 
 
-from . import observers
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import _sizers
@@ -32,11 +31,13 @@ from .control.pnc import Pnc
 from .timer import Timer, Session, TimerEvent
 from .errors import *
 from .stores import _stores
+from . import analyzers
 from .plot import Plot
 from .shm import LogRingBuffer
 from .utils.wrapper import consume_time
 from .utils.encoder import CustomJSONEncoder
 from .logger import LogConsumerThread
+
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -48,7 +49,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
       - ``stdstats`` (default: ``True``)
 
-        If True default Observers will be added: Broker (Cash and Value),
+        If True default Analyzers will be added: Broker (Cash and Value),
         Trades and BuySell
 
       - ``tz`` (default: ``None``)
@@ -87,13 +88,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("log_id", "cerebro"),
         ("capacity", 1000000),
         ("fmt", "json"),
-        ("output", ".")
+        ("output", "/Users/hengxinliu/startup/backtest/tests")
     )
 
     def __init__(self):
         self.datas = list()
         self.strats = list()
-        self.observers = list()
+        self.analyzers = list()
         self.indicators = list()
         self.signals = list()
         self._signal_strat = (None, None, None)
@@ -340,13 +341,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         self.indicators.append((indcls, args, kwargs))
     
-    def addobserver(self, multi, obscls, *args, **kwargs):
+    def addanalyzer(self, ancls, *args, **kwargs):
         '''
-        Adds an ``Observer`` class to the mix. Instantiation will be done at
+        Adds an `analyzer` class to the mix. Instantiation will be done at
         ``run`` time
-        multi: bool
         '''
-        self.observers.append((multi, obscls, args, kwargs))
+        self.analyzers.append((obscls, args, kwargs))
 
     def signal_strategy(self, stratcls, *args, **kwargs):
         '''Adds a SignalStrategy subclass which can accept signals'''
@@ -489,15 +489,8 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # stop log thread and shm
         print("_shutdown")
         self._shutdown()
-
-        # if self.p.isplot:
-        #     dstrat = self.runningstrats[0]
-        #     self.plot(self, num_data=len(self.datas), 
-        #                     num_ind=len(dstrat._lineiterators[0]), 
-        #                     num_obs=len(dstrat._lineiterators[2]),
-        #                     out=kwargs.get("out", ""), freq=kwargs.get("freq", "D")) 
+        # isplot 
         
-     
     def runstrategies(self, iterstrat, **kwargs):
         '''
         Internal method invoked by ``run``` to run a set of strategies
@@ -513,17 +506,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if runstrats:
             for _, strat in enumerate(runstrats):
-                if self.p.stdstats: # ('timeframe', bt.TimeFrame.Days) ('compression', None),
-                    strat._addobserver(False, observers.DrawDown, barplot=True)
-                    strat._addobserver(False, observers.DrawDownLength, barplot=True) # stuck
-                    strat._addobserver(False, observers.TimeReturn, barplot=True)
-                    strat._addobserver(False, observers.BuySell, barplot=True)
-                    strat._addobserver(False, observers.Trades, barplot=True) # stuck
-                    strat._addobserver(False, observers.Benchmark, barplot=True) # stuck
-                    strat._addobserver(False, observers.Broker, barplot=True) # stuck
-
-                for multi, obscls, obsargs, obskwargs in self.observers:
-                    strat._addobserver(multi, obscls, *obsargs, **obskwargs)
+                if self.p.stdstats: 
+                    strat._addanalyzer(analyzers.DrawDown) # kwargs
+                    strat._addanalyzer(analyzers.TimeReturn)
+                    strat._addanalyzer(analyzers.Transactions) 
+                    strat._addanalyzer(analyzers.Benchmark) 
+                    strat._addanalyzer(analyzers.Broker) 
 
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)

@@ -49,10 +49,9 @@ class MetaAnalyzer(MetaParams):
 
         _obj._parent = findowner(_obj, Analyzer)
         # Register with a master observer if created inside one
-        masterobs = findowner(_obj, bt.Observer)
-
-        if masterobs is not None:
-            masterobs._register_analyzer(_obj)
+        # masterobs = findowner(_obj, bt.Observer)
+        # if masterobs is not None:
+        #     masterobs._register_analyzer(_obj)
 
         # For each data add aliases: for first data: data and data0
         if _obj.datas:

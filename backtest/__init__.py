@@ -24,12 +24,10 @@ from .feed import *
 from .lineiterator import *
 from .indicator import *
 from .analyzer import *
-from .observer import *
 from .dataseries import *
 from .sizer import *
 from .strategy import *
 from .stores import *
-# from .writer import *
 from .signal import *
 from .timer import *
 from .flt import *
@@ -40,7 +38,6 @@ from .cerebro import *
 
 from . import feeds as feeds
 from . import indicators as indicators
-from . import observers as observers
 from . import analyzers as analyzers
 from . import filters as filters
 from . import stores as stores

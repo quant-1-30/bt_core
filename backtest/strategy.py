@@ -61,9 +61,8 @@ class MetaStrategy(StrategyBase.__class__):
 
         # Find the _owner and store it
         _obj.env = env = cerebro = findowner(_obj, bt.cerebro.Cerebro)
-        _obj.pnc = env.pnc # pnc contain sizer and risk
+        _obj.pnc = env.pnc
         _obj.log_shm = env.log_shm
-        _obj.log_ind = [] 
 
         # register strategy to generate unique id and setup shm for strategy
         _obj.store = store = env.store
@@ -78,11 +77,9 @@ class MetaStrategy(StrategyBase.__class__):
             super(MetaStrategy, cls).dopreinit(_obj, *args, **kwargs)
         
         _obj._minperiods = list()
-
         _obj.analyzers = list() # ItemCollection()
-        _obj.observers = list()
-
-        _obj.stats = {} # ItemCollection() 
+        _obj.stats = {} 
+        _obj.log_ind = [] # used to Log indicator 
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -199,13 +196,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
             analyzer._start()
 
-        for obs in self.observers:
-            if not isinstance(obs, list):
-                obs = [obs]  # support of multi-data observers
-
-            for o in obs:
-                o._start()
-
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
 
@@ -215,36 +205,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
 
     def _addanalyzer(self, ancls, *anargs, **ankwargs):
-        # anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
+        anname = ankwargs.pop('_name', '') or ancls.__name__.lower()
         # nsuffix = next(self._alnames[anname])
         # anname += str(nsuffix or '')  # 0 (first instance) gets no suffix
         analyzer = ancls(*anargs, **ankwargs)
         # self.analyzers.append(analyzer, anname)
         self.analyzers.append(analyzer)
+        self.stats[anname] = analyzer
         return analyzer
 
-    def _addobserver(self, multi, obscls, *obsargs, **obskwargs):
-        obsname = obskwargs.pop('obsname', '')
-        if not obsname:
-            obsname = obscls.__name__.lower()
-
-        if not multi:
-            newargs = list(itertools.chain(self.datas, obsargs))
-            obs = obscls(*newargs, **obskwargs)
-            # self.stats.append(obs, obsname)
-            self.observers.append(obs)
-            self.stats[obsname] = obs
-            return
-
-        # setattr(self.stats, obsname, list())
-        # l = getattr(self.stats, obsname)
-
-        for data in self.datas:
-            obs = obscls(data, *obsargs, **obskwargs)
-            # l.append(obs)
-            self.observers.append(obs)
-            self.stats[obsname] = obs
-    
     def _getminperstatus(self):
         dlens = map(operator.sub, self._minperiods, map(len, self.datas))
         # self._minperstatus = minperstatus = np.max(dlens)
@@ -274,9 +243,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def notify_timer(self, dts: int): # intended for timer
         """
         This method is called when a timer event is triggered. 
-        It can be used to log indicator metrics and notify analyzers and observers that are interested in timer events.
+        It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
-        # indicator
         import pdb; pdb.set_trace()
         for ind_line, metric in self.log_ind:
             val = ind_line[0]
@@ -288,12 +256,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             if hasattr(analyzer, 'notify_timer'):
                 analyzer.notify_timer(dts)
 
-        for observer in self.observers:
-            if hasattr(observer, 'notify_timer'):
-                observer.notify_timer(dts)
-
-    # @profile
-    def _next_observers(self, minperstatus):
+    def _next_analyzers(self, minperstatus):
         if minperstatus < 0:
             for analyzer in self.analyzers:
                 analyzer._next()
@@ -304,15 +267,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             for analyzer in self.analyzers:
                 analyzer._prenext()
 
-        for observer in self.observers:
-            observer._next()
-
     def _next(self):
         self.clk_update() # differ from lineiterator _clk_update 
         super(Strategy, self)._next()
         # print("Strategy _next ", self.lines.datetime[0])
         minperstatus = self._getminperstatus()
-        self._next_observers(minperstatus)
+        self._next_analyzers(minperstatus)
  
     def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 
@@ -431,15 +391,12 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
 class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 / class.__class__ 元类
 
-    def __new__(meta, name, bases, dct):
-        # map user defined next to custom to be able to call own method before
+    def __new__(meta, name, bases, dct): # map user defined next to custom to be able to call own method before
         # if 'next' in dct:
         #     dct['_next_custom'] = dct.pop('next')
 
         cls = super(MetaSigStrategy, meta).__new__(meta, name, bases, dct)
-
-        # after class creation remap _next_catch to be next
-        # cls._next = cls._next_catch
+        # cls._next = cls._next_catch # after class creation remap _next_catch to be next
         return cls
 
     def dopreinit(cls, _obj, *args, **kwargs):
@@ -447,7 +404,6 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
             super(MetaSigStrategy, cls).dopreinit(_obj, *args, **kwargs)
         
         _obj._signals = collections.defaultdict(list)
-
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -463,7 +419,6 @@ class MetaSigStrategy(Strategy.__class__): # Stragey元类 / obj.__class__ 类 /
 
         _obj._longexit = bool(_obj._signals[bt.SIGNAL_LONGEXIT])
         _obj._shortexit = bool(_obj._signals[bt.SIGNAL_SHORTEXIT])
-
         return _obj, args, kwargs
 
 

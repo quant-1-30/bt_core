@@ -249,15 +249,11 @@ cdef class SharedRingBuffer: # SPMC
                     else:
                         sched_yield() 
                 continue 
-            
             counter = 0
-            msg = &buf[event_tail % cap]
- 
 
             msg = &buf[event_tail % cap]
-            
             if msg.type == eSENTINEL:
-                h.tails[consumer_id] += 1
+                # h.tails[consumer_id] += 1
                 break 
             
             elif msg.type == eACCOUNT:
