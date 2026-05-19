@@ -21,6 +21,7 @@
 import numpy as np
 
 import backtest as bt
+from backtest.utils.dateintern import ts2intdt
 
 
 class Benchmark(bt.TimeFrameAnalyzerBase):
@@ -101,12 +102,13 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         self.dts = ret_table["day"].to_numpy()
         self.returns = ret_table["ret"].to_numpy()
 
-    def on_dt_over(self):
-        loc = np.searchsorted(self.dts, self.dtcmp)
+    def on_dt_over(self, dt0: int):
+        dtint = ts2intdt(dt0)
+
+        loc = np.searchsorted(self.dts, dtint)
         loc_dret = self.returns[loc] if loc < len(self.dts) else np.nan
-        self.rets[self.dtcmp] = loc_dret
-        
-        self.log_shm.publish_metric(b"Benchmark", loc_dret, self.dtcmp) 
+
+        self.log_shm.publish_metric(b"Benchmark", loc_dret, dt0) 
 
     def stop(self):
         super(AnnualReturn, self).stop()

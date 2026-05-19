@@ -20,8 +20,6 @@
 ###############################################################################
 import numpy as np
 import backtest as bt
-from . import TimeReturn
-from backtest.dataseries import TimeFrame
 
 
 __all__ = ['PeriodStats']
@@ -60,44 +58,42 @@ class PeriodStats(bt.Analyzer):
     If the parameter ``zeroispos`` is set to ``True``, periods with no change
     will be counted as positive
     '''
-
     params = (
-        ('timeframe', TimeFrame.Years),
+        ('timeframe', bt.TimeFrame.Days), 
         ('compression', 1),
         ('zeroispos', False),
     )
 
     def __init__(self):
-        self._tr = TimeReturn(timeframe=self.p.timeframe,
-                              compression=self.p.compression, 
-        )
+        super().__init__()
 
-    def stop(self):
-        trets = self._tr.get_analysis()  # dict key = date, value = ret
-        pos = nul = neg = 0
-        trets = list(trets.values())
-        dtcmp = max(trets.keys())
-        for tret in trets:
-            if tret > 0.0:
-                pos += 1
-            elif tret < 0.0:
-                neg += 1
-            else:
-                if self.p.zeroispos:
-                    pos += tret == 0.0
-                else:
-                    nul += tret == 0.0
+        self.last_value = 0.0
+        self.period_returns = []
 
-        # self.rets['average'] = avg = average(trets)
-        # self.rets['stddev'] = standarddev(trets, avg)
-        self.rets['average'] = avg = np.mean(trets) # whether size - False / True
-        self.rets['stddev'] = np.std(trets)
+    def start(self):
+        snap = self._owner.get_snapshot()
+        self.last_value = snap.account.portfolio_value + snap.account.cash
 
-        self.rets['positive'] = pos
-        self.rets['negative'] = neg
-        self.rets['nochange'] = nul
-
-        self.rets['best'] = max(trets)
-        self.rets['worst'] = min(trets)
+    def on_dt_over(self, dt0):
+        snap = self._owner.get_snapshot()
+        current_value = snap.account.portfolio_value + snap.account.cash
         
-        self.log_shm.publish_metric(b"PeriodStats", trets, dtcmp) 
+        if self.last_value <= 0:
+            return
+            
+        ret = (current_value / self.last_value) - 1.0
+        self.period_returns.append(ret)
+        self.last_value = current_value
+
+        avg_ret = np.mean(self.period_returns)
+        std_ret = np.std(self.period_returns)
+        
+        pos_cnt = sum(1 for r in self.period_returns if r > 0.0)
+        neg_cnt = sum(1 for r in self.period_returns if r < 0.0)
+        if self.p.zeroispos:
+            pos_cnt += sum(1 for r in self.period_returns if r == 0.0)
+
+        self.log_shm.publish_metric(b"PeriodStats AvgRet", float(avg_ret), dt0)
+        self.log_shm.publish_metric(b"PeriodStats StdRet", float(std_ret), dt0)
+        self.log_shm.publish_metric(b"PeriodStats PosCnt", float(pos_cnt), dt0)
+        self.log_shm.publish_metric(b"PeriodStats NegCnt", float(neg_cnt), dt0)

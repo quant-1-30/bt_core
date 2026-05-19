@@ -18,8 +18,8 @@ cdef class TraderPlan:
 cdef class Pnc:
 
     cdef int32_t interval
-    cdef double p_tolerance
-    cdef double act_tolerance
+    cdef double stake
+    cdef double dd
     cdef object sizer
     cdef list sells
     cdef list buys

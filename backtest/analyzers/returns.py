@@ -21,7 +21,6 @@
 import math
 
 import backtest as bt
-from backtest.dataseries import TimeFrame
 
 
 class Returns(bt.TimeFrameAnalyzerBase):
@@ -76,67 +75,41 @@ class Returns(bt.TimeFrameAnalyzerBase):
           - ``rnorm100``: Annualized/Normalized return expressed in 100%
 
     '''
-
-    params = (
-        ('timeframe', bt.TimeFrame.Days),
-        ('compression', None),
-        ('tann', None),
-    )
-
     _TANN = {
-        TimeFrame.Days: 252.0,
-        TimeFrame.Weeks: 52.0,
-        TimeFrame.Months: 12.0,
-        TimeFrame.Years: 1.0,
+        bt.TimeFrame.Days: 252.0,
+        bt.TimeFrame.Weeks: 52.0,
+        bt.TimeFrame.Months: 12.0,
+        bt.TimeFrame.Years: 1.0,
     }
 
-    def start(self):
-        super(Returns, self).start()
-
-        v = self._owner.get_snapshot()
-        acct = v.account
-        self._value_start = acct.portofolio_value + acct.cash
+    def __init__(self):
+        super().__init__()
+        
+        self._value_start = 0.0
         self._tcount = 0
-    
-    def on_dt_over(self):
-        self._tcount += 1  # count the subperiod
 
+    def start(self):
+        snap = self._owner.get_snapshot()
+        self._value_start = snap.account.portfolio_value
+
+    def on_dt_over(self, dt0):
+        self._tcount += 1
+        
+        snap = self._owner.get_snapshot() # get_events
+        value_end = snap.account.portfolio_value
+        
+        if self._value_start <= 0:
+            return
+
+        nlrtot = value_end / self._value_start
+        rtot = math.log(nlrtot) if nlrtot > 0.0 else float('-inf')
+
+        ravg = rtot / self._tcount if self._tcount > 0 else float('-inf')
+        tann = self.p.tann or self._TANN.get(self.p.timeframe, 252.0)
+        rnorm = math.expm1(ravg * tann) if ravg > float('-inf') else ravg
+
+        self.log_shm.publish_metric(b"Returns", rtot, dt0)
+        self.log_shm.publish_metric(b"AnnualReturns", rnorm, dt0)
+        
     def stop(self):
         super(Returns, self).stop()
-        events = self.get_shm_events()
-        accts = [act["data"] for act in events if act["type"] == "account"]
-        if accts:
-            acct = accts[-1]
-
-            self._value_end = acct["portfolio_value"] + acct["cash"]
-            try:
-                nlrtot = self._value_end / self._value_start
-            except ZeroDivisionError:
-                rtot = float('-inf')
-            else:
-                if nlrtot < 0.0:
-                    rtot = float('-inf')
-                else:
-                    rtot = math.log(nlrtot)
-
-            self.rets['rtot'] = rtot
-
-            # Average return
-            self.rets['ravg'] = ravg = rtot / self._tcount
-
-            # Annualized normalized return
-            tann = self.p.tann or self._TANN.get(self.timeframe, None)
-            if tann is None:
-                tann = self._TANN.get(self.data._timeframe, 1.0)  # assign default
-
-            if ravg > float('-inf'):
-                self.rets['rnorm'] = rnorm = math.expm1(ravg * tann)
-            else:
-                self.rets['rnorm'] = rnorm = ravg
-
-            self.rets['rnorm100'] = rnorm * 100.0  # human readable %
-
-            self.log_shm.publish_metric(b"Returns", rnorm, acct["datetime"]) 
-
-    def stop(self):
-        super(AnnualReturn, self).stop()

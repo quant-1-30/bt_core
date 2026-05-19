@@ -79,19 +79,14 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.ddlen = 0
         self.maxddlen = 0
 
-    def on_dt_over(self):
-        events = self.get_shm_events()
-        accts = [act["data"] for act in events if act["type"] == "account"]
-
-        if not accts:
-          print("accts None")
-          self.rets[self.dtcmp] = (0.0, 0)
-          self.rets['maxDrawdown'] = 0.0
-          self.rets['maxDrawdownLength'] = 0
-          return 
-
-        acct = accts[-1]
-        value = acct["portfolio_value"] + acct["cash"]
+    def on_dt_over(self, dt0):
+        # events = self.get_shm_events() 
+        # accts = [act["data"] for act in events if act["type"] == "account"]
+        # acct = accts[-1]
+        # value = acct["portfolio_value"] + acct["cash"]
+        
+        acct = self._owner.get_snapshot().account
+        value = acct.portfolio_value + acct.cash
         # update the maximum seen peak
         if value > self.peak:
             self.peak = value
@@ -100,21 +95,15 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.dd = dd = 1.0 -  np.divide(value, self.peak) if self.peak > 0.0 else 0.0
         self.ddlen += bool(dd > 0.0)
 
-        # drawdown drawdownlength 
-        self.rets[self.dtcmp] = (dd, self.ddlen)
-
         # update the maxdrawdown if needed
         self.maxdd = maxdd =  max(self.maxdd, dd)
         self.maxddlen = maxddlen = max(self.maxddlen, self.ddlen)
+        print(f"DrawDown on_dt_over: {dt0}, value {value}, peak {self.peak}, dd {dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")
 
-        self.rets['maxDrawdown'] = maxdd
-        self.rets['maxDrawdownLength'] = maxddlen
-        print(f"DrawDown on_dt_over: dtcmp {self.dtcmp}, value {value}, peak {self.peak}, dd {dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")
-
-        self.log_shm.publish_metric(b"drawdown", dd, self.dtcmp)
-        self.log_shm.publish_metric(b"drawdownlength", self.ddlen, self.dtcmp)
-        self.log_shm.publish_metric(b"maxDrawdown", maxdd, self.dtcmp) 
-        self.log_shm.publish_metric(b"maxDrawdownLength", maxddlen, self.dtcmp) 
+        self.log_shm.publish_metric(b"drawdown", dd, dt0)
+        self.log_shm.publish_metric(b"drawdownlength", self.ddlen, dt0)
+        self.log_shm.publish_metric(b"maxDrawdown", maxdd, dt0) 
+        self.log_shm.publish_metric(b"maxDrawdownLength", maxddlen, dt0) 
 
     def stop(self):
         super(AnnualReturn, self).stop()

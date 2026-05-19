@@ -59,29 +59,21 @@ class PyFolio(bt.TimeFrameAnalyzerBase):
     params = (
         ('timeframe', bt.TimeFrame.Days),
         ('compression', None),
-        ('headers',  False),
         ('cash', False),
     )
 
     def start(self):
-        if self.p.headers:
-            headers = [d._name or 'Data%d' % i
-                       for i, d in enumerate(self.datas)]
-            self.rets['Datetime'] = headers + ['cash'] * self.p.cash
-
         tf = min(d._timeframe for d in self.datas)
         self._usedate = tf >= bt.TimeFrame.Days
 
-    def on_dt_over(self):
-        events = self.get_shm_events()
-        accts = [act["data"] for act in events if act["type"] == "account"]
-        if accts:
-          self.rets[self.dtcmp] = act = accts[-1]
+    def on_dt_over(self, dt0):
+        # events = self.get_shm_events()
+        # accts = [act["data"] for act in events if act["type"] == "account"]
+        acct = self._owner.get_snapshot().account
 
-          self.log_shm.publish_metric(b"PyFolio Portfolio", act["portfolio_value"], self.dtcmp) 
-          self.log_shm.publish_metric(b"PyFolio Cash", act["cash"], self.dtcmp) 
-          self.log_shm.publish_metric(b"PyFolio Pnl", act["pnl"], self.dtcmp) 
-          self.log_shm.publish_metric(b"PyFolio leverage", act["leverage"], self.dtcmp) 
+        self.log_shm.publish_metric(b"PyFolio Portfolio", acct.portfolio_value, dt0) 
+        self.log_shm.publish_metric(b"PyFolio Cash", acct.cash, dt0) 
+        self.log_shm.publish_metric(b"PyFolio Pnl", acct.pnl, dt0) 
   
     def stop(self):
         super(AnnualReturn, self).stop()

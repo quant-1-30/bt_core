@@ -22,12 +22,11 @@ import collections
 import math
 
 import backtest as bt
-from . import DrawDown
 
 __all__ = ['Calmar']
 
 
-class Calmar(bt.TimeFrameAnalyzerBase):
+class Calmar(bt.Analyzer):
     '''This analyzer calculates the CalmarRatio
     timeframe which can be different from the one used in the underlying data
     Params:
@@ -59,43 +58,54 @@ class Calmar(bt.TimeFrameAnalyzerBase):
         corresponding rolling Calmar ratio
 
     Attributes:
-      - ``calmar`` the latest calculated calmar ratio
+      - ``calmar`` the latest calculated calmar ratio     Calmar = 年化收益率 / 最大回撤
     '''
-
-    # packages = ('collections', 'math',)
-
     params = (
-        ('timeframe', bt.TimeFrame.Months),  # default in calmar
-        ('compression', None),
         ('maxlen', 36),
     )
 
     def __init__(self):
-        self._maxdd = DrawDown(timeframe=self.p.timeframe,
-                                   compression=self.p.compression)
+        super().__init__()
+        self._max_dd = 0.0
+        self._max_equity = 0.0
+        self._values = collections.deque(maxlen=self.p.maxlen)
 
     def start(self):
         snap = self._owner.get_snapshot()
-        self._mdd = float('-inf')
-        self._values = collections.deque([float('Nan')] * self.p.maxlen,
-                                         maxlen=self.p.maxlen)
-        self._values.append(snap.account)
 
-    def on_dt_over(self):
-        events = self.get_shm_events()
-        accts = [act["data"] for act in events if act["type"] == "account"]
-        if accts:
-          acct = accts[-1]
+        self._values.append(snap.account.portfolio_value)
+        self._max_equity = snap.account.portfolio_value
 
-          self.rets[self.dtcmp] = acct
-          self._values.append(acct)
-          rann = math.log(self._values[-1]["portfolio_value"] / self._values[0]["portfolio_value"]) / len(self._values)
-          self._mdd = max(self._mdd, self._maxdd.maxdd)
-          self.calmar = calmar = rann / (self._mdd or float('Inf'))
+    def _calculate_metrics(self, current_value):
+        self._values.append(current_value)
+        
+        # calculate maxdown
+        if current_value > self._max_equity:
+            self._max_equity = current_value
 
-          self.rets[self.dtcmp] = calmar
+        if self._max_equity <= 0.0:
+            return float('NaN')
+        
+        current_dd = (self._max_equity - current_value) / self._max_equity
+        if current_dd > self._max_dd:
+            self._max_dd = current_dd
+            
+        if len(self._values) > 1 and self._max_dd > 0:
+            start_val = self._values[0]
+            rann = math.log(current_value / start_val) / len(self._values)
+            current_calmar = rann / self._max_dd
+        else:
+            current_calmar = float('NaN')
+        return current_calmar
 
-          self.log_shm.publish_metric(b"Calmar", calmar, self.dtcmp) 
+    def on_dt_over(self, dt0):
+        snap = self._owner.get_snapshot()
+        current_value = snap.account.portfolio_value
+        
+        calmar = self._calculate_metrics(current_value)
+        
+        if calmar == calmar: # not NaN
+            self.log_shm.publish_metric(b"Calmar", calmar, dt0)
 
     def stop(self):
-        super(AnnualReturn, self).stop()
+        print(f"Final Calmar Ratio")

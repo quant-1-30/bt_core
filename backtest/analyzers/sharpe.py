@@ -22,8 +22,6 @@ import math
 import numpy as np
 
 import backtest as bt
-from backtest.dataseries import TimeFrame
-from . import TimeReturn, AnnualReturn
 
 
 class SharpeRatio(bt.Analyzer):
@@ -106,105 +104,46 @@ class SharpeRatio(bt.Analyzer):
 
     '''
     params = (
-        ('timeframe', TimeFrame.Years),
+        ('timeframe', bt.TimeFrame.Days),
         ('compression', 1),
-        ('riskfreerate', 0.01),
-        ('factor', None),
-        ('convertrate', True),
-        ('annualize', False),
-        ('stddev_sample', False),
-
-        # old behavior
-        ('daysfactor', None),
-        ('legacyannual', False),
+        ('annualize', True),
+        ('riskfreerate', 0.01)
     )
 
     RATEFACTORS = {
-        TimeFrame.Days: 252,
-        TimeFrame.Weeks: 52,
-        TimeFrame.Months: 12,
-        TimeFrame.Years: 1,
+        bt.TimeFrame.Days: 252,
+        bt.TimeFrame.Weeks: 52,
+        bt.TimeFrame.Months: 12,
+        bt.TimeFrame.Years: 1,
     }
 
     def __init__(self):
-        if self.p.legacyannual:
-            self.anret = AnnualReturn()
-        else:
-            self.timereturn = TimeReturn(
-                timeframe=self.p.timeframe,
-                compression=self.p.compression,
-                )
+        super().__init__()
+        self._last_value = 0.0
+        self._excess_returns = []
+        
+        factor = self.RATEFACTORS.get(self.p.timeframe, 252.0)
+        self._period_rf = math.pow(1.0 + self.p.riskfreerate, 1.0 / factor) - 1.0
+        self._annualize_factor = math.sqrt(factor) if self.p.annualize else 1.0
 
-    def stop(self):
-        super(SharpeRatio, self).stop()
-        rate = self.p.riskfreerate  #
-        factor = None
+    def start(self):
+        self._last_value = self._owner.get_snapshot().account.portfolio_value
 
-        if self.p.legacyannual:
-            # retavg = average([r - rate for r in self.anret.rets])
-            # retdev = standarddev(self.anret.rets)
-            retavg = np.mean([r - rate for r in self.anret.rets])
-            retdev = np.std(self.anret.rets)
-            ratio = retavg / retdev
-        else:
-            # Get the returns from the subanalyzer
-            returns = list(self.timereturn.get_analysis().values())
-            # Hack to identify old code
-            if self.p.timeframe == TimeFrame.Days and \
-              self.p.daysfactor is not None:
-              factor = self.p.daysfactor
-            else:
-              if self.p.factor is not None:
-                  factor = self.p.factor  # user specified factor
-              elif self.p.timeframe in self.RATEFACTORS:
-                  # Get the conversion factor from the default table
-                  factor = self.RATEFACTORS[self.p.timeframe]
-
-            if factor is not None:
-                # A factor was found
-                if self.p.convertrate:
-                    # Standard: downgrade annual returns to timeframe factor
-                    rate = pow(1.0 + rate, 1.0 / factor) - 1.0
-                else:
-                    # Else upgrade returns to yearly returns
-                    returns = [pow(1.0 + x, factor) - 1.0 for x in returns]
-
-            lrets = len(returns) - self.p.stddev_sample
-            # Check if the ratio can be calculated
-            if lrets:
-                # Get the excess returns - arithmetic mean - original sharpe
-                ret_free = [r - rate for r in returns]
-                ret_free_avg = average(ret_free)
-                # retdev = standarddev(ret_free, avgx=ret_free_avg,
-                #                      bessel=self.p.stddev_sample)
-                retdev = np.std(ret_free)
-                try:
-                    ratio = ret_free_avg / retdev
-                    if factor is not None and \
-                       self.p.convertrate and self.p.annualize:
-                        
-                        ratio = math.sqrt(factor) * ratio
-                except (ValueError, TypeError, ZeroDivisionError):
-                    ratio = 0.0
-            else:
-                # no returns or stddev_sample was active and 1 return
-                ratio = 0.0
+    def on_dt_over(self, dt0):
+        current_value = self._owner.get_snapshot().account.portfolio_value
+        
+        if self._last_value > 0:
+            period_ret = (current_value / self._last_value) - 1.0
+            excess_ret = period_ret - self._period_rf
+            self._excess_returns.append(excess_ret)
             
-        self.rets['sharperatio'] = ratio
+            if len(self._excess_returns) > 1:
+                ret_avg = np.mean(self._excess_returns)
+                ret_std = np.std(self._excess_returns)
+                
+                if ret_std > 0:
+                    ratio = (ret_avg / ret_std) * self._annualize_factor
 
-        self.log_shm.publish_metric(b"SharpeRatio", ratio, self.data.datetime[0]) 
+                    self.log_shm.publish_metric(b"SharpeRatio", ratio, dt0)
 
-
-class SharpeRatio_A(SharpeRatio):
-    '''Extension of the SharpeRatio which returns the Sharpe Ratio directly in
-    annualized form
-
-    The following param has been changed from ``SharpeRatio``
-
-      - ``annualize`` (default: ``True``)
-
-    '''
-
-    params = (
-        ('annualize', True),
-    )
+        self._last_value = current_value

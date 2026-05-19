@@ -230,14 +230,14 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = newdlens
 
     def on_dt_over(self, dts: int): 
-        snapshot = self.store.on_dt_over(self.experiment_id) 
+        snapshot = self.store.on_dt_over(self.experiment_id, dts) 
         if snapshot:
             self.shm_chan.publish_snapshot(snapshot) 
         self.shm_chan.publish_sentinel(dts)
 
         for analyzer in self.analyzers:
             if hasattr(analyzer, 'on_dt_over'):
-                analyzer.on_dt_over()
+                analyzer.on_dt_over(dts)
 
     def notify_timer(self, dts: int): 
         """
@@ -380,7 +380,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the backtesting is about to be stopped'''
-        self.store.stop(self.experiment_id)
+        last_dts = self.data.datetime[0]
+        self.on_dt_over(last_dts)
+
+        self.store.stop()
+
         self.shm_chan.close()
         print("shm_chan close")
         self.shm_chan.unlink()

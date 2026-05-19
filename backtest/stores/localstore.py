@@ -115,12 +115,9 @@ class LocalStore(Store):
         resp = self.broker.submit(experiment_id, body)
         return resp
     
-    def on_dt_over(self, experiment_id: bytes) -> SnapshotBody:
-        body = self._feed.on_dt_over()
-        if body:
-            resp = self.broker.on_dt_over(experiment_id, body)
-            return resp
-        return None
+    def on_dt_over(self, experiment_id: bytes, dts: int) -> SnapshotBody:
+        resp = self.broker.on_dt_over(experiment_id, dts)
+        return resp
     
     def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Union[AccountBody, PositionBody]]:
         return self.broker.subscribe(topic, experiment_id, body)
@@ -139,7 +136,6 @@ class LocalStore(Store):
     def cancel(self, order_id: bytes):
         raise NotImplementedError("cancel not implemented in BTStore")
     
-    def stop(self, experiment_id: bytes):
+    def stop(self):
         '''Stops and tells the store to stop'''
-        _ = self.on_dt_over(experiment_id) # sync last 
         super().stop()

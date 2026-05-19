@@ -21,7 +21,6 @@
 import numpy as np
 
 import backtest as bt
-from backtest.utils import AutoOrderedDict
 
 
 class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
@@ -59,58 +58,39 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
     )
     
     def __init__(self):
-        self.rets.total.total = 0
+        super().__init__()
+        
+        self.closed_count = 0
+        self.won_count = 0
+        self.loss_count = 0
+        self.net_pnl = 0.0
 
-    # def calcuate_total(self):
-    #     # _trades = self._owner._trades
-    #     snapshots = self.get_shm_events()  # --- IGNORE ---
-    #     _trades = [item["data"] for item in snapshots if item["type"] == "trade"]
+    def _drain(self, events):
+        for e in events:
+            if e['type'] == 'position':
+                pos = e['data']
+                if pos['size'] == 0 and pos['pnl'] != 0:  
+                    pnl = pos['pnl']
+                    self.closed_count += 1
+                    self.net_pnl += pnl
+                    
+                    if pnl > 0:
+                        self.won_count += 1
+                    else:
+                        self.loss_count += 1
 
-    #     _size = np.array([_t["executed_size"] for _t in _trades])
-    #     _isbuy = np.array([1 if _t["isbuy"] else -1 for _t in _trades ])
-    #     executed_size = _size * _isbuy
-    #     cum_size = np.cumsum(executed_size)
-    #     zero_indices = np.nonzero(cum_size == 0)
-    #     total = len(zero_indices) + 1
-    #     return total
-
-    def on_dt_over(self):
+    def notify_timer(self, dt0):
         events = self.get_shm_events()  
-        positions = [_p["data"] for _p in events if _p["type"] == "position"]
+        self._drain(events)
 
-        for p_data in positions:
-            pnl = p_data.pnl
-
-            if p_data.isclosed:
-                # Trade just closed
-                self.total.closed += 1
-                won = int(p_data.pnl >= 0.0)
-                if won:
-                    ret_won = self.rets.won
-                    ret_won.count += won
-                    ret_won.net.total += pnl
-                    ret_won.max = max(pnl, ret_won.max)
-                else:
-                    ret_loss = self.rets.loss
-                    ret_loss.count = int(not won)
-                    ret_loss.net.total += pnl
-                    ret_loss.min = min(pnl, ret_loss.min)
-
-                trpnl = self.rets.pnl
-                trpnl.net.total += pnl
-                trpnl.net.average = self.rets.pnl.net.total / self.rets.total.closed
-          
-            self.log_shm.publish_metric(b"LogReturnsRolling", logret, self.dtcmp) 
+    def on_dt_over(self, dt0):
+        events = self.get_shm_events()  
+        self._drain(events)
+        
+        if self.closed_count > 0:
+            won_rate = self.won_count / self.closed_count
+            self.log_shm.publish_metric(b"TradeAnalyzer WonRate", won_rate, dt0)
+            self.log_shm.publish_metric( b"TradeAnalyzer NetPnl", self.net_pnl, dt0)
 
     def stop(self):
         super(TradeAnalyzer, self).stop()
-        self.rets.total.total = self.calcuate_total()
-
-        # Won/Lost statistics
-        self.rets.won.won_rate = self.rets.won.count / self.rets.total.total
-        self.rets.loss.lost_rate = self.rets.lost.count / self.rets.total.total
-
-        self.rets._close()  # . notation cannot create more keys
-
-    def stop(self):
-        super(AnnualReturn, self).stop()

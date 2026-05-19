@@ -44,7 +44,7 @@ class LogConsumerThread(threading.Thread):
             while self._running:
                 arr = self.log_shm.drain_metrics(min_batch=5000, max_batch=100000)
                 if len(arr) > 0:
-                    print("LogConumserThread run arr: ", len(arr), arr)
+                    print("LogConumserThread run arr: ", len(arr))
                     table = self._process_and_buffer(arr)
                 else:
                     time.sleep(0.001)

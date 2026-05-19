@@ -383,15 +383,6 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
             self.adj_tmp_dt = current_dt
 
-    def on_dt_over(self):
-        if not np.isnan(self.lines.datetime[-1]): # nan ---> np.inf/ minus >= oneday
-            body = QueryBody(
-                    start_date=int(self.lines.datetime[-1]), 
-                    end_date=int(self.lines.datetime[0]), 
-                    sid=[]) 
-            return body
-        return None
-
     def plot(self, linealias):
         pass
 

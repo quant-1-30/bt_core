@@ -29,9 +29,10 @@ if __name__ == '__main__':
     load_dotenv()
 
     # 2>/dev/null
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, stdstats=False, writer=False) 
-    cerebro.addstore() 
-    cerebro.addpnc("fixed", days_held=5, stake=0.9)
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, stdstats=False) 
+    cerebro.addstore()
+
+    cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
 
     data1 = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
 

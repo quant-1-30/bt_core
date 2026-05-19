@@ -296,9 +296,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if hasattr(strat, 'check_risk'):
                     strat.check_risk(dts)
 
-    def _force_sync(self, dt0): # trigger when run exit
-        strat.on_dt_over(dt0) 
-
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
     def adddata(self, *args, dmaster=False): # dmaster not dataclone
@@ -527,10 +524,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if runstrats:
             for _, strat in enumerate(runstrats):
                 if self.p.stdstats: 
-                    strat._addanalyzer(analyzers.DrawDown) # kwargs
-                    strat._addanalyzer(analyzers.TimeReturn)
-                    strat._addanalyzer(analyzers.Transactions) 
                     strat._addanalyzer(analyzers.Benchmark) 
+                    # strat._addanalyzer(analyzers.Calmar) 
+                    strat._addanalyzer(analyzers.DrawDown) 
+                    strat._addanalyzer(analyzers.Orders) 
+                    strat._addanalyzer(analyzers.PeriodStats) 
+                    strat._addanalyzer(analyzers.PyFolio)
+                    strat._addanalyzer(analyzers.Returns)
+                    strat._addanalyzer(analyzers.SharpeRatio)
+                    strat._addanalyzer(analyzers.SQN)
+                    strat._addanalyzer(analyzers.TimeReturn) 
+                    strat._addanalyzer(analyzers.TradeAnalyzer) 
+                    strat._addanalyzer(analyzers.Transactions) 
 
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
@@ -540,7 +545,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._runnext(runstrats)
 
             for strat in runstrats:
-                strat._stop()
+                strat._stop() # on_dt_over on last_dts
             print("strat stop")
 
         for data in self.datas:
@@ -580,10 +585,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
                 for strat in runstrats:
                     strat._next()
-
-        if len(datas[0]) > 0:
-            final_dts = datas[0].datetime[0]
-            self._force_sync(final_dts) 
         return
 
 # ---------------------------------------------------------------------- plot ------------------------------------------------------------

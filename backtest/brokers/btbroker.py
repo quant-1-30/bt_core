@@ -92,7 +92,8 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
         data = self.tdapi.submit(experiment_id, body) 
         return data.body
     
-    def on_dt_over(self, experiment_id:bytes, body:QueryBody) -> SnapshotBody:
+    def on_dt_over(self, experiment_id:bytes, dts: int) -> SnapshotBody:
+        body = QueryBody(start_date=int(dts), end_date=int(dts), sid=[]) 
         data = self.tdapi.on_dt_over(experiment_id, body)
         return data.body
 

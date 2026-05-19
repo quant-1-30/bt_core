@@ -67,7 +67,7 @@ class MetaAnalyzer(MetaParams):
                         setattr(_obj, 'data%d_%s' % (d, linealias), line)
                     setattr(_obj, 'data%d_%d' % (d, l), line)
         
-        _obj.create_analysis()
+        # _obj.create_analysis()
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -147,28 +147,28 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         events  = self.shm.drain_events(self.shm_id)
         return events
 
-    def create_analysis(self):
-        '''Meant to be overriden by subclasses. Gives a chance to create the
-        structures that hold the analysis.
+    # def create_analysis(self):
+    #     '''Meant to be overriden by subclasses. Gives a chance to create the
+    #     structures that hold the analysis.
 
-        The default behaviour is to create a ``OrderedDict`` named ``rets``
-        '''
-        self.rets = OrderedDict()
+    #     The default behaviour is to create a ``OrderedDict`` named ``rets``
+    #     '''
+    #     self.rets = OrderedDict()
 
-    def get_analysis(self):
-        '''Returns a *dict-like* object with the results of the analysis
+    # def get_analysis(self):
+    #     '''Returns a *dict-like* object with the results of the analysis
 
-        The keys and format of analysis results in the dictionary is
-        implementation dependent.
+    #     The keys and format of analysis results in the dictionary is
+    #     implementation dependent.
 
-        It is not even enforced that the result is a *dict-like object*, just
-        the convention
+    #     It is not even enforced that the result is a *dict-like object*, just
+    #     the convention
 
-        The default implementation returns the default OrderedDict ``rets``
-        created by the default ``create_analysis`` method
+    #     The default implementation returns the default OrderedDict ``rets``
+    #     created by the default ``create_analysis`` method
 
-        '''
-        return self.rets
+    #     '''
+    #     return self.rets
 
     def _stop(self):
         for child in self._children:
@@ -204,7 +204,7 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
         self.timeframe = self.p.timeframe or self.data._timeframe
         self.compression = self.p.compression or self.data._compression
 
-        self.dtcmp = 0 # boundary
+        # self.dtcmp = 0 # boundary
         # self.dtkey = datetime.datetime.min
 
         super(TimeFrameAnalyzerBase, self)._start()

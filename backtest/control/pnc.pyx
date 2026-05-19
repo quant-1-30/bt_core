@@ -34,11 +34,9 @@ cdef class Pnc:
     """
 
     def __init__(self, str sizer_name, **kwargs):
-
-        # lastday data to generate plan
-        self.interval = kwargs.pop("days_held", 5) - 1 
-        self.p_tolerance = kwargs.pop("p_thres", -0.1)
-        self.act_tolerance = kwargs.pop("act_thres",  -0.25)
+        self.interval = kwargs.pop("days_held", 5)
+        self.stake = kwargs.pop("stake", 0.9)
+        self.dd = kwargs.pop("dd", 0.25)
         self.sizer = _sizers[sizer_name](**kwargs)
 
         self.sells = []
@@ -64,9 +62,10 @@ cdef class Pnc:
         # ==========================================
         # 1. Macro Control --- Drawdown
         # ==========================================
-        drawdown = stats["drawdown"].rets.get("maxDrawDown", 0.0)
-        signal = drawdown <= self.act_tolerance
-
+        drawdown = stats["drawdown"].maxdd
+        print("drawdown :", drawdown)
+        signal = drawdown >= self.dd
+        
         if signal:
             print("reach maxdd and sell all")
             self.sells =[TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions if pos.size > 0]
@@ -83,12 +82,12 @@ cdef class Pnc:
 
             sid = pos.sid
             current_price = current_prices.get(sid, pos.cost_basis) # lastday closes
-            pnl = current_price / pos.cost_basis - 1.0
+            pnl = current_price / pos.cost_basis 
 
             # ------------------------------------------
             # Priority A Hard Stop-Loss
             # ------------------------------------------
-            if pnl <= self.p_tolerance: 
+            if pnl <= self.stake: 
                 wgt_ratio = s_wgt.get(sid, 1.0) 
                 tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=0) # 0 最高级
                 self.sells.append(tmp) 
@@ -104,7 +103,7 @@ cdef class Pnc:
             # based on created_dt(no change) not datetime
             days_held = current_day - ts2intdt(pos.created_dt)
             
-            if days_held < self.interval:
+            if days_held < self.interval - 1:
                 continue
                 
             if sid in topk_info:

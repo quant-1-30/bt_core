@@ -69,10 +69,9 @@ class Store(with_metaclass(MetaStore, object)):
     def start(self, *args, **kwargs):
         pass
     
-    def on_dt_over(self, last=False):
-        # determin whether T + 0 or T + 1
+    def on_dt_over(self, experiment_id: bytes, dts: int): # T+1
         pass
     
     def stop(self):
-        self._feed.stop()
+        # self._feed.stop() # stop in cerebro datas
         self.broker.stop()

@@ -23,7 +23,6 @@ import numpy as np
 
 import backtest as bt
 from backtest.utils.mathsupport import average, standarddev
-from backtest.utils import AutoOrderedDict
 
 
 class SQN(bt.TimeFrameAnalyzerBase):
@@ -57,35 +56,29 @@ class SQN(bt.TimeFrameAnalyzerBase):
         ('compression', None),
     )
 
-    def create_analysis(self):
-        '''Replace default implementation to instantiate an AutoOrdereDict
-        rather than an OrderedDict'''
-        self.rets = AutoOrderedDict()
+    def __init__(self):
+        super().__init__()
+        self._realized_pnls = [] # all positions pnl
 
-    def start(self):
-        super(SQN, self).start()
-        self.pnl = list()
-        self.count = 0
+    def _drain(self):
+        events = self.get_shm_events()  
+        for e in events:
+            if e['type'] == 'position':
+                pos = e['data']
+                if pos['size'] == 0 and pos['pnl'] != 0:
+                    self._realized_pnls.append(pos['pnl'])
 
-    def on_dt_over(self):
-        events = self.get_shm_events()
-        positions = [item["data"] for item in events if item["type"] == "position"] # if pobj.status == trade.Closed:
-        for p_data in positions:
-            self.pnl.append(p_data["pnl"])
-            self.count += 1
+    def notify_timer(self, dt0):
+        self._drain()
 
-    def stop(self):
-        if self.count > 1:
-            pnl_av = average(self.pnl)
-            # pnl_stddev = standarddev(self.pnl)
-            pnl_stddev = np.std(self.pnl)
-            try:
-                sqn = math.sqrt(len(self.pnl)) * pnl_av / pnl_stddev
-            except ZeroDivisionError:
-                sqn = None
-        else:
-            sqn = 0
-
-        self.rets.sqn = sqn
-
-        self.log_shm.publish_metric(b"SQN", sqn, self.data.datetime[0]) 
+    def on_dt_over(self, dt0):
+        self._drain()
+        
+        n_trades = len(self._realized_pnls)
+        if n_trades > 1:
+            pnl_avg = np.mean(self._realized_pnls)
+            pnl_std = np.std(self._realized_pnls)
+            
+            if pnl_std > 0:
+                sqn = (math.sqrt(n_trades) * pnl_avg) / pnl_std
+                self.log_shm.publish_metric(b"SQN", sqn, dt0)

@@ -116,7 +116,7 @@ class DrawDownSignal(btind.Indicator):
         self.stats = self._owner.stats
 
     def next(self):
-        dd = self.stats["drawdown"].rets.get("maxDrawDown", 0.0)
+        dd = self.stats["drawdown"].maxdd
         signal = self.thres - dd
         self.lines.signal[0] = 0.0 if np.isnan(signal) else signal # np.nan_to_num(signal) used for array not scalar
 
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
     cerebro.addstore() 
-    cerebro.addpnc("fixed", days_held=5, stake=0.9)
+    cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
