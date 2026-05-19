@@ -55,22 +55,18 @@ class Transactions(bt.TimeFrameAnalyzerBase):
     def __init__(self):
         self.trades_cnt = 0
 
-    def on_dt_over(self):
-        # events = self.get_shm_events() 
-        # trades = [_t["data"] for _t in events if _t["type"] == "trade"]
-        # # self.rets[self.dtcmp] = trades
-        # self.trades_cnt += len(trades)
-          
-        self.log_shm.publish_metric(b"Transactions", self.trades_cnt, self.dtcmp) 
-        self.trades_cnt = 0 # reset
-
     def notify_timer(self):
         events = self.get_shm_events() 
-        trades = [_t["data"] for _t in events if _t["type"] == "trade"]
-        print("Transactions on_dt_over ", self.dtcmp, trades)
-        # self.rets[self.dtcmp] = trades
-        self.trades_cnt += len(trades)
+        trades_cnt = len([_t for _t in events if _t["type"] == "trade"])
+        self.trades_cnt += trades_cnt
+        if trades_cnt > 0:
+            self.log_shm.publish_metric(b"Intraday_Trades", self.trades_cnt, self.data.datetime[0]) # slope
 
+    def on_dt_over(self):
+        _ = self.get_shm_events() # timer on session end 
+          
+        self.log_shm.publish_metric(b"Transactions", self.trades_cnt, self.data.datetime[0]) 
+        self.trades_cnt = 0 # reset
 
     def stop(self):
         super(Transactions, self).stop()

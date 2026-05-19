@@ -49,16 +49,20 @@ class Orders(bt.TimeFrameAnalyzerBase):
     )
     def __init__(self):
         self.order_cnt = 0
+    
+    def notify_timer(self):
+        events = self.get_shm_events() 
+        _orders_cnt = len([e for e in events if e["type"] == "order"])
+        self.order_cnt += _orders_cnt
+        
+        if _orders_cnt > 0:
+            self.log_shm.publish_metric(b"Intraday_Orders", self.order_cnt, self.data.datetime[0]) # slope
 
     def on_dt_over(self):
-        _ = self.get_shm_events()
+        _ = self.get_shm_events() # timer until session start 
 
-        self.log_shm.publish_metric(b"Orders", self.order_cnt, self.dtcmp)
+        self.log_shm.publish_metric(b"Orders", self.order_cnt, self.data.datetime[0])
         self.order_cnt = 0 # reset 
-
-    def notify_timer(self):
-        events = self.get_shm_events()  
-        self.order_cnt += len([e["type"] == "order" for e in events])
-
+ 
     def stop(self):
         super(Orders, self).stop()

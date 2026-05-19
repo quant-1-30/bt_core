@@ -39,7 +39,7 @@ cpdef object num2date(double x, bint native=True): # inline only used in cdef
         ts = <int64_t>ix - (SHANGHAI_OFFSET if native else 0 )
         return py_datetime.datetime.fromtimestamp(ts)
 
-    # ordinal  0001-01-01 days 
+    # ordinal  ---> matplotlib 0001-01-01 days 
     dt_base = py_datetime.datetime.fromordinal(<int>ix)
     remainder = x - ix
     # C ops --->  Python divmod
@@ -59,18 +59,22 @@ cpdef object num2date(double x, bint native=True): # inline only used in cdef
     return py_datetime.datetime(dt_base.year, dt_base.month, dt_base.day, 
                              hour, minute, second, microsecond)
 
-cpdef double date2num(object dt):
-    # python datetime to struct c datetime
-    # data[0-1]: year, data[2]: month, data[3]: day
-    # data[4]: hour, data[5]: minute, data[6]: second
-    # data[7-9]: microsecond (3 byte)
-    cdef int hour = PyDateTime_DATE_GET_HOUR(dt)
-    cdef int minute = PyDateTime_DATE_GET_MINUTE(dt)
-    cdef int second = PyDateTime_DATE_GET_SECOND(dt)
-    cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)
+# cpdef double date2num(object dt): # adapt matplotlib ordinal days
+#     # python datetime to struct c datetime
+#     # data[0-1]: year, data[2]: month, data[3]: day
+#     # data[4]: hour, data[5]: minute, data[6]: second
+#     # data[7-9]: microsecond (3 byte)
+#     cdef int hour = PyDateTime_DATE_GET_HOUR(dt)
+#     cdef int minute = PyDateTime_DATE_GET_MINUTE(dt)
+#     cdef int second = PyDateTime_DATE_GET_SECOND(dt)
+#     cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)
+# 
+#     return dt.toordinal() + (hour / 24.0 + minute / 1440.0 + 
+#                             second / 86400.0 + microsecond / 86400000000.0)
 
-    return dt.toordinal() + (hour / 24.0 + minute / 1440.0 + 
-                            second / 86400.0 + microsecond / 86400000000.0)
+
+cpdef double date2num(object dt):
+    return dt.timestamp()
 
 
 cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil

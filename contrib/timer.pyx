@@ -108,10 +108,8 @@ cdef class Timer:
 
     def __init__(self, **kwargs): 
         self.when = kwargs.get("when", None)
-
         offset = kwargs.get("offset", timedelta())
-        self.offset = offset.total_seconds() # avoid missing day
-
+        self.offset = offset.total_seconds() # avoid missing day 
         repeat = kwargs.get("repeat", timedelta())
         self.repeat = repeat.total_seconds()
 
@@ -126,7 +124,6 @@ cdef class Timer:
         self._rstwhen = None
         self._isdata = False
 
-        # record last tick and date
         self._dwhen = None
         self._dtwhen = 0.0
         self._lastcall = date.min 
@@ -149,6 +146,7 @@ cdef class Timer:
         # write down the 'reset when' value
         if not isinstance(self.when, int):  # expect time/datetime
             self._rstwhen = self.when
+            # self._tzdata = self.tzdata
         else:
             if self.when == SESSION_START:
                 self._rstwhen = self._tzdata.p.sessionstart
@@ -157,6 +155,7 @@ cdef class Timer:
 
         self._isdata = isinstance(self._tzdata, AbstractDataBase)
         self._reset_when()
+        print("_rstwhen: ", self._rstwhen)
 
     cdef void _reset_when(self, object ddate=datetime.min):
         self._dwhen = None
@@ -167,8 +166,8 @@ cdef class Timer:
     cdef bint _check_month(self, int32_t dday, int32_t dmonth):
         cdef bint curday = False
         cdef bint daycarry = False
-        cdef int32_t val
         cdef int32_t length = len(self.monthdays)
+        cdef int32_t val
         
         if not self.monthdays:
             return True
@@ -225,9 +224,10 @@ cdef class Timer:
     cpdef bint check(self, double dt):
         cdef int32_t dday, dmonth, dweek, dwkday
         cdef bint valid
-        cdef object d, ddate, nexteos
+        cdef double repeat_ordinal 
+        cdef object d, ddate
 
-        if self._dtwhen > 0.0 and dt < self._dtwhen: # not reach target
+        if self._dtwhen > 0 and dt < self._dtwhen:
             return False
 
         if self._isdata:
@@ -236,6 +236,9 @@ cdef class Timer:
             d = num2date(dt)
 
         ddate = d.date()
+
+        if self._lastcall == ddate:
+            return False
 
         if ddate > self._curdate:
             self._curdate = ddate
@@ -255,12 +258,11 @@ cdef class Timer:
                 self._reset_when(ddate)
                 return False
             
-            self._dtwhen = 0.0 # reset on new day 
+            self._dtwhen = 0.0 # newday reset 
 
-        if self._dtwhen <= 0.0: # generate first _dtwhen
-            dwhen = datetime.combine(ddate, self._rstwhen) # attach when / session_start
-            if d.tzinfo is not None:
-                dwhen = dwhen.replace(tzinfo=d.tzinfo)
+        if self._dtwhen <= 0:
+            dwhen = datetime.combine(ddate, self._rstwhen)
+            dwhen = dwhen.replace(tzinfo=d.tzinfo)
             
             if self.offset > 0:
                 dwhen += timedelta(seconds=self.offset)
@@ -268,54 +270,37 @@ cdef class Timer:
             self._dwhen = dwhen
             
             if self._isdata:
-                self._dtwhen = self._tzdata.date2num(dwhen) # 转换为 double
+                self._dtwhen = self._tzdata.date2num(dwhen) # ordinal
             else:
                 self._dtwhen = date2num(dwhen)
 
-            if dt < self._dtwhen:
-                return False
-
-        # ==============================================================
-        # dt >= self._dtwhen ---> trigger and calculate next self._dtwhen
-        # ==============================================================
-
-        self._lastcall = ddate 
+        if dt < self._dtwhen:
+            return False
 
         if self.repeat <= 0.0:
             self._reset_when(ddate)
         else:
-            if dt > self._nextdteos:
-                if self._isdata:  
-                    _, self._nextdteos = self._tzdata._getnexteos() # session_end
-                else:  
-                    nexteos = datetime.combine(ddate, datetime.max) # 23:59:59.999999 
-                    if d.tzinfo is not None:
-                        nexteos = nexteos.replace(tzinfo=d.tzinfo)
-                    self._nextdteos = date2num(nexteos)
-            
+            if d > self._nextdteos:
+                if self._isdata:  # eos provided by data
+                    _, nextdteos = self._tzdata._getnexteos()
+                else:  # generic eos
+                    nexteos = datetime.combine(ddate, datetime.max).replace(tzinfo=d.tzinfo)
+                    nextdteos = date2num(nexteos)
+
+                self._nextdteos = nextdteos
+            repeat_ordinal = self.repeat / 86400.0 # seconds ---> day
+
             while True:
-                self._dtwhen += self.repeat # timestamp
-                
-                # --- Session End (EOS)  ---
+                self._dtwhen += repeat_ordinal
+                # TODO: EOS (Session End)
                 if self._dtwhen > self._nextdteos:
-                    if (self._dtwhen - self.repeat) < self._nextdteos: # first cross session_end
-                        self._dtwhen = self._nextdteos
-                        
-                        if self._isdata:
-                            self._dwhen = self._tzdata.num2date(self._dtwhen)
-                        else:
-                            self._dwhen = num2date(self._dtwhen)
-                        break
-                    else:
-                        self._reset_when(ddate) # already next day
-                        break
-                    
-                # next self._dtwhen
+                    self._reset_when(ddate)  
+                    break
+
                 if self._dtwhen > dt:
                     if self._isdata:
                         self._dwhen = self._tzdata.num2date(self._dtwhen)
                     else:
                         self._dwhen = num2date(self._dtwhen)
                     break
-                    
-        return True
+        return True 

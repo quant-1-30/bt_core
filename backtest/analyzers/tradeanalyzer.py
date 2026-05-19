@@ -61,9 +61,22 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
     def __init__(self):
         self.rets.total.total = 0
 
+    # def calcuate_total(self):
+    #     # _trades = self._owner._trades
+    #     snapshots = self.get_shm_events()  # --- IGNORE ---
+    #     _trades = [item["data"] for item in snapshots if item["type"] == "trade"]
+
+    #     _size = np.array([_t["executed_size"] for _t in _trades])
+    #     _isbuy = np.array([1 if _t["isbuy"] else -1 for _t in _trades ])
+    #     executed_size = _size * _isbuy
+    #     cum_size = np.cumsum(executed_size)
+    #     zero_indices = np.nonzero(cum_size == 0)
+    #     total = len(zero_indices) + 1
+    #     return total
+
     def on_dt_over(self):
-        snapshots = self.get_shm_events()  
-        positions = [_p["data"] for _p in snapshots if _p["type"] == "position"]
+        events = self.get_shm_events()  
+        positions = [_p["data"] for _p in events if _p["type"] == "position"]
 
         for p_data in positions:
             pnl = p_data.pnl
@@ -99,15 +112,5 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
 
         self.rets._close()  # . notation cannot create more keys
 
-    def calcuate_total(self):
-        # _trades = self._owner._trades
-        snapshots = self.get_shm_events()  # --- IGNORE ---
-        _trades = [item["data"] for item in snapshots if item["type"] == "trade"]
-
-        _size = np.array([_t["executed_size"] for _t in _trades])
-        _isbuy = np.array([1 if _t["isbuy"] else -1 for _t in _trades ])
-        executed_size = _size * _isbuy
-        cum_size = np.cumsum(executed_size)
-        zero_indices = np.nonzero(cum_size == 0)
-        total = len(zero_indices) + 1
-        return total
+    def stop(self):
+        super(AnnualReturn, self).stop()

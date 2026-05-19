@@ -80,8 +80,8 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.maxddlen = 0
 
     def on_dt_over(self):
-        snapshots = self.get_shm_events()
-        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        events = self.get_shm_events()
+        accts = [act["data"] for act in events if act["type"] == "account"]
 
         if not accts:
           print("accts None")
@@ -115,3 +115,6 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.log_shm.publish_metric(b"drawdownlength", self.ddlen, self.dtcmp)
         self.log_shm.publish_metric(b"maxDrawdown", maxdd, self.dtcmp) 
         self.log_shm.publish_metric(b"maxDrawdownLength", maxddlen, self.dtcmp) 
+
+    def stop(self):
+        super(AnnualReturn, self).stop()

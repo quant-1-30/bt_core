@@ -7,6 +7,8 @@ cimport numpy as cnp
 # np create array / cnp cdef 
 
 import multiprocessing as mp
+mp.set_start_method('spawn', force=True)
+
 from multiprocessing import shared_memory
 
 cimport cython
@@ -14,7 +16,13 @@ from libc.string cimport strncpy, memset
 from libc.stdint cimport int64_t, uint32_t
 
 
-mp.set_start_method('spawn', force=True)
+# dtype ---> numpy Structured Arrays C struct
+# 'i8' = int64, 'f8' = float64, 'S16' = 16 bytes
+dtype = cnp.dtype([
+    ('datetime', 'i8'), 
+    ('value', 'f8'), 
+    ('metrics', 'S32')
+])
 
 
 cdef extern from *: 
@@ -39,10 +47,9 @@ cdef class SharedRingBuffer: # SPMC
 
     def __cinit__(self, str shm_name, int64_t capacity, bint is_creator=False):
         """
-        初始化共享内存环形队列
-        :param shm_name: 共享内存在 OS 层的全局唯一名称
-        :param capacity: 队列容量
-        :param is_creator: 是否为创建者(主线 Strategy)消费者传 False
+        :param shm_name: str
+        :param capacity: int64_t
+        :param is_creator: whether to create shm
         """
         # C Struct bytes
         cdef size_t header_size = sizeof(RingHeader)
@@ -265,7 +272,7 @@ cdef class SharedRingBuffer: # SPMC
             elif msg.type == eORDER:
                 events.append({"type": "order", "data": msg.data.order})
             h.tails[consumer_id] += 1
-            
+
         return events
 
     cpdef void close(self):
@@ -279,15 +286,6 @@ cdef class SharedRingBuffer: # SPMC
     cpdef void unlink(self):
         if self._shm is not None:
             self._shm.unlink() # incase shm is corruption
-
-
-# dtype ---> numpy Structured Arrays C struct
-# 'i8' = int64, 'f8' = float64, 'S16' = 16 bytes
-dtype = cnp.dtype([
-    ('datetime', 'i8'), 
-    ('value', 'f8'), 
-    ('metrics', 'S32')
-])
 
 
 cdef class LogRingBuffer: # MPSC

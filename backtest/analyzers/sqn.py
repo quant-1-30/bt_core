@@ -68,8 +68,8 @@ class SQN(bt.TimeFrameAnalyzerBase):
         self.count = 0
 
     def on_dt_over(self):
-        snapshots = self.get_shm_events()
-        positions = [item["data"] for item in snapshots if item["type"] == "position"] # if pobj.status == trade.Closed:
+        events = self.get_shm_events()
+        positions = [item["data"] for item in events if item["type"] == "position"] # if pobj.status == trade.Closed:
         for p_data in positions:
             self.pnl.append(p_data["pnl"])
             self.count += 1
@@ -87,4 +87,5 @@ class SQN(bt.TimeFrameAnalyzerBase):
             sqn = 0
 
         self.rets.sqn = sqn
+
         self.log_shm.publish_metric(b"SQN", sqn, self.data.datetime[0]) 

@@ -123,7 +123,7 @@ class _Bar(AutoOrderedDict):
 
     # Without - 1 ... converting back to time will not work
     # Need another -1 to support timezones which may move the time forward
-    MAXDATE = date2num(_datetime.datetime.max) - 2
+    MAXDATE = date2num(_datetime.datetime(9999, 12, 30))- 2
 
     def __init__(self, maxdate=False):
         super(_Bar, self).__init__()

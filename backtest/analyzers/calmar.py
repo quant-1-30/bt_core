@@ -82,8 +82,8 @@ class Calmar(bt.TimeFrameAnalyzerBase):
         self._values.append(snap.account)
 
     def on_dt_over(self):
-        snapshots = self.get_shm_events()
-        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        events = self.get_shm_events()
+        accts = [act["data"] for act in events if act["type"] == "account"]
         if accts:
           acct = accts[-1]
 
@@ -98,4 +98,4 @@ class Calmar(bt.TimeFrameAnalyzerBase):
           self.log_shm.publish_metric(b"Calmar", calmar, self.dtcmp) 
 
     def stop(self):
-        self.on_dt_over()  # update last values
+        super(AnnualReturn, self).stop()

@@ -103,9 +103,8 @@ class Returns(bt.TimeFrameAnalyzerBase):
 
     def stop(self):
         super(Returns, self).stop()
-        # v = self._owner.get_snapshot()
-        snapshots = self.get_shm_events()
-        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        events = self.get_shm_events()
+        accts = [act["data"] for act in events if act["type"] == "account"]
         if accts:
             acct = accts[-1]
 
@@ -138,3 +137,6 @@ class Returns(bt.TimeFrameAnalyzerBase):
             self.rets['rnorm100'] = rnorm * 100.0  # human readable %
 
             self.log_shm.publish_metric(b"Returns", rnorm, acct["datetime"]) 
+
+    def stop(self):
+        super(AnnualReturn, self).stop()

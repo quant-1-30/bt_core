@@ -170,14 +170,14 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.minbuffer()
     
     def _setupLog(self):
-        for obj in self.getindicators_lines():
-            if not getattr(obj, 'csv', True):
-                continue
+        for line_obj in self.getindicators_lines():
+            line_name = line_obj.plotinfo.plotname or line_obj.__class__.__name__
 
-            base_name = obj.plotinfo.plotname or obj.__class__.__name__
-            for i, line_alias in enumerate(obj.lines.getlinealiases()):
-                metric_name = f"{base_name}_{line_alias}"
-                self.log_ind.append((obj.lines[i], metric_name))
+            for i, line_alias in enumerate(line_obj.lines.getlinealiases()):
+                metric_name = f"{line_name}_{line_alias}"
+                self.log_ind.append(
+                    (line_obj.lines[i][0], metric_name)
+                )
 
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
@@ -233,19 +233,17 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         snapshot = self.store.on_dt_over(self.experiment_id) 
         if snapshot:
             self.shm_chan.publish_snapshot(snapshot) 
-        # publish sentinel to shared memory for writer to consume
         self.shm_chan.publish_sentinel(dts)
 
         for analyzer in self.analyzers:
             if hasattr(analyzer, 'on_dt_over'):
                 analyzer.on_dt_over()
 
-    def notify_timer(self, dts: int): # intended for timer
+    def notify_timer(self, dts: int): 
         """
         This method is called when a timer event is triggered. 
         It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
-        import pdb; pdb.set_trace()
         for ind_line, metric in self.log_ind:
             val = ind_line[0]
             if np.isnan(val):

@@ -107,3 +107,6 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         self.rets[self.dtcmp] = loc_dret
         
         self.log_shm.publish_metric(b"Benchmark", loc_dret, self.dtcmp) 
+
+    def stop(self):
+        super(AnnualReturn, self).stop()

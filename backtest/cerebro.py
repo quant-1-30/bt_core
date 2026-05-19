@@ -246,17 +246,23 @@ class Cerebro(with_metaclass(MetaParams, object)):
             allow=allow,
             tzdata=tzdata)
 
-    def _dt_over(self, dt):
-        # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
-        # enum in dt_cmp.pxd | TF_Days = 5
-        dtcmp = get_dt_cmpkey(dt, 5)
-        if dtcmp > self.dtcmp:
-            self.dtcmp = dtcmp
+    # def _dt_over(self, dt, last_dt):
+    #     # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+    #     # enum in dt_cmp.pxd | TF_Days = 5
+    #     dtcmp = get_dt_cmpkey(dt, 5)
+    #     if dtcmp > self.dtcmp:
+    #         self.dtcmp = dtcmp
+    #         return True
+    #     return False
+    
+    def _dt_over(self, dt0: int, last_dt0: int):
+        if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): 
+            # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+            print("check timer on_dt_over: ", dt0)
             return True
         return False
     
-    # def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
-    def _check_timers(self, runstrats: list, dt0: int):
+    def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
         '''Receives a timer notification where ``timer`` is the timer which was
         returned by ``add_timer``, and ``when`` is the calling time. ``args``
         and ``kwargs`` are any additional arguments passed to ``add_timer``
@@ -268,30 +274,30 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if not dt0:
             return
             
-        # if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): 
-        #     # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
-        #     print("check timer on_dt_over: ", dt0)
-        if self._dt_over(dt0):
+        if self._dt_over(dt0, last_dt0):
             print("check timer on_dt_over: ", dt0)
-            self._dispatch(runstrats, TimerEvent.EOD, dt0)
+            self._dispatch(runstrats, TimerEvent.EOD, last_dt0)
 
         # --- Scheduled Timers ---
         # self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) 
         for t in self._pretimers:
             if t.check(dt0):
-                self._dispatch(runstrats, t.event_type, dt0)
+                self._dispatch(runstrats, t.event_type, last_dt0)
 
-    def _dispatch(self, runstrats: list, event_type: int, dt: int):
+    def _dispatch(self, runstrats: list, event_type: int, dts: int):
         for strat in runstrats:
             if event_type == TimerEvent.EOD: # on_dt_over ---> T+1 settlement
-                strat.on_dt_over(dt) 
+                strat.on_dt_over(dts) 
 
             elif event_type == TimerEvent.METRIC: # log shm
-                strat.notify_timer(event_type, dt)
+                strat.notify_timer(event_type, dts)
 
             elif event_type == TimerEvent.RISK: # risk control 
                 if hasattr(strat, 'check_risk'):
-                    strat.check_risk(dt)
+                    strat.check_risk(dts)
+
+    def _force_sync(self, dt0): # trigger when run exit
+        strat.on_dt_over(dt0) 
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
@@ -525,7 +531,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     strat._addanalyzer(analyzers.TimeReturn)
                     strat._addanalyzer(analyzers.Transactions) 
                     strat._addanalyzer(analyzers.Benchmark) 
-                    strat._addanalyzer(analyzers.Broker) 
 
                 for indcls, indargs, indkwargs in self.indicators:
                     strat._addindicator(indcls, *indargs, **indkwargs)
@@ -544,49 +549,43 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         return runstrats
 
-    # @profile
     def _runnext(self, runstrats):
         '''
         Actual implementation of run in full next mode. All objects have its
         ``next`` method invoke on each data arrival
         '''
         d0ret = True
-        datas = sorted(self.datas,
-                       key=lambda x: (x._timeframe, x._compression))
-
-        rsonly = [i for i, x in enumerate(datas) if x.resampling]
-        onlyresample = len(datas) == len(rsonly)
-        noresample = not rsonly
+        datas = sorted(self.datas, key=lambda x: (x._timeframe, x._compression)) # ensure high freq ---> master datas[0]
 
         while d0ret:
             if self._event_stop:  # stop if requested
                 return
 
-            drets = []
-            for d in datas:
-                drets.append(d.next())
-            
-            d0ret = any((dret for dret in drets))
+            drets = [d.next() for d in datas]
+            d0ret = any(drets)
 
             if d0ret:
-                dts = []
-                # last_dts = [] # last dts
-                for i, ret in enumerate(drets):
-                    dts.append(datas[i].datetime[0] if ret else None)
-                    # last_dts.append(datas[i].datetime[-1] if ret else None)
-
-                if not drets[0]: # last for resamplefilter
+                if not drets[0]:
                     for d in datas: 
                         d._last()
-                    d0ret = False # alias break
+                    break  
 
-                # self._check_timers(runstrats, dts[0], last_dts[0]) # notify_timer to control next
-                self._check_timers(runstrats, dts[0]) # notify_timer to control next
+                dt0 = datas[0].datetime[0]
+                if len(datas[0]) > 1:
+                    last_dt0 = datas[0].datetime[-1]
+                else:
+                    last_dt0 = dt0
 
-                for strat in runstrats: # to process nan in indicator due to forward
+                self._check_timers(runstrats, dt0, last_dt0)
+
+                for strat in runstrats:
                     strat._next()
+
+        if len(datas[0]) > 0:
+            final_dts = datas[0].datetime[0]
+            self._force_sync(final_dts) 
         return
-                
+
 # ---------------------------------------------------------------------- plot ------------------------------------------------------------
  
     def plot(self, num_data=0, num_ind=1, num_obs=1, source="", freq="D", **kwargs):

@@ -97,7 +97,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
         ('sessionstart', datetime.time(9,30,0)),
-        ('sessionend', datetime.time(15,0,0)),
+        ('sessionend', datetime.time(14,59,0)),
         ('calendar', None),
         ("timeout", -1),
     )
@@ -156,12 +156,12 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         '''Can be overriden by classes to return a timezone for input'''
         return tzparse(self.p.tzinput) if self.p.tzinput else None
 
-    def date2num(self, dt):
+    def date2num(self, dt: datetime.datetime):
         if self._tz is not None:
             return date2num(self._tz.localize(dt))
         return date2num(dt)
 
-    def num2date(self, dts):
+    def num2date(self, dts: int):
         return num2date(dts) # default is Asia/Shanghai
     
     def _getnexteos(self): 

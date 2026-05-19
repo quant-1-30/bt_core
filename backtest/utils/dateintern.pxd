@@ -15,9 +15,6 @@ cdef enum MarketConstants: # DEF is desprecated in Cython 3.x / cdef enum / cdef
     SHANGHAI_OFFSET = 28800
 
 
-# cdef struct CTime: # replace datetime
-#     int year, month, day, hour, minute, second, microsecond
-
 cdef struct MarketTime:
     int64_t open_ts
     int64_t close_ts

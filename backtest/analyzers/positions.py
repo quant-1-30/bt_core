@@ -79,4 +79,7 @@ class PositionsValue(bt.TimeFrameAnalyzerBase):
         positions = [_p["data"] for _p in snapshots if _p["type"] == "position"]
         self.rets[self.dtcmp] = positions
 
-        self.log_shm.publish_metric(b"PositionsValue", logret, self.dtcmp) 
+        # self.log_shm.publish_metric(b"PositionsValue", logret, self.dtcmp) # available / cost_basis / pnl
+
+    def stop(self):
+        super(AnnualReturn, self).stop()

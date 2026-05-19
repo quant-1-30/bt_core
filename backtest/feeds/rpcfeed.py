@@ -94,30 +94,6 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
     def _prepare(self, _loop): 
         self.mdapi.start(_loop)
 
-    def get_adjfactor(self, body: QueryBody):
-        adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
-        adj = adj_data[body.sid[0]]
-        factors = adj.raw_factors if adj else {} # adj_factors
-        if factors:
-            factors = dict(sorted(factors.items())) # sort by key
-            self.adj_factors = factors
-
-    def get_daily_ret(self, body: QueryBody):
-        raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
-        close = raw_data[body.sid[0]]
-
-        self.benchmark_dret = close.with_columns(
-            pl.col("close").pct_change().fill_null(0).alias("ret")
-        ).select(["day", "ret"])
-
-    def get_snapshot(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
-        body = QueryBody(start_date=tick, end_date=tick, sid=psids)
-        df = self.mdapi.get_subscribe(body, FactorTopic.Raw)
-        snapshot = {}
-        if df:
-            snapshot = valmap(lambda x : x["close"][0], df)
-        return snapshot
-
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
         self._row_iter = None
@@ -127,7 +103,7 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         self.get_adjfactor(body)
 
         body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])
-        self.get_daily_ret(body)
+        self.get_dret(body)
 
         observable = self.mdapi.subscribe(body, FactorTopic.Raw)
         observable.subscribe( # nonblocking 
@@ -141,12 +117,11 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
             if self._row_iter is not None:
                 try:
                     row = next(self._row_iter)
-                    # print("_load row ", row)
                     if self.p.rtbar:
-                        self._load_rtbar(row)
+                        ret = self._load_rtbar(row)
                     else:
-                        self._load_bar(row)
-                    return True
+                        ret = self._load_bar(row)
+                    return ret
                 except StopIteration:
                     self._row_iter = None
 
@@ -189,6 +164,30 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         self.lines.volume[0] = row[2]
         self.lines.amount[0] = row[3]
         return True
+
+    def get_snapshot(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
+        body = QueryBody(start_date=tick, end_date=tick, sid=psids)
+        df = self.mdapi.get_subscribe(body, FactorTopic.Raw)
+        snapshot = {}
+        if df:
+            snapshot = valmap(lambda x : x["close"][0], df)
+        return snapshot
+
+    def get_adjfactor(self, body: QueryBody):
+        adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
+        adj = adj_data[body.sid[0]]
+        factors = adj.raw_factors if adj else {} # adj_factors
+        if factors:
+            factors = dict(sorted(factors.items())) # sort by key
+            self.adj_factors = factors
+
+    def get_dret(self, body: QueryBody):
+        raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
+        close = raw_data[body.sid[0]]
+
+        self.benchmark_dret = close.with_columns(
+            pl.col("close").pct_change().fill_null(0).alias("ret")
+        ).select(["day", "ret"])
 
     def stop(self):
         super().stop()

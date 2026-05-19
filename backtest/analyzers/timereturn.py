@@ -89,19 +89,18 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         acct = snap.account
 
         self._value_start = acct.portfolio_value + acct.cash
-        self._value = None
 
     def on_dt_over(self):
-        # next is called in a new timeframe period
-        snapshots = self.get_shm_events()
-        accts = [act["data"] for act in snapshots if act["type"] == "account"]
+        events = self.get_shm_events()
+        accts = [act["data"] for act in events if act["type"] == "account"]
         if accts:
           acct = accts[-1]
 
-          self._value = acct["portfolio_value"] + acct["cash"]
-          # self.rets[self.dtkey] = (self._value / self._value_start) - 1.0
-          self.rets[self.dtcmp] = tret = (self._value / self._value_start) - 1.0
-          self._value_start = self._value  # keep last value
+          _value = acct["portfolio_value"] + acct["cash"]
+          self.rets[self.dtcmp] = tret = (_value / self._value_start) - 1.0
+          self._value_start = _value  # keep last value
           
           self.log_shm.publish_metric(b"TimeReturn", tret, self.dtcmp) 
           
+    def stop(self):
+        super(AnnualReturn, self).stop()

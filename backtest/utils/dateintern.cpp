@@ -1651,8 +1651,8 @@ enum __pyx_t_8backtest_5utils_10dateintern_MarketConstants {
   __pyx_e_8backtest_5utils_10dateintern_SHANGHAI_OFFSET = 0x7080
 };
 
-/* "backtest/utils/dateintern.pxd":21
- * #     int year, month, day, hour, minute, second, microsecond
+/* "backtest/utils/dateintern.pxd":18
+ * 
  * 
  * cdef struct MarketTime:             # <<<<<<<<<<<<<<
  *     int64_t open_ts
@@ -1663,7 +1663,7 @@ struct __pyx_t_8backtest_5utils_10dateintern_MarketTime {
   int64_t close_ts;
 };
 
-/* "backtest/utils/dateintern.pxd":27
+/* "backtest/utils/dateintern.pxd":24
  * 
  * # C typedef / cython ctypedef
  * cpdef object num2date(double ts, bint native=?)             # <<<<<<<<<<<<<<
@@ -1675,7 +1675,7 @@ struct __pyx_opt_args_8backtest_5utils_10dateintern_num2date {
   int native;
 };
 
-/* "backtest/utils/dateintern.pxd":31
+/* "backtest/utils/dateintern.pxd":28
  * cpdef double date2num(object dt)
  * 
  * cpdef int64_t ts2intdt(double ts, bint native=?) # only cdef nogil             # <<<<<<<<<<<<<<
@@ -1687,7 +1687,7 @@ struct __pyx_opt_args_8backtest_5utils_10dateintern_ts2intdt {
   int native;
 };
 
-/* "backtest/utils/dateintern.pxd":35
+/* "backtest/utils/dateintern.pxd":32
  * cpdef object tzparse(str tz)
  * 
  * cdef MarketTime market_utc(int64_t ts, bint native=?) nogil             # <<<<<<<<<<<<<<
@@ -2629,8 +2629,8 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_n_u_set_name __pyx_string_tab[32]
 #define __pyx_n_u_setdefault __pyx_string_tab[33]
 #define __pyx_n_u_test __pyx_string_tab[34]
-#define __pyx_n_u_timezone __pyx_string_tab[35]
-#define __pyx_n_u_toordinal __pyx_string_tab[36]
+#define __pyx_n_u_timestamp __pyx_string_tab[35]
+#define __pyx_n_u_timezone __pyx_string_tab[36]
 #define __pyx_n_u_ts __pyx_string_tab[37]
 #define __pyx_n_u_ts2intdt __pyx_string_tab[38]
 #define __pyx_n_u_tz __pyx_string_tab[39]
@@ -2643,7 +2643,7 @@ static __pyx_mstatetype * const __pyx_mstate_global = &__pyx_mstate_global_stati
 #define __pyx_kp_b_int64_t_const_HOURS_PER_DAY __pyx_string_tab[46]
 #define __pyx_kp_b_iso88591_0_r_q_Cs_Q_q_3b_iq_F_1A_D_6_6_D __pyx_string_tab[47]
 #define __pyx_kp_b_iso88591_A_iq_r_q_3b_1_y_q_vS_1_s_G3a_fC __pyx_string_tab[48]
-#define __pyx_kp_b_iso88591_Q_AQ_0_0_1_2Zs_U_E_7_G1_2XR_2Q __pyx_string_tab[49]
+#define __pyx_kp_b_iso88591_Q_2Zq __pyx_string_tab[49]
 #define __pyx_kp_b_iso88591_t1_1_T_1_1 __pyx_string_tab[50]
 /* #### Code section: module_state_clear ### */
 #if CYTHON_USE_MODULE_STATE
@@ -5000,7 +5000,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_num2date(double __pyx_v_x
  *         ts = <int64_t>ix - (SHANGHAI_OFFSET if native else 0 )
  *         return py_datetime.datetime.fromtimestamp(ts)             # <<<<<<<<<<<<<<
  * 
- *     # ordinal  0001-01-01 days
+ *     # ordinal  ---> matplotlib 0001-01-01 days
 */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_mstate_global->__pyx_n_u_py_datetime); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 40, __pyx_L1_error)
@@ -5037,7 +5037,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_num2date(double __pyx_v_x
 
   /* "backtest/utils/dateintern.pyx":43
  * 
- *     # ordinal  0001-01-01 days
+ *     # ordinal  ---> matplotlib 0001-01-01 days
  *     dt_base = py_datetime.datetime.fromordinal(<int>ix)             # <<<<<<<<<<<<<<
  *     remainder = x - ix
  *     # C ops --->  Python divmod
@@ -5065,7 +5065,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_num2date(double __pyx_v_x
   __pyx_t_2 = 0;
 
   /* "backtest/utils/dateintern.pyx":44
- *     # ordinal  0001-01-01 days
+ *     # ordinal  ---> matplotlib 0001-01-01 days
  *     dt_base = py_datetime.datetime.fromordinal(<int>ix)
  *     remainder = x - ix             # <<<<<<<<<<<<<<
  *     # C ops --->  Python divmod
@@ -5229,7 +5229,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_num2date(double __pyx_v_x
  *     return py_datetime.datetime(dt_base.year, dt_base.month, dt_base.day,
  *                              hour, minute, second, microsecond)             # <<<<<<<<<<<<<<
  * 
- * cpdef double date2num(object dt):
+ * # cpdef double date2num(object dt): # adapt matplotlib ordinal days
 */
   __pyx_t_11 = __Pyx_PyLong_From_int(__pyx_v_hour); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
@@ -5431,12 +5431,12 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_num2date(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "backtest/utils/dateintern.pyx":62
- *                              hour, minute, second, microsecond)
+/* "backtest/utils/dateintern.pyx":76
+ * 
  * 
  * cpdef double date2num(object dt):             # <<<<<<<<<<<<<<
- *     # python datetime to struct c datetime
- *     # data[0-1]: year, data[2]: month, data[3]: day
+ *     return dt.timestamp()
+ * 
 */
 
 static PyObject *__pyx_pw_8backtest_5utils_10dateintern_3date2num(PyObject *__pyx_self, 
@@ -5447,63 +5447,22 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
 static double __pyx_f_8backtest_5utils_10dateintern_date2num(PyObject *__pyx_v_dt, CYTHON_UNUSED int __pyx_skip_dispatch) {
-  int __pyx_v_hour;
-  int __pyx_v_minute;
-  int __pyx_v_second;
-  int __pyx_v_microsecond;
   double __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   size_t __pyx_t_3;
-  PyObject *__pyx_t_4 = NULL;
-  double __pyx_t_5;
+  double __pyx_t_4;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("date2num", 0);
 
-  /* "backtest/utils/dateintern.pyx":67
- *     # data[4]: hour, data[5]: minute, data[6]: second
- *     # data[7-9]: microsecond (3 byte)
- *     cdef int hour = PyDateTime_DATE_GET_HOUR(dt)             # <<<<<<<<<<<<<<
- *     cdef int minute = PyDateTime_DATE_GET_MINUTE(dt)
- *     cdef int second = PyDateTime_DATE_GET_SECOND(dt)
-*/
-  __pyx_v_hour = PyDateTime_DATE_GET_HOUR(__pyx_v_dt);
-
-  /* "backtest/utils/dateintern.pyx":68
- *     # data[7-9]: microsecond (3 byte)
- *     cdef int hour = PyDateTime_DATE_GET_HOUR(dt)
- *     cdef int minute = PyDateTime_DATE_GET_MINUTE(dt)             # <<<<<<<<<<<<<<
- *     cdef int second = PyDateTime_DATE_GET_SECOND(dt)
- *     cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)
-*/
-  __pyx_v_minute = PyDateTime_DATE_GET_MINUTE(__pyx_v_dt);
-
-  /* "backtest/utils/dateintern.pyx":69
- *     cdef int hour = PyDateTime_DATE_GET_HOUR(dt)
- *     cdef int minute = PyDateTime_DATE_GET_MINUTE(dt)
- *     cdef int second = PyDateTime_DATE_GET_SECOND(dt)             # <<<<<<<<<<<<<<
- *     cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)
+  /* "backtest/utils/dateintern.pyx":77
  * 
-*/
-  __pyx_v_second = PyDateTime_DATE_GET_SECOND(__pyx_v_dt);
-
-  /* "backtest/utils/dateintern.pyx":70
- *     cdef int minute = PyDateTime_DATE_GET_MINUTE(dt)
- *     cdef int second = PyDateTime_DATE_GET_SECOND(dt)
- *     cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)             # <<<<<<<<<<<<<<
+ * cpdef double date2num(object dt):
+ *     return dt.timestamp()             # <<<<<<<<<<<<<<
  * 
- *     return dt.toordinal() + (hour / 24.0 + minute / 1440.0 +
-*/
-  __pyx_v_microsecond = PyDateTime_DATE_GET_MICROSECOND(__pyx_v_dt);
-
-  /* "backtest/utils/dateintern.pyx":72
- *     cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)
- * 
- *     return dt.toordinal() + (hour / 24.0 + minute / 1440.0 +             # <<<<<<<<<<<<<<
- *                             second / 86400.0 + microsecond / 86400000000.0)
  * 
 */
   __pyx_t_2 = __pyx_v_dt;
@@ -5511,51 +5470,28 @@ static double __pyx_f_8backtest_5utils_10dateintern_date2num(PyObject *__pyx_v_d
   __pyx_t_3 = 0;
   {
     PyObject *__pyx_callargs[2] = {__pyx_t_2, NULL};
-    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_toordinal, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
+    __pyx_t_1 = __Pyx_PyObject_FastCallMethod((PyObject*)__pyx_mstate_global->__pyx_n_u_timestamp, __pyx_callargs+__pyx_t_3, (1-__pyx_t_3) | (1*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 72, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
-
-  /* "backtest/utils/dateintern.pyx":73
- * 
- *     return dt.toordinal() + (hour / 24.0 + minute / 1440.0 +
- *                             second / 86400.0 + microsecond / 86400000000.0)             # <<<<<<<<<<<<<<
- * 
- * 
-*/
-  __pyx_t_2 = PyFloat_FromDouble(((((((double)__pyx_v_hour) / 24.0) + (((double)__pyx_v_minute) / 1440.0)) + (((double)__pyx_v_second) / 86400.0)) + (((double)__pyx_v_microsecond) / 86400000000.0))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-
-  /* "backtest/utils/dateintern.pyx":72
- *     cdef int microsecond = PyDateTime_DATE_GET_MICROSECOND(dt)
- * 
- *     return dt.toordinal() + (hour / 24.0 + minute / 1440.0 +             # <<<<<<<<<<<<<<
- *                             second / 86400.0 + microsecond / 86400000000.0)
- * 
-*/
-  __pyx_t_4 = PyNumber_Add(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 72, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_4 = __Pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_4 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_r = __pyx_t_5;
+  __pyx_r = __pyx_t_4;
   goto __pyx_L0;
 
-  /* "backtest/utils/dateintern.pyx":62
- *                              hour, minute, second, microsecond)
+  /* "backtest/utils/dateintern.pyx":76
+ * 
  * 
  * cpdef double date2num(object dt):             # <<<<<<<<<<<<<<
- *     # python datetime to struct c datetime
- *     # data[0-1]: year, data[2]: month, data[3]: day
+ *     return dt.timestamp()
+ * 
 */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_4);
   __Pyx_AddTraceback("backtest.utils.dateintern.date2num", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
@@ -5602,32 +5538,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_dt,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 62, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 76, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 62, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 76, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "date2num", 0) < (0)) __PYX_ERR(0, 62, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "date2num", 0) < (0)) __PYX_ERR(0, 76, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("date2num", 1, 1, 1, i); __PYX_ERR(0, 62, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("date2num", 1, 1, 1, i); __PYX_ERR(0, 76, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 62, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 76, __pyx_L3_error)
     }
     __pyx_v_dt = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("date2num", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 62, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("date2num", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 76, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5658,8 +5594,8 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_2date2num(CYTHON_UNUSED 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("date2num", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_5utils_10dateintern_date2num(__pyx_v_dt, 1); if (unlikely(__pyx_t_1 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 62, __pyx_L1_error)
-  __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_5utils_10dateintern_date2num(__pyx_v_dt, 1); if (unlikely(__pyx_t_1 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -5676,7 +5612,7 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_2date2num(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "backtest/utils/dateintern.pyx":76
+/* "backtest/utils/dateintern.pyx":80
  * 
  * 
  * cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil             # <<<<<<<<<<<<<<
@@ -5715,7 +5651,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
     }
   }
 
-  /* "backtest/utils/dateintern.pyx":78
+  /* "backtest/utils/dateintern.pyx":82
  * cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil
  *     # tzinfo="Asia/Shanghai" native
  *     if np.isnan(ts) or ts <= 0:             # <<<<<<<<<<<<<<
@@ -5723,12 +5659,12 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
  *     cdef time_t rawtime = <time_t>(ts - 28800) if native else <time_t>(ts)
 */
   __pyx_t_3 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_isnan); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_isnan); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_ts); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_ts); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_6 = 1;
   #if CYTHON_UNPACK_METHODS
@@ -5748,10 +5684,10 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
   }
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely((__pyx_t_7 < 0))) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (!__pyx_t_7) {
   } else {
@@ -5763,7 +5699,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
-    /* "backtest/utils/dateintern.pyx":79
+    /* "backtest/utils/dateintern.pyx":83
  *     # tzinfo="Asia/Shanghai" native
  *     if np.isnan(ts) or ts <= 0:
  *         return 0             # <<<<<<<<<<<<<<
@@ -5773,7 +5709,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
     __pyx_r = 0;
     goto __pyx_L0;
 
-    /* "backtest/utils/dateintern.pyx":78
+    /* "backtest/utils/dateintern.pyx":82
  * cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil
  *     # tzinfo="Asia/Shanghai" native
  *     if np.isnan(ts) or ts <= 0:             # <<<<<<<<<<<<<<
@@ -5782,7 +5718,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
 */
   }
 
-  /* "backtest/utils/dateintern.pyx":80
+  /* "backtest/utils/dateintern.pyx":84
  *     if np.isnan(ts) or ts <= 0:
  *         return 0
  *     cdef time_t rawtime = <time_t>(ts - 28800) if native else <time_t>(ts)             # <<<<<<<<<<<<<<
@@ -5796,7 +5732,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
   }
   __pyx_v_rawtime = __pyx_t_8;
 
-  /* "backtest/utils/dateintern.pyx":81
+  /* "backtest/utils/dateintern.pyx":85
  *         return 0
  *     cdef time_t rawtime = <time_t>(ts - 28800) if native else <time_t>(ts)
  *     cdef tm* info = gmtime(&rawtime)             # <<<<<<<<<<<<<<
@@ -5805,7 +5741,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
 */
   __pyx_v_info = gmtime((&__pyx_v_rawtime));
 
-  /* "backtest/utils/dateintern.pyx":82
+  /* "backtest/utils/dateintern.pyx":86
  *     cdef time_t rawtime = <time_t>(ts - 28800) if native else <time_t>(ts)
  *     cdef tm* info = gmtime(&rawtime)
  *     return (info.tm_year + 1900) * 10000 + (info.tm_mon + 1) * 100 + info.tm_mday             # <<<<<<<<<<<<<<
@@ -5815,7 +5751,7 @@ static int64_t __pyx_f_8backtest_5utils_10dateintern_ts2intdt(double __pyx_v_ts,
   __pyx_r = ((((__pyx_v_info->tm_year + 0x76C) * 0x2710) + ((__pyx_v_info->tm_mon + 1) * 0x64)) + __pyx_v_info->tm_mday);
   goto __pyx_L0;
 
-  /* "backtest/utils/dateintern.pyx":76
+  /* "backtest/utils/dateintern.pyx":80
  * 
  * 
  * cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil             # <<<<<<<<<<<<<<
@@ -5876,48 +5812,48 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_ts,&__pyx_mstate_global->__pyx_n_u_native,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 76, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 80, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 76, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 80, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 76, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 80, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "ts2intdt", 0) < (0)) __PYX_ERR(0, 76, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "ts2intdt", 0) < (0)) __PYX_ERR(0, 80, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("ts2intdt", 0, 1, 2, i); __PYX_ERR(0, 76, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("ts2intdt", 0, 1, 2, i); __PYX_ERR(0, 80, __pyx_L3_error) }
       }
     } else {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 76, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 80, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 76, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 80, __pyx_L3_error)
         break;
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_ts = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_ts == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L3_error)
+    __pyx_v_ts = __Pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_ts == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L3_error)
     if (values[1]) {
-      __pyx_v_native = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_native == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L3_error)
+      __pyx_v_native = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_native == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L3_error)
     } else {
       __pyx_v_native = ((int)1);
     }
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("ts2intdt", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 76, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("ts2intdt", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 80, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5951,8 +5887,8 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_4ts2intdt(CYTHON_UNUSED 
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 1;
   __pyx_t_2.native = __pyx_v_native;
-  __pyx_t_1 = __pyx_f_8backtest_5utils_10dateintern_ts2intdt(__pyx_v_ts, 1, &__pyx_t_2); if (unlikely(__pyx_t_1 == ((int64_t)-1L) && PyErr_Occurred())) __PYX_ERR(0, 76, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyLong_From_int64_t(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_5utils_10dateintern_ts2intdt(__pyx_v_ts, 1, &__pyx_t_2); if (unlikely(__pyx_t_1 == ((int64_t)-1L) && PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyLong_From_int64_t(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
@@ -5969,7 +5905,7 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_4ts2intdt(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "backtest/utils/dateintern.pyx":85
+/* "backtest/utils/dateintern.pyx":89
  * 
  * 
  * cpdef object tzparse(str tz):             # <<<<<<<<<<<<<<
@@ -6000,7 +5936,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("tzparse", 0);
 
-  /* "backtest/utils/dateintern.pyx":89
+  /* "backtest/utils/dateintern.pyx":93
  *     # found via contractdtails, then try to get it from pytz, which may or
  *     # may not be available.
  *     if not tz:             # <<<<<<<<<<<<<<
@@ -6011,14 +5947,14 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
   else
   {
     Py_ssize_t __pyx_temp = __Pyx_PyUnicode_IS_TRUE(__pyx_v_tz);
-    if (unlikely(((!CYTHON_ASSUME_SAFE_SIZE) && __pyx_temp < 0))) __PYX_ERR(0, 89, __pyx_L1_error)
+    if (unlikely(((!CYTHON_ASSUME_SAFE_SIZE) && __pyx_temp < 0))) __PYX_ERR(0, 93, __pyx_L1_error)
     __pyx_t_1 = (__pyx_temp != 0);
   }
 
   __pyx_t_2 = (!__pyx_t_1);
   if (__pyx_t_2) {
 
-    /* "backtest/utils/dateintern.pyx":90
+    /* "backtest/utils/dateintern.pyx":94
  *     # may not be available.
  *     if not tz:
  *         return py_datetime.timezone.utc             # <<<<<<<<<<<<<<
@@ -6026,19 +5962,19 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
  *     tzinfo = pytz.timezone(tz)
 */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_py_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_py_datetime); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_timezone); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_timezone); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_utc); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_mstate_global->__pyx_n_u_utc); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_r = __pyx_t_3;
     __pyx_t_3 = 0;
     goto __pyx_L0;
 
-    /* "backtest/utils/dateintern.pyx":89
+    /* "backtest/utils/dateintern.pyx":93
  *     # found via contractdtails, then try to get it from pytz, which may or
  *     # may not be available.
  *     if not tz:             # <<<<<<<<<<<<<<
@@ -6047,7 +5983,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
 */
   }
 
-  /* "backtest/utils/dateintern.pyx":92
+  /* "backtest/utils/dateintern.pyx":96
  *         return py_datetime.timezone.utc
  * 
  *     tzinfo = pytz.timezone(tz)             # <<<<<<<<<<<<<<
@@ -6055,9 +5991,9 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
  * 
 */
   __pyx_t_4 = NULL;
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_pytz); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_pytz); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_timezone); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_mstate_global->__pyx_n_u_timezone); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_7 = 1;
@@ -6077,13 +6013,13 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
     __pyx_t_3 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (2-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 96, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
   }
   __pyx_v_tzinfo = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "backtest/utils/dateintern.pyx":93
+  /* "backtest/utils/dateintern.pyx":97
  * 
  *     tzinfo = pytz.timezone(tz)
  *     return tzinfo             # <<<<<<<<<<<<<<
@@ -6095,7 +6031,7 @@ static PyObject *__pyx_f_8backtest_5utils_10dateintern_tzparse(PyObject *__pyx_v
   __pyx_r = __pyx_v_tzinfo;
   goto __pyx_L0;
 
-  /* "backtest/utils/dateintern.pyx":85
+  /* "backtest/utils/dateintern.pyx":89
  * 
  * 
  * cpdef object tzparse(str tz):             # <<<<<<<<<<<<<<
@@ -6157,32 +6093,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_tz,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 85, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 89, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 85, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 89, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "tzparse", 0) < (0)) __PYX_ERR(0, 85, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "tzparse", 0) < (0)) __PYX_ERR(0, 89, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("tzparse", 1, 1, 1, i); __PYX_ERR(0, 85, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("tzparse", 1, 1, 1, i); __PYX_ERR(0, 89, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 85, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 89, __pyx_L3_error)
     }
     __pyx_v_tz = ((PyObject*)values[0]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("tzparse", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 85, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("tzparse", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 89, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -6193,7 +6129,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_tz), (&PyUnicode_Type), 1, "tz", 1))) __PYX_ERR(0, 85, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_tz), (&PyUnicode_Type), 1, "tz", 1))) __PYX_ERR(0, 89, __pyx_L1_error)
   __pyx_r = __pyx_pf_8backtest_5utils_10dateintern_6tzparse(__pyx_self, __pyx_v_tz);
 
   /* function exit code */
@@ -6222,7 +6158,7 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_6tzparse(CYTHON_UNUSED P
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("tzparse", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8backtest_5utils_10dateintern_tzparse(__pyx_v_tz, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8backtest_5utils_10dateintern_tzparse(__pyx_v_tz, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6239,7 +6175,7 @@ static PyObject *__pyx_pf_8backtest_5utils_10dateintern_6tzparse(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "backtest/utils/dateintern.pyx":96
+/* "backtest/utils/dateintern.pyx":100
  * 
  * 
  * cdef inline MarketTime market_utc(int64_t ts, bint native=True) nogil :             # <<<<<<<<<<<<<<
@@ -6260,7 +6196,7 @@ static CYTHON_INLINE struct __pyx_t_8backtest_5utils_10dateintern_MarketTime __p
     }
   }
 
-  /* "backtest/utils/dateintern.pyx":98
+  /* "backtest/utils/dateintern.pyx":102
  * cdef inline MarketTime market_utc(int64_t ts, bint native=True) nogil :
  *     cdef MarketTime mt
  *     cdef int64_t offset = SHANGHAI_OFFSET if native else 0             # <<<<<<<<<<<<<<
@@ -6274,7 +6210,7 @@ static CYTHON_INLINE struct __pyx_t_8backtest_5utils_10dateintern_MarketTime __p
   }
   __pyx_v_offset = __pyx_t_1;
 
-  /* "backtest/utils/dateintern.pyx":99
+  /* "backtest/utils/dateintern.pyx":103
  *     cdef MarketTime mt
  *     cdef int64_t offset = SHANGHAI_OFFSET if native else 0
  *     cdef int64_t local_day_start_utc = ((ts + offset) // 86400) * 86400 - offset             # <<<<<<<<<<<<<<
@@ -6283,7 +6219,7 @@ static CYTHON_INLINE struct __pyx_t_8backtest_5utils_10dateintern_MarketTime __p
 */
   __pyx_v_local_day_start_utc = ((((__pyx_v_ts + __pyx_v_offset) / 0x15180) * 0x15180) - __pyx_v_offset);
 
-  /* "backtest/utils/dateintern.pyx":101
+  /* "backtest/utils/dateintern.pyx":105
  *     cdef int64_t local_day_start_utc = ((ts + offset) // 86400) * 86400 - offset
  * 
  *     mt.open_ts = local_day_start_utc + OPEN_OFFSET             # <<<<<<<<<<<<<<
@@ -6292,7 +6228,7 @@ static CYTHON_INLINE struct __pyx_t_8backtest_5utils_10dateintern_MarketTime __p
 */
   __pyx_v_mt.open_ts = (__pyx_v_local_day_start_utc + __pyx_e_8backtest_5utils_10dateintern_OPEN_OFFSET);
 
-  /* "backtest/utils/dateintern.pyx":102
+  /* "backtest/utils/dateintern.pyx":106
  * 
  *     mt.open_ts = local_day_start_utc + OPEN_OFFSET
  *     mt.close_ts = local_day_start_utc + CLOSE_OFFSET             # <<<<<<<<<<<<<<
@@ -6300,7 +6236,7 @@ static CYTHON_INLINE struct __pyx_t_8backtest_5utils_10dateintern_MarketTime __p
 */
   __pyx_v_mt.close_ts = (__pyx_v_local_day_start_utc + __pyx_e_8backtest_5utils_10dateintern_CLOSE_OFFSET);
 
-  /* "backtest/utils/dateintern.pyx":103
+  /* "backtest/utils/dateintern.pyx":107
  *     mt.open_ts = local_day_start_utc + OPEN_OFFSET
  *     mt.close_ts = local_day_start_utc + CLOSE_OFFSET
  *     return mt             # <<<<<<<<<<<<<<
@@ -6308,7 +6244,7 @@ static CYTHON_INLINE struct __pyx_t_8backtest_5utils_10dateintern_MarketTime __p
   __pyx_r = __pyx_v_mt;
   goto __pyx_L0;
 
-  /* "backtest/utils/dateintern.pyx":96
+  /* "backtest/utils/dateintern.pyx":100
  * 
  * 
  * cdef inline MarketTime market_utc(int64_t ts, bint native=True) nogil :             # <<<<<<<<<<<<<<
@@ -6857,50 +6793,50 @@ __Pyx_RefNannySetupContext("PyInit_dateintern", 0);
   if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_num2date, __pyx_t_2) < (0)) __PYX_ERR(0, 20, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/utils/dateintern.pyx":62
- *                              hour, minute, second, microsecond)
+  /* "backtest/utils/dateintern.pyx":76
+ * 
  * 
  * cpdef double date2num(object dt):             # <<<<<<<<<<<<<<
- *     # python datetime to struct c datetime
- *     # data[0-1]: year, data[2]: month, data[3]: day
+ *     return dt.timestamp()
+ * 
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_10dateintern_3date2num, 0, __pyx_mstate_global->__pyx_n_u_date2num, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dateintern, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_10dateintern_3date2num, 0, __pyx_mstate_global->__pyx_n_u_date2num, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dateintern, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_date2num, __pyx_t_2) < (0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_date2num, __pyx_t_2) < (0)) __PYX_ERR(0, 76, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/utils/dateintern.pyx":76
+  /* "backtest/utils/dateintern.pyx":80
  * 
  * 
  * cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil             # <<<<<<<<<<<<<<
  *     # tzinfo="Asia/Shanghai" native
  *     if np.isnan(ts) or ts <= 0:
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_10dateintern_5ts2intdt, 0, __pyx_mstate_global->__pyx_n_u_ts2intdt, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dateintern, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_10dateintern_5ts2intdt, 0, __pyx_mstate_global->__pyx_n_u_ts2intdt, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dateintern, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_mstate_global->__pyx_tuple[0]);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ts2intdt, __pyx_t_2) < (0)) __PYX_ERR(0, 76, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_ts2intdt, __pyx_t_2) < (0)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "backtest/utils/dateintern.pyx":85
+  /* "backtest/utils/dateintern.pyx":89
  * 
  * 
  * cpdef object tzparse(str tz):             # <<<<<<<<<<<<<<
  *     # If no object has been provided by the user and a timezone can be
  *     # found via contractdtails, then try to get it from pytz, which may or
 */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_10dateintern_7tzparse, 0, __pyx_mstate_global->__pyx_n_u_tzparse, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dateintern, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_8backtest_5utils_10dateintern_7tzparse, 0, __pyx_mstate_global->__pyx_n_u_tzparse, NULL, __pyx_mstate_global->__pyx_n_u_backtest_utils_dateintern, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[3])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_2);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_tzparse, __pyx_t_2) < (0)) __PYX_ERR(0, 85, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_tzparse, __pyx_t_2) < (0)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "backtest/utils/dateintern.pyx":1
@@ -7006,25 +6942,25 @@ static int __Pyx_InitCachedConstants(__pyx_mstatetype *__pyx_mstate) {
 static int __Pyx_InitConstants(__pyx_mstatetype *__pyx_mstate) {
   CYTHON_UNUSED_VAR(__pyx_mstate);
   {
-    const struct { const unsigned int length: 10; } index[] = {{1},{179},{8},{29},{20},{18},{25},{18},{8},{8},{3},{2},{11},{13},{8},{13},{5},{5},{8},{3},{10},{5},{8},{6},{2},{8},{5},{3},{11},{4},{12},{12},{12},{10},{8},{8},{9},{2},{8},{2},{7},{3},{6},{1},{4},{541},{28},{95},{299},{89},{36}};
-    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1072 bytes) */
-const char* const cstring = "BZh91AY&SY\306Z)\314\000\000\251\377\377\377\377\377\276z\367\377\331\257\343\377\360\277\377\377\374@@@@@@@@@@@@@\000@\000P\003\214j\221RE\203\r\022\024\323&\3241\r4\301\244\304\320\332\200\r\003 \014\206\206\2004d\311\240\r=M\032z\236PJBh\014\223& \232\236I\350\324\365\001\352\006\201\240\000\000\000\000244\000d\002Q45\002!<\232\230i4\30244\3204\003@h\000\000\000\000\006\232\032\03148\000\000\000\006\200\000\000\0004\032\000\000\000\006@\032\000\007\000\000\000\000\320\000\000\000\006\203@\000\000\000\310\003@\001\323\233\224!\222\211'\234\305\204R\tT?\301\364l Z\266\2044\003FdfF`\004\236\020n\3606\273\022\004\304+\204\242l8\027GQ \252\217\262\360,YI\252\240\206\034l\277\\S\374RL\234\253\2420 \355n\013z\360\252\240\253\355]M-F\003O\343\017\316\2270'\372\215?8\377f\2225\255\324\320w\257hd\335H_\305f\277\030\032\\\247\237\333:\033~\203*\232\230J\244\2501\022\002\222\334&\236:(\365\315\035\365\331*\325WX9I\230.\333{\326\313\213T\nVd\255-\223\274\344\321\366b\307w\255\334KAN\022T\370\331\263\006n\223\265\317$\250\271<\014\td@\257$-\316\035\024K\226\\\r\224\361z\034\036f\264\313\027le\367Z|\346\264\327Y\014$^\330\033Uz\253+\035i.\307\320\266\314\220\251\005K3\033\341\2574U?\031\232?\270\325I,\365\330\276\232\010\2505\243\370\212\226\251\311\260,u,Pu\3415\0022\010\241\234\213\001\222FV\262'\033A\241\304\326^\312\222;*f\235\332g\023]\305Ip\323\231\201`\205JI\337\0132\343\312O\234\255 \270b\312\013K\221F\367\327\372b\014Z&\001q7\003\302Pp\262I\243e\032\206m\215MPspO%/\242\360\246\203\267\343L\212\344*\376\034O\200\320`\326\0201E\221\343n\300Z\\'}\346#\210\316\314Z\265\007[\352%\263.\226D\226D\261\325E\211(j\316\346\256\010\367n\346\226\330\231.\004BQ\037\032\030\004\247\356\2640\320\373\244\215%\302\030_\207\022T#\"\013\301U\025\315\202\344\314\263G\034'U\324\307\010\t\211u M/3\306\031\242,a\002,\026\313\220\224\221B)\216\321\2332\302U\212(\252\301\002\363\226-\031OK\334R\2250\267\034\315h\002\254{n\262\032\310\257L\343>\000\337U\014R\314#\036\322|\365S}\036D\340q=a\025J""\221ND\236Jth\004\256\361\245\267\3413\t\240\331-^\\\345u4F\251$&y1\210\207h\252\207\216\0344\321rH\242\203%\331\313\026NZ\271vJ\016\205\244\304\244\007\007\262\003J\335\264\306\262\273\340\323\202V\013\032\026dS\203\026\010\313\001\261\222I\013\233z\201H\324\214EETL%\246\"f\t\\KQ\301\014\212\304\254\303\243\002$\226\221\313\220\216+H6\2662G\305\003\241\305e\2325\354\270Z^\007\344\236\233\004\301AV<\332\340;\013?\204#G\200\010\235>{4\204'\253)\016\010Q\203pd\n\022n\214\225\001+\321k\213\260\031\210aZnL\275{\252\001\225W\276\2100Q+A\224\021\243^a\217\r\361\\!\273\017W\247\322\373\310l\337\013,\332\366b|\270\347\375\251\315\211cGj\227-\230k\223d\301\375\010\251\010\325cZ\021F\270\307\257*\362\3112\355\313)\252\222\035\252\253F$\005\226\211\340\362\002\265=\205\273\n\204\233wB\212+\024\306\231\022t\277\231\275\247\006\244\366\227\235\036Z#H\201\003\002\203w\013\354\312\325\177:i1\"\341G\2228sP\262a$\324A\251%4\323Q\301(\232\210i\273\264\324\213\312\021\177\370\273\222)\302\204\2062\321N`";
-    PyObject *data = __Pyx_DecompressString(cstring, 1072, 2);
+    const struct { const unsigned int length: 10; } index[] = {{1},{179},{8},{29},{20},{18},{25},{18},{8},{8},{3},{2},{11},{13},{8},{13},{5},{5},{8},{3},{10},{5},{8},{6},{2},{8},{5},{3},{11},{4},{12},{12},{12},{10},{8},{9},{8},{2},{8},{2},{7},{3},{6},{1},{4},{541},{28},{95},{299},{14},{36}};
+    #if (CYTHON_COMPRESS_STRINGS) == 2 /* compression: bz2 (1041 bytes) */
+const char* const cstring = "BZh91AY&SY\003\242\3334\000\000\230\377\377\377\377\377\266z\367\377I\257\343\377\360\277\377\377\374@@@@@@@@@@@@@\000@\000P\003M6\321Z\001\2044D\324\323\002i\250\304O\323)\264\232\236\241\223@=F\236\246C@\032\006\203&\030\321\021\345<!\2652\203J\236\246i2\233Q\3450\021\265\000\006\232d\320h\310\320\006jdi\204d`\232\00352hh\tD\323D4%<\310\247\215CT\360\247\250m@12h\320\000\000\000\000\r\000h\311\350p\000\r\000\r\000h\000\000\321\210\000\032\000\000\000\000\032\000p\000\r\000\r\000h\000\000\321\210\000\032\000\000\000\000\032\000\313\023NR\206\266\361\211\021\364\t\342<]\030\2202t\241\031\200\314@\314\214\310&x\031\350\200\231XpMe \361\356\314\014I\250\220UI\363\316\326wk*\203S{W\376TF\332U5\001\013\273F\21030\014\355\236\0138\022\000\334\274\214vv\300\231\221f9\226\3130\2249\335e(]v\247\207\310\340\322JG\232\242o\327D^\244\231\214\023\214\303\004\022D\260\234\036\230\"\216w#+\322C\244\314\333\211\220%C\001\352\352\252f\357\014\200\206X\205\212\016\360\340\343\371\271\204\366g\222\2408\\\223K\215\302\033e\r\037$\364=\367\325\224\0138\244\373\tJ\3336\306\263\342\372(\0373\271\311?tjR\210\274\305\004\252u9\026S\372\027\020\032\\\330\240\267\t\272\"\001\222\006M\325M\331f\021\230\305W\277\320\2635\217\341/wy9\221Pk\217\365\025.\257u\241l\324\265Bk\343\265B2\010\241\312\213\001\221\316\037\361\023\253\341\270u?\036\343%F\234\033\255\321\317x\235\253L\023Q\326\243\006\221\014\025/\272M\313\303\312_\265|\220\324pr\204\023T\352\272\354{l\203A\023\"\023|\256\013\002\320\200\303SR\364\203c,\227@mP:\304\367\036\3225\000\337x(V;'\247\014N,*\244)\",\246\232\270_\376\014\313\236s\351k\230\2156b\353\2415\336Q/8\253dG7\337%Q\262\001\0234wM,\022v\373]LpZ\017@H\022\3167\216\200%\357\030\023\013*\3714B\214\000\305\333\374\t\200\2150\326\026UI0a#\210\351\344\022\263\024\310 &\274R\004\223SN0\344\021c\010E\202\363\010;\242\241\024\311\210\311\231`\364\024QU\202\032\246Z\265p\316\271\340\245j\306\212\250\356\000\272n~\213K\022z\351i\272!\343a+($\030\277r\347\330\224%`X[\210O\005\255p""\n\225/\206~>\200&;v\035?\003\250\3218\236\274\333!~88\216\250\342s\022\030\210{e\225N:a\350\"\356\"\212\014\230\311\366<\313\260\305\324&\205\311\256\264\t\204\355\200\317}\346\333i\274\r(%\001cR\310\212y\021`\213\346m\250\351\003\016\372\300R6#\021QU\023:\327\0218\304\244K\243\320\r\372\tCMW\346r\306KaY,\310G\026k.\224m\227\006\235<x\367- \232\303Egg\320\005\003\301\370\3660\000\330\251J\230\217WL\0213\240\376\331\no\324T0\005b5\314\201SY\223'\000K\320n\357\2031\010s\201\203/\357\017\020\035\316>M\320`\242\265\003\301\026-\370\314\\\370\013a\031\344\177_\202\367.\211\372tF\031q\337\352\311\357\327\254~_\275{\2667>\333\330a\355\214\345\214\362\rD\210\355G\317\250<\343Z\343\270JV\262\245\266P\333Y\217TE\024.\322\343\277\225\224gc\333\361\265c\252;\022\271\372\375\372\353\354\300\373\371\375>|\271<\336\016\256\217+(\363\307\233\264\335(s\304a\267;I\346\217\027\204\2479Ic7\204{\302\356H\247\n\022\000t[f\200";
+    PyObject *data = __Pyx_DecompressString(cstring, 1041, 2);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (946 bytes) */
-const char* const cstring = "x\332\265RAO\334F\0246d)\233P\232,\tT!\2514\200*BD\227\354\206P\324J\255V\001\322\036\232,\033hI/\243Y{\026\246x\307^\3173\305\224\003G\037\347\350\243\217>\372\350#\307\036\367\350c~\002?\2413\313\032\350\001\265\252\324\313\314\323\233\367\275\357{\337\233\357\337:@\021\034\020@\257\0038p8b\002Y\324fm\352\021\240v\200\004x\314\004\352\351\"\216\232\233\315\257V\327W\021\341\026\362\350o\324\004\201\204\3376m\"\004\025\310\351\240\266\317l`\034A\340RQE?vP\340\370\210Sj!p\220\253\352n\002\340\200r$(\350\000-\022\316\035 \300\034\216\025\234\361\375Ed1O\221\260#\252\321[\304\026\264J,\013\253:\332&\346!P\001+>0[\254XJ/\343J)\257\272\3011\306Mu4\203\r%\036\277\245\307\320\242\035\"\002n2\247j:\236\2430\234\212\242Eu\320\242z\335\302\264\3253fJ\207G\314\001\223~\253s\277\253o`]j\221\300\202\216\347t\035\317b\234\330:\324y\001\244\353b\334\361\271\2111f\002_\2611\301\tg@\273\002\343.Q\275qwp8\226oS}s8\300\230\223.\325\247\236\231\273\212\260\256\031\325\355\006\256\343\272\001.\004\270\001\234`\254G5\211\313\024\027\356\371\304\276\204c\254<\035\266R\221\245f\367m\300X\317\252N\205>q8\005g\250\035\004\210\272\032\334\0028\201\023\227x\202\372`\036\021\333\247\3428\240\304k\006\357\332z\331\350\371\263\353p\031)\010\272\224 \016\231\213-&\\\002\346\301\222q\243\336r\374\266Mo\255]\326\037\3147\2137\307\005L\274}\201\327\213\325\340W\203\335\340\332\213\353\355\340\302\026\364\374\n\246>\r\261\007\330%\343\222\023\375;\255\352am\025\003\372\177\224\026\306\336\242\364o-\341\037z\375D\274C\n;j{\350\331P\365\177\023\325\0354\302j\307\267\310\032~\002\243\360\331(~\277Q\314c\\\367(\0144\035.\000\031?\274\333m\275\307\315\315\026\336h|\350\0333\375\231\027\351\310\307\322\370\231\027\316\204=Y\222\257\245\210\026\242\355\274|?\354\345\245\331h)~\031\267\223{\351r\306\316U\342\221\334\212\346\242Z\324\310K\237\206\033\362n4\025\255\305S\361Z\3620\331H\313\331h\266\220\26528\257\237\357\374Y\351\033\313I\343\242l\214}.Y\324\273\270g\214\225\2074w\344K\331\216F\2439M\363\207""\342\250i\t\201\034\225_\312\236\316\035\311\367\321\235\250\226\227\037\310q%h>z\243d\220\274\374Y\330Q\n\275\250r\005\214\267\222\305\264\242\341\"\234\017\033yy2\374 \315\350a\377\351Jr\232\325\212\272\357\322J:w\361\2111v?<\214\036\307\313\tI\374T\r\361@q\316\313\306\307REV\362\322D\370J\216\344*\236\215\352\321\317q=\336\316K\223\341\256\234+r{q+\356]\345\246\344b4\253\252\366\222V\322\323\022Ne]*\353f$\311\357N\313\226\236E\307\345)]=\021~\253}\210\307\343\337\223\375t/\373\345\274\221\177\261\020\257'\353i\255oL\313m\355\320t\377\2212-Q\274\227\253I+7\243'\375'\337ds\231rk\"\254\207\277\016V\265\033\317\307\233\311T\362u:\237\276Q\003?]\030*:\315\352\331\366\331\210^@\371\014\302\332\r\257'\303\035\371X\357Q\253\252\375\005\350\302u\326";
-    PyObject *data = __Pyx_DecompressString(cstring, 946, 1);
+    #elif (CYTHON_COMPRESS_STRINGS) != 0 /* compression: zlib (897 bytes) */
+const char* const cstring = "x\332\265RAO\033G\024^\210)\233\24441i\250\202Ri\000U\204\3105\261C\020R\245FV\010m\017M\034\2074$\227\321xw\214\247\254g\327;o)Ks\340\270\3079\316q\217{\364\321G\216=\372\270\307\374\004~Bg\014\013\344\200\022U\352e\346\351\315\367\275\357{\357\315\323\027>P\004]\002\350Y\014]\237#&\220K=\326\246!\001\352\305H@\310\034\240\241\001q\324|\336\374qmc\r\021\356\242\220\376I\035\020HDm\307#BP\201\374\016jG\314\003\306\021\304\001\025U\364[\007\305~\2048\245.\002\037\005\032w\231\000]\312\221\240`\002\264L8\367\201\000\3639\326t\306w\227\221\313B-\302\366\251ao\021O\320*q]\254q\264M\234=\240\002V#`\236Xu\265_\306\265S^\r\342\003\214\233\372h\306\233\332<~A\017\240E;D\304\334a~\325\361C_s8\025E\211\352\270D\365\242\204\343\351g\314\264\217\2208c%\363V\347Q\317\334\300z\324%\261\013\235\320\357\371\241\3138\361Lh\362\002H/\300\270\023q\007c\314\004>Wc\202\023\316\200\366\004\306=\242k\343\336\370\360\335\310\243\346\346\320\305\230\223\0365\247\351\231\007Z\260n\024\365\035\304\201\037\0041.\014\0041\034blZuH\300\264\026\356G\304;\245c\254gzVJG\256\356=\362\000c\323\253>\013\233&8\3649\005\001\242\256\033w\001\016\3410 \241\240\0218\373\304\213\2508\210)\t\233\361\313\266Y6z\370\340\"\254 MA\247\026\304\036\013\260\313D@\300\351\256X\227\360\256\037\265=z%\266b>X\344\024o~\000\230\204\273\002o\024\253\301O\306\273\301\265G\027\333\301\305X\320\303s\232\3764\304\033sW\254SM\364e^\365\303\372\032\006\364\3778-\006{\205\323OJ\302gj\375N\302=\n\333zi\350\301\231\353\377f\2527.\204\365\216\257\260u\366\t\254b\316V\361\373\255\242\037\353\242F1@\307\347\002\220\365\353\3137\255\327\270\371\274\2057\033\357F\326\334h\356\321`\342ci\372(L\346\222\276,\311gR\250%\365*\267o%\375\2744\257V\322\307i;\2731\250\014\331\261N|+\267\324\202\252\251F^\372:\331\224\327\325\254ZOg\323\365\354N\2669\260\207\223\303\245ak\010\307\365\343\355\177\312#\253\2225Nlk\352;\311T\377\344\2065e\237\311\\\223\217e[M\252\005#\363\267\326\250\031\013\261\234\224?\310\276\311\355\313\327\352\232\252\345""\366m9\255\r-\252_\264\r\222\333\337$\035\3550T\345sb\272\225-\017\312\206.\222\305\244\221\3333\311;\351\250;\243\373\253\331\207a\255\300\375<(\017\026N\276\262\246n%{\352^Z\311H\026\rt\023\267\265\346\242l|,\225e9/\335L\236\310\211\\\307\363\252\256\376H\353\351\253\2744\223\274\221\013En'm\245\375\363\334\254\\V\363\032\265\223\265\262\276\261\360A\326\245\036\335\234$\371\365\273\262ez1\261=k\3207\223\237\314\034\322\351\364\257lw\2603|{\334\310\277_J7\262\215Amd\335\325D\r\251'\357e\377h\302L\315>\202\244vi@3\311\266\274g\206op\265\177\001\222QXp";
+    PyObject *data = __Pyx_DecompressString(cstring, 897, 1);
     if (unlikely(!data)) __PYX_ERR(0, 1, __pyx_L1_error)
     const char* const bytes = __Pyx_PyBytes_AsString(data);
     #if !CYTHON_ASSUME_SAFE_MACROS
     if (likely(bytes)); else { Py_DECREF(data); __PYX_ERR(0, 1, __pyx_L1_error) }
     #endif
-    #else /* compression: none (1639 bytes) */
-const char* const bytes = "?Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.add_notebacktest/utils/dateintern.pyx__Pyx_PyDict_NextRefasyncio.coroutinesbacktest.utils.dateinterncline_in_tracebackdate2numdatetimedaydtfromordinalfromtimestamp__func___is_coroutineisnanitems__main__min__module__month__name__nativenpnum2datenumpypoppy_datetimepytz__pyx_capi____qualname____set_name__setdefault__test__timezonetoordinaltsts2intdttztzparseutcvaluesxyearPyObject *(PyObject *, int __pyx_skip_dispatch)\000PyObject *(double, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_5utils_10dateintern_num2date *__pyx_optional_args)\000double (PyObject *, int __pyx_skip_dispatch)\000int64_t (double, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_5utils_10dateintern_ts2intdt *__pyx_optional_args)\000struct __pyx_t_8backtest_5utils_10dateintern_MarketTime (int64_t, struct __pyx_opt_args_8backtest_5utils_10dateintern_market_utc *__pyx_optional_args)\000tzparse\000num2date\000date2num\000ts2intdt\000market_utcint64_t const \000HOURS_PER_DAY\320\000\026\320\0260\260\001\340\004\007\200r\210\026\210q\220\004\220C\220s\230#\230Q\330\010\017\210q\330\004\032\230)\2403\240b\250\n\260,\270i\300q\330\004\024\220F\230!\2301\230A\330\004\014\210D\220\t\230\022\2306\240\022\2406\250\023\250D\260\010\270\002\270#\270R\270t\3002\300T\310\021\320\000,\250A\360\010\000\005\027\220i\230q\360\n\000\005\010\200r\210\026\210q\220\003\2203\220b\230\002\230!\330\010\017\210{\230)\2401\340\004\007\200y\220\002\220%\220q\330\010\017\210v\220S\230\003\2301\330\010\020\220\007\220s\230\"\230G\2403\240a\330\010\016\210f\220C\220r\230\021\330\010\017\210{\230)\2401\240F\250'\260\021\340\004\007\200s\210\"\210A\330\010\r\210Y\220c\230\023\320\034/\250|\2701\330\010\017\210{\230)\240>\260\021\260!\360\006\000\005\017\210k\230\031\240,\250a\250u\260A\330\004\020\220\002\220\"\220A\340\004\021\220\021""\330\004\013\2105\220\001\330\004\021\220\032\2302\230V\2402\240Q\330\004\r\210U\220!\330\004\021\220\032\2302\230X\240R\240q\330\004\r\210U\220!\330\004\022\220'\230\032\2402\240X\250R\250q\340\004\007\200|\2202\220Q\330\010\026\220a\330\t\025\220R\220q\330\010\026\220a\330\010\022\220!\330\004\013\210;\220i\230q\240\007\240w\250g\260X\270W\300A\330\035#\2408\2508\2601\320\000\025\220Q\360\n\000\005\025\320\024,\250A\250Q\330\004\026\320\0260\260\001\260\021\330\004\026\320\0260\260\001\260\021\330\004\033\320\033:\270!\2701\340\004\013\2102\210Z\220s\230#\230U\240\"\240E\250\022\2507\260\"\260G\2701\330\034#\2402\240X\250R\250|\2702\270Q\200\001\360\010\000\005\010\200t\2101\330\010\017\210{\230)\2401\340\004\r\210T\220\031\230!\2301\330\004\013\2101";
+    #else /* compression: none (1564 bytes) */
+const char* const bytes = "?Note that Cython is deliberately stricter than PEP-484 and rejects subclasses of builtin types. If you need to pass subclasses then set the 'annotation_typing' directive to False.add_notebacktest/utils/dateintern.pyx__Pyx_PyDict_NextRefasyncio.coroutinesbacktest.utils.dateinterncline_in_tracebackdate2numdatetimedaydtfromordinalfromtimestamp__func___is_coroutineisnanitems__main__min__module__month__name__nativenpnum2datenumpypoppy_datetimepytz__pyx_capi____qualname____set_name__setdefault__test__timestamptimezonetsts2intdttztzparseutcvaluesxyearPyObject *(PyObject *, int __pyx_skip_dispatch)\000PyObject *(double, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_5utils_10dateintern_num2date *__pyx_optional_args)\000double (PyObject *, int __pyx_skip_dispatch)\000int64_t (double, int __pyx_skip_dispatch, struct __pyx_opt_args_8backtest_5utils_10dateintern_ts2intdt *__pyx_optional_args)\000struct __pyx_t_8backtest_5utils_10dateintern_MarketTime (int64_t, struct __pyx_opt_args_8backtest_5utils_10dateintern_market_utc *__pyx_optional_args)\000tzparse\000num2date\000date2num\000ts2intdt\000market_utcint64_t const \000HOURS_PER_DAY\320\000\026\320\0260\260\001\340\004\007\200r\210\026\210q\220\004\220C\220s\230#\230Q\330\010\017\210q\330\004\032\230)\2403\240b\250\n\260,\270i\300q\330\004\024\220F\230!\2301\230A\330\004\014\210D\220\t\230\022\2306\240\022\2406\250\023\250D\260\010\270\002\270#\270R\270t\3002\300T\310\021\320\000,\250A\360\010\000\005\027\220i\230q\360\n\000\005\010\200r\210\026\210q\220\003\2203\220b\230\002\230!\330\010\017\210{\230)\2401\340\004\007\200y\220\002\220%\220q\330\010\017\210v\220S\230\003\2301\330\010\020\220\007\220s\230\"\230G\2403\240a\330\010\016\210f\220C\220r\230\021\330\010\017\210{\230)\2401\240F\250'\260\021\340\004\007\200s\210\"\210A\330\010\r\210Y\220c\230\023\320\034/\250|\2701\330\010\017\210{\230)\240>\260\021\260!\360\006\000\005\017\210k\230\031\240,\250a\250u\260A\330\004\020\220\002\220\"\220A\340\004\021\220\021""\330\004\013\2105\220\001\330\004\021\220\032\2302\230V\2402\240Q\330\004\r\210U\220!\330\004\021\220\032\2302\230X\240R\240q\330\004\r\210U\220!\330\004\022\220'\230\032\2402\240X\250R\250q\340\004\007\200|\2202\220Q\330\010\026\220a\330\t\025\220R\220q\330\010\026\220a\330\010\022\220!\330\004\013\210;\220i\230q\240\007\240w\250g\260X\270W\300A\330\035#\2408\2508\2601\320\000\025\220Q\330\004\013\2102\210Z\220q\200\001\360\010\000\005\010\200t\2101\330\010\017\210{\230)\2401\340\004\r\210T\220\031\230!\2301\330\004\013\2101";
     PyObject *data = NULL;
     CYTHON_UNUSED_VAR(__Pyx_DecompressString);
     #endif
@@ -7110,17 +7046,17 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dateintern_pyx, __pyx_mstate->__pyx_n_u_num2date, __pyx_mstate->__pyx_kp_b_iso88591_A_iq_r_q_3b_1_y_q_vS_1_s_G3a_fC, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 62};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 76};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_dt};
-    __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dateintern_pyx, __pyx_mstate->__pyx_n_u_date2num, __pyx_mstate->__pyx_kp_b_iso88591_Q_AQ_0_0_1_2Zs_U_E_7_G1_2XR_2Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
+    __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dateintern_pyx, __pyx_mstate->__pyx_n_u_date2num, __pyx_mstate->__pyx_kp_b_iso88591_Q_2Zq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 76};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 80};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_ts, __pyx_mstate->__pyx_n_u_native};
     __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dateintern_pyx, __pyx_mstate->__pyx_n_u_ts2intdt, __pyx_mstate->__pyx_kp_b_iso88591_0_r_q_Cs_Q_q_3b_iq_F_1A_D_6_6_D, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 85};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 89};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_tz};
     __pyx_mstate_global->__pyx_codeobj_tab[3] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_backtest_utils_dateintern_pyx, __pyx_mstate->__pyx_n_u_tzparse, __pyx_mstate->__pyx_kp_b_iso88591_t1_1_T_1_1, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[3])) goto bad;
   }
