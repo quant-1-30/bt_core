@@ -73,7 +73,8 @@ cdef struct MetricMsg:
     char metrics[32] # 31 bytes + '\0' 
 
 cdef struct LogRingHeader:
-    volatile int64_t head
+    # memory visable / avoid register cache
+    volatile int64_t head 
     volatile int64_t tail  
     int32_t capacity
     uint8_t _pad[4]          

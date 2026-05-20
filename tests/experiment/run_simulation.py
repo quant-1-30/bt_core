@@ -109,7 +109,7 @@ class FsmStrategy(bt.Strategy):
             if not topk_info: return
             current_prices = self.store.getdata(psids, int(current_tick))
             plan = self.pnc.generate_plan(topk_info, current_prices, snapshot, self.stats)
-            print("plan ", plan)
+            # print("plan ", plan)
 
             # 【卖出指令生成】
             self.sell(plan["sell"])

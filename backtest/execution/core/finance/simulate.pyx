@@ -204,19 +204,19 @@ cdef class TrackerActor:
                 if msg.reply_future and not msg.reply_future.done():
                     msg.reply_future.set_exception(e)
 
-    async def _fetch_from_rpc(self, int64_t st, int64_t et, list psids):
-        cdef int32_t s_dt, e_dt
+    async def _fetch_from_rpc(self, int64_t tick, list psids): 
+        cdef int32_t dtint
 
         async def remote(int32_t rpc_type, object body):
             cdef list batches = []
             sorted_batches = await async_gt.remote(rpc_type, body) 
-            return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
+            # return pa.Table.from_batches(batches) / np.fromiter
+            return sorted_batches 
 
-        s_dt = ts2intdt(st)
-        e_dt = ts2intdt(et)
+        dtint = ts2intdt(tick)
 
-        close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids) # T-1 close
-        event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids) # T events
+        close_body = QueryBody(start_date=dtint, end_date=dtint, sid=psids) 
+        event_body = QueryBody(start_date=dtint, end_date=dtint, sid=psids) 
         
         close_task = remote(RpcTopic.Close, close_body) 
         adj_task = remote(RpcTopic.Adjustment, event_body)
@@ -248,13 +248,12 @@ cdef class TrackerActor:
 
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
-        cdef int64_t sync_tick = event.body.start_date
+        cdef int64_t sync_tick = event.body.tick
         cdef Position p_obj
+        cdef list psids
         
         cdef int32_t close_dt
         cdef double close_price
-        cdef list psids
-        cdef object body = event.body
 
         self._collect() # # avoid self.position explode
         psids = list(self.positions.keys())
@@ -263,7 +262,7 @@ cdef class TrackerActor:
             self.cash_manager.sync(experiment_id, sync_tick, {})
             return
 
-        closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(body.start_date, body.end_date, psids)
+        closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(sync_tick, psids)
 
         for sid_bytes, p_obj in self.positions.items():
             close_df = closes_df.get(sid_bytes, None)
@@ -278,8 +277,7 @@ cdef class TrackerActor:
                 p_obj.on_dt_over(close_dt, 0.0)
 
         self.cash_manager.sync(experiment_id, sync_tick, self.positions)
-        self._sync_event(experiment_id, self.positions, adjs_df, rgts_df) 
- 
+
     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_dfs, dict py_rgt_dfs):
         cdef double event_cash = 0.0
         cdef Position pos_obj  

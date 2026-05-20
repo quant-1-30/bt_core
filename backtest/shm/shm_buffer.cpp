@@ -2040,8 +2040,8 @@ struct __pyx_t_8backtest_3shm_10shm_buffer_MetricMsg {
  *     char metrics[32] # 31 bytes + '\0'
  * 
  * cdef struct LogRingHeader:             # <<<<<<<<<<<<<<
+ *     # memory visable / avoid register cache
  *     volatile int64_t head
- *     volatile int64_t tail
 */
 struct __pyx_t_8backtest_3shm_10shm_buffer_LogRingHeader {
   int64_t volatile head;
@@ -2050,7 +2050,7 @@ struct __pyx_t_8backtest_3shm_10shm_buffer_LogRingHeader {
   uint8_t _pad[4];
 };
 
-/* "backtest/shm/shm_buffer.pxd":125
+/* "backtest/shm/shm_buffer.pxd":126
  *     cpdef void publish_metric(self, bytes metrics, double value, int64_t dt)
  * 
  *     cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=*)             # <<<<<<<<<<<<<<
@@ -2062,7 +2062,7 @@ struct __pyx_opt_args_8backtest_3shm_10shm_buffer_13LogRingBuffer_drain_metrics 
   int32_t max_batch;
 };
 
-/* "backtest/shm/shm_buffer.pxd":82
+/* "backtest/shm/shm_buffer.pxd":83
  * 
  * 
  * cdef class SharedRingBuffer:             # <<<<<<<<<<<<<<
@@ -2079,7 +2079,7 @@ struct __pyx_obj_8backtest_3shm_10shm_buffer_SharedRingBuffer {
 };
 
 
-/* "backtest/shm/shm_buffer.pxd":115
+/* "backtest/shm/shm_buffer.pxd":116
  * 
  * 
  * cdef class LogRingBuffer: # MPSC             # <<<<<<<<<<<<<<
