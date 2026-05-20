@@ -92,12 +92,12 @@ cdef class BatchWriterActor:
 
                 if "positions" in item:
                     for p_dict in item["positions"]:
-                        key = (<int64_t>(p_dict['datetime']), _normalize_sid(p_dict['sid']), str(p_dict['experiment_id']))
+                        key = (int(p_dict['datetime']), _normalize_sid(p_dict['sid']), str(p_dict['experiment_id']))
                         dedup_positions[key] = p_dict
                 
                 if "account" in item:
                     a_dict = item["account"]
-                    key = (<int64_t>(a_dict['datetime']), str(a_dict['experiment_id']))
+                    key = (int(a_dict['datetime']), str(a_dict['experiment_id']))
                     dedup_accounts[key] = a_dict
             
             if order_data:

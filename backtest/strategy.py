@@ -229,7 +229,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                      for d in self.datas if len(d)])      
         self._dlens = newdlens
 
-    def on_dt_over(self, dts: int): 
+    def on_dt_over(self, dts: int):
+        # import pdb; pdb.set_trace() 
         snapshot = self.store.on_dt_over(self.experiment_id, dts) 
         if snapshot:
             self.shm_chan.publish_snapshot(snapshot) 
@@ -328,8 +329,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         created_dt=int(created_dt),
                         filler=filler)
             snapshot = self.store.submit(self.experiment_id, order)
-            if snapshot.trades:
+            trades = snapshot.trades
+            if trades:
                 self.lines.buy[0] = 1
+                print("buy trades: ", trades)
                 self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
 
             self.shm_chan.publish_order(order)
@@ -360,6 +363,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.trades
             if trades:
+                print("sell trades: ", trades)
                 self.lines.sell[0] = -1
                 self.shm_chan.publish_snapshot(snapshot) 
                 filled[core["sid"]] = trades 

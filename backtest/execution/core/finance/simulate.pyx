@@ -192,6 +192,7 @@ cdef class TrackerActor:
 
                 # async put avoid put_nowait oom 
                 if len(self._put_buffer) >= self.buffer_size:
+                    print("TrackerActor _put_buffer: ", self._put_buffer)
                     await self._flush()
 
                 if msg.reply_future and not msg.reply_future.done():
@@ -204,19 +205,18 @@ cdef class TrackerActor:
                     msg.reply_future.set_exception(e)
 
     async def _fetch_from_rpc(self, int64_t st, int64_t et, list psids):
+        cdef int32_t s_dt, e_dt
 
         async def remote(int32_t rpc_type, object body):
             cdef list batches = []
             sorted_batches = await async_gt.remote(rpc_type, body) 
             return sorted_batches# return pa.Table.from_batches(batches) / np.fromiter
 
-        cdef int32_t s_dt, e_dt
-
         s_dt = ts2intdt(st)
         e_dt = ts2intdt(et)
 
-        close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids)
-        event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids)
+        close_body = QueryBody(start_date=s_dt, end_date=s_dt, sid=psids) # T-1 close
+        event_body = QueryBody(start_date=e_dt, end_date=e_dt, sid=psids) # T events
         
         close_task = remote(RpcTopic.Close, close_body) 
         adj_task = remote(RpcTopic.Adjustment, event_body)
@@ -368,8 +368,9 @@ cdef class TrackerActor:
             if p_obj.core.size == 0:
                 continue
 
-            # struct auto dict 
-            p_dict = p_obj.get_snapshot() # p.core 
+            # struct auto dict
+            p_clone = p_obj.clone() 
+            p_dict = p_clone.get_snapshot() # p.core 
             p_dict['experiment_id'] = self.cached_uuid
             
             pos_snaps.append(p_dict)

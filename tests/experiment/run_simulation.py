@@ -29,7 +29,7 @@ class PanelRanker(bt.Indicator):
     params = (
         ("parquet_path", None),
         ('thres', 0.0), 
-        ('top_k', 5),
+        ('top_k', 6),
     )
 
     def __init__(self):
@@ -61,10 +61,9 @@ class PanelRanker(bt.Indicator):
                 item["sid"]: item for item in row["topk_info"]
             }
         self._current_metadata = None
-
+    
     def next(self):
         current_day = ts2intdt(self.data.datetime[0])
-
         # self.lines.dummy[0] = 0.0 # dummy line to trigger next
 
         if current_day in self.context_info:
@@ -81,6 +80,10 @@ class FsmStrategy(bt.Strategy):
     def __init__(self):
         self.pr = PanelRanker(parquet_path=self.p.parquet_path)
 
+    def on_dt_over(self, dts):
+
+        super().on_dt_over(dts)
+
     def next(self):
         current_tick = self.data.datetime[0]
         current_day = ts2intdt(current_tick)
@@ -88,7 +91,6 @@ class FsmStrategy(bt.Strategy):
         seconds_in_day = int(current_tick) % 86400 # utc 28800
         snapshot = self.get_snapshot()
         psids = [p.sid for p in snapshot.positions]
-        # print("psids ", psids)
 
         pending_sells = self.pnc.get_pending_sells()
 
@@ -107,13 +109,12 @@ class FsmStrategy(bt.Strategy):
             if not topk_info: return
             current_prices = self.store.getdata(psids, int(current_tick))
             plan = self.pnc.generate_plan(topk_info, current_prices, snapshot, self.stats)
-            # print("plan ", plan)
+            print("plan ", plan)
 
             # 【卖出指令生成】
             self.sell(plan["sell"])
 
             # 【买入指令生成】 可以重复建仓
-            # import pdb; pdb.set_trace()
             buy_sids = [plan.core["sid"] for plan in plan["buy"]]
             if len(buy_sids) != len(set(buy_sids)):
                 print(f"🚨 严重警告: {current_tick} 这分钟内, 同一个标的被买入多次! 计划列表: {plan['buy']}")

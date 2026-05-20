@@ -63,7 +63,6 @@ cdef class Pnc:
         # 1. Macro Control --- Drawdown
         # ==========================================
         drawdown = stats["drawdown"].maxdd
-        print("drawdown :", drawdown)
         signal = drawdown >= self.dd
         
         if signal:
@@ -135,7 +134,7 @@ cdef class Pnc:
 
         b_wgt = self.sizer.getsizing(topk_info, snapshot, True)
 
-        for sid in topk_info: # 持仓里的由 Sizer 决定是否增仓 / Top-K 策略通常不重复买
+        for sid in topk_info: # rebuy reasonable
             wgt_ratio = b_wgt.get(sid, 0.0)
             if wgt_ratio > 0:
                 tmp = TraderPlan(sid, wgt_ratio, True, 0, priority=1)

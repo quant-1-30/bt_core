@@ -42,6 +42,10 @@ from .logger import LogConsumerThread
 
 class Cerebro(with_metaclass(MetaParams, object)):
     '''Params:
+      
+      - ``savemem`` (default: 1 )
+
+         1 means ringbuffer array / 0 means np.array
 
       - ``maxcpus`` (default: None -> all available cores)
 
@@ -87,7 +91,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # log
         ("log_id", "cerebro"),
         ("capacity", 1000000),
-        ("fmt", "json"),
+        ("fmt", "parquet"),
         ("output", "/Users/hengxinliu/startup/backtest/tests")
     )
 
@@ -108,7 +112,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._plot = Plot()
         
         self.cerebro_id = ""
-        self.dtcmp = 0 # dtcmp = np.iinfo(np.int_).max
+        self.last_dts = 0 # np.iinfo(np.int_).max
 
         # logshm
         self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=self.p.capacity, is_creator=True)
@@ -245,24 +249,48 @@ class Cerebro(with_metaclass(MetaParams, object)):
             monthdays=monthdays, monthcarry=monthcarry,
             allow=allow,
             tzdata=tzdata)
-
-    # def _dt_over(self, dt, last_dt):
-    #     # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
-    #     # enum in dt_cmp.pxd | TF_Days = 5
-    #     dtcmp = get_dt_cmpkey(dt, 5)
-    #     if dtcmp > self.dtcmp:
-    #         self.dtcmp = dtcmp
+ 
+    # def _dt_over(self, dt0: int, last_dt0: int):
+    #     print("_dt_over ", dt0 - last_dt0)
+    #     if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): 
+    #         # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+    #         print("check timer on_dt_over: ", dt0)
     #         return True
     #     return False
     
-    def _dt_over(self, dt0: int, last_dt0: int):
-        if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): 
-            # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
-            print("check timer on_dt_over: ", dt0)
-            return True
-        return False
+    # def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
+    #     '''Receives a timer notification where ``timer`` is the timer which was
+    #     returned by ``add_timer``, and ``when`` is the calling time. ``args``
+    #     and ``kwargs`` are any additional arguments passed to ``add_timer``
+
+    #     The actual ``when`` time can be later, but the system may have not be
+    #     able to call the timer before. This value is the timer value and no the
+    #     system time.
+    #     '''
+    #     if not dt0:
+    #         return
+            
+    #     if self._dt_over(dt0, last_dt0):
+    #         print("check timer on_dt_over: ", dt0)
+    #         self._dispatch(runstrats, TimerEvent.EOD, last_dt0)
+
+    #     # --- Scheduled Timers ---
+    #     # self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) 
+    #     for t in self._pretimers:
+    #         if t.check(dt0):
+    #             self._dispatch(runstrats, t.event_type, last_dt0)
     
-    def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
+    def _dt_over(self, dt0: int):
+        isover = False
+        if self.last_dts:
+            if dt0 - self.last_dts >= 12 * 3600: 
+                # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+                print("check timer on_dt_over: ", dt0)
+                isover = True
+        self.last_dts = dt0
+        return isover
+        
+    def _check_timers(self, runstrats: list, dt0: int):
         '''Receives a timer notification where ``timer`` is the timer which was
         returned by ``add_timer``, and ``when`` is the calling time. ``args``
         and ``kwargs`` are any additional arguments passed to ``add_timer``
@@ -273,28 +301,28 @@ class Cerebro(with_metaclass(MetaParams, object)):
         '''
         if not dt0:
             return
-            
-        if self._dt_over(dt0, last_dt0):
+
+        if self._dt_over(dt0):
             print("check timer on_dt_over: ", dt0)
-            self._dispatch(runstrats, TimerEvent.EOD, last_dt0)
+            self._dispatch(runstrats, TimerEvent.EOD)
 
         # --- Scheduled Timers ---
         # self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) 
         for t in self._pretimers:
             if t.check(dt0):
-                self._dispatch(runstrats, t.event_type, last_dt0)
+                self._dispatch(runstrats, t.event_type)
 
-    def _dispatch(self, runstrats: list, event_type: int, dts: int):
+    def _dispatch(self, runstrats: list, event_type: int):
         for strat in runstrats:
             if event_type == TimerEvent.EOD: # on_dt_over ---> T+1 settlement
-                strat.on_dt_over(dts) 
+                strat.on_dt_over(self.last_dts) 
 
             elif event_type == TimerEvent.METRIC: # log shm
                 strat.notify_timer(event_type, dts)
 
             elif event_type == TimerEvent.RISK: # risk control 
                 if hasattr(strat, 'check_risk'):
-                    strat.check_risk(dts)
+                    strat.check_risk(self.last_dts)
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
@@ -576,12 +604,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     break  
 
                 dt0 = datas[0].datetime[0]
-                if len(datas[0]) > 1:
-                    last_dt0 = datas[0].datetime[-1]
-                else:
-                    last_dt0 = dt0
+                # if len(datas[0]) > 1:
+                #     last_dt0 = datas[0].datetime[-1]
+                # else:
+                #     last_dt0 = dt0
 
-                self._check_timers(runstrats, dt0, last_dt0)
+                # self._check_timers(runstrats, dt0, last_dt0)
+                self._check_timers(runstrats, dt0)
 
                 for strat in runstrats:
                     strat._next()
