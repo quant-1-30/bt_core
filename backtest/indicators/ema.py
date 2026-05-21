@@ -18,11 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import talib
+import numpy as np
+from .basicops import PeriodN
+from backtest.indicator import Indicator
 
-from . import MovingAverageBase, ExponentialSmoothing
 
-
-class ExponentialMovingAverage(MovingAverageBase):
+class ExponentialMovingAverage(PeriodN):
     '''
     A Moving Average that smoothes data exponentially over time.
 
@@ -38,16 +40,18 @@ class ExponentialMovingAverage(MovingAverageBase):
       - http://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
     '''
     alias = ('EMA', 'MovingAverageExponential',)
+
+    params = (('period', 14),)
     lines = ('ema',)
 
     def __init__(self):
-        # Before super to ensure mixins (right-hand side in subclassing)
-        # can see the assignment operation and operate on the line
-        self.lines[0] = es = ExponentialSmoothing(
-            self.data,
-            period=self.p.period,
-            alpha=2.0 / (1.0 + self.p.period))
-
-        self.alpha, self.alpha1 = es.alpha, es.alpha1
-
         super(ExponentialMovingAverage, self).__init__()
+        # self.addminperiod(self.p.period)
+
+    def next(self):
+        # np.array slice ---> view and zero_copy
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        _ema = talib.EMA(_arr, timeperiod=self.p.period) # same size / nan fill
+
+        # self.lines.ema[0] = _ema[-1]
+        self.line[0] = _ema[-1]

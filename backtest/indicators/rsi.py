@@ -18,107 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import talib
+import numpy as np
+from .basicops import PeriodN
 from backtest.indicator import Indicator
-from backtest.logic import Max, DivZeroByZero
-from . import MovAv
 
 
-class UpDay(Indicator):
-    '''
-    Defined by J. Welles Wilder, Jr. in 1978 in his book *"New Concepts in
-    Technical Trading Systems"* for the RSI
-
-    Records days which have been "up", i.e.: the close price has been
-    higher than the day before.
-
-    Formula:
-      - upday = max(close - close_prev, 0)
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    lines = ('upday',)
-    params = (('period', 1),)
-
-    def __init__(self):
-        self.lines.upday = Max(self.data - self.data(-self.p.period), 0.0)
-        super(UpDay, self).__init__()
-
-
-class DownDay(Indicator):
-    '''
-    Defined by J. Welles Wilder, Jr. in 1978 in his book *"New Concepts in
-    Technical Trading Systems"* for the RSI
-
-    Records days which have been "down", i.e.: the close price has been
-    lower than the day before.
-
-    Formula:
-      - downday = max(close_prev - close, 0)
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    lines = ('downday',)
-    params = (('period', 1),)
-
-    def __init__(self):
-        self.lines.downday = Max(self.data(-self.p.period) - self.data, 0.0)
-        super(DownDay, self).__init__()
-
-
-class UpDayBool(Indicator):
-    '''
-    Defined by J. Welles Wilder, Jr. in 1978 in his book *"New Concepts in
-    Technical Trading Systems"* for the RSI
-
-    Records days which have been "up", i.e.: the close price has been
-    higher than the day before.
-
-    Note:
-      - This version returns a bool rather than the difference
-
-    Formula:
-      - upday = close > close_prev
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    lines = ('upday',)
-    params = (('period', 1),)
-
-    def __init__(self):
-        self.lines.upday = self.data > self.data(-self.p.period)
-        super(UpDayBool, self).__init__()
-
-
-class DownDayBool(Indicator):
-    '''
-    Defined by J. Welles Wilder, Jr. in 1978 in his book *"New Concepts in
-    Technical Trading Systems"* for the RSI
-
-    Records days which have been "down", i.e.: the close price has been
-    lower than the day before.
-
-    Note:
-      - This version returns a bool rather than the difference
-
-    Formula:
-      - downday = close_prev > close
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    lines = ('downday',)
-    params = (('period', 1),)
-
-    def __init__(self):
-        self.lines.downday = self.data(-self.p.period) > self.data
-        super(DownDayBool, self).__init__()
-
-
-class RelativeStrengthIndex(Indicator):
+class RelativeStrengthIndex(PeriodN):
     '''Defined by J. Welles Wilder, Jr. in 1978 in his book *"New Concepts in
     Technical Trading Systems"*.
 
@@ -151,81 +57,18 @@ class RelativeStrengthIndex(Indicator):
       - ``safelow``  (default: 50.0) will be used as RSI value for the
         ``0 / 0`` case
     '''
-    alias = ('RSI', 'RSI_SMMA', 'RSI_Wilder',)
+    alias = ('RSI',)
 
     lines = ('rsi',)
-    params = (
-        ('period', 14),
-        ('movav', MovAv.Smoothed),
-        ('upperband', 70.0),
-        ('lowerband', 30.0),
-        ('safediv', False),
-        ('safehigh', 100.0),
-        ('safelow', 50.0),
-        ('lookback', 1),
-    )
-
-    def _plotlabel(self):
-        plabels = [self.p.period]
-        plabels += [self.p.movav] * self.p.notdefault('movav')
-        plabels += [self.p.lookback] * self.p.notdefault('lookback')
-        return plabels
-
-    def _plotinit(self):
-        self.plotinfo.plotyhlines = [self.p.upperband, self.p.lowerband]
+    params = (('period', 14),)
 
     def __init__(self):
-        upday = UpDay(self.data, period=self.p.lookback)
-        downday = DownDay(self.data, period=self.p.lookback)
-        maup = self.p.movav(upday, period=self.p.period)
-        madown = self.p.movav(downday, period=self.p.period)
-        if not self.p.safediv:
-            rs = maup / madown
-        else:
-            highrs = self._rscalc(self.p.safehigh)
-            lowrs = self._rscalc(self.p.safelow)
-            rs = DivZeroByZero(maup, madown, highrs, lowrs)
-
-        self.lines.rsi = 100.0 - 100.0 / (1.0 + rs)
         super(RelativeStrengthIndex, self).__init__()
+        # self.addminperiod(self.p.period) 
 
-    def _rscalc(self, rsi):
-        try:
-            rs = (-100.0 / (rsi - 100.0)) - 1.0
-        except ZeroDivisionError:
-            return float('inf')
+    def next(self, rsi):
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        rsi = talib.RSI(_arr, timeperiod=self.p.period)
 
-        return rs
-
-
-class RSI_Safe(RSI):
-    '''
-    Subclass of RSI which changes parameers ``safediv`` to ``True`` as the
-    default value
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    params = (('safediv', True),)
-
-
-class RSI_SMA(RSI):
-    '''
-    Uses a SimpleMovingAverage as described in Wikipedia and other soures
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    alias = ('RSI_Cutler',)
-
-    params = (('movav', MovAv.Simple),)
-
-
-class RSI_EMA(RSI):
-    '''
-    Uses an ExponentialMovingAverage as described in Wikipedia
-
-    See:
-      - http://en.wikipedia.org/wiki/Relative_strength_index
-    '''
-    params = (('movav', MovAv.Exponential),)
+        # self.lines.rsi[0] = rsi[-1]
+        self.line[0] = rsi[-1]

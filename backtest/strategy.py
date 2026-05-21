@@ -187,7 +187,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
  
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
-        self.qbuffer(savemem=savemem)
+        self.qbuffer(savemem=savemem) # linebuffer qbuffer update maxlen with _minperiod
         self._periodrecalc()
         self._setupLog()
 
@@ -230,7 +230,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self._dlens = newdlens
 
     def on_dt_over(self, dts: int):
-        # import pdb; pdb.set_trace() 
         snapshot = self.store.on_dt_over(self.experiment_id, dts) 
         if snapshot:
             self.shm_chan.publish_snapshot(snapshot) 
@@ -332,7 +331,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             trades = snapshot.trades
             if trades:
                 self.lines.buy[0] = 1
-                print("buy trades: ", trades)
+                print("buy trades: ", len(trades))
                 self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
 
             self.shm_chan.publish_order(order)
@@ -363,7 +362,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.trades
             if trades:
-                print("sell trades: ", trades)
+                print("sell trades: ", len(trades))
                 self.lines.sell[0] = -1
                 self.shm_chan.publish_snapshot(snapshot) 
                 filled[core["sid"]] = trades 

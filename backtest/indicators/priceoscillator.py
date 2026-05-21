@@ -18,93 +18,36 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-from . import Indicator, Max, MovAv
-
-
-class _PriceOscBase(Indicator):
-    params = (('period1', 12), ('period2', 26),
-              ('_movav', MovAv.Exponential),)
-
-    plotinfo = dict(plothlines=[0.0])
-
-    def __init__(self):
-        self.ma1 = self.p._movav(self.data, period=self.p.period1)
-        self.ma2 = self.p._movav(self.data, period=self.p.period2)
-        self.lines[0] = self.ma1 - self.ma2
-
-        super(_PriceOscBase, self).__init__()
+import talib
+import numpy as np
+from backtest.indicator import Indicator
 
 
-class PriceOscillator(_PriceOscBase):
+class AbsolutePriceOscillator(Indicator):
     '''
     Shows the difference between a short and long exponential moving
-    averages expressed in points.
+    averages expressed in points. 
 
     Formula:
-      - po = ema(short) - ema(long)
+      - apo = ema(short) - ema(long)
+      - ppo = 100 * (ema(short) - ema(long)) / ema(long)
 
     See:
       - http://www.metastock.com/Customer/Resources/TAAZ/?c=3&p=94
     '''
     alias = ('PriceOsc', 'AbsolutePriceOscillator', 'APO', 'AbsPriceOsc',)
-    lines = ('po',)
-
-
-class PercentagePriceOscillator(_PriceOscBase):
-    '''
-    Shows the difference between a short and long exponential moving
-    averages expressed in percentage. The MACD does the same but expressed in
-    absolute points.
-
-    Expressing the difference in percentage allows to compare the indicator at
-    different points in time when the underlying value has significatnly
-    different values.
-
-    Formula:
-      - po = 100 * (ema(short) - ema(long)) / ema(long)
-
-    See:
-      - http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:price_oscillators_ppo
-    '''
-    _long = True
-
-    alias = ('PPO', 'PercPriceOsc',)
-
-    lines = ('ppo', 'signal', 'histo')
-    params = (('period_signal', 9),)
-
-    plotlines = dict(histo=dict(_method='bar', alpha=0.50, width=1.0))
+    lines = ('apo',)
+    
+    params = (('fast', 12), ('slow', 26), ('matype', 0), ) # MA_TypeSMA
 
     def __init__(self):
-        super(PercentagePriceOscillator, self).__init__()
+        super(MACD, self).__init__()
+        period = self.p.fast + self.p.slow
+        self.addminperiod(period) 
 
-        den = self.ma2 if self._long else self.ma1
+    def next(self):
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        _apo = talib.APO(_arr, self.p.fast, self.p.slow, self.p.matype)
 
-        self.lines.ppo = 100.0 * self.lines[0] / den
-        self.l.signal = self.p._movav(self.l.ppo, period=self.p.period_signal)
-        self.lines.histo = self.lines.ppo - self.lines.signal
-
-
-class PercentagePriceOscillatorShort(PercentagePriceOscillator):
-    '''
-    Shows the difference between a short and long exponential moving
-    averages expressed in percentage. The MACD does the same but expressed in
-    absolute points.
-
-    Expressing the difference in percentage allows to compare the indicator at
-    different points in time when the underlying value has significatnly
-    different values.
-
-    Most on-line literature shows the percentage calculation having the long
-    exponential moving average as the denominator. Some sources like MetaStock
-    use the short one.
-
-    Formula:
-      - po = 100 * (ema(short) - ema(long)) / ema(short)
-
-    See:
-      - http://www.metastock.com/Customer/Resources/TAAZ/?c=3&p=94
-    '''
-    _long = False
-    alias = ('PPOShort', 'PercPriceOscShort',)
+        # self.lines.apo[0] = _apo[-1]
+        self.line[0] = _apo[-1]

@@ -18,72 +18,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-from backtest.metabase import with_metaclass
-
+import talib
+import numpy as np
 import backtest.indicator as btind
+from .basicops import PeriodN
 
 
-class MovingAverage(object):
-    '''MovingAverage (alias MovAv)
+class MovingAverage(PeriodN):
 
-    A placeholder to gather all Moving Average Types in a single place.
+    alias = ('EMA', 'MovingAverage',)
 
-    Instantiating a SimpleMovingAverage can be achieved as follows::
-
-      sma = MovingAverage.Simple(self.data, period)
-
-    Or using the shorter aliases::
-
-      sma = MovAv.SMA(self.data, period)
-
-    or with the full (forwards and backwards) names:
-
-      sma = MovAv.SimpleMovingAverage(self.data, period)
-
-      sma = MovAv.MovingAverageSimple(self.data, period)
-
-    '''
-    _movavs = []
-
-    @classmethod
-    def register(cls, regcls):
-        if getattr(regcls, '_notregister', False):
-            return
-
-        cls._movavs.append(regcls)
-
-        clsname = regcls.__name__
-        setattr(cls, clsname, regcls)
-
-        clsalias = ''
-        if clsname.endswith('MovingAverage'):
-            clsalias = clsname.split('MovingAverage')[0]
-        elif clsname.startswith('MovingAverage'):
-            clsalias = clsname.split('MovingAverage')[1]
-
-        if clsalias:
-            setattr(cls, clsalias, regcls)
-
-
-class MovAv(MovingAverage):
-    pass  # alias
-
-
-class MetaMovAvBase(btind.Indicator.__class__):
-    # Register any MovingAverage with the placeholder to allow the automatic
-    # creation of envelopes and oscillators
-
-    def __new__(meta, name, bases, dct):
-        # Create the class
-        cls = super(MetaMovAvBase, meta).__new__(meta, name, bases, dct)
-
-        MovingAverage.register(cls)
-
-        # return the class
-        return cls
-
-
-class MovingAverageBase(with_metaclass(MetaMovAvBase, btind.Indicator)):
+    lines = ('ma',)
     params = (('period', 30),)
-    plotinfo = dict(subplot=False)
+
+    def __init__(self):
+        super(ExponentialMovingAverage, self).__init__()
+        # self.addminperiod(self.p.period)
+
+    def next(self):
+        # np.array slice ---> view and zero_copy
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        _ma = talib.MA(_arr, timeperiod=self.p.period) # same size / nan fill
+
+        # self.lines.ma[0] = _ma[-1]
+        self.line[0] = _ma[-1]

@@ -101,13 +101,11 @@ class LineBuffer(LineSingle):
         self.extension = 0
 
     def qbuffer(self, savemem=0):
-
         if savemem:
             self.mode = QBuffer
             _minperiod = self._minperiod
             self.maxlen = _minperiod
 
-        # self.extrasize = extrasize
         self.reset()
 
     def minbuffer(self, size):

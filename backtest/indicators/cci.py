@@ -18,10 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from . import Indicator, Max, MovAv, MeanDev
+import talib
+import numpy as np
+from .basicops import PeriodN
 
 
-class CommodityChannelIndex(Indicator):
+class CommodityChannelIndex(PeriodN):
     '''
     Introduced by Donald Lambert in 1980 to measure variations of the
     "typical price" (see below) from its mean to identify extremes and
@@ -40,28 +42,17 @@ class CommodityChannelIndex(Indicator):
     alias = ('CCI',)
 
     lines = ('cci',)
-
-    params = (('period', 20),
-              ('factor', 0.015),
-              ('movav', MovAv.Simple),
-              ('upperband', 100.0),
-              ('lowerband', -100.0),)
-
-    def _plotlabel(self):
-        plabels = [self.p.period, self.p.factor]
-        plabels += [self.p.movav] * self.p.notdefault('movav')
-        return plabels
-
-    def _plotinit(self):
-        self.plotinfo.plotyhlines = [0.0, self.p.upperband, self.p.lowerband]
+    params = (('period', 14),)   
 
     def __init__(self):
-        tp = (self.data.high + self.data.low + self.data.close) / 3.0
-        tpmean = self.p.movav(tp, period=self.p.period)
+        super(CommodityChannelIndex, self).__init__() 
+        # self.addminperiod(self.p.period)
 
-        dev = tp - tpmean
-        meandev = MeanDev(tp, tpmean, period=self.p.period)
+    def next(self):
+        h = np.asarray(self.data.high.array, dtype=np.float64)
+        l = np.asarray(self.data.low.array, dtype=np.float64)
+        c = np.asarray(self.data.close.array, dtype=np.float64)
 
-        self.lines.cci = dev / (self.p.factor * meandev)
-
-        super(CommodityChannelIndex, self).__init__()
+        _cci = talib.CCI(h, l, c, timeperiod=self.p.period)
+        # self.lines.cci[0] = _cci[-1]
+        self.line[0] = _cci[-1]

@@ -18,12 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import talib
+import numpy as np
+from .basicops import PeriodN
+from backtest.indicator import Indicator
 
 
-from . import MovingAverageBase, MovAv
-
-
-class DoubleExponentialMovingAverage(MovingAverageBase):
+class DEMA(PeriodN):
     '''
     DEMA was first time introduced in 1994, in the article "Smoothing Data with
     Faster Moving Averages" by Patrick G. Mulloy in "Technical Analysis of
@@ -37,20 +38,24 @@ class DoubleExponentialMovingAverage(MovingAverageBase):
     See:
       (None)
     '''
-    alias = ('DEMA', 'MovingAverageDoubleExponential',)
+    alias = ('MovingAverageDoubleExponential',)
 
     lines = ('dema',)
-    params = (('_movav', MovAv.EMA),)
+    params = (('period', 14),)
 
     def __init__(self):
-        ema = self.p._movav(self.data, period=self.p.period)
-        ema2 = self.p._movav(ema, period=self.p.period)
-        self.lines.dema = 2.0 * ema - ema2
+        super(DEMA, self).__init__()
+        # self.addminperiod(self.p.period) 
 
-        super(DoubleExponentialMovingAverage, self).__init__()
+    def next(self):
+        # np.array slice ---> view and zero_copy
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+
+        _dema = talib.DEMA(_arr, timeperiod=self.p.period) # same size / nan fill
+        self.lines.dema[0] = _dema[-1]
 
 
-class TripleExponentialMovingAverage(MovingAverageBase):
+class TEMA(PeriodN):
     '''
     TEMA was first time introduced in 1994, in the article "Smoothing Data with
     Faster Moving Averages" by Patrick G. Mulloy in "Technical Analysis of
@@ -67,15 +72,19 @@ class TripleExponentialMovingAverage(MovingAverageBase):
     See:
       (None)
     '''
-    alias = ('TEMA', 'MovingAverageTripleExponential',)
+    alias = ('MovingAverageTripleExponential',)
 
     lines = ('tema',)
-    params = (('_movav', MovAv.EMA),)
+    params = (('period', 14),)
 
     def __init__(self):
-        ema1 = self.p._movav(self.data, period=self.p.period)
-        ema2 = self.p._movav(ema1, period=self.p.period)
-        ema3 = self.p._movav(ema2, period=self.p.period)
+        super(TEMA, self).__init__()
+        # self.addminperiod(self.p.period) 
 
-        self.lines.tema = 3.0 * ema1 - 3.0 * ema2 + ema3
-        super(TripleExponentialMovingAverage, self).__init__()
+    def next(self):
+        # np.array slice ---> view and zero_copy
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+
+        _tema = talib.TEMA(_arr, timeperiod=self.p.period) # same size / nan fill
+        # self.lines.dema[0] = _tema[-1]
+        self.line[0] = _tema[-1]

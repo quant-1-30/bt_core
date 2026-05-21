@@ -152,11 +152,11 @@ class LineRoot(with_metaclass(MetaLineRoot, object)):
         '''
         raise NotImplementedError
 
-    def incminperiod(self, minperiod):
-        '''
-        Increment the minperiod with no considerations
-        '''
-        raise NotImplementedError
+    # def incminperiod(self, minperiod):
+    #     '''
+    #     Increment the minperiod with no considerations
+    #     '''
+    #     raise NotImplementedError
 
     def prenext(self):
         '''
@@ -270,13 +270,13 @@ class LineMultiple(LineRoot):
         for line in self.lines:
             line.addminperiod(minperiod)
 
-    def incminperiod(self, minperiod):
-        '''
-        The passed minperiod is fed to the lines
-        '''
-        # pass it down to the lines
-        for line in self.lines:
-            line.incminperiod(minperiod)
+    # def incminperiod(self, minperiod):
+    #     '''
+    #     The passed minperiod is fed to the lines
+    #     '''
+    #     # pass it down to the lines
+    #     for line in self.lines:
+    #         line.incminperiod(minperiod)
 
     def _makeoperation(self, other, operation, r=False, _ownerskip=None):
         return self.lines[0]._makeoperation(other, operation, r=r, _ownerskip=_ownerskip)

@@ -250,36 +250,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
             allow=allow,
             tzdata=tzdata)
  
-    # def _dt_over(self, dt0: int, last_dt0: int):
-    #     print("_dt_over ", dt0 - last_dt0)
-    #     if last_dt0 and (dt0 - last_dt0 >= 12 * 3600): 
-    #         # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
-    #         print("check timer on_dt_over: ", dt0)
-    #         return True
-    #     return False
-    
-    # def _check_timers(self, runstrats: list, dt0: int, last_dt0: int):
-    #     '''Receives a timer notification where ``timer`` is the timer which was
-    #     returned by ``add_timer``, and ``when`` is the calling time. ``args``
-    #     and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-    #     The actual ``when`` time can be later, but the system may have not be
-    #     able to call the timer before. This value is the timer value and no the
-    #     system time.
-    #     '''
-    #     if not dt0:
-    #         return
-            
-    #     if self._dt_over(dt0, last_dt0):
-    #         print("check timer on_dt_over: ", dt0)
-    #         self._dispatch(runstrats, TimerEvent.EOD, last_dt0)
-
-    #     # --- Scheduled Timers ---
-    #     # self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) 
-    #     for t in self._pretimers:
-    #         if t.check(dt0):
-    #             self._dispatch(runstrats, t.event_type, last_dt0)
-    
     def _dt_over(self, dt0: int):
         isover = False
         if self.last_dts:
@@ -604,12 +574,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     break  
 
                 dt0 = datas[0].datetime[0]
-                # if len(datas[0]) > 1:
-                #     last_dt0 = datas[0].datetime[-1]
-                # else:
-                #     last_dt0 = dt0
-
-                # self._check_timers(runstrats, dt0, last_dt0)
                 self._check_timers(runstrats, dt0)
 
                 for strat in runstrats:

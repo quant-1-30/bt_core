@@ -18,11 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import talib
+import numpy as np
+from .basicops import PeriodN
+from backtest.indicator import Indicator
 
-from . import MovingAverageBase, Average
 
-
-class MovingAverageSimple(MovingAverageBase):
+class MovingAverageSimple(PeriodN):
     '''
     Non-weighted average of the last n periods
 
@@ -34,10 +36,16 @@ class MovingAverageSimple(MovingAverageBase):
     '''
     alias = ('SMA', 'SimpleMovingAverage',)
     lines = ('sma',)
+    
+    params = (('period', 9),)
 
     def __init__(self):
-        # Before super to ensure mixins (right-hand side in subclassing)
-        # can see the assignment operation and operate on the line
-        self.lines[0] = Average(self.data, period=self.p.period)
-
         super(MovingAverageSimple, self).__init__()
+        # self.addminperiod(self.p.period)
+
+    def next(self):
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        sma = talib.SMA(_arr, self.p.period)
+
+        # self.lines.sma[0] = sma[-1]
+        self.line[0] = sma[-1]

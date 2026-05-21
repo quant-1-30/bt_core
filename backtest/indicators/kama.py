@@ -20,11 +20,13 @@
 ###############################################################################
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import talib
+import numpy as np
+from .basicops import PeriodN
+from backtest.indicator import Indicator
 
-from . import (SumN, MovingAverageBase, ExponentialSmoothingDynamic)
 
-
-class AdaptiveMovingAverage(MovingAverageBase):
+class AdaptiveMovingAverage(PeriodN):
     '''
     Defined by Perry Kaufman in his book `"Smarter Trading"`.
 
@@ -59,23 +61,16 @@ class AdaptiveMovingAverage(MovingAverageBase):
     '''
     alias = ('KAMA', 'MovingAverageAdaptive',)
     lines = ('kama',)
-    params = (('fast', 2), ('slow', 30))
+    params = (('period', 30),)
 
     def __init__(self):
-        # Before super to ensure mixins (right-hand side in subclassing)
-        # can see the assignment operation and operate on the line
-        direction = self.data - self.data(-self.p.period)
-        volatility = SumN(abs(self.data - self.data(-1)), period=self.p.period)
-
-        er = abs(direction / volatility)  # efficiency ratio
-
-        fast = 2.0 / (self.p.fast + 1.0)  # fast ema smoothing factor
-        slow = 2.0 / (self.p.slow + 1.0)  # slow ema smoothing factor
-
-        sc = pow((er * (fast - slow)) + slow, 2)  # scalable constant
-
-        self.lines[0] = ExponentialSmoothingDynamic(self.data,
-                                                    period=self.p.period,
-                                                    alpha=sc)
-
         super(AdaptiveMovingAverage, self).__init__()
+        # self.addminperiod(self.p.period)
+
+    def next(self):
+        # np.array slice ---> view and zero_copy
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        _kama = talib.KAMA(_arr, timeperiod=self.p.period)
+
+        # self.lines.kama[0] = _kama[-1]
+        self.line[0] = _kama[-1]

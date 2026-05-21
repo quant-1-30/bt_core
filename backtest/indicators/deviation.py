@@ -18,12 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import talib
+import numpy as np
+from .basicops import PeriodN
+# from backtest.indicator import Indicator
 
-from . import MovAv
-from backtest.indicator import Indicator
 
-
-class StandardDeviation(Indicator):
+class StandardDeviation(PeriodN):
     '''
     Calculates the standard deviation of the passed data for a given period
 
@@ -47,60 +48,15 @@ class StandardDeviation(Indicator):
     alias = ('StdDev',)
 
     lines = ('stddev',)
-    params = (('period', 20), ('movav', MovAv.Simple), ('safepow', True),)
-
-    def _plotlabel(self):
-        plabels = [self.p.period]
-        plabels += [self.p.movav] * self.p.notdefault('movav')
-        return plabels
+    params = (('period', 20), ('nbev', 1.0),)
 
     def __init__(self):
-        if len(self.datas) > 1:
-            mean = self.data1
-        else:
-            mean = self.p.movav(self.data, period=self.p.period)
+        super(StandardDeviation, self).__init__() 
+        # self.addminperiod(self.p.period)
 
-        meansq = self.p.movav(pow(self.data, 2), period=self.p.period)
-        sqmean = pow(mean, 2)
+    def next(self):
+        _arr = np.asarray(self.data.array, dtype=np.float64)
+        _std = talib.STDDEV(_arr, self.p.period, self.p.nbev)
 
-        if self.p.safepow:
-            self.lines.stddev = pow(abs(meansq - sqmean), 0.5)
-        else:
-            self.lines.stddev = pow(meansq - sqmean, 0.5)
-
-
-class MeanDeviation(Indicator):
-    '''MeanDeviation (alias MeanDev)
-
-    Calculates the Mean Deviation of the passed data for a given period
-
-    Note:
-      - If 2 datas are provided as parameters, the 2nd is considered to be the
-        mean of the first
-
-    Formula:
-      - mean = MovingAverage(data, period) (or provided mean)
-      - absdeviation = abs(data - mean)
-      - meandev = MovingAverage(absdeviation, period)
-
-    See:
-      - https://en.wikipedia.org/wiki/Average_absolute_deviation
-    '''
-    alias = ('MeanDev',)
-
-    lines = ('meandev',)
-    params = (('period', 20), ('movav', MovAv.Simple),)
-
-    def _plotlabel(self):
-        plabels = [self.p.period]
-        plabels += [self.p.movav] * self.p.notdefault('movav')
-        return plabels
-
-    def __init__(self):
-        if len(self.datas) > 1:
-            mean = self.data1
-        else:
-            mean = self.p.movav(self.data, period=self.p.period)
-
-        absdev = abs(self.data - mean)
-        self.lines.meandev = self.p.movav(absdev, period=self.p.period)
+        # self.lines.stddev[0] = _std[-1]
+        self.line[0] = _std[-1]

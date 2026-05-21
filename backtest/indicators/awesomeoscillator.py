@@ -18,18 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-import backtest as bt
-from . import MovAv
-
-
-__all__ = ['AwesomeOscillator', 'AwesomeOsc', 'AO']
+import talib
+import numpy as np
+from backtest.indicator import Indicator
 
 
-class AwesomeOscillator(bt.Indicator):
+class AwesomeOscillator(Indicator):
     '''
     Awesome Oscillator (AO) is a momentum indicator reflecting the precise
-    changes in the market driving force which helps to identify the trend’s
+    changes in the market driving force which helps to identify the trends
     strength up to the points of formation and reversal.
 
 
@@ -48,15 +45,22 @@ class AwesomeOscillator(bt.Indicator):
     params = (
         ('fast', 5),
         ('slow', 34),
-        ('movav', MovAv.SMA),
     )
 
     plotlines = dict(ao=dict(_method='bar', alpha=0.50, width=1.0))
 
     def __init__(self):
-        median_price = (self.data.high + self.data.low) / 2.0
-        sma1 = self.p.movav(median_price, period=self.p.fast)
-        sma2 = self.p.movav(median_price, period=self.p.slow)
-        self.l.ao = sma1 - sma2
-
         super(AwesomeOscillator, self).__init__()
+        self.addminperiod(self.p.slow)
+
+    def next(self):
+        h = np.asarray(self.data.high, dtype=np.float64)
+        l = np.asarray(self.data.low, dtype=np.float64)
+
+        median_price = (h + l) / 2.0
+
+        sma_fast = talib.SMA(median_price, timeperiod=self.p.fast)
+        sma_slow = talib.SMA(median_price, timeperiod=self.p.slow)
+
+        # self.lines.ao[0] = sma_fast[-1] - sma_slow[-1]
+        self.line[0] = sma_fast[-1] - sma_slow[-1]

@@ -143,7 +143,7 @@ class Lines(object):
                 linealias = linealias[0]
 
             desc = LineAlias(line)  # keep a reference below
-            setattr(newcls, linealias, desc) # e.g. lines.signal
+            setattr(newcls, linealias, desc) # e.g. lines.datetime
 
         # Create extra aliases for the given name, checking if the names is in
         # l2alias (which is from the argument lalias and comes from the
@@ -161,7 +161,7 @@ class Lines(object):
                     extranames = [extranames]
 
                 for ename in extranames:
-                    setattr(newcls, ename, desc)
+                    setattr(newcls, ename, desc) # add linealias
 
         return newcls
 
@@ -189,7 +189,7 @@ class Lines(object):
         provided "initlines"
         '''
         self.lines = list()
-        for line, linealias in enumerate(self._getlines()):
+        for _, linealias in enumerate(self._getlines()):
             kwargs = dict()
             # self.lines.append(LineBuffer(**kwargs))
             lb = LineBuffer(**kwargs)
@@ -424,7 +424,7 @@ class MetaLineSeries(LineMultiple.__class__):
         # add aliases for lines and for the lines class itself
         _obj.l = _obj.lines
         if _obj.lines.fullsize():
-            _obj.line = _obj.lines[0]
+            _obj.line = _obj.lines[0] # default
 
         for l, line in enumerate(_obj.lines):
             setattr(_obj, 'line_%s' % l, _obj._getlinealias(l))
@@ -453,7 +453,7 @@ class LineSeries(with_metaclass(MetaLineSeries, LineMultiple)):
         # to refer to line by name directly if the attribute was not found
         # in this object if we set an attribute in this object it will be
         # found before we end up here
-        return getattr(self.lines, name)
+        return getattr(self.lines, name) # reuse get api
 
     def __len__(self):
         return len(self.lines) # ---> lines.__len__ ---> len(lines[0]) ---> linebuffer

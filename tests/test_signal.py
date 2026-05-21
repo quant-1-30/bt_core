@@ -62,14 +62,14 @@ class MACDSignal(btind.Indicator):
     params = (('period_me1', 12), ('period_me2', 26), ('period_signal', 9),) # daily
 
     def __init__(self):
-        macd = btind.MACDHisto(self.data0.close, 
-                            period_me1=self.p.period_me1, 
-                            period_me2=self.p.period_me2, 
-                            period_signal=self.p.period_signal) 
+        macd = btind.MACD(self.data0.close, 
+                            fast=self.p.period_me1, 
+                            slow=self.p.period_me2, 
+                            period=self.p.period_signal) 
         self.lines.signal = macd 
 
     def next(self):
-        signal = self.lines.signal[0] # histo
+        signal = self.lines.signal[0] # macd', 'signal', 'histo'
         if not np.isnan(signal):
             # print("MacdSignal :", signal)
             pass

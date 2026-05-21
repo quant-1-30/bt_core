@@ -18,11 +18,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import talib
+import numpy as np
+from .basicops import PeriodN
+from backtest.indicator import Indicator
 
-from . import MovingAverageBase, AverageWeighted
 
-
-class WeightedMovingAverage(MovingAverageBase):
+class WeightedMovingAverage(PeriodN):
     '''
     A Moving Average which gives an arithmetic weighting to values with the
     newest having the more weight
@@ -37,15 +39,17 @@ class WeightedMovingAverage(MovingAverageBase):
     '''
     alias = ('WMA', 'MovingAverageWeighted',)
     lines = ('wma',)
+    
+    params = (('period', 30),)
 
     def __init__(self):
-        coef = 2.0 / (self.p.period * (self.p.period + 1.0))
-        weights = tuple(float(x) for x in range(1, self.p.period + 1))
-
-        # Before super to ensure mixins (right-hand side in subclassing)
-        # can see the assignment operation and operate on the line
-        self.lines[0] = AverageWeighted(
-            self.data, period=self.p.period,
-            coef=coef, weights=weights)
-
         super(WeightedMovingAverage, self).__init__()
+        # self.addminperiod(self.p.period)
+
+    def next(self):
+        # np.array slice ---> view and zero_copy
+        _arr  = np.asarray(self.data.array, dtype=np.float64)
+        _wma = talib.WMA(_arr, timeperiod=self.p.period)
+
+        # self.lines.wma[0] = _wma[-1]
+        self.line[0] = _wma[-1]

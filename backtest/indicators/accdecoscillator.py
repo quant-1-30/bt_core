@@ -18,9 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
+import talib
+import numpy as np
 from backtest.indicator import Indicator
-from . import MovAv, AwesomeOscillator
 
 
 __all__ = ['AccelerationDecelerationOscillator', 'AccDeOsc']
@@ -41,17 +41,26 @@ class AccelerationDecelerationOscillator(Indicator):
       - https://www.ifcmarkets.com/en/ntx-indicators/ntx-indicators-accelerator-decelerator-oscillator
 
     '''
-    alias = ('AccDeOsc',)
+    alias = ('AccDeOsc', 'AC')
     lines = ('accde', )
 
     params = (
-        ('period', 5),
-        ('movav', MovAv.SMA),
+        ('period', 5),  
+        ('fast', 5),    
+        ('slow', 34),   
     )
 
-    plotlines = dict(accde=dict(_method='bar', alpha=0.50, width=1.0))
-
     def __init__(self):
-        ao = AwesomeOscillator()
-        self.l.accde = ao - self.p.movav(ao, period=self.p.period) # l alias lines
         super(AccelerationDecelerationOscillator, self).__init__()
+        self.addminperiod(self.p.slow + self.p.period - 1)
+
+    def next(self):
+        h = np.asarray(self.data.high.array, dtype=np.float64)
+        l = np.asarray(self.data.low.array, dtype=np.float64)
+
+        # ao
+        median = (h + l) / 2.0
+        ao_array = talib.SMA(median, self.p.fast) - talib.SMA(median, self.p.slow)
+        ao_sma = talib.SMA(ao_array, timeperiod=self.p.period)
+
+        self.lines.accde[0] = ao_array[-1] - ao_sma[-1]

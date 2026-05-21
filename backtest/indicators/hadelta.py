@@ -20,7 +20,7 @@
 ###############################################################################
 
 import backtest as bt
-from . import MovAv
+from .sma import SMA
 
 
 __all__ = ['haDelta', 'haD']
@@ -49,7 +49,7 @@ class haDelta(bt.Indicator):
 
     params = (
         ('period', 3),
-        ('movav', MovAv.SMA),
+        ('movav', SMA),
         ('autoheikin', True),
     )
 
@@ -64,5 +64,5 @@ class haDelta(bt.Indicator):
         d = bt.ind.HeikinAshi(self.data) if self.p.autoheikin else self.data
 
         self.lines.haDelta = hd = d.close - d.open
-        self.lines.smoothed = self.p.movav(hd, period=self.p.period)
+        self.lines.smoothed = self.p.movav(hd, period=self.p.period) # if indicator no datas then inherit from strategy
         super(haDelta, self).__init__()

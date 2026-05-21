@@ -18,7 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
 from backtest.indicator import Indicator
 from backtest.logic import And
 
