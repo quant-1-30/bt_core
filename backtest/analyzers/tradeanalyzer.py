@@ -65,7 +65,9 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
         self.loss_count = 0
         self.net_pnl = 0.0
 
-    def _drain(self, events):
+    def _drain(self):
+        events = self.get_shm_events() 
+
         for e in events:
             if e['type'] == 'position':
                 pos = e['data']
@@ -80,12 +82,10 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
                         self.loss_count += 1
 
     def notify_timer(self, dt0):
-        events = self.get_shm_events()  
-        self._drain(events)
+        self._drain()
 
     def on_dt_over(self, dt0):
-        events = self.get_shm_events()  
-        self._drain(events)
+        self._drain()
         
         if self.closed_count > 0:
             won_rate = self.won_count / self.closed_count

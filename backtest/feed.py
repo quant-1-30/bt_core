@@ -81,9 +81,9 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._barstash = collections.deque()  
 
         _obj.adj_factors = {} 
-        _obj.adj_tmp_dt = 0
-        _obj.sid = []
-
+        _obj.record_dt = 0
+        # _obj.sid = []
+        _obj.log_shm = None
         print("MetaAbstractDataBase dopostinit finish ")
         return _obj, args, kwargs
 
@@ -176,7 +176,30 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         nexteos = datetime.datetime.combine(dtime, self.p.sessionend).replace(tzinfo=dtime.tzinfo)
         nextdteos = date2num(nexteos) # localize
-        return nexteos, nextdteos 
+        return nexteos, nextdteos
+
+    def apply_factor(self):
+        """
+            ohlc accumulated factors
+        """
+        if not self.adj_factors:
+            return
+
+        current_dt = ts2intdt(self.lines.datetime[0])
+        if current_dt in self.adj_factors and current_dt != self.record_dt:
+            factor = self.adj_factors[current_dt]
+        
+            adjlines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
+            for line in adjlines.values():
+                value = line[0]
+                line.apply_factor(factor)
+                line[0] = value / factor  # ensure current value not changed
+
+            _v = self.volume[0]
+            self.volume.apply_factor(1.0 / factor)
+            self.volume[0] = _v * factor
+
+            self.record_dt = current_dt 
 
     def _load(self):
         return False
@@ -341,8 +364,27 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         while self._fromstack(forward=True):
             # consume bar(s) produced by "last"s - adding room
             pass
-
         return bool(ret)
+
+    def on_dt_over(self, dts: int):
+        self.log_shm.publish_metric(b"open", self.open[-1], dts)
+        self.log_shm.publish_metric(b"high", self.high[-1], dts)
+        self.log_shm.publish_metric(b"low", self.low[-1], dts)
+        self.log_shm.publish_metric(b"close", self.close[-1], dts)
+        self.log_shm.publish_metric(b"volume", self.volume[-1], dts)
+
+    def notify_timer(self, dts: int): 
+        """
+        This method is called when a timer event is triggered. 
+        It can be used to log indicator metrics and notify analyzers that are interested in timer events.
+        """
+        # # self._getlinealias(lo)) / self.lines[i][0]
+        # self.log_shm.publish_metric(b"open", self.open[0], dts)
+        # self.log_shm.publish_metric(b"high", self.high[0], dts)
+        # self.log_shm.publish_metric(b"low", self.low[0], dts)
+        # self.log_shm.publish_metric(b"close", self.close[0], dts)
+        # self.log_shm.publish_metric(b"volume", self.volume[0], dts)
+        pass
 
 # --------------------------------------------------------------------- clone------------------------------------------------------------------------
 
@@ -355,32 +397,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         d._name = _dataname
         return d
     
- # --------------------------------------------------------------------- common api -----------------------------------------------------------------   
-
-    def apply_factor(self):
-        """
-            ohlc accumulated factors
-        """
-        if not self.adj_factors:
-            return
-
-        current_dt = ts2intdt(self.lines.datetime[0])
-
-        if current_dt in self.adj_factors and current_dt != self.adj_tmp_dt:
-            factor = self.adj_factors[current_dt]
-        
-            adj_lines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
-        
-            for line in adj_lines.values():
-                value = line[0]
-                line.apply_factor(factor)
-                line[0] = value / factor  # ensure current value not changed
-
-            _v = self.volume[0]
-            self.volume.apply_factor(1.0 / factor)
-            self.volume[0] = _v * factor
-
-            self.adj_tmp_dt = current_dt
+ # --------------------------------------------------------------------- plot  -----------------------------------------------------------------   
 
     def plot(self, linealias):
         pass

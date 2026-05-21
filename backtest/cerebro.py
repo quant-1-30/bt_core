@@ -32,7 +32,6 @@ from .timer import Timer, Session, TimerEvent
 from .errors import *
 from .stores import _stores
 from . import analyzers
-from .plot import Plot
 from .shm import LogRingBuffer
 from .utils.wrapper import consume_time
 from .utils.encoder import CustomJSONEncoder
@@ -87,7 +86,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ('tz', None),
         ("timeout", 10),
         ('stdstats', True),
-        ("isplot", False),
         # log
         ("log_id", "cerebro"),
         ("capacity", 1000000),
@@ -108,8 +106,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.storecbs = list()
 
         self._pretimers = list()
-        
-        self._plot = Plot()
         
         self.cerebro_id = ""
         self.last_dts = 0 # np.iinfo(np.int_).max
@@ -292,7 +288,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             elif event_type == TimerEvent.RISK: # risk control 
                 if hasattr(strat, 'check_risk'):
-                    strat.check_risk(self.last_dts)
+                    strat.check_risk(dts)
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
@@ -304,11 +300,13 @@ class Cerebro(with_metaclass(MetaParams, object)):
         meant for decoration/plotting purposes.
         '''
         for _d in args:
+            _d.log_shm = self.log_shm
             self.datas.append(_d)
 
         if dmaster:
             # add default datamaster
             datamaster = self.store.get_feed()
+            datamaster.log_shm = self.log_shm
             self.datas.insert(0, datamaster)
 
     def resampledata(self, **kwargs):
@@ -440,7 +438,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.log_background.start()
 
         self._next_id(kwargs) 
-
         # Prepare feed
         print("cerebro run data start")
         self.adddata(dmaster=True)
@@ -504,7 +501,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         # stop log thread and shm
         print("_shutdown")
         self._shutdown()
-        # isplot 
         
     def runstrategies(self, iterstrat, **kwargs):
         '''
@@ -579,35 +575,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for strat in runstrats:
                     strat._next()
         return
-
-# ---------------------------------------------------------------------- plot ------------------------------------------------------------
- 
-    def plot(self, num_data=0, num_ind=1, num_obs=1, source="", freq="D", **kwargs):
-        '''
-        Plots the strategies inside cerebro
-
-        If ``plotter`` is None a default ``Plot`` instance is created and
-        ``kwargs`` are passed to it during instantiation.
-
-        ``numfigs`` split the plot in the indicated number of charts reducing
-        chart density if wished
-
-        ``iplot``: if ``True`` and running in a ``notebook`` the charts will be
-        displayed inline
-
-        ``data_path``: str where save feed strategy indicator observer data
-        
-        ``freq``: default D  which frequency to plot data
-
-        ``width``: in inches of the saved figure
-
-        ``height``: in inches of the saved figure
-
-        ``dpi``: quality in dots per inches of the saved figure
-
-        ``tight``: only save actual content and not the frame of the figure
-        '''
-        self._plot.plot(num_data=num_data, num_ind=num_ind, num_obs=num_obs, source=source, freq=freq, **kwargs)
 
 # ---------------------------------------------------------------------- exit ------------------------------------------------------------
 

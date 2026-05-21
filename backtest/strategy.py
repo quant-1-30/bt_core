@@ -79,7 +79,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj._minperiods = list()
         _obj.analyzers = list() # ItemCollection()
         _obj.stats = {} 
-        _obj.log_ind = [] # used to Log indicator 
+        _obj.log_meta = [] # used to Log indicator 
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -169,27 +169,27 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
     
-    def _setupLog(self):
-        for line_obj in self.getindicators_lines():
-            line_name = line_obj.plotinfo.plotname or line_obj.__class__.__name__
-
-            for i, line_alias in enumerate(line_obj.lines.getlinealiases()):
-                metric_name = f"{line_name}_{line_alias}"
-                self.log_ind.append(
-                    (line_obj.lines[i][0], metric_name)
-                )
-
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
         snapshot = self.store.set_cash(self.experiment_id, session, cash)
         self.shm_chan.publish_snapshot(snapshot)
- 
+    
+    def _initialLog(self):
+        for line_obj in self.getindicators_lines():
+            line_name = line_obj.plotinfo.plotname or line_obj.__class__.__name__
+
+            for i, line_alias in enumerate(line_obj.lines.getlinealiases()):
+                metric_name = f"{line_name}_{line_alias}"
+                self.log_meta.append(
+                    (line_obj.lines[i], metric_name)
+                )
+
     def _start(self, savemem, **kwargs):
         '''Called right before the backtesting is about to be started.'''
         self.qbuffer(savemem=savemem) # linebuffer qbuffer update maxlen with _minperiod
         self._periodrecalc()
-        self._setupLog()
+        self._initialLog()
 
         self.set_cash(**kwargs)
 
@@ -239,12 +239,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             if hasattr(analyzer, 'on_dt_over'):
                 analyzer.on_dt_over(dts)
 
+        for _d in self.datas:
+            _d.on_dt_over(dts)
+
     def notify_timer(self, dts: int): 
         """
         This method is called when a timer event is triggered. 
         It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
-        for ind_line, metric in self.log_ind:
+        for ind_line, metric in self.log_meta:
             val = ind_line[0]
             if np.isnan(val):
                 continue
@@ -271,6 +274,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # print("Strategy _next ", self.lines.datetime[0])
         minperstatus = self._getminperstatus()
         # self._next_analyzers(minperstatus)
+
+    def check_risk(self, dts: int):
+        pass
  
     def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
         '''Create a buy (long) order and send it to the broker 
