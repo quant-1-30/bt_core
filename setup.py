@@ -1,7 +1,7 @@
 import os
 import glob
 import numpy as np
-from setuptools import setup, Extension
+from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 
 # sources = glob.glob("**/*.pyx", recursive=True) # **/*.pyx 会搜索当前目录及其所有子目录下的 .pyx 文件
@@ -110,11 +110,13 @@ for src in finance_sources:
 
 
 setup(
-    name="backtest_lib",
+    name="bt_lib",
+    packages=find_packages(),
+    include_package_data=True, 
     ext_modules=cythonize(
         extensions,
         compiler_directives={
-            'language_level': "3",       # Python3
+            'language_level': "3",       # 使用 Python 3 语法
             'boundscheck': False,        # 关闭数组越界检查（提升性能）
             'wraparound': False,         # 关闭负索引支持（提升性能）
             'initializedcheck': False,   # 关闭内存视图初始化检查
