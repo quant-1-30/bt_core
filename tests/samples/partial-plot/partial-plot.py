@@ -34,7 +34,7 @@ class St(bt.Strategy):
 
     def __init__(self):
         # self.schedule_once(self.pepe, when=datetime.datetime())
-        # This one won't have the expected fidelity in backtesting
+        # This one won't have the expected fidelity in bt_coreing
         # self.schedule_once(self.pepe, when=datetime.timedelta())
         # self.schedule_reps(self.pepe, when=datetime.time(), days=bt.sched.)
 

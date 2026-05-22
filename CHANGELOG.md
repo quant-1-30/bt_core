@@ -2,7 +2,7 @@
 
 * Updates dependencies to use numpy v2.0.0. 
 * Updates simulated_broker.py to change np.NaN to np.nan
-* Updates backtest_data_handler.py to change np.NaN to np.nan
+* Updates bt_core_data_handler.py to change np.NaN to np.nan
 * Updates daily_bar_csv.py to change np.NaN to np.nan
 * Updates tests
 
@@ -12,7 +12,7 @@
 
 # 0.2.8
 
-* Updates BacktestTradingSession.get_target_allocations() to use burn_in_dt.date() instead of burn_in_dt Timestamp. Previous method compared a Timestamp to a datetime.date.
+* Updates bt_coreTradingSession.get_target_allocations() to use burn_in_dt.date() instead of burn_in_dt Timestamp. Previous method compared a Timestamp to a datetime.date.
 * Adds an integration test to check that target allocations match the expected output, including a date index.
 
 # 0.2.7
@@ -22,7 +22,7 @@
     If start_dt is a business day rebalance_dates =  [start_dt]
     If start_dt is a weekend rebalance_dates = [next business day]
 * Adds a unit test to check that the buisness day calculation is correct
-* Adds an integration test to check that a backtest using buy_and_hold_rebalance generates execution orders on the correct dates
+* Adds an integration test to check that a bt_core using buy_and_hold_rebalance generates execution orders on the correct dates
 
 
 # 0.2.6
@@ -56,9 +56,9 @@
 * Added QSTrader Dockerfiles for various Linux distributions
 * Removed support for Python 3.5 and added support for Python 3.9
 * Increased minimum supported Pandas version to 1.1.5 from 0.25.1
-* Modified end-to-end backtest integration test to check for approximate equality of results to fix differences across Pandas versions
+* Modified end-to-end bt_core integration test to check for approximate equality of results to fix differences across Pandas versions
 * Disallowed Matplotlib 3.3.3 temporarily to avoid deprecated functionality from causing errors
-* Event print messages during backtests can now be disabled through a boolean setting
+* Event print messages during bt_cores can now be disabled through a boolean setting
 
 # 0.2.1
 
@@ -69,19 +69,19 @@
 
 * Significant overhaul of Position, PositionHandler, Portfolio, Transaction and SimulatedBroker classes to correctly account for short selling of assets
 * Addition of LongShortLeveragedOrderSizer to allow long/short leveraged portfolios
-* Added a new long/short leveraged portfolio example backtest
+* Added a new long/short leveraged portfolio example bt_core
 * Added some unit and integration tests to improve test coverage slightly
 
 # 0.1.4
 
-* Added ValueError with more verbose description for NaN pricing data when backtest start date too early
+* Added ValueError with more verbose description for NaN pricing data when bt_core start date too early
 * Removed usage of 'inspect' library for updating attributes of Position within PositionHandler
 * Added unit tests for Cash asset, StaticUniverse, DynamicUniverse and string colour utility function
 * Added two more statistics to the JSON statistics calculation
 
 # 0.1.3
 
-* Fixed bug involving DynamicUniverse not adding assets to momentum and signal calculation if not present at start of backtest
+* Fixed bug involving DynamicUniverse not adding assets to momentum and signal calculation if not present at start of bt_core
 * Modified MomentumSignal and SMASignal to allow calculation if available prices less than lookbacks
 * Added daily rebalancing capability
 * Added some unit tests to improve test coverage slightly

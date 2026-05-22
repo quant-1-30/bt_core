@@ -2,9 +2,9 @@ import uuid
 import numpy as np
 import polars as pl
 from functools import wraps
-import backtest as bt
-import backtest.indicators as btind
-from backtest.utils.dateintern import ts2intdt
+import bt_core as bt
+import bt_core.indicators as btind
+from bt_core.utils.dateintern import ts2intdt
 
 from typing import Dict, Any
 from collections import defaultdict

@@ -1,6 +1,6 @@
 # 核心架构设计
-    项目基于backtrader重构， 核心从两个维度 a. broker feed store trade 核心模块剥离 ; b. 回测逻辑由 T+1 基于A股市场交易策略rewrite。主体backtest 负责 indicator 与 strategy 构建，
-    构建方式基于type元类 构建框架类，抽象具体实现细节，具体可以深入backtrader metabase 源码了解细节。关于 feed 与 broker 集成方式， 借鉴xtp系统 mdapi / tdapi 构建sdk 集成到backtest。 
+    项目基于backtrader重构， 核心从两个维度 a. broker feed store trade 核心模块剥离 ; b. 回测逻辑由 T+1 基于A股市场交易策略rewrite。主体bt_core 负责 indicator 与 strategy 构建，
+    构建方式基于type元类 构建框架类，抽象具体实现细节，具体可以深入backtrader metabase 源码了解细节。关于 feed 与 broker 集成方式， 借鉴xtp系统 mdapi / tdapi 构建sdk 集成到bt_core。 
 
 
 ## 元类与类构造机制
@@ -230,7 +230,7 @@ epoll (red-black tree) io callback linux / kqueue macos trigger by lt and et
 Ray:
 ** StoreAgent **基础设施服务（Infrastructure Service）** Detached 模式 (`lifetime="detached"`) **机制**：**全局注册（Pinned by GCS） 引用数 = 0 (来自脚本) + 1 (来自 GCS) = 1 **
 
-1.  **持久化连接**：它持有的 TCP/ZMQ 连接非常昂贵，不能因为你跑了一次 `backtest.py` 脚本结束了，连接就断开。下次跑还得重新连。
+1.  **持久化连接**：它持有的 TCP/ZMQ 连接非常昂贵，不能因为你跑了一次 `bt_core.py` 脚本结束了，连接就断开。下次跑还得重新连。
 2.  **共享复用**：你可能同时起 5 个不同的回测脚本（Driver），它们都要连接同一个 `StoreAgent`。如果是默认模式，谁创建谁负责销毁，很难共享。
 3.  **服务发现**：因为它是 Detached 且有名字（Name），任何后来的脚本只要知道名字 `StoreAgent_NodeID`，就能通过 `ray.get_actor()` 连上它，而不需要重新创建
 
@@ -545,3 +545,10 @@ volatile int64_t head 保证你读到的是内存里的值。
 
 pl.read_ndjson(...)
 jsonl
+
+# macos
+~/Library/Caches/pypoetry/virtualenvs
+
+find bt_core -type f \( -name "*.so" -o -name "*.cpp" \)  -print0 | xargs -0 rm -f #  -0 --> or /  print\0 sep and xargs -0 
+
+xargs 默认按 空格 ｜ tab ｜ 换行 分割

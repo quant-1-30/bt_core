@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Black">
-    <option name="sdkName" value="Poetry (backtest)" />
+    <option name="sdkName" value="Poetry (bt_core)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (backtest)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (bt_core)" project-jdk-type="Python SDK" />
 </project>

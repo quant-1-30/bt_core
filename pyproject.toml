@@ -1,18 +1,17 @@
-[project] # used for setuptools
-name = "bt-core"
-version = "0.2.0"
-description = "adapt backtest support universe"
-authors = [
-    {name = "hengxin.liu", email = "john@example.com"}
-]
-readme = "README.md"
-
 [tool.poetry]
-name = "backtest"
-version = "0.2.0"
-description = "adapt backtest support universe"
+name = "bt_core"
+version = "0.2.1"
+description = "# print"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
+build = "build_ext.py"
+
+include = [
+    { path = "bt_core/**/*.so", format = "wheel" },
+    { path = "bt_core/**/*.dylib", format = "wheel" },
+    { path = "bt_core/**/*.pyd", format = "wheel" },
+    { path = "bt_core/**/*.pyx" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -25,7 +24,7 @@ scipy = "^1.16.1"
 patsy = "^1.0.1"
 httpx = "^0.28.1"
 matplotlib = "^3.10.5"
-pydantic-core = "2.41.5"
+pydantic-core = "2.16.3"
 dotenv = "^0.9.9"
 twine = "^6.2.0"
 bokeh = "^3.8.1"
@@ -51,7 +50,7 @@ polars = "^1.39.0"
 sphinx = "<9.0"
 sphinx-rtd-theme = "^3.1.0"
 grpcio = "^1.78.0"
-bt-sdk = "0.11.5"
+bt-sdk = "0.12.0"
 protobuf = "^7.34.1"
 build = "^1.5.0"
 poetry-core = "^2.4.0"
@@ -73,21 +72,17 @@ url = "http://localhost:3141/bt_sdk/dev/+simple/"
 priority = "supplemental"
 
 # [tool.setuptools]
-# packages = ["backtest", "backtest.analyzers", "backtest.brokers", "backtest.control"]
-# include-package-data = true 
+# include-package-data = true # __init__.py 
 
-[tool.setuptools]
-# 启用包数据包含，确保 .so, .pyx 等文件能被打包
-include-package-data = true
+# [tool.setuptools.packages.find]
+# where = ["."]
+# include = ["bt_core*"]
+# exclude = ["tests*", "docs*", "benchmarks*"]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["backtest*"]
-exclude = ["tests*", "docs*", "benchmarks*"]
-
-[tool.setuptools.package-data]
-"*" = ["*.pyx", "*.pxd", "*.so", "*.pyd", "*.h", "*.cpp", "*.proto", "*.pyi*"]
+# [tool.setuptools.package-data]
+# "*" = ["*.pyx", "*.pxd", "*.so", "*.pyd", "*.h", "*.cpp", "*.proto", "*.pyi*"]
 
 [build-system]
-requires = ["poetry-core", "wheel", "pybind11", "cmake", "Cython>=3.0"]
-build-backend =  "setuptools.build_meta" # "poetry.core.masonry.api" # for pure python / scikit-build-core for cmake
+requires = ["poetry-core", "wheel", "pybind11", "cmake", "Cython>=3.0", "numpy", "setuptools"]
+# build-backend =  "setuptools.build_meta" 
+build-backend = "poetry.core.masonry.api" # scikit-build-core for cmake

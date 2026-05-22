@@ -5,8 +5,8 @@ import numpy as np
 from dotenv import load_dotenv
 
 from bt_sdk.core.protocol import *
-import backtest as bt
-import backtest.indicators as btind
+import bt_core as bt
+import bt_core.indicators as btind
 
 warnings.filterwarnings('ignore')
 

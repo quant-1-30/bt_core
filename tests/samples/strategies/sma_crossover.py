@@ -19,10 +19,10 @@
 #
 ###############################################################################
 
-import backtest as bt
-import backtest.indicators as btind
+import bt_core as bt
+import bt_core.indicators as btind
 
-from backtest.utils.wrapper import register
+from bt_core.utils.wrapper import register
 
 
 @register

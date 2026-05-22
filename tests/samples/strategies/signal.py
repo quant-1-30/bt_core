@@ -1,6 +1,6 @@
 import backtrader as bt
 
-from backtest.utils.wrapper import register
+from bt_core.utils.wrapper import register
 
 
 @register

@@ -6,9 +6,9 @@ CURRENT_DIR=$(pwd)
 export PYTHONPATH=$CURRENT_DIR:$PYTHONPATH
 
 # supervisorctl can not automate create log
-touch /var/log/backtest.error.log
-touch /var/log/backtest.out.log
-chmod 666 /var/log/backtest*.log
+touch /var/log/bt_core.error.log
+touch /var/log/bt_core.out.log
+chmod 666 /var/log/bt_core*.log
 
 # 检查 Poetry 是否安装
 if ! command -v poetry &> /dev/null; then
