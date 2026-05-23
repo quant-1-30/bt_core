@@ -79,7 +79,7 @@ class MetaStrategy(StrategyBase.__class__):
         _obj._minperiods = list()
         _obj.analyzers = list() # ItemCollection()
         _obj.stats = {} 
-        _obj.log_meta = [] # used to Log indicator 
+        _obj.ind_log = [] # used to Log indicator 
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -98,7 +98,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     _ltype = LineIterator.StratType
 
-    lines = ('datetime', 'buy', 'sell') # ('datetime',)
+    lines = ('datetime',) 
     
     def _settz(self, tz):
         self.lines.datetime._settz(tz)
@@ -176,13 +176,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.shm_chan.publish_snapshot(snapshot)
     
     def _initialLog(self):
-        for line_obj in self.getindicators_lines():
-            line_name = line_obj.plotinfo.plotname or line_obj.__class__.__name__
+        for _line in self.getindicators_lines():
+            line_name = _line.plotinfo.plotname or _line.__class__.__name__
 
-            for i, line_alias in enumerate(line_obj.lines.getlinealiases()):
+            for i, line_alias in enumerate(_line.lines.getlinealiases()):
                 metric_name = f"{line_name}_{line_alias}"
-                self.log_meta.append(
-                    (line_obj.lines[i], metric_name)
+                self.ind_log.append(
+                    (_line.lines[i], metric_name)
                 )
 
     def _start(self, savemem, **kwargs):
@@ -247,7 +247,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         This method is called when a timer event is triggered. 
         It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
-        for ind_line, metric in self.log_meta:
+        for ind_line, metric in self.ind_log:
             val = ind_line[0]
             if np.isnan(val):
                 continue
@@ -257,23 +257,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             if hasattr(analyzer, 'notify_timer'):
                 analyzer.notify_timer(dts)
 
-    def _next_analyzers(self, minperstatus):
-        if minperstatus < 0:
-            for analyzer in self.analyzers:
-                analyzer._next()
-        elif minperstatus == 0 :
-            for analyzer in self.analyzers:
-                analyzer._nextstart()
-        else:
-            for analyzer in self.analyzers:
-                analyzer._prenext()
-
     def _next(self):
-        self.clk_update() # differ from lineiterator _clk_update 
+        self.clk_update() # advance differ from lineiterator _clk_update 
         super(Strategy, self)._next()
         # print("Strategy _next ", self.lines.datetime[0])
-        minperstatus = self._getminperstatus()
-        # self._next_analyzers(minperstatus)
 
     def check_risk(self, dts: int):
         pass
@@ -336,7 +323,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.trades
             if trades:
-                self.lines.buy[0] = 1
                 print("buy trades: ", len(trades))
                 self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
 
@@ -369,7 +355,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             trades = snapshot.trades
             if trades:
                 print("sell trades: ", len(trades))
-                self.lines.sell[0] = -1
                 self.shm_chan.publish_snapshot(snapshot) 
                 filled[core["sid"]] = trades 
             

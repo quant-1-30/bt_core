@@ -229,12 +229,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-sdk"
-version = "0.12.1"
-description = "revise bug in setup.py"
+version = "0.12.2"
+description = "add cmake extension in setup.py"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "bt_sdk-0.12.1-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:553a31a7a3acf2ce85a7878d812529145d08d0057208a87549bba7a1b1efda40"},
+    {file = "bt_sdk-0.12.2-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:ebf4163eddda96e548750c3ce4fc224afa7a3a7a3a105cfba3c45b88ae8cabe1"},
 ]
 
 [package.dependencies]
@@ -5478,4 +5478,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "d48fcd0edf6539d8093382662c06eb597bd730af1777e41e1508ae3df2af439a"
+content-hash = "2bd7eb4e1f069e311858ceb52f29331e032db43e15dc3253c1f4a95fa89bc1c4"

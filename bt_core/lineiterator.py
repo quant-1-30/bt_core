@@ -238,7 +238,7 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _clk_update(self):
         clock_len = len(self._clock)
         if clock_len != len(self):
-            self.forward()
+            self.forward() # lines advance due to data0
         return clock_len
 
     def _next(self):

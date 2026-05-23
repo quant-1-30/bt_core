@@ -256,7 +256,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.last_dts = dt0
         return isover
         
-    def _check_timers(self, runstrats: list, dt0: int):
+    def _check_timers(self, runstrats: list, dt0: int): # before next
         '''Receives a timer notification where ``timer`` is the timer which was
         returned by ``add_timer``, and ``when`` is the calling time. ``args``
         and ``kwargs`` are any additional arguments passed to ``add_timer``
@@ -273,22 +273,22 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._dispatch(runstrats, TimerEvent.EOD)
 
         # --- Scheduled Timers ---
-        # self._pretimers.append(Timer(when=Session.SESSION_START, event_type=0)) 
-        for t in self._pretimers:
+        for t in self._pretimers: # Timer(when=Session.SESSION_START, event_type=0)
             if t.check(dt0):
                 self._dispatch(runstrats, t.event_type)
 
     def _dispatch(self, runstrats: list, event_type: int):
-        for strat in runstrats:
             if event_type == TimerEvent.EOD: # on_dt_over ---> T+1 settlement
-                strat.on_dt_over(self.last_dts) 
+                for strat in runstrats:
+                    strat.on_dt_over(self.last_dts) 
 
             elif event_type == TimerEvent.METRIC: # log shm
-                strat.notify_timer(event_type, dts)
+                for strat in runstrats:
+                    strat.notify_timer(event_type, self.last_dts)
 
             elif event_type == TimerEvent.RISK: # risk control 
-                if hasattr(strat, 'check_risk'):
-                    strat.check_risk(dts)
+                for strat in runstrats:
+                    strat.check_risk(self.last_dts)
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 
