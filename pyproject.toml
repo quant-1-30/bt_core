@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.2.3"
-description = "update bt_sdk"
+version = "0.2.4"
+description = "revise output bug in cerebro"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

@@ -18,11 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import os
 import json
 import itertools
 from datetime import timedelta
 from pytz import timezone
-
+from pathlib import Path
 
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
@@ -90,7 +91,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("log_id", "cerebro"),
         ("capacity", 1000000),
         ("fmt", "parquet"),
-        ("output", "/Users/hengxinliu/startup/bt_core/tests")
+        ("output", None)
     )
 
     def __init__(self):
@@ -111,8 +112,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.last_dts = 0 # np.iinfo(np.int_).max
 
         # logshm
+        output = self.p.output if self.p.output else str(Path.cwd() / "logs") # os.path.dirname(os.path.abspath(__file__))
+        os.makedirs(output, exist_ok=True)
+
         self.log_shm = LogRingBuffer(shm_name="log_shm", capacity=self.p.capacity, is_creator=True)
-        self.log_background = LogConsumerThread(self.log_shm, log_id=self.p.log_id, fmt=self.p.fmt, output_dir=self.p.output)
+        self.log_background = LogConsumerThread(self.log_shm, log_id=self.p.log_id, fmt=self.p.fmt, output_dir=output)
  
 # ----------------------------------------------------------------- timer --------------------------------------------------------------
     
