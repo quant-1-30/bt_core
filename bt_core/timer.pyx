@@ -141,7 +141,7 @@ cdef class Timer:
         self._curdate = date.min
 
         # add timerEvent
-        self.event_type = kwargs.get("event_type", 3)
+        self.event_type = kwargs.get("event_type", 1)
 
     cpdef void start(self, object data):
         self._tzdata = data
@@ -288,7 +288,7 @@ cdef class Timer:
                 if self._isdata:  
                     _, self._nextdteos = self._tzdata._getnexteos() # session_end
                 else:  
-                    nexteos = datetime.combine(ddate, datetime.max) # 23:59:59.999999 
+                    nexteos = datetime.combine(ddate, datetime.max.time()) # 23:59:59.999999 
                     if d.tzinfo is not None:
                         nexteos = nexteos.replace(tzinfo=d.tzinfo)
                     self._nextdteos = date2num(nexteos)
@@ -299,7 +299,7 @@ cdef class Timer:
                 # --- Session End (EOS)  ---
                 if self._dtwhen > self._nextdteos:
                     if (self._dtwhen - self.repeat) < self._nextdteos: # first cross session_end
-                        self._dtwhen = self._nextdteos
+                        self._dtwhen = self._nextdteos # include eos
                         
                         if self._isdata:
                             self._dwhen = self._tzdata.num2date(self._dtwhen)

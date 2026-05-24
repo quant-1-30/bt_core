@@ -68,10 +68,10 @@ class SQN(bt.TimeFrameAnalyzerBase):
                 if pos['size'] == 0 and pos['pnl'] != 0:
                     self._realized_pnls.append(pos['pnl'])
 
-    def notify_timer(self, dt0):
+    def notify_timer(self, dt0: int):
         self._drain()
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         self._drain()
         
         n_trades = len(self._realized_pnls)

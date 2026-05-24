@@ -58,14 +58,13 @@ class Orders(bt.TimeFrameAnalyzerBase):
         self.order_cnt += open_orders_cnt
         return open_orders_cnt
 
-    def notify_timer(self, dt0):
+    def notify_timer(self, dt0: int):
         new_cnt = self._drain()
         if new_cnt > 0:
-            self.log_shm.publish_metric(b"OrderCnt", self.order_cnt, dt0)
+            self.log_shm.publish_metric(b"OrderCnt", new_cnt, dt0)
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         self._drain()
 
         self.log_shm.publish_metric(b"OrdersCnt", self.order_cnt, dt0)
-        
         self.order_cnt = 0 # reset 

@@ -191,7 +191,7 @@ cdef class SharedRingBuffer: # SPMC
         with nogil:
             msg = self._get_msg()
 
-        msg.type = eORDER
+        msg.type = eTRADE
         strncpy(msg.data.trade.order_id, <bytes>py_trade.order_id, 16) # bytest -> char[] 
         msg.data.trade.order_id[15] = 0  
 

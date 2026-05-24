@@ -92,7 +92,7 @@ class Returns(bt.TimeFrameAnalyzerBase):
         snap = self._owner.get_snapshot()
         self._value_start = snap.account.portfolio_value
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         self._tcount += 1
         
         snap = self._owner.get_snapshot() # get_events

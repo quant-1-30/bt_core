@@ -74,7 +74,7 @@ class PeriodStats(bt.Analyzer):
         snap = self._owner.get_snapshot()
         self.last_value = snap.account.portfolio_value + snap.account.cash
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         snap = self._owner.get_snapshot()
         current_value = snap.account.portfolio_value + snap.account.cash
         

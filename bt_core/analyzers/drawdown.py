@@ -79,7 +79,7 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.ddlen = 0
         self.maxddlen = 0
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         # events = self.get_shm_events() 
         # accts = [act["data"] for act in events if act["type"] == "account"]
         # acct = accts[-1]

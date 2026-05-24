@@ -129,7 +129,7 @@ class SharpeRatio(bt.Analyzer):
     def start(self):
         self._last_value = self._owner.get_snapshot().account.portfolio_value
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         current_value = self._owner.get_snapshot().account.portfolio_value
         
         if self._last_value > 0:

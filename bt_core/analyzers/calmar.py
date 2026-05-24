@@ -98,7 +98,7 @@ class Calmar(bt.Analyzer):
             current_calmar = float('NaN')
         return current_calmar
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         snap = self._owner.get_snapshot()
         current_value = snap.account.portfolio_value
         

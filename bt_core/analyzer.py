@@ -209,8 +209,8 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
 
         super(TimeFrameAnalyzerBase, self)._start()
     
-    def notify_timer(self):
+    def notify_timer(self, dts: int):
         pass
 
-    def on_dt_over(self):
+    def on_dt_over(self, dts: int):
         pass

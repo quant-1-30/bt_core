@@ -180,7 +180,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             line_name = _line.plotinfo.plotname or _line.__class__.__name__
 
             for i, line_alias in enumerate(_line.lines.getlinealiases()):
-                metric_name = f"{line_name}_{line_alias}"
+                metric_name = f"{line_name}_{line_alias}".encode("utf-8")
                 self.ind_log.append(
                     (_line.lines[i], metric_name)
                 )
@@ -199,7 +199,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
 
-        self.shm_chan.publish_sentinel(0) # dts
+        # self.shm_chan.publish_sentinel(0) # dts
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
@@ -247,15 +247,18 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         This method is called when a timer event is triggered. 
         It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
+        self.shm_chan.publish_sentinel(dts)
+
         for ind_line, metric in self.ind_log:
             val = ind_line[0]
             if np.isnan(val):
                 continue
+
             self.log_shm.publish_metric(metric, val, dts)
 
         for analyzer in self.analyzers:
             if hasattr(analyzer, 'notify_timer'):
-                analyzer.notify_timer(dts)
+                analyzer.notify_timer(dts) # get_shm_events
 
     def _next(self):
         self.clk_update() # advance differ from lineiterator _clk_update 

@@ -81,10 +81,10 @@ class TradeAnalyzer(bt.TimeFrameAnalyzerBase):
                     else:
                         self.loss_count += 1
 
-    def notify_timer(self, dt0):
+    def notify_timer(self, dt0: int):
         self._drain()
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         self._drain()
         
         if self.closed_count > 0:

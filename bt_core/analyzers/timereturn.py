@@ -88,7 +88,7 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         acct = self._owner.get_snapshot().account
         self._value_start = acct.portfolio_value + acct.cash
 
-    def on_dt_over(self, dt0):
+    def on_dt_over(self, dt0: int):
         acct = self._owner.get_snapshot().account
         _value = acct.portfolio_value + acct.cash
         tret = (_value / self._value_start) - 1.0

@@ -29,15 +29,15 @@ from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
 from .sizers import _sizers
 from .control.pnc import Pnc
-from .timer import Timer, Session, TimerEvent
+from .timer import Timer, TimerEvent
 from .errors import *
 from .stores import _stores
 from . import analyzers
 from .shm import LogRingBuffer
-from .utils.wrapper import consume_time
 from .utils.encoder import CustomJSONEncoder
 from .utils.dt_cmp import get_dt_cmpkey
 from .logger import LogConsumerThread
+from .utils.wrapper import consume_time
 
 
 class Cerebro(with_metaclass(MetaParams, object)):
@@ -250,7 +250,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
             allow=allow,
             tzdata=tzdata)
  
-    def _dt_over(self, dt0: int):
+    def _dt_over(self, dt0: int): # Timer(when=Session.SESSION_START, event_type=0)
         isover = False
         if self.last_dts:
             if dt0 - self.last_dts >= 12 * 3600: 
@@ -277,8 +277,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
             self._dispatch(runstrats, TimerEvent.EOD)
 
         # --- Scheduled Timers ---
-        for t in self._pretimers: # Timer(when=Session.SESSION_START, event_type=0)
+        for t in self._pretimers: 
             if t.check(dt0):
+                print("check timer: ", dt0)
                 self._dispatch(runstrats, t.event_type)
 
     def _dispatch(self, runstrats: list, event_type: int):
@@ -288,7 +289,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             elif event_type == TimerEvent.METRIC: # log shm
                 for strat in runstrats:
-                    strat.notify_timer(event_type, self.last_dts)
+                    strat.notify_timer(self.last_dts)
 
             elif event_type == TimerEvent.RISK: # risk control 
                 for strat in runstrats:

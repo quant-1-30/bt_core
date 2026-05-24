@@ -96,8 +96,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('compression', 1),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
-        ('sessionstart', datetime.time(9,30,0)),
-        ('sessionend', datetime.time(14,59,0)),
+        ('sessionstart', datetime.time(8,30,0)), # utc and asia
+        ('sessionend', datetime.time(14,59,0)), # utc and asia
         ('calendar', None),
         ("timeout", -1),
     )
@@ -173,8 +173,7 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
         dt = self.lines.datetime[0]
         dtime = num2date(dt)
-
-        nexteos = datetime.datetime.combine(dtime, self.p.sessionend).replace(tzinfo=dtime.tzinfo)
+        nexteos = datetime.datetime.combine(dtime, self.p.sessionend) + datetime.timedelta(hours=8)
         nextdteos = date2num(nexteos) # localize
         return nexteos, nextdteos
 

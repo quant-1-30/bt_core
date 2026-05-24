@@ -1,6 +1,7 @@
 # Import the backtrader platform
 import os
 import uuid
+import datetime
 import numpy as np
 
 from dotenv import load_dotenv
@@ -128,6 +129,14 @@ if __name__ == '__main__':
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
 
+    # timer
+    cerebro.add_timer(
+        when=bt.timer.Session.SESSION_START, 
+        offset=datetime.timedelta(minutes=5), 
+        repeat=datetime.timedelta(minutes=15)
+    )  
+
+    # resample 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
 
