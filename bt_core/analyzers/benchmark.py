@@ -108,7 +108,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         loc = np.searchsorted(self.dts, dtint)
         loc_dret = self.returns[loc] if loc < len(self.dts) else np.nan
 
-        self.log_shm.publish_metric(b"BenchmarkDret", loc_dret, dt0) 
+        self.log_shm.publish_metric(b"BenchmarkDret", loc_dret, dt0)
 
     def stop(self):
         super(AnnualReturn, self).stop()

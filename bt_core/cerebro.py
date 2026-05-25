@@ -524,14 +524,14 @@ class Cerebro(with_metaclass(MetaParams, object)):
             for _, strat in enumerate(runstrats):
                 if self.p.stdstats: 
                     strat._addanalyzer(analyzers.Benchmark) 
-                    # strat._addanalyzer(analyzers.Calmar) 
+                    strat._addanalyzer(analyzers.Calmar) 
                     strat._addanalyzer(analyzers.DrawDown) 
-                    # strat._addanalyzer(analyzers.OrdersAnalyzer) 
-                    # strat._addanalyzer(analyzers.PeriodStats) 
-                    # strat._addanalyzer(analyzers.PositionsAnalyzer) 
+                    strat._addanalyzer(analyzers.OrdersAnalyzer) 
+                    strat._addanalyzer(analyzers.PeriodStats) 
+                    strat._addanalyzer(analyzers.PositionsAnalyzer) 
                     strat._addanalyzer(analyzers.PyFolio)
-                    # strat._addanalyzer(analyzers.SharpeRatio)
-                    # strat._addanalyzer(analyzers.SQN)
+                    strat._addanalyzer(analyzers.SharpeRatio)
+                    strat._addanalyzer(analyzers.SQN)
                     strat._addanalyzer(analyzers.TimeReturn) 
                     strat._addanalyzer(analyzers.Transactions) 
 

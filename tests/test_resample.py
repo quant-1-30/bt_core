@@ -56,5 +56,10 @@ if __name__ == '__main__':
     # data1.addfilter(bt.filters.Renko, **fkwargs) 
     # data.addfilter(btfilters.SessionFiller, fill_vol=args.fvol)
 
-    cerebro.run(cash=10000, sid=[b"603676"], fromdate=20200101, todate=20210101, benchmark=[b"1A0001"]) # localhost
-    
+    try:
+        cerebro.run(cash=10000, sid=[b"603676"], fromdate=20200101, todate=20210101, benchmark=[b"1A0001"]) # localhost
+    except Exception as e:
+        print(f"运行报错: {e}")
+        if hasattr(cerebro, '_shutdown'):
+            cerebro._shutdown()
+ 

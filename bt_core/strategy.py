@@ -199,7 +199,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # self._minperstatus = MAXINT  # start in prenext
         self._dlens = np.array([len(data) for data in self.datas])
 
-        # self.shm_chan.publish_sentinel(0) # dts
+        self.shm_chan.publish_sentinel(0) # dts
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest

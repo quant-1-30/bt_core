@@ -21,7 +21,7 @@ from libc.stdint cimport int64_t, uint32_t
 dtype = cnp.dtype([
     ('datetime', 'i8'), 
     ('value', 'f8'), 
-    ('metrics', 'S32')
+    ('metrics', 'S64')
 ])
 
 
@@ -72,7 +72,7 @@ cdef class SharedRingBuffer: # SPMC
         self.buffer = <EventMsg*> &mem_view[header_size]
 
         if is_creator:
-            memset(&mem_view[0], 0, total_size)
+            memset(&mem_view[0], 0, total_size) # empty memory
             self.header.capacity = capacity
             self.header.head = 0
             # tails 和 active_consumers 数组会被 memset 自动置为 0 / False
@@ -170,7 +170,7 @@ cdef class SharedRingBuffer: # SPMC
             msg = self._get_msg()
 
         msg.type = ePOSITION
-        strncpy(msg.data.position.sid, <bytes>py_pos.sid, 15) # bytes ---> char[]
+        strncpy(msg.data.position.sid, <bytes>py_pos.sid, 16) # bytes ---> char[]
         msg.data.position.sid[15] = 0
 
         msg.data. position.datetime = py_pos.datetime
@@ -346,29 +346,28 @@ cdef class LogRingBuffer: # MPSC
         msg.datetime = dt
         msg.value = value
         
-        strncpy(msg.metrics, <char*>metrics, 15)
-        msg.metrics[31] = '\0' # 0 / '0' in C , b'\0' pytho
+        strncpy(msg.metrics, <char*>metrics, 64)
+        msg.metrics[63] = '\0' # auto add \0 in end for safety
         
         with nogil:
             mem_barrier()
             h.head += 1
 
-    cpdef object drain_metrics(self, int32_t min_batch, int32_t max_batch=50000):
+    cpdef object drain_metrics(self, int32_t batch=10000):
         cdef LogRingHeader* h = self.header
         cdef int64_t current_tail = h.tail
         cdef int64_t current_head = h.head
         cdef MetricMsg* src = self.buffer
+        cdef int32_t i
 
         cdef int64_t available = current_head - current_tail
-        cdef int64_t count = min(available, <int64_t>max_batch)
+        if available <= 0:
+            return np.array([]) 
 
-        if available < min_batch: # avoid 0 to accumulate
-            return np.array([])
+        cdef int64_t count = min(available, <int64_t>batch)
         
         cdef cnp.ndarray[cnp.uint8_t, ndim=1] raw_arr = np.empty(count * sizeof(MetricMsg), dtype=np.uint8) 
         cdef MetricMsg* dest = <MetricMsg*> &raw_arr[0]
-
-        cdef int32_t i
 
         for i in range(count):
             dest[i] = src[(current_tail + i) % self.capacity] # C struct ---> slot of array`

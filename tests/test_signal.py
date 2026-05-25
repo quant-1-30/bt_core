@@ -123,9 +123,9 @@ class DrawDownSignal(btind.Indicator):
 
 
 if __name__ == '__main__':
-    
+
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, fmt="csv") 
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
 
@@ -149,4 +149,25 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260430, benchmark=[b"1A0001"])
+    try:
+        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260430, benchmark=[b"1A0001"])
+    except Exception as e:
+        print(f"运行报错: {e}")
+        if hasattr(cerebro, '_shutdown'):
+            cerebro._shutdown()
+
+
+# import sys
+# import signal
+
+# def handle_sigint(signum, frame):
+#     print("\n[警告] 捕获到 Ctrl+C (SIGINT)，正在安全保存数据并清理内存...")
+#     try:
+#         cerebro._shutdown()
+#     except Exception as e:
+#         print(f"清理时出错: {e}")
+#     finally:
+#         print("清理完成，安全退出。")
+#         sys.exit(0)
+
+# signal.signal(signal.SIGINT, handle_sigint)

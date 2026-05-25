@@ -127,7 +127,7 @@ class FsmStrategy(bt.Strategy):
 if __name__ == '__main__':
     
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
+    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, fmt="json") 
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9)
 
@@ -137,4 +137,9 @@ if __name__ == '__main__':
     cerebro.addstrategy(FsmStrategy)
 
     # 600036/ 300308
-    cerebro.run(cash=100000, sid=[b"000001"], fromdate=20100101, todate=20121231, benchmark=[b"1A0001"])
+    try:
+        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20100101, todate=20121231, benchmark=[b"1A0001"])
+    except Exception as e:
+        print(f"运行报错: {e}")
+        if hasattr(cerebro, '_shutdown'):
+            cerebro._shutdown()
