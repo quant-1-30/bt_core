@@ -67,13 +67,11 @@ class PyFolio(bt.TimeFrameAnalyzerBase):
         self._usedate = tf >= bt.TimeFrame.Days
 
     def on_dt_over(self, dt0: int):
-        # events = self.get_shm_events()
-        # accts = [act["data"] for act in events if act["type"] == "account"]
         acct = self._owner.get_snapshot().account
 
-        self.log_shm.publish_metric(b"PyFolioPortfolio", acct.portfolio_value, dt0) 
-        self.log_shm.publish_metric(b"PyFolioCash", acct.cash, dt0) 
-        self.log_shm.publish_metric(b"PyFolioPnl", acct.pnl, dt0)
+        self.log_shm.publish_metric(b"Portfolio", acct.portfolio_value, dt0) 
+        self.log_shm.publish_metric(b"Cash", acct.cash, dt0) 
+        self.log_shm.publish_metric(b"Pnl", acct.pnl, dt0)
         print("on_dt_over act :", acct) 
   
     def stop(self):

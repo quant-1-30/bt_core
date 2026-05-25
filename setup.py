@@ -62,15 +62,15 @@ def get_ext_modules(): # trigger by poetry
             extra_compile_args=["-O3", "-std=c++11"],
         ),
         Extension(
-            name="bt_core.execution.actor.writer_actor", 
-            sources=["bt_core/execution/actor/writer_actor.pyx"],
-            include_dirs=[np.get_include(), "."],  
-            language="c++",                         # vector/map
-            extra_compile_args=["-O3", "-std=c++11"]
+            name="bt_core.utils.util", 
+            sources=["bt_core/utils/util.pyx"],
+            include_dirs=[np.get_include(), current_dir], # '.'
+            language="c++", # vector/map
+            extra_compile_args=["-O3", "-std=c++11"],
         ),
         Extension(
-            name="bt_core.execution.utils.util", 
-            sources=["bt_core/execution/utils/util.pyx"],
+            name="bt_core.execution.actor.writer_actor", 
+            sources=["bt_core/execution/actor/writer_actor.pyx"],
             include_dirs=[np.get_include(), "."],  
             language="c++",                         # vector/map
             extra_compile_args=["-O3", "-std=c++11"]
@@ -93,9 +93,7 @@ def get_ext_modules(): # trigger by poetry
             sources=["bt_core/execution/trade_api.pyx"],
             include_dirs=[np.get_include(), current_dir, "."],
             language="c++",
-        ),
-
-    ]
+        )]
 
     # finance 
     finance_sources = glob.glob("bt_core/execution/core/finance/*.pyx")

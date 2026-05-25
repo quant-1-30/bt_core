@@ -29,14 +29,14 @@ from itertools import chain
 from typing import Dict, Any, AsyncGenerator
 from concurrent.futures import ThreadPoolExecutor
 
+from libc.stdint cimport int32_t
+
 from bt_core.execution.core.finance.order cimport Order
 from bt_core.execution.core.finance.account cimport Account
 from bt_core.execution.core.finance.position cimport Position 
 from bt_core.execution.core.finance.simulate cimport Simulator
 from bt_core.execution.gateway.interface import async_gt # singleton cast to cdef class type 
 from bt_core.execution.actor.writer_actor cimport BatchWriterActor
-
-from libc.stdint cimport int32_t
 
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,8 @@ cdef class BackEngine:
         cdef object resp
 
         order_obj = Order(experiment_id=experiment_id, 
-                          sid=body.sid, 
+                          sid=body.sid,
+                          order_id=body.order_id, 
                           sizer_ratio=body.sizer_ratio,
                           pricelimit=body.pricelimit,
                           order_type=body.order_type,

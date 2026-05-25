@@ -3,6 +3,7 @@
 import warnings
 import uuid
 import numpy as np
+import datetime
 from dotenv import load_dotenv
 
 import bt_core as bt
@@ -54,6 +55,12 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
+    
+    cerebro.add_timer(
+        when=bt.timer.Session.SESSION_START, 
+        offset=datetime.timedelta(minutes=30), 
+        repeat=datetime.timedelta(minutes=15)
+    ) 
 
     ddata = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)

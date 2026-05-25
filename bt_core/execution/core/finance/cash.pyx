@@ -7,7 +7,6 @@ Created on Tue Mar 12 15:37:47 2019
 """
 import asyncio
 import warnings
-#from bt_core.protocol import Event
 from bt_sdk.core.protocol import Event
 
 from libc.stdint cimport int64_t

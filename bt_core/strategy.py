@@ -33,7 +33,7 @@ import bt_core as bt
 from .lineiterator import LineIterator, StrategyBase
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, findowner
-from .utils.autodict import AutoOrderedDict
+from .utils import AutoOrderedDict, fast_uuid4_bytes
 from .shm import SharedRingBuffer
 
 MAXINT = np.iinfo(np.int_).max
@@ -315,8 +315,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         for bplan in buys:
             core = bplan.core
+            order_id = fast_uuid4_bytes()
             order = OrderBody(
-                        core["sid"],
+                        sid=core["sid"],
+                        order_id=order_id,
                         sizer_ratio=core["weight"], 
                         pricelimit=plimit,
                         order_type=0,
@@ -339,14 +341,16 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
+        filled = {}
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
-        filled = {}
 
         for splan in sells:
             core = splan.core
+            order_id = fast_uuid4_bytes()
             order = OrderBody(
-                        core["sid"],
+                        sid=core["sid"],
+                        order_id=order_id,
                         sizer_ratio=core["weight"], 
                         pricelimit=plimit,     
                         order_type=1,

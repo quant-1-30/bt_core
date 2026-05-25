@@ -5,11 +5,10 @@ Created on Tue Mar 12 15:37:47 2019
 
 @author: python
 """
-cnp.import_array() # 必须调用以初始化 numpy C-API
-
 import numpy as np
 
-#from libc.stdint cimport int64_t
+cimport numpy as cnp
+cnp.import_array() # 必须调用以初始化 numpy C-API
 
 from bt_core.execution.core.finance.common cimport Exchange
 from bt_core.execution.core.finance.order cimport OrderCoreData

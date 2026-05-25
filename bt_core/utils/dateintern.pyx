@@ -17,6 +17,7 @@ from cpython.datetime cimport datetime, import_datetime, \
 
 import_datetime()
 
+
 cpdef object num2date(double x, bint native=True): # inline only used in cdef
     """
     Unix 时间戳直接算术转换
@@ -59,6 +60,7 @@ cpdef object num2date(double x, bint native=True): # inline only used in cdef
     return py_datetime.datetime(dt_base.year, dt_base.month, dt_base.day, 
                              hour, minute, second, microsecond)
 
+
 # cpdef double date2num(object dt): # adapt matplotlib ordinal days
 #     # python datetime to struct c datetime
 #     # data[0-1]: year, data[2]: month, data[3]: day
@@ -79,22 +81,9 @@ cpdef double date2num(object dt):
 
 cpdef int64_t ts2intdt(double ts, bint native = True): # only cdef nogil
     # tzinfo="Asia/Shanghai" native
-    if np.isnan(ts) or ts <= 0:
-        return 0
     cdef time_t rawtime = <time_t>(ts - 28800) if native else <time_t>(ts) 
     cdef tm* info = gmtime(&rawtime)
     return (info.tm_year + 1900) * 10000 + (info.tm_mon + 1) * 100 + info.tm_mday
-
-
-cpdef object tzparse(str tz):
-    # If no object has been provided by the user and a timezone can be
-    # found via contractdtails, then try to get it from pytz, which may or
-    # may not be available.
-    if not tz:
-        return py_datetime.timezone.utc
-
-    tzinfo = pytz.timezone(tz)
-    return tzinfo
 
 
 cdef inline MarketTime market_utc(int64_t ts, bint native=True) nogil :
@@ -105,3 +94,14 @@ cdef inline MarketTime market_utc(int64_t ts, bint native=True) nogil :
     mt.open_ts = local_day_start_utc + OPEN_OFFSET
     mt.close_ts = local_day_start_utc + CLOSE_OFFSET
     return mt
+ 
+
+cpdef object tzparse(str tz):
+    # If no object has been provided by the user and a timezone can be
+    # found via contractdtails, then try to get it from pytz, which may or
+    # may not be available.
+    if not tz:
+        return py_datetime.timezone.utc
+
+    tzinfo = pytz.timezone(tz)
+    return tzinfo

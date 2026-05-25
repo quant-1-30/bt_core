@@ -54,7 +54,7 @@ from bt_core.execution.core.finance.trade cimport OrderExecutionBit
 from bt_core.execution.core.finance.common cimport EventItem, AdjustmentData, RightData
 from bt_core.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Likehood 
 from bt_core.execution.core.finance.simulate_types cimport MsgType
-from bt_core.execution.utils.util cimport ts2intdt, num2date
+from bt_core.utils.dateintern cimport ts2intdt, num2date
 from bt_core.execution.actor.writer_actor cimport BatchWriterActor
 
 cimport numpy as cnp
@@ -327,7 +327,7 @@ cdef class TrackerActor:
         if event_cash != 0:
             self.cash_manager.add_cash(experiment_id, event_cash)
 
-    cdef void _collect(self):
+    cdef void _collect(self): # filter psize=0
         cdef bytes sid
         cdef list dead_sids =[]
         cdef Position p

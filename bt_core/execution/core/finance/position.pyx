@@ -31,7 +31,7 @@ import json
 from bt_sdk.core.protocol import PositionBody, Resp
 from bt_core.execution.gateway.operator.schema import vtPosition
 
-from bt_core.execution.utils.util cimport ts2intdt, num2date
+from bt_core.utils.dateintern cimport ts2intdt, num2date
 from bt_core.execution.core.finance.function cimport calc_ratio, cRatio
 from bt_core.execution.core.finance.trade cimport OrderExbitData
 

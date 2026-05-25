@@ -18,44 +18,46 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import math
 import numpy as np
 from collections import defaultdict
 
 import bt_core as bt
 
 
-class SQN(bt.TimeFrameAnalyzerBase):
-    '''SQN or SystemQualityNumber. Defined by Van K. Tharp to categorize trading
-    systems.
-
-      - 1.6 - 1.9 Below average
-      - 2.0 - 2.4 Average
-      - 2.5 - 2.9 Good
-      - 3.0 - 5.0 Excellent
-      - 5.1 - 6.9 Superb
-      - 7.0 -     Holy Grail?
-
-    The formula:
-
-      - SquareRoot(NumberTrades) * Average(TradesProfit) / StdDev(TradesProfit)
-
-    The sqn value should be deemed reliable when the number of trades >= 30
-
-    Methods:
-
-      - get_analysis
-
-        Returns a dictionary with keys "sqn" and "trades" (number of
-        considered trades)
-
+class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
     '''
-    alias = ('SystemQualityNumber',)
+    Provides statistics on closed trades (keeps also the count of open ones)
+
+      - Total Open/Closed Trades
+
+      - Streak Won/Lost Current/Longest
+
+      - ProfitAndLoss Total/Average
+
+      - Won/Lost Count/ Total PNL/ Average PNL / Max PNL
+
+      - Length (bars in the market)
+
+        - Total/Average/Max/Min
+
+        - Won/Lost Total/Average/Max/Min
+
+    Note:
+
+      The analyzer uses an "auto"dict for the fields, which means that if no
+      trades are executed, no statistics will be generated.
+
+      In that case there will be a single field/subfield in the dictionary
+      returned by ``get_analysis``, namely:
+
+        - dictname['total']['total'] which will have a value of 0 (the field is
+          also reachable with dot notation dictname.total.total
+    '''
     params = (
         ('timeframe', bt.TimeFrame.Days),
         ('compression', None),
     )
-
+    
     def __init__(self):
         super().__init__()
         self._initial_value = 0.0
@@ -68,11 +70,6 @@ class SQN(bt.TimeFrameAnalyzerBase):
         self._today_trades = []         
         self._order_to_sid = {}       
         self._last_positions = {} # yesterday 
-
-        # --- SQN  Welford ---
-        self._sqn_n = 0
-        self._sqn_mean = 0.0
-        self._sqn_M2 = 0.0
 
     def start(self):
         snap = self._owner.get_snapshot()
@@ -163,27 +160,27 @@ class SQN(bt.TimeFrameAnalyzerBase):
                 self.cum_won += 1
 
             # --- days_held ---
-            duration_days = max(0, exit_dt - entry_dt) / 86400.0
+            duration_days = max(0, exit_dt - entry_dt) / 86400.0 
             total_hold_days += duration_days
 
-            # C. SQN (O(1)
-            self._sqn_n += 1
-            delta = realized_pnl - self._sqn_mean
-            self._sqn_mean += delta / self._sqn_n
-            delta2 = realized_pnl - self._sqn_mean
-            self._sqn_M2 += delta * delta2
-
-        if self._sqn_n > 1:
-            variance = self._sqn_M2 / (self._sqn_n - 1)
-            if variance > 0:
-                std_pnl = math.sqrt(variance)
-                sqn_score = (math.sqrt(self._sqn_n) * self._sqn_mean) / std_pnl
-                self.log_shm.publish_metric(b"SQN", sqn_score, dt0)
+        # calculate metrics
+        daily_win_rate = (daily_won / daily_closed) if daily_closed > 0 else 0.0
+        cum_win_rate = (self.cum_won / self.cum_closed) if self.cum_closed > 0 else 0.0
+        daily_avg_hold = (total_hold_days / daily_closed) if daily_closed > 0 else 0.0
+        curr_value = snap.account.portfolio_value + snap.account.cash
+        net_pnl = curr_value - self._initial_value
+        n_trades = len(self._today_trades)
+        
+        self.log_shm.publish_metric(b"DailyWinRate", daily_win_rate, dt0)
+        self.log_shm.publish_metric(b"TotalWinRate", cum_win_rate, dt0)
+        self.log_shm.publish_metric(b"DailyAvgHold", daily_avg_hold, dt0)
+        self.log_shm.publish_metric(b"NetPnL", net_pnl, dt0)
+        self.log_shm.publish_metric(b"DailyTradesCnt", n_trades, dt0)
 
         # reset on next day
         self._last_positions = current_positions
         self._today_trades.clear()
-        
+
         if closed_sids:
             self._order_to_sid = {
                 oid: s for oid, s in self._order_to_sid.items() if s not in closed_sids

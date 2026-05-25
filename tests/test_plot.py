@@ -29,6 +29,7 @@ def load_and_align(file_path: str, file_type: str = 'parquet', tick_unit: str = 
         if not {'metrics', 'value', 'datetime'}.issubset(df.columns):
             raise ValueError("Data must contain 'metrics', 'value', 'tick' columns")
 
+        import pdb; pdb.set_trace()
         df['datetime'] = pd.to_datetime(df['datetime'], unit=tick_unit)
 
         align_df = df.pivot_table(
@@ -244,7 +245,8 @@ if __name__ == "__main__":
     
     _p = Plot()
 
-    p_str = "/Users/hengxinliu/startup/bt_core/tests/logs/log_cerebro_0.parquet"
+    # p_str = "/Users/hengxinliu/startup/bt_core/tests/logs/log_cerebro_0.parquet"
+    p_str = "/Users/hengxinliu/startup/bt_core/tests/experiment/logs/log_cerebro_0.parquet"
     df = load_and_align(p_str)
 
     _p.plot_from_wide_df(df)

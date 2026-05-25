@@ -3,17 +3,17 @@
 
 import uuid
 import numpy as np
+cimport numpy as cnp
+# 必须调用以初始化 numpy C-API
+cnp.import_array()
+
 from bt_core.execution.gateway.operator.schema import vtOrder
 
 from libcpp.vector cimport vector
 from cpython.object cimport Py_EQ
 
 from bt_core.execution.core.finance.common cimport Exchange
-from bt_core.execution.utils.util cimport fast_uuid4_bytes
-
-cimport numpy as cnp
-# 必须调用以初始化 numpy C-API
-cnp.import_array() 
+from bt_core.utils.util cimport fast_uuid4_bytes
 
 
 cdef class Order:
@@ -21,6 +21,7 @@ cdef class Order:
     def __init__(self, 
                  bytes experiment_id,
                  bytes sid,
+                 bytes order_id,
                  double sizer_ratio,
                  double pricelimit,
                  int32_t order_type,
@@ -43,7 +44,8 @@ cdef class Order:
         self.info = AssetCore(0, 0, 0, False)
 
         self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
-        self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes
+        # self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes
+        self.core.order_id = order_id
 
         # cache  
         self._exbits = []

@@ -25,16 +25,14 @@ from __future__ import (absolute_import, division, print_function,
 # or prepend an "_" (underscore) to private classes/variables
 
 from .drawdown import *
-from .returns import *
 from .timereturn import *
 from .sharpe import *
 from .orders import *
+from .positions import *
 from .transactions import *
-from .tradeanalyzer import *
 from .sqn import *
 from .transactions import *
 from .pyfolio import *
-from .returns import *
 from .calmar import *
 from .periodstats import *
 from .benchmark import *

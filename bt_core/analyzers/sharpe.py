@@ -24,7 +24,7 @@ import numpy as np
 import bt_core as bt
 
 
-class SharpeRatio(bt.Analyzer):
+class SharpeRatio(bt.TimeFrameAnalyzerBase): # SharpeRatio(bt.Analyzer):
     '''This analyzer calculates the SharpeRatio of a strategy using a risk free
     asset which is simply an interest rate
 
@@ -111,39 +111,52 @@ class SharpeRatio(bt.Analyzer):
     )
 
     RATEFACTORS = {
-        bt.TimeFrame.Days: 252,
-        bt.TimeFrame.Weeks: 52,
-        bt.TimeFrame.Months: 12,
-        bt.TimeFrame.Years: 1,
+        bt.TimeFrame.Days: 252.0,
+        bt.TimeFrame.Weeks: 52.0,
+        bt.TimeFrame.Months: 12.0,
+        bt.TimeFrame.Years: 1.0,
     }
 
     def __init__(self):
         super().__init__()
         self._last_value = 0.0
-        self._excess_returns = []
+        
+        # --- Welford  ---
+        self._n = 0          
+        self._mean = 0.0     
+        self._M2 = 0.0      
         
         factor = self.RATEFACTORS.get(self.p.timeframe, 252.0)
         self._period_rf = math.pow(1.0 + self.p.riskfreerate, 1.0 / factor) - 1.0
         self._annualize_factor = math.sqrt(factor) if self.p.annualize else 1.0
 
-    def start(self):
-        self._last_value = self._owner.get_snapshot().account.portfolio_value
+    def _start(self):
+        super()._start()
+        acct = self._owner.get_snapshot().account
+        self._last_value = acct.portfolio_value + acct.cash
 
     def on_dt_over(self, dt0: int):
-        current_value = self._owner.get_snapshot().account.portfolio_value
+        acct = self._owner.get_snapshot().account
+        current_value = acct.portfolio_value + acct.cash
         
         if self._last_value > 0:
+            # dret - driskfree
             period_ret = (current_value / self._last_value) - 1.0
             excess_ret = period_ret - self._period_rf
-            self._excess_returns.append(excess_ret)
             
-            if len(self._excess_returns) > 1:
-                ret_avg = np.mean(self._excess_returns)
-                ret_std = np.std(self._excess_returns)
-                
-                if ret_std > 0:
-                    ratio = (ret_avg / ret_std) * self._annualize_factor
-
+            # Welford online update (O(1) 
+            self._n += 1
+            delta = excess_ret - self._mean
+            self._mean += delta / self._n
+            delta2 = excess_ret - self._mean
+            self._M2 += delta * delta2
+            
+            if self._n > 1:
+                variance = self._M2 / (self._n - 1)
+                if variance > 0:
+                    ret_std = math.sqrt(variance)
+                    ratio = (self._mean / ret_std) * self._annualize_factor
+                    
                     self.log_shm.publish_metric(b"SharpeRatio", ratio, dt0)
 
         self._last_value = current_value

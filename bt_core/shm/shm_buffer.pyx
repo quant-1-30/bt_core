@@ -202,6 +202,16 @@ cdef class SharedRingBuffer: # SPMC
         msg.data.trade.isbuy = py_trade.isbuy
         
         self._advance()
+
+    cpdef void publish_snapshot(self, object py_snapshot):
+        if py_snapshot.trades:
+            for trade in py_snapshot.trades:
+                self.publish_trade(trade)
+        
+        for pos in py_snapshot.positions:
+            self.publish_position(pos)
+        
+        self.publish_account(py_snapshot.account)
     
     cpdef void publish_order(self, object py_order):
         if self.header == NULL:
@@ -214,7 +224,11 @@ cdef class SharedRingBuffer: # SPMC
 
         msg.type = eORDER
         strncpy(msg.data.order.sid, <bytes>py_order.sid, 16) # bytest -> char[]
-        msg.data.order.sid[15] = 0  
+        msg.data.order.sid[15] = 0 
+        
+        strncpy(msg.data.order.order_id, <bytes>py_order.order_id, 16) # bytest -> char[]
+        msg.data.order.order_id[15] = 0 
+
         strncpy(msg.data.order.filler, <bytes>py_order.filler, 16) 
         msg.data.order.filler[15] = 0  
 
@@ -225,17 +239,7 @@ cdef class SharedRingBuffer: # SPMC
         msg.data.order.exec_type = py_order.exec_type
         
         self._advance()
-    
-    cpdef void publish_snapshot(self, object py_snapshot):
-        if py_snapshot.trades:
-            for trade in py_snapshot.trades:
-                self.publish_trade(trade)
-        
-        for pos in py_snapshot.positions:
-            self.publish_position(pos)
-        
-        self.publish_account(py_snapshot.account)
-    
+     
     cpdef list drain_events(self, int32_t consumer_id):
         cdef RingHeader* h = self.header
         cdef EventMsg* buf = self.buffer

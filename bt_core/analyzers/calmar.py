@@ -109,3 +109,70 @@ class Calmar(bt.Analyzer):
 
     def stop(self):
         print(f"Final Calmar Ratio")
+
+
+class Calmar(bt.TimeFrameAnalyzerBase):
+    params = (
+        ('timeframe', bt.TimeFrame.Days),
+        ('compression', 1),
+        ('tann', None),
+    )
+
+    _TANN = {
+        bt.TimeFrame.Days: 252.0,
+        bt.TimeFrame.Weeks: 52.0,
+        bt.TimeFrame.Months: 12.0,
+        bt.TimeFrame.Years: 1.0,
+    }
+
+    def __init__(self):
+        super().__init__()
+        self._initial_value = 0.0
+        self._peak = -float('inf') 
+
+        self._max_dd = 0.0          
+        self._tcount = 0            
+        self.tann = self.p.tann or self._TANN.get(self.p.timeframe, 252.0)
+
+    def start(self):
+        acct = self._owner.get_snapshot().account
+        val = acct.portfolio_value + acct.cash
+        self._initial_value = val
+        self._peak = val
+
+    def on_dt_over(self, dt0: int):
+        acct = self._owner.get_snapshot().account
+        curr_value = acct.portfolio_value + acct.cash
+        
+        if self._initial_value <= 0:
+            return
+
+        self._tcount += 1
+        # ==========================================
+        # 1. Max Drawdown - O(1)
+        # ==========================================
+        if curr_value > self._peak:
+            self._peak = curr_value
+        
+        current_dd = (self._peak - curr_value) / self._peak if self._peak > 0 else 0.0
+        if current_dd > self._max_dd:
+            self._max_dd = current_dd
+
+        # ==========================================
+        # 2. Annualized Return
+        # ==========================================
+        total_ret = (curr_value / self._initial_value) - 1.0
+        # (1 + 总收益) ^ (年化因子 / 总周期数) - 1
+        ann_ret = math.pow(1.0 + total_ret, self.tann / self._tcount) - 1.0
+
+        # ==========================================
+        # 3. Calmar Ratio
+        # ==========================================
+        if self._max_dd > 0:
+            calmar = ann_ret / self._max_dd
+        else:
+            calmar = 0.0
+
+        self.log_shm.publish_metric(b"MaxDrawdown", self._max_dd, dt0)
+        self.log_shm.publish_metric(b"Calmar", calmar, dt0)
+

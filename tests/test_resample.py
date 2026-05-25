@@ -2,6 +2,7 @@
 import uuid
 import warnings
 import numpy as np
+import datetime
 from dotenv import load_dotenv
 
 from bt_sdk.core.protocol import *
@@ -33,6 +34,12 @@ if __name__ == '__main__':
     cerebro.addstore()
 
     cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
+
+    cerebro.add_timer(
+        when=bt.timer.Session.SESSION_START, 
+        offset=datetime.timedelta(minutes=10), 
+        repeat=datetime.timedelta(minutes=15)
+    ) 
 
     data1 = cerebro.resampledata(timeframe=bt.TimeFrame.Days, adjbartime=False)
 

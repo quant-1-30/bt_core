@@ -1,15 +1,8 @@
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 12 15:37:47 2019
 
-@author: python
-"""
-#cython.boundscheck(False) # 关闭边界检查
-#cython.wraparound(False)  # 关闭负指数索引检查
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
 # distutils: language = c++
 
-cnp.import_array() # 必须调用以初始化 numpy C-API
 import numpy as np
 
 from libcpp.algorithm cimport binary_search

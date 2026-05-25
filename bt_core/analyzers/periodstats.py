@@ -93,7 +93,7 @@ class PeriodStats(bt.Analyzer):
         if self.p.zeroispos:
             pos_cnt += sum(1 for r in self.period_returns if r == 0.0)
 
-        self.log_shm.publish_metric(b"PeriodStats AvgRet", float(avg_ret), dt0)
-        self.log_shm.publish_metric(b"PeriodStats StdRet", float(std_ret), dt0)
-        self.log_shm.publish_metric(b"PeriodStats PosCnt", float(pos_cnt), dt0)
-        self.log_shm.publish_metric(b"PeriodStats NegCnt", float(neg_cnt), dt0)
+        self.log_shm.publish_metric(b"PeriodStats AvgRet", avg_ret, dt0)
+        self.log_shm.publish_metric(b"PeriodStats RetStd", std_ret, dt0)
+        self.log_shm.publish_metric(b"PeriodStats PosCnt", pos_cnt, dt0)
+        self.log_shm.publish_metric(b"PeriodStats NegCnt", neg_cnt, dt0)

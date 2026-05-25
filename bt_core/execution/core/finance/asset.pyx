@@ -5,8 +5,7 @@ Created on Tue Mar 12 15:37:47 2019
 
 @author: python
 """
-
-cdef const int64_t CYB_CKPT = 1598232600 # 2020年8月24日 创业板ST由5% 变为 20% 
+cdef const int64_t CYB_CKPT = 1598232600 
 
 
 cdef class Asset:
@@ -26,6 +25,8 @@ cdef class Asset:
         科创板单笔申报10万股;市价5万股;定价100万股
         风险警示板单笔买入申报50万股; 单笔卖出申报100万股, 退市整理期100万股
         科创板（竞价机制要求）---买入价格不能超过基准价格 卖一的102%,卖出价格不得低于买入价格98%
+        
+        2020年8月24日 创业板ST由5% 变为 20% 
     """
 
     def __init__(self, 

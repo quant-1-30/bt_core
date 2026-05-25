@@ -24,7 +24,7 @@
 import bt_core as bt
 
 
-class Orders(bt.TimeFrameAnalyzerBase):
+class OrdersAnalyzer(bt.TimeFrameAnalyzerBase):
     '''This analyzer reports the orders occurred with each an every data in
     the system
 
@@ -61,7 +61,7 @@ class Orders(bt.TimeFrameAnalyzerBase):
     def notify_timer(self, dt0: int):
         new_cnt = self._drain()
         if new_cnt > 0:
-            self.log_shm.publish_metric(b"OrderCnt", new_cnt, dt0)
+            self.log_shm.publish_metric(b"OrdersCnt", new_cnt, dt0)
 
     def on_dt_over(self, dt0: int):
         self._drain()

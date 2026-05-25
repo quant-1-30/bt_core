@@ -1,16 +1,15 @@
 import asyncio
 import numpy as np
+cimport numpy as cnp
 import polars as pl
+
+from libc.stdint cimport int32_t
 
 from bt_core.execution.core.finance.asset cimport Asset
 from bt_core.execution.gateway.interface cimport AsyncGateway # cdef class info 
 from bt_core.execution.gateway.interface import async_gt  # load.so used for cast cdef type     
 from bt_sdk.core.protocol import QueryBody
 from bt_sdk.core.client import RpcTopic
-
-from libc.stdint cimport int32_t
-
-cimport numpy as cnp
 
 
 cdef class AssetCache:

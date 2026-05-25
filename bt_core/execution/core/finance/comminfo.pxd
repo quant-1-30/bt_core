@@ -1,5 +1,4 @@
 from libc.stdint cimport int64_t, int32_t
-cimport numpy as cnp
 
 from bt_core.execution.core.finance.position cimport Position
 from bt_core.execution.core.finance.order cimport Order

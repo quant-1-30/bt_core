@@ -35,6 +35,7 @@ cdef struct TradeData:
 
 cdef struct OrderData:
     char sid[16]
+    char order_id[16]
     char filler[16]
     double pricelimit
     double sizer_ratio
@@ -70,7 +71,7 @@ cdef struct RingHeader:
 cdef struct MetricMsg:
     int64_t datetime    
     double value    
-    char metrics[32] # 31 bytes + '\0' 
+    char metrics[64] # 63 bytes + '\0' char align 1 byte 
 
 cdef struct LogRingHeader:
     # memory visable / avoid register cache

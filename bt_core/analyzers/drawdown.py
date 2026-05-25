@@ -100,8 +100,8 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.maxddlen = maxddlen = max(self.maxddlen, self.ddlen)
         print(f"DrawDown on_dt_over: {dt0}, value {value}, peak {self.peak}, dd {dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")
 
-        self.log_shm.publish_metric(b"drawdown", dd, dt0)
-        self.log_shm.publish_metric(b"drawdownlength", self.ddlen, dt0)
+        self.log_shm.publish_metric(b"drawDown", dd, dt0)
+        self.log_shm.publish_metric(b"drawDownLength", self.ddlen, dt0)
         self.log_shm.publish_metric(b"maxDrawdown", maxdd, dt0) 
         self.log_shm.publish_metric(b"maxDrawdownLength", maxddlen, dt0) 
 

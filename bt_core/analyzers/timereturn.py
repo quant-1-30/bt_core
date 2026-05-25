@@ -18,16 +18,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import math
+
 import bt_core as bt
 
 
 class TimeReturn(bt.TimeFrameAnalyzerBase):
-    '''This analyzer calculates the Returns by looking at the beginning
-    and end of the timeframe
+    '''Total, Average, Compound and Annualized Returns calculated using a
+    logarithmic approach
+
+    See:
+
+      - https://www.crystalbull.com/sharpe-ratio-better-with-log-returns/
 
     Params:
 
       - ``timeframe`` (default: ``None``)
+
         If ``None`` the ``timeframe`` of the 1st data in the system will be
         used
 
@@ -42,32 +49,16 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         If ``None`` then the compression of the 1st data of the system will be
         used
 
-      - ``firstopen`` (default: ``True``)
+      - ``tann`` (default: ``None``)
 
-        When tracking the returns of a ``data`` the following is done when
-        crossing a timeframe boundary, for example ``Years``:
+        Number of periods to use for the annualization (normalization) of the
 
-          - Last ``close`` of previous year is used as the reference price to
-            see the return in the current year
+        namely:
 
-        The problem is the 1st calculation, because the data has** no
-        previous** closing price. As such and when this parameter is ``True``
-        the *opening* price will be used for the 1st calculation.
-
-        This requires the data feed to have an ``open`` price (for ``close``
-        the standard [0] notation will be used without reference to a field
-        price)
-
-        Else the initial close will be used.
-
-      - ``fund`` (default: ``None``)
-
-        If ``None`` the actual mode of the broker (fundmode - True/False) will
-        be autodetected to decide if the returns are based on the total net
-        asset value or on the fund value. See ``set_fundmode`` in the broker
-        documentation
-
-        Set it to ``True`` or ``False`` for a specific behavior
+          - ``days: 252``
+          - ``weeks: 52``
+          - ``months: 12``
+          - ``years: 1``
 
     Methods:
 
@@ -75,26 +66,70 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
 
         Returns a dictionary with returns as values and the datetime points for
         each return as keys
-    '''
 
+        The returned dict the following keys:
+
+          - ``rtot``: Total compound return
+          - ``ravg``: Average return for the entire period (timeframe specific)
+          - ``rnorm``: Annualized/Normalized return
+          - ``rnorm100``: Annualized/Normalized return expressed in 100%
+    '''
     params = (
         ('timeframe', bt.TimeFrame.Days),
-        ('compression', None),
-        ('firstopen', True),
+        ('compression', 1),
+        ('tann', None),
     )
 
-    def _start(self):
-        super(TimeReturn, self)._start()
-        acct = self._owner.get_snapshot().account
-        self._value_start = acct.portfolio_value + acct.cash
+    _TANN = {
+        bt.TimeFrame.Days: 252.0,
+        bt.TimeFrame.Weeks: 52.0,
+        bt.TimeFrame.Months: 12.0,
+        bt.TimeFrame.Years: 1.0,
+    }
+
+    def __init__(self):
+        super().__init__()
+
+        self._initial_value = 0.0  
+        self._prev_value = 0.0     
+        self._tcount = 0
+        
+        self.tann = self.p.tann or self._TANN.get(self.p.timeframe, 252.0)
+
+    def start(self):
+        snap = self._owner.get_snapshot()
+        val = snap.account.portfolio_value + snap.account.cash
+        self._initial_value = val
+        self._prev_value = val
 
     def on_dt_over(self, dt0: int):
-        acct = self._owner.get_snapshot().account
-        _value = acct.portfolio_value + acct.cash
-        tret = (_value / self._value_start) - 1.0
-        self._value_start = _value  
-          
-        self.log_shm.publish_metric(b"TimeReturn", tret, dt0) 
-          
+        snap = self._owner.get_snapshot() 
+        curr_value = snap.account.portfolio_value + snap.account.cash
+        
+        if self._initial_value <= 0:
+            return
+        
+        self._tcount += 1
+
+        # Daily Return
+        dret = (curr_value / self._prev_value) - 1.0 if self._prev_value > 0 else 0.0
+        
+        # CumReturn 
+        cum_ret = (curr_value / self._initial_value) - 1.0
+        
+        # --- Annualized Return ---
+        if self._tcount > 0:
+            # (1 + total_ret) ^ (tann / tcount) - 1
+            # rnorm = math.expm1(ravg * tann) if ravg > float('-inf') else ravg
+            ann_ret = math.pow(1.0 + cum_ret, self.tann / self._tcount) - 1.0
+        else:
+            ann_ret = 0.0
+
+        self.log_shm.publish_metric(b"DailyReturn", dret, dt0)
+        self.log_shm.publish_metric(b"CumReturn", cum_ret, dt0)
+        self.log_shm.publish_metric(b"AnnualReturn", ann_ret, dt0)
+
+        self._prev_value = curr_value
+        
     def stop(self):
-        super(AnnualReturn, self).stop()
+        super(Returns, self).stop()
