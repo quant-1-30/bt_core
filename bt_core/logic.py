@@ -59,17 +59,6 @@ class DivByZero(Logic):
         b = self.b[0]
         self[0] = self.a[0] / b if b else self.zero
 
-    # def once(self, start, end):
-    #     # cache python dictionary lookups
-    #     dst = self.array
-    #     srca = self.a.array
-    #     srcb = self.b.array
-    #     zero = self.zero
-
-    #     for i in range(start, end):
-    #         b = srcb[i]
-    #         dst[i] = srca[i] / b if b else zero
-
 
 class DivZeroByZero(Logic):
     '''This operation is a Lines object and fills it values by executing a

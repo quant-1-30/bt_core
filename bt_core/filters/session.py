@@ -21,7 +21,7 @@
 
 from datetime import datetime, timedelta
 
-from bt_core import TimeFrame
+from bt_core.dataseries import TimeFrame
 from bt_core.metabase import with_metaclass, MetaParams
 
 

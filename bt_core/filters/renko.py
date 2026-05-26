@@ -18,9 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-
-from . import Filter
+from bt_core.flt import Filter
 
 
 __all__ = ['Renko']

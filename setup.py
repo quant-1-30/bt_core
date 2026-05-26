@@ -41,8 +41,8 @@ def get_ext_modules(): # trigger by poetry
             extra_compile_args=["-O3", "-std=c++11"],
         ),
         Extension(
-            name="bt_core.logger.sink", 
-            sources=["bt_core/logger/sink.pyx"],
+            name="bt_core.sink.sink", 
+            sources=["bt_core/sink/sink.pyx"],
             include_dirs=[np.get_include(), current_dir],
             language="c++", # vector/map
             extra_compile_args=["-O3", "-std=c++11"],
@@ -54,13 +54,6 @@ def get_ext_modules(): # trigger by poetry
             language="c++", # vector/map
             extra_compile_args=["-O3", "-std=c++11"],
             ),
-        Extension(
-            name="bt_core.utils.dt_cmp", 
-            sources=["bt_core/utils/dt_cmp.pyx"],
-            include_dirs=[np.get_include(), current_dir],
-            language="c++", # vector/map
-            extra_compile_args=["-O3", "-std=c++11"],
-        ),
         Extension(
             name="bt_core.utils.util", 
             sources=["bt_core/utils/util.pyx"],

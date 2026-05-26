@@ -68,11 +68,10 @@ class PyFolio(bt.TimeFrameAnalyzerBase):
 
     def on_dt_over(self, dt0: int):
         acct = self._owner.get_snapshot().account
-
         self.log_shm.publish_metric(b"Portfolio", acct.portfolio_value, dt0) 
         self.log_shm.publish_metric(b"Cash", acct.cash, dt0) 
         self.log_shm.publish_metric(b"Pnl", acct.pnl, dt0)
-        print("on_dt_over act :", acct) 
+        print("pyfolio on_dt_over acct: ", acct)
   
     def stop(self):
         super(AnnualReturn, self).stop()

@@ -23,8 +23,6 @@ import collections
 import bt_core as bt
 from datetime import datetime, timedelta
 
-# from bt_core import AbstractDataBase, TimeFrame
-
 
 class DataFiller(bt.AbstractDataBase):
     '''This class will fill gaps in the source data using the following

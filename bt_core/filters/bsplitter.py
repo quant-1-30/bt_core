@@ -57,7 +57,6 @@ class DaySplitter_Close(bt.with_metaclass(bt.MetaParams, object)):
         ('closevol', 0.5),  # 0 -> 1 amount of volume to keep for close
     )
 
-    # replaying = True
 
     def __init__(self, data):
         self.lastdt = None
