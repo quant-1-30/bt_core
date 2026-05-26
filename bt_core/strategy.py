@@ -180,7 +180,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             line_name = _line.plotinfo.plotname or _line.__class__.__name__
 
             for i, line_alias in enumerate(_line.lines.getlinealiases()):
-                metric_name = f"{line_name}_{line_alias}".encode("utf-8")
+                metric_name = f"ind_{line_name}_{line_alias}".encode("utf-8")
                 self.ind_log.append(
                     (_line.lines[i], metric_name)
                 )

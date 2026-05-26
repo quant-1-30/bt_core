@@ -36,7 +36,7 @@ from . import analyzers
 from .shm import LogRingBuffer
 from .utils.encoder import CustomJSONEncoder
 from .utils.dt_cmp import get_dt_cmpkey
-from .logger import LogConsumerThread
+from .sink import LogConsumerThread
 from .utils.wrapper import consume_time
 
 

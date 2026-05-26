@@ -87,20 +87,22 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         
         acct = self._owner.get_snapshot().account
         value = acct.portfolio_value + acct.cash
-        # update the maximum seen peak
-        if value > self.peak:
+
+        # peak and reset
+        if value >= self.peak:
             self.peak = value
             self.ddlen = 0 
+        else:
+          self.ddlen +=1 # avoid vaule / self.peak > 0.0 
 
-        self.dd = dd = 1.0 -  np.divide(value, self.peak) if self.peak > 0.0 else 0.0
-        self.ddlen += bool(dd > 0.0)
+        self.dd = (self.peak - value) / self.peak if self.peak > 0.0 else 0.0
 
         # update the maxdrawdown if needed
-        self.maxdd = maxdd =  max(self.maxdd, dd)
+        self.maxdd = maxdd =  max(self.maxdd, self.dd)
         self.maxddlen = maxddlen = max(self.maxddlen, self.ddlen)
-        print(f"DrawDown on_dt_over: {dt0}, value {value}, peak {self.peak}, dd {dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")
+        print(f"DrawDown on_dt_over: {dt0}, value {value}, peak {self.peak}, dd {self.dd}, ddlen {self.ddlen}, maxdd {maxdd}, maxddlen {maxddlen}")
 
-        self.log_shm.publish_metric(b"drawDown", dd, dt0)
+        self.log_shm.publish_metric(b"drawDown", self.dd, dt0)
         self.log_shm.publish_metric(b"drawDownLength", self.ddlen, dt0)
         self.log_shm.publish_metric(b"maxDrawdown", maxdd, dt0) 
         self.log_shm.publish_metric(b"maxDrawdownLength", maxddlen, dt0) 

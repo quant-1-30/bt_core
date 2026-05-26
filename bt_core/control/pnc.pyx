@@ -66,7 +66,7 @@ cdef class Pnc:
         signal = drawdown >= self.dd
         
         if signal:
-            print("reach maxdd and execute sell operation")
+            print("reach maxdd and execute sell all")
             self.sells =[TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions if pos.size > 0]
             return {"sell": self.sells, "buy":[]}
 

@@ -99,13 +99,13 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         self._row_iter = None
         self.sid = kwargs["sid"]
 
-        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=self.sid)
-        self.get_adjfactor(body)
+        tick_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=self.sid)
+        self.get_adjfactor(tick_body)
 
-        body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])
-        self.get_dret(body)
+        bench_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])
+        self.get_dret(bench_body)
 
-        observable = self.mdapi.subscribe(body, FactorTopic.Raw)
+        observable = self.mdapi.subscribe(tick_body, FactorTopic.Raw)
         observable.subscribe( # nonblocking 
             on_next=self.chan.put,
             on_error=lambda e: self.chan.put(e),
