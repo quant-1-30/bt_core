@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.2.6"
-description = "resolve version conflicts"
+version = "0.2.8"
+description = "rewriter filters"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

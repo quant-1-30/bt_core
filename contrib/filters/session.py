@@ -74,9 +74,6 @@ class SessionFiller(with_metaclass(MetaParams, object)):
 
         self.seenbar = False  # control if at least one bar has been seen
         self.sessend = self.MAXDATE  # maxdate is the control for session bar
-        
-        # data.resampling = 1
-        # data.replaying = True
 
     def __call__(self, data):
         '''

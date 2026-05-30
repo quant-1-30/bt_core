@@ -17,7 +17,8 @@ class XtpMarketGateway:
 
     def pre_market_warmup(self):
         """ 09:15 盘前调用拉取历史填满"""
-        md_api = _initialize_mdapi()
+        # md_api = _initialize_mdapi()
+        md_api = None
         
         history_data = md_api.get_history_minutes(self.universe, days=self.ndays-1)
         
