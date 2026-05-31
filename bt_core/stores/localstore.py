@@ -23,12 +23,12 @@ import numpy as np
 import pyarrow as pa
 from typing import Union, List, Mapping, Any, Generator, Tuple
 
-from bt_sdk.core.client import GetMdApi
-from bt_sdk.core.protocol import *
 from bt_core.execution.actor.runner_actor import AsyncRunner
 from bt_core.store import Store
 from bt_core.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
 from bt_core.execution.actor.writer_actor import BatchWriterActor
+from bt_core._external import get_md_api
+from bt_core._protocol import *
 
 
 __all__ = ["BTStore"]
@@ -53,13 +53,11 @@ class LocalStore(Store):
     DataCls = None  
 
     params = (
-        ("md_addr", ("127.0.0.1:50051")),
         ("client_id", b""),
     )
 
     def __init__(self): 
-        md_addr = os.getenv("MD_ADDR", self.p.md_addr).split(":")
-        mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
+        mdapi = get_md_api()
         self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
         q_size = int(os.getenv("QSize")) 

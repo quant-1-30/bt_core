@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.2.8"
-description = "rewriter filters"
+version = "0.2.9"
+description = "add _protocol and rewriter store __init__"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

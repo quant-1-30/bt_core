@@ -33,6 +33,7 @@ from .timer import *
 from .flt import *
 from .logic import *
 from ._external import *
+from ._protocol import *
 from .cerebro import *
 
 from . import feeds as feeds
