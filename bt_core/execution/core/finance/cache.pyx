@@ -23,7 +23,7 @@ cdef class AssetCache:
         cdef object table
         cdef int32_t rpc_type = RpcTopic.Instrument
 
-        df = await async_gt.remote(rpc_type, None) # complete
+        df = await async_gt.rpc({}, rpc_type) # complete
         return df
 
     cdef void _add_to_cache(self, object df):

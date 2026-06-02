@@ -229,8 +229,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                                      for d in self.datas if len(d)])      
         self._dlens = newdlens
 
-    def on_dt_over(self, dts: int):
-        snapshot = self.store.on_dt_over(self.experiment_id, dts) 
+    def on_dt_over(self, last_dts: int, dts: int):
+        snapshot = self.store.on_dt_over(self.experiment_id, last_dts, dts) 
         if snapshot:
             self.shm_chan.publish_snapshot(snapshot) 
         self.shm_chan.publish_sentinel(dts)
@@ -242,30 +242,30 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         for _d in self.datas:
             _d.on_dt_over(dts)
 
-    def notify_timer(self, dts: int): 
+    def notify_timer(self, last_dts: int): 
         """
         This method is called when a timer event is triggered. 
         It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
-        self.shm_chan.publish_sentinel(dts)
+        self.shm_chan.publish_sentinel(last_dts)
 
         for ind_line, metric in self.ind_log:
             val = ind_line[0]
             if np.isnan(val):
                 continue
 
-            self.log_shm.publish_metric(metric, val, dts)
+            self.log_shm.publish_metric(metric, val, last_dts)
 
         for analyzer in self.analyzers:
             if hasattr(analyzer, 'notify_timer'):
-                analyzer.notify_timer(dts) # get_shm_events
+                analyzer.notify_timer(last_dts) # get_shm_events
 
     def _next(self):
         self.clk_update() # advance differ from lineiterator _clk_update 
         super(Strategy, self)._next()
         # print("Strategy _next ", self.lines.datetime[0])
 
-    def check_risk(self, dts: int):
+    def check_risk(self, last_dts: int):
         pass
  
     def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
@@ -382,7 +382,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def stop(self):
         '''Called right before the bt_coreing is about to be stopped'''
         last_dts = self.data.datetime[0]
-        self.on_dt_over(last_dts)
+        self.on_dt_over(last_dts, 0)
 
         self.store.stop()
 

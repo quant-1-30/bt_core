@@ -14,16 +14,16 @@ def get_md_api(timeout=30):
 
 
 @contextlib.contextmanager
-def external_mdapi_context(addr_str=None, timeout=30):
-    mdapi = get_md_api_instance(addr_str, timeout)
+def external_mdapi_context(timeout=30):
+    mdapi = get_md_api(timeout)
     
     runner = AsyncRunner() # EventLoop
     runner.start()
 
     # attach 
     _loop = runner.get_loop()
-    mdapi._prepare(_loop)
-    
+    mdapi.start(_loop)
+
     try:
         yield mdapi
         

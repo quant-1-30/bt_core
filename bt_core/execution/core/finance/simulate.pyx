@@ -203,26 +203,6 @@ cdef class TrackerActor:
                 if msg.reply_future and not msg.reply_future.done():
                     msg.reply_future.set_exception(e)
 
-    async def _fetch_from_rpc(self, int64_t tick, list psids): 
-        cdef int32_t dtint
-
-        async def remote(int32_t rpc_type, object body):
-            cdef list batches = []
-            sorted_batches = await async_gt.remote(rpc_type, body) 
-            # return pa.Table.from_batches(batches) / np.fromiter
-            return sorted_batches 
-
-        dtint = ts2intdt(tick)
-
-        close_body = QueryBody(start_date=dtint, end_date=dtint, sid=psids) 
-        event_body = QueryBody(start_date=dtint, end_date=dtint, sid=psids) 
-        
-        close_task = remote(RpcTopic.Close, close_body) 
-        adj_task = remote(RpcTopic.Adjustment, event_body)
-        rgt_task = remote(RpcTopic.Rightment, event_body)
-        closes_df, adjs_df, rgts_df = await asyncio.gather(close_task, adj_task, rgt_task) 
-        return (closes_df, adjs_df, rgts_df)
-     
     async def process_order(self, Order order):
         cdef OrderCoreData core = order.core
         cdef bytes sid = core.sid
@@ -247,7 +227,8 @@ cdef class TrackerActor:
 
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
-        cdef int64_t sync_tick = event.body.tick
+        cdef int32_t last_sync_dts = event.body.start_date
+        cdef int32_t current_dts = event.body.end_date
         cdef Position p_obj
         cdef list psids
         
@@ -258,13 +239,13 @@ cdef class TrackerActor:
         psids = list(self.positions.keys())
 
         if not psids:
-            self.cash_manager.sync(experiment_id, sync_tick, {})
+            self.cash_manager.sync(experiment_id, last_sync_dts, {})
             return
 
-        closes_df, adjs_df, rgts_df = await self._fetch_from_rpc(sync_tick, psids)
+        closes_df_map, adjs_df_map, rgts_df_map = await self._fetch_from_rpc(last_sync_dts, current_dts, psids)
 
         for sid_bytes, p_obj in self.positions.items():
-            close_df = closes_df.get(sid_bytes, None)
+            close_df = closes_df_map.get(sid_bytes, None)
             
             if close_df is not None and close_df.height > 0:
                 for day, close in close_df.select(["day", "close"]).rows():
@@ -272,10 +253,16 @@ cdef class TrackerActor:
                     close_price = float(close)
                     p_obj.on_dt_over(close_dt, close_price)
             else: # suspend 
-                close_dt = ts2intdt(sync_tick)
+                close_dt = ts2intdt(last_sync_dts)
                 p_obj.on_dt_over(close_dt, 0.0)
 
-        self.cash_manager.sync(experiment_id, sync_tick, self.positions)
+        # T-1 Sync 
+        self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
+        # -------------------------------------------------------------
+        # 2：T Event Corporate Actions
+        # -------------------------------------------------------------
+        if current_dts >0:
+            self._sync_event(experiment_id, self.positions, adjs_df_map, rgts_df_map)
 
     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_dfs, dict py_rgt_dfs):
         cdef double event_cash = 0.0
@@ -286,27 +273,33 @@ cdef class TrackerActor:
         cdef EventItem temp
         cdef int32_t int_sid
 
-        for sid, py_adj_df in py_adj_dfs.items():
+        for sid_bytes, py_adj_df in py_adj_dfs.items():
             if py_adj_df is not None and py_adj_df.height > 0:
                 for bonus_share, transfer, bonus in py_adj_df.select(["bonus_share", "transfer", "bonus"]).rows():
-                    int_sid = int(sid)
+                    # int_sid = int(sid_bytes)
+                    # safely bytes "000001" -> int 1
+                    int_sid = int(sid_bytes.decode('utf-8')) 
                     cpp_adj_map[int_sid] = AdjustmentData(
                         bonus_share=float(bonus_share), 
                         transfer=float(transfer), 
                         bonus=float(bonus)
                     )
 
-        for sid, py_rgt_df in py_rgt_dfs.items():
+        for sid_bytes, py_rgt_df in py_rgt_dfs.items():
             if py_rgt_df is not None and py_rgt_df.height > 0:
                 for ratio, price in py_rgt_df.select(["ratio", "price"]).rows():
-                    int_sid = int(sid)
+                    # int_sid = int(sid_bytes)
+                    # safely bytes "000001" -> int 1
+                    int_sid = int(sid_bytes.decode('utf-8')) 
                     cpp_rgt_map[int_sid] = RightData(
                         ratio=float(ratio), 
                         price=float(price)
                     )
 
         for sid_bytes, pos_obj in pobjs.items():
-            int_sid = int(sid_bytes) 
+            # int_sid = int(sid_bytes) 
+            # safely bytes "000001" -> int 1
+            int_sid = int(sid_bytes.decode('utf-8')) 
             v_events.clear() 
 
             adj_it = cpp_adj_map.find(int_sid) 
@@ -326,6 +319,33 @@ cdef class TrackerActor:
 
         if event_cash != 0:
             self.cash_manager.add_cash(experiment_id, event_cash)
+
+    async def _fetch_from_rpc(self, int32_t prev_dts, int32_t curr_dts, list psids): 
+        """
+        prev_dt: T-1 Close
+        curr_dt: T   ex_dat Adj/Rgt
+        """
+        async def _fetch(object body, int32_t rpc_type):
+            df_dict = await async_gt.rpc(body, rpc_type) 
+            return df_dict 
+
+        # 🌟 T-1 Close
+        cdef int32_t last_dtint = ts2intdt(prev_dts)
+        cdef int32_t curr_dtint = ts2intdt(curr_dts) if curr_dts > 0 else 0
+
+        close_body = QueryBody(start_date=last_dtint, end_date=last_dtint, sid=psids) 
+        close_task = asyncio.create_task(_fetch(close_body, RpcTopic.Close))
+        
+        if curr_dtint == 0:
+            closes_df_map = await close_task
+            return closes_df_map, {}, {}
+            
+        event_body = QueryBody(start_date=curr_dtint, end_date=curr_dtint, sid=psids) 
+        adj_task = asyncio.create_task(_fetch(event_body, RpcTopic.Adjustment))
+        rgt_task = asyncio.create_task(_fetch(event_body, RpcTopic.Rightment))
+        
+        closes_df_map, adjs_df_map, rgts_df_map = await asyncio.gather(close_task, adj_task, rgt_task) 
+        return closes_df_map, adjs_df_map, rgts_df_map
 
     cdef void _collect(self): # filter psize=0
         cdef bytes sid

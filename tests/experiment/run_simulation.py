@@ -81,10 +81,6 @@ class FsmStrategy(bt.Strategy):
     def __init__(self):
         self.pr = PanelRanker(parquet_path=self.p.parquet_path)
 
-    def on_dt_over(self, dts):
-
-        super().on_dt_over(dts)
-
     def next(self):
         current_tick = self.data.datetime[0]
         current_day = ts2intdt(current_tick)

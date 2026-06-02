@@ -24,7 +24,7 @@ from typing import List, Union
 
 from bt_core.broker import BrokerBase
 from bt_core.stores.localstore import LocalStore
-from bt_sdk.core.protocol import RegisterBody, CashBody, OrderBody, OverBody, QueryBody, Resp, SnapshotBody, AccountBody, PositionBody
+from bt_sdk.core.protocol import *
 
 __all__ = ["BTBroker"]
 
@@ -92,8 +92,8 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
         data = self.tdapi.submit(experiment_id, body) 
         return data.body
     
-    def on_dt_over(self, experiment_id:bytes, dts: int) -> SnapshotBody:
-        body = OverBody(tick=dts)
+    def on_dt_over(self, experiment_id:bytes, last_dts: int, dt0: int) -> SnapshotBody:
+        body = QueryBody(start_date=last_dts, end_date=dt0)
         data = self.tdapi.on_dt_over(experiment_id, body)
         return data.body
 

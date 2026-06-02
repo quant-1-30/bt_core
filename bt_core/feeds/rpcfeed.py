@@ -35,7 +35,8 @@ from bt_core.metabase import with_metaclass
 from bt_core.stores.localstore import LocalStore
 from bt_core.utils.dateintern import num2date
 from bt_sdk.core.protocol import QueryBody
-from bt_sdk.core.client import FactorTopic
+from bt_sdk.core.client import FactorTopic, RpcTopic
+from bt_sdk.utils.util import _merge2DataFrame
 
 
 __all__ = ["RemoteData"]
@@ -101,12 +102,22 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
 
         tick_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=self.sid)
         self.get_adjfactor(tick_body)
+        print("finish adjfactor")
 
         bench_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])
         self.get_dret(bench_body)
+        print("finish bench_body")
 
-        observable = self.mdapi.subscribe(tick_body, FactorTopic.Raw)
-        observable.subscribe( # nonblocking 
+        observable = self.mdapi.subscribe(tick_body, RpcTopic.Tick)
+        observable.pipe(
+            # ops.sample(0.1),  # 100ms abandon reset 
+            # ops.buffer_with_time_or_count(timespan=1.0, count=500), # up to 500 / 1 second to list
+            # ops.throttle_first(0.05), # on receive / 50ms not receive
+            # ops.publish_replay(1), # cache 1 record 
+            # ops.ref_count()
+            ops.map(lambda data: data["data"]),
+            ops.share()
+        ).subscribe( # nonblocking 
             on_next=self.chan.put,
             on_error=lambda e: self.chan.put(e),
             on_completed=lambda: self.chan.put(StopIteration) 
@@ -165,30 +176,65 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         self.lines.amount[0] = row[3]
         return True
 
+    @staticmethod
+    def _collect_stream_sync(observable) -> List[pa.Table]:
+        q = queue.Queue()
+        observable.pipe(
+            # ops.sample(0.1),  # 100ms abandon reset 
+            # ops.buffer_with_time_or_count(timespan=1.0, count=500), # up to 500 / 1 second to list
+            # ops.throttle_first(0.05), # on receive / 50ms not receive
+            # ops.publish_replay(1), # cache 1 record 
+            # ops.ref_count()
+            ops.map(lambda data: data["data"]),
+            ops.share()
+        ).subscribe(
+            on_next=q.put,
+            on_error=q.put,
+            on_completed=lambda: q.put(StopIteration)
+        )
+        
+        tables = []
+        while True:
+            msg = q.get()
+            if msg is StopIteration:
+                break
+            if isinstance(msg, Exception):
+                raise msg
+            tables.append(msg)
+        return tables
+
     def get_snapshot(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
         body = QueryBody(start_date=tick, end_date=tick, sid=psids)
-        df = self.mdapi.get_subscribe(body, FactorTopic.Raw)
+        obs = self.mdapi.subscribe(body, RpcTopic.Tick)
+        tables = self._collect_stream_sync(obs)
+        
         snapshot = {}
-        if df:
-            snapshot = valmap(lambda x : x["close"][0], df)
+        if tables:
+            raw_data = _merge2DataFrame(tables)
+            for sid_bytes, df in raw_data.items():
+                snapshot[sid_bytes] = df["close"][0] # .as_py()
         return snapshot
 
     def get_adjfactor(self, body: QueryBody):
-        adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
-        adj = adj_data[body.sid[0]]
-        factors = adj.raw_factors if adj else {} # adj_factors
-        if factors:
-            factors = dict(sorted(factors.items())) # sort by key
-            self.adj_factors = factors
+            adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
+            adj = adj_data[body.sid[0]]
+            factors = adj.raw_factors if adj else {} # adj_factors
+            if factors:
+                factors = dict(sorted(factors.items())) # sort by key
+                self.adj_factors = factors
 
     def get_dret(self, body: QueryBody):
-        raw_data = self.mdapi.get_close(body, FactorTopic.Qfq)
-        close = raw_data[body.sid[0]]
-
-        self.benchmark_dret = close.with_columns(
-            pl.col("close").pct_change().fill_null(0).alias("ret")
-        ).select(["day", "ret"])
+        obs = self.mdapi.subscribe(body, RpcTopic.Close)
+        tables = self._collect_stream_sync(obs)
+        
+        raw_data = _merge2DataFrame(tables)
+        if body.sid[0] in raw_data:
+            close_df = raw_data[body.sid[0]]
+            self.benchmark_dret = close_df.with_columns(
+                pl.col("close").pct_change().fill_null(0).alias("ret")
+            ).select(["day", "ret"])
 
     def stop(self):
         super().stop()
         self.mdapi.disconnect()
+

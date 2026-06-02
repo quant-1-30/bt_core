@@ -113,8 +113,8 @@ class LocalStore(Store):
         resp = self.broker.submit(experiment_id, body)
         return resp
     
-    def on_dt_over(self, experiment_id: bytes, dts: int) -> SnapshotBody:
-        resp = self.broker.on_dt_over(experiment_id, dts)
+    def on_dt_over(self, experiment_id: bytes, last_dts: int, dts: int) -> SnapshotBody:
+        resp = self.broker.on_dt_over(experiment_id, last_dts, dts)
         return resp
     
     def subscribe(self, topic: int, experiment_id: bytes, body: QueryBody) -> List[Union[AccountBody, PositionBody]]:

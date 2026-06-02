@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload, subqueryload, selectinload, load_only, al
 from bt_core.execution.gateway.operator.schema import Experiment, vtPosition, vtOrder, vtAccount
 from bt_core.execution.gateway.operator.operator import async_ops
 
-from libc.stdint cimport int64_t
+from libc.stdint cimport int32_t, int64_t
 from bt_sdk.core.client import GetMdApi, FactorTopic, RpcTopic
 
 cdef const int64_t BatchSize = 100
@@ -203,20 +203,9 @@ cdef class AsyncGateway:
 
 # ------------------------------------------------------------------- rpc api -------------------------------------------------------------------
     
-    async def remote(self, int rpc_type, object body):
-        """
-            rpc request
-            rpc_type: adjustment / rightment
-        """
-        if rpc_type == RpcTopic.Instrument:
-            results = await self.mdapi.get_instrument_async()
-        elif rpc_type == RpcTopic.Tick:
-            results = await self.mdapi.get_subscribe_async(body, FactorTopic.Raw)
-        elif rpc_type == RpcTopic.Close:
-            results = await self.mdapi.get_close_async(body, FactorTopic.Raw)
-        else:
-            results = await self.mdapi.get_event_async(body, rpc_type)
-        return results 
+    async def rpc(self, object body, int32_t rpc_type, int32_t timeout=30):
+        df = await self.mdapi.rpc_async(body, rpc_type) # timeout
+        return df
 
     async def __call__(self, object objs, bint return_obj=False):
         async with async_ops as ctx:

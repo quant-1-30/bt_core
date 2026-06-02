@@ -273,18 +273,18 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         if self._dt_over(dt0):
             print("check timer on_dt_over: ", dt0)
-            self._dispatch(runstrats, TimerEvent.EOD)
+            self._dispatch(runstrats, TimerEvent.EOD, dt0)
 
         # --- Scheduled Timers ---
         for t in self._pretimers: 
             if t.check(dt0):
                 print("check timer: ", dt0)
-                self._dispatch(runstrats, t.event_type)
+                self._dispatch(runstrats, t.event_type, dt0)
 
-    def _dispatch(self, runstrats: list, event_type: int):
+    def _dispatch(self, runstrats: list, event_type: int, dt0: int):
             if event_type == TimerEvent.EOD: # on_dt_over ---> T+1 settlement
                 for strat in runstrats:
-                    strat.on_dt_over(self.last_dts) 
+                    strat.on_dt_over(self.last_dts, dt0) 
 
             elif event_type == TimerEvent.METRIC: # log shm
                 for strat in runstrats:

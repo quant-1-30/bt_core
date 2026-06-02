@@ -91,7 +91,7 @@ cdef class PseudoFiller:
                   import polars as pl
                   import numpy as np
 
-                  data = await async_gt.remote(RpcTopic.Tick, req) # sid: pl.DataFrame
+                  data = await async_gt.rpc(req, RpcTopic.Tick) # sid: pl.DataFrame
                   df = data[req.sid[0]]
 
                   cast_df = df.select(pl.col(float_column).cast(pl.Float64))
