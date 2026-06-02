@@ -229,12 +229,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-sdk"
-version = "0.13.0"
-description = "add direct_Run_async in AsyncClient, support async generator"
+version = "0.13.3"
+description = "reconfig rpc client config"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_sdk-0.13.0-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:61a75da342d5a75971a3022791d5401f2143175657fa2c04352eadf88b78b830"},
+    {file = "bt_sdk-0.13.3-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:c30c8d7111f5d7c7e850a2ebacef032bb0548897d6f2e3ea2b50126c2d6d01e1"},
 ]
 
 [package.dependencies]
@@ -5507,4 +5507,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.15"
-content-hash = "5289486e17eec589f396acd440115b4f6475bbdeae12530b75e3fcc60d384e87"
+content-hash = "72d72994cba01fa87593e40a01455fcdb105dd689b10b365e3fb66fd15764f4e"
