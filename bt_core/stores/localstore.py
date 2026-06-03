@@ -21,14 +21,14 @@
 import os
 import numpy as np
 import pyarrow as pa
-from typing import Union, List, Mapping, Any, Generator, Tuple
+from typing import Union, List, Mapping, Any, Generator, Tuple, Dict
 
-from bt_core.execution.actor.runner_actor import AsyncRunner
 from bt_core.store import Store
 from bt_core.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
 from bt_core.execution.actor.writer_actor import BatchWriterActor
-from bt_core._external import get_md_api
-from bt_core._protocol import *
+
+from bt_sdk.ctx import initialize_runner, get_md_api
+from bt_sdk.core.protocol import *
 
 
 __all__ = ["BTStore"]
@@ -58,25 +58,27 @@ class LocalStore(Store):
 
     def __init__(self): 
         mdapi = get_md_api()
-        self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
 
         q_size = int(os.getenv("QSize")) 
         batch_size = int(os.getenv("BatchSize"))
         buffer_size = int(os.getenv("BufferSize"))
         actor = BatchWriterActor(q_size=q_size, batch_size=batch_size) 
         tdapi = TdApi(client_id=self.p.client_id, q_size=q_size, buffer_size=buffer_size, actor=actor)
-        self.broker = self.BrokerCls(tdapi=tdapi)
 
-        self._runner = AsyncRunner()
         self.actor = actor
+        self._feed = self.DataCls(mdapi=mdapi, timeout=self.p.timeout) 
+        self.broker = self.BrokerCls(tdapi=tdapi)
+        self._runner = initialize_runner()
 
     def start(self, *args, **kwargs):
         self._runner.start() # new_event_loop
         _loop = self._runner.get_loop()
-        _loop.create_task(self.actor.run())
 
         self._feed._prepare(_loop)
         self.broker._prepare(_loop)
+        
+        # backgroud running writer actor
+        _loop.create_task(self.actor.run())
 
     def setenvironment(self, env):
         '''Receives an environment (cerebro) and passes it over to the store it

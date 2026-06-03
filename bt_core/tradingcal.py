@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, time
 from .metabase import MetaParams, with_metaclass
 from .utils.dateintern import tzparse
 
-__all__ = ['TradingCalendarBase', 'TradingCalendar', 'PandasMarketCalendar']
+__all__ = ['TradingCalendarBase', 'TradingCalendar']
 
 # Imprecission in the full time conversion to float would wrap over to next day
 # if microseconds is 999999 as defined in time.max
@@ -150,10 +150,18 @@ class TradingCalendar(TradingCalendarBase):
         (datetime/date instance) and the isocalendar components
 
         The return value is a tuple with 2 components: (nextday, (y, w, d))
+
+        e.g.
+            from datetime import date
+            new_year_day = date(2026, 1, 1)
+
+            print(new_year_day.year)  # 2026
+    
+            print(new_year_day.isocalendar()) # IsoCalendarDate(year=2025, week=52, weekday=4)
         '''
         while True:
             day += ONEDAY
-            isocal = day.isocalendar()
+            isocal = day.isocalendar() # (year, week_nth, weekday) 1-7
             if isocal[2] in self.p.offdays or day in self.p.holidays:
                 continue
 
