@@ -229,12 +229,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-sdk"
-version = "0.13.5"
-description = "optimize util"
+version = "0.13.6"
+description = "add constant avoid import from api.pyx"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_sdk-0.13.5-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:77631eb73533ba75aa5f9a79e194e6ff91d338da0b0e9e031c05449410523ea6"},
+    {file = "bt_sdk-0.13.6-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:fc0a0be52aa29f5e0c42f8d81f3fb99539bf2658fa63ef2c32074ca450ecad56"},
 ]
 
 [package.dependencies]
@@ -5242,18 +5242,18 @@ reference = "tuna"
 
 [[package]]
 name = "traitlets"
-version = "5.15.0"
+version = "5.15.1"
 description = "Traitlets Python configuration system"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "traitlets-5.15.0-py3-none-any.whl", hash = "sha256:fb36a18867a6803deab09f3c5e0fa81bb7b26a5c9e82501c9933f759166eff40"},
-    {file = "traitlets-5.15.0.tar.gz", hash = "sha256:4fead733f81cf1c4c938e06f8ca4633896833c9d89eff878159457f4d4392971"},
+    {file = "traitlets-5.15.1-py3-none-any.whl", hash = "sha256:770a53705f84b81ac107e83a1b3328ff2dae16094d8fc3cfc004e4b22dfd8e92"},
+    {file = "traitlets-5.15.1.tar.gz", hash = "sha256:7b1c07854fe25acb39e009bae49f11b79ff6cbb2f27999104e9110e7a6b53722"},
 ]
 
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
-test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "mypy (>=1.7.0,<1.19)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
+test = ["argcomplete (>=3.0.3)", "mypy (>=1.17.0,<1.19)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
 
 [package.source]
 type = "legacy"
@@ -5476,4 +5476,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.15"
-content-hash = "cb70a86c706dc1f0069db6d798a9bb76fe89c23e19778ab36e490defee2e59aa"
+content-hash = "c49acb4426f4e148abe7c282dabe0b4822da0145312ac55e39ec2b50f11a98fa"
