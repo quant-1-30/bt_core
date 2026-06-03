@@ -18,16 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-'''
 
-.. module:: linebuffer
-
-Classes that hold the buffer for a *line* and can operate on it
-with appends, forwarding, rewinding, resetting and other
-
-.. moduleauthor:: Daniel Rodriguez
-
-'''
 import array
 import datetime
 import math
@@ -67,6 +58,9 @@ class LineBuffer(LineSingle):
     The class can also hold "bindings" to other LineBuffers. When a value
     is set in this class
     it will also be set in the binding.
+
+    Classes that hold the buffer for a *line* and can operate on it
+    with appends, forwarding, rewinding, resetting and other
     '''
 
     def __init__(self):
@@ -343,14 +337,14 @@ class LineBuffer(LineSingle):
     def _settz(self, tz):
         self._tz = tz
 
-    def datetime(self, ago=0, native=True):
+    def datetime(self, ago=0):
         # print("buffer datetime: ", self[ago])
-        _dt = num2date(self[ago], native=native)
+        _dt = num2date(self[ago])
         dt = _dt if isinstance(_dt, datetime.datetime) else datetime.datetime.min
         return dt
 
-    def time(self, ago=0, native=True):
-        return num2date(self[ago], native=native).time()
+    def time(self, ago=0):
+        return num2date(self[ago]).time()
 
     def dt(self, ago=0):
         '''
@@ -366,15 +360,6 @@ class LineBuffer(LineSingle):
         # without transforming it to time to avoid the influence of the day
         # count (integer part of coding)
         return math.modf(self[ago])[0]
-
-    # def tm(self, ago=0):
-    #     '''
-    #     return numeric time part of datetimefloat
-    #     '''
-    #     # To avoid precision errors, this returns the fractional part after
-    #     # having converted it to a datetime.time object to avoid precision
-    #     # errors in comparisons
-    #     return time2num(num2date(self[ago]).time())
 
     def tm_lt(self, other, ago=0):
         '''

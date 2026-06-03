@@ -1,3 +1,5 @@
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
 # distutils: language = c++
 # cython: language_level=3
 

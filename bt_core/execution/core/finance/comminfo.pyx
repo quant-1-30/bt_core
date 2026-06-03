@@ -1,14 +1,11 @@
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 12 15:37:47 2019
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
+# distutils: language = c++
 
-@author: python
-"""
 import numpy as np
 
 cimport numpy as cnp
-cnp.import_array() # 必须调用以初始化 numpy C-API
+cnp.import_array() # initialzie numpy C-API
 
 from bt_core.execution.core.finance.common cimport Exchange
 from bt_core.execution.core.finance.order cimport OrderCoreData

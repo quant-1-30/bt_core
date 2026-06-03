@@ -1,7 +1,7 @@
 # distutils: language = c++
 # cython: language_level=3
 
-from libc.stdint cimport uint8_t, int64_t
+from libc.stdint cimport uint8_t
 
 
 cdef struct uuid128:

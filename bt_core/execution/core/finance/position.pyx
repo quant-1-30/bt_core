@@ -1,37 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: utf-8; py-indent-offset:4 -*-
-###############################################################################
-#
-# Copyright (C) 2015-2023 Daniel Rodriguez
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-###############################################################################
-"""
-Created on Tue Mar 12 15:37:47 2019
-
-@author: python
-"""
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
 # distutils: language = c++
 # cython: language_level=3
+
 import uuid
 import json
 
 from bt_sdk.core.protocol import PositionBody, Resp
 from bt_core.execution.gateway.operator.schema import vtPosition
 
-from bt_core.utils.dateintern cimport ts2intdt, num2date
 from bt_core.execution.core.finance.function cimport calc_ratio, cRatio
 from bt_core.execution.core.finance.trade cimport OrderExbitData
 
@@ -208,7 +185,6 @@ cdef class Position:
         else:
             pass # close == 0.0 means suspend stay
         
-        # self.core.datetime = int(num2date(end_dt).timestamp()) + 86399 # 24 * 3600 -1
         self.core.datetime = end_dt
 
     cdef void on_dt_over(self, int32_t end_dt, double close):

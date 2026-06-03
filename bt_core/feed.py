@@ -96,8 +96,8 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         ('compression', 1),
         ('tz', 'Asia/Shanghai'),
         ('tzinput', None),
-        ('sessionstart', datetime.time(8,30,0)), # utc and asia
-        ('sessionend', datetime.time(14,59,0)), # utc and asia
+        ('sessionstart', datetime.time(8,30,0)), # asia
+        ('sessionend', datetime.time(14,59,0)), # asia
         ('calendar', None),
         ("timeout", -1),
     )
@@ -156,12 +156,12 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         return tzparse(self.p.tzinput) if self.p.tzinput else None
 
     def date2num(self, dt: datetime.datetime):
-        if self._tz is not None:
-            return date2num(self._tz.localize(dt))
-        return date2num(dt)
+        # if self._tz is not None:
+        #     return date2num(self._tz.localize(dt))
+        return date2num(dt) # Asia
 
-    def num2date(self, dts: int):
-        return num2date(dts) # default is Asia/Shanghai
+    def num2date(self, dts: int): # localize default True Asaia/Shanghai
+        return num2date(dts) 
     
     def _getnexteos(self): 
         '''Returns the next eos using a trading calendar if available'''
@@ -169,12 +169,18 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             return self.data._getnexteos()
 
         if not len(self):
-            return datetime.datetime.min, 0.0
+            return py_datetime.datetime.min, 0.0
 
         dt = self.lines.datetime[0]
-        dtime = num2date(dt)
-        nexteos = datetime.datetime.combine(dtime, self.p.sessionend) + datetime.timedelta(hours=8)
-        nextdteos = date2num(nexteos) # localize
+        # dtime Asia/Shanghai
+        dtime = num2date(dt, localize=True) 
+        
+        nexteos = datetime.datetime.combine(
+            dtime.date(), 
+            self.p.sessionend, 
+            tzinfo=dtime.tzinfo
+        ) 
+        nextdteos = date2num(nexteos) # UTC timestamp 
         return nexteos, nextdteos
 
     def apply_factor(self):
@@ -218,9 +224,9 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
                     return _loadret
 
             dt = self.lines.datetime[0]
-            if self._tzinput:
-                dtime = num2date(dt)  # get it in a native datetime
-                dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
+            if self._tzinput: # default is None
+                dtime = num2date(dt, localize=True)  # get it in a native datetime
+                # dtime = self._tzinput.localize(dtime)  # pytz compatible-ized
                 self.lines.datetime[0] = dt = date2num(dtime) 
 
            # Pass through filters

@@ -35,15 +35,15 @@ cdef struct MarketTime:
 
 
 # C typedef / cython ctypedef
-cpdef object num2date(double ts, bint native=?)
+cpdef object num2date(double ts, bint localize=?) # *
 
 cpdef double date2num(object dt)
 
-cpdef int64_t ts2intdt(double ts, bint native=?) # only cdef nogil
+cpdef int64_t ts2intdt(double ts) # only cdef nogil and bint native=?
 
 cpdef object tzparse(str tz)
 
-cdef MarketTime market_utc(int64_t ts, bint native=?) nogil 
+cdef MarketTime market_utc(int64_t ts) noexcept nogil
 
 cpdef int64_t get_dt_cmpkey(double dt_ts, int64_t timeframe, int64_t compression=?)
 

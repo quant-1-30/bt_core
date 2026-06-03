@@ -111,19 +111,18 @@ class AlgoAPI(object):
         set_algo_instance(self.old_algo_instance)
 
 
-# with open('file1.txt', 'w') as f1:
-#     with open('file2.txt', 'w') as f2:
-#         with tempfile.NamedTemporaryFile() as tmp:
-#             f1.write('Hello')
-#             f2.write('World')
-#             tmp.write(b'Data')
-
 # with ExitStack() as stack: # used for nested with | pop_all() to transfer stack | core api enter_context
 #     """
 #     register callback is reverse to regiter method similar to multi with
 #     expand to try / catch or supress 
 #     enter_context  and __exit__() to stack / return value from __enter__()
 #     callback(回调, * args, ** kwds)
+#     with open('file1.txt', 'w') as f1:
+#          with open('file2.txt', 'w') as f2:
+#              with tempfile.NamedTemporaryFile() as tmp:
+#                   f1.write('Hello')
+#                   f2.write('World')
+#                   tmp.write(b'Data')
 #     """
 #     f1 = stack.enter_context(open('file1.txt', 'w'))
 #     f2 = stack.enter_context(open('file2.txt', 'w'))

@@ -1,10 +1,7 @@
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 12 15:37:47 2019
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
+# distutils: language = c++
 
-@author: python
-"""
 import asyncio
 import warnings
 from bt_sdk.core.protocol import Event

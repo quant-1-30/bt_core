@@ -1,3 +1,7 @@
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
+# distutils: language = c++
+
 import asyncio
 import numpy as np
 cimport numpy as cnp

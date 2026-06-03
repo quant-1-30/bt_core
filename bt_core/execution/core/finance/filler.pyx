@@ -23,7 +23,7 @@ from bt_sdk.core.protocol import QueryBody
 from bt_sdk.core.client import RpcTopic
 
 cimport numpy as cnp
-cnp.import_array() # 必须调用以初始化 numpy C-API
+cnp.import_array() # initialize numpy C-API
 
 
 cdef inline int calculate(Order order, Position p_sid, double cash, double price):

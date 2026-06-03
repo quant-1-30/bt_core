@@ -2,21 +2,23 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from .metabase import with_metaclass, MetaParams
+from bt_core.metabase import with_metaclass, MetaParams
 
 
 class MetaLogger(MetaParams):
 
-    # debug / info / warning / error / critical
     def donew(cls, *args, **kwargs):
         _obj = super().donew(*args, **kwargs)
+
         # setup logger
         logger = logging.getLogger("metalogger")
+
         handler = logging.StreamHandler() if _obj.p.stream else logging.FileHandler(_obj.p.filename)
         handler.setLevel(_obj.p.level)
         formatter = logging.Formatter(_obj.p.format)
         handler.setFormatter(formatter)
         logger.addHandler(handler)
+
         _obj.logger = getattr(logger, _obj.p.level)
         return _obj, args, kwargs
 

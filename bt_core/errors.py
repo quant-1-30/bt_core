@@ -22,21 +22,21 @@
 #                         unicode_literals)
 
 
-__all__ = ['BacktraderError', 'StrategySkipError']
+__all__ = ['BtCoreError', 'StrategySkipError']
 
 
-class BacktraderError(Exception):
+class BtCoreError(Exception):
     '''Base exception for all other exceptions'''
     pass
 
 
-class StrategySkipError(BacktraderError):
+class StrategySkipError(BtCoreError):
     '''Requests the platform to skip this strategy for bt_coreing. To be
     raised during the initialization (``__init__``) phase of the instance'''
     pass
 
 
-class ModuleImportError(BacktraderError):
+class ModuleImportError(BtCoreError):
     '''Raised if a class requests a module to be present to work and it cannot
     be imported'''
     def __init__(self, message, *args):
@@ -44,7 +44,7 @@ class ModuleImportError(BacktraderError):
         self.args = args
 
 
-class FromModuleImportError(ModuleImportError):
+class FromModuleImportError(BtCoreError):
     '''Raised if a class requests a module to be present to work and it cannot
     be imported'''
     def __init__(self, message, *args):

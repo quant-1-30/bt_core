@@ -1,15 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # cython: language_level=3
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: cdivision=True
+# cython: language_level=3
 
-"""
-Created on Tue Mar 12 15:37:47 2019
-
-@author: python
-"""
 import uuid
 from bt_core.execution.gateway.operator.schema import vtAccount
 from bt_sdk.core.protocol import AccountBody, Resp

@@ -1,10 +1,11 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
+# cython.boundscheck(False) # 关闭边界检查
+# cython.wraparound(False)  # 关闭负指数索引检查
+# distutils: language = c++
 
 import uuid
 import numpy as np
 cimport numpy as cnp
-# 必须调用以初始化 numpy C-API
+# initialize numpy C-API
 cnp.import_array()
 
 from bt_core.execution.gateway.operator.schema import vtOrder
