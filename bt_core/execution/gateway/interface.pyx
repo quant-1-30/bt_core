@@ -1,18 +1,22 @@
-#! /usr/bin/env python3
-# -*- coding: utf-8 -*-
+# cython: language_level=3
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: cdivision=True
+# cython: language_level=3
+
+from libc.stdint cimport int32_t, int64_t
 
 import os
 import uuid
 from typing import Union
 from sqlalchemy import select, func, over, text
 from sqlalchemy.orm import joinedload, subqueryload, selectinload, load_only, aliased
-from bt_core.execution.gateway.operator.schema import Experiment, vtPosition, vtOrder, vtAccount
 from bt_core.execution.gateway.operator.operator import async_ops
 
-from libc.stdint cimport int32_t, int64_t
 
 from bt_sdk.ctx import get_md_api
 from bt_protocol.constant import FactorTopic, RpcTopic
+from bt_protocol.orm.trade import Experiment, vtPosition, vtOrder, vtAccount
 
 cdef const int64_t BatchSize = 100
 

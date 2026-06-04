@@ -11,8 +11,9 @@ from sqlalchemy.orm import sessionmaker
 from contextlib import asynccontextmanager, AbstractAsyncContextManager
 from typing import Union, List, Iterable, Any, AsyncGenerator
 
-from .schema import Base
 from bt_core.utils.wrapper import singleton
+
+from bt_protocol.orm.trade import Base
 
 
 class AsyncStreamProxy:

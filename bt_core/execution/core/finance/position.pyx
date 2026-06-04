@@ -6,12 +6,11 @@
 import uuid
 import json
 
-from bt_core.execution.gateway.operator.schema import vtPosition
-
 from bt_core.execution.core.finance.function cimport calc_ratio, cRatio
 from bt_core.execution.core.finance.trade cimport OrderExbitData
 
 from bt_protocol._protocol import PositionBody, Resp
+from bt_protocol.orm.trade import vtPosition
 
 
 cdef class Position:

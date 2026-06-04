@@ -8,13 +8,13 @@ cimport numpy as cnp
 # initialize numpy C-API
 cnp.import_array()
 
-from bt_core.execution.gateway.operator.schema import vtOrder
-
 from libcpp.vector cimport vector
 from cpython.object cimport Py_EQ
 
 from bt_core.execution.core.finance.common cimport Exchange
 from bt_core.utils.util cimport fast_uuid4_bytes
+
+from bt_protocol.orm.trade import vtOrder
 
 
 cdef class Order:

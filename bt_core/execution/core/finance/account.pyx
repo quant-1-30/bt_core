@@ -5,13 +5,13 @@
 # cython: language_level=3
 
 import uuid
-from bt_core.execution.gateway.operator.schema import vtAccount
 
 from bt_core.execution.core.finance.position cimport Position
 from bt_core.execution.core.finance.trade cimport OrderExbitData, OrderExecutionBit
 from bt_core.utils.dateintern cimport ts2intdt
 
 from bt_protocol._protocol import AccountBody, Resp
+from bt_protocol.orm.trade import vtAccount
 
 
 cdef class Account:

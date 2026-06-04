@@ -3,9 +3,8 @@
 # distutils: language = c++
 # cython: language_level=3
 
-from bt_core.execution.gateway.operator.schema import OrderBit
-
 from bt_protocol._protocol import TradeBody, Resp
+from bt_protocol.orm.trade import OrderBit
 
 
 cdef class OrderExecutionBit:

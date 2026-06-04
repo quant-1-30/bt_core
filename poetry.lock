@@ -229,16 +229,17 @@ reference = "tuna"
 
 [[package]]
 name = "bt-protocol"
-version = "0.1.3"
-description = "extract build pkg from dependencies"
+version = "0.1.5"
+description = "add schema and template"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_protocol-0.1.3-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:68c4d9d04a2b54c06edc897f959a42dd2a5dec935676a359259634c61d2584c2"},
+    {file = "bt_protocol-0.1.5-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:27e79307b3f1387f59a2df4a636b148c69a1b7a5deb563ea00d18296aadd711e"},
 ]
 
 [package.dependencies]
 grpcio = ">=1.71.0,<2.0.0"
+sqlalchemy = ">=2.0.47,<3.0.0"
 
 [package.source]
 type = "legacy"
@@ -247,17 +248,17 @@ reference = "devpi"
 
 [[package]]
 name = "bt-sdk"
-version = "0.14.0"
-description = "remove build pkg in dependencies"
+version = "0.14.1"
+description = "update bt_protocol version"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_sdk-0.14.0-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:a6ea8a0caed5b898f2932ae413debfe639dd1865f3a92fe541e8b97ef3600e47"},
+    {file = "bt_sdk-0.14.1-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:a989dd562fe88283eed7c9b21beb11097a2f11b2a5d7edd2df993b0d2f2f7c51"},
 ]
 
 [package.dependencies]
 annotated-types = ">=0.7.0,<0.8.0"
-bt-protocol = "0.1.3"
+bt-protocol = "0.1.5"
 build = ">=1.5.0,<2.0.0"
 cython = ">=3.2.3,<4.0.0"
 grpcio = ">=1.81.0"
@@ -5399,4 +5400,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.15"
-content-hash = "c1b7ae0015d7a8193133611d8fc99fcd0c00854ebde262e97fd1bbe07a7af934"
+content-hash = "5f084c827e1d6add74d98be8a131b0e20a60c0588658be491ffbfca226a3bc79"
