@@ -9,7 +9,7 @@ from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor
 from libc.stdint cimport int32_t
 
-from bt_sdk.core.protocol import Event
+from bt_protocol._protocol import Event
 from bt_core.execution.core.engine.engine cimport BackEngine, EngineTopic
 
 

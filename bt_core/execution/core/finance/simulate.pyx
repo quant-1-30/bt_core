@@ -15,8 +15,6 @@ import pyarrow.compute as pc
 from collections import defaultdict
 from itertools import chain
 
-from bt_sdk.core.protocol import SnapshotBody, Resp, Event, QueryBody
-from bt_sdk.core.client import RpcTopic
 from bt_core.execution.gateway.interface import async_gt
 
 from libcpp.unordered_map cimport unordered_map
@@ -35,6 +33,9 @@ from bt_core.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Li
 from bt_core.execution.core.finance.simulate_types cimport MsgType
 from bt_core.utils.dateintern cimport ts2intdt
 from bt_core.execution.actor.writer_actor cimport BatchWriterActor
+
+from bt_protocol._protocol import SnapshotBody, Resp, Event, QueryBody
+from bt_protocol.constant import RpcTopic
 
 cimport numpy as cnp
 cnp.import_array() # initialize numpy C-API

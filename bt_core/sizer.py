@@ -22,8 +22,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from .metabase import with_metaclass, MetaParams
-from bt_sdk.core.protocol import SnapshotBody
 from typing import List, Dict, Any
+
+from bt_protocol._protocol import SnapshotBody
 
 
 class Sizer(with_metaclass(MetaParams, object)):

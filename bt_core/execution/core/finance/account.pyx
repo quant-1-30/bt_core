@@ -6,11 +6,12 @@
 
 import uuid
 from bt_core.execution.gateway.operator.schema import vtAccount
-from bt_sdk.core.protocol import AccountBody, Resp
 
 from bt_core.execution.core.finance.position cimport Position
 from bt_core.execution.core.finance.trade cimport OrderExbitData, OrderExecutionBit
 from bt_core.utils.dateintern cimport ts2intdt
+
+from bt_protocol._protocol import AccountBody, Resp
 
 
 cdef class Account:

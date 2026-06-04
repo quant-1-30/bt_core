@@ -24,7 +24,9 @@ from typing import List, Union
 
 from bt_core.broker import BrokerBase
 from bt_core.stores.localstore import LocalStore
-from bt_sdk.core.protocol import *
+
+from bt_protocol._protocol import *
+
 
 __all__ = ["BTBroker"]
 

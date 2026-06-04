@@ -28,7 +28,7 @@ from bt_core.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
 from bt_core.execution.actor.writer_actor import BatchWriterActor
 
 from bt_sdk.ctx import initialize_runner, get_md_api
-from bt_sdk.core.protocol import *
+from bt_protocol._protocol import *
 
 
 __all__ = ["BTStore"]

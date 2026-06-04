@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.3.6"
-description = "remove abundant api"
+version = "0.3.8"
+description = "rewriter with bt_protocol"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"
@@ -49,13 +49,10 @@ polars = "^1.39.0"
 sphinx = "<9.0"
 sphinx-rtd-theme = "^3.1.0"
 grpcio = "^1.78.0"
-bt-sdk = "0.13.8"
+bt-sdk = "0.14.0"
 protobuf = ">=3.19,<7.0"
 build = "^1.5.0"
 poetry-core = "^2.4.0"
-wheel = "^0.47.0"
-pybind11 = "^3.0.4"
-cmake = "^4.3.2"
 
 [[tool.poetry.source]]
 name = "tuna"

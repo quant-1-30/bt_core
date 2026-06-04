@@ -4,13 +4,14 @@
 
 import asyncio
 import warnings
-from bt_sdk.core.protocol import Event
 
 from libc.stdint cimport int64_t
 
 from bt_core.execution.core.finance.common cimport CashData
 from bt_core.execution.gateway.interface import async_gt
 from bt_core.execution.gateway.interface cimport AsyncGateway
+
+from bt_protocol._protocol import Event
 
 
 cdef class AsyncCashManager:

@@ -17,7 +17,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.inspection import inspect
 
-from bt_sdk.core.protocol import Resp, ExperimentBody, PositionBody, AccountBody, TradeBody
+from bt_protocol._protocol import Resp, ExperimentBody, PositionBody, AccountBody, TradeBody
 
 
 class Base(DeclarativeBase):

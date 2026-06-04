@@ -10,7 +10,9 @@ from bt_core.execution.gateway.operator.schema import Experiment, vtPosition, vt
 from bt_core.execution.gateway.operator.operator import async_ops
 
 from libc.stdint cimport int32_t, int64_t
-from bt_sdk.core.client import GetMdApi, FactorTopic, RpcTopic
+
+from bt_sdk.ctx import get_md_api
+from bt_protocol.constant import FactorTopic, RpcTopic
 
 cdef const int64_t BatchSize = 100
 
@@ -23,8 +25,8 @@ cdef class AsyncGateway:
     @property
     def mdapi(self): # lazy load 
         if self._mdapi is None:
-            md_addr = os.getenv("MD_ADDR", "127.0.0.1:50051").split(":")
-            self._mdapi = GetMdApi(addr=(md_addr[0], int(md_addr[1])))
+            self._mdapi = get_md_api()
+
         return self._mdapi
     
     async def register(self, object event): 

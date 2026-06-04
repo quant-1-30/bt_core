@@ -5,13 +5,13 @@ import numpy as np
 import datetime
 from dotenv import load_dotenv
 
-from bt_sdk.core.protocol import *
-
 import bt_core as bt
 import bt_core.indicators as btind
 from bt_core.cerebro import Cerebro
 from bt_core.feeds import *
 from bt_core.brokers import *
+
+from bt_protocol._protocol import *
 
 warnings.filterwarnings('ignore')
 

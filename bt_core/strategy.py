@@ -27,7 +27,6 @@ import operator
 import json
 import hashlib
 from collections import defaultdict
-from bt_sdk.core.protocol import OrderBody, SnapshotBody
 
 import bt_core as bt
 from .lineiterator import LineIterator, StrategyBase
@@ -35,6 +34,8 @@ from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, findowner
 from .utils import AutoOrderedDict, fast_uuid4_bytes
 from .shm import SharedRingBuffer
+
+from bt_protocol._protocol import OrderBody, SnapshotBody
 
 MAXINT = np.iinfo(np.int_).max
 

@@ -30,7 +30,7 @@ from .dataseries import OHLCDateTime, TimeFrame
 from .metabase import with_metaclass
 from .resamplerfilter import Resampler 
 from bt_core.utils.dateintern import num2date, date2num, ts2intdt, tzparse
-from bt_sdk.core.protocol import QueryBody
+from bt_protocol._protocol import QueryBody
 
 HalfDaySeconds = 12 * 3600
 

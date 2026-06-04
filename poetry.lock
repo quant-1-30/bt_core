@@ -228,20 +228,39 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tuna"
 
 [[package]]
-name = "bt-sdk"
-version = "0.13.7"
-description = "add ctx and runner"
+name = "bt-protocol"
+version = "0.1.3"
+description = "extract build pkg from dependencies"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_sdk-0.13.7-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:2ad34ee5a889e3757f3a7976447161354a99dcc0a78ada1045b9e530efb917f6"},
+    {file = "bt_protocol-0.1.3-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:68c4d9d04a2b54c06edc897f959a42dd2a5dec935676a359259634c61d2584c2"},
+]
+
+[package.dependencies]
+grpcio = ">=1.71.0,<2.0.0"
+
+[package.source]
+type = "legacy"
+url = "http://localhost:3141/bt_sdk/dev/+simple"
+reference = "devpi"
+
+[[package]]
+name = "bt-sdk"
+version = "0.14.0"
+description = "remove build pkg in dependencies"
+optional = false
+python-versions = ">=3.11,<3.15"
+files = [
+    {file = "bt_sdk-0.14.0-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:a6ea8a0caed5b898f2932ae413debfe639dd1865f3a92fe541e8b97ef3600e47"},
 ]
 
 [package.dependencies]
 annotated-types = ">=0.7.0,<0.8.0"
+bt-protocol = "0.1.3"
 build = ">=1.5.0,<2.0.0"
 cython = ">=3.2.3,<4.0.0"
-grpcio = ">=1.78.0"
+grpcio = ">=1.81.0"
 msgpack = ">=1.1.0,<2.0.0"
 msgspec = ">=0.20.0,<0.21.0"
 numpy = ">=2.4.6,<3.0.0"
@@ -257,8 +276,6 @@ pytest = ">=8.3.5,<9.0.0"
 pytest-asyncio = ">=0.26.0,<0.27.0"
 pyzmq = ">=26.4.0,<27.0.0"
 reactivex = ">=4.1.0,<5.0.0"
-setuptools = "77.0.1"
-setuptools-cmake-helper = ">=0.1.2,<0.2.0"
 toolz = ">=1.0.0,<2.0.0"
 typing-extensions = ">=4.14.1,<5.0.0"
 typing-inspection = ">=0.4.0,<0.5.0"
@@ -583,39 +600,6 @@ python-versions = ">=3.8"
 files = [
     {file = "cloudpickle-3.1.2-py3-none-any.whl", hash = "sha256:9acb47f6afd73f60dc1df93bb801b472f05ff42fa6c84167d25cb206be1fbf4a"},
     {file = "cloudpickle-3.1.2.tar.gz", hash = "sha256:7fda9eb655c9c230dab534f1983763de5835249750e85fbcef43aaa30a9a2414"},
-]
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tuna"
-
-[[package]]
-name = "cmake"
-version = "4.3.2"
-description = "CMake is an open-source, cross-platform family of tools designed to build, test and package software"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "cmake-4.3.2-py3-none-macosx_10_10_universal2.whl", hash = "sha256:f8f570813753ed4564928cf45c4c13c31e46b3e66b1a07fe695cb9f7b7af185e"},
-    {file = "cmake-4.3.2-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:ca739ab0d8960261fdb1bb6e1e6c16b9cd033ae0a98341483cc233ba7c81b22b"},
-    {file = "cmake-4.3.2-py3-none-manylinux2014_i686.manylinux_2_17_i686.whl", hash = "sha256:2b81038453a40aed73f8d28185c4c3ef43c3a91a7ff1577ce08e498769ecfe16"},
-    {file = "cmake-4.3.2-py3-none-manylinux2014_ppc64le.manylinux_2_17_ppc64le.whl", hash = "sha256:8add046a4ef7c606d8e0a444050415054c7da3b8535b2c8ce1f03e265dda098d"},
-    {file = "cmake-4.3.2-py3-none-manylinux2014_s390x.manylinux_2_17_s390x.whl", hash = "sha256:7105a5411bbc405242677d29222812028566aafac3f78fda08c1717f03e5ca2a"},
-    {file = "cmake-4.3.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:339655b93289c1b03c6a72523d46d3b0d19dc51406d3a90f8eefcbec525cb271"},
-    {file = "cmake-4.3.2-py3-none-manylinux_2_31_armv7l.whl", hash = "sha256:ea95db137fd27f420d5e149c41e1f7621e786869afa3ca0fe18301df9e066607"},
-    {file = "cmake-4.3.2-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:3947bc5973ca3846c76486993abd0fba0cb9119300d58ed9173a672d1eef505b"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:bc316be89fa43c265697c3b9ffcebde977bcc4515974372cc460c974f458ff98"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:d10648929eb3294449ceae7a7c0b9714ca445280ddc25c209f427e7a07c6f3a9"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_i686.whl", hash = "sha256:a69e629e6cd973e1f9b11d247d116acb47b35cdd8e39aee4b04b9040851cd8a0"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_ppc64le.whl", hash = "sha256:95e0ff31a692d12130f33d1467d0074f8314cf3a79940694896de9367b6e4fae"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_riscv64.whl", hash = "sha256:67775407b963385a7942dd56f0567ef3c75453c6336654aeafe43165d78648bb"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_s390x.whl", hash = "sha256:aae70bb95762f6da20131cf72da6322557ff6784968755d201d42a44cd9494e5"},
-    {file = "cmake-4.3.2-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:b1c5c292b1189e48d01f0bed01ed800c31eed967afd033c4beabff9cc97209f2"},
-    {file = "cmake-4.3.2-py3-none-win32.whl", hash = "sha256:3c55f0c61c70642d9e7f6b4fc638622027f045b388e357d74efcca4a7111e4aa"},
-    {file = "cmake-4.3.2-py3-none-win_amd64.whl", hash = "sha256:78049aac277aabe376d8e82993f0be234d086d0e8ad4708755d5a209a04e1138"},
-    {file = "cmake-4.3.2-py3-none-win_arm64.whl", hash = "sha256:b218d636a99fa0eb23713d37d3e3c3a9c0e707e0579b46780ff908acef229386"},
-    {file = "cmake-4.3.2.tar.gz", hash = "sha256:5f47f5f00910c474662d09a0516413c6e9750bde73cdc52dea3988102a274e06"},
 ]
 
 [package.source]
@@ -3517,25 +3501,6 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tuna"
 
 [[package]]
-name = "pybind11"
-version = "3.0.4"
-description = "Seamless operability between C++11 and Python"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "pybind11-3.0.4-py3-none-any.whl", hash = "sha256:961720ee652da51d531b7b2451a6bd2bc042b0106e6d9baa48ecb7d58034ce63"},
-    {file = "pybind11-3.0.4.tar.gz", hash = "sha256:3286b59c8a774b9ee650169302dd5a4eedc30a8617905a0560dd8ee44775130c"},
-]
-
-[package.extras]
-global = ["pybind11-global (==3.0.4)"]
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tuna"
-
-[[package]]
 name = "pycparser"
 version = "3.0"
 description = "C parser in Python"
@@ -4591,46 +4556,23 @@ reference = "tuna"
 
 [[package]]
 name = "setuptools"
-version = "77.0.1"
-description = "Easily download, build, install, upgrade, and uninstall Python packages"
+version = "82.0.1"
+description = "Most extensible Python build backend with support for C/C++ extension modules"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "setuptools-77.0.1-py3-none-any.whl", hash = "sha256:81a234dff81a82bb52e522c8aef145d0dd4de1fd6de4d3b196d0f77dc2fded26"},
-    {file = "setuptools-77.0.1.tar.gz", hash = "sha256:a1246a1b4178c66d7cf50c9fc6d530fac3f89bc284cf803c7fa878c41b1a03b2"},
+    {file = "setuptools-82.0.1-py3-none-any.whl", hash = "sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb"},
+    {file = "setuptools-82.0.1.tar.gz", hash = "sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9"},
 ]
 
 [package.extras]
-check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.8.0)"]
-core = ["importlib_metadata (>=6)", "jaraco.collections", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging", "packaging (>=24.2)", "platformdirs (>=4.2.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.13.0)"]
+core = ["importlib_metadata (>=6)", "jaraco.functools (>=4)", "jaraco.text (>=3.7)", "more_itertools", "more_itertools (>=8.8)", "packaging (>=24.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
 cover = ["pytest-cov"]
 doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
 enabler = ["pytest-enabler (>=2.2)"]
 test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.7.2)", "jaraco.test (>=5.5)", "packaging (>=24.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
-type = ["importlib_metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.14.*)", "pytest-mypy"]
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tuna"
-
-[[package]]
-name = "setuptools-cmake-helper"
-version = "0.1.2"
-description = "Simpler helper to build a Python C/C++ Extension using CMake"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "setuptools_cmake_helper-0.1.2-py3-none-any.whl", hash = "sha256:2dd0cbd9bd18412eac272c5a3ef0041adc297ca826affdd5012c795eacd6bfd6"},
-    {file = "setuptools_cmake_helper-0.1.2.tar.gz", hash = "sha256:534845b6d86bf7c899dc9bebca78fe125176f270a2bbe54aaa4ccfc3a8dfa089"},
-]
-
-[package.dependencies]
-setuptools = "*"
-
-[package.extras]
-cython = ["Cython"]
-test = ["build", "pytest", "pytest-cov", "wheel"]
+type = ["importlib_metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.18.*)", "pytest-mypy"]
 
 [package.source]
 type = "legacy"
@@ -5399,25 +5341,6 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tuna"
 
 [[package]]
-name = "wheel"
-version = "0.47.0"
-description = "Command line tool for manipulating wheel files"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "wheel-0.47.0-py3-none-any.whl", hash = "sha256:212281cab4dff978f6cedd499cd893e1f620791ca6ff7107cf270781e587eced"},
-    {file = "wheel-0.47.0.tar.gz", hash = "sha256:cc72bd1009ba0cf63922e28f94d9d83b920aa2bb28f798a31d0691b02fa3c9b3"},
-]
-
-[package.dependencies]
-packaging = ">=24.0"
-
-[package.source]
-type = "legacy"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-reference = "tuna"
-
-[[package]]
 name = "xlsxwriter"
 version = "3.2.9"
 description = "A Python module for creating Excel XLSX files."
@@ -5476,4 +5399,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.15"
-content-hash = "fd116ff1b114e32c28873b6ddafda3a270396451f35455d95b479b8b5e059956"
+content-hash = "c1b7ae0015d7a8193133611d8fc99fcd0c00854ebde262e97fd1bbe07a7af934"

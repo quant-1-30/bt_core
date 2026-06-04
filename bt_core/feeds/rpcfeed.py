@@ -33,10 +33,10 @@ from bt_core.feed import DataBase
 from bt_core.dataseries import TimeFrame
 from bt_core.metabase import with_metaclass
 from bt_core.stores.localstore import LocalStore
-from bt_sdk.core.protocol import QueryBody
-from bt_sdk.core.client import FactorTopic, RpcTopic
 from bt_sdk.utils.util import _merge2DataFrame
 
+from bt_protocol._protocol import QueryBody
+from bt_protocol.constant import FactorTopic, RpcTopic
 
 __all__ = ["RemoteData"]
 

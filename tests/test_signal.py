@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 import bt_core as bt
 import bt_core.indicators as btind
 from bt_core.cerebro import Cerebro
-# from bt_core.stores import *
 from bt_core.feeds import *
 from bt_core.brokers import *
 

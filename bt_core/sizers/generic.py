@@ -21,7 +21,8 @@
 import bt_core as bt
 
 from typing import List, Dict, Any
-from bt_sdk.core.protocol import SnapshotBody
+
+from bt_protocol._protocol import SnapshotBody
 
 
 class FixedSize(bt.Sizer):

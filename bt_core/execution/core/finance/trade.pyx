@@ -4,7 +4,8 @@
 # cython: language_level=3
 
 from bt_core.execution.gateway.operator.schema import OrderBit
-from bt_sdk.core.protocol import TradeBody, Resp
+
+from bt_protocol._protocol import TradeBody, Resp
 
 
 cdef class OrderExecutionBit:

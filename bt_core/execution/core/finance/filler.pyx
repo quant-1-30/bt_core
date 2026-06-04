@@ -19,8 +19,9 @@ from bt_core.execution.core.finance.position cimport Position
 from bt_core.execution.core.finance.slippage cimport PercSlip
 from bt_core.execution.core.finance.comminfo cimport CommInfo_Stocks
 from bt_core.execution.core.finance.trade cimport OrderExecutionBit
-from bt_sdk.core.protocol import QueryBody
-from bt_sdk.core.client import RpcTopic
+
+from bt_protocol._protocol import QueryBody
+from bt_protocol.constant import RpcTopic
 
 cimport numpy as cnp
 cnp.import_array() # initialize numpy C-API
