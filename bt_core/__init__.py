@@ -27,18 +27,10 @@ from .analyzer import *
 from .dataseries import *
 from .sizer import *
 from .strategy import *
-from .stores import *
+from .store import *
 from .signal import *
 from .timer import *
 from .flt import *
 from .logic import *
-from .cerebro import *
-
-from . import feeds as feeds
-from . import indicators as indicators
-from . import analyzers as analyzers
-from . import filters as filters
-from . import stores as stores
-from . import brokers as brokers
 from . import timer as timer
 from . import tradingcal as calendar

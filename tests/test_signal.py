@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 
 import bt_core as bt
 import bt_core.indicators as btind
+from bt_core.cerebro import Cerebro
+# from bt_core.stores import *
+from bt_core.feeds import *
+from bt_core.brokers import *
 
 
 os.environ["GRPC_POLL_STRATEGY"] = "poll"
@@ -125,7 +129,7 @@ class DrawDownSignal(btind.Indicator):
 if __name__ == '__main__':
 
     load_dotenv()
-    cerebro = bt.Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, fmt="parquet") 
+    cerebro = Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, fmt="parquet") 
     cerebro.addstore() 
     cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
 
