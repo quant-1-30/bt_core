@@ -78,6 +78,7 @@ cdef class TrackerActor:
     async def _start(self):
         cdef bytes sid, experiment_id
         cdef Position p_obj
+        cdef tuple pkey
         cdef list datas
         cdef object body, row # Resp
         
@@ -87,6 +88,7 @@ cdef class TrackerActor:
                 body = row.body
                 sid = body.sid
                 experiment_id = body.experiment_id
+                p_key = (experiment_id, sid)
 
                 asset_info = await self.asset_cache.addinfo(sid)
                 p_obj = Position(experiment_id = experiment_id,
@@ -98,8 +100,9 @@ cdef class TrackerActor:
                                 cost_basis = body.cost_basis,
                                 pnl = body.pnl,
                                 created_dt = body.created_dt)
-                self.positions[sid] = p_obj # setdefault return default object
+                self.positions[p_key] = p_obj # setdefault return default object
             # print(f"TrackerActor _start positions: {self.positions}")
+
             await self.cash_manager._start()
             self._create_and_send_snapshot(reason="_start", msg=None)
 
@@ -189,12 +192,13 @@ cdef class TrackerActor:
         cdef bytes experiment_id = core.experiment_id
         cdef OrderExecutionBit ordbit
         cdef Position p_sid
+        cdef tuple pkey = (experiment_id, sid)
 
         asset_info = await self.asset_cache.addinfo(sid)
         # p_objs = self.positions.setdefault(experiment_id, {}) # default value if key not exists
-        if sid not in self.positions: 
-            self.positions[sid] = Position(sid=sid, experiment_id=experiment_id, asset_info=asset_info, created_dt=core.created_dt)
-        p_sid = self.positions[sid]
+        if pkey not in self.positions: 
+            self.positions[pkey] = Position(sid=sid, experiment_id=experiment_id, asset_info=asset_info, created_dt=core.created_dt)
+        p_sid = self.positions[pkey]
 
         acct = self.cash_manager.get_account(experiment_id)
         order.addinfo(asset_info)
@@ -210,36 +214,65 @@ cdef class TrackerActor:
         cdef int32_t last_sync_dts = event.body.start_date
         cdef int32_t current_dts = event.body.end_date
         cdef Position p_obj
-        cdef list psids
+        cdef cpp_string sid_bytes
         
         cdef int32_t close_dt
         cdef double close_price
+        cdef int32_t tmp_total_size
+        
+        cdef set unique_sids = set()
+        cdef list merger_updates = []
 
         self._collect() # # avoid self.position explode
-        psids = list(self.positions.keys())
 
-        if not psids:
+        for (eid, sid_bytes) in self.positions.keys():
+            if eid == experiment_id:
+                unique_sids.add(sid_bytes)
+                
+        if not unique_sids:
             self.cash_manager.sync(experiment_id, last_sync_dts, {})
             return
 
-        closes_df_map, adjs_df_map, rgts_df_map = await self._fetch_from_rpc(last_sync_dts, current_dts, psids)
+        closes_df_map, adjs_df_map, rgts_df_map = await self._fetch_from_rpc(last_sync_dts, current_dts, list(unique_sids))
 
-        for sid_bytes, p_obj in self.positions.items():
+        for (eid, sid_bytes), p_obj in list(self.positions.items()): 
+            if eid != experiment_id: continue
+                
             close_df = closes_df_map.get(sid_bytes, None)
-            
             if close_df is not None and close_df.height > 0:
                 for day, close in close_df.select(["day", "close"]).rows():
-                    close_dt = int(day)
-                    close_price = float(close)
-                    p_obj.on_dt_over(close_dt, close_price)
-            else: # suspend 
-                close_dt = ts2intdt(last_sync_dts)
-                p_obj.on_dt_over(close_dt, 0.0)
+                    p_obj.on_dt_over(int(day), float(close))
+            else: 
+                p_obj.on_dt_over(ts2intdt(last_sync_dts), 0.0)
+                
+            # obsorted by merger
+            if sid_bytes != p_obj.core.sid:
+                merger_updates.append((eid, sid_bytes, p_obj.core.sid, p_obj))
+
+        for eid, old_sid, new_sid, p_obj in merger_updates:
+            if (eid, old_sid) in self.positions:
+                del self.positions[(eid, old_sid)]
+            
+            if (eid, new_sid) in self.positions:
+                exist_p = self.positions[(eid, new_sid)]
+                tmp_total_size = exist_p.core.size + p_obj.core.size
+                if tmp_total_size > 0:
+                    exist_p.core.cost_basis = (
+                        (exist_p.core.cost_basis * exist_p.core.size) + 
+                        (p_obj.core.cost_basis * p_obj.core.size)
+                    ) / tmp_total_size
+                    
+                exist_p.core.size = tmp_total_size
+                exist_p.core.available += p_obj.core.available
+            else:
+                self.positions[(eid, new_sid)] = p_obj
+
+        self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
 
         # T-1 Sync 
         self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
         # -------------------------------------------------------------
-        # 2：T Event Corporate Actions
+        # T Event Corporate Actions
         # -------------------------------------------------------------
         if current_dts >0:
             self._sync_event(experiment_id, self.positions, adjs_df_map, rgts_df_map)
@@ -329,15 +362,16 @@ cdef class TrackerActor:
 
     cdef void _collect(self): # filter psize=0
         cdef bytes sid
-        cdef list dead_sids =[]
         cdef Position p
+        cdef tuple pkey
+        cdef list dead_pkeys =[]
         
-        for sid_key, p in self.positions.items():
+        for pkey, p in self.positions.items():
             if p.core.size == 0:
-                dead_sids.append(sid_key)
+                dead_pkeys.append(pkey)
                 
-        for sid_key in dead_sids:
-            del self.positions[sid_key]
+        for pkey in dead_pkeys:
+            del self.positions[pkey]
  
     cdef void _create_and_send_snapshot(self, str reason, ActorMessage msg, bint writer=False, list trades=[]):
         # separate order --- event stream  from snapshot

@@ -5,6 +5,7 @@
 import asyncio
 import pyarrow as pa
 import numpy as np
+import polars as pl
 from functools import partial
 
 from libc.math cimport floor 
@@ -89,9 +90,6 @@ cdef class PseudoFiller:
               cdef object df, cast_df, np_arr
 
               try:
-                  import polars as pl
-                  import numpy as np
-
                   data = await async_gt.rpc(req, RpcTopic.Tick) # sid: pl.DataFrame
                   df = data[req.sid[0]]
 
@@ -243,16 +241,17 @@ cdef class PseudoFiller:
 
 
 cdef class OCC(PseudoFiller):
-
     cdef double _calc_dynamic_price(self, int32_t loc, Order order, Lines lines):
         cdef int32_t base_loc = loc - 1 if loc > 0 else loc
         return (1 + order.core.pricelimit) * lines.close[base_loc]
+
 
 cdef class Smooth(PseudoFiller):
     cdef double _calc_dynamic_price(self, int32_t loc, Order order, Lines lines):
         cdef int32_t base_loc = loc - 1 if loc > 0 else loc
         cdef double smooth_price = (lines.open[base_loc] + lines.close[base_loc] + lines.high[base_loc] + lines.low[base_loc]) / 4.0
         return (1 + order.core.pricelimit) * smooth_price
+
 
 cdef class Likehood(PseudoFiller):
     cdef double _calc_dynamic_price(self, int32_t loc, Order order, Lines lines):

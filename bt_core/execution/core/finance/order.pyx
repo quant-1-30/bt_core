@@ -14,7 +14,7 @@ from cpython.object cimport Py_EQ
 from bt_core.execution.core.finance.common cimport Exchange
 from bt_core.utils.util cimport fast_uuid4_bytes
 
-from bt_protocol.orm.trade import vtOrder
+from bt_protocol.schema.trade import vtOrder
 
 
 cdef class Order:
@@ -42,7 +42,7 @@ cdef class Order:
 
         self.status = 0
         self.filler = filler
-        self.info = AssetCore(0, 0, 0, False)
+        self.info = AssetCore(0.0, b"", 0, 0, 0, False)
 
         self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
         # self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes

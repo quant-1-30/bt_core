@@ -16,7 +16,7 @@ from bt_core.execution.gateway.operator.operator import async_ops
 
 from bt_sdk.ctx import get_md_api
 from bt_protocol.constant import FactorTopic, RpcTopic
-from bt_protocol.orm.trade import Experiment, vtPosition, vtOrder, vtAccount
+from bt_protocol.schema.trade import Experiment, vtPosition, vtOrder, vtAccount
 
 cdef const int64_t BatchSize = 100
 

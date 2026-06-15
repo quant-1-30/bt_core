@@ -13,7 +13,7 @@ from typing import Union, List, Iterable, Any, AsyncGenerator
 
 from bt_core.utils.wrapper import singleton
 
-from bt_protocol.orm.trade import Base
+from bt_protocol.schema.trade import Base
 
 
 class AsyncStreamProxy:

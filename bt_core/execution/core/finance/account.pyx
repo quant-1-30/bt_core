@@ -11,7 +11,7 @@ from bt_core.execution.core.finance.trade cimport OrderExbitData, OrderExecution
 from bt_core.utils.dateintern cimport ts2intdt
 
 from bt_protocol._protocol import AccountBody, Resp
-from bt_protocol.orm.trade import vtAccount
+from bt_protocol.schema.trade import vtAccount
 
 
 cdef class Account:

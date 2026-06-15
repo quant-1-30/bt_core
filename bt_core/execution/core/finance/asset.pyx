@@ -30,12 +30,16 @@ cdef class Asset:
                 bytes sid, 
                 str name, 
                 int32_t first_trading, 
-                int32_t delist
+                int32_t delist,
+                bytes merger,
+                float ratio
                 ):
         self.sid = sid
         self.name = name
         self.core.first_trading = first_trading
         self.core.delist = delist
+        self.core.merger = merger
+        self.core.ratio = ratio
 
         if sid.startswith(b"688"):
             self.core.tick_size = 200
@@ -63,7 +67,7 @@ cdef class Asset:
     cdef double restricted(self, int64_t ts):
         """
             创业板2020年8月24日 20% 涨幅, 上市前五个交易日不设置涨跌幅
-            st: 2020年8月24日 创业板ST由5% 变为 20%
+            st: 2020年8月24日 创业板ST由5% 变为 20%, 20260706 主板ST/*ST 10%
             科创板ST 为20%
         """
         cdef double thres
@@ -84,7 +88,10 @@ cdef class Asset:
                         self.name, 
                         self.core.first_trading, 
                         self.core.delist,
+                        self.core.merger,
+                        self.core.ratio
             ))
 
     def __repr__(self):
-        return f"Asset(sid={self.sid}, name={self.name}, first_trading={self.core.first_trading}, delist={self.core.delist})"
+        return f"Asset(sid={self.sid}, name={self.name}, first_trading={self.core.first_trading}, \
+                        delist={self.core.delist}, merger={self.core.merger}, ratio={self.core.ratio})"

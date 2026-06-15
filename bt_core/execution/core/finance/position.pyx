@@ -10,7 +10,7 @@ from bt_core.execution.core.finance.function cimport calc_ratio, cRatio
 from bt_core.execution.core.finance.trade cimport OrderExbitData
 
 from bt_protocol._protocol import PositionBody, Resp
-from bt_protocol.orm.trade import vtPosition
+from bt_protocol.schema.trade import vtPosition
 
 
 cdef class Position:
@@ -171,15 +171,45 @@ cdef class Position:
             self.core.cost_basis = (cost_basis + sizer_ratio * item.rgt.price) / (1.0 + sizer_ratio)
             return event_bonus
 
+    # cdef void _dt_over(self, int32_t end_dt, double close):
+    #     cdef int32_t size = self.core.size
+    #     cdef double cost_basis = self.core.cost_basis
+    #     cdef int32_t delist = self.asset_info.delist
+
+    #     if delist > 0 and delist <= end_dt: # bug forward operation
+    #         self.core.size = 0
+    #         self.core.available = 0
+    #         self.core.pnl = 0
+    #     elif close > 0:
+    #         self.core.pnl = size * (close - cost_basis)
+    #     else:
+    #         pass # close == 0.0 means suspend stay
+    #     
+    #     self.core.datetime = end_dt
+
+    cdef void _handle_merger(self, cpp_string target_sid, float close, float ratio):
+        cdef int32_t size = self.core.size
+        cdef int32_t merger_size = <int32_t>(size * ratio)
+        self.core.size = merger_size
+        self.core.available = merger_size
+        self.core.cost_basis = close / ratio
+        self.core.sid = target_sid
+
     cdef void _dt_over(self, int32_t end_dt, double close):
         cdef int32_t size = self.core.size
         cdef double cost_basis = self.core.cost_basis
         cdef int32_t delist = self.asset_info.delist
+        cdef cpp_string merger_sid = self.asset_info.merger
+        cdef double ratio = self.asset_cache.ratio
 
         if delist > 0 and delist <= end_dt: # bug forward operation
-            self.core.size = 0
-            self.core.available = 0
-            self.core.pnl = 0
+            if not merger_sid.empty(): # length 
+                self._handle_merger(merger_sid, close, ratio)
+            else:
+                self.core.size = 0
+                self.core.available = 0
+                self.core.pnl = 0
+
         elif close > 0:
             self.core.pnl = size * (close - cost_basis)
         else:
