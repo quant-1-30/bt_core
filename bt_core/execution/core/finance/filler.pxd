@@ -19,7 +19,7 @@ cdef class PseudoFiller:
     cdef double _calc_dynamic_price(self, int32_t loc, Order order, Lines lines)
 
     cdef (int32_t, double) _find_limit_execution(self, int32_t loc, double limit_price, bint is_buy, Lines lines)
-    
+
     cdef void _execute(self, Order order, Position p_obj, double cash, Lines lines)
 
 
@@ -33,3 +33,15 @@ cdef class Smooth(PseudoFiller):
 
 cdef class Likehood(PseudoFiller):
     cdef double _calc_dynamic_price(self, int32_t loc, Order order, Lines lines)
+
+
+# cdef class AlgoFiller(PseudoFiller):
+#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines, bint is_vwap)
+# 
+# 
+# cdef class VWAPFiller(AlgoFiller):
+#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines)
+# 
+# 
+# cdef class TWAPFiller(AlgoFiller):
+#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines)

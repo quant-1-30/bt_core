@@ -42,7 +42,7 @@ cdef class Order:
 
         self.status = 0
         self.filler = filler
-        self.info = AssetCore(0.0, b"", 0, 0, 0, False)
+        self.info = AssetCore(b"", 0.0, 0, 0, 0, False)
 
         self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
         # self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes
@@ -80,7 +80,7 @@ cdef class Order:
         hold custom information in the order
         include: preclose / asset info 
         '''
-        self.info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
+        self.info = AssetCore(asset_info["merger"], asset_info["ratio"], asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
 
     cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit): # except * 
         cdef OrderExbitData core = order_bit.core

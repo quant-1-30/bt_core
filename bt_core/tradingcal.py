@@ -119,17 +119,21 @@ class TradingCalendar(TradingCalendarBase):
 
         List of non-trading days (``datetime.datetime`` instances)
 
-      - ``earlydays`` (default ``[]``)
-
-        List of tuples determining the date and opening/closing times of days
-        which do not conform to the regular trading hours where each tuple has
-        (``datetime.datetime``, ``datetime.time``, ``datetime.time`` )
-
       - ``offdays`` (default ``ISOWEEKEND``)
 
         A list of weekdays in ISO format (Monday: 1 -> Sunday: 7) in which the
         market doesn't trade. This is usually Saturday and Sunday and hence the
         default
+
+    - ``earlydays`` (default ``[]``)
+
+        List of tuples determining the date and opening/closing times of days
+        which do not conform to the regular trading hours where each tuple has
+        (``datetime.datetime``, ``datetime.time``, ``datetime.time`` )
+
+    # 熔断机制 2016-01-01 2016-01-07(1月8日起暂停实施指数熔断机制)
+    # 2016年1月4日, A股遇到史上首次“熔断” 沪深300指数并于13点13分超过5%引发熔断,三家交易所暂停交易15分钟, 恢复交易并于13点34分触及7% 三个交易所暂停交易至收市
+    # 2016年1月7日, 9点42分沪深300指数跌幅扩大至5%再度触发熔断线9点57分恢复交易, 10:00 沪深300指数再度快速探底最大跌幅7.21% 二度熔断触及阈值
     '''
 
     params = (

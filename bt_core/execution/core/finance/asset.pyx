@@ -67,8 +67,10 @@ cdef class Asset:
     cdef double restricted(self, int64_t ts):
         """
             创业板2020年8月24日 20% 涨幅, 上市前五个交易日不设置涨跌幅
-            st: 2020年8月24日 创业板ST由5% 变为 20%, 20260706 主板ST/*ST 10%
-            科创板ST 为20%
+            st: 科创板ST 为20%, 2020年8月24日创业板ST由5%变为20%
+            # 2026 年 7 月 6 日 A 股将实施新的交易规则‌主板 ST 股涨跌幅限制调整‌ 主板风险警示股票（ST、*ST）的涨跌幅限制由‌5%正式调整为10%‌与主板统一
+            注册制首五日 无限制
+            北交所 (4/8) 2021-11-15 30%
         """
         cdef double thres
 
@@ -76,6 +78,8 @@ cdef class Asset:
             thres = 0.2
         elif self.sid.startswith("3"):
             thres = 0.2 if ts >= CYB_CKPT else 0.1
+        # elif self.sid.startswith(b"4") or self.sid.startswith(b"8"):
+        #    return 0.3 if ts >= 20211115 else 0.1
         else:
             thres = 0.1
         return thres

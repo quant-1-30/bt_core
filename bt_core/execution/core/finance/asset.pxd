@@ -18,8 +18,8 @@ from libc.stdint cimport int64_t, int32_t
 
 cdef struct AssetCore:
     # 8 字节
-    double ratio            # 8 bytes
     cpp_string merger       # 24 或 32 bytes (8字节对齐)
+    double ratio            # 8 bytes
     # 4 字节对齐
     int32_t first_trading   # 4 bytes
     int32_t delist          # 4 bytes

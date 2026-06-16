@@ -46,7 +46,7 @@ cdef class Position:
         self.core.cost_basis = cost_basis
         self.core.pnl = pnl
         
-        self.asset_info = AssetCore(asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
+        self.asset_info = AssetCore(b"", 0.0, asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
     
     # property closed:
@@ -200,7 +200,7 @@ cdef class Position:
         cdef double cost_basis = self.core.cost_basis
         cdef int32_t delist = self.asset_info.delist
         cdef cpp_string merger_sid = self.asset_info.merger
-        cdef double ratio = self.asset_cache.ratio
+        cdef double ratio = self.asset_info.ratio
 
         if delist > 0 and delist <= end_dt: # bug forward operation
             if not merger_sid.empty(): # length 

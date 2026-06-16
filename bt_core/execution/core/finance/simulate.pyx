@@ -214,58 +214,48 @@ cdef class TrackerActor:
         cdef int32_t last_sync_dts = event.body.start_date
         cdef int32_t current_dts = event.body.end_date
         cdef Position p_obj
-        cdef cpp_string sid_bytes
         
         cdef int32_t close_dt
+        cdef int32_t total_size
         cdef double close_price
-        cdef int32_t tmp_total_size
+        cdef cpp_string sid_bytes
         
-        cdef set unique_sids = set()
-        cdef list merger_updates = []
+        cdef tuple p_key
+        cdef dict new_positions = {}
+        cdef set unique_sids_set = {sid_bytes for (eid, sid_bytes) in self.positions.keys() if eid == experiment_id}
 
-        self._collect() # # avoid self.position explode
-
-        for (eid, sid_bytes) in self.positions.keys():
-            if eid == experiment_id:
-                unique_sids.add(sid_bytes)
-                
-        if not unique_sids:
+        if not unique_sids_set:
             self.cash_manager.sync(experiment_id, last_sync_dts, {})
             return
 
-        closes_df_map, adjs_df_map, rgts_df_map = await self._fetch_from_rpc(last_sync_dts, current_dts, list(unique_sids))
+        closes_df_map, adjs_df_map, rgts_df_map = await self._fetch_from_rpc(last_sync_dts, current_dts, list(unique_sids_set))
 
-        for (eid, sid_bytes), p_obj in list(self.positions.items()): 
-            if eid != experiment_id: continue
-                
-            close_df = closes_df_map.get(sid_bytes, None)
-            if close_df is not None and close_df.height > 0:
-                for day, close in close_df.select(["day", "close"]).rows():
-                    p_obj.on_dt_over(int(day), float(close))
-            else: 
-                p_obj.on_dt_over(ts2intdt(last_sync_dts), 0.0)
-                
-            # obsorted by merger
-            if sid_bytes != p_obj.core.sid:
-                merger_updates.append((eid, sid_bytes, p_obj.core.sid, p_obj))
+        self._collect() # remove size=0
 
-        for eid, old_sid, new_sid, p_obj in merger_updates:
-            if (eid, old_sid) in self.positions:
-                del self.positions[(eid, old_sid)]
+        for (eid, sid_bytes), p_obj in self.positions.items():
+            if eid == experiment_id:
+                close_df = closes_df_map.get(sid_bytes, None)
+                if close_df is not None and close_df.height > 0:
+                    for day, close in close_df.select(["day", "close"]).rows():
+                        p_obj.on_dt_over(int(day), float(close))
+                else: 
+                    p_obj.on_dt_over(ts2intdt(last_sync_dts), 0.0)
+
+            # rebuild positions
+            p_key = (eid, p_obj.core.sid)
             
-            if (eid, new_sid) in self.positions:
-                exist_p = self.positions[(eid, new_sid)]
-                tmp_total_size = exist_p.core.size + p_obj.core.size
-                if tmp_total_size > 0:
-                    exist_p.core.cost_basis = (
-                        (exist_p.core.cost_basis * exist_p.core.size) + 
-                        (p_obj.core.cost_basis * p_obj.core.size)
-                    ) / tmp_total_size
-                    
-                exist_p.core.size = tmp_total_size
+            if p_key in new_positions:
+                exist_p = new_positions[p_key]
+                total_size = exist_p.core.size + p_obj.core.size
+                if total_size > 0:
+                    exist_p.core.cost_basis = ((exist_p.core.cost_basis * exist_p.core.size) + 
+                                               (p_obj.core.cost_basis * p_obj.core.size)) / total_size
+                exist_p.core.size = total_size
                 exist_p.core.available += p_obj.core.available
             else:
-                self.positions[(eid, new_sid)] = p_obj
+                new_positions[p_key] = p_obj
+
+        self.positions = new_positions
 
         self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
 
@@ -309,7 +299,7 @@ cdef class TrackerActor:
                         price=float(price)
                     )
 
-        for sid_bytes, pos_obj in pobjs.items():
+        for (_, sid_bytes), pos_obj in pobjs.items():
             # int_sid = int(sid_bytes) 
             # safely bytes "000001" -> int 1
             int_sid = int(sid_bytes.decode('utf-8')) 
