@@ -28,7 +28,7 @@ cimport numpy as cnp
 cnp.import_array() # initialize numpy C-API
 
 
-cdef inline int calculate(Order order, Position p_sid, double cash, double price):
+cdef inline int calculate(Order order, Position p_obj, double cash, double price):
     '''Returns the size for a given order'''
     cdef AssetCore info = order.info
     cdef OrderCoreData core = order.core
@@ -41,7 +41,7 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     sizer_cash = core.sizer_ratio * cash
     # print("price , tick_value :", price, tick_value, sizer_cash)
     if not is_buy:
-        size = p_sid.get_available()
+        size = p_obj.get_available()
         # print("not is_buy filler calculate size :", size)
         sizer_size = <int32_t>(size * core.sizer_ratio) 
         return sizer_size 
@@ -59,49 +59,80 @@ cdef inline int calculate(Order order, Position p_sid, double cash, double price
     return <int32_t>(raw_shares * info.tick_size)
 
 
-cdef inline double _get_fill_factor(double high, double low, double close, double pre_close, \
-                                    double thres, int32_t current_dt, bint is_buy):
-        """
-        thres: Asset.restricted()
-        current_dt: YYYYMMDD
-        """
-        cdef double ret = (close - pre_close) / pre_close
-        cdef double abs_ret = abs(ret)
-        cdef double bar_amplitude = (high - low) / pre_close 
+# cdef inline double _get_fill_factor(double high, double low, double close, double pre_close, \
+#                                     double thres, int32_t current_dt, bint is_buy):
+#         """
+#         thres: Asset.restricted()
+#         current_dt: YYYYMMDD
+#         """
+#         cdef double ret = (close - pre_close) / pre_close
+#         cdef double abs_ret = abs(ret)
+#         cdef double bar_amplitude = (high - low) / pre_close 
+#         
+#         cdef double buffer = 0.01  # 1.0%
+#         cdef bint in_danger_zone = False
+# 
+#         # -------------------------------------------------------------
+#         # 1. Double Danger Zones
+#         # -------------------------------------------------------------
+#         
+#         if abs_ret >= (thres - buffer):
+#             in_danger_zone = True
+# 
+#         # 2020-08-24 前的创业板 ST (5%) / 创业板标准限制为10% 
+#         # 2026-07-06 前的主板 ST (5%) / 主板标准限制为10% 
+#         elif thres == 0.1 and current_dt < 20260706: 
+#             if 0.04 <= abs_ret <= 0.055: 
+#                 in_danger_zone = True
+# 
+#         # -------------------------------------------------------------
+#         # 2. is_avaible 
+#         # -------------------------------------------------------------
+#         if in_danger_zone:
+#             if bar_amplitude <= 1e-6:
+#                 if is_buy and ret > 0: 
+#                     return 0.0  
+#                 if not is_buy and ret < 0: 
+#                     return 0.0  
+#                 
+#                 # reverse operation
+#                 return 1.0 
+#                 
+#             # not reach limit
+#             return min(bar_amplitude / 0.005, 1.0)
+#             
+#         # 3. normal trade
+#         return 1.0
+
+
+cdef double _get_fill_factor(double high, double low, double close, double p_max, double p_min, bint is_buy) noexcept nogil:
+        cdef double bar_amplitude = 0.0
+        cdef double rel_eps = 1e-6  
         
-        cdef double buffer = 0.01  # 1.0%
-        cdef bint in_danger_zone = False
+        if low <= 0 or p_min <= 0 or p_max <= 0:
+            return 0.0
 
-        # -------------------------------------------------------------
-        # 1. Double Danger Zones
-        # -------------------------------------------------------------
-        
-        if abs_ret >= (thres - buffer):
-            in_danger_zone = True
+        bar_amplitude = (high - low) / low
 
-        # 2020-08-24 前的创业板 ST (5%) / 创业板标准限制为10% 
-        # 2026-07-06 前的主板 ST (5%) / 主板标准限制为10% 
-        elif thres == 0.1 and current_dt < 20260706: 
-            if 0.04 <= abs_ret <= 0.055: 
-                in_danger_zone = True
+        if (p_max - p_min) / p_min < rel_eps:
+            if is_buy and (p_max - close) / p_max < rel_eps:
+                return 0.0
+            if not is_buy and (close - p_min) / p_min < rel_eps:
+                return 0.0
+            return 1.0
 
-        # -------------------------------------------------------------
-        # 2. is_avaible 
-        # -------------------------------------------------------------
-        if in_danger_zone:
-            if bar_amplitude <= 1e-6:
-                if is_buy and ret > 0: 
-                    return 0.0  
-                if not is_buy and ret < 0: 
-                    return 0.0  
-                
-                # reverse operation
-                return 1.0 
-                
-            # not reach limit
-            return min(bar_amplitude / 0.005, 1.0)
-            
-        # 3. normal trade
+        if is_buy and (p_max - close) / p_max < rel_eps:
+            if bar_amplitude < rel_eps:
+                return 0.0  
+            else:
+                return min(bar_amplitude / 0.005, 1.0)
+
+        if not is_buy and (close - p_min) / p_min < rel_eps:
+            if bar_amplitude < rel_eps:
+                return 0.0  
+            else:
+                return min(bar_amplitude / 0.005, 1.0)
+
         return 1.0
 
 
@@ -156,7 +187,6 @@ cdef class PseudoFiller:
                   print("GeneratorExit Error means error during line batch_load")
                   pass
               except Exception as e:
-                #   import pdb; pdb.set_trace()
                   print(f"Loader Error: {e}")
 
         if cache is not None:
@@ -196,7 +226,7 @@ cdef class PseudoFiller:
                     
         return -1, 0.0
 
-    cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines): 
+    cdef void _execute(self, Order order, Position p_obj, double cash, Lines lines): 
         cdef double p_max, p_min, reach_limit, comm, order_price, slip_price
         cdef double target_limit_price = 0.0
         cdef int32_t total_size, filler_size, loc, exec_loc, remains
@@ -206,7 +236,7 @@ cdef class PseudoFiller:
         cdef int32_t start_exec_loc, n = len(lines)
         cdef int32_t current_dt = ts2intdt(lines.tick[0])
 
-        cdef double restricted_thres = p_sid.asset_info.restricted(current_dt)
+        cdef double restricted_thres = p_obj.asset.restricted(current_dt)
 
         p_max = lines.max() 
         p_min = lines.min()
@@ -239,7 +269,7 @@ cdef class PseudoFiller:
         # 2. calculate size
         # ==========================================
         if core.size == 0:
-            total_size = calculate(order, p_sid, cash, target_limit_price) 
+            total_size = calculate(order, p_obj, cash, target_limit_price) 
             if total_size <= 0:
                 return
         else:
@@ -256,7 +286,7 @@ cdef class PseudoFiller:
             # filler_factor
             fill_factor = _get_fill_factor(
                 lines.high[exec_loc], lines.low[exec_loc], lines.close[exec_loc], 
-                pre_close, restricted_thres, current_dt, is_buy
+                restricted_thres, current_dt, is_buy
             )
             
             if fill_factor <= 0.0:
@@ -295,13 +325,13 @@ cdef class PseudoFiller:
             remains -= filler_size
             start_exec_loc = exec_loc + 1
 
-    async def __call__(self, Order order, double cash, Position p_sid):
+    async def __call__(self, Order order, double cash, Position p_obj):
         try:
             lines = await self._preload(order)
             if len(lines) == 0:
                 print("order lines is empty :", order)
                 return
-            self._execute(order, p_sid, cash, lines)
+            self._execute(order, p_obj, cash, lines)
         except Exception as e:
             print(f"Error during filler preload: {e}")
             return
@@ -329,86 +359,91 @@ cdef class Likehood(PseudoFiller):
             return (1 + order.core.pricelimit) * lines.low[base_loc]
 
 
-# cdef class AlgoFiller(PseudoFiller):
-#     
-#     # -------------------------------------------------------------
-#     # VWAP/TWAP
-#     # -------------------------------------------------------------
-#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines, bint is_vwap): 
-#         cdef int32_t total_size = order.core.size
-#         if total_size <= 0: return 
-#             
-#         cdef int32_t start_exec_loc = np.searchsorted(lines.tick, order.core.created_dt)
-#         cdef int32_t n = len(lines)
-#         cdef int32_t remaining_bars = n - start_exec_loc
-#         if remaining_bars <= 0: return
-#         
-#         cdef double total_market_vol = 0.0
-#         cdef int32_t i
-#         if is_vwap:
-#             for i in range(start_exec_loc, n): total_market_vol += lines.volume[i]
-#             if total_market_vol <= 0: return
-# 
-#         cdef int32_t remains = total_size
-#         cdef int32_t chunk_size = 0
-#         cdef double target_accum = 0.0
-#         
-#         cdef double order_price, slip_price, comm, fill_factor
-#         cdef OrderExecutionBit order_bit
-#         cdef bint is_buy = order.isbuy
-#         
-#         cdef double pre_close = p_sid.last_close if p_sid.last_close > 0 else lines.open[0]
-#         
-#         cdef int32_t current_dt = ts2intdt(lines.tick[0])
-#         cdef double thres = p_sid.asset_info.restricted(current_dt)
-# 
-#         for exec_loc in range(start_exec_loc, n):
-#             if remains <= 0: break
-#             
-#             fill_factor = _get_fill_factor(
-#                 lines.high[exec_loc], lines.low[exec_loc], lines.close[exec_loc], 
-#                 pre_close, thres, current_dt, is_buy
-#             )
-#             
-#             if fill_factor == 0.0: continue
-# 
-#             if is_vwap:
-#                 target_accum += (lines.volume[exec_loc] / total_market_vol) * total_size * fill_factor
-#             else: 
-#                 target_accum += (total_size / remaining_bars) * fill_factor
-#             
-#             chunk_size = (<int32_t>target_accum // 100) * 100
-#             if chunk_size > remains: chunk_size = remains
-# 
-#             if (chunk_size * lines.close[exec_loc] < 20000.0) and (exec_loc < n - 1) and (remains - chunk_size > 0):
-#                 continue 
-# 
-#             if chunk_size <= 0: continue
-# 
-#             order_price = lines.high[exec_loc] if is_buy else lines.low[exec_loc]
-#             slip_price = self.slip(price=order_price, pmax=lines.max(), pmin=lines.min(), isbuy=is_buy)
-#             comm = self.comm(size=chunk_size, price=slip_price, order=order)
-#             
-#             order_bit = OrderExecutionBit(
-#                               order_id = order.core.order_id,
-#                               executed_dt = lines.tick[exec_loc],
-#                               executed_size = chunk_size, 
-#                               executed_price = slip_price, 
-#                               comm = comm,
-#                               isbuy = is_buy)
-#             order.execute(total_size, order_price, order_bit)
-#             
-#             target_accum -= chunk_size
-#             remains -= chunk_size
-# 
-# 
-# cdef class VWAPFiller(AlgoFiller):
-#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines):
-#         super()._execute(order, p_sid, cash, lines, is_vwap=True)
-# 
-# 
-# cdef class TWAPFiller(AlgoFiller):
-#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines):
-#         super()._execute(order, p_sid, cash, lines, is_vwap=False)
-# 
-# 
+# =====================================================================
+# AlgoFiller
+# =====================================================================
+cdef class AlgoFiller(PseudoFiller):
+
+    def __init__(self, bint is_vwap=True, double impact=0.05, int32_t batch_size=1000, double slip_perc=0.005):
+        super().__init__(impact=impact, batch_size=batch_size, slip_perc=slip_perc)
+        self.is_vwap = is_vwap
+     
+     # -------------------------------------------------------------
+     # VWAP/TWAP
+     # -------------------------------------------------------------
+    cdef void _execute(self, Order order, Position p_obj, double cash, Lines lines): 
+         cdef int32_t total_size = order.core.size
+         if total_size <= 0: return 
+             
+         cdef int32_t start_exec_loc = np.searchsorted(lines.tick, order.core.created_dt)
+         cdef int32_t n = len(lines)
+         cdef int32_t remaining_bars = n - start_exec_loc
+         if remaining_bars <= 0: return
+         
+         cdef double total_market_vol = 0.0
+         cdef int32_t i
+         if self.is_vwap:
+             for i in range(start_exec_loc, n): total_market_vol += lines.volume[i]
+             if total_market_vol <= 0: return
+ 
+         cdef int32_t remains = total_size
+         cdef int32_t chunk_size = 0
+         cdef double target_accum = 0.0
+         
+         cdef double order_price, slip_price, comm, fill_factor
+         cdef OrderExecutionBit order_bit
+         cdef bint is_buy = order.isbuy
+         
+         cdef double pre_close = p_obj.last_close if p_obj.last_close > 0 else lines.open[0]
+         
+         cdef int32_t current_dt = ts2intdt(lines.tick[0])
+         cdef double thres = p_obj.asset.restricted(current_dt)
+ 
+         for exec_loc in range(start_exec_loc, n):
+             if remains <= 0: break
+             
+             fill_factor = _get_fill_factor(
+                 lines.high[exec_loc], lines.low[exec_loc], lines.close[exec_loc], 
+                 thres, current_dt, is_buy
+             )
+             
+             if fill_factor == 0.0: continue
+ 
+             if self.is_vwap:
+                 target_accum += (lines.volume[exec_loc] / total_market_vol) * total_size * fill_factor
+             else: 
+                 target_accum += (total_size / remaining_bars) * fill_factor
+             
+             chunk_size = (<int32_t>target_accum // 100) * 100
+             if chunk_size > remains: chunk_size = remains
+ 
+             if (chunk_size * lines.close[exec_loc] < 20000.0) and (exec_loc < n - 1) and (remains - chunk_size > 0):
+                 continue 
+ 
+             if chunk_size <= 0: continue
+ 
+             order_price = lines.high[exec_loc] if is_buy else lines.low[exec_loc]
+             slip_price = self.slip(price=order_price, pmax=lines.max(), pmin=lines.min(), isbuy=is_buy)
+             comm = self.comm(size=chunk_size, price=slip_price, order=order)
+             
+             order_bit = OrderExecutionBit(
+                               order_id = order.core.order_id,
+                               executed_dt = lines.tick[exec_loc],
+                               executed_size = chunk_size, 
+                               executed_price = slip_price, 
+                               comm = comm,
+                               isbuy = is_buy)
+             order.execute(total_size, order_price, order_bit)
+             
+             target_accum -= chunk_size
+             remains -= chunk_size
+ 
+ 
+cdef class VWAPFiller(AlgoFiller):
+    def __init__(self, **kwargs):
+        super().__init__(is_vwap=True, **kwargs)
+
+
+cdef class TWAPFiller(AlgoFiller):
+    def __init__(self, **kwargs):
+        super().__init__(is_vwap=False, **kwargs)

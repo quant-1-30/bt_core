@@ -22,6 +22,7 @@ cdef class AssetCache:
         pass
 
     def __init__(self):
+        self._c_cache = {}  
         self._sharded_lock = asyncio.Lock()
     
     async def _fetch_from_rpc(self):
@@ -41,7 +42,6 @@ cdef class AssetCache:
     cdef void _add_to_cache(self, object df):
         cdef:
             int32_t i, df_len
-            const cnp.int32_t[:] v_int_sids 
             const cnp.int32_t[:] v_firsts
             const cnp.int32_t[:] v_delists
             
@@ -55,7 +55,6 @@ cdef class AssetCache:
         if df_len == 0:
             return
      
-        v_int_sids = df.get_column("sid").cast(pl.Int32).to_numpy() 
         v_firsts = df.get_column("first_trading").cast(pl.Int32).to_numpy()
         v_delists = df.get_column("delist").cast(pl.Int32).to_numpy()
         
@@ -67,16 +66,16 @@ cdef class AssetCache:
     
         for i in range(df_len):
             sid_bytes = v_sids[i].encode("utf-8")
-            asset = Asset(sid_bytes, v_names[i], v_firsts[i], v_delists[i], v_mergers[i], v_ratios[i])
-            self._c_cache[v_int_sids[i]] = asset.core
+            name_bytes = v_names[i].encode("utf-8")
+            asset = Asset(sid_bytes, name_bytes, v_firsts[i], v_delists[i], v_mergers[i], v_ratios[i])
+            self._c_cache[sid_bytes] = asset
     
     async def addinfo(self, bytes sid):
-        cdef int32_t c_sid = int(sid.decode("utf-8"))
-
-        if self._c_cache.count(c_sid):
-            return self._c_cache[c_sid]
-
         async with self._sharded_lock:
+            if sid in self._c_cache:
+                return self._c_cache[sid]
+                
             data = await self._fetch_from_rpc()
             self._add_to_cache(data)
-        return self._c_cache[c_sid]
+            
+        return self._c_cache.get(sid, None)

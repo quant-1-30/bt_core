@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.3.9"
-description = "move schema to bt_protocol"
+version = "0.4.0"
+description = "update finance module with asset"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

@@ -16,7 +16,7 @@ from libc.stdint cimport int32_t, int64_t
 from libcpp.string cimport string as cpp_string
 
 from bt_core.execution.core.finance.trade cimport OrderExecutionBit, OrderExbitData
-from bt_core.execution.core.finance.cache cimport AssetCore
+from bt_core.execution.core.finance.asset cimport Asset, AssetCore
 
 cdef enum ExecType:
     Open = 0
@@ -71,7 +71,7 @@ cdef class Order:
     cdef object _exbits_schema
     cdef object cached_uuid
 
-    cdef void addinfo(self, dict asset_info)
+    cdef void addinfo(self, Asset asset)
     
     cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit)
     

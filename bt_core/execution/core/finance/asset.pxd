@@ -18,20 +18,22 @@ from libc.stdint cimport int64_t, int32_t
 
 cdef struct AssetCore:
     # 8 字节
-    cpp_string merger       # 24 或 32 bytes (8字节对齐)
-    double ratio            # 8 bytes
+    cpp_string name
+    cpp_string merger       
+    double ratio            
     # 4 字节对齐
-    int32_t first_trading   # 4 bytes
-    int32_t delist          # 4 bytes
-    int32_t tick_size       # 4 bytes
+    int32_t first_trading   
+    int32_t delist         
+    int32_t tick_size 
+    int32_t board     
 
-    bint increment          # 1 byte
+    bint increment          
 
 cdef class Asset:
     cdef readonly AssetCore core
     cdef bytes sid
     cdef str name
 
-    cdef double restricted(self, int64_t t)
+    cdef double restricted(self, int64_t ts) noexcept nogil
     
     cdef AssetCore serialize(self)
