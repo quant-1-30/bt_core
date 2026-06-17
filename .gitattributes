@@ -1,0 +1,10 @@
+# 将 Notebook 标记为文档，不参与语言统计
+*.ipynb linguist-documentation
+
+# 或将 Notebook 标记为已生成文件（generated）
+*.ipynb linguist-generated=true
+
+# 确保 Cython 文件被正确识别
+*.pyx linguist-language=Cython
+*.pxd linguist-language=Cython
+*.pxi linguist-language=Cython

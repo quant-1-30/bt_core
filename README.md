@@ -68,7 +68,7 @@ class MyIndicator(Indicator):
     params = (('period', 20),)  # AutoInfoParam 自动更新
 ```
 
-## 执行模式详解
+### 执行模式
 
 | 模式 | 执行方法 | 适用场景 | 内存使用 | 
 |:---------:|:---------:|:---------:|
@@ -82,7 +82,6 @@ cerebro = Cerebro()
 cerebro.run(exactbars=1)  # 只保存当前值
 cerebro.run(exactbars=0)  # 保存完整历史
 cerebro.run(exactbars=-1) # 低内存模式
-
 
 ### 数据处理流水线
 
@@ -107,7 +106,7 @@ cerebro.run(exactbars=-1) # 低内存模式
     optimize to implement 9:30 timer_event and monitor data with timer
 
 
-### Linebuffer机制
+### Linebuffer
 linebuffer __init__ /  具体值计算比较 next  __getitem__
 basciops to implement next method and use linebuffer instead of __getitem__
 self define need to addminpeeriod and define dmaster
