@@ -42,7 +42,7 @@ cdef class Order:
 
         self.status = 0
         self.filler = filler
-        self.info = AssetCore(b"", 0.0, 0, 0, 0, False)
+        self.info = AssetCore()
 
         self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
         # self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes
@@ -75,12 +75,12 @@ cdef class Order:
             '''Returns True if the order is a Buy order'''
             return self._exbits
 
-    cdef void addinfo(self, dict asset_info):
+    cdef void addinfo(self, Asset asset):
         '''Add the keys, values of kwargs to the internal info dictionary to
         hold custom information in the order
         include: preclose / asset info 
         '''
-        self.info = AssetCore(asset_info["merger"], asset_info["ratio"], asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
+        self.info = asset.core
 
     cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit): # except * 
         cdef OrderExbitData core = order_bit.core

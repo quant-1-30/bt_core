@@ -24,6 +24,7 @@ from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
 from libc.stdint cimport int32_t, int64_t
 
+from bt_core.execution.core.finance.asset cimport Asset
 from bt_core.execution.core.finance.position cimport Position, PositionCoreData
 from bt_core.execution.core.finance.order cimport OrderCoreData, Order
 from bt_core.execution.core.finance.account cimport Account
@@ -90,10 +91,10 @@ cdef class TrackerActor:
                 experiment_id = body.experiment_id
                 p_key = (experiment_id, sid)
 
-                asset_info = await self.asset_cache.addinfo(sid)
+                asset_core = await self.asset_cache.addinfo(sid)
                 p_obj = Position(experiment_id = experiment_id,
                                 sid = sid,
-                                asset_info = asset_info,
+                                asset_core = asset_core,
                                 datetime = body.datetime,
                                 size = body.size,
                                 available = body.available,
@@ -192,16 +193,17 @@ cdef class TrackerActor:
         cdef bytes experiment_id = core.experiment_id
         cdef OrderExecutionBit ordbit
         cdef Position p_sid
+        cdef Asset asset
         cdef tuple pkey = (experiment_id, sid)
 
-        asset_info = await self.asset_cache.addinfo(sid)
+        asset = await self.asset_cache.addinfo(sid)
         # p_objs = self.positions.setdefault(experiment_id, {}) # default value if key not exists
         if pkey not in self.positions: 
-            self.positions[pkey] = Position(sid=sid, experiment_id=experiment_id, asset_info=asset_info, created_dt=core.created_dt)
+            self.positions[pkey] = Position(sid=sid, experiment_id=experiment_id, asset=asset, created_dt=core.created_dt)
         p_sid = self.positions[pkey]
 
         acct = self.cash_manager.get_account(experiment_id)
-        order.addinfo(asset_info)
+        order.addinfo(asset)
         await self._fillers[order.filler](order, acct.core.cash, p_sid)
 
         if order.exbits:

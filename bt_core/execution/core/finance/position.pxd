@@ -18,7 +18,7 @@ from libc.stdint cimport int64_t, int32_t
 
 from bt_core.execution.core.finance.common cimport EventItem
 from bt_core.execution.core.finance.trade cimport OrderExecutionBit
-from bt_core.execution.core.finance.asset cimport AssetCore
+from bt_core.execution.core.finance.asset cimport Asset, AssetCore
 
 
 cdef struct PositionCoreData:
@@ -34,7 +34,7 @@ cdef struct PositionCoreData:
 
 cdef class Position:
     cdef readonly PositionCoreData core
-    cdef AssetCore asset_info
+    cdef Asset asset
     cdef object cached_uuid
 
     cdef int32_t get_available(self)

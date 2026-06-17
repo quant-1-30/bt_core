@@ -35,13 +35,13 @@ cdef class Likehood(PseudoFiller):
     cdef double _calc_dynamic_price(self, int32_t loc, Order order, Lines lines)
 
 
-# cdef class AlgoFiller(PseudoFiller):
-#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines, bint is_vwap)
-# 
-# 
-# cdef class VWAPFiller(AlgoFiller):
-#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines)
-# 
-# 
-# cdef class TWAPFiller(AlgoFiller):
-#     cdef void _execute(self, Order order, Position p_sid, double cash, Lines lines)
+cdef class AlgoFiller(PseudoFiller):
+    cdef public bint is_vwap
+
+
+cdef class VWAPFiller(AlgoFiller):
+    pass
+
+
+cdef class TWAPFiller(AlgoFiller):
+    pass

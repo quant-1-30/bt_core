@@ -28,7 +28,7 @@ cdef class Position:
     def __init__(self, 
                 bytes experiment_id, 
                 bytes sid, 
-                dict asset_info,
+                Asset asset,
                 int64_t datetime=0, 
                 int64_t created_dt=0,
                 int32_t size=0, 
@@ -46,12 +46,8 @@ cdef class Position:
         self.core.cost_basis = cost_basis
         self.core.pnl = pnl
         
-        self.asset_info = AssetCore(b"", 0.0, asset_info["first_trading"], asset_info["delist"], asset_info["tick_size"], asset_info["increment"])
+        self.asset = asset 
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
-    
-    # property closed:
-    #     def __get__(self):
-    #         return self.core.size == 0
     
     cdef int32_t get_available(self):
         return self.core.available
@@ -171,22 +167,6 @@ cdef class Position:
             self.core.cost_basis = (cost_basis + sizer_ratio * item.rgt.price) / (1.0 + sizer_ratio)
             return event_bonus
 
-    # cdef void _dt_over(self, int32_t end_dt, double close):
-    #     cdef int32_t size = self.core.size
-    #     cdef double cost_basis = self.core.cost_basis
-    #     cdef int32_t delist = self.asset_info.delist
-
-    #     if delist > 0 and delist <= end_dt: # bug forward operation
-    #         self.core.size = 0
-    #         self.core.available = 0
-    #         self.core.pnl = 0
-    #     elif close > 0:
-    #         self.core.pnl = size * (close - cost_basis)
-    #     else:
-    #         pass # close == 0.0 means suspend stay
-    #     
-    #     self.core.datetime = end_dt
-
     cdef void _handle_merger(self, cpp_string target_sid, float close, float ratio):
         cdef int32_t size = self.core.size
         cdef int32_t merger_size = <int32_t>(size * ratio)
@@ -198,13 +178,11 @@ cdef class Position:
     cdef void _dt_over(self, int32_t end_dt, double close):
         cdef int32_t size = self.core.size
         cdef double cost_basis = self.core.cost_basis
-        cdef int32_t delist = self.asset_info.delist
-        cdef cpp_string merger_sid = self.asset_info.merger
-        cdef double ratio = self.asset_info.ratio
+        cdef AssetCore asset_core = self.asset.core
 
-        if delist > 0 and delist <= end_dt: # bug forward operation
-            if not merger_sid.empty(): # length 
-                self._handle_merger(merger_sid, close, ratio)
+        if asset_core.delist > 0 and asset_core.delist <= end_dt: # bug forward operation
+            if not asset_core.merger_sid.empty(): # length 
+                self._handle_merger(asset_core.merger_sid, close, asset_core.ratio)
             else:
                 self.core.size = 0
                 self.core.available = 0
@@ -239,7 +217,7 @@ cdef class Position:
         core.cost_basis = self.core.cost_basis
 
         obj.core = core
-        obj.asset_info = self.asset_info
+        obj.asset = self.asset
         return obj
        
     cdef object serialize(self):
@@ -266,24 +244,24 @@ cdef class Position:
         return bool(self.core.size != 0)
 
     def __reduce__(self): # sq same as __init__
-        return (Position, (self.core.experiment_id, self.core.sid, self.asset_info, self.core.datetime, self.core.size, self.core.available, self.core.cost_basis, self.core.pnl, self.core.created_dt))
+        return (Position, (self.core.experiment_id, self.core.sid, self.asset, self.core.datetime, self.core.size, self.core.available, self.core.cost_basis, self.core.pnl, self.core.created_dt))
     
     def __repr__(self):
         template = "Position(experiment_id={experiment_id} ," \
                    "sid={sid} ," \
-                   "asset_info={asset_info} , "\
+                   "asset={asset} , "\
                    "datetime={datetime} ," \
                    "created_dt={created_dt} ," \
                    "size={size} ," \
                    "available={available} ," \
                    "cost_basis={cost_basis} ," \
                    "pnl={pnl})"
-        formatted_asset_info = json.dumps(self.asset_info, ensure_ascii=False)
+        formatted_asset_info = json.dumps(self.asset.core, ensure_ascii=False)
 
         return template.format(
             experiment_id=self.core.experiment_id,
             sid=self.core.sid,
-            asset_info=formatted_asset_info,
+            asset=formatted_asset,
             datetime=self.core.datetime,
             created_dt=self.core.created_dt,
             size=self.core.size,
