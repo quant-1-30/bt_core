@@ -30,7 +30,7 @@ from bt_core.execution.core.finance.order cimport OrderCoreData, Order
 from bt_core.execution.core.finance.account cimport Account
 from bt_core.execution.core.finance.trade cimport OrderExecutionBit
 from bt_core.execution.core.finance.common cimport EventItem, AdjustmentData, RightData
-from bt_core.execution.core.finance.filler cimport PseudoFiller, OCC, Smooth, Likehood 
+from bt_core.execution.core.finance.filler import _fillers
 from bt_core.execution.core.finance.simulate_types cimport MsgType
 from bt_core.utils.dateintern cimport ts2intdt
 from bt_core.execution.actor.writer_actor cimport BatchWriterActor
@@ -66,12 +66,6 @@ cdef class TrackerActor:
 
         self._writer = writer 
 
-        self._fillers = {
-            b"oco": PseudoFiller(),
-            b"occ": OCC(),
-            b"smooth": Smooth(),
-            b"likehood": Likehood()
-        }
         self._latest_snapshot = None 
         
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
@@ -204,7 +198,7 @@ cdef class TrackerActor:
 
         acct = self.cash_manager.get_account(experiment_id)
         order.addinfo(asset)
-        await self._fillers[order.filler](order, acct.core.cash, p_sid)
+        await _fillers[order.filler](order, acct.core.cash, p_sid)
 
         if order.exbits:
             for ordbit in order.exbits:

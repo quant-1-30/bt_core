@@ -25,8 +25,7 @@ cdef class CommInfoBase:
         value/profit
 
       - ``margin`` (def: ``None``): amount of monetary units needed to
-        open/hold an operation. It only applies if the final ``_stocklike``
-        attribute in the class is set to ``False``
+        open/hold an operation.
 
       - ``automargin`` (def: ``False``): Used by the method ``get_margin``
         to automatically calculate the margin/guarantees needed with the
@@ -48,17 +47,15 @@ cdef class CommInfoBase:
         ``commtype`` is set to None, then the following applies:
 
           - ``margin`` is ``None``: Internal ``_commtype`` is set to
-            ``COMM_PERC`` and ``_stocklike`` is set to ``True`` (Operating
+            ``COMM_PERC`` is set to ``True`` (Operating
             %-wise with Stocks)
 
           - ``margin`` is not ``None``: ``_commtype`` set to ``COMM_FIXED`` and
-            ``_stocklike`` set to ``False`` (Operating with fixed rount-trip
-            commission with Futures)
+            ``commission with Futures
 
         If this param is set to something else than ``None``, then it will be
         passed to the internal ``_commtype`` attribute and the same will be
         done with the param ``stocklike`` and the internal attribute
-        ``_stocklike``
 
       - ``stocklike`` (def: ``False``): Indicates if the instrument is
         Stock-like or Futures-like (see the ``commtype`` discussion above)
@@ -94,7 +91,6 @@ cdef class CommInfoBase:
 
     Attributes:
 
-      - ``_stocklike``: Final value to use for Stock-like/Futures-like behavior
       - ``_commtype``: Final value to use for PERC vs FIXED commissions
 
       This two are used internally instead of the declared params to enable the
@@ -105,31 +101,13 @@ cdef class CommInfoBase:
     def __init__(self, 
                  double commission = 0.0,
                  double interest = 0.0,
+                 double fixed = 0.0,
                  int32_t commtype = 0):
 
         self.commission = commission / 100.0
         self.creditrate = interest / 365.0
         self.commtype = commtype
-        self._stocklike = False
-
-    property stocklike:
-        def __get__(self):
-            return self._stocklike 
-
-    def __call__(self, Order order, int32_t size, double price):
-        '''Calculates the commission of an operation at a given price
-        '''
-        return self.getcommission(order, size, price)
-
-    cdef double calculate(self, Order order):
-        return self.commission
-
-    cdef double getcommission(self, Order order, int32_t size, double price):
-        cdef double comm_rate = self.calculate(order)
-        
-        if self.commtype == CommType.COMM_PERC:
-            return abs(size) * comm_rate * price
-        return abs(size) * comm_rate
+        self.fixed = fixed
 
     cdef double get_credit_interest(self, Position pobj, int64_t dt):
         cdef PositionCoreData core = pobj.core
@@ -137,14 +115,27 @@ cdef class CommInfoBase:
         cdef long days = (dt - core.datetime) // 86400
         if days <= 0:
             return 0.0
-        
         return days * self.creditrate * abs(core.size) * core.price
+
+    cdef double calculate(self, Order order):
+        return self.commission
+
+    cdef double getcommission(self, Order order, int32_t size, double price):
+        cdef double comm_rate = self.calculate(order)
+        cdef double comm 
+        
+        comm = abs(size) * comm_rate
+
+        if self.commtype == CommType.COMM_PERC:
+            comm = abs(size) * comm_rate * price
+    
+    def __call__(self, Order order, int32_t size, double price):
+        '''Calculates the commission of an operation at a given price
+        '''
+        return self.getcommission(order, size, price)
 
 
 cdef class CommInfo_Stocks(CommInfoBase):
-
-    def __init__(self):
-        self._stocklike = True
 
     cdef double calculate(self, Order order):
         """
@@ -162,15 +153,21 @@ cdef class CommInfo_Stocks(CommInfoBase):
         comm = stamp_commission + transfer_commission + trade_commission
         return comm
 
+    cdef double getcommission(self, Order order, int32_t size, double price):
+        cdef double comm_rate, comm
+
+        comm_rate = self.calculate(order)
+        comm = abs(size) * comm_rate * price
+        comm = comm if comm >5.0 else 5.0
+        return comm
+
 
 cdef class CommInfo_Futures(CommInfoBase):
     
-    def __init__(self, 
-                 double commission = 0.0,
-                 double interest=0.0,
-                 int32_t commtype = CommType.COMM_FIXED):
-        super(CommInfo_Futures, self).__init__(commission,
-                                               interest,
-                                               commtype)
     cdef double calculate(self, Order order):
         return self.commission
+
+    cdef double getcommission(self, Order order, int32_t size, double price):
+        cdef double comm = size * self.fixed 
+          
+        return comm

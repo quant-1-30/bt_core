@@ -14,9 +14,9 @@ cdef class CommInfoBase:
     cdef double commission
     cdef double creditrate
     cdef int32_t commtype
-    cdef bint _stocklike
+    cdef double fixed
     
-    # cdef 方法声明，子类可以重写 (Virtual-like)
+    # override Virtual-like
     cdef double calculate(self, Order order)
 
     cdef double getcommission(self, Order order, int32_t size, double price)

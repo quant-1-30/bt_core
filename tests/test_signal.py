@@ -151,9 +151,8 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, SellSignal, ddata) 
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
-    # 600036/ 300308
     try:
-        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260430, benchmark=[b"1A0001"])
+        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260430, benchmark=[b"1A0001"], filler=b"smooth")
     except Exception as e:
         print(f"运行报错: {e}")
         if hasattr(cerebro, '_shutdown'):

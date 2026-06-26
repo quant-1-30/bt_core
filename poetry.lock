@@ -253,12 +253,12 @@ reference = "tuna"
 
 [[package]]
 name = "bt-protocol"
-version = "0.1.7"
-description = "add alembic and remove orm"
+version = "0.2.0"
+description = "revise import error in service_pb2_grpc.py"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_protocol-0.1.7-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:e88a48dbbfe6bf916744f4d04b442a28d206ea005674c2e7145b6e8dc1583d87"},
+    {file = "bt_protocol-0.2.0-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:5b094f56dbb5c0b543b0336b05fd90b8b708d308fcc09722d7d4244263ab2606"},
 ]
 
 [package.dependencies]
@@ -275,17 +275,17 @@ reference = "devpi"
 
 [[package]]
 name = "bt-sdk"
-version = "0.14.2"
+version = "0.14.3"
 description = "bt_protocol remove orm"
 optional = false
 python-versions = ">=3.11,<3.15"
 files = [
-    {file = "bt_sdk-0.14.2-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:6bc64978e1fdfcb4105a95020f3ecc9775bccd295a55ce3342a0f6120acdcb6c"},
+    {file = "bt_sdk-0.14.3-cp311-cp311-macosx_26_0_arm64.whl", hash = "sha256:2204ea34536d48756a2d067e99c4464119bc7271a87b8f2c9d2cd62617f94217"},
 ]
 
 [package.dependencies]
 annotated-types = ">=0.7.0,<0.8.0"
-bt-protocol = "0.1.7"
+bt-protocol = ">=0.2.0,<0.3.0"
 build = ">=1.5.0,<2.0.0"
 cython = ">=3.2.3,<4.0.0"
 grpcio = ">=1.81.0"
@@ -5466,4 +5466,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.15"
-content-hash = "a9892ada1c1588be9c84f9e9214b9bca43431a1a980852d35b61cb4a13525f87"
+content-hash = "8a7ad52e773b7a63df93ea092cc4c288b59b2d6e21c7966fa2af78345a8d86b8"

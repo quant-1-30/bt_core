@@ -99,6 +99,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     _ltype = LineIterator.StratType
 
+    _filler = b"oco"
+
     lines = ('datetime',) 
     
     def _settz(self, tz):
@@ -202,6 +204,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         self.shm_chan.publish_sentinel(0) # dts
 
+        self._filler = kwargs.get("filler", b"oco")
+
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
 
@@ -269,7 +273,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def check_risk(self, last_dts: int):
         pass
  
-    def buy(self, buys, plimit: float=0.0, execType=0, filler=b"oco"):
+    def buy(self, buys, plimit: float=0.0, execType=0):
         '''Create a buy (long) order and send it to the broker 
           
           - ``plimit`` (default: ``0.0``) means set price limit or not
@@ -325,7 +329,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         order_type=0,
                         exec_type=0, 
                         created_dt=int(created_dt),
-                        filler=filler)
+                        filler=self._filler)
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.trades
             if trades:
@@ -334,7 +338,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
             self.shm_chan.publish_order(order)
         
-    def sell(self, sells, plimit: float=0.0, execType=0, filler=b"oco"):
+    def sell(self, sells, plimit: float=0.0, execType=0):
         '''
         To create a selll (short) order and send it to the broker
 
@@ -357,7 +361,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                         order_type=1,
                         exec_type=execType, 
                         created_dt=int(created_dt),
-                        filler=filler)
+                        filler=self._filler)
         
             snapshot = self.store.submit(self.experiment_id, order)
             trades = snapshot.trades

@@ -114,3 +114,6 @@ PeriodN __init__ already addimperiod self.p.period
 signal scale to 0 - 1 / bool(self.delta[0] > 0) # np.False_ ---> bool 
 
 find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;
+
+poetry cache clear pypi --all
+poetry add bt_protocol --no-cache
