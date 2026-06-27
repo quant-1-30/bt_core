@@ -16,28 +16,27 @@
 cdef enum SlipType:
     Perc = 0
     Fixed = 1
+    Smooth = 2
+    Likehood = 3
 
 
 cdef class Slippage:
-
-    cdef double _slip_up(self, double pmax, double price)
     
-    cdef double _slip_down(self, double pmin, double price)
-
-
-cdef class PercSlip(Slippage):
-
     cdef double slip_perc
 
-    cdef double _slip_up(self, double pmax, double price)
+    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
     
-    cdef double _slip_down(self, double pmin, double price)
 
+cdef class FixedPercSlip(Slippage):
 
-cdef class FixedSlip(Slippage):
-
-    cdef double slip_fixed
-
-    cdef double _slip_up(self, double pmax, double price)
+    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
     
-    cdef double _slip_down(self, double pmin, double price)
+
+cdef class SmoothSlip(Slippage):
+
+    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
+
+
+cdef class LikehoodSlip(Slippage):
+    
+    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil

@@ -37,7 +37,7 @@ cdef struct OrderData:
     char sid[16]
     char order_id[16]
     char filler[16]
-    double pricelimit
+    double price
     double sizer_ratio
     int64_t created_dt
     int32_t order_type

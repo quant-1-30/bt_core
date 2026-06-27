@@ -71,7 +71,7 @@ if __name__ == '__main__':
     cerebro.addstrategy(TestStrategy, ddata)
 
     try:
-        cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"1A0001"], filler=b"oco")
+        cerebro.run(cash=100000, sid=[b"600036"], fromdate=20040301, todate=20260201, benchmark=[b"1A0001"], filler=b"default")
     except Exception as e:
         print(f"运行报错: {e}")
         if hasattr(cerebro, '_shutdown'):

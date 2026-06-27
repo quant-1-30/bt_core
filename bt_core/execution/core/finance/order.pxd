@@ -9,15 +9,14 @@ from bt_core.execution.core.finance.trade cimport OrderExecutionBit, OrderExbitD
 from bt_core.execution.core.finance.asset cimport Asset, AssetCore
 
 cdef enum ExecType:
-    Open = 0
-    Market = 1
-    Close = 2
+    Open = 0 # suited for backtest
+    Market = 1 
+    Close = 2 # suited for backtest 
     Limit = 3
     Stop = 4
     StopLimit = 5
     StopTrail = 6
     StopTrailLimit = 7
-    Historical = 8
 
 
 cdef enum OrderType:
@@ -43,7 +42,6 @@ cdef struct OrderCoreData:
      int32_t size
      double sizer_ratio
      double price
-     double pricelimit
      int32_t order_type
      int32_t exec_type
      int32_t created_dt
@@ -63,7 +61,7 @@ cdef class Order:
 
     cdef void addinfo(self, Asset asset)
     
-    cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit)
+    cdef void execute(self, int32_t size, OrderExecutionBit order_bit, double order_price)
     
     cdef void submit(self)
 

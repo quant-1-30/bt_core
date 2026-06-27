@@ -147,7 +147,6 @@ cdef class TrackerActor:
                     order_dict = order_obj.get_snapshot() 
                     order_dict['experiment_id'] = self.cached_uuid
                     order_dict.pop("sizer_ratio")
-                    order_dict.pop("pricelimit")
 
                     for ordbit in order_obj.exbits:
                         ordbit_dict = ordbit.get_snapshot()

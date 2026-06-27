@@ -317,8 +317,8 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         return [x for x in self._lineiterators[LineIterator.IndType]
                 if hasattr(x.lines, 'getlinealiases')] # filter LineAction
 
-    def getobservers(self):
-        return self._lineiterators[LineIterator.ObsType]
+    # def getobservers(self):
+    #     return self._lineiterators[LineIterator.ObsType]
 
 # This 3 subclasses can be used for identification purposes within LineIterator
 # or even outside (like in LineObservers)

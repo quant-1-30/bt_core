@@ -1,119 +1,303 @@
-# 核心架构设计
-    项目基于backtrader重构， 核心从两个维度 a. broker feed store trade 核心模块剥离 ; b. 回测逻辑由 T+1 基于A股市场交易策略rewrite。主体bt_core 负责 indicator 与 strategy 构建，
-    构建方式基于type元类 构建框架类，抽象具体实现细节，具体可以深入backtrader metabase 源码了解细节。关于 feed 与 broker 集成方式， 借鉴xtp系统 mdapi / tdapi 构建sdk 集成到bt_core。 
+## 1. 项目概述
 
-## 元类与类构造机制
+`bt_core` 是一个量化回测与仿真交易框架，当前版本 `0.4.1`。
 
-Backtrader 使用元类系统实现类的自动注册和属性管理：
+- **定位**：基于 [backtrader](https://www.backtrader.com/) 的 Lines/元类架构进行重构，剥离 broker、feed、store、trade 等核心模块，并将回测逻辑针对 A 股 T+1 交易规则重新实现。
+- **运行模式**：统一支持**历史回测**与**在线仿真交易**。通过 `Cerebro` 编排数据流、策略、指标、观察器与分析器；通过 `Store` 单例封装行情（`MdApi`）与交易（`TdApi`）接口。
+- **协议依赖**：交易协议层复用 `bt_sdk` / `bt_protocol`，网络层使用 gRPC / Protobuf。
+- **性能优化**：关键路径（仓位/现金控制器 `Pnc`、行情 Sink、共享内存缓冲区、日期转换等）使用 **Cython** 编写并编译为 C++ 扩展。
 
-```
-class MetaParams(type):
-    """参数元类，用于自动处理类参数"""
-    def __new__(cls, name, bases, dct):
-        # __new__ 处理类属性：property、method等
-        # dct 包含所有类级别的属性定义
-        return super().__new__(cls, name, bases, dct)
-    
-    def __call__(cls, *args, **kwargs):
-        # __call__ 处理实例化参数：**kwargs 对应实例属性
-        return super().__call__(*args, **kwargs)
+---
 
-class Strategy(metaclass=MetaParams):
-    """策略基类使用元类"""
-    pass
-```
+## 2. 技术栈
 
-### 关键点：
-    __new__ 操作类属性字典（dct）
-    __call__ 处理实例化参数（**kwargs）
-    类的 __class__ 始终指向元类，与继承层次无关
+| 类别 | 主要技术 |
+|------|----------|
+| 语言 | Python 3.11+（`pyproject.toml` 声明 `>=3.11,<3.15`） |
+| 包管理 | Poetry 1.8+（`pyproject.toml` + `poetry.lock`） |
+| 包源 | 主源 Tsinghua PyPI（`tuna`），补充源 `devpi`（`http://localhost:3141/bt_sdk/dev/+simple/`） |
+| 编译构建 | Cython 3.0+、setuptools、numpy、pybind11、CMake、wheel |
+| 数值/科学计算 | numpy、scipy、numba、pandas、polars、pyarrow、patsy、ta-lib |
+| 数据存储/IO | Parquet、PyArrow、SQLAlchemy、asyncpg、joblib、cloudpickle |
+| 可视化 | matplotlib、bokeh |
+| 协议/网络 | grpcio、protobuf、httpx、reactivex |
+| 日志/性能 | memray、py-spy、snakeviz、line-profiler |
+| 外部量化 SDK | `bt-sdk==0.14.3`、`bt-protocol>=0.2.0` |
 
+---
 
-## 数据流引擎
-
-### 核心数据流动
-
-    Cerebro.runnext() → data[0] 数据点变化 → Strategy.next() 触发 → Indicator 重新计算 → addbindings 同步所有数据的 minperiod
-
-### 组件层级关系
-    DataFeed (Lineseries) → Indicator (Lines) → Strategy → Cerebro (执行引擎)
-
-
-## 线条(Line)系统
-
-### Line 架构设计
+## 3. 目录与模块组织
 
 ```
-class LineIterator:
-    """线条迭代器基类"""
-    def _next(self): pass  # 单步执行
-    def _once(self): pass  # 批量执行
-
-class LineOperation(LineIterator):
-    """线条操作，支持表达式树"""
-    def __init__(self, *args):
-        self.args = args  # 构建二元/多元表达式树
-        
-class LineCoupler(LineIterator):
-    """线条耦合器，对齐不同长度线条"""
-    def __init__(self, *lines):
-        self.lines = lines
+bt_core/
+├── __init__.py              # 公共 API 统一导出
+├── _version.py              # 版本信息
+├── cerebro.py               # 回测引擎主控（Cerebro）
+├── strategy.py              # 策略基类（Strategy / SignalStrategy）
+├── signal.py                # 信号类型定义
+├── feed.py                  # 数据馈送抽象基类（AbstractDataBase）
+├── dataseries.py            # DataSeries / OHLC / TimeFrame / _Bar
+├── resamplerfilter.py       # 数据重采样/回放（Resampler）
+├── linebuffer.py            # LineBuffer 核心数值缓冲区
+├── lineroot.py              # LineRoot / LineSingle / LineMultiple
+├── lineseries.py            # LineSeries / Lines / LineAlias
+├── lineiterator.py          # LineIterator / IndicatorBase / ObserverBase / StrategyBase
+├── indicator.py             # Indicator 元类与基类
+├── observer.py              # Observer 元类与基类
+├── analyzer.py              # Analyzer 元类与基类
+├── broker.py                # BrokerBase 抽象基类
+├── store.py                 # Store 元类与基类（Singleton）
+├── sizer.py                 # Sizer 基类
+├── pnc.pyx / pnc.pxd        # Cython 仓位/现金/风控控制器
+├── timer.pyx / timer.pxd    # Cython 定时器
+├── tradingcal.py            # 交易日历
+├── writer.py                # 结果输出（WriterFile）
+├── optimizer.py             # 参数优化器
+├── log.py                   # 日志
+├── errors.py                # 异常定义
+├── metabase.py              # 元类基础设施
+├── flt.py / logic.py        # 过滤器辅助 / Lines 运算逻辑
+│
+├── analyzers/               # 内置分析器（Sharpe、DrawDown、TradeAnalyzer、SQN ...）
+├── brokers/                 # 经纪商实现（BTBroker、IBBroker、OandaBroker ...）
+├── feeds/                   # 具体数据源（ParquetData、RPCFeed、PandasFeed、CSV ...）
+├── filters/                 # 数据过滤器（Session、CalendarDays ...）
+├── indicators/              # 技术指标库（SMA、EMA、MACD、ATR、RSI、Bollinger ...）
+├── observers/               # 观察器库（Broker、BuySell、Trades、DrawDown ...）
+├── sizers/                  # Sizer 实现（FixedSize、WeightedSizer、TurtleSizer、KellySizer）
+├── stores/                  # Store 实现（LocalStore / IBStore / OandaStore）
+├── control/                 # Cython 风控/仓位模块
+├── execution/               # 执行层（与 bt_sdk 交互）
+│   ├── actor/               # Actor 模型（BatchWriterActor）
+│   ├── gateway/             # 网关抽象
+│   ├── core/                # 核心金融/引擎抽象
+│   └── trade_api.pyx        # 交易 API（TdApi）
+├── shm/                     # 共享内存环形缓冲区（Cython）
+├── sink/                    # 日志/数据消费线程与 Cython Sink
+└── utils/                   # 通用工具（日期转换、AutoDict、编码器、装饰器）
 ```
 
-### 线条派生系统
+---
+
+## 4. 架构要点
+
+### 4.1 元类驱动参数系统
+
+- 所有可配置类通过 `params = (('name', default), ...)` 声明参数。
+- `metabase.py` 中的 `MetaParams` 元类在实例化时将 kwargs 绑定到 `self.p`。
+- 类创建时自动注册子类（`MetaStrategy`、`MetaIndicator`、`MetaObserver` 等）。
+
+### 4.2 Lines 时间序列抽象
+
+- `LineBuffer` 是核心数值缓冲区，索引语义：
+  - `line[0]` = 当前 bar 值
+  - `line[-1]` = 上一 bar 值
+  - `line[1]` = 未来值（若已 extend）
+- 支持 `forward()`、`advance()`、`qbuffer()` 控制内存与指针移动。
+
+### 4.3 运行时调用链路（简化）
 
 ```
-class MyIndicator(Indicator):
-    lines = ('myline',)  # 自动派生线条
-    params = (('period', 20),)  # AutoInfoParam 自动更新
+Cerebro.run()
+  ├── 数据准备：data._start() → feed._prepare()
+  ├── 策略实例化：runstrategies()
+  │     ├── 注册默认 Observers（Broker、Trades、BuySell、DrawDown ...）
+  │     ├── strat._start() → 设置资金、计算 minperiod
+  │     └── writer.start()
+  └── 主循环 _runnext()
+        ├── 对每个 data 调用 next() 加载新 bar
+        ├── _check_timers() → notify_timer() → store.on_dt_over() 日终结算
+        └── 对每个 strategy 调用 _next()
+              ├── 级联调用 indicator._next()
+              ├── 调用 observer / analyzer
+              └── 调用用户 next() / nextstart() / prenext()
 ```
 
-### 执行模式
+### 4.4 Store-Broker 解耦
 
-| 模式 | 执行方法 | 适用场景 | 内存使用 | 
-|:---------:|:---------:|:---------:|
-| 传统模式   | _runnext_old → _next while   | 实时数据   | 较高 
-| 优化模式   | _runnext → _next_open/_next   | 批量处理   | 中等
-| Once模式   | runonce_old → _once   | 历史回测   | 较低
-| 优化Once   | _runonce → _once/reset   | 高效回测   |  最低
-| 优化模式   | 内容5   | 内容6   |
+- `LocalStore`（单例）统一封装行情 `MdApi` 与交易 `TdApi`，并启动异步事件循环。
+- `BTBroker` 只做协议转换，调用 `tdapi.submit()` / `tdapi.on_dt_over()` 等。
+- 订单流：`Strategy.buy/sell()` → `OrderBody` → `Store.submit()` → `Broker.submit()` → `TdApi.submit()` → 返回 `SnapshotBody`。
 
-cerebro = Cerebro()
-cerebro.run(exactbars=1)  # 只保存当前值
-cerebro.run(exactbars=0)  # 保存完整历史
-cerebro.run(exactbars=-1) # 低内存模式
+### 4.5 风控与仓位（Pnc）
 
-### 数据处理流水线
+- `control/pnc.pyx` 是 Cython 实现的高频仓位/现金控制器。
+- 职责：硬止损（`p_tolerance` / `act_tolerance`）、止盈止损、锁仓（`lock_days`）、先卖后买、调用 Sizer 计算目标权重。
 
-#### 数据加载流程
+---
 
-    添加数据源 → 预加载 → while循环加载 → _load方法 → 数据过滤
+## 5. 构建与安装命令
 
-#### 数据重采样
-    compress ---> onendge ---> checkbarover
+### 5.1 环境准备
 
-    bar2edge  adjbartime  rightedge boundoff
+项目使用 Poetry 管理虚拟环境。推荐 Python 版本 3.11.x。
 
-    resample  masterdata last 由于forward存在nan 导致indicator为nan ; 而resample 存在last函数 _fromstack fill forward导致的nan
-    replay 含义举例 重建4小时数据(next 推进，数据是更新的, 需要将数据保存在stash中)
+```bash
+# 安装依赖并创建虚拟环境（如不存在）
+poetry install --no-root
 
-    2>/dev/null --- 0 1 2  |  find . -name / -type / -size / -perm / -group / -mtime
+# 或安装本项目自身作为包
+poetry install
+```
 
-### 定时模块
-    lastcall --- month --- weekday --- when --- repeat  when reach not on day or not repeat or execeed nexteos to update _lastcall
-    daycarry ---> 3, 5 target is 4 , when acceed 3 but bisect.bisect_right == bisect.bisect_left and carry is True (1 + False = 1)
+> 注意：`bt-sdk`、`bt-protocol` 等包可能只存在于项目配置的 `devpi` 私有源（默认 `localhost:3141`），本地开发前请确保该源可访问或已配置替代源。
 
-    optimize to implement 9:30 timer_event and monitor data with timer
+### 5.2 编译 Cython 扩展
 
+Cython 扩展通过 `build_ext.py` / `setup.py` 定义，`pyproject.toml` 中指定 `build = "build_ext.py"`。
 
-### Linebuffer
-linebuffer __init__ /  具体值计算比较 next  __getitem__
-basciops to implement next method and use linebuffer instead of __getitem__
-self define need to addminpeeriod and define dmaster
-PeriodN __init__ already addimperiod self.p.period
-signal scale to 0 - 1 / bool(self.delta[0] > 0) # np.False_ ---> bool 
+```bash
+# 方式 1：使用 Poetry 构建 wheel（会触发 build_ext.py）
+poetry build
 
-find . -name "test_ind_*.py" -type f -exec mv {} test_bt_ind/ \;
+# 方式 2：本地原地编译扩展（开发调试常用）
+python setup.py build_ext --inplace
 
-poetry cache clear pypi --all
-poetry add bt_protocol --no-cache
+# 方式 3：直接生成扩展模块信息
+python build_ext.py
+```
+
+构建产物：
+
+- `.cpp` 中间文件（`build/` 及源码目录，已被 `.gitignore` 忽略）
+- `.so` / `.pyd` 动态链接库（已被 `.gitignore` 忽略）
+- `dist/` 目录下的 wheel / sdist
+
+### 5.3 Docker 构建
+
+```bash
+docker build -t bt_core .
+```
+
+`Dockerfile` 基于 `python:3.11.5-slim`，安装 `build-essential`、Poetry，并设置 `virtualenvs.create false`。
+
+---
+
+## 6. 测试策略与运行方式
+
+### 6.1 测试组织
+
+- 项目位于 `tests/` 目录。
+- 当前没有 `pytest.ini`、`tox.ini` 或 `conftest.py`。
+- 测试文件本质上是**可执行脚本**，入口在 `if __name__ == '__main__':` 中。
+
+### 6.2 主要测试文件
+
+| 文件 | 说明 |
+|------|------|
+| `tests/test_strategy.py` | 基础策略运行示例，展示 Cerebro、Store、PNC、Timer、Resample 用法 |
+| `tests/test_signal.py` | 多信号策略示例（WeekPriceSignal、MACDSignal、VolSignal、DrawDownSignal 等） |
+| `tests/test_resample.py` | 日/周/月/年级别重采样测试 |
+| `tests/test_plot.py` | 基于 Bokeh 的结果可视化 |
+| `tests/experiment/run_simulation.py` | FSM 策略实验脚本，使用 polars 读取 parquet 面板数据 |
+
+### 6.3 运行测试
+
+```bash
+# 进入项目虚拟环境
+poetry shell
+
+# 运行单个脚本
+python tests/test_strategy.py
+python tests/test_signal.py
+python tests/test_resample.py
+```
+
+> 运行测试前通常需要 `load_dotenv()` 读取 `.env` 文件，并确保本地 devpi 源及行情/交易服务可用。多数测试脚本会连接 `LocalStore` → `bt_sdk` 的 `MdApi` / `TdApi`，在缺少服务时会报错。
+
+---
+
+## 7. 代码风格与开发约定
+
+### 7.1 文件头
+
+几乎每个 `.py` 文件顶部都包含统一的 backtrader GPL v3 版权头：
+
+```python
+#!/usr/bin/env python
+# -*- coding: utf-8; py-indent-offset:4 -*-
+###############################################################################
+#
+# Copyright (C) 2015-2023 Daniel Rodriguez
+#
+# ...
+#
+###############################################################################
+```
+
+新增模块时建议保持相同风格。
+
+### 7.2 命名与格式
+
+- 缩进：4 个空格。
+- 类名：`CamelCase`（`Cerebro`、`LocalStore`、`FixedSize`）。
+- 函数/变量：`snake_case`。
+- 私有成员：以 `_` 开头。
+- 类参数：通过 `params = (("name", default), ...)` 声明；实例化后通过 `self.p.name` 访问。
+
+### 7.3 注释与文档
+
+- 代码注释混合中文与英文，核心算法注释多为中文。
+- 公共类/方法使用 Google / backtrader 风格的文档字符串。
+- Cython 文件（`.pyx`）中常见编译优化相关中文注释，例如 `language_level`、`boundscheck`、`wraparound`。
+
+### 7.4 Cython 扩展约定
+
+- `.pyx` 源码与 `.pxd` 声明文件成对出现。
+- 编译选项统一使用 `-O3 -std=c++11`，`language="c++"`。
+- `compiler_directives` 关闭边界检查以提升性能（生产环境需谨慎）：
+  - `boundscheck=False`
+  - `wraparound=False`
+  - `initializedcheck=False`
+  - `cdivision=True`
+
+---
+
+## 8. 部署说明
+
+- `deploy.sh`：Poetry 环境检查/安装脚本，同时创建日志文件 `/var/log/bt_core.*.log`。
+- `Dockerfile`：容器化部署入口，构建后通过 `poetry install` 安装。
+- 发布包：当前 `dist/` 下已有 `bt_core-0.4.1-cp311-cp311-macosx_26_0_arm64.whl` 与源码包。
+
+---
+
+## 9. 安全与注意事项
+
+1. **私有 PyPI 源**：`pyproject.toml` 配置了 `devpi` 源（默认指向 `localhost:3141`），在 CI/其他机器上需要替换为可用的内网地址。
+2. **`.env` 文件**：项目使用 `python-dotenv` 读取环境变量；`.env` 文件包含敏感配置，已加入 `.gitignore`，请勿提交。
+3. **Cython 编译安全**：`boundscheck=False` / `wraparound=False` / `cdivision=True` 会跳过运行期检查，修改 Cython 代码时务必保证索引与除法安全。
+4. ** grpc / 网络**：`bt_protocol` 与 `bt_sdk` 依赖 gRPC 通信，本地测试需启动对应服务。
+5. **资金管理**：`Pnc` 与 `Sizer` 直接控制真实/仿真账户的资金与仓位，修改相关逻辑前务必充分回测。
+
+---
+
+## 10. 常用扩展点
+
+| 扩展目标 | 继承/实现 |
+|----------|-----------|
+| 自定义策略 | `class MyStrategy(bt.Strategy)`，重写 `next()` |
+| 自定义指标 | `class MyInd(bt.Indicator)`，重写 `next()` |
+| 自定义 Observer | `class MyObs(bt.Observer)`，重写 `next()` |
+| 自定义 Analyzer | `class MyAna(bt.Analyzer)`，重写 `next()` / `get_analysis()` |
+| 自定义 Sizer | `class MySizer(bt.Sizer)`，重写 `_getsizing()` |
+| 自定义数据源 | `class MyFeed(bt.feed.DataBase)`，重写 `_load()` |
+| 自定义 Broker | 继承 `bt.BrokerBase` |
+| 自定义 Store | 继承 `bt.Store`，重写数据与交易连接 |
+
+---
+
+## 11. 关键配置文件速查
+
+| 文件 | 作用 |
+|------|------|
+| `pyproject.toml` | Poetry 项目元数据、依赖、包源、构建后端配置 |
+| `poetry.lock` | 依赖锁定文件 |
+| `setup.py` | Cython 扩展模块定义，也支持独立 `python setup.py build_ext --inplace` |
+| `build_ext.py` | Poetry 构建钩子，调用 `setup.get_ext_modules()` |
+| `MANIFEST.in` | 指定发布包包含的额外文件（README、LICENSE、CHANGELOG） |
+| `Dockerfile` | 容器构建 |
+| `deploy.sh` | 部署/环境初始化脚本 |
+| `.gitignore` | 忽略编译产物、虚拟环境、日志、Parquet、.env 等 |
+| `ARCHITECTURE.md` | 详细架构文档（中文） |
+| `README.md` | 核心架构设计说明（中文） |
+| `CHANGELOG.md` | 版本变更记录 |

@@ -232,7 +232,7 @@ cdef class SharedRingBuffer: # SPMC
         strncpy(msg.data.order.filler, <bytes>py_order.filler, 16) 
         msg.data.order.filler[15] = 0  
 
-        msg.data.order.pricelimit = py_order.pricelimit
+        msg.data.order.price = py_order.price
         msg.data.order.sizer_ratio = py_order.sizer_ratio
         msg.data.order.created_dt = py_order.created_dt
         msg.data.order.order_type = py_order.order_type

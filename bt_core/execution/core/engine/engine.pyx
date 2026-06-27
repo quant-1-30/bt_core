@@ -67,7 +67,7 @@ cdef class BackEngine:
                           sid=body.sid,
                           order_id=body.order_id, 
                           sizer_ratio=body.sizer_ratio,
-                          pricelimit=body.pricelimit,
+                          price=body.price,
                           order_type=body.order_type,
                           exec_type=body.exec_type,
                           created_dt=body.created_dt,

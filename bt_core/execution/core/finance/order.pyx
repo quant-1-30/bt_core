@@ -24,7 +24,7 @@ cdef class Order:
                  bytes sid,
                  bytes order_id,
                  double sizer_ratio,
-                 double pricelimit,
+                 double price,
                  int32_t order_type,
                  int32_t exec_type,
                  int32_t created_dt,
@@ -34,8 +34,7 @@ cdef class Order:
         self.core.sid = sid
         self.core.size = 0
         self.core.sizer_ratio = sizer_ratio  
-        self.core.price = 0.0
-        self.core.pricelimit = pricelimit 
+        self.core.price = price
         self.core.order_type = order_type
         self.core.exec_type = exec_type
         self.core.created_dt = created_dt
@@ -82,7 +81,7 @@ cdef class Order:
         '''
         self.info = asset.core
 
-    cdef void execute(self, int32_t size, double price, OrderExecutionBit order_bit): # except * 
+    cdef void execute(self, int32_t size, OrderExecutionBit order_bit, double order_price): # except * 
         cdef OrderExbitData core = order_bit.core
         cdef int32_t exbit_size = core.executed_size
 
@@ -102,7 +101,7 @@ cdef class Order:
         
         # update core.size
         self.core.size = size
-        self.core.price = price 
+        self.core.price = order_price 
    
     cdef void submit(self):
         '''Marks an order as submitted and stores the broker to which it was
@@ -134,7 +133,6 @@ cdef class Order:
         '''Marks an order as cancelled'''
         self.status = OrderStatus.Canceled
 
-  
     cdef Order clone(self):
         cdef Order obj = Order.__new__(Order) # only allocate memory
         cdef OrderCoreData core 
@@ -144,7 +142,6 @@ cdef class Order:
         core.size = self.core.size
         core.sizer_ratio = self.core.sizer_ratio
         core.price = self.core.price
-        core.pricelimit = self.core.pricelimit
         core.order_type = self.core.order_type
         core.exec_type = self.core.exec_type
         core.created_dt = self.core.created_dt
@@ -212,11 +209,11 @@ cdef class Order:
     #         return v_id == y
 
     def __reduce__(self): # class / args
-        return (Order, (self.core.experiment_id, self.core.sid, self.core.sizer_ratio, self.core.pricelimit, 
+        return (Order, (self.core.experiment_id, self.core.sid, self.core.sizer_ratio, 
                         self.core.order_type, self.core.exec_type, self.core.created_dt, self.filler)      
         )
     
     def __repr__(self):
         return f"Order(experiment_id={self.core.experiment_id}, sid={self.core.sid}, \
-            created_dt={self.core.created_dt}, sizer_ratio={self.core.sizer_ratio}, pricelimit={self.core.pricelimit}, \
+            created_dt={self.core.created_dt}, sizer_ratio={self.core.sizer_ratio}, \
             order_type={self.core.order_type}, exec_type={self.core.exec_type}, filler={self.filler})"
