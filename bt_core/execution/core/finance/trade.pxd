@@ -9,6 +9,7 @@ cdef struct OrderExbitData:
     double comm
     bint isbuy
 
+
 cdef class OrderExecutionBit:
     cdef readonly OrderExbitData core
 

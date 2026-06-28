@@ -33,6 +33,7 @@ from .lineiterator import LineIterator, StrategyBase
 from .lineseries import LineSeriesStub
 from .metabase import with_metaclass, findowner
 from .utils import AutoOrderedDict, fast_uuid4_bytes
+from .utils.comparsion import check_gt_zero, check_lt_zero, check_nanzero
 from .shm import SharedRingBuffer
 
 from bt_protocol._protocol import OrderBody, SnapshotBody
@@ -494,6 +495,66 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # if hasattr(self, '_next_custom'):
         #     self._next_custom()
 
+    # def _next_signal(self): # not supported short sell 
+
+    #     sigs = self._signals
+    #     nosig = [[0.0]]
+
+    #     # Calculate current status of the signals
+    #     # ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+    #     # ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
+
+    #     l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+    #     l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+    #     l_enter2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+    #     l_enter = l_enter0 or l_enter1 or l_enter2
+
+    #     s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+    #     s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+    #     s_enter2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+    #     s_enter = s_enter0 or s_enter1 or s_enter2
+
+    #     l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
+    #     l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
+    #     l_ex2 = any(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
+    #     l_exit = l_ex0 or l_ex1 or l_ex2
+
+    #     s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
+    #     s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
+    #     s_ex2 = any(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
+    #     s_exit = s_ex0 or s_ex1 or s_ex2
+
+    #     # but only if no "xxxExit" exists
+    #     l_rev = not self._longexit and s_enter # reverse --- longexit
+    #     s_rev = not self._shortexit and l_enter # reverse --- shortexit
+
+    #     # Opposite of individual long and short
+    #     l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
+    #     l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
+    #     l_leav2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+    #     l_leave = l_leav0 or l_leav1 or l_leav2
+
+    #     s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
+    #     s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
+    #     s_leav2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+    #     s_leave = s_leav0 or s_leav1 or s_leav2
+
+    #     # Invalidate long leave if longexit signals are available
+    #     l_leave = not self._longexit and l_leave
+    #     # Invalidate short leave if shortexit signals are available
+    #     s_leave = not self._shortexit and s_leave
+
+    #     current_prices = {self.data0.sid[0]: self.data0.close[0]} # only support one data feed for now
+    #     snapshot = self.get_snapshot()
+    #     plan = self.pnc.generate_plan(current_prices, current_prices, snapshot, self.stats)  
+
+    #     if l_enter:
+    #         if self.p._accumulate:
+    #             self.buy(plan["buy"])
+    #     # elif l_exit or l_rev or l_leave:
+    #     else:
+    #         self.sell(plan["sell"]) 
+
     def _next_signal(self): # not supported short sell 
 
         sigs = self._signals
@@ -503,24 +564,24 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # ls_long = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
         # ls_short = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGSHORT] or nosig)
 
-        l_enter0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
-        l_enter1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
-        l_enter2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+        l_enter0 = check_gt_zero(sigs[bt.SIGNAL_LONG], nosig)
+        l_enter1 = check_lt_zero(sigs[bt.SIGNAL_LONG_INV], nosig)
+        l_enter2 = check_nanzero(sigs[bt.SIGNAL_LONG_ANY], nosig)
         l_enter = l_enter0 or l_enter1 or l_enter2
 
-        s_enter0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
-        s_enter1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
-        s_enter2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+        s_enter0 = check_lt_zero(sigs[bt.SIGNAL_SHORT], nosig)
+        s_enter1 = check_gt_zero(sigs[bt.SIGNAL_SHORT_INV], nosig)
+        s_enter2 = check_nanzero(sigs[bt.SIGNAL_SHORT_ANY], nosig)
         s_enter = s_enter0 or s_enter1 or s_enter2
 
-        l_ex0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONGEXIT] or nosig)
-        l_ex1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONGEXIT_INV] or nosig)
-        l_ex2 = any(x[0] for x in sigs[bt.SIGNAL_LONGEXIT_ANY] or nosig)
+        l_ex0 = check_lt_zero(sigs[bt.SIGNAL_LONGEXIT], nosig)
+        l_ex1 = check_gt_zero(sigs[bt.SIGNAL_LONGEXIT_INV], nosig)
+        l_ex2 = check_nanzero(sigs[bt.SIGNAL_LONGEXIT_ANY], nosig)
         l_exit = l_ex0 or l_ex1 or l_ex2
 
-        s_ex0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT] or nosig)
-        s_ex1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORTEXIT_INV] or nosig)
-        s_ex2 = any(x[0] for x in sigs[bt.SIGNAL_SHORTEXIT_ANY] or nosig)
+        s_ex0 = check_gt_zero(sigs[bt.SIGNAL_SHORTEXIT], nosig)
+        s_ex1 = check_lt_zero(sigs[bt.SIGNAL_SHORTEXIT_INV], nosig)
+        s_ex2 = check_nanzero(sigs[bt.SIGNAL_SHORTEXIT_ANY], nosig)
         s_exit = s_ex0 or s_ex1 or s_ex2
 
         # but only if no "xxxExit" exists
@@ -528,14 +589,14 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         s_rev = not self._shortexit and l_enter # reverse --- shortexit
 
         # Opposite of individual long and short
-        l_leav0 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_LONG] or nosig)
-        l_leav1 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_LONG_INV] or nosig)
-        l_leav2 = any(x[0] for x in sigs[bt.SIGNAL_LONG_ANY] or nosig)
+        l_leav0 = check_lt_zero(sigs[bt.SIGNAL_LONG], nosig)
+        l_leav1 = check_gt_zero(sigs[bt.SIGNAL_LONG_INV], nosig)
+        l_leav2 = check_nanzero(sigs[bt.SIGNAL_LONG_ANY], nosig)
         l_leave = l_leav0 or l_leav1 or l_leav2
 
-        s_leav0 = all(x[0] > 0.0 for x in sigs[bt.SIGNAL_SHORT] or nosig)
-        s_leav1 = all(x[0] < 0.0 for x in sigs[bt.SIGNAL_SHORT_INV] or nosig)
-        s_leav2 = any(x[0] for x in sigs[bt.SIGNAL_SHORT_ANY] or nosig)
+        s_leav0 = check_gt_zero(sigs[bt.SIGNAL_SHORT], nosig)
+        s_leav1 = check_lt_zero(sigs[bt.SIGNAL_SHORT_INV], nosig)
+        s_leav2 = check_nanzero(sigs[bt.SIGNAL_SHORT_ANY], nosig)
         s_leave = s_leav0 or s_leav1 or s_leav2
 
         # Invalidate long leave if longexit signals are available
@@ -543,7 +604,10 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # Invalidate short leave if shortexit signals are available
         s_leave = not self._shortexit and s_leave
 
-        current_prices = {self.data0.sid[0]: self.data0.close[0]} # only support one data feed for now
+        if not (l_enter or l_exit or l_rev or l_leave or s_enter or s_exit or s_rev or s_leave):
+            return
+
+        current_prices = {self.data0.sid[0]: self.data0.close[0]} 
         snapshot = self.get_snapshot()
         plan = self.pnc.generate_plan(current_prices, current_prices, snapshot, self.stats)  
 

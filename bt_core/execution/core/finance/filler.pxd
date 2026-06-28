@@ -1,4 +1,3 @@
-from libcpp.string cimport string as cpp_string
 from libc.math cimport modf as cmodf
 from libc.stdint cimport int64_t, int32_t
 

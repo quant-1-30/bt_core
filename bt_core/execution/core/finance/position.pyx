@@ -167,7 +167,7 @@ cdef class Position:
             self.core.cost_basis = (cost_basis + sizer_ratio * item.rgt.price) / (1.0 + sizer_ratio)
             return event_bonus
 
-    cdef void _handle_merger(self, cpp_string target_sid, float close, float ratio):
+    cdef void _handle_merger(self, bytes target_sid, float close, float ratio):
         cdef int32_t size = self.core.size
         cdef int32_t merger_size = <int32_t>(size * ratio)
         self.core.size = merger_size

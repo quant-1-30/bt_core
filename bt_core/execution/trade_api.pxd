@@ -1,6 +1,5 @@
 
 from bt_core.execution.core.engine.engine cimport BackEngine
-from libcpp.string cimport string as cpp_string
 
 cdef enum EngineTopic:
     Register = 0
@@ -18,7 +17,7 @@ cpdef enum SubTopic:
 
 cdef class TdApi:
     cdef BackEngine engine
-    cdef cpp_string client_id
+    cdef bytes client_id
     cdef object _loop
     
     cpdef start(self, object _loop)

@@ -736,8 +736,8 @@ class LinesOperation(LineActions):
     def next(self):
         if self.bline:
             # RuntimeWarning: divide by zero encountered in scalar divide
-                # self[0] =  self.operation(self.a[0], self.b[0])
-                self[0] =  0 if np.isclose(self.b[0], 0) else self.operation(self.a[0], self.b[0])
+            # self[0] =  0 if np.isclose(self.b[0], 0) else self.operation(self.a[0], self.b[0])
+            self[0] =  0 if np.isnan(self.b[0]) else self.operation(self.a[0], self.b[0]) # np.isclose used for huge matrix not scalar 
         elif not self.r:
             if not self.btime:
                 self[0] = self.operation(self.a[0], self.b)

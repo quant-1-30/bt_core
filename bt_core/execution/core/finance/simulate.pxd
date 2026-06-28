@@ -1,5 +1,4 @@
 from libc.stdint cimport int32_t
-from libcpp.string cimport string as cpp_string
 
 from bt_core.execution.core.finance.order cimport Order
 from bt_core.execution.core.finance.simulate_types cimport ActorId
@@ -10,7 +9,7 @@ from bt_core.execution.actor.writer_actor cimport BatchWriterActor
 
 cdef class TrackerActor:
     cdef int32_t buffer_size
-    cdef cpp_string experiment_id 
+    cdef bytes experiment_id 
 
     cdef SyncCashManager cash_manager      
     cdef AssetCache asset_cache  

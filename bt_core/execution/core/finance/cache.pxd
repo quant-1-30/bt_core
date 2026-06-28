@@ -1,4 +1,3 @@
-from libcpp.string cimport string as cpp_string
 from libcpp.unordered_map cimport unordered_map
 from bt_core.execution.core.finance.asset cimport Asset
 

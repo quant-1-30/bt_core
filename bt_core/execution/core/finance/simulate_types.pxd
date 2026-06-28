@@ -9,8 +9,6 @@ cdef enum MsgType:
     Sentinel = 99    
 
 
-
 ctypedef struct ActorId:
     int32_t MsgType
     cpp_string experiment_id
-

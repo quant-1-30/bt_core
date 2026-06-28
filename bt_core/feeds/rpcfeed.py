@@ -96,7 +96,8 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
-        self._row_iter = None
+        # self._row_iter = None
+        self._row_iter = False
         self.sid = kwargs["sid"]
 
         tick_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=self.sid)
@@ -122,57 +123,106 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
             on_completed=lambda: self.chan.put(StopIteration) 
         )
 
+    # def _load(self):
+    #     while True:
+    #         if self._row_iter is not None:
+    #             try:
+    #                 row = next(self._row_iter)
+    #                 if self.p.rtbar:
+    #                     ret = self._load_rtbar(row)
+    #                 else:
+    #                     ret = self._load_bar(row)
+    #                 return ret
+    #             except StopIteration:
+    #                 self._row_iter = None
+
+    #         msg = self.chan.get() # next pa.Table
+    #         if msg is StopIteration:
+    #             return False
+    #         if isinstance(msg, Exception):
+    #             raise msg
+
+    #         self._row_iter = self._make_iter(msg)
+    
+    # def _make_iter(self, table):
+    #     cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
+    #     return zip(*cols)
+
+    # def _load_bar(self, row):
+    #     dt = self.lines.datetime[0]
+    #     if not np.isnan(dt) and dt >= row[0]:
+    #         return False 
+        
+    #     self.lines.datetime[0] = row[0]
+    #     self.lines.open[0] = row[1]
+    #     self.lines.high[0] = row[2]
+    #     self.lines.low[0] = row[3]
+    #     self.lines.close[0] = row[4]
+    #     self.lines.volume[0] = row[5]
+    #     self.lines.amount[0] = row[6]
+    #     return True
+
+    def _make_iter(self, table): # zip(*cols) ---> tuple replace idx is faster
+        self._dt_arr = table['tick'].to_numpy()
+        self._op_arr = table['open'].to_numpy()
+        self._hi_arr = table['high'].to_numpy()
+        self._lo_arr = table['low'].to_numpy()
+        self._cl_arr = table['close'].to_numpy()
+        self._vo_arr = table['volume'].to_numpy()
+        self._am_arr = table['amount'].to_numpy()
+        
+        self._row_idx = 0
+        self._total_rows = len(self._dt_arr)
+        return True 
+
     def _load(self):
         while True:
-            if self._row_iter is not None:
-                try:
-                    row = next(self._row_iter)
+            if self._row_iter:
+                if self._row_idx < self._total_rows:
                     if self.p.rtbar:
-                        ret = self._load_rtbar(row)
+                        ret = self._load_rtbar()
                     else:
-                        ret = self._load_bar(row)
+                        ret = self._load_bar()
+                    self._row_idx += 1
                     return ret
-                except StopIteration:
-                    self._row_iter = None
+                else:
+                    self._row_iter = False 
 
-            msg = self.chan.get() # next pa.Table
-            if msg is StopIteration:
-                return False
-            if isinstance(msg, Exception):
-                raise msg
+            msg = self.chan.get()
+            if msg is StopIteration: return False
+            if isinstance(msg, Exception): raise msg
 
             self._row_iter = self._make_iter(msg)
-    
-    def _make_iter(self, table):
-        cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
-        return zip(*cols)
 
-    def _load_bar(self, row):
+    def _load_bar(self):
         dt = self.lines.datetime[0]
-        if not np.isnan(dt) and dt >= row[0]:
+        cur_dt = self._dt_arr[self._row_idx]
+        if not np.isnan(dt) and dt >= cur_dt:
             return False 
         
-        self.lines.datetime[0] = row[0]
-        self.lines.open[0] = row[1]
-        self.lines.high[0] = row[2]
-        self.lines.low[0] = row[3]
-        self.lines.close[0] = row[4]
-        self.lines.volume[0] = row[5]
-        self.lines.amount[0] = row[6]
+        idx = self._row_idx
+        self.lines.datetime[0] = cur_dt
+        self.lines.open[0] = self._op_arr[idx]
+        self.lines.high[0] = self._hi_arr[idx]
+        self.lines.low[0] = self._lo_arr[idx]
+        self.lines.close[0] = self._cl_arr[idx]
+        self.lines.volume[0] = self._vo_arr[idx]
+        self.lines.amount[0] = self._am_arr[idx]
         return True
 
     def _load_rtbar(self, row): # tick 3s
         dt = self.lines.datetime[0]
+        cur_dt = self._dt_arr[self._row_idx]
         if not np.isnan(dt) and dt >= row[0]:
             return False  
         
-        self.lines.datetime[0] = row[0]
-        self.lines.open[0] = row[1]
-        self.lines.high[0] = row[1]
-        self.lines.low[0] = row[1]
-        self.lines.close[0] = row[1]
-        self.lines.volume[0] = row[2]
-        self.lines.amount[0] = row[3]
+        self.lines.datetime[0] = cur_dt
+        self.lines.open[0] = self._op_arr[idx]
+        self.lines.high[0] = self._op_arr[idx]
+        self.lines.low[0] = self._op_arr[idx]
+        self.lines.close[0] = self._op_arr[idx]
+        self.lines.volume[0] = self._vo_arr[idx]
+        self.lines.amount[0] = self._am_arr[idx]
         return True
 
     @staticmethod

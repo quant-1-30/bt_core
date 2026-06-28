@@ -3,7 +3,6 @@
 # cython: wraparound=False
 
 from libc.stdint cimport int32_t, int64_t
-from libcpp.string cimport string as cpp_string
 
 from bt_core.sizers import _sizers
 from bt_core.utils.dateintern import ts2intdt
@@ -30,7 +29,8 @@ cdef class TraderPlan:
 
 cdef class Pnc:
     """
-    sell first and buy after / risk control priority
+        a. sell first 
+        b. buy after 
     """
 
     def __init__(self, str sizer_name, **kwargs):
@@ -43,7 +43,14 @@ cdef class Pnc:
         self.buys =[]
         self.pending_sells = {}
 
-    cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats): # topk_info sort by score
+        self._last_calc_day = 0
+        self._plan_cache = {"sell": [], "buy": []}
+
+    cpdef dict get_pending_sells(self):
+        return self.pending_sells
+
+    cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats): 
+        # topk_info sort by score
         cdef bytes sid
         cdef int32_t days_held, current_day, slots, buy_count=0
         cdef double pnl, wgt_ratio
@@ -58,6 +65,10 @@ cdef class Pnc:
         self.buys.clear()
         
         current_day = ts2intdt(snapshot.account.datetime) # lastday account
+
+        # 🌟 优化：日频缓存拦截 (如果同一天已经算过了，直接返回内存缓存)
+        if current_day == self._last_calc_day and self._plan_cache["sell"] or self._plan_cache["buy"]:
+            return self._plan_cache
         
         # ==========================================
         # 1. Macro Control --- Drawdown
@@ -68,6 +79,7 @@ cdef class Pnc:
         if signal:
             print("reach maxdd and execute sell all")
             self.sells =[TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions if pos.size > 0]
+
             return {"sell": self.sells, "buy":[]}
 
         # ==========================================
@@ -97,7 +109,7 @@ cdef class Pnc:
                 continue 
                 
             # ------------------------------------------
-            # Priority B Days and Conflict
+            # Priority B HoldingDays and Conflict
             # ------------------------------------------
             # based on created_dt(no change) not datetime
             days_held = current_day - ts2intdt(pos.created_dt)
@@ -145,10 +157,13 @@ cdef class Pnc:
                 break
 
         self.buys.sort()
+        # return {"sell": self.sells, "buy": self.buys}
 
-        return {"sell": self.sells, "buy": self.buys}
+        self._plan_cache = {"sell": self.sells, "buy": self.buys}
+        self._last_calc_day = current_day
+        return self._plan_cache
 
-    cpdef void on_filled(self, dict mtrades): # TradeBody
+    cpdef void on_updt(self, dict mtrades): # TradeBody
         cdef bytes sid
         cdef int32_t remain
         cdef TraderPlan tp
@@ -162,9 +177,5 @@ cdef class Pnc:
                 remain = tp.core.size - executed_size
                 if remain <= 0:
                     del self.pending_sells[sid]
-
-    cpdef dict get_pending_sells(self):
-        return self.pending_sells
-
 
 # how to extend to multistrategy and MultiPnc

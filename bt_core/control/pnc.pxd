@@ -24,9 +24,10 @@ cdef class Pnc:
     cdef list sells
     cdef list buys
     cdef dict pending_sells
+    
+    cpdef dict get_pending_sells(self)
 
     cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats)
 
-    cpdef void on_filled(self, dict sell_trades)
+    cpdef void on_updt(self, dict sell_trades)
 
-    cpdef dict get_pending_sells(self)

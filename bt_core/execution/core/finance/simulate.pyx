@@ -18,7 +18,6 @@ from itertools import chain
 from bt_core.execution.gateway.interface import async_gt
 
 from libcpp.unordered_map cimport unordered_map
-from libcpp.string cimport string as cpp_string
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
@@ -244,7 +243,7 @@ cdef class TrackerActor:
         cdef int32_t close_dt
         cdef int32_t total_size
         cdef double close_price
-        cdef cpp_string sid_bytes
+        cdef bytes sid_bytes
         
         cdef tuple p_key
         cdef dict new_positions = {}
@@ -344,7 +343,6 @@ cdef class TrackerActor:
         return Resp(body=self._latest_snapshot)
     
     async def shutdown(self):
-        await self._flush()
         if self._put_buffer:
            await self._writer.push(self._put_buffer) 
         await self._writer.push([MsgType.Sentinel])
