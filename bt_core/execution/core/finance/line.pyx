@@ -1,75 +1,96 @@
-
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: cdivision=True
 # distutils: language = c++
 
 import numpy as np
+cimport numpy as cnp
 
 from libcpp.algorithm cimport binary_search
-from libcpp.algorithm cimport lower_bound 
-from libc.stddef cimport size_t
-
-
-cdef class LineAlias:
-
-    def __init__(self, str name):
-        self.name = name
-
-    cdef void append(self, double value):
-        self._data.push_back(value)
-
-    cdef void extend(self, double[:] arr): # memoryview
-        cdef int32_t i
-        for i in range(arr.shape[0]):
-            self._data.push_back(arr[i])
-
-    cdef double[:] get_array(self):  # cpdef double[:, ::1] get_array(self):  
-        cdef double[:] buffer_view = np.empty(self._data.size(), dtype=np.float64)
-        cdef Py_ssize_t n = self._data.size() # unsigned long
-        cdef Py_ssize_t i  # Py_ssize_t 是 Python 和 Cython 中处理容器索引的标准类型与 size_t 比较
-        for i in range(n):
-            buffer_view[i] = self._data[i]
-        return buffer_view
-
-    def __len__(self):
-        return self._data.size()
-
-    def __gt__(self, value): #  via numpy 
-        return self.get_array() > value
-
-    def clear(self):
-        self._data.clear() # memory keep / shrink_to_fit
+from libc.stdint cimport int32_t, int64_t
 
 
 cdef class Lines:
-
+    
     def __init__(self):
         self._size = 0
 
-    cdef void batch_load(self, double[:, :] arr): 
-        """
-            Memoryview (double[:, :]) numpy array zero_copy
-        """
+    cdef void batch_load(self, double[:, :] arr):
         cdef int32_t n = arr.shape[0]
         cdef int32_t i
-        
+
+        # pre-reserve memory
+        self._v_tick.reserve(self._size + n)
+        self._v_open.reserve(self._size + n)
+        self._v_high.reserve(self._size + n)
+        self._v_low.reserve(self._size + n)
+        self._v_close.reserve(self._size + n)
+        self._v_volume.reserve(self._size + n)
+        self._v_amount.reserve(self._size + n)
+
         for i in range(n):
-            self.tick.push_back(<int64_t>arr[i, 0])
-            self.open.push_back(arr[i, 1])
-            self.high.push_back(arr[i, 2])
-            self.low.push_back(arr[i, 3])
-            self.close.push_back(arr[i, 4])
-            self.volume.push_back(arr[i, 5])
-            self.amount.push_back(arr[i, 6])
-        
+            self._v_tick.push_back(<int64_t>arr[i, 0])
+            self._v_open.push_back(arr[i, 1])
+            self._v_high.push_back(arr[i, 2])
+            self._v_low.push_back(arr[i, 3])
+            self._v_close.push_back(arr[i, 4])
+            self._v_volume.push_back(arr[i, 5])
+            self._v_amount.push_back(arr[i, 6])
+
         self._size += n
 
-    cdef Bar getvalue(self, int32_t idx):
-        """返回 C 结构体包装的 Bar 或者纯 Python 字典/元组"""
-        cdef Bar bar
-        if idx < 0 or idx >= self._size:
-            raise IndexError("Line index out of range")
+        # ==========================================================
+        # critical C-ptr
+        # ==========================================================
+        self.tick = self._v_tick.data()
+        self.open = self._v_open.data()
+        self.high = self._v_high.data()
+        self.low = self._v_low.data()
+        self.close = self._v_close.data()
+        self.volume = self._v_volume.data()
+        self.amount = self._v_amount.data()
+
+    # -----------------------------------------------------------
+    # nogil
+    # -----------------------------------------------------------
+    cdef double max(self) nogil:
+        if self._size == 0: return 0.0
         
+        cdef double m = self.high[0] 
+        cdef int32_t i
+        for i in range(1, self._size):
+            if self.high[i] > m:
+                m = self.high[i]
+        return m
+
+    cdef double min(self) nogil:
+        if self._size == 0: return 0.0
+
+        cdef double m = self.low[0]
+        cdef int32_t i
+        for i in range(1, self._size):
+            if self.low[i] < m:
+                m = self.low[i]
+        return m
+
+    # =========================================================
+    # 🌟 C++ Vector replace np.searchsorted
+    # =========================================================
+
+    cdef bint is_in(self, int64_t tick_val) nogil:
+        if self._size == 0: return False
+        # C++ vector 
+        return binary_search(self._v_tick.begin(), self._v_tick.end(), tick_val)
+
+    cdef int32_t get_loc(self, int64_t target_tick) nogil:
+        if self._size == 0:
+            return 0
+            
+        cdef vector[int64_t].iterator it = lower_bound(self._v_tick.begin(), self._v_tick.end(), target_tick)
+        return <int32_t>(it - self._v_tick.begin())
+
+    cdef Bar getvalue(self, int32_t idx) nogil:
+        cdef Bar bar
         bar.tick = self.tick[idx]
         bar.open = self.open[idx]
         bar.high = self.high[idx]
@@ -79,61 +100,15 @@ cdef class Lines:
         bar.amount = self.amount[idx]
         return bar
 
-    property open:
-        def __get__(self):
-            cdef double[:] arr = <double[:self._size]>self.open.data() # C++ vector ---> return Memoryview 
-            return np.asarray(arr)# .data means memory ptr
-
-    property high:
-        def __get__(self):
-            cdef double[:] arr = <double[:self._size]>self.high.data()
-            return np.asarray(arr)
-
-    property low:
-        def __get__(self):
-            cdef double[:] arr = <double[:self._size]>self.low.data()
-            return np.asarray(arr)
-    
-    property close:
-        def __get__(self):
-            cdef double[:] arr = <double[:self._size]>self.close.data()
-            return np.asarray(arr)
-
-    property volume:
-        def __get__(self):
-            cdef double[:] arr = <double[:self._size]>self.volume.data()
-            return np.asarray(arr)
-
-    property amount:
-        def __get__(self):
-            cdef double[:] arr = <double[:self._size]>self.amount.data()
-            return np.asarray(arr) 
-
-    cdef double max(self): 
-        if self._size == 0: return 0.0
-        cdef double m = self.high[0]
-        cdef int32_t i
-        for i in range(1, self._size):
-            if self.high[i] > m: m = self.high[i]
-        return m
-
-    cdef double min(self):
-        if self._size == 0: return 0.0
-        cdef double m = self.low[0]
-        cdef int32_t i
-        for i in range(1, self._size):
-            if self.low[i] < m: m = self.low[i]
-        return m
-
-    cdef bint is_in(self, int64_t tick):
-        cdef vector[int64_t]* vec = &self.tick
-        # return binary_search(vec.begin(), vec.end(), tick)
-        return binary_search(vec[0].begin(), vec[0].end(), tick) # deref(vec).begin # ptr[0] means ptr
-
     def __len__(self):
         return self._size
 
-    def __iter__(self):
-        cdef int32_t i
-        for i in range(self._size):
-            yield self.getvalue(i) 
+    cpdef clear(self):
+        self._v_tick.clear()
+        self._v_open.clear()
+        self._v_high.clear()
+        self._v_low.clear()
+        self._v_close.clear()
+        self._v_volume.clear()
+        self._v_amount.clear()
+        self._size = 0

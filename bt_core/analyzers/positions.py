@@ -22,6 +22,7 @@ import numpy as np
 from collections import defaultdict
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
@@ -100,13 +101,15 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
     def notify_timer(self, dt0: int):
         self._process_events()
 
-    def on_dt_over(self, dt0: int):
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
         self._process_events()
 
         # events = self.get_shm_events()
         # accts = [act["data"] for act in events if act["type"] == "account"]
-        snap = self._owner.get_snapshot()
-        current_positions = {p.sid: p for p in snap.positions if p.size != 0}
+        # snapshot = self._owner.get_snapshot()
+
+        curr_value = snapshot.account.portfolio_value + snapshot.account.cash
+        current_positions = {p.sid: p for p in snapshot.positions if p.size != 0}
 
 
         hold_sids = set(current_positions.keys())
@@ -167,7 +170,6 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
         daily_win_rate = (daily_won / daily_closed) if daily_closed > 0 else 0.0
         cum_win_rate = (self.cum_won / self.cum_closed) if self.cum_closed > 0 else 0.0
         daily_avg_hold = (total_hold_days / daily_closed) if daily_closed > 0 else 0.0
-        curr_value = snap.account.portfolio_value + snap.account.cash
         net_pnl = curr_value - self._initial_value
         n_trades = len(self._today_trades)
         

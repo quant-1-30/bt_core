@@ -21,6 +21,7 @@
 import math
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class TimeReturn(bt.TimeFrameAnalyzerBase):
@@ -102,9 +103,9 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         self._initial_value = val
         self._prev_value = val
 
-    def on_dt_over(self, dt0: int):
-        snap = self._owner.get_snapshot() 
-        curr_value = snap.account.portfolio_value + snap.account.cash
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
+        # snapshot = self._owner.get_snapshot() 
+        curr_value = snapshot.account.portfolio_value + snapshot.account.cash
         
         if self._initial_value <= 0:
             return

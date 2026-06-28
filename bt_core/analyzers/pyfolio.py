@@ -19,6 +19,7 @@
 #
 ###############################################################################
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class PyFolio(bt.TimeFrameAnalyzerBase):
@@ -66,8 +67,9 @@ class PyFolio(bt.TimeFrameAnalyzerBase):
         tf = min(d._timeframe for d in self.datas)
         self._usedate = tf >= bt.TimeFrame.Days
 
-    def on_dt_over(self, dt0: int):
-        acct = self._owner.get_snapshot().account
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
+        # acct = self._owner.get_snapshot().account
+        acct = snapshot.account
         self.log_shm.publish_metric(b"Portfolio", acct.portfolio_value, dt0) 
         self.log_shm.publish_metric(b"Cash", acct.cash, dt0) 
         self.log_shm.publish_metric(b"Pnl", acct.pnl, dt0)

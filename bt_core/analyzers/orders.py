@@ -22,6 +22,7 @@
 #                         unicode_literals)
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class OrdersAnalyzer(bt.TimeFrameAnalyzerBase):
@@ -63,7 +64,7 @@ class OrdersAnalyzer(bt.TimeFrameAnalyzerBase):
         if new_cnt > 0:
             self.log_shm.publish_metric(b"OrdersCnt", new_cnt, dt0)
 
-    def on_dt_over(self, dt0: int):
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
         self._drain()
 
         self.log_shm.publish_metric(b"OrdersCnt", self.order_cnt, dt0)

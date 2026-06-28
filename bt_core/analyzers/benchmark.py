@@ -22,6 +22,7 @@ import numpy as np
 
 import bt_core as bt
 from bt_core.utils.dateintern import ts2intdt
+from bt_protocol._protocol import SnapshotBody
 
 
 class Benchmark(bt.TimeFrameAnalyzerBase):
@@ -102,7 +103,7 @@ class Benchmark(bt.TimeFrameAnalyzerBase):
         self.dts = ret_table["day"].to_numpy()
         self.returns = ret_table["ret"].to_numpy()
 
-    def on_dt_over(self, dt0: int):
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
         dtint = ts2intdt(dt0)
 
         loc = np.searchsorted(self.dts, dtint)

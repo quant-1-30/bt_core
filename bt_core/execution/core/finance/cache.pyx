@@ -9,7 +9,6 @@ import polars as pl
 
 from libc.stdint cimport int32_t
 
-from bt_core.execution.core.finance.asset cimport Asset
 from bt_core.execution.gateway.interface cimport AsyncGateway # cdef class info 
 from bt_core.execution.gateway.interface import async_gt  # load.so used for cast cdef type    
 
@@ -18,15 +17,15 @@ from bt_protocol.constant import RpcTopic
 
 
 cdef class AssetCache:
-    def __cinit__(self): # initialize memory allocate
-        pass
 
+    def __cinit__(self): 
+        self._c_cache = {} # initialize memory allocate
+        
     def __init__(self):
-        self._c_cache = {}  
         self._sharded_lock = asyncio.Lock()
     
     async def _fetch_from_rpc(self):
-        cdef object table
+        cdef object df
         cdef int32_t rpc_type = RpcTopic.Instrument
 
         df = await async_gt.rpc({}, rpc_type) # complete
@@ -69,13 +68,21 @@ cdef class AssetCache:
             name_bytes = v_names[i].encode("utf-8")
             asset = Asset(sid_bytes, name_bytes, v_firsts[i], v_delists[i], v_mergers[i], v_ratios[i])
             self._c_cache[sid_bytes] = asset
-    
-    async def addinfo(self, bytes sid):
+
+    async def _async_fetch(self, bytes sid):
         async with self._sharded_lock:
             if sid in self._c_cache:
-                return self._c_cache[sid]
-                
+                return
             data = await self._fetch_from_rpc()
             self._add_to_cache(data)
-            
+
+    cdef Asset get_cache_info(self, bytes sid, object loop):
+        """
+            wrap async api
+        """
+        if sid not in self._c_cache:
+            if loop is None:
+                raise RuntimeError("AssetCache initialization requires an active event loop.")
+            asyncio.run_coroutine_threadsafe(self._async_fetch(sid), loop).result()
+
         return self._c_cache.get(sid, None)

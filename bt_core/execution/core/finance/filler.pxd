@@ -19,6 +19,8 @@ cdef class PseudoFiller:
     cdef dict _lines_cache 
     cdef int32_t _current_cache_dt
     
+    cdef _preload(self, Order ord, object loop)
+    
     cdef (int32_t, double) _find_limit_execution(self, int32_t loc, double limit_price, bint is_buy, Lines lines)
 
     cdef void _execute(self, Order order, Position p_obj, double cash, Lines lines)

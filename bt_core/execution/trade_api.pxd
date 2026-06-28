@@ -1,5 +1,6 @@
 
 from bt_core.execution.core.engine.engine cimport BackEngine
+from libcpp.string cimport string as cpp_string
 
 cdef enum EngineTopic:
     Register = 0
@@ -14,33 +15,10 @@ cpdef enum SubTopic:
     Position = 1
     Account = 2
 
-cpdef enum OrderType:
-    Buy = 0
-    Sell = 1
-    Unkown = 2
-
-cpdef enum ExecType:
-    Open = 0
-    Market = 1
-    COC = 2
-    Limit = 3
-    Stop = 4
-    StopLimit = 5
-    StopTrail = 6
-    StopTrailLimit = 7
-    Historical = 8
-
-
-cdef class AsyncApi:
-    cdef BackEngine engine
-    cdef bytes client_id
-    cdef object _loop
-    
-    cdef start(self, object _loop)
-
 
 cdef class TdApi:
-    cdef AsyncApi _async_api
+    cdef BackEngine engine
+    cdef cpp_string client_id
     cdef object _loop
     
     cpdef start(self, object _loop)

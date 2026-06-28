@@ -22,11 +22,12 @@ import collections
 import math
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 __all__ = ['Calmar']
 
 
-class Calmar(bt.Analyzer):
+class Calmar(bt.TimeFrameAnalyzerBase):
     '''This analyzer calculates the CalmarRatio
     timeframe which can be different from the one used in the underlying data
     Params:
@@ -61,58 +62,6 @@ class Calmar(bt.Analyzer):
       - ``calmar`` the latest calculated calmar ratio     Calmar = 年化收益率 / 最大回撤
     '''
     params = (
-        ('maxlen', 36),
-    )
-
-    def __init__(self):
-        super().__init__()
-        self._max_dd = 0.0
-        self._max_equity = 0.0
-        self._values = collections.deque(maxlen=self.p.maxlen)
-
-    def start(self):
-        snap = self._owner.get_snapshot()
-
-        self._values.append(snap.account.portfolio_value)
-        self._max_equity = snap.account.portfolio_value
-
-    def _calculate_metrics(self, current_value):
-        self._values.append(current_value)
-        
-        # calculate maxdown
-        if current_value > self._max_equity:
-            self._max_equity = current_value
-
-        if self._max_equity <= 0.0:
-            return float('NaN')
-        
-        current_dd = (self._max_equity - current_value) / self._max_equity
-        if current_dd > self._max_dd:
-            self._max_dd = current_dd
-            
-        if len(self._values) > 1 and self._max_dd > 0:
-            start_val = self._values[0]
-            rann = math.log(current_value / start_val) / len(self._values)
-            current_calmar = rann / self._max_dd
-        else:
-            current_calmar = float('NaN')
-        return current_calmar
-
-    def on_dt_over(self, dt0: int):
-        snap = self._owner.get_snapshot()
-        current_value = snap.account.portfolio_value
-        
-        calmar = self._calculate_metrics(current_value)
-        
-        if calmar == calmar: # not NaN
-            self.log_shm.publish_metric(b"Calmar", calmar, dt0)
-
-    def stop(self):
-        print(f"Final Calmar Ratio")
-
-
-class Calmar(bt.TimeFrameAnalyzerBase):
-    params = (
         ('timeframe', bt.TimeFrame.Days),
         ('compression', 1),
         ('tann', None),
@@ -140,8 +89,9 @@ class Calmar(bt.TimeFrameAnalyzerBase):
         self._initial_value = val
         self._peak = val
 
-    def on_dt_over(self, dt0: int):
-        acct = self._owner.get_snapshot().account
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
+        # acct = self._owner.get_snapshot().account
+        acct = snapshot.account
         curr_value = acct.portfolio_value + acct.cash
         
         if self._initial_value <= 0:

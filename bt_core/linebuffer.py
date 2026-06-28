@@ -70,6 +70,7 @@ class LineBuffer(LineSingle):
         self.reset()
         self._tz = None
         self.idx = -1
+        self._cur_idx = -1
         self.extra_info = ""
 
     def reset(self):
@@ -93,6 +94,8 @@ class LineBuffer(LineSingle):
 
         self.lencount = 0
         self.extension = 0
+        # self.idx = -1
+        # self._cur_idx = -1
 
     def qbuffer(self, savemem=0):
         if savemem:
@@ -119,11 +122,34 @@ class LineBuffer(LineSingle):
         self.maxlen = size
         self.reset()
     
+    # def __getitem__(self, ago):
+    #     # return self.array[self.idx + ago]
+    #     idx = self.idx % self.maxlen # python % 与除数符号一致, math % 与被除数一致
+    #     # print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
+    #     return self.array[idx + ago]
+    
+    # def __setitem__(self, ago, value):
+    #     ''' Sets a value at position "ago" and executes any associated bindings
+
+    #     Keyword Args:
+    #         ago (int): Point of the array to which size will be added to return
+    #         the slice
+    #         value (variable): value to be set
+    #     '''
+    #     idx = self.idx % self.maxlen
+    #     self.array[idx + ago] = value
+    #     for binding in self.bindings:
+    #         binding[ago] = value
+    
     def __getitem__(self, ago):
-        # return self.array[self.idx + ago]
-        idx = self.idx % self.maxlen # python % 与除数符号一致, math % 与被除数一致
-        # print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
-        return self.array[idx + ago]
+        return self.array[self._cur_idx + ago]
+
+    def _set(self, ago, value):
+        """ avoid __setitem__"""
+        self.array[self._cur_idx + ago] = value
+        if self.bindings:  
+            for binding in self.bindings:
+                binding._set(ago, value)
     
     def __setitem__(self, ago, value):
         ''' Sets a value at position "ago" and executes any associated bindings
@@ -133,10 +159,11 @@ class LineBuffer(LineSingle):
             the slice
             value (variable): value to be set
         '''
-        idx = self.idx % self.maxlen
-        self.array[idx + ago] = value
+        self._cur_idx = self.idx % self.maxlen
+
+        self.array[self._cur_idx + ago] = value
         for binding in self.bindings:
-            binding[ago] = value
+            binding._set(ago, value)
 
     def __len__(self):
         return self.lencount
@@ -205,6 +232,38 @@ class LineBuffer(LineSingle):
         self.idx = -1
         self.lencount = 0
 
+    # def forward(self, value=NAN, size=1):
+    #     ''' Moves the logical index foward and enlarges the buffer as much as needed
+
+    #     Keyword Args:
+    #         value (variable): value to be set in new positins
+    #         size (int): How many extra positions to enlarge the buffer
+    #     '''
+    #     self.idx += size
+    #     self.lencount += size
+
+    #     if self.mode == UnBounded: # array.array('d') 
+    #         for i in range(size):
+    #             self.array.append(value)
+
+    #     # self[0] = np.nan # no accurate size >= 1
+
+    # def backwards(self, size=1):
+    #     ''' Moves the logical index backwards and reduces the buffer as much as needed
+
+    #     Keyword Args:
+    #         size (int): How many extra positions to rewind and reduce the
+    #         buffer
+    #     '''
+    #     # Go directly to property setter to support force
+    #     idx = self.idx - size
+    #     self.idx = idx
+    #     self.lencount -= size
+        
+    #     if self.mode == UnBounded: # array.array('d')
+    #         for i in range(size):
+    #             self.array.pop()
+    
     def forward(self, value=NAN, size=1):
         ''' Moves the logical index foward and enlarges the buffer as much as needed
 
@@ -213,11 +272,11 @@ class LineBuffer(LineSingle):
             size (int): How many extra positions to enlarge the buffer
         '''
         self.idx += size
+        self._cur_idx = self.idx % self.maxlen
         self.lencount += size
 
         if self.mode == UnBounded: # array.array('d') 
-            for i in range(size):
-                self.array.append(value)
+            self.array.append([size] * value)
 
         # self[0] = np.nan # no accurate size >= 1
 
@@ -231,11 +290,11 @@ class LineBuffer(LineSingle):
         # Go directly to property setter to support force
         idx = self.idx - size
         self.idx = idx
+        self._cur_idx = self.idx % self.maxlen
         self.lencount -= size
         
         if self.mode == UnBounded: # array.array('d')
-            for i in range(size):
-                self.array.pop()
+            del self.array[-size:]
 
     def rewind(self, size=1):
         self.idx -= size

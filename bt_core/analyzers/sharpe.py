@@ -22,6 +22,7 @@ import math
 import numpy as np
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class SharpeRatio(bt.TimeFrameAnalyzerBase): # SharpeRatio(bt.Analyzer):
@@ -135,8 +136,9 @@ class SharpeRatio(bt.TimeFrameAnalyzerBase): # SharpeRatio(bt.Analyzer):
         acct = self._owner.get_snapshot().account
         self._last_value = acct.portfolio_value + acct.cash
 
-    def on_dt_over(self, dt0: int):
-        acct = self._owner.get_snapshot().account
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
+        # acct = self._owner.get_snapshot().account
+        acct = snapshot.account
         current_value = acct.portfolio_value + acct.cash
         
         if self._last_value > 0:

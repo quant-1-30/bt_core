@@ -22,6 +22,7 @@
 #                         unicode_literals)
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class Transactions(bt.TimeFrameAnalyzerBase):
@@ -66,7 +67,7 @@ class Transactions(bt.TimeFrameAnalyzerBase):
         if trades_cnt > 0:
             self.log_shm.publish_metric(b"TradesCnt", self.trades_cnt, dt0) # slope
 
-    def on_dt_over(self, dt0: int):
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
         self._drain() 
         self.log_shm.publish_metric(b"TradesCnt", self.trades_cnt, dt0) 
         self.trades_cnt = 0 # reset

@@ -23,6 +23,7 @@ import numpy as np
 from collections import defaultdict
 
 import bt_core as bt
+from bt_protocol._protocol import SnapshotBody
 
 
 class SQN(bt.TimeFrameAnalyzerBase):
@@ -103,13 +104,13 @@ class SQN(bt.TimeFrameAnalyzerBase):
     def notify_timer(self, dt0: int):
         self._process_events()
 
-    def on_dt_over(self, dt0: int):
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
         self._process_events()
 
         # events = self.get_shm_events()
         # accts = [act["data"] for act in events if act["type"] == "account"]
-        snap = self._owner.get_snapshot()
-        current_positions = {p.sid: p for p in snap.positions if p.size != 0}
+        # snapshot = self._owner.get_snapshot()
+        current_positions = {p.sid: p for p in snapshot.positions if p.size != 0}
 
 
         hold_sids = set(current_positions.keys())

@@ -33,33 +33,41 @@ cdef class BackEngine:
         self.simulator = Simulator(q_size=q_size, buffer_size=buffer_size, actor=actor)
         self.gt = <AsyncGateway>async_gt # cast to cdef class type
 
-    async def __aenter__(self):
-        self._start()
-        return self
-        
     cpdef void start(self, object loop):
-         # self._loop = asyncio.get_running_loop()
          self.simulator.attach(loop)
 
     # -----------------------------------------------------------
-    # direct API 
+    # async api 
     # -----------------------------------------------------------
 
-    async def register(self, object event):
+    async def register(self, object trade_event):
         cdef object resp
 
-        resp = await async_gt.register(event)
-        return resp
-
-    async def set_cash(self, object event):
-        cdef object resp
-
-        resp = await self.simulator.set_cash(event)
+        resp = await async_gt.register(trade_event)
         return resp
     
-    async def submit(self, object event):
-        cdef object body = event.body 
-        cdef bytes experiment_id = event.experiment_id
+    async def subscribe(self, object trade_event):
+        cdef list resp = []
+
+        async for batch in async_gt.subscribe(trade_event): 
+            resp.append(batch)
+        
+        resp = list(chain(*resp)) # stack
+        return resp
+    
+    # -----------------------------------------------------------
+    # direct api via Cython / C
+    # -----------------------------------------------------------
+
+    cpdef object set_cash(self, object trade_event):
+        cdef object resp
+
+        resp = self.simulator.set_cash(trade_event)
+        return resp
+    
+    cpdef object submit(self, object trade_event):
+        cdef object body = trade_event.body 
+        cdef bytes experiment_id = trade_event.experiment_id
         cdef Order order_obj
         cdef object resp
 
@@ -73,28 +81,19 @@ cdef class BackEngine:
                           created_dt=body.created_dt,
                           filler=body.filler)
         order_obj.submit()
-        resp = await self.simulator.submit(order_obj)
+        resp = self.simulator.submit(order_obj)
         return resp
 
-    async def on_dt_over(self, object event):
+    cpdef object on_dt_over(self, object trade_event):
         cdef object resp
 
-        resp = await self.simulator.on_dt_over(event)
+        resp = self.simulator.on_dt_over(trade_event)
         return resp
 
-    async def get_snapshot(self, object event): # macht case in suited for cython
+    cpdef object get_snapshot(self, object trade_event): 
         cdef object resp
  
-        resp = await self.simulator.get_snapshot(event)
-        return resp
-
-    async def subscribe(self, object event):
-        cdef list resp = []
-
-        async for batch in async_gt.subscribe(event): 
-            resp.append(batch)
-        
-        resp = list(chain(*resp)) # stack
+        resp = self.simulator.get_snapshot(trade_event)
         return resp
 
     async def stop(self):
@@ -107,6 +106,3 @@ cdef class BackEngine:
             
         except Exception as e:
             logger.exception(f"Error stopping back broker: {e}")
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.stop()

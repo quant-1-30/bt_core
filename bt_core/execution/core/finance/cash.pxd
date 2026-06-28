@@ -2,7 +2,7 @@ from libc.stdint cimport int64_t
 from bt_core.execution.core.finance.account cimport Account
 
 
-cdef class AsyncCashManager:
+cdef class SyncCashManager:
     cdef object acct
 
     cdef Account get_account(self, bytes experiment_id)

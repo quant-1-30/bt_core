@@ -21,6 +21,7 @@
 import numpy as np
 import bt_core as bt
 from bt_core.utils import AutoOrderedDict
+from bt_protocol._protocol import SnapshotBody
 
 
 __all__ = ['DrawDown']
@@ -79,13 +80,14 @@ class DrawDown(bt.TimeFrameAnalyzerBase):
         self.ddlen = 0
         self.maxddlen = 0
 
-    def on_dt_over(self, dt0: int):
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
         # events = self.get_shm_events() 
         # accts = [act["data"] for act in events if act["type"] == "account"]
         # acct = accts[-1]
         # value = acct["portfolio_value"] + acct["cash"]
         
-        acct = self._owner.get_snapshot().account
+        # acct = self._owner.get_snapshot().account
+        acct = snapshot.account
         value = acct.portfolio_value + acct.cash
 
         # peak and reset

@@ -242,7 +242,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         for analyzer in self.analyzers:
             if hasattr(analyzer, 'on_dt_over'):
-                analyzer.on_dt_over(dts)
+                analyzer.on_dt_over(dts, snapshot)
 
         for _d in self.datas:
             _d.on_dt_over(dts)

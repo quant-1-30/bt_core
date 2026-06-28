@@ -26,6 +26,7 @@ from collections import OrderedDict
 import bt_core as bt
 from bt_core.dataseries import TimeFrame
 from bt_core.metabase import with_metaclass, MetaParams, findowner
+from bt_protocol._protocol import SnapshotBody
 
 
 class MetaAnalyzer(MetaParams):
@@ -212,5 +213,5 @@ class TimeFrameAnalyzerBase(with_metaclass(MetaTimeFrameAnalyzerBase,
     def notify_timer(self, dts: int):
         pass
 
-    def on_dt_over(self, dts: int):
+    def on_dt_over(self, dts: int, snapshot: SnapshotBody):
         pass

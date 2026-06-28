@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.4.1"
-description = "revise bug in filler"
+version = "0.4.2"
+description = "transform trade api to sync exclude register / subscribe async api"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

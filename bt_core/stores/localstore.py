@@ -24,7 +24,8 @@ import pyarrow as pa
 from typing import Union, List, Mapping, Any, Generator, Tuple, Dict
 
 from bt_core.store import Store
-from bt_core.execution.trade_api import TdApi, SubTopic, OrderType, ExecType
+from bt_core.execution.trade_api import TdApi, SubTopic
+from bt_core.execution.core.finance.order import OrderType, ExecType
 from bt_core.execution.actor.writer_actor import BatchWriterActor
 
 from bt_sdk.ctx import initialize_runner, get_md_api

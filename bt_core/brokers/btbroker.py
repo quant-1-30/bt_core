@@ -84,6 +84,7 @@ class BTBroker(with_metaclass(MetaBtBroker, BrokerBase)):
     
     def register(self, body:RegisterBody) -> bytes:
         data = self.tdapi.register(body)
+        print("register data :", data)
         return data.body.experiment_id
     
     def set_cash(self, experiment_id:bytes, body:CashBody) -> SnapshotBody:

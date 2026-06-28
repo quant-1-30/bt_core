@@ -13,71 +13,6 @@ from bt_protocol._protocol import Event
 from bt_core.execution.core.engine.engine cimport BackEngine, EngineTopic
 
 
-cdef class AsyncApi:
-
-    def __init__(self, bytes client_id, int32_t q_size, int32_t buffer_size, object actor):
-        self.client_id = client_id
-        self.engine = BackEngine(q_size, buffer_size, actor)
-        self._loop = None
-
-    cdef start(self, object _loop):
-        self.engine.start(_loop)
-        self._loop = _loop
-
-    async def register_async(self, object body):
-        cdef object event = Event(
-            topic=EngineTopic.Register,
-            body=body,
-            experiment_id=b''
-        )
-        return await self.engine.register(event)
-
-    async def set_cash_async(self, bytes experiment_id, object body):
-        cdef object event = Event(
-            topic=EngineTopic.SetCash,
-            body=body,
-            experiment_id=experiment_id
-        )
-        return await self.engine.set_cash(event)
-
-    async def submit_async(self, bytes experiment_id, object body):
-        cdef object event = Event(
-            topic=EngineTopic.Submit,
-            body=body,
-            experiment_id=experiment_id
-        )
-        return await self.engine.submit(event)
-
-    async def on_dt_over_async(self, bytes experiment_id, object body):
-        cdef object event = Event(
-            topic=EngineTopic.Tplus1,
-            body=body,
-            experiment_id=experiment_id
-        )
-        return await self.engine.on_dt_over(event)
-
-    async def get_snapshot_async(self, bytes experiment_id):
-        cdef object event = Event(
-            topic=EngineTopic.Snapshot,
-            experiment_id=experiment_id
-        )
-        return await self.engine.get_snapshot(event)
-
-    async def subscribe_async(self, int topic, bytes experiment_id, object body):
-        cdef object event = Event(
-            topic=EngineTopic.Subscribe,
-            body=body,
-            experiment_id=experiment_id,
-            sub_topic=topic
-        )
-        # async for item in self.engine.subscribe(event):
-        #     yield item
-        return await self.engine.subscribe(event)
-
-    async def close(self):
-        await self.engine.stop()
-
-
 cdef class TdApi:
     """
     # How to implement a tradeApi:
@@ -98,60 +33,81 @@ cdef class TdApi:
     """
 
     def __init__(self, bytes client_id, int32_t q_size, int32_t buffer_size, object actor):
-        self._async_api = AsyncApi(client_id, q_size, buffer_size, actor)
+        self.client_id = client_id
+        self.engine = BackEngine(q_size, buffer_size, actor)
+
         self._loop = None
 
     cpdef start(self, object _loop):
         self._loop = _loop
-        self._async_api.start(_loop)
+        self.engine.start(_loop)
     
     def __enter__(self):
         return self 
 
     # ------------------------------------------------------------------
-    # Blocking Methods
+    # Async Methods
     # ------------------------------------------------------------------
 
-    cpdef object register(self, object body):
-        cdef object coro = self._async_api.register_async(body)
+    cpdef object register(self, object body): # run_coroutine_threadsafe return concurrent.futures.Future
+        cdef object event = Event(topic=EngineTopic.Register, body=body, experiment_id=b'')
+        cdef object coro = self.engine.register(event)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        return future.result()
-    
-    cpdef object set_cash(self, bytes experiment_id, object body):
-        cdef object coro = self._async_api.set_cash_async(experiment_id, body)
-        cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
+
         return future.result()
 
-    cpdef object submit(self, bytes experiment_id, object body):
-        # run_coroutine_threadsafe return concurrent.futures.Future 
-        cdef object coro = self._async_api.submit_async(experiment_id, body)
-        cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        try:
-            return future.result() 
-        except Exception as e:
-            print(f"Submit failed: {e}")
-            raise e
-
-    cpdef object on_dt_over(self, bytes experiment_id, object body):
-        cdef object coro = self._async_api.on_dt_over_async(experiment_id, body)
-        cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop) # # ensure cross thread safely / fut.set_result(payload)
-        return future.result() 
-
-    cpdef object get_snapshot(self, bytes experiment_id):
-        cdef object coro = self._async_api.get_snapshot_async(experiment_id)
-        cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        return future.result()
-    
     cpdef object subscribe(self, int topic, bytes experiment_id, object body):
-        cdef object coro = self._async_api.subscribe_async(topic, experiment_id, body)
+        cdef object event = Event(topic=EngineTopic.Subscribe, body=body, 
+                                experiment_id=experiment_id, sub_topic=topic)
+
+        cdef object coro = self.engine.subscribe(event)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
         return future.result()
 
     cpdef stop(self):
         if self._loop and self._loop.is_running():
-            future = asyncio.run_coroutine_threadsafe(self._async_api.close(), self._loop)
+            future = asyncio.run_coroutine_threadsafe(self.engine.stop(), self._loop)
             future.result()
-        
+
+    # ------------------------------------------------------------------
+    # Direct Methods
+    # ------------------------------------------------------------------
+    
+    cpdef object set_cash(self, bytes experiment_id, object body):
+        cdef object event = Event(
+            topic=EngineTopic.SetCash,
+            body=body,
+            experiment_id=experiment_id
+        )
+        cdef object result = self.engine.set_cash(event)
+        return result
+
+    cpdef object submit(self, bytes experiment_id, object body):
+        cdef object event = Event(
+            topic=EngineTopic.Submit,
+            body=body,
+            experiment_id=experiment_id
+        ) 
+        cdef object result = self.engine.submit(event)
+        return result
+
+    cpdef object on_dt_over(self, bytes experiment_id, object body):
+        cdef object event = Event(
+            topic=EngineTopic.Over,
+            body=body,
+            experiment_id=experiment_id
+        )
+        cdef object result = self.engine.on_dt_over(event)
+        return result
+
+    cpdef object get_snapshot(self, bytes experiment_id):
+        cdef object event = Event(
+            topic=EngineTopic.Snapshot,
+            experiment_id=experiment_id
+        )
+        cdef object result = self.engine.get_snapshot(event)
+        return result
+    
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             print(f"Error: {exc_type}, {exc_val}, {exc_tb}")

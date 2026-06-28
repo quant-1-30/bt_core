@@ -6,9 +6,9 @@ cpdef enum EngineTopic:
     Register = 0
     SetCash = 1
     Submit = 2
-    Tplus1 = 3 
-    Snapshot = 4
-    Subscribe = 5
+    Over = 3  # T+1
+    Subscribe = 4
+    Snapshot = 5
 
 
 cdef class BackEngine:
@@ -17,6 +17,13 @@ cdef class BackEngine:
     # cdef object _loop
     cdef set _active_tasks
 
-    # cpdef void start(self)
     cpdef void start(self, object loop)
+
+    cpdef object set_cash(self, object trade_event)
+
+    cpdef object submit(self, object trade_event)
+
+    cpdef object on_dt_over(self, object trade_event)
+
+    cpdef object get_snapshot(self, object trade_event)# macht case in suited for cython
     

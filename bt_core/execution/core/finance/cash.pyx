@@ -14,7 +14,7 @@ from bt_core.execution.gateway.interface cimport AsyncGateway
 from bt_protocol._protocol import Event
 
 
-cdef class AsyncCashManager:
+cdef class SyncCashManager:
     
     def __init__(self):
         self.acct = {}

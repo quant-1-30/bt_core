@@ -21,6 +21,7 @@
 import numpy as np
 import bt_core as bt
 
+from bt_protocol._protocol import SnapshotBody
 
 __all__ = ['PeriodStats']
 
@@ -74,9 +75,9 @@ class PeriodStats(bt.Analyzer):
         snap = self._owner.get_snapshot()
         self.last_value = snap.account.portfolio_value + snap.account.cash
 
-    def on_dt_over(self, dt0: int):
-        snap = self._owner.get_snapshot()
-        current_value = snap.account.portfolio_value + snap.account.cash
+    def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
+        # snapshot = self._owner.get_snapshot()
+        current_value = snapshot.account.portfolio_value + snapshot.account.cash
         
         if self.last_value <= 0:
             return

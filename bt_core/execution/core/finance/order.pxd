@@ -8,7 +8,7 @@ from libcpp.string cimport string as cpp_string
 from bt_core.execution.core.finance.trade cimport OrderExecutionBit, OrderExbitData
 from bt_core.execution.core.finance.asset cimport Asset, AssetCore
 
-cdef enum ExecType:
+cpdef enum ExecType:
     Open = 0 # suited for backtest
     Market = 1 
     Close = 2 # suited for backtest 
@@ -19,9 +19,10 @@ cdef enum ExecType:
     StopTrailLimit = 7
 
 
-cdef enum OrderType:
+cpdef enum OrderType:
     Buy = 0
     Sell = 1
+    Unkown = 2
 
 
 cdef enum OrderStatus:

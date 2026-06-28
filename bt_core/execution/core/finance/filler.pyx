@@ -104,7 +104,7 @@ cdef class PseudoFiller:
     # ----------------------------------------------------
     # Tick Engine
     # ----------------------------------------------------
-    async def _preload(self, Order ord, cache=None):
+    cdef _preload(self, Order ord, object loop):
         """
             [[tick, open, high, low, close, volume, amount]]
         """
@@ -144,11 +144,7 @@ cdef class PseudoFiller:
               except Exception as e:
                   print(f"Loader Error: {e}")
 
-        if cache is not None:
-            data = await cache.get_or_load(request, loader)
-            lines.batch_load(data)
-        else:
-            await loader(request)
+        asyncio.run_coroutine_threadsafe(loader(request), loop).result()
 
         # cache
         self._lines_cache[cache_key] = lines
@@ -183,7 +179,7 @@ cdef class PseudoFiller:
         cdef bint is_limit = (core.exec_type == ExecType.Limit)
         cdef bint is_close = (core.exec_type == ExecType.Close)
 
-        cdef int32_t start_exec_loc = np.searchsorted(lines.tick, core.created_dt) 
+        cdef int32_t start_exec_loc = lines.get_loc(core.created_dt) # np.searchsorted(lines.tick, core.created_dt)  
         cdef int32_t n = len(lines)
 
         cdef double order_target_price, order_price, slip_price, comm
@@ -243,9 +239,9 @@ cdef class PseudoFiller:
             remains -= filler_size
             start_exec_loc = exec_loc + 1
 
-    async def __call__(self, Order order, double cash, Position p_obj):
+    def __call__(self, Order order, double cash, Position p_obj, object loop):
         try:
-            lines = await self._preload(order)
+            lines = self._preload(order, loop)
             if len(lines) > 0: self._execute(order, p_obj, cash, lines)
         except Exception as e:
             print(f"Error during filler preload: {e}")
@@ -266,7 +262,7 @@ cdef class AlgoFiller(PseudoFiller):
     cdef void _execute(self, Order order, Position p_obj, double cash, Lines lines): 
             cdef OrderCoreData core = order.core
             cdef OrderExecutionBit order_bit
-            cdef int32_t start_exec_loc = np.searchsorted(lines.tick, core.created_dt)
+            cdef int32_t start_exec_loc = lines.get_loc(core.created_dt) # np.searchsorted(lines.tick, core.created_dt)  
             cdef int32_t n = len(lines)
             
             cdef int32_t total_bars = n - start_exec_loc
