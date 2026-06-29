@@ -277,7 +277,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         # --- Scheduled Timers ---
         for t in self._pretimers: 
-            if t.check(dt0):
+            if t.check(dt0) and t.event_type != TimerEvent.EOD:
                 print("check timer: ", dt0)
                 self._dispatch(runstrats, t.event_type, dt0)
 
@@ -290,9 +290,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 for strat in runstrats:
                     strat.notify_timer(self.last_dts)
 
-            elif event_type == TimerEvent.RISK: # risk control 
-                for strat in runstrats:
-                    strat.check_risk(self.last_dts)
+            # elif event_type == TimerEvent.RISK: # risk control 
+            #     for strat in runstrats:
+            #         strat.check_risk(self.last_dts)
 
 # ------------------------------------------------------------------ data  --------------------------------------------------------------
 

@@ -131,7 +131,7 @@ cdef class Position:
         self.core.datetime = trade_dts
         self.core.pnl = self.core.size * (trade_price - self.core.cost_basis)
  
-    cdef double process_events(self, vector[EventItem]& events):
+    cdef double process_events(self, vector[EventItem]& events): # should update T datetime 
         cdef double total_bonus = 0.0
         cdef int32_t i
         cdef int32_t n = events.size()

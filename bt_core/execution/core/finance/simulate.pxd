@@ -18,12 +18,13 @@ cdef class TrackerActor:
     cdef object _put_buffer
     cdef object cached_uuid
     cdef object _latest_snapshot
+    cdef object _loop
 
     cdef dict positions
 
     cpdef object set_cash(self, object payload)
 
-    cpdef object process_order(self, Order order, loop)
+    cpdef object process_order(self, Order order)
 
     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_dfs, dict py_rgt_dfs)
 

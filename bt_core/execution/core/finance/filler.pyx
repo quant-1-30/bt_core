@@ -218,6 +218,16 @@ cdef class PseudoFiller:
                 continue 
             
             filler_size = min(remains, <int32_t>(lines.volume[exec_loc] * self.impact * fill_factor))
+            
+            if filler_size <= 0:
+                start_exec_loc = exec_loc + 1
+                continue
+            
+            if exec_loc == n - 1 and not is_buy:
+                pass  
+            else:
+                filler_size = (filler_size // 100) * 100  
+
             if filler_size <= 0:
                 start_exec_loc = exec_loc + 1
                 continue

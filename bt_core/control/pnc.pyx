@@ -3,6 +3,7 @@
 # cython: wraparound=False
 
 from libc.stdint cimport int32_t, int64_t
+from libcpp.algorithm cimport lower_bound
 
 from bt_core.sizers import _sizers
 from bt_core.utils.dateintern import ts2intdt
@@ -36,17 +37,40 @@ cdef class Pnc:
         self.interval = kwargs.pop("days_held", 5)
         self.stake = kwargs.pop("stake", 0.9)
         self.dd = kwargs.pop("dd", 0.25)
+        self.trade_tick = kwargs.pop("pnc_time", 53700)
         self.sizer = _sizers[sizer_name](**kwargs)
 
+        self._last_trade_day = 0
+
         self.pending_sells = {}
+    
+    # ==========================================================
+    # TradingDays from benchmarkret
+    # ==========================================================
+
+    cpdef void set_trading_calendar(self, list days_list):
+        self.v_trading_days.clear()
+        cdef int32_t d
+        for d in days_list:
+            self.v_trading_days.push_back(d)
+
+    cdef int32_t get_trading_days_held(self, int32_t created_day, int32_t current_day) noexcept nogil:
+        if self.v_trading_days.empty():
+            return 0
+            
+        cdef vector[int32_t].iterator it_created = lower_bound(self.v_trading_days.begin(), self.v_trading_days.end(), created_day)
+        cdef vector[int32_t].iterator it_current = lower_bound(self.v_trading_days.begin(), self.v_trading_days.end(), current_day)
+        
+        return <int32_t>(it_current - it_created)
 
     # ==========================================================
     # risk control on tick
     # ==========================================================
+
     cpdef list check_risk(self, dict current_prices, object snapshot, dict stats):
         cdef double pnl
         cdef TraderPlan tmp
-        cdef list positions = snapshot.positions, sells_by_risk=None
+        cdef list positions = snapshot.positions, sells_by_risk=[]
         
         # ==========================================
         # 1. Macro Control --- Drawdown
@@ -82,7 +106,7 @@ cdef class Pnc:
     # generate execution plan
     # ==========================================================
 
-    cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats): 
+    cpdef dict generate_plan(self, int64_t current_ts, dict topk_info, dict current_prices, object snapshot, dict stats): 
         # topk_info sort by score
         cdef bytes sid
         cdef int32_t days_held, current_day, slots, buy_count=0
@@ -91,10 +115,23 @@ cdef class Pnc:
         
         cdef object pos
         cdef list positions = snapshot.positions , sells=[], buys=[]
-        cdef object account = snapshot.account  
+        cdef object account = snapshot.account 
+        cdef current_intday = ts2intdt(current_ts) 
+
+        # ==========================================================
+        # intraday seconds and days since 1970
+        # ==========================================================
+        # 14:55:00 ---> 53700
+        cdef int64_t intraday_sec = (current_ts + 28800) % 86400
         
+        # days ---> since 1970
+        cdef int32_t current_day_id = (current_ts + 28800) // 86400 
         
-        current_day = ts2intdt(snapshot.account.datetime) 
+        if intraday_sec < self.trade_tick:  
+            return {"sell": [], "buy": []}
+
+        if self._last_trade_day == current_day_id:
+            return {"sell": [], "buy": []}
         
         s_wgt = self.sizer.getsizing(topk_info, snapshot, False)
 
@@ -106,7 +143,7 @@ cdef class Pnc:
             # ------------------------------------------
             # 1. HoldingDays and Conflict
             # ------------------------------------------
-            days_held = current_day - ts2intdt(pos.created_dt)
+            days_held = self.get_trading_days_held(<int32_t>pos.created_dt, current_intday)
             
             if days_held < self.interval - 1:
                 continue
@@ -156,6 +193,8 @@ cdef class Pnc:
                 break
 
         buys.sort()
+
+        self._last_trade_day = current_day_id
         return {"sell": sells, "buy": buys}
 
     cpdef void on_updt(self, dict mtrades): # TradeBody

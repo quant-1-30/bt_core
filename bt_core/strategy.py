@@ -197,6 +197,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # setup metric
         self._setupMetrics()
 
+        # inject trading_days into pnc
+        trading_days = self.data0.benchmark_dret["day"].to_list()
+        self.pnc.set_trading_calendar(trading_days)
+
+
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
@@ -275,12 +280,15 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 analyzer.notify_timer(last_dts) # get_shm_events
 
     def _next(self):
-        self.clk_update() # advance differ from lineiterator _clk_update 
+        self.check_risk()
+        
+        self.clk_update() # advance differ from lineiterator _clk_update
         super(Strategy, self)._next()
         # print("Strategy _next ", self.lines.datetime[0])
 
-    def check_risk(self, last_dts: int):
-        sell_plans = self.pnc.check_risk(current_prices, snapshot, self.stats)
+    def check_risk(self):
+        current_prices = {self.data0.sid[0]: self.data0.close[0]} # only support one data feed for now
+        sell_plans = self.pnc.check_risk(current_prices, self.snapshot, self.stats)
 
         if sell_plans:
             self.sell(sell_plans)  
@@ -391,7 +399,6 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
             self.shm_chan.publish_order(order)
 
         self.pnc.on_updt(filled)
-        self._update_snapshot(self)
         self.snapshot = snapshot  
 
     def get_snapshot(self)-> SnapshotBody: 
@@ -625,14 +632,13 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
 
         # execute pnc
         has_signal = l_enter or l_exit or l_rev or l_leave or s_enter or s_exit or s_rev or s_leave
-        snapshot = self.get_snapshot()
         
-        if not snapshot.positions and not has_signal:
+        if not has_signal: 
             return
 
-        current_prices = {self.data0.sid[0]: self.data0.close[0]} 
-        # current_prices represent topk in solo sid 
-        rebalance_plan = self.pnc.generate_plan(current_prices, current_prices, snapshot, self.stats) 
+        current_prices = {self.data0.sid[0]: self.data0.close[0]} # patch for signal sid 
+        snapshot = self.get_snapshot()
+        rebalance_plan = self.pnc.generate_plan(self.lines.datetime[0], current_prices, current_prices, snapshot, self.stats) 
 
         if l_enter:
             if self.p._accumulate:

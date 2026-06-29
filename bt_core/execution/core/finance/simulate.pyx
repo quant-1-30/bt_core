@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 cdef class TrackerActor:
 
-    def __init__(self, bytes experiment_id, BatchWriterActor writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size):
+    def __init__(self, bytes experiment_id, BatchWriterActor writer, AssetCache asset_cache, int32_t q_size, int32_t buffer_size, object _loop):
         self.positions = {}
         self._put_buffer = [] 
         self.buffer_size = buffer_size
@@ -56,9 +56,10 @@ cdef class TrackerActor:
         self.asset_cache = asset_cache
         self._writer = writer 
         
+        self._loop = _loop
         self._latest_snapshot = None 
      
-    async def _start(self, object _loop):
+    async def _start(self):
         cdef bytes sid, experiment_id
         cdef Position p_obj
         cdef tuple pkey
@@ -73,7 +74,7 @@ cdef class TrackerActor:
                 experiment_id = body.experiment_id
                 p_key = (experiment_id, sid)
 
-                asset_core = self.asset_cache.get_cache_info(sid, _loop)
+                asset_core = self.asset_cache.get_cache_info(sid, self._loop)
                 p_obj = Position(experiment_id = experiment_id,
                                 sid = sid,
                                 asset_core = asset_core,
@@ -125,7 +126,7 @@ cdef class TrackerActor:
         self._create_snapshot(reason="account_sync", writer=False)
         return Resp(body=self._latest_snapshot)
 
-    cpdef object process_order(self, Order order, loop):
+    cpdef object process_order(self, Order order):
         cdef OrderCoreData core = order.core
         cdef bytes sid = core.sid
         cdef bytes experiment_id = core.experiment_id
@@ -135,7 +136,7 @@ cdef class TrackerActor:
         cdef list order_bits = []
         cdef dict order_dict
 
-        cdef Asset asset = self.asset_cache.get_cache_info(sid, loop)
+        cdef Asset asset = self.asset_cache.get_cache_info(sid, self._loop)
         
         order.addinfo(asset)
 
@@ -145,7 +146,7 @@ cdef class TrackerActor:
 
         # PseudoFiller
         acct = self.cash_manager.get_account(experiment_id)
-        _fillers[order.filler](order, acct.core.cash, p_sid, loop)
+        _fillers[order.filler](order, acct.core.cash, p_sid, self._loop)
 
         if order.exbits:
             for ordbit in order.exbits:
@@ -177,8 +178,7 @@ cdef class TrackerActor:
         for sid_bytes, py_adj_df in py_adj_dfs.items():
             if py_adj_df is not None and py_adj_df.height > 0:
                 for bonus_share, transfer, bonus in py_adj_df.select(["bonus_share", "transfer", "bonus"]).rows():
-                    # int_sid = int(sid_bytes)
-                    # safely bytes "000001" -> int 1
+                    # int_sid = int(sid_bytes) # safely bytes "000001" -> int 1
                     int_sid = int(sid_bytes.decode('utf-8')) 
                     cpp_adj_map[int_sid] = AdjustmentData(
                         bonus_share=float(bonus_share), 
@@ -189,8 +189,7 @@ cdef class TrackerActor:
         for sid_bytes, py_rgt_df in py_rgt_dfs.items():
             if py_rgt_df is not None and py_rgt_df.height > 0:
                 for ratio, price in py_rgt_df.select(["ratio", "price"]).rows():
-                    # int_sid = int(sid_bytes)
-                    # safely bytes "000001" -> int 1
+                    # int_sid = int(sid_bytes) # safely bytes "000001" -> int 1
                     int_sid = int(sid_bytes.decode('utf-8')) 
                     cpp_rgt_map[int_sid] = RightData(
                         ratio=float(ratio), 
@@ -198,8 +197,7 @@ cdef class TrackerActor:
                     )
 
         for (_, sid_bytes), pos_obj in pobjs.items():
-            # int_sid = int(sid_bytes) 
-            # safely bytes "000001" -> int 1
+            # int_sid = int(sid_bytes) # safely bytes "000001" -> int 1
             int_sid = int(sid_bytes.decode('utf-8')) 
             v_events.clear() 
 
@@ -284,12 +282,11 @@ cdef class TrackerActor:
 
         self.positions = new_positions
 
-        self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
-
         # T-1 Sync 
         self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
+
         # -------------------------------------------------------------
-        # T Event Corporate Actions
+        # Sync T Event
         # -------------------------------------------------------------
         if current_dts >0:
             self._sync_event(experiment_id, self.positions, adjs_df_map, rgts_df_map)
@@ -335,7 +332,7 @@ cdef class TrackerActor:
 
     cdef void _check_flush(self):
         if len(self._put_buffer) >= self.buffer_size:
-            asyncio.create_task(self._writer.push(self._put_buffer))
+            asyncio.run_coroutine_threadsafe(self._writer.push(self._put_buffer), self._loop)
             self._put_buffer = []
 
     cpdef object get_snapshot(self):
@@ -366,9 +363,10 @@ cdef class Simulator:
         cdef TrackerActor actor
 
         if experiment_id not in self._actors:
-            actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size)
+            actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size, self._loop)
             self._actors[experiment_id] = actor
-            asyncio.run_coroutine_threadsafe(actor._start(self._loop), self._loop).result() # avoid self._loop.create_task()
+            # avoid self._loop.create_task()
+            asyncio.run_coroutine_threadsafe(actor._start(), self._loop).result() 
         return self._actors[experiment_id]
         
     cpdef object set_cash(self, object event):
@@ -382,7 +380,7 @@ cdef class Simulator:
         cdef bytes experiment_id = order.core.experiment_id
         cdef TrackerActor actor = self._get_or_create_actor(experiment_id)
         
-        result = actor.process_order(order, self._loop)
+        result = actor.process_order(order)
         return result
 
     cpdef object on_dt_over(self, object event): # nonblocking
