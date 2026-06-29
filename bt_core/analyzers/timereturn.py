@@ -98,7 +98,7 @@ class TimeReturn(bt.TimeFrameAnalyzerBase):
         self.tann = self.p.tann or self._TANN.get(self.p.timeframe, 252.0)
 
     def start(self):
-        snap = self._owner.get_snapshot()
+        snap = self._owner.snapshot
         val = snap.account.portfolio_value + snap.account.cash
         self._initial_value = val
         self._prev_value = val

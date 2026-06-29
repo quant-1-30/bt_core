@@ -22,8 +22,7 @@ cdef class TraderPlan:
         action = "BUY" if self.core.isbuy else "SELL"
         return f"[{action} (Pri:{self.core.priority})] {self.core.sid} -> {self.core.weight*100:.1f}%"
 
-    # __lt__ --> .sort() 
-    def __lt__(self, object other):
+    def __lt__(self, object other): # .sort() 
         return self.core.priority < (<TraderPlan>other).core.priority
 
 
@@ -39,79 +38,74 @@ cdef class Pnc:
         self.dd = kwargs.pop("dd", 0.25)
         self.sizer = _sizers[sizer_name](**kwargs)
 
-        self.sells = []
-        self.buys =[]
         self.pending_sells = {}
 
-        self._last_calc_day = 0
-        self._plan_cache = {"sell": [], "buy": []}
+    # ==========================================================
+    # risk control on tick
+    # ==========================================================
+    cpdef list check_risk(self, dict current_prices, object snapshot, dict stats):
+        cdef double pnl
+        cdef TraderPlan tmp
+        cdef list positions = snapshot.positions, sells_by_risk=None
+        
+        # ==========================================
+        # 1. Macro Control --- Drawdown
+        # ==========================================
 
-    cpdef dict get_pending_sells(self):
-        return self.pending_sells
+        if stats["drawdown"].maxdd >= self.dd:
+            print("reach maxdd and execute sell all")
+            sells_by_risk = [TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions if pos.size > 0]
+            return sells_by_risk
+        
+        # ==========================================
+        # 2. Asset Risk Control
+        # ==========================================
+
+        for pos in positions:
+            sid = pos.sid
+            
+            if pos.size == 0 or sid in self.pending_sells:
+                continue
+
+            # PnL
+            current_price = current_prices.get(sid, pos.cost_basis) 
+            pnl = current_price / pos.cost_basis 
+
+            if pnl <= self.stake: 
+                tmp = TraderPlan(sid, 1.0, False, pos.available, priority=0) 
+                sells_by_risk.append(tmp) 
+                self.pending_sells[sid] = tmp
+                
+        return sells_by_risk
+    
+    # ==========================================================
+    # generate execution plan
+    # ==========================================================
 
     cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats): 
         # topk_info sort by score
         cdef bytes sid
         cdef int32_t days_held, current_day, slots, buy_count=0
         cdef double pnl, wgt_ratio
-        cdef bint signal
         cdef TraderPlan tmp
         
         cdef object pos
-        cdef list positions = snapshot.positions # msgspec List
-        cdef object account = snapshot.account  # msgspec
+        cdef list positions = snapshot.positions , sells=[], buys=[]
+        cdef object account = snapshot.account  
         
-        self.sells.clear()
-        self.buys.clear()
         
-        current_day = ts2intdt(snapshot.account.datetime) # lastday account
-
-        # 🌟 优化：日频缓存拦截 (如果同一天已经算过了，直接返回内存缓存)
-        if current_day == self._last_calc_day and self._plan_cache["sell"] or self._plan_cache["buy"]:
-            return self._plan_cache
+        current_day = ts2intdt(snapshot.account.datetime) 
         
-        # ==========================================
-        # 1. Macro Control --- Drawdown
-        # ==========================================
-        drawdown = stats["drawdown"].maxdd
-        signal = drawdown >= self.dd
-        
-        if signal:
-            print("reach maxdd and execute sell all")
-            self.sells =[TraderPlan(pos.sid, 1.0, False, pos.available, priority=1) for pos in positions if pos.size > 0]
-
-            return {"sell": self.sells, "buy":[]}
-
-        # ==========================================
-        # 2. Selling First
-        # ==========================================
         s_wgt = self.sizer.getsizing(topk_info, snapshot, False)
 
         for pos in positions:
-            if pos.size == 0:
-                continue
-
             sid = pos.sid
-            current_price = current_prices.get(sid, pos.cost_basis) # lastday closes
-            pnl = current_price / pos.cost_basis 
 
+            if pos.size == 0 or sid in self.pending_sells:
+                continue
             # ------------------------------------------
-            # Priority A Hard Stop-Loss
+            # 1. HoldingDays and Conflict
             # ------------------------------------------
-            if pnl <= self.stake: 
-                wgt_ratio = s_wgt.get(sid, 1.0) 
-                tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=0) # 0 最高级
-                self.sells.append(tmp) 
-                self.pending_sells[sid] = tmp
-                
-                # avoid conflict with buy 
-                topk_info.pop(sid, None)
-                continue 
-                
-            # ------------------------------------------
-            # Priority B HoldingDays and Conflict
-            # ------------------------------------------
-            # based on created_dt(no change) not datetime
             days_held = current_day - ts2intdt(pos.created_dt)
             
             if days_held < self.interval - 1:
@@ -122,46 +116,47 @@ cdef class Pnc:
         
             wgt_ratio = s_wgt.get(sid, 1.0)
             tmp = TraderPlan(sid, wgt_ratio, False, pos.available, priority=1)
-            self.sells.append(tmp)
+            sells.append(tmp)
             self.pending_sells[sid] = tmp
 
-        self.sells.sort()
+        sells.sort()
 
         # ==========================================
-        # 3. Slot Calculation
+        # 2. Slot Control ---> Available Slots = TopK - (Positions - Sells)
         # ==========================================
-
-        # **`Available Slots = TopK - (Positions - Sells)`**
         slots = len(topk_info) - (len(positions) - len(self.pending_sells))
         
         if slots <= 0:
-            return {"sell": self.sells, "buy": []}
+            return {"sell": sells, "buy": []}
 
         # ==========================================
-        # 4. Buy Second & Slots Control
+        # 3. Cash Control
         # ==========================================
          
         if account.cash <= 10000: # cash safety
-            return {"sell": self.sells, "buy": []}
+            return {"sell": sells, "buy": []}
+        
+        # ==========================================
+        # 4. Buy Control
+        # ==========================================
 
         b_wgt = self.sizer.getsizing(topk_info, snapshot, True)
 
-        for sid in topk_info: # rebuy reasonable
+        for sid in topk_info: 
+            if sid in self.pending_sells:
+                continue
+
             wgt_ratio = b_wgt.get(sid, 0.0)
             if wgt_ratio > 0:
                 tmp = TraderPlan(sid, wgt_ratio, True, 0, priority=1)
-                self.buys.append(tmp)
+                buys.append(tmp)
             
             buy_count +=1
             if buy_count >= slots:
                 break
 
-        self.buys.sort()
-        # return {"sell": self.sells, "buy": self.buys}
-
-        self._plan_cache = {"sell": self.sells, "buy": self.buys}
-        self._last_calc_day = current_day
-        return self._plan_cache
+        buys.sort()
+        return {"sell": sells, "buy": buys}
 
     cpdef void on_updt(self, dict mtrades): # TradeBody
         cdef bytes sid

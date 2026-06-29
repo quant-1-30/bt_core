@@ -196,6 +196,16 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
     #     return day != barday
 
+    def _barover_days(self, data): 
+        # UTC + 8 hour = Asia avoid date().isocalendar()
+        bar_dts = self.bar.datetime
+        data_dts = data.datetime[0]
+        
+        bar_day = (int(bar_dts) + 28800) // 86400
+        data_day = (int(data_dts) + 28800) // 86400
+
+        return data_day != bar_day
+
     # def _barover_weeks(self, data):
     #     if self.data._calendar is None:
     #         year, week, _ = data.num2date(self.bar.datetime).date().isocalendar()
@@ -208,24 +218,14 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
     #     else:
     #         return data._calendar.last_weekday(data.datetime.datetime())
 
-    def _barover_days(self, data): 
-        # UTC + 8 hour = Asia avoid date().isocalendar()
-        bar_dts = self.bar.datetime
-        data_dts = data.datetime[0]
-        
-        bar_day = (int(bar_dts) + 28800) // 86400
-        data_day = (int(data_dts) + 28800) // 86400
-
-        return data_day != bar_day
-
     def _barover_weeks(self, data):
         # 19700101 thursday avoid isocalendar
         bar_dts = self.bar.datetime
         data_dts = data.datetime[0]
         
         # (s + UTC8 + 3dayoff) ---> week second
-        bar_week = (int(bar_dt_ms) + 28800 + 259200) // 604800
-        data_week = (int(data_dt_ms) + 28800 + 259200) // 604800
+        bar_week = (int(bar_dts) + 28800 + 259200) // 604800
+        data_week = (int(data_dts) + 28800 + 259200) // 604800
         
         return data_week > bar_week
 

@@ -92,8 +92,6 @@ class FsmStrategy(bt.Strategy):
         snapshot = self.get_snapshot()
         psids = [p.sid for p in snapshot.positions]
 
-        pending_sells = self.pnc.get_pending_sells()
-
         # =========================================================
         # stage1 09:30 —— Pending Sells
         # =========================================================

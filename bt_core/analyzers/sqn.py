@@ -76,7 +76,7 @@ class SQN(bt.TimeFrameAnalyzerBase):
         self._sqn_M2 = 0.0
 
     def start(self):
-        snap = self._owner.get_snapshot()
+        snap = self._owner.snapshot
         if snap:
             self._initial_value = snap.account.portfolio_value + snap.account.cash
 

@@ -21,12 +21,13 @@ cdef class Pnc:
     cdef double stake
     cdef double dd
     cdef object sizer
+
     cdef list sells
     cdef list buys
     cdef dict pending_sells
     
-    cpdef dict get_pending_sells(self)
-
+    cpdef list check_risk(self, dict current_prices, object snapshot, dict stats)
+    
     cpdef dict generate_plan(self, dict topk_info, dict current_prices, object snapshot, dict stats)
 
     cpdef void on_updt(self, dict sell_trades)

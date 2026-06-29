@@ -84,7 +84,7 @@ class Calmar(bt.TimeFrameAnalyzerBase):
         self.tann = self.p.tann or self._TANN.get(self.p.timeframe, 252.0)
 
     def start(self):
-        acct = self._owner.get_snapshot().account
+        acct = self._owner.snapshot.account
         val = acct.portfolio_value + acct.cash
         self._initial_value = val
         self._peak = val

@@ -81,7 +81,9 @@ class MetaStrategy(StrategyBase.__class__):
         _obj._minperiods = list()
         _obj.analyzers = list() # ItemCollection()
         _obj.stats = {} 
-        _obj.ind_log = [] # used to Log indicator 
+
+        _obj.snapshot = None
+        _obj.metrics = [] # used to Log indicator 
         return _obj, args, kwargs
 
     def dopostinit(cls, _obj, *args, **kwargs):
@@ -173,39 +175,43 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         super().qbuffer(savemem=savemem)
         self.minbuffer()
     
+    def _start(self, savemem, **kwargs):
+        '''Called right before the bt_coreing is about to be started.'''
+        self._filler = kwargs.get("filler", b"oco")
+
+        # linebuffer qbuffer update maxlen with _minperiod
+        self.qbuffer(savemem=savemem) 
+        self._periodrecalc()
+
+        # self._minperstatus = MAXINT  # start in prenext
+        self._dlens = np.array([len(data) for data in self.datas])
+
+        # initialize snapshot and shm_chan
+        self.set_cash(**kwargs)
+        self.snapshot = self.store.get_snapshot(self.experiment_id)
+        self.shm_chan.publish_sentinel(0) 
+        
+        for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
+            analyzer._start()
+
+        # setup metric
+        self._setupMetrics()
+
     def set_cash(self, **kwargs):
         cash = kwargs.pop("cash", 100000)
         session = kwargs["fromdate"]
         snapshot = self.store.set_cash(self.experiment_id, session, cash)
         self.shm_chan.publish_snapshot(snapshot)
-    
-    def _initialLog(self):
+
+    def _setupMetrics(self):
         for _line in self.getindicators_lines():
             line_name = _line.plotinfo.plotname or _line.__class__.__name__
 
             for i, line_alias in enumerate(_line.lines.getlinealiases()):
                 metric_name = f"ind_{line_name}_{line_alias}".encode("utf-8")
-                self.ind_log.append(
+                self.metrics.append(
                     (_line.lines[i], metric_name)
                 )
-
-    def _start(self, savemem, **kwargs):
-        '''Called right before the bt_coreing is about to be started.'''
-        self.qbuffer(savemem=savemem) # linebuffer qbuffer update maxlen with _minperiod
-        self._periodrecalc()
-        self._initialLog()
-
-        self.set_cash(**kwargs)
-
-        for analyzer in self.analyzers: # itertools.chain(self.analyzers, self._slave_analyzers)
-            analyzer._start()
-
-        # self._minperstatus = MAXINT  # start in prenext
-        self._dlens = np.array([len(data) for data in self.datas])
-
-        self.shm_chan.publish_sentinel(0) # dts
-
-        self._filler = kwargs.get("filler", b"oco")
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
         indcls(*indargs, **indkwargs) # postinit will take care of the rest
@@ -238,7 +244,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     def on_dt_over(self, last_dts: int, dts: int):
         snapshot = self.store.on_dt_over(self.experiment_id, last_dts, dts) 
         if snapshot:
-            self.shm_chan.publish_snapshot(snapshot) 
+            self.shm_chan.publish_snapshot(snapshot)
+            self.snapshot = snapshot  
+ 
         self.shm_chan.publish_sentinel(dts)
 
         for analyzer in self.analyzers:
@@ -255,7 +263,7 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         """
         self.shm_chan.publish_sentinel(last_dts)
 
-        for ind_line, metric in self.ind_log:
+        for ind_line, metric in self.metrics:
             val = ind_line[0]
             if np.isnan(val):
                 continue
@@ -272,7 +280,10 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         # print("Strategy _next ", self.lines.datetime[0])
 
     def check_risk(self, last_dts: int):
-        pass
+        sell_plans = self.pnc.check_risk(current_prices, snapshot, self.stats)
+
+        if sell_plans:
+            self.sell(sell_plans)  
  
     def buy(self, buys, plimit: float=0.0, execType=0):
         '''Create a buy (long) order and send it to the broker 
@@ -316,6 +327,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         Returns:
           - the submitted order
         '''
+        if not buys: return
+        
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
 
@@ -338,6 +351,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
 
             self.shm_chan.publish_order(order)
+
+        self.snapshot = snapshot  
         
     def sell(self, sells, plimit: float=0.0, execType=0):
         '''
@@ -347,6 +362,8 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
         Returns: the submitted order
         '''
+        if not sells: return
+
         filled = {}
         created_dt = self.lines.datetime[0]
         created_dt = 0.0 if np.isnan(created_dt) else created_dt
@@ -372,11 +389,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 filled[core["sid"]] = trades 
             
             self.shm_chan.publish_order(order)
-        self.pnc.on_filled(filled)
- 
+
+        self.pnc.on_updt(filled)
+        self._update_snapshot(self)
+        self.snapshot = snapshot  
+
     def get_snapshot(self)-> SnapshotBody: 
-        snapshot = self.store.get_snapshot(self.experiment_id) 
-        return snapshot
+        return self.snapshot
 
     def cancel(self, order_id):
         '''Cancels the order in the broker'''
@@ -604,16 +623,20 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         # Invalidate short leave if shortexit signals are available
         s_leave = not self._shortexit and s_leave
 
-        if not (l_enter or l_exit or l_rev or l_leave or s_enter or s_exit or s_rev or s_leave):
+        # execute pnc
+        has_signal = l_enter or l_exit or l_rev or l_leave or s_enter or s_exit or s_rev or s_leave
+        snapshot = self.get_snapshot()
+        
+        if not snapshot.positions and not has_signal:
             return
 
         current_prices = {self.data0.sid[0]: self.data0.close[0]} 
-        snapshot = self.get_snapshot()
-        plan = self.pnc.generate_plan(current_prices, current_prices, snapshot, self.stats)  
+        # current_prices represent topk in solo sid 
+        rebalance_plan = self.pnc.generate_plan(current_prices, current_prices, snapshot, self.stats) 
 
         if l_enter:
             if self.p._accumulate:
-                self.buy(plan["buy"])
+                self.buy(rebalance_plan["buy"])
         # elif l_exit or l_rev or l_leave:
         else:
-            self.sell(plan["sell"]) 
+            self.sell(rebalance_plan["sell"]) 

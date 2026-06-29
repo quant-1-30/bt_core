@@ -133,7 +133,7 @@ class SharpeRatio(bt.TimeFrameAnalyzerBase): # SharpeRatio(bt.Analyzer):
 
     def _start(self):
         super()._start()
-        acct = self._owner.get_snapshot().account
+        acct = self._owner.snapshot.account
         self._last_value = acct.portfolio_value + acct.cash
 
     def on_dt_over(self, dt0: int, snapshot: SnapshotBody):

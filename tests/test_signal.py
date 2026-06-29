@@ -152,7 +152,7 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     try:
-        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260430, benchmark=[b"1A0001"], filler=b"vwap")
+        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260531, benchmark=[b"1A0001"], filler=b"default")
     except Exception as e:
         print(f"运行报错: {e}")
         if hasattr(cerebro, '_shutdown'):
