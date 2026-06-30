@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.4.5"
-description = "update bt_sdk avoid proto conflict"
+version = "0.4.6"
+description = "revise pnc logic in cerebro"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

@@ -212,4 +212,10 @@ cdef class Pnc:
                 if remain <= 0:
                     del self.pending_sells[sid]
 
+
 # how to extend to multistrategy and MultiPnc
+
+
+_pnc = {
+ "default": Pnc
+}

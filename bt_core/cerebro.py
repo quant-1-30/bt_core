@@ -27,8 +27,7 @@ from pathlib import Path
 
 from .metabase import MetaParams, with_metaclass
 from .strategy import Strategy, SignalStrategy
-from .sizers import _sizers
-from .control.pnc import Pnc
+from .control.pnc import _pnc
 from .timer import Timer, TimerEvent
 from .errors import *
 from .stores import _stores
@@ -332,9 +331,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
 # ---------------------------------------------------------------- risk and strategy ------------------------------------------------------------
     
-    def addpnc(self, sizer_name: str="fixed", **kwargs):
+    def addpnc(self, pnc="default", sizer_name: str="fixed", **kwargs):
         '''Adds a TaskPlan instance to the system'''
-        self.pnc = Pnc(sizer_name, **kwargs)
+        self.pnc = _pnc[pnc](sizer_name, **kwargs)
     
     def addstore(self, store: str="local", **kwargs):
         '''Adds an ``Store`` instance to the if not already present'''

@@ -130,7 +130,7 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes, fmt="parquet") 
     cerebro.addstore() 
-    cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
+    cerebro.addpnc(sizer_name="fixed", days_held=5, stake=0.9, dd=0.25)
 
     # timer
     cerebro.add_timer(
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     cerebro.add_signal(bt.SIGNAL_SHORT, DrawDownSignal) 
 
     try:
-        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260531, benchmark=[b"1A0001"], filler=b"vwap")
+        cerebro.run(cash=100000, sid=[b"000001"], fromdate=20040101, todate=20260531, benchmark=[b"1A0001"], filler=b"default")
     except Exception as e:
         print(f"运行报错: {e}")
         if hasattr(cerebro, '_shutdown'):

@@ -240,35 +240,21 @@ class Lines(object):
         '''
         setattr(self, self._getlinealias(line), value)
 
-    # def forward(self, value=NAN, size=1):
-    #     '''
-    #     Proxy line operation
-    #     '''
-    #     for line in self.lines:
-    #         # print("lineseries forward ", line)
-    #         line.forward(value, size=size)
-
-    # def backwards(self, size=1):
-    #     '''
-    #     Proxy line operation
-    #     '''
-    #     for line in self.lines:
-    #         line.backwards(size)
-    
     def forward(self, value=NAN, size=1):
         '''
         Proxy line operation
         '''
-        for bound_forward in self._forward_bounds:
-            bound_forward(value, size=size)
+        for line in self.lines:
+            # print("lineseries forward ", line)
+            line.forward(value, size=size)
 
     def backwards(self, size=1):
         '''
         Proxy line operation
         '''
-        for bound_backward in self._backward_bounds:
-            bound_backward(size)
-
+        for line in self.lines:
+            line.backwards(size)
+    
     def rewind(self, size=1):
         '''
         Proxy line operation

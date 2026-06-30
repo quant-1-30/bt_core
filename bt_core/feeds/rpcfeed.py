@@ -122,47 +122,12 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
             on_error=lambda e: self.chan.put(e),
             on_completed=lambda: self.chan.put(StopIteration) 
         )
+ 
 
-    # def _load(self):
-    #     while True:
-    #         if self._row_iter is not None:
-    #             try:
-    #                 row = next(self._row_iter)
-    #                 if self.p.rtbar:
-    #                     ret = self._load_rtbar(row)
-    #                 else:
-    #                     ret = self._load_bar(row)
-    #                 return ret
-    #             except StopIteration:
-    #                 self._row_iter = None
-
-    #         msg = self.chan.get() # next pa.Table
-    #         if msg is StopIteration:
-    #             return False
-    #         if isinstance(msg, Exception):
-    #             raise msg
-
-    #         self._row_iter = self._make_iter(msg)
-    
-    # def _make_iter(self, table):
-    #     cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
-    #     return zip(*cols)
-
-    # def _load_bar(self, row):
-    #     dt = self.lines.datetime[0]
-    #     if not np.isnan(dt) and dt >= row[0]:
-    #         return False 
-        
-    #     self.lines.datetime[0] = row[0]
-    #     self.lines.open[0] = row[1]
-    #     self.lines.high[0] = row[2]
-    #     self.lines.low[0] = row[3]
-    #     self.lines.close[0] = row[4]
-    #     self.lines.volume[0] = row[5]
-    #     self.lines.amount[0] = row[6]
-    #     return True
-
-    def _make_iter(self, table): # zip(*cols) ---> tuple replace idx is faster
+    def _make_iter(self, table): 
+        # tuple faster than zip(*cols) 
+        # cols = [table[name].to_numpy() for name in ['tick', 'open', 'high', 'low', 'close', 'volume', 'amount']] # iter(msg.to_pylist()) 
+        # return zip(*cols)
         self._dt_arr = table['tick'].to_numpy()
         self._op_arr = table['open'].to_numpy()
         self._hi_arr = table['high'].to_numpy()

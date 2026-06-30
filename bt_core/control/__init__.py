@@ -1,1 +1,1 @@
-from .pnc import Pnc
+from .pnc import _pnc

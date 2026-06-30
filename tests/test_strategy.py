@@ -57,7 +57,7 @@ if __name__ == '__main__':
     load_dotenv()
     cerebro = Cerebro(client_id=uuid.UUID("e9f8cd38-e73c-453f-8a47-55beda640ae6").bytes) 
     cerebro.addstore() 
-    cerebro.addpnc("fixed", days_held=5, stake=0.9, dd=0.25)
+    cerebro.addpnc(sizer_name="fixed", days_held=5, stake=0.9, dd=0.25)
     
     cerebro.add_timer(
         when=bt.timer.Session.SESSION_START, 

@@ -88,12 +88,14 @@ class LineBuffer(LineSingle):
             self.array = np.full(self.maxlen, np.nan) # bool --> 1.0 / 0.0  
             self.useislice = False
         else:
+            # practically unbounded
             self.array = array.array('d')
             self.useislice = True
-            self.maxlen = np.iinfo(np.int32).max  # practically unbounded
+            self.maxlen = np.iinfo(np.int32).max  
 
         self.lencount = 0
         self.extension = 0
+
         # self.idx = -1
         # self._cur_idx = -1
 
@@ -232,22 +234,6 @@ class LineBuffer(LineSingle):
         self.idx = -1
         self.lencount = 0
 
-    # def forward(self, value=NAN, size=1):
-    #     ''' Moves the logical index foward and enlarges the buffer as much as needed
-
-    #     Keyword Args:
-    #         value (variable): value to be set in new positins
-    #         size (int): How many extra positions to enlarge the buffer
-    #     '''
-    #     self.idx += size
-    #     self.lencount += size
-
-    #     if self.mode == UnBounded: # array.array('d') 
-    #         for i in range(size):
-    #             self.array.append(value)
-
-    #     # self[0] = np.nan # no accurate size >= 1
-
     # def backwards(self, size=1):
     #     ''' Moves the logical index backwards and reduces the buffer as much as needed
 
@@ -272,10 +258,11 @@ class LineBuffer(LineSingle):
             size (int): How many extra positions to enlarge the buffer
         '''
         self.idx += size
-        self._cur_idx = self.idx % self.maxlen
         self.lencount += size
+        self._cur_idx = self.idx % self.maxlen
 
-        if self.mode == UnBounded: # array.array('d') 
+        if self.mode == UnBounded: 
+            # array.array('d') 
             self.array.append([size] * value)
 
         # self[0] = np.nan # no accurate size >= 1
@@ -290,10 +277,11 @@ class LineBuffer(LineSingle):
         # Go directly to property setter to support force
         idx = self.idx - size
         self.idx = idx
-        self._cur_idx = self.idx % self.maxlen
         self.lencount -= size
+        self._cur_idx = self.idx % self.maxlen
         
-        if self.mode == UnBounded: # array.array('d')
+        if self.mode == UnBounded: 
+            # array.array('d')
             del self.array[-size:]
 
     def rewind(self, size=1):
