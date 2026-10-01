@@ -40,17 +40,18 @@ cdef class Sizer:
         the sizing functionality
 
         Params:
-          - ``topk_info``: target of the operation, additional information about the target securities 
+          - ``topk_info``: target of the operation, additional information about the target securities
 
           - ``snapshot``: a snapshot of the current state of the strategy (see Strategy.snapshot())
-          
+
           - ``isbuy``: will be ``True`` for *buy* operations and ``False``
             for *sell* operations
 
-        The method has to return the actual size (an int) to be executed. If
-        ``0`` is returned nothing will be executed.
-
-        The absolute value of the returned value will be used
+        The method has to return a weight map (sid -> ratio, ``0 < ratio < 1``;
+        buy: cash fraction spent on the order, sell: fraction of available
+        shares to close). If a sid maps to ``0`` (or is absent) nothing will
+        be executed for it. Absolute-value clamping to [0, 1] is applied by
+        the filler's ``calculate``.
 
         '''
         raise NotImplementedError

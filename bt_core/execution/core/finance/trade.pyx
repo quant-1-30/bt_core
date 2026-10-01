@@ -4,7 +4,6 @@
 # cython: language_level=3
 
 from bt_protocol._protocol import TradeBody, Resp
-from bt_protocol.schema.trade import OrderBit
 
 
 cdef class OrderExecutionBit:
@@ -40,32 +39,12 @@ cdef class OrderExecutionBit:
     #     def __get__(self):
     #         return self.core.val
 
-    cdef OrderExecutionBit clone(self):
-        cdef OrderExecutionBit obj = OrderExecutionBit.__new__(OrderExecutionBit)
-        obj.core.order_id = self.core.order_id
-        obj.core.executed_dt = self.core.executed_dt
-        obj.core.executed_size = self.core.executed_size
-        obj.core.executed_price = self.core.executed_price
-        obj.core.comm = self.core.comm
-        obj.core.isbuy = self.core.isbuy
-        return obj 
-    
     cdef object serialize(self):
         cdef object body, resp
-        body = TradeBody(order_id=self.core.order_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price, 
-                        executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)   
+        body = TradeBody(order_id=self.core.order_id, executed_dt=self.core.executed_dt, executed_price=self.core.executed_price,
+                        executed_size=self.core.executed_size, comm=self.core.comm, isbuy=self.core.isbuy)
         resp = Resp(body=body)
         return resp
-    
-    cdef object to_schema(self):
-        return OrderBit(
-            order_id=self.core.order_id,
-            executed_dt=self.core.executed_dt,
-            executed_price=self.core.executed_price,
-            executed_size=self.core.executed_size,
-            comm=self.core.comm,
-            isbuy=self.core.isbuy
-        )
 
     cdef OrderExbitData get_snapshot(self):
         return self.core

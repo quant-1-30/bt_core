@@ -40,7 +40,9 @@ cdef class Position:
     cdef object cached_uuid
 
     cdef int32_t get_available(self)
-    
+
+    cdef void _update_pnl_ratio(self)
+
     cdef void update(self, OrderExecutionBit orderbit)
     
     cdef _execute(self, OrderExecutionBit orderbit)
@@ -49,16 +51,19 @@ cdef class Position:
     
     cdef double process_events(self, vector[EventItem]& events, double cash)
     
-    cdef void _handle_merger(self, bytes target_sid, float close, float ratio)
-
-    cdef void _dt_over(self, int32_t end_dt, double close)
+    cdef void merge_from(self, Position other)
     
-    cdef void on_dt_over(self, int32_t end_dt, double close)
+    cdef double _handle_merger(self, bytes target_sid, double close, double ratio)
+
+    cdef double _dt_over(self, int32_t end_dt, double close)
+
+    cdef double on_dt_over(self, int32_t end_dt, double close)
+    
+    cdef void _zero_out(self)
     
     cdef Position clone(self)
     
     cdef object serialize(self)
     
-    cdef object to_schema(self)
     
     cdef PositionCoreData get_snapshot(self)

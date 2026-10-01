@@ -32,6 +32,5 @@ cdef class Account:
     
     cdef object serialize(self)
     
-    cdef object to_schema(self)
     
     cdef AccountCoreData get_snapshot(self)

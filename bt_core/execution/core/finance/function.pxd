@@ -28,13 +28,3 @@ cdef inline cRatio calc_ratio(AdjustmentData dividend) nogil:
     cr.sizer_ratio = sizer_ratio
     cr.bonus_ratio = bonus_ratio
     return cr
-
-
-cdef inline double calc_right(RightData rights) nogil:
-    """
-        配股缴款: 每股配股缴款 = 配股比例 * 配股价
-        返回每股应缴金额 (正数表示需缴款, 现金减少)
-        配股机制: ratio 为每股配股比例(如0.3表示10配3), price为配股价
-    """
-    cdef double ratio_normalized = rights.ratio / 10.0
-    return ratio_normalized * rights.price

@@ -241,13 +241,17 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
     def get_dret(self, body: QueryBody):
         obs = self.mdapi.subscribe(body, RpcTopic.Close)
         tables = self._collect_stream_sync(obs)
-        
+
         raw_data = _merge2DataFrame(tables)
         if body.sid[0] in raw_data:
             close_df = raw_data[body.sid[0]]
             self.benchmark_dret = close_df.with_columns(
                 pl.col("close").pct_change().fill_null(0).alias("ret")
             ).select(["day", "ret"])
+
+            # set calendar
+            from bt_core.tradingcal import DataTradingCalendar, set_calendar
+            set_calendar(DataTradingCalendar(close_df.get_column("day").to_list()))
 
     def stop(self):
         super().stop()

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.5.6"
-description = "revise bug right logic and avoid cash <= right share"
+version = "0.5.7"
+description = "revise merger logic and filler"
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"

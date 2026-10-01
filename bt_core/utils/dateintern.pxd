@@ -41,6 +41,8 @@ cpdef double date2num(object dt)
 
 cpdef int32_t ts2intdt(double ts) # only cdef nogil and bint native=?
 
+cdef int64_t elapse_seconds(int64_t ts) noexcept nogil
+
 cpdef object tzparse(str tz)
 
 cdef MarketTime market_utc(int64_t ts) noexcept nogil

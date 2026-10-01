@@ -6,7 +6,7 @@
 import numpy as np
 cimport numpy as cnp
 
-from libcpp.algorithm cimport binary_search
+from libcpp.algorithm cimport lower_bound
 from libc.stdint cimport int32_t, int64_t
 
 
@@ -51,36 +51,8 @@ cdef class Lines:
         self.amount = self._v_amount.data()
 
     # -----------------------------------------------------------
-    # nogil
-    # -----------------------------------------------------------
-    cdef double max(self) nogil:
-        if self._size == 0: return 0.0
-        
-        cdef double m = self.high[0] 
-        cdef int32_t i
-        for i in range(1, self._size):
-            if self.high[i] > m:
-                m = self.high[i]
-        return m
-
-    cdef double min(self) nogil:
-        if self._size == 0: return 0.0
-
-        cdef double m = self.low[0]
-        cdef int32_t i
-        for i in range(1, self._size):
-            if self.low[i] < m:
-                m = self.low[i]
-        return m
-
-    # =========================================================
     # 🌟 C++ Vector replace np.searchsorted
-    # =========================================================
-
-    cdef bint is_in(self, int64_t tick_val) nogil:
-        if self._size == 0: return False
-        # C++ vector 
-        return binary_search(self._v_tick.begin(), self._v_tick.end(), tick_val)
+    # -----------------------------------------------------------
 
     cdef int32_t get_loc(self, int64_t target_tick) nogil:
         if self._size == 0:

@@ -13,10 +13,6 @@ cdef struct OrderExbitData:
 cdef class OrderExecutionBit:
     cdef readonly OrderExbitData core
 
-    cdef OrderExecutionBit clone(self)
-    
     cdef object serialize(self)
-    
-    cdef object to_schema(self)
-    
+
     cdef OrderExbitData get_snapshot(self)

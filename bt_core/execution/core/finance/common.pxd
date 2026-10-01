@@ -23,13 +23,6 @@ cdef struct EventItem:
     RightData rgt
 
 
-cdef enum FillerType:
-    OCO = 0
-    OCC = 1
-    Smooth = 2
-    Likely = 3
-
-
 cdef enum Exchange:
     SSE = 0              # Shanghai Stock Exchange
     SZSE = 1             # Shenzhen Stock Exchange

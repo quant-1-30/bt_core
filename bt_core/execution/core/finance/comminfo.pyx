@@ -16,28 +16,19 @@ cdef const int64_t STAMP_TAX_CKPT = 1693180800     # 2023-08-28 印花税 1‰ -
 cdef const int64_t TRANSFER_FEE_CKPT = 1651180800  # 2022-04-29 过户费 0.02‰ -> 0.01‰
 cdef const int64_t TRANSFER_FEE_UNIFY_CKPT = 1438387200  # 2015-08-01 沪深统一按成交金额 0.02‰ (此前沪市按面值 0.06‰, 深市免收)
 cdef const int64_t RatioCkpt = 1433813400          # 2015 佣金 3‰ -> 0.5‰ (万分之5)
+cdef const double PAR_TRANSFER_RATE = 6e-5         # 2015-08-01 前沪市过户费面值费率 (每股面值 1 元)
 
 
 cdef class CommInfoBase:
 
-    def __init__(self, 
+    def __init__(self,
                  double commission = 0.0,
-                 double interest = 0.0,
                  double fixed = 0.0,
                  int32_t commtype = 0):
 
         self.commission = commission / 100.0
-        self.creditrate = interest / 365.0
         self.commtype = commtype
         self.fixed = fixed
-
-    cdef double get_credit_interest(self, Position pobj, int64_t dt):
-        cdef PositionCoreData core = pobj.core
-
-        cdef long days = (dt - core.datetime) // 86400
-        if days <= 0:
-            return 0.0
-        return days * self.creditrate * abs(core.size) * core.price
 
     cdef double calculate(self, Order order):
         return self.commission
@@ -62,70 +53,63 @@ cdef class CommInfoBase:
 
 cdef class CommInfo_Stocks(CommInfoBase):
 
-    cdef double calculate(self, Order order):
+    cdef (double, double, double) _fee_rates(self, Order order):
         """
-            A 股手续费分项费率 均基于 size*price 计算:
-            # 印花税: 2023-08-28 前 1‰ 卖出, 之后 0.5‰ 卖出; 买入不收
-            # 过户费: 2022-04-29 前上交所 0.01‰ 买入, 沪深双向 0.01‰ 买卖
-            # 交易佣金: 2015 前3‰, 0.5‰
-            注意: 5 元最低红线仅适用于佣金, 不适用于印花税/过户费
+            # stamp_rate: 2023-08-28 前 1‰ 卖出, 之后 0.5‰ 卖出; 买入不收
+            # transfer_rate: 2022-04-29 前沪深双向 0.02‰, 之后 0.01‰
+            
+            # commission: 2015-06-09 前 3‰, 之后 0.5‰, 最低 5 元
         """
         cdef bint is_buy = order.isbuy
         cdef OrderCoreData core = order.core
 
-        # 1. 印花税
-        cdef double stamp_commission = 0.0
+        # 1. stamp_rate
+        cdef double stamp_rate = 0.0
         if not is_buy:
-            stamp_commission = 5e-4 if core.created_dt >= STAMP_TAX_CKPT else 1e-3
+            stamp_rate = 5e-4 if core.created_dt >= STAMP_TAX_CKPT else 1e-3
 
-        # 2. 过户费 (0.01‰ = 1e-5, 旧费率 0.02‰ = 2e-5)
-        cdef double transfer_commission
+        # 2. transfer_fee (0.01‰ = 1e-5 / 0.02‰ = 2e-5)
+        cdef double transfer_rate
         if core.created_dt >= TRANSFER_FEE_CKPT:
-            transfer_commission = 1e-5  # 沪深双向
+            transfer_rate = 1e-5
         elif core.created_dt >= TRANSFER_FEE_UNIFY_CKPT:
-            transfer_commission = 2e-5  # 2015-08-01 起沪深统一 0.02‰
+            transfer_rate = 2e-5  # 2015-08-01 0.02‰
         else:
-            transfer_commission = 6e-5 if order.exchange == Exchange.SSE else 0.0
+            transfer_rate = PAR_TRANSFER_RATE if order.exchange == Exchange.SSE else 0.0
 
-        # 3. 交易佣金
-        cdef double trade_commission = 3e-3 if core.created_dt < RatioCkpt else 5e-4
+        # 3. commission_rate
+        cdef double commission_rate = 3e-3 if core.created_dt < RatioCkpt else 5e-4
 
-        return stamp_commission + transfer_commission + trade_commission
+        return stamp_rate, transfer_rate, commission_rate
+
+    cdef double calculate(self, Order order):
+        cdef double stamp_rate, transfer_rate, commission_rate
+        stamp_rate, transfer_rate, commission_rate = self._fee_rates(order)
+        return stamp_rate + transfer_rate + commission_rate
 
     cdef double getcommission(self, Order order, int32_t size, double price):
         """
             A 股手续费 = 印花税 + 过户费 + 佣金
-            其中佣金有 5 元最低红线, 印花税/过户费无最低门槛
+            其中佣金有 5 元最低红线, 印花税/过户费无最低门槛;
+            2015-08-01 前沪市过户费按面值 (每股 1 元) 0.06‰ 计, 深市免收
         """
-        cdef bint is_buy = order.isbuy
         cdef OrderCoreData core = order.core
+        cdef double stamp_rate, transfer_rate, commission_rate
+        stamp_rate, transfer_rate, commission_rate = self._fee_rates(order)
         cdef double trade_value = abs(size) * price
-        cdef double stamp_tax = 0.0
-        cdef double stamp_rate
-        cdef double transfer_fee
-        cdef double comm_rate
-        cdef double commission
 
-        # 1. 印花税 (仅卖出, 无最低门槛)
-        if not is_buy:
-            stamp_rate = 5e-4 if core.created_dt >= STAMP_TAX_CKPT else 1e-3
-            stamp_tax = trade_value * stamp_rate
-
-        # 2. 过户费 (双向, 无最低门槛; 0.01‰ = 1e-5, 旧费率 0.02‰ = 2e-5)
-        if core.created_dt >= TRANSFER_FEE_CKPT:
-            transfer_fee = trade_value * 1e-5
-        elif core.created_dt >= TRANSFER_FEE_UNIFY_CKPT:
-            transfer_fee = trade_value * 2e-5
-        else:
-            transfer_fee = trade_value * 6e-5 if order.exchange == Exchange.SSE else 0.0
-
-        # 3. 交易佣金 (5 元最低红线仅适用于佣金)
-        comm_rate = 3e-3 if core.created_dt < RatioCkpt else 5e-4
-        commission = trade_value * comm_rate
+        cdef double commission = trade_value * commission_rate
         if commission < 5.0:
             commission = 5.0
 
-        return stamp_tax + transfer_fee + commission
+        cdef double transfer_fee
+        if core.created_dt >= TRANSFER_FEE_UNIFY_CKPT:
+            transfer_fee = trade_value * transfer_rate
+        else:
+            # size * 0.06‰ 
+            transfer_fee = PAR_TRANSFER_RATE * abs(size) if order.exchange == Exchange.SSE else 0.0
+
+        return trade_value * stamp_rate + transfer_fee + commission
 
 
 cdef class CommInfo_Futures(CommInfoBase):

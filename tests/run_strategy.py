@@ -149,6 +149,13 @@ class DrawDownSignal(btind.Indicator):
         self.lines.signal[0] = 0.0 if np.isnan(signal) else signal # np.nan_to_num(signal) used for array not scalar
 
 
+class TestSignalStrategy(bt.SignalStrategy):
+
+    params = (
+        ("name", "test_signal_strategy"),
+        ('_accumulate', True),
+    )
+
 # class TestStrategy(bt.Strategy):
 
 #     def log(self, txt, dt=None):
@@ -163,14 +170,6 @@ class DrawDownSignal(btind.Indicator):
 #     def next(self):
 #         # Simply log the closing price of the series from the reference
 #         print('Close, %.2f' % self.dataclose[0])
-
-
-class TestSignalStrategy(bt.SignalStrategy):
-
-    params = (
-        ("name", "test_signal_strategy"),
-        ('_accumulate', True),
-    )
 
 
 if __name__ == '__main__':

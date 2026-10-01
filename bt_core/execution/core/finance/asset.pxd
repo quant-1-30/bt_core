@@ -19,15 +19,15 @@ from libc.stdint cimport int64_t, int32_t
 cdef struct AssetCore:
     # 8 bytes align
     cpp_string name
-    cpp_string merger       
-    double ratio            
+    cpp_string merger
+    double merge_ratio 
     # 4 bytes align
-    int32_t first_trading   
-    int32_t delist         
-    int32_t tick_size 
-    int32_t board     
+    int32_t first_trading
+    int32_t delist
+    int32_t tick_size
+    int32_t board
 
-    bint increment          
+    bint increment
 
 cdef class Asset:
     cdef readonly AssetCore core

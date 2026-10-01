@@ -1,4 +1,4 @@
-from libc.stdint cimport int32_t
+from libc.stdint cimport int32_t, int64_t
 
 from bt_core.execution.core.finance.order cimport Order
 from bt_core.execution.core.finance.simulate_types cimport ActorId
@@ -26,6 +26,9 @@ cdef class TrackerActor:
     cdef object _loop
 
     cdef dict positions
+
+    cdef dict _prev_closes
+
 
     cpdef object set_cash(self, object payload)
 

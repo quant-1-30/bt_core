@@ -20,6 +20,7 @@
 ###############################################################################
 # from __future__ import (absolute_import, division, print_function,
 #                         unicode_literals)
+from bisect import bisect_right
 from datetime import datetime, timedelta, time
 
 from .metabase import MetaParams, with_metaclass
@@ -200,3 +201,62 @@ class TradingCalendar(TradingCalendarBase):
 
             opening = datetime.combine(dt, o).replace(tzinfo=tzinfo)
             return opening, closing
+
+
+# ---------------------------------------------------------------------------
+# Driven by historical Close data of a benchmark index (e.g. 1A0001). 
+# ---------------------------------------------------------------------------
+
+class DataTradingCalendar(TradingCalendar):
+
+    params = ()  
+
+    def __init__(self, trading_days):
+        super().__init__()
+        # bisect
+        _ymds = sorted({int(d) for d in trading_days})
+        self._dates = [datetime(y // 10000, (y // 100) % 100, y % 100).date()
+                       for y in _ymds]
+        self._ordinal = {y: i + 1 for i, y in enumerate(_ymds)}  # 1-based
+
+    def day_index(self, ymd):
+        return self._ordinal.get(int(ymd), -1)
+
+    def trading_days_between(self, ymd_a, ymd_b):
+        i, j = self._ordinal.get(int(ymd_a), -1), self._ordinal.get(int(ymd_b), -1)
+        if i < 0 or j < 0:
+            return -1
+        return j - i + 1
+
+    def _nextday(self, day):
+        d = day.date() if isinstance(day, datetime) else day
+        k = bisect_right(self._dates, d)
+        if k < len(self._dates):
+            nxt = self._dates[k]
+            return nxt, nxt.isocalendar()
+        return super()._nextday(day)  
+
+
+# ---------------------------------------------------------------------------
+# singleton calendar instance, None if no data (weekends degrade to approximate)
+# ---------------------------------------------------------------------------
+
+_active_calendar = None
+
+
+def set_calendar(cal):
+    global _active_calendar
+    _active_calendar = cal
+
+
+def get_calendar():
+    return _active_calendar
+
+
+def trading_days_between(ymd_a, ymd_b):
+    cal = _active_calendar
+    if cal is not None:
+        n = cal.trading_days_between(ymd_a, ymd_b)
+        if n >= 0:
+            return n
+    raise ValueError(f"Trading calendar not set or ymd_a/ymd_b out of range: {ymd_a}, {ymd_b}")

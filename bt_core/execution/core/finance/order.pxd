@@ -46,18 +46,18 @@ cdef struct OrderCoreData:
      int32_t order_type
      int32_t exec_type
      int32_t created_dt
+     double limit_ratio    
 
 
 cdef class Order:
     cdef readonly OrderCoreData core
     cdef readonly bytes filler
-
     cdef AssetCore info
     cdef int32_t status
     cdef int32_t _exchange
+    cdef int32_t _cum_filled
 
     cdef object _exbits
-    cdef object _exbits_schema
     cdef object cached_uuid
 
     cdef void addinfo(self, Asset asset)
@@ -78,10 +78,6 @@ cdef class Order:
 
     cdef void cancel(self)
 
-    cdef Order clone(self)
-    
     cdef object serialize(self)
-    
-    cdef object to_schema(self)
-    
+
     cdef OrderCoreData get_snapshot(self)

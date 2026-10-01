@@ -11,7 +11,6 @@ from bt_core.execution.core.finance.trade cimport OrderExbitData, OrderExecution
 from bt_core.utils.dateintern cimport ts2intdt
 
 from bt_protocol._protocol import AccountBody, Resp
-from bt_protocol.schema.trade import vtAccount
 
 
 cdef class Account:
@@ -75,10 +74,14 @@ cdef class Account:
         '''
         Updates the current Trade on Account
         '''
+        if not trades:
+            return  
+
         cdef OrderExbitData core
         cdef OrderExecutionBit trade
         cdef double _val = 0.0
         cdef double _comm = 0.0
+        cdef double _cash
         cdef int64_t max_dt = 0
 
         for trade in trades:
@@ -87,7 +90,13 @@ cdef class Account:
             _comm += core.comm
             max_dt = max(core.executed_dt, max_dt)
 
-        self.core.cash -= (_val + _comm)
+        _cash = self.core.cash - (_val + _comm)
+        if _cash < 0.0:
+            raise ValueError(
+                f"negative cash forbidden: cash={self.core.cash}, "
+                f"trades_value={_val}, comm={_comm}"
+            )
+        self.core.cash = _cash
         # keep unix ts intraday (ts ordering survives multiple updates per day);
         # sync() is the single point that normalizes to ymd for persistence
         self.core.datetime = max_dt
@@ -139,22 +148,10 @@ cdef class Account:
     cdef object serialize(self):
         cdef object body, resp
 
-        body = AccountBody(experiment_id=self.core.experiment_id, datetime=self.core.datetime, portfolio_value=self.core.portfolio_value, 
+        body = AccountBody(experiment_id=self.core.experiment_id, datetime=self.core.datetime, portfolio_value=self.core.portfolio_value,
                             cash=self.core.cash, pnl=self.core.pnl, leverage=self.core.leverage, margin=self.core.margin)
         resp = Resp(body=body)
         return resp
-
-    cdef object to_schema(self): # not suit for snapshot because sqlchemy object has state
-        # cdef object experiment_id = uuid.UUID(self.core.experiment_id.decode("utf-8"))
-        # cdef object experiment_id = uuid.UUID(bytes=self.core.experiment_id)  # 16 / 32 / 4
-
-        return vtAccount(experiment_id=self.cached_uuid, 
-                         datetime=self.core.datetime, 
-                         portfolio_value=self.core.portfolio_value, 
-                         cash=self.core.cash,
-                         pnl=self.core.pnl, 
-                         leverage=self.core.leverage, 
-                         margin=self.core.margin)
 
     cdef AccountCoreData get_snapshot(self):
         return self.core

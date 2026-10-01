@@ -45,10 +45,12 @@ $PY setup.py build_ext --inplace
 |---|---|---|
 | T+1 | `position.pyx`（available vs size）、`filler.pyx` 卖出 clamp | 买入当天 available=0；`on_dt_over` 解锁 |
 | 手数 | `filler.pyx _round_to_lot` | 买入按 100 股整手；**零股只能在卖出最后一笔一次性卖出**（`last_fill` 参数控制） |
-| 印花税/过户费/佣金 | `comminfo.pyx` | 费率带时间分界点（常量 `*_CKPT`）；5 元最低**仅佣金**；过户费 2015-08-01 前沪市按面值 0.06‰、深市免收 |
+| 印花税/过户费/佣金 | `comminfo.pyx` | 费率带时间分界点（常量 `*_CKPT`）；5 元最低**仅佣金**；过户费 2015-08-01 前沪市按面值 0.06‰、深市免收。分项费率唯一来源是 `CommInfo_Stocks._fee_rates`（calculate/getcommission 共用，勿再复制） |
+| 涨跌停硬约束 | `filler.pyx`（`_limit_fillable` bar 内在封板判定：价差 ≤1.5 tick 且 close 贴边；无昨收锚点/无板价 clamp，`limit_ratio=inf` 哨兵=不设防）+ `simulate.pyx`（`_fetch_from_rpc` 唯一 RPC 入口 + `_prev_closes[(sid,day)]` 写穿；停牌日无行 → closes_map 0.0，position.on_dt_over 走 suspend 分支保 pnl）| process_order 零 RPC（昨收不随订单传输）；封板仅 bar 内在证据，ST/北交所未建模 |
+| 已实现盈亏持久化 | `position.pyx serialize`（realized_pnl 独立带出）+ `simulate._create_snapshot`（不再 pop）+ `simulate._start`（分桶恢复） | `vtposition.realized_pnl` 列（迁移 `a7b8c9d0e1f2`）；DB 语义：**pnl 列=浮动桶，realized_pnl 列=已实现桶**，而引擎快照 `PositionBody.pnl` 仍是 total（客户端契约）。修复前重启恢复 realized 归零，退市/并构会把历史已实现利润误清零 |
 | 分红送转/配股 | `position.pyx _process_event` | 送转/配股按 `floor` 截断（零头不足 1 股直接舍去，"不足就是不足"）；配股现金 = -rights_size*price；成本加权；**配股缴款超过现金则整体放弃配股（`process_events(events, cash)` 滚动现金判定，同批分红先到账可认购），`Account.add_cash` 禁止 cash<0（raise）** |
-| 新股涨跌幅豁免 | `asset.pyx restricted()` | 用**真实日历日**差（`_days_from_civil`），不能用 ymd 直接相减（跨月/跨年会错） |
-| 除权除息因子 | `feed.py apply_factor` | **当日 bar 由 feed 层 save/restore line[0] 保留**（除权日行情本身已是除权后价格，勿再乘）；历史 bar 价格 `*factor`、量 `*1/factor`（amount 不动，恰保持 p×v≈amount 自洽）；minute 主 feed 与 resample 的 DataClone 各自对**自己的 buffer** 调整（clone 经 `_start` 共享 `adj_factors`）。因子按 `(record_dt, current_dt]` **到期区间**应用而非精确匹配 bar 日——停牌窗口内的 ex-date 在复牌首根 bar 补乘（300308 2016 停牌、20160801 十派0.1 实测）。`LineBuffer.apply_factor` 调全 buffer，环形模式下"排除当根"不可能用静态切片表达（`array[:-1]` 只在 `_cur_idx==maxlen-1` 时恰好排除当根，其余相位丢最老 bar 且漏调当根）——勿再试 |
+| 新股涨跌幅豁免 | `asset.pyx restricted()` → `tradingcal.trading_days_between` | 按**交易日**序号（上市日=1，含第 5 日）；交易日历 = `tradingcal.DataTradingCalendar`（基准指数 Close 的 day 列驱动，`rpcfeed.get_dret` 拉到基准后 `set_calendar` 升级单例——真实节假日天然内含），无数据/窗口外自动退化到周末近似（`_weekdays_between`，与旧 asset 内联口径逐位一致）。不能用 ymd 直接相减（跨月/跨年会错），也不能用日历日差（周五上市第 5 个交易日会落在下周四） |
+| 除权除息因子 | `feed.py apply_factor`（**交付式后复权，无状态**） | 历史永不回写：当根交付 bar 的累计因子 = `prod(1/r, ex_date ≤ 当根日)` **逐 bar 现算**（价格 ×scale、量 ÷scale，amount 不动自洽）——序列单一固定基准（上市日口径），**指标 `[-n]` 与 `[0]` 恒同基**，无前视（字典中的未来 ex_date 被日期过滤排除）、无需 fwd_scale/record_dt 等存储态。停牌洞天然兼容（复牌首根日期晚于洞内全部 ex_date，一次性乘洞内累计，300308 2016 停牌、20160801 十派0.1 同源）；warmup 逐 bar 同路径天然 point-in-time；**DataClone（resample）短路**——主 feed 交付 bar 已带因子，clone 复制聚合即继承，自行再乘即双重缩放。执行/账务层（filler/ref_close/涨跌停/费率）全部走 RPC **原始价**，与 feed 复权口径隔离。注意：feed 价格 = 后复权尺度，绝对价位类策略逻辑需自行换算 |
 
 ## 5. 关键不变量（违反即引入回归）
 
@@ -71,8 +73,8 @@ $PY setup.py build_ext --inplace
 - **多标的端到端**（2026-08 起入库）：`tests/test_multi_instrument.py`（3 标的 300308/600000/000001、日/周/月 resample、MultiSignalPatch 按 ymd 轮动信号；FROMDATE/TODATE/RUNTAG 环境变量控制窗口与唯一性）→ `tests/verify_event_cash.py` 反向验证（默认取 client `5a1f0c9e-...` 最新实验）。前置：md-server（`cd ~/startup/rpc_feed && PYTHONPATH=. poetry venv 的 python rpc_feed/run_server.py`，端口 50051）、PG bt_trade 库、client 已注册 user_info。同配置重跑需换 RUNTAG（`uq_client_strategy_extra_info` 唯一约束，引擎不 upsert）。
 - **DB 反向验证**（跑完 tests/test_strategy.py 后，`PGPASSWORD=... psql -U postgres -h localhost -d bt_trade`）：
   1. `account` 全部 datetime ∈ [19900101,21001231] 且每日唯一（`uq_acct_datetime_experiment_id` 不炸）；
-  2. 逐 bit 费率恒等式：`comm == max(amt*(3e-3|5e-4 @2015-06-09), 5) + 卖出印花(1e-3|5e-4 @2023-08-28) + 过户费(1e-5|2e-5|6e-5仅沪市@分界 2022-04-29/2015-08-01)`，容差 0.005；
-  3. 现金守恒：`100000 + Σ(±px*sz) - Σcomm == account 末日 cash`，残差 = 持仓期现金分红总和（>0）。分红可**逐笔闭环**：用 `account` 日现金跳变（非交易日流日）独立提取每笔实付分红，应逐一等于除权日持仓 `size × bonus/10`（bonus 来自 mdapi `RpcTopic.Adjustment`，与 simulate 同源）；送转后 size = `floor(size × fl(sizer_ratio))`（浮点下 5700×fl(1.4)=7979 而非 7980，DB 实测吻合）。
+  2. 逐 bit 费率恒等式（**分片线性口径**，5 元下限不作用于分片）：`comm == amt*(3e-3|5e-4 @2015-06-09) + 卖出印花(1e-3|5e-4 @2023-08-28) + 过户费(1e-5|2e-5 @分界 2022-04-29/2015-08-01；2015-08-01 前沪市按**面值** 6e-5×size、深市免收)`，容差 0.005；
+  3. 现金守恒：`100000 + Σ(±px*sz) - Σcomm == account 末日 cash`，残差 = 持仓期现金分红总和 + 换股零股补偿（>0）。分红可**逐笔闭环**：用 `account` 日现金跳变（非交易日流日）独立提取每笔实付分红，应逐一等于除权日持仓 `size × bonus/10`（bonus 来自 mdapi `RpcTopic.Adjustment`，与 simulate 同源）；送转后 size = `floor(size × fl(sizer_ratio))`（浮点下 5700×fl(1.4)=7979 而非 7980，DB 实测吻合）。
   4. 买入 size % 100 == 0；`vtposition` 无 available > size。
   5. 长期停牌场景（已修复，勿回退成精确匹配）：300308 在 20160311–20160929 重组停牌，**停牌不是数据缺失**——Adjustment 表明确记录洞内 `ex_date=20160801`（十派0.1、`register_date=20160729` 停牌中名册冻结）。引擎曾按"ex_date == 下一根 bar 日"精确拉事件/匹配因子，窗口内事件被静默丢弃：现金分红不入账、若为送转/配股则仓位轨迹永久错误。现为区间语义：`simulate._fetch_from_rpc` 按 `(prev, curr]` 拉事件（复牌 rollover 补派，`_sync_event` 按 ex_date 排序）、`feed.apply_factor` 按 `(record_dt, current_dt]` 到期区间补乘因子（复牌首根 bar）。验证：结算日行 20160310 现金跳 +72.15，残差与逐笔重放完全一致。停牌期无 rollover/account/vtposition 行属正常（时钟随 bar 走）；换标的后遇长期无 bar 先对照 Adjustment 表区分"停牌"（有洞内 ex_date 行）与"真数据缺失"（什么表都没有）。
 - finance/timer 行为测试：Cython 测试模块方案（见 §2.3），历史上放在 `/tmp/bt_test/_financetest.pyx`，覆盖 T+1、分红/配股账务、多笔成交状态机、pickle 往返、费率分界点、新股跨月豁免。
@@ -81,13 +83,13 @@ $PY setup.py build_ext --inplace
 
 ## 7. 已知未修复项（改动相关模块时优先评估）
 
-- 涨跌停**撮合侧**无硬约束：`asset.restricted()` 只给费率/幅度参考，filler 只用振幅启发（`_execute_factor`），一字板无法成交的场景未完全建模。
-- 交易日历无真实节假日表（`tradingcal.py` 只有周末 + 手工半日/熔断配置）。
+- ~~涨跌停**撮合侧**无硬约束：`asset.restricted()` 只给费率/幅度参考，filler 只用振幅启发（`_execute_factor`），一字板无法成交的场景未完全建模~~ **已修复（2026-09，按 `docs/price_limit_plan.md` 落地）**：`Asset.restricted()` 经 `process_order` 激活注入订单，撮合层对封死板拒单、板价 clamp 成交价；无价位信息时退回振幅启发式。残留：ST 5% 差异化、北交所 30%、主板新股首日 44% 未建模。
+- ~~交易日历无真实节假日表~~ **部分修复（2026-09）**：`tradingcal.DataTradingCalendar` 由基准指数历史驱动（`rpcfeed.get_dret` 自动升级单例，`asset.restricted` 新股豁免已接入真实交易日计数）；`tradingcal.TradingCalendar` 本体仍是周末近似，timer/session 排程未接入数据日历——如需覆盖，用 `get_calendar()` 替换 `_nextday` 周末判定即可。
 - 分红持有期个税（差别化征税）未实现。
-- ~~日内 VWAP filler 用全天量归一（未来函数）~~ **已禁用（2026-08-25）**：`AlgoFiller._execute` 整体注释、委托 `PseudoFiller` 逐 bar 因果撮合；b"vwap"/b"twap" 注册保留以兼容历史订单参数，语义等同 default。
+- ~~日内 VWAP filler 用全天量归一（未来函数）~~ **已修复**：`AlgoFiller` 是完全因果无前视的逐 bar 执行调度器——TWAP 按窗口 bar 时间均分；VWAP 以**窗口内已实现量为量钟**（跟量、缺口自动追赶），唯一事前标量 Ŝ=trailing 历史交易日同时段真实量均值（`_ensure_window_volume` RPC 拉取，数据驱动，**无硬编码 U 型先验曲线**；`seed_window_volume` 钩子供测试/确定性重放；无历史时降级 TWAP）。逐 bar 施加真实成交量与 impact 参与率硬约束、自动滚入追赶补齐（catch-up），严格遵循 A 股整手买入与卖出零股规则。sizing 契约：`sizer_ratio` 恒为 **<1.0 的比例**——买入=现金比例（预算=ratio×cash 按每手成本折手数，floor，绝不透支），卖出=可卖比例（1.0=全部可卖）；`calculate` 为唯一换算点，sizer.getsizing 返回的就是该比例。
 - 科创板最小价差 200 股/ tick 近似。
 - `publish_metric` 多生产者递增非原子（当前单生产者架构下无害）。
-- merger（吸收合并）在 positions/sqn analyzer 中按全部损失处理。
+- merger（吸收合并）在 positions 侧换股保留仓位（`size×ratio` 截断）；**换股零股现金补偿**：不足 1 股部分折现金（补偿价取旧收盘、停牌按成本；`cost_basis=cost/ratio` 成本守恒），comp 经 `on_dt_over` 返回值上抛、simulate 注入 account cash（勿回退成"只清仓不记账"或"全损失"）；**幂等**：simulate 换 key 时刷新为新 sid 的 asset + `_dt_over` 的 `sid==merger` 守卫双保险（否则旧 asset 滞留导致每日重复换股+重复补偿）；换股当日 closes_map 以旧收盘/换股比平移到新 sid（市值守恒近似，次日自愈）；零仓壳标记 dirty 次日 `_clean` 回收；sqn analyzer 仍按全部损失处理。
 - 多 data feed 的 bar 对齐（cerebro）未严格按时间戳归并。
 
 ## 8. 提交约定

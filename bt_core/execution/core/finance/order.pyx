@@ -14,8 +14,6 @@ from cpython.object cimport Py_EQ
 from bt_core.execution.core.finance.common cimport Exchange
 from bt_core.utils.util cimport fast_uuid4_bytes
 
-from bt_protocol.schema.trade import vtOrder
-
 
 cdef class Order:
 
@@ -43,14 +41,18 @@ cdef class Order:
         self.filler = filler
         self.info = AssetCore()
 
-        self._exchange = Exchange.SSE if sid.startswith(b"60") else Exchange.SZSE
+        self._exchange = Exchange.SSE if sid.startswith(b"60") else (
+            Exchange.SZSE if not (sid.startswith(b"4") or sid.startswith(b"8") or sid.startswith(b"92"))
+            else Exchange.BSE)
         # self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes
         self.core.order_id = order_id
 
-        # cache  
+        # cache
         self._exbits = []
-        self._exbits_schema = []
+        self._cum_filled = 0
         self.cached_uuid = uuid.UUID(bytes=experiment_id)
+
+        self.core.limit_ratio = float('inf')
 
     property alive:
         def __get__(self):
@@ -83,23 +85,20 @@ cdef class Order:
 
     cdef void execute(self, int32_t size, OrderExecutionBit order_bit, double order_price): # except *
         cdef OrderExbitData core = order_bit.core
-        cdef OrderExecutionBit ob
         cdef int32_t exbit_size = core.executed_size
-        cdef int32_t cum_filled = 0
 
         if exbit_size <= 0:
             return
 
         self._exbits.append(order_bit)
-        self._exbits_schema.append(order_bit.to_schema())
 
         # completed/partial must be judged on cumulative filled size,
         # not on the size of this single bit (multi-fill orders would
-        # otherwise never reach Completed)
-        for ob in self._exbits:
-            cum_filled += ob.core.executed_size
+        # otherwise never reach Completed). Incremental O(1) counter —
+        # an exbits rescan here made multi-fill orders O(n^2).
+        self._cum_filled += exbit_size
 
-        if cum_filled < abs(size):
+        if self._cum_filled < abs(size):
             self.partial()
         else:
             # fully filled
@@ -139,29 +138,6 @@ cdef class Order:
         '''Marks an order as cancelled'''
         self.status = OrderStatus.Canceled
 
-    cdef Order clone(self):
-        cdef Order obj = Order.__new__(Order) # only allocate memory
-        cdef OrderCoreData core 
-
-        core.experiment_id = self.core.experiment_id
-        core.sid = self.core.sid
-        core.size = self.core.size
-        core.sizer_ratio = self.core.sizer_ratio
-        core.price = self.core.price
-        core.order_type = self.core.order_type
-        core.exec_type = self.core.exec_type
-        core.created_dt = self.core.created_dt
-        core.order_id = self.core.order_id
-
-        obj.filler = self.filler
-        obj.info = self.info
-        obj.status = self.status
-        # obj._exbits = self._exbits # reference copy / clone exbit
-        obj._exbits = list(self._exbits)  
-        obj._exchange = self._exchange
-        obj.core = core
-        return obj 
-
     cdef object serialize(self):
         cdef data_body = []
         cdef OrderExecutionBit exbit
@@ -169,23 +145,6 @@ cdef class Order:
         for exbit in self._exbits:
             data_body.append(exbit.serialize().body)
         return data_body
-    
-    cdef object to_schema(self):
-
-        vtorder = vtOrder(
-            # experiment_id=experiment_id,
-            experiment_id=self.cached_uuid,
-            sid=self.core.sid,
-            order_id=self.core.order_id,
-            price=self.core.price,
-            size=self.core.size,
-            order_type=self.core.order_type,
-            exec_type = self.core.exec_type,
-            created_dt=self.core.created_dt
-        )
-
-        vtorder.order_bits.extend(self._exbits_schema)
-        return vtorder
 
     cdef OrderCoreData get_snapshot(self):
         return self.core
@@ -202,6 +161,11 @@ cdef class Order:
         
         cdef Order o = <Order>other # cast
         return self.core.order_id == o.core.order_id
+
+    def __hash__(self):
+        # defining __eq__ without __hash__ makes Order unhashable in Python;
+        # identity follows order_id (same field __eq__ compares)
+        return hash(self.core.order_id)
 
     # def __richcmp(x, y, int op):
     #     cdef:

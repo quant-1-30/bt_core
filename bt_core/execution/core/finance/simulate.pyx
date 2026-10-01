@@ -15,6 +15,8 @@ import pyarrow.compute as pc
 from collections import defaultdict
 from itertools import chain
 
+import polars as pl
+
 from bt_core.execution.gateway.interface import async_gt
 
 from libcpp.unordered_map cimport unordered_map
@@ -54,7 +56,7 @@ cdef class TrackerActor:
 
         self.cash_manager = SyncCashManager()
         self.asset_cache = asset_cache
-        self._writer = writer 
+        self._writer = writer
         
         self._loop = _loop
         self._latest_snapshot = None 
@@ -66,11 +68,14 @@ cdef class TrackerActor:
 
         # clean tracking position which size=0
         self._dirty_pkeys = set()
-     
+
+        # (sid, day) -> close
+        self._prev_closes = {}
+
     async def _start(self):
         cdef bytes sid, experiment_id
         cdef Position p_obj
-        cdef tuple pkey
+        cdef tuple p_key
         cdef list datas
         cdef object body, row # Resp
         
@@ -94,7 +99,8 @@ cdef class TrackerActor:
                                 available = body.available,
                                 cost_basis = body.cost_basis,
                                 pnl = body.pnl,
-                                created_dt = body.created_dt)
+                                created_dt = body.created_dt,
+                                realized_pnl = body.realized_pnl)
                 self.positions[p_key] = p_obj # setdefault return default object
             # print(f"TrackerActor _start positions: {self.positions}")
 
@@ -105,36 +111,49 @@ cdef class TrackerActor:
         except Exception as e:
             logger.exception(f"Error starting position tracker: {e}")
 
-    async def _fetch_from_rpc(self, int32_t prev_dts, int32_t curr_dts, list psids):
-        """
-        prev_dt: T-1 Close
-        curr_dt: T   ex_dat Adj/Rgt
-        Events are fetched for the T-1, T ex-date range, not the exact day T:
-        through a suspension (no bars) the engine clock jumps T-1 -> T directly
-        and an ex-date inside the window (e.g. 300308 20160801, register frozen
-        20160729, dividend paid while halted) would otherwise never be fetched.
-        """
-        async def _fetch(object body, int32_t rpc_type):
-            df_dict = await async_gt.rpc(body, rpc_type)
-            return df_dict
 
-        # 🌟 T-1 Close
-        cdef int32_t last_dtint = ts2intdt(prev_dts)
-        cdef int32_t curr_dtint = ts2intdt(curr_dts) if curr_dts > 0 else 0
+    async def _fetch_from_rpc(self, int32_t prev_dts, int32_t curr_dts, 
+                                    list psids, bint with_events=True):
+            """
+                RPC Entrypoint
+            """
+            cdef int32_t last_dtint = ts2intdt(<double>prev_dts)
+            cdef int32_t curr_dtint = ts2intdt(<double>curr_dts) if curr_dts > 0 else 0
 
-        close_body = QueryBody(start_date=last_dtint, end_date=last_dtint, sid=psids)
-        close_task = asyncio.create_task(_fetch(close_body, RpcTopic.Close))
+            # 1. T -1 Close
+            close_body = QueryBody(start_date=last_dtint, end_date=last_dtint, sid=psids)
+            tasks = [async_gt.rpc(close_body, RpcTopic.Close)]
+            
+            # interval events
+            cdef bint fetch_events = with_events and curr_dtint > 0
+            if fetch_events:
+                event_body = QueryBody(start_date=last_dtint + 1, end_date=curr_dtint, sid=psids)
+                tasks.append(async_gt.rpc(event_body, RpcTopic.Adjustment))
+                tasks.append(async_gt.rpc(event_body, RpcTopic.Rightment))
 
-        if curr_dtint == 0:
-            closes_df_map = await close_task
-            return closes_df_map, {}, {}
+            results = await asyncio.gather(*tasks)
+            closes_df_map = results[0]
+            adjs_df_map = results[1] if fetch_events else {}
+            rgts_df_map = results[2] if fetch_events else {}
 
-        event_body = QueryBody(start_date=last_dtint + 1, end_date=curr_dtint, sid=psids)
-        adj_task = asyncio.create_task(_fetch(event_body, RpcTopic.Adjustment))
-        rgt_task = asyncio.create_task(_fetch(event_body, RpcTopic.Rightment))
-        
-        closes_df_map, adjs_df_map, rgts_df_map = await asyncio.gather(close_task, adj_task, rgt_task) 
-        return closes_df_map, adjs_df_map, rgts_df_map
+            # cache T-1 Close
+            cdef bytes sid
+            cdef object close_df
+            cdef double pre_close
+
+            for sid in psids:
+                close_df = closes_df_map.get(sid)
+                pre_close = 0.0
+                
+                if close_df is not None and close_df.height > 0:
+
+                    pdf = close_df.filter(pl.col("close") > 0.0).sort("day", descending=True).head(1)
+                    rows = pdf.select(["day", "close"]).rows()
+                    
+                    if len(rows) >= 1:
+                        self._prev_closes[(sid, rows[0][0])] = <double>rows[0][1]
+
+            return adjs_df_map, rgts_df_map
 
     cpdef object set_cash(self, object payload):
         """set cash and accout wrt"""
@@ -149,7 +168,7 @@ cdef class TrackerActor:
         cdef bytes experiment_id = core.experiment_id
         cdef OrderExecutionBit ordbit
         cdef Position p_sid
-        cdef tuple pkey = (experiment_id, sid)
+        cdef tuple p_key = (experiment_id, sid)
         cdef list order_bits = []
         cdef dict order_dict
 
@@ -157,9 +176,12 @@ cdef class TrackerActor:
         
         order.addinfo(asset)
 
-        if pkey not in self.positions: 
-            self.positions[pkey] = Position(sid=sid, experiment_id=experiment_id, asset=asset, created_dt=core.created_dt)
-        p_sid = self.positions[pkey]
+        cdef double limit_ratio = asset.restricted(<int64_t>core.created_dt)
+        order.core.limit_ratio = limit_ratio
+
+        if p_key not in self.positions: 
+            self.positions[p_key] = Position(sid=sid, experiment_id=experiment_id, asset=asset, created_dt=core.created_dt)
+        p_sid = self.positions[p_key]
 
         # PseudoFiller
         acct = self.cash_manager.get_account(experiment_id)
@@ -173,12 +195,13 @@ cdef class TrackerActor:
 
         # clean dirty positions 
         if p_sid.core.size == 0:
-            self._dirty_pkeys.add(pkey)
+            self._dirty_pkeys.add(p_key)
 
-        # order snapshot
-        order_dict = order.get_snapshot() 
+        # order snapshot exclude sizer_ratio/limit_ratio 
+        order_dict = order.get_snapshot()
         order_dict['experiment_id'] = self.cached_uuid
-        order_dict.pop("sizer_ratio")
+        order_dict.pop("sizer_ratio", None)
+        order_dict.pop("limit_ratio", None)
 
         if order_bits:
             self._put_buffer.append({"order": [order_dict, order_bits]})
@@ -265,34 +288,37 @@ cdef class TrackerActor:
             self.cash_manager.add_cash(experiment_id, event_cash)
 
     cdef void _clean(self): # filter psize=0
-        cdef tuple pkey
+        cdef tuple p_key
         cdef Position pos  
         
         if not self._dirty_pkeys:
             return
             
-        for pkey in self._dirty_pkeys:
-            if pkey in self.positions:
-                pos = <Position>self.positions[pkey]
+        for p_key in self._dirty_pkeys:
+            if p_key in self.positions:
+                pos = <Position>self.positions[p_key]
                 if pos.core.size == 0:
-                    del self.positions[pkey]
+                    del self.positions[p_key]
 
         self._dirty_pkeys.clear()
 
     async def on_dt_over(self, object event):
         cdef bytes experiment_id = event.experiment_id
         cdef int32_t last_sync_dts = event.body.start_date
+        cdef int32_t pre_ymd = ts2intdt(last_sync_dts)
         cdef int32_t current_dts = event.body.end_date
-        cdef Position p_obj, exist_p
+
+        cdef Position p_obj
+        cdef bytes sid_bytes
         
-        cdef int32_t close_dt
-        cdef int32_t total_size
-        cdef double close_price
-        cdef bytes sid_bytes, map_sid
-        
-        cdef tuple p_key
-        cdef dict new_positions = {}, closes_map = {}
-        cdef set unique_sids_set = {sid_bytes for (eid, sid_bytes) in self.positions.keys() if eid == experiment_id}
+        cdef double merger_comp = 0.0
+
+        cdef dict closes_map = {}
+        cdef list merger_keys = []
+
+        cdef set unique_sids_set = {
+            sid_bytes for (eid, sid_bytes) in self.positions.keys() if eid == experiment_id
+        }
 
         if not unique_sids_set:
             self.cash_manager.sync(experiment_id, last_sync_dts, {}, {})
@@ -300,66 +326,82 @@ cdef class TrackerActor:
             self._create_snapshot(reason="on_dt_over", writer=True)
             self._check_flush()
             return Resp(body=self._latest_snapshot)
-        
-        closes_df_map, adjs_df_map, rgts_df_map = await self._fetch_from_rpc(last_sync_dts, current_dts, list(unique_sids_set))
 
-        # used to sync portfolio_value 
-        for map_sid in unique_sids_set:
-            close_df = closes_df_map.get(map_sid, None)
-            if close_df is not None and close_df.height > 0:
-                closes_map[map_sid] = close_df.select("close").row(-1)[0]
-            else:
-                closes_map[map_sid] = 0.0
+        adjs_df_map, rgts_df_map = await self._fetch_from_rpc(
+            last_sync_dts, current_dts, list(unique_sids_set)
+        )
 
-        self._clean() # remove size=0
+        for sid_bytes in unique_sids_set:
+            closes_map[sid_bytes] = self._prev_closes.get((sid_bytes, pre_ymd), 0.0)
 
-        # track merger key changes for in-place update
-        cdef list merger_keys = []
+        self._clean()
+
+        # Merger
+
         for (eid, sid_bytes), p_obj in self.positions.items():
             if eid == experiment_id:
-                close_df = closes_df_map.get(sid_bytes, None)
-                if close_df is not None and close_df.height > 0:
-                    for day, close in close_df.select(["day", "close"]).rows():
-                        p_obj.on_dt_over(int(day), float(close))
-                else:
-                    p_obj.on_dt_over(ts2intdt(last_sync_dts), 0.0)
+                close_price = closes_map.get(sid_bytes, 0.0) 
+                merger_comp += p_obj.on_dt_over(pre_ymd, close_price)
 
-                # check if merger changed the sid (only this experiment's positions)
                 if p_obj.core.sid != sid_bytes:
                     merger_keys.append((eid, sid_bytes))
 
-        # handle merger key changes in-place
-        for old_key in merger_keys:
-            p_obj = self.positions.pop(old_key)
-            new_key = (old_key[0], p_obj.core.sid)
-            if new_key in self.positions:
-                exist_p = self.positions[new_key]
-                total_size = exist_p.core.size + p_obj.core.size
-                if total_size > 0:
-                    exist_p.core.cost_basis = ((exist_p.core.cost_basis * exist_p.core.size) +
-                                               (p_obj.core.cost_basis * p_obj.core.size)) / total_size
-                else:
-                    exist_p.core.cost_basis = 0.0
-                exist_p.core.size = total_size
-                exist_p.core.available += p_obj.core.available
-                exist_p.core.pnl += p_obj.core.pnl
-                # keep realized pnl of the absorbed position, otherwise it is lost
-                exist_p.core.realized_pnl += p_obj.core.realized_pnl
-            else:
-                self.positions[new_key] = p_obj
+        # -------------------------------------------------------------
+        # Merger Handling
+        # -------------------------------------------------------------
 
-        # T-1 Sync 
+        cdef double merge_ratio = 0.0
+        cdef Asset merged_asset, merged_new_asset
+        cdef tuple old_key, new_key
+        
+        cdef bytes old_sid, new_sid
+
+        if merger_keys:
+            for old_key in merger_keys:
+                p_obj = self.positions[old_key]
+                if <bytes>p_obj.core.sid not in self.asset_cache._c_cache:
+                    await self.asset_cache._async_fetch(p_obj.core.sid)
+
+            for old_key in merger_keys:
+                p_obj = self.positions.pop(old_key)
+                old_sid = old_key[1]
+                new_sid = p_obj.core.sid
+                new_key = (old_key[0], new_sid)
+
+                merged_asset = self.asset_cache._c_cache.get(old_sid)
+                merge_ratio = merged_asset.core.merge_ratio if merged_asset is not None else 0.0
+
+                if (closes_map.get(old_sid, 0.0) > 0.0 
+                        and merge_ratio > 0.0 and new_sid not in closes_map):
+                    closes_map[new_sid] = closes_map[old_sid] / merge_ratio
+
+                merged_new_asset = self.asset_cache._c_cache.get(new_sid)
+                if merged_new_asset is not None:
+                    p_obj.asset = merged_new_asset
+
+                if p_obj.core.size == 0:
+                    self._dirty_pkeys.add(new_key)
+
+                if new_key in self.positions:
+                    self.positions[new_key].merge_from(p_obj)
+                else:
+                    self.positions[new_key] = p_obj
+
+        if merger_comp != 0.0:
+            self.cash_manager.add_cash(experiment_id, merger_comp)
+
+        # T-1 
         self.cash_manager.sync(experiment_id, last_sync_dts, self.positions, closes_map)
 
-        # -------------------------------------------------------------
-        # Sync T Event
-        # -------------------------------------------------------------
-        if current_dts >0:
+        # T Events
+        if current_dts > 0:
             self._sync_event(experiment_id, self.positions, adjs_df_map, rgts_df_map)
 
+        # snapshot
         self._snapshot_dirty = True
         self._create_snapshot(reason="dt_over", writer=True)
         self._check_flush()
+
         return Resp(body=self._latest_snapshot)
 
     cdef void _create_snapshot(self, str reason, bint writer=False, list trades=None):
@@ -383,7 +425,6 @@ cdef class TrackerActor:
                 # used dump to database
                 p_dict = p_obj.clone().get_snapshot()
                 p_dict['experiment_id'] = self.cached_uuid
-                p_dict.pop("realized_pnl")
                 p_dict.pop("pnl_ratio", None)
                 pos_snaps.append(p_dict)
             
@@ -442,8 +483,8 @@ cdef class Simulator:
         if experiment_id not in self._actors:
             actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size, self._loop)
             self._actors[experiment_id] = actor
-            # avoid self._loop.create_task()
-            asyncio.run_coroutine_threadsafe(actor._start(), self._loop).result() 
+            # avoid hangup ---> self._loop.create_task()
+            asyncio.run_coroutine_threadsafe(actor._start(), self._loop).result(timeout=30)
         return self._actors[experiment_id]
         
     cpdef object set_cash(self, object event):

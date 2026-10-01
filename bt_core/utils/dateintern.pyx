@@ -73,6 +73,12 @@ cpdef int32_t ts2intdt(double ts):
     return (info.tm_year + 1900) * 10000 + (info.tm_mon + 1) * 100 + info.tm_mday
 
 
+cdef int64_t elapse_seconds(int64_t ts) noexcept nogil:
+    """unix ts utc -> seconds 86400"""
+    cdef int64_t asia_ts = ts + 28800
+    return asia_ts - (asia_ts // 86400) * 86400
+
+
 cdef MarketTime market_utc(int64_t ts) noexcept nogil:
     """
     param ts :UTC Timestamp

@@ -80,8 +80,8 @@ class MetaAbstractDataBase(OHLCDateTime.__class__):
         _obj._barstack = collections.deque()  
         _obj._barstash = collections.deque()  
 
-        _obj.adj_factors = {} 
-        _obj.record_dt = 0
+        # {ex_date: ratio}
+        _obj.adj_factors = {}  
         _obj.log_shm = None
         # print("MetaAbstractDataBase dopostinit finish ")
         return _obj, args, kwargs
@@ -184,44 +184,24 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
     def apply_factor(self):
         """
-            ohlc accumulated factors
+            scale(bar@D) = prod(1/r, for ex_date in adj_factors if ex_date <= D)
 
-            契约: self.adj_factors 的 value 必须是每个 ex-date 的【单次事件】比率
-            (rpcfeed.get_adjfactor 取 FactorResult.raw_factors, 实测 {ex: r}, 与
-            bt_sdk 的累计系数 adj_factors 是两回事)。逐事件连乘整个 buffer 后,
-            era-j 历史 bar 的累计乘数 = prod(r_k, k>j), 恰等于 bt_sdk join_asof
-            用累计系数 adj_factors[dt_{j+1}] 一次性乘的结果 —— 两者数学等价。
+            self.adj_factors (rpcfeed.get_adjfactor FactorResult.raw_factors)
+
         """
-        if not self.adj_factors:
+        if not self.adj_factors or getattr(self, "_clone", False):
             return
 
         current_dt = ts2intdt(self.lines.datetime[0])
-        # every ex-date that has come due since the last applied one. Exact-day
-        # matching (`current_dt in self.adj_factors`) drops factors whose
-        # ex-date falls inside a no-bar window (suspension): the first bar
-        # after the gap must back-adjust history instead, compounding when
-        # several ex-dates became due together. The current bar is kept raw —
-        # it already trades post-adjustment.
-        due = [dt for dt in self.adj_factors if self.record_dt < dt <= current_dt]
-        if not due:
-            return
+        scale = 1.0
+        for ex_date, r in self.adj_factors.items():
+            if ex_date <= current_dt:
+                scale /= r
 
-        factor = 1.0
-        for dt in due:
-            factor *= self.adj_factors[dt]
-
-        adjlines = {name: getattr(self, name) for name in ["open", "high", "close", "low"]}
-        for line in adjlines.values():
-            value = line[0]
-            line.apply_factor(factor)
-            line[0] = value  # ex-date bar arrives already adjusted: keep raw value
-
-        # volume need reverse adjustment factor
-        _v = self.volume[0]
-        self.volume.apply_factor(1.0 / factor)
-        self.volume[0] = _v
-
-        self.record_dt = due[-1]
+        for name in ("open", "high", "low", "close"):
+            line = getattr(self, name)
+            line[0] = line[0] * scale
+        self.volume[0] = self.volume[0] / scale
 
     def _load(self):
         return False

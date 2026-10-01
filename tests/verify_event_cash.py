@@ -36,15 +36,17 @@ def check(name, ok, detail=""):
         FAILS.append(name)
 
 
-def expect_comm(created_dt, is_sell, amount, sse):
-    comm = max(amount * (3e-3 if created_dt < RATIO_CKPT else 5e-4), 5.0)
+def expect_comm(created_dt, is_sell, amount, sse, size):
+    """filler 分片佣金恒等式: 线性计收 (5 元下限不作用于分片);
+    过户费 2015-08-01 前沪市按面值 6e-5 x 股数, 深市免收"""
+    comm = amount * (3e-3 if created_dt < RATIO_CKPT else 5e-4)
     stamp = amount * (5e-4 if created_dt >= STAMP_CKPT else 1e-3) if is_sell else 0.0
     if created_dt >= TRANSFER_CKPT:
         tf = 1e-5
     elif created_dt >= TRANSFER_UNIFY_CKPT:
         tf = 2e-5
     else:
-        tf = 6e-5 if sse else 0.0
+        return comm + stamp + (6e-5 * size if sse else 0.0)
     return comm + stamp + amount * tf
 
 
@@ -136,7 +138,8 @@ async def main():
         o = orders[b["order_id"]]
         sid = bytes(o["sid"])
         amount = b["executed_price"] * b["executed_size"]
-        exp_c = expect_comm(o["created_dt"], not b["isbuy"], amount, sid.startswith(b"60"))
+        exp_c = expect_comm(o["created_dt"], not b["isbuy"], amount,
+                            sid.startswith(b"60"), abs(b["executed_size"]))
         worst = max(worst, abs(exp_c - b["comm"]))
         bad += abs(exp_c - b["comm"]) > 0.005
     check(f"逐 bit 费率恒等式({len(bits)} 笔, 容差 0.005)", bad == 0,

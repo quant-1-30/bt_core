@@ -1,5 +1,5 @@
 from libcpp.vector cimport vector
-from libcpp.algorithm cimport binary_search, lower_bound
+from libcpp.algorithm cimport lower_bound
 from libc.stdint cimport int32_t, int64_t
 
 import numpy as np
@@ -40,13 +40,9 @@ cdef class Lines:
         
     cdef void batch_load(self, double[:, :] arr)
 
-    cdef double max(self) nogil
-
-    cdef double min(self) nogil
     
     cdef Bar getvalue(self, int32_t idx) nogil
 
-    cdef bint is_in(self, int64_t tick_val) nogil
     
     cdef int32_t get_loc(self, int64_t target_tick) nogil
     
