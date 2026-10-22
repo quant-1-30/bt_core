@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import math
 from bt_core.indicator import Indicator
 
 
@@ -54,13 +53,13 @@ class AwesomeOscillator(Indicator):
         self.addminperiod(self.p.slow)
 
     def next(self):
-        h = np.asarray(self.data.high, dtype=np.float64)
-        l = np.asarray(self.data.low, dtype=np.float64)
+        # logical windows via get(); SMA(median, n) = (sum_h + sum_l) / (2n)
+        fast, slow = self.p.fast, self.p.slow
+        hf = math.fsum(self.data.high.get(size=fast))
+        lf = math.fsum(self.data.low.get(size=fast))
+        hs = math.fsum(self.data.high.get(size=slow))
+        ls = math.fsum(self.data.low.get(size=slow))
+        sma_fast = (hf + lf) / (2.0 * fast)
+        sma_slow = (hs + ls) / (2.0 * slow)
 
-        median_price = (h + l) / 2.0
-
-        sma_fast = talib.SMA(median_price, timeperiod=self.p.fast)
-        sma_slow = talib.SMA(median_price, timeperiod=self.p.slow)
-
-        # self.lines.ao[0] = sma_fast[-1] - sma_slow[-1]
-        self.line[0] = sma_fast[-1] - sma_slow[-1]
+        self.line[0] = sma_fast - sma_slow

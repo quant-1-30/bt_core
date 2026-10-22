@@ -326,6 +326,9 @@ class _BaseResampler(with_metaclass(metabase.MetaParams, object)):
 
             return ret, docheckover
 
+        if not self.subdays:
+            return False, True
+
         if self._eoscheck(data, exact=True): # eos must add 
             return True, True
 

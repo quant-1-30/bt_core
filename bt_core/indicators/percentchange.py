@@ -18,8 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -47,15 +45,19 @@ class PercentChange(PeriodN):
 
     def __init__(self):
         super(PercentChange, self).__init__()
-        # self.addminperiod(self.p.period)
+        # ROC/ROCP/ROCR lookback == period (needs period+1 samples)
+        self.addminperiod(2)
 
     def next(self):
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-
-        _roc = talib.ROC(_arr, self.p.period)
-        _rocp = talib.ROCP(_arr, self.p.period)
-        _rocr = talib.ROCR(_arr, self.p.period)
-
-        self.lines.roc[0] = _roc[-1]
-        self.lines.rocp[0] = _rocp[-1]
-        self.lines.rocr[0] = _rocr[-1]
+        # O(1) via logical back-index; ring-safe in both memory modes
+        x = self.data[0]
+        prev = self.data[-self.p.period]
+        if prev == 0.0:
+            roc = rocp = rocr = float('nan')
+        else:
+            rocr = x / prev
+            rocp = rocr - 1.0
+            roc = 100.0 * rocp
+        self.lines.roc[0] = roc
+        self.lines.rocp[0] = rocp
+        self.lines.rocr[0] = rocr

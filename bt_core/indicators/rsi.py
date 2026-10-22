@@ -18,8 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -64,11 +62,52 @@ class RelativeStrengthIndex(PeriodN):
 
     def __init__(self):
         super(RelativeStrengthIndex, self).__init__()
-        # self.addminperiod(self.p.period) 
+        # talib.RSI lookback == period (first valid output needs period+1
+        # samples); PeriodN already added `period`, so net +1 via addminperiod(2)
+        # (LineSingle.addminperiod subtracts the overlapping base period)
+        self.addminperiod(2)
+        # Wilder running state, seeded with the mean of the first `period`
+        # gains/losses (identical to the talib seeding convention)
+        self._prev = None
+        self._avg_gain = None
+        self._avg_loss = None
+        self._sg = 0.0
+        self._sl = 0.0
+        self._n = 0
 
-    def next(self, rsi):
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        rsi = talib.RSI(_arr, timeperiod=self.p.period)
+    def _acc(self):
+        x = self.data[0]
+        if x != x:
+            return
+        if self._prev is not None:
+            d = x - self._prev
+            g = d if d > 0.0 else 0.0
+            l = -d if d < 0.0 else 0.0
+            p = self.p.period
+            if self._avg_gain is None:
+                self._sg += g
+                self._sl += l
+                self._n += 1
+                if self._n >= p:
+                    self._avg_gain = self._sg / p
+                    self._avg_loss = self._sl / p
+            else:
+                self._avg_gain = (self._avg_gain * (p - 1) + g) / p
+                self._avg_loss = (self._avg_loss * (p - 1) + l) / p
+        self._prev = x
 
-        # self.lines.rsi[0] = rsi[-1]
-        self.line[0] = rsi[-1]
+    def _rsi(self):
+        if self._avg_gain is None:
+            return float('nan')
+        if self._avg_loss == 0.0:
+            # no losses in window: pure uptrend -> 100, flat -> 50
+            return 100.0 if self._avg_gain > 0.0 else 50.0
+        rs = self._avg_gain / self._avg_loss
+        return 100.0 - 100.0 / (1.0 + rs)
+
+    def prenext(self):
+        self._acc()
+
+    def next(self):
+        self._acc()
+        self.line[0] = self._rsi()

@@ -53,10 +53,13 @@ class Instrument(object):
         if instance is None: return self
         
         mdapi = getattr(instance, 'mdapi', None)
-        if len(self.assets) == 0:
-            table = mdapi.get_instrument() 
-            # ctable = pa.concat_tables(tables, promote_options="permissive") # zero_copy , but combine_chunk is heavy memory ops
-            self.assets = table.to_pylist() # row-wise dict list / table.to_pandas() and df.to_dict('records') # Arrow --> Pandas
+        if len(self.assets) == 0 and mdapi is not None and hasattr(mdapi, 'get_instrument'):
+            table = mdapi.get_instrument()
+            rows = table.to_dicts() if hasattr(table, 'to_dicts') else table.to_pylist()
+            self.assets = {
+                (r["sid"].encode("utf-8") if isinstance(r["sid"], str) else bytes(r["sid"])): r
+                for r in rows
+            }
         return self.assets
 
 
@@ -79,6 +82,7 @@ class MetaRemoteData(DataBase.__class__):
         # print("MetaRemoteData dopostinit kwargs ", kwargs)  
         _obj.mdapi = _obj.p.mdapi
         _obj.chan = queue.Queue()
+        _obj._timeout = _obj.p.timeout if _obj.p.timeout > 0 else None
         return _obj, args, kwargs
 
 
@@ -96,17 +100,26 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
 
     def _start(self, *args, **kwargs):
         super()._start(*args,**kwargs)
-        # self._row_iter = None
         self._row_iter = False
-        self.sid = kwargs["sid"]
+        self.benchmark = kwargs.get("benchmark") or [b"1A0001"]
+        self.sid = kwargs.get("sid") or self.benchmark
 
-        tick_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=self.sid)
-        self.get_adjfactor(tick_body)
-        # print("finish tick adjadjust")
+        # Single-instrument validation (rpcfeed, len(sid) == 1) subscribes to
+        # the target instrument's own Tick series and loads its backward
+        # adjustment factors so technical indicators on resampled feeds reflect
+        # the stock's true price action; multi-instrument runs (scorefeed) use
+        # the benchmark index as the unified master clock.
+        if len(self.sid) == 1 and self.sid != self.benchmark:
+            tick_sids = self.sid
+            tick_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=tick_sids)
+            self.get_adjfactor(tick_body)
+        else:
+            tick_sids = [self.benchmark[0]]
+            self.adj_factors = {}
+            tick_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=tick_sids)
 
-        bench_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=kwargs["benchmark"])
+        bench_body = QueryBody(start_date=kwargs["fromdate"], end_date=kwargs["todate"], sid=[self.benchmark[0]])
         self.get_dret(bench_body)
-        # print("finish benchmark data")
 
         observable = self.mdapi.subscribe(tick_body, RpcTopic.Tick)
         observable.pipe(
@@ -153,7 +166,7 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
                 else:
                     self._row_iter = False 
 
-            msg = self.chan.get()
+            msg = self.chan.get(timeout=self._timeout)
             if msg is StopIteration: return False
             if isinstance(msg, Exception): raise msg
 
@@ -175,30 +188,26 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         self.lines.amount[0] = self._am_arr[idx]
         return True
 
-    def _load_rtbar(self, row): # tick 3s
+    def _load_rtbar(self): # tick 3s
+        idx = self._row_idx
+        cur_dt = self._dt_arr[idx]
         dt = self.lines.datetime[0]
-        cur_dt = self._dt_arr[self._row_idx]
-        if not np.isnan(dt) and dt >= row[0]:
-            return False  
-        
+        if not np.isnan(dt) and dt >= cur_dt:
+            return False
+
         self.lines.datetime[0] = cur_dt
         self.lines.open[0] = self._op_arr[idx]
-        self.lines.high[0] = self._op_arr[idx]
-        self.lines.low[0] = self._op_arr[idx]
-        self.lines.close[0] = self._op_arr[idx]
+        self.lines.high[0] = self._hi_arr[idx]
+        self.lines.low[0] = self._lo_arr[idx]
+        self.lines.close[0] = self._cl_arr[idx]
         self.lines.volume[0] = self._vo_arr[idx]
         self.lines.amount[0] = self._am_arr[idx]
         return True
 
     @staticmethod
-    def _collect_stream_sync(observable) -> List[pa.Table]:
+    def _collect_stream_sync(observable, timeout=None) -> List[pa.Table]:
         q = queue.Queue()
         observable.pipe(
-            # ops.sample(0.1),  # 100ms abandon reset 
-            # ops.buffer_with_time_or_count(timespan=1.0, count=500), # up to 500 / 1 second to list
-            # ops.throttle_first(0.05), # on receive / 50ms not receive
-            # ops.publish_replay(1), # cache 1 record 
-            # ops.ref_count()
             ops.map(lambda data: data["data"]),
             ops.share()
         ).subscribe(
@@ -209,7 +218,7 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
         
         tables = []
         while True:
-            msg = q.get()
+            msg = q.get(timeout=timeout)
             if msg is StopIteration:
                 break
             if isinstance(msg, Exception):
@@ -220,38 +229,41 @@ class RemoteData(with_metaclass(MetaRemoteData, DataBase)):
     def get_snapshot(self, psids: List[bytes], tick: int) -> Mapping[str, Any]:
         body = QueryBody(start_date=tick, end_date=tick, sid=psids)
         obs = self.mdapi.subscribe(body, RpcTopic.Tick)
-        tables = self._collect_stream_sync(obs)
+        tables = self._collect_stream_sync(obs, timeout=self._timeout)
         
         snapshot = {}
         if tables:
             raw_data = _merge2DataFrame(tables)
             for sid_bytes, df in raw_data.items():
-                snapshot[sid_bytes] = df["close"][0] # .as_py()
+                snapshot[sid_bytes] = df["close"][0]
         return snapshot
 
     def get_adjfactor(self, body: QueryBody):
-            adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
-            adj = adj_data[body.sid[0]]
-            # raw_factors ( ex-date ratio)
-            factors = adj.raw_factors if adj else {} # adj_factors
-            if factors:
-                factors = dict(sorted(factors.items())) # sort by key
-                self.adj_factors = factors
+        adj_data = self.mdapi.get_factor(body, FactorTopic.Qfq)
+        adj = adj_data.get(body.sid[0]) if adj_data else None
+       
+        factors = adj.raw_factors if adj else {}  # raw_factors ( ex-date ratio)
+        if factors:
+            factors = dict(sorted(factors.items())) # sort by key
+            self.adj_factors = factors
 
     def get_dret(self, body: QueryBody):
         obs = self.mdapi.subscribe(body, RpcTopic.Close)
-        tables = self._collect_stream_sync(obs)
+        tables = self._collect_stream_sync(obs, timeout=self._timeout)
 
-        raw_data = _merge2DataFrame(tables)
-        if body.sid[0] in raw_data:
-            close_df = raw_data[body.sid[0]]
-            self.benchmark_dret = close_df.with_columns(
-                pl.col("close").pct_change().fill_null(0).alias("ret")
-            ).select(["day", "ret"])
+        raw_data = _merge2DataFrame(tables) if tables else {}
+        close_df = raw_data.get(body.sid[0])
+        if close_df is None or close_df.height == 0:
+            raise RuntimeError(
+                f"Benchmark Close data missing or empty for {body.sid[0]!r} "
+                f"in [{body.start_date}, {body.end_date}]")
+        self.benchmark_dret = close_df.with_columns(
+            pl.col("close").pct_change().fill_null(0).alias("ret")
+        ).select(["day", "ret"])
 
-            # set calendar
-            from bt_core.tradingcal import DataTradingCalendar, set_calendar
-            set_calendar(DataTradingCalendar(close_df.get_column("day").to_list()))
+        # set calendar
+        from bt_core.tradingcal import DataTradingCalendar, set_calendar
+        set_calendar(DataTradingCalendar(close_df.get_column("day").to_list()))
 
     def stop(self):
         super().stop()

@@ -34,7 +34,7 @@ from . import analyzers
 from .shm import LogRingBuffer
 from .utils.encoder import CustomJSONEncoder
 from .sink import LogConsumerThread
-from .utils.wrapper import consume_time, watchdog
+from .utils.wrapper import consume_time
 from .sizer import Sizer
 
 
@@ -83,7 +83,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         ("client_id", ""),
         ('savemem', 1),
         ('tz', None),
-        ("timeout", 10),
+        ("timeout", 60),
         ('stdstats', True),
         # log
         ("log_id", "cerebro"),
@@ -256,47 +256,27 @@ class Cerebro(with_metaclass(MetaParams, object)):
             allow=allow,
             tzdata=tzdata, *args, **kwargs)
  
-    def _dt_over(self, dt0: int) -> bool: # Timer(when=Session.SESSION_START, event_type=0)
-        # Skip NaN (dt0 != dt0) to avoid polluting last_dts and generating
-        # bogus 1970 timestamps in the log parquet via NaN -> int64(0) cast.
+    def _dt_over(self, dt0: int) -> bool:
         if dt0 != dt0:
             return False
 
         isover = False
         if self.last_dts:
-            if dt0 - self.last_dts >= 12 * 3600:
-                # -Gap Detection to solve missing 14:59 / 9:31 ensure eod
+            # utc+8 ---> asia time zone, 28800 seconds
+            if (int(dt0) + 28800) // 86400 > (int(self.last_dts) + 28800) // 86400:
                 isover = True
         self.last_dts = dt0
         return isover
         
-    def _check_timers(self, runstrats: list, dt0: int): # before next
-        '''Receives a timer notification where ``timer`` is the timer which was
-        returned by ``add_timer``, and ``when`` is the calling time. ``args``
-        and ``kwargs`` are any additional arguments passed to ``add_timer``
-
-        The actual ``when`` time can be later, but the system may have not be
-        able to call the timer before. This value is the timer value and no the
-        system time.
-        '''
-        # Skip NaN (dt0 != dt0) and zero timestamps. NaN is truthy in Python,
-        # so `not dt0` alone cannot intercept it. NaN -> int64 cast in Cython
-        # yields 0, which produces bogus 1970-01-01 rows in the log parquet.
+    def _check_timers(self, runstrats: list, dt0: int):
         if not dt0 or dt0 != dt0:
             return
 
-        # ------------------------------ Day Rollover (T+1) --------------------------
-        # Must run BEFORE the new day's scheduled timers: the simulator marks
-        # the portfolio at T-1 close and unlocks T+1 availability here, so a
-        # SESSION_START RISK timer sees up-to-date positions. prev_dts is the
-        # previous trading day (passing dt0 twice used to mark the book with
-        # the new day's own close -> look-ahead bias).
-        prev_dts = self.last_dts  # capture before _dt_over advances it
+        prev_dts = self.last_dts
         if self._dt_over(dt0):
             for strat in runstrats:
                 strat.on_dt_over(prev_dts, dt0)
 
-        # ------------------------------ Scheduled Timers ----------------------------
         for t in self._pretimers:
             if t.check(dt0):
                 self._dispatch(runstrats, t.event_type, dt0)
@@ -332,22 +312,19 @@ class Cerebro(with_metaclass(MetaParams, object)):
             datamaster.log_shm = self.log_shm
             self.datas.insert(0, datamaster) 
 
-    def resampledata(self, **kwargs):
+    def resampledata(self, dataname=None, **kwargs):
         '''
         Adds a ``Data Feed`` to be resample by the system
 
-        If ``name`` is not None it will be put into ``data._name`` which is
-        meant for decoration/plotting purposes.
-
-        Any other kwargs like ``timeframe``, ``compression``, ``todate`` which
-        are supported by the resample filter will be passed transparently
+        If ``dataname`` is not passed, clones ``self.store.get_feed()``
+        (which is bound to the ``benchmark`` master clock ``datas[0]``).
         '''
-        data0 = self.store.get_feed()
+        data0 = dataname if dataname is not None else self.store.get_feed()
 
-        dataname = data0.clone() # DataClone
-        dataname.resample(**kwargs)
-        self.adddata(dataname)
-        return dataname
+        cloned = data0.clone()  # DataClone
+        cloned.resample(**kwargs)
+        self.adddata(cloned)
+        return cloned
 
 # ---------------------------------------------------------------- risk and strategy ------------------------------------------------------------
 
@@ -408,7 +385,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 # ------------------------------------------------------------------ callback --------------------------------------------------------------
 
     def addstorecb(self, callback):
-        '''Adds a callback to get messages which would be handled by the
+        r'''Adds a callback to get messages which would be handled by the
         notify_store method
 
         The signature of the callback must support the following:
@@ -449,7 +426,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self.cerebro_id = ','.join(extra_info)
 
     @consume_time
-    @watchdog(600)
     def run(self, **kwargs):
         '''The core method to perform bt_coreing. Any ``kwargs`` passed to it
         will affect the value of the standard parameters ``Cerebro`` was
@@ -468,27 +444,25 @@ class Cerebro(with_metaclass(MetaParams, object)):
         if not self.store:
             return []  # nothing can be run
 
-        # Update params with run kwargs
         pkeys = self.params._getkeys()
         for key, val in kwargs.items():
             if key in pkeys:
                 setattr(self.params, key, val)
 
-        self._next_id(kwargs)
+        if not kwargs.get("benchmark"):
+            kwargs["benchmark"] = [b"1A0001"]
 
+        self._next_id(kwargs)
         self.log_background.start()
 
         # Prepare feed
-        print("Cerebro Prepare Feed and Set Dmaster")
         self.adddata(dmaster=True)
         for data in self.datas:
             data._start(**kwargs)
-        print("Cerebro Datas _start finish")
 
         # timers trigger
-        print("Cerebro Prepare Timers")
-        for timer in self._pretimers: 
-            timer.start(self.datas[0]) # set _tzdata 
+        for timer in self._pretimers:
+            timer.start(self.datas[0]) # set _tzdata
 
         # signal strategy
         if self.signals:  # allow processing of signals
@@ -516,17 +490,21 @@ class Cerebro(with_metaclass(MetaParams, object)):
                              **skwargs)
 
         # strategy cartesian product
-        print("cerebro run runstrategies")
         iterstrats = itertools.product(*self.strats)
-        for iterstrat in iterstrats: # let's skip process "spawning" when mp
-            runstrat = self.runstrategies(iterstrat, **kwargs)
-            self.runstrats.append(runstrat)
-            for cb in self.optcbs:
-                cb(runstrat)  # callback receives finished strategy
-        
-        # stop log thread and shm
-        print("_shutdown")
-        self._shutdown()
+        try:
+            for iterstrat in iterstrats:  # let's skip process "spawning" when mp
+                runstrat = self.runstrategies(iterstrat, **kwargs)
+                self.runstrats.append(runstrat)
+                for cb in self.optcbs:
+                    cb(runstrat)  # callback receives finished strategy
+        finally:
+            # guarantee teardown on ANY exit path (strategy exception,
+            # watchdog TimeoutError, ...): the LogConsumerThread is a
+            # non-daemon thread and the log shm segment is never released
+            # otherwise - the process would hang at exit with a 1kHz poll
+            # loop still running (tests used to patch this by calling
+            # cerebro._shutdown() manually in their except blocks)
+            self._shutdown()
         
     def runstrategies(self, iterstrat, **kwargs):
         '''
@@ -569,7 +547,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         for data in self.datas:
             data.stop()
-        print("feed data stop")
 
         return runstrats
 
@@ -578,28 +555,25 @@ class Cerebro(with_metaclass(MetaParams, object)):
         Actual implementation of run in full next mode. All objects have its
         ``next`` method invoke on each data arrival
         '''
-        d0ret = True
-        datas = sorted(self.datas, key=lambda x: (x._timeframe, x._compression)) # ensure high freq ---> master datas[0]
+        # datas = sorted(self.datas, key=lambda x: (x._timeframe, x._compression))
+        master = self.datas[0]
+        datas = sorted(self.datas,
+               key=lambda x: (x is not master, x._timeframe, x._compression))
 
-        while d0ret:
-            if self._event_stop:  # stop if requested
-                return
+        while not self._event_stop:
+            if not datas[0].next():
+                break
+            for d in datas[1:]:
+                d.next()
 
-            drets = [d.next() for d in datas]
-            d0ret = any(drets)
+            dt0 = datas[0].datetime[0]
+            for strat in runstrats:
+                strat.clk_update()
 
-            if d0ret:
-                if not drets[0]:
-                    for d in datas: 
-                        d._last()
-                    break  
+            self._check_timers(runstrats, dt0)
 
-                dt0 = datas[0].datetime[0]
-                self._check_timers(runstrats, dt0)
-
-                for strat in runstrats:
-                    strat._next()
-        return
+            for strat in runstrats:
+                strat._next()
 
 # ---------------------------------------------------------------------- exit ------------------------------------------------------------
 
@@ -609,8 +583,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         self._event_stop = True  # signal a stop has been requested
 
     def _shutdown(self):
-        self.log_background.stop() 
-        self.log_background.join()
+        if getattr(self, '_is_shutdown', False):
+            return
+        self._is_shutdown = True
+
+        self.log_background.stop()
+        if self.log_background.is_alive():
+            self.log_background.join(timeout=self.p.timeout)
         self.log_shm.close()
         self.log_shm.unlink()
-        print("Cerebro shutdown complete.")

@@ -131,8 +131,7 @@ class SharpeRatio(bt.TimeFrameAnalyzerBase): # SharpeRatio(bt.Analyzer):
         self._period_rf = math.pow(1.0 + self.p.riskfreerate, 1.0 / factor) - 1.0
         self._annualize_factor = math.sqrt(factor) if self.p.annualize else 1.0
 
-    def _start(self):
-        super()._start()
+    def start(self):
         acct = self._owner.snapshot.account
         self._last_value = acct.portfolio_value + acct.cash
 

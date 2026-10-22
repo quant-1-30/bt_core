@@ -1,5 +1,5 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 
 import os
@@ -22,6 +22,7 @@ from bt_core.execution.gateway.interface import async_gt
 from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
+from libcpp.algorithm cimport sort as c_sort
 from cython.operator cimport dereference as deref
 from libc.stdint cimport int32_t, int64_t
 
@@ -30,7 +31,8 @@ from bt_core.execution.core.finance.position cimport Position, PositionCoreData
 from bt_core.execution.core.finance.order cimport OrderCoreData, Order
 from bt_core.execution.core.finance.account cimport Account
 from bt_core.execution.core.finance.trade cimport OrderExecutionBit
-from bt_core.execution.core.finance.common cimport EventItem, AdjustmentData, RightData
+from bt_core.execution.core.finance.common cimport EventItem, AdjustmentData, RightData, TS_MAGNITUDE
+from bt_core.execution.core.finance.function cimport compare_events, _get_bt_timeout
 from bt_core.execution.core.finance.filler import _fillers
 from bt_core.execution.core.finance.simulate_types cimport MsgType
 from bt_core.utils.dateintern cimport ts2intdt
@@ -172,8 +174,14 @@ cdef class TrackerActor:
         cdef list order_bits = []
         cdef dict order_dict
 
+        self._clean()
+
         cdef Asset asset = self.asset_cache.get_cache_info(sid, self._loop)
-        
+        if asset is None:
+            order.reject()
+            self._create_snapshot(reason="order_reject", writer=False, trades=[])
+            return Resp(body=self._latest_snapshot)
+
         order.addinfo(asset)
 
         cdef double limit_ratio = asset.restricted(<int64_t>core.created_dt)
@@ -185,6 +193,8 @@ cdef class TrackerActor:
 
         # PseudoFiller
         acct = self.cash_manager.get_account(experiment_id)
+        if order.isbuy and acct.core.datetime >= TS_MAGNITUDE and core.created_dt < acct.core.datetime:
+            order.core.created_dt = <int32_t>acct.core.datetime
         _fillers[order.filler](order, acct.core.cash, p_sid, self._loop)
 
         if order.exbits:
@@ -212,77 +222,53 @@ cdef class TrackerActor:
         return Resp(body=self._latest_snapshot)
 
     cdef void _sync_event(self, bytes experiment_id, dict pobjs, dict py_adj_dfs, dict py_rgt_dfs):
-        # running cash seeds from the account and rolls with each event batch,
-        # so a rights subscription is abandoned (never overdrafts) when the
-        # cost exceeds cash — incl. dividends arriving in the same batch
         cdef double running_cash = self.cash_manager.get_account(experiment_id).core.cash
         cdef double event_cash = 0.0
         cdef double delta
         cdef Position pos_obj
-        cdef unordered_map[int32_t, vector[AdjustmentData]] cpp_adj_map
-        cdef unordered_map[int32_t, vector[RightData]] cpp_rgt_map
         cdef vector[EventItem] v_events
         cdef EventItem temp
-        cdef int32_t int_sid
-
-        # pre-build sid decode cache to avoid repeated decode+int conversion
-        cdef dict sid_cache = {}
         cdef bytes sid_bytes
-
-        for sid_bytes in py_adj_dfs.keys():
-            if sid_bytes not in sid_cache:
-                sid_cache[sid_bytes] = int(sid_bytes.decode('utf-8'))
-        for sid_bytes in py_rgt_dfs.keys():
-            if sid_bytes not in sid_cache:
-                sid_cache[sid_bytes] = int(sid_bytes.decode('utf-8'))
-
-        for sid_bytes, py_adj_df in py_adj_dfs.items():
-            if py_adj_df is not None and py_adj_df.height > 0:
-                int_sid = sid_cache[sid_bytes]
-                if "ex_date" in py_adj_df.columns:  # range fetch may return
-                    py_adj_df = py_adj_df.sort("ex_date")  # several events at once
-                for bonus_share, transfer, bonus in py_adj_df.select(["bonus_share", "transfer", "bonus"]).rows():
-                    cpp_adj_map[int_sid].push_back(AdjustmentData(
-                        bonus_share=float(bonus_share),
-                        transfer=float(transfer),
-                        bonus=float(bonus)
-                    ))
-
-        for sid_bytes, py_rgt_df in py_rgt_dfs.items():
-            if py_rgt_df is not None and py_rgt_df.height > 0:
-                int_sid = sid_cache[sid_bytes]
-                if "ex_date" in py_rgt_df.columns:  # keep event order stable
-                    py_rgt_df = py_rgt_df.sort("ex_date")
-                for ratio, price in py_rgt_df.select(["ratio", "price"]).rows():
-                    cpp_rgt_map[int_sid].push_back(RightData(
-                        ratio=float(ratio),
-                        price=float(price)
-                    ))
+        cdef object py_adj_df, py_rgt_df
+        cdef list ev_list
 
         for (_, sid_bytes), pos_obj in pobjs.items():
-            if sid_bytes not in sid_cache:
-                sid_cache[sid_bytes] = int(sid_bytes.decode('utf-8'))
-            int_sid = sid_cache[sid_bytes]
-            v_events.clear() 
+            py_adj_df = py_adj_dfs.get(sid_bytes)
+            py_rgt_df = py_rgt_dfs.get(sid_bytes)
+            if (py_adj_df is None or py_adj_df.height == 0) and (py_rgt_df is None or py_rgt_df.height == 0):
+                continue
 
-            adj_it = cpp_adj_map.find(int_sid)
-            if adj_it != cpp_adj_map.end():
-                for adj_data in deref(adj_it).second:
-                    temp.event_type = 0
-                    temp.adj = adj_data
-                    v_events.push_back(temp)
+            v_events.clear()
+            if py_adj_df is not None and py_adj_df.height > 0:
+                temp.event_type = 0
+                if "ex_date" in py_adj_df.columns:
+                    for ex_d, bs, tr, bo in py_adj_df.select(["ex_date", "bonus_share", "transfer", "bonus"]).rows():
+                        temp.ex_date = <int32_t>int(ex_d)
+                        temp.adj = AdjustmentData(bonus_share=float(bs), transfer=float(tr), bonus=float(bo))
+                        v_events.push_back(temp)
+                else:
+                    temp.ex_date = 0
+                    for bs, tr, bo in py_adj_df.select(["bonus_share", "transfer", "bonus"]).rows():
+                        temp.adj = AdjustmentData(bonus_share=float(bs), transfer=float(tr), bonus=float(bo))
+                        v_events.push_back(temp)
 
-            rgt_it = cpp_rgt_map.find(int_sid)
-            if rgt_it != cpp_rgt_map.end():
-                for rgt_data in deref(rgt_it).second:
-                    temp.event_type = 1
-                    temp.rgt = rgt_data
-                    v_events.push_back(temp)
-                
-            if not v_events.empty():
-                delta = pos_obj.process_events(v_events, running_cash)
-                event_cash += delta
-                running_cash += delta
+            if py_rgt_df is not None and py_rgt_df.height > 0:
+                temp.event_type = 1
+                if "ex_date" in py_rgt_df.columns:
+                    for ex_d, ratio, price in py_rgt_df.select(["ex_date", "ratio", "price"]).rows():
+                        temp.ex_date = <int32_t>int(ex_d)
+                        temp.rgt = RightData(ratio=float(ratio), price=float(price))
+                        v_events.push_back(temp)
+                else:
+                    temp.ex_date = 0
+                    for ratio, price in py_rgt_df.select(["ratio", "price"]).rows():
+                        temp.rgt = RightData(ratio=float(ratio), price=float(price))
+                        v_events.push_back(temp)
+
+            c_sort(v_events.begin(), v_events.end(), compare_events)
+            delta = pos_obj.process_events(v_events, running_cash)
+            event_cash += delta
+            running_cash += delta
 
         if event_cash != 0:
             self.cash_manager.add_cash(experiment_id, event_cash)
@@ -315,87 +301,86 @@ cdef class TrackerActor:
 
         cdef dict closes_map = {}
         cdef list merger_keys = []
+        cdef double merge_ratio = 0.0
+        cdef Asset merged_asset, merged_new_asset
+        cdef tuple old_key, new_key
+        cdef bytes old_sid, new_sid
 
         cdef set unique_sids_set = {
             sid_bytes for (eid, sid_bytes) in self.positions.keys() if eid == experiment_id
         }
 
         if not unique_sids_set:
-            self.cash_manager.sync(experiment_id, last_sync_dts, {}, {})
+            self.cash_manager.sync(experiment_id, last_sync_dts, {})
             self._snapshot_dirty = True
             self._create_snapshot(reason="on_dt_over", writer=True)
             self._check_flush()
             return Resp(body=self._latest_snapshot)
 
-        adjs_df_map, rgts_df_map = await self._fetch_from_rpc(
-            last_sync_dts, current_dts, list(unique_sids_set)
-        )
+        try:
+            adjs_df_map, rgts_df_map = await self._fetch_from_rpc(
+                last_sync_dts, current_dts, list(unique_sids_set)
+            )
 
-        for sid_bytes in unique_sids_set:
-            closes_map[sid_bytes] = self._prev_closes.get((sid_bytes, pre_ymd), 0.0)
+            for sid_bytes in unique_sids_set:
+                closes_map[sid_bytes] = self._prev_closes.get((sid_bytes, pre_ymd), 0.0)
 
-        self._clean()
+            self._clean()
 
-        # Merger
+            # Merger
+            for (eid, sid_bytes), p_obj in self.positions.items():
+                if eid == experiment_id:
+                    close_price = closes_map.get(sid_bytes, 0.0) 
+                    merger_comp += p_obj.on_dt_over(pre_ymd, close_price)
 
-        for (eid, sid_bytes), p_obj in self.positions.items():
-            if eid == experiment_id:
-                close_price = closes_map.get(sid_bytes, 0.0) 
-                merger_comp += p_obj.on_dt_over(pre_ymd, close_price)
+                    if p_obj.core.sid != sid_bytes:
+                        merger_keys.append((eid, sid_bytes))
+                    elif p_obj.core.size == 0:
+                        self._dirty_pkeys.add((eid, sid_bytes))
 
-                if p_obj.core.sid != sid_bytes:
-                    merger_keys.append((eid, sid_bytes))
+            if merger_keys:
+                for old_key in merger_keys:
+                    p_obj = self.positions[old_key]
+                    if <bytes>p_obj.core.sid not in self.asset_cache._c_cache:
+                        await self.asset_cache._async_fetch(p_obj.core.sid)
 
-        # -------------------------------------------------------------
-        # Merger Handling
-        # -------------------------------------------------------------
+                for old_key in merger_keys:
+                    p_obj = self.positions.pop(old_key)
+                    old_sid = old_key[1]
+                    new_sid = p_obj.core.sid
+                    new_key = (old_key[0], new_sid)
 
-        cdef double merge_ratio = 0.0
-        cdef Asset merged_asset, merged_new_asset
-        cdef tuple old_key, new_key
-        
-        cdef bytes old_sid, new_sid
+                    merged_asset = self.asset_cache._c_cache.get(old_sid)
+                    merge_ratio = merged_asset.core.merge_ratio if merged_asset is not None else 0.0
 
-        if merger_keys:
-            for old_key in merger_keys:
-                p_obj = self.positions[old_key]
-                if <bytes>p_obj.core.sid not in self.asset_cache._c_cache:
-                    await self.asset_cache._async_fetch(p_obj.core.sid)
+                    if (closes_map.get(old_sid, 0.0) > 0.0 
+                            and merge_ratio > 0.0 and new_sid not in closes_map):
+                        closes_map[new_sid] = closes_map[old_sid] / merge_ratio
 
-            for old_key in merger_keys:
-                p_obj = self.positions.pop(old_key)
-                old_sid = old_key[1]
-                new_sid = p_obj.core.sid
-                new_key = (old_key[0], new_sid)
+                    merged_new_asset = self.asset_cache._c_cache.get(new_sid)
+                    if merged_new_asset is not None:
+                        p_obj.asset = merged_new_asset
 
-                merged_asset = self.asset_cache._c_cache.get(old_sid)
-                merge_ratio = merged_asset.core.merge_ratio if merged_asset is not None else 0.0
+                    if p_obj.core.size == 0:
+                        self._dirty_pkeys.add(new_key)
 
-                if (closes_map.get(old_sid, 0.0) > 0.0 
-                        and merge_ratio > 0.0 and new_sid not in closes_map):
-                    closes_map[new_sid] = closes_map[old_sid] / merge_ratio
+                    if new_key in self.positions:
+                        self.positions[new_key].merge_from(p_obj)
+                    else:
+                        self.positions[new_key] = p_obj
 
-                merged_new_asset = self.asset_cache._c_cache.get(new_sid)
-                if merged_new_asset is not None:
-                    p_obj.asset = merged_new_asset
+            if merger_comp != 0.0:
+                self.cash_manager.add_cash(experiment_id, merger_comp)
 
-                if p_obj.core.size == 0:
-                    self._dirty_pkeys.add(new_key)
+            # T-1 
+            self.cash_manager.sync(experiment_id, last_sync_dts, self.positions)
 
-                if new_key in self.positions:
-                    self.positions[new_key].merge_from(p_obj)
-                else:
-                    self.positions[new_key] = p_obj
-
-        if merger_comp != 0.0:
-            self.cash_manager.add_cash(experiment_id, merger_comp)
-
-        # T-1 
-        self.cash_manager.sync(experiment_id, last_sync_dts, self.positions, closes_map)
-
-        # T Events
-        if current_dts > 0:
-            self._sync_event(experiment_id, self.positions, adjs_df_map, rgts_df_map)
+            # T Events
+            if current_dts > 0:
+                self._sync_event(experiment_id, self.positions, adjs_df_map, rgts_df_map)
+        except Exception:
+            logger.exception("on_dt_over settlement error for experiment %s on %s",
+                             self.cached_uuid, pre_ymd)
 
         # snapshot
         self._snapshot_dirty = True
@@ -484,7 +469,7 @@ cdef class Simulator:
             actor = TrackerActor(experiment_id, self._writer, self._asset_cache, self.q_size, self.buffer_size, self._loop)
             self._actors[experiment_id] = actor
             # avoid hangup ---> self._loop.create_task()
-            asyncio.run_coroutine_threadsafe(actor._start(), self._loop).result(timeout=30)
+            asyncio.run_coroutine_threadsafe(actor._start(), self._loop).result(timeout=_get_bt_timeout())
         return self._actors[experiment_id]
         
     cpdef object set_cash(self, object event):
@@ -504,9 +489,8 @@ cdef class Simulator:
     cpdef object on_dt_over(self, object event): # blocking - waits for coroutine completion
         cdef bytes experiment_id = event.experiment_id
         cdef TrackerActor actor = self._get_or_create_actor(experiment_id)
-        
         cdef object future = asyncio.run_coroutine_threadsafe(actor.on_dt_over(event), self._loop)
-        return future.result()
+        return future.result(timeout=_get_bt_timeout())
 
     cpdef object get_snapshot(self, object event):
         cdef bytes experiment_id = event.experiment_id

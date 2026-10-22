@@ -18,9 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
-from bt_core.logic import Max, Min
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -40,25 +37,58 @@ class AverageTrueRange(PeriodN):
 
     See:
       - http://en.wikipedia.org/wiki/Average_true_range
-    
+
     '''
     alias = ('ATR',)
     lines = ('atr', 'natr')
-    
+
     params = (('period', 14),)
 
     def __init__(self):
         super(AverageTrueRange, self).__init__()
-        # self.addminperiod(self.p.period) # ATR recursive smoothing 2/(n+1)
+        # talib.ATR lookback == period (TR needs prev close -> period+1 bars)
+        self.addminperiod(2)
+        self._prev_close = None
+        self._atr = None
+        self._str = 0.0
+        self._n = 0
+
+    def _tr(self):
+        h, l, c = self.data.high[0], self.data.low[0], self.data.close[0]
+        if h != h or l != l or c != c:
+            return None
+        if self._prev_close is None:
+            # first bar has no prev close: TA-Lib's atr.c starts accumulating
+            # TR at the SECOND bar (the degenerate h-l of bar 0 is NOT part
+            # of the seed) - occupy no seed slot here
+            self._prev_close = c
+            return None
+        pc = self._prev_close
+        self._prev_close = c
+        return max(h - l, abs(h - pc), abs(l - pc))
+
+    def _acc(self):
+        tr = self._tr()
+        if tr is None:
+            return
+        p = self.p.period
+        if self._atr is None:
+            self._str += tr
+            self._n += 1
+            if self._n >= p:
+                self._atr = self._str / p
+        else:
+            self._atr = (self._atr * (p - 1) + tr) / p
+
+    def prenext(self):
+        self._acc()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-        c = np.asarray(self.data.close.array, dtype=np.float64)
-
-        _atr = talib.ATR(h, l, c, timeperiod=self.p.period) 
-        _natr = talib.NATR(h, l, c, timeperiod=self.p.period) # normalize atr
-
-        self.lines.atr[0] = _atr[-1]
-        self.lines.natr[0] = _natr[-1]
+        self._acc()
+        c = self.data.close[0]
+        if self._atr is None:
+            self.lines.atr[0] = self.lines.natr[0] = float('nan')
+            return
+        self.lines.atr[0] = self._atr
+        self.lines.natr[0] = (100.0 * self._atr / c) if c != 0.0 \
+            else float('nan')

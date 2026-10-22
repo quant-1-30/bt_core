@@ -13,9 +13,7 @@ cpdef enum EngineTopic:
 
 cdef class BackEngine:
     cdef AsyncGateway gt
-    cdef Simulator simulator  
-    # cdef object _loop
-    cdef set _active_tasks
+    cdef Simulator simulator
 
     cpdef void start(self, object loop)
 

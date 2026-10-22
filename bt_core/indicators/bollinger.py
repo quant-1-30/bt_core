@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import math
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -28,22 +27,19 @@ class BollingerBands(PeriodN):
     alias = ('BBands',)
     lines = ('up', 'mid', 'low',)
 
-    params = (('period', 20), ('devfactor', 2.0), ('matype', 0),) # matype=0 Simple Moving Average (SMA)
+    params = (('period', 20), ('devfactor', 2.0), ('matype', 0),)  # matype=0 Simple Moving Average (SMA); only SMA supported
 
     def __init__(self):
         super(BollingerBands, self).__init__()
         # self.addminperiod(self.p.period)
 
     def next(self):
-        _arr = np.asarray(self.data.array, dtype=np.float64)
-
-        upper, middle, lower = talib.BBANDS(
-            _arr, 
-            timeperiod=self.p.period, 
-            nbdevup=self.p.devfactor, # N times std 
-            nbdevdn=self.p.devfactor, 
-            matype=self.p.matype
-        )
-        self.lines.up[0] = upper[-1]
-        self.lines.mid[0] = middle[-1]
-        self.lines.low[0] = lower[-1]
+        # logical window via get(); mid = SMA, bands = mid +/- devfactor * popstd
+        w = self.data.get(size=self.p.period)
+        p = self.p.period
+        mean = math.fsum(w) / p
+        var = math.fsum((x - mean) ** 2 for x in w) / p
+        dev = self.p.devfactor * math.sqrt(var)
+        self.lines.mid[0] = mean
+        self.lines.up[0] = mean + dev
+        self.lines.low[0] = mean - dev

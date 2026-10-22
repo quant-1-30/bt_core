@@ -18,9 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import math
 from bt_core.indicator import Indicator
+from .dema import _EmaState
 
 
 class AbsolutePriceOscillator(Indicator):
@@ -41,13 +41,31 @@ class AbsolutePriceOscillator(Indicator):
     params = (('fast', 12), ('slow', 26), ('matype', 0), ) # MA_TypeSMA
 
     def __init__(self):
-        super(MACD, self).__init__()
+        super(AbsolutePriceOscillator, self).__init__()
         period = self.p.fast + self.p.slow
-        self.addminperiod(period) 
+        self.addminperiod(period)
+        # matype 0 (default) keeps the historical SMA-based output;
+        # any other matype uses the documented EMA form. Both are
+        # incremental and ring-safe.
+        self._st_f = _EmaState(self.p.fast)
+        self._st_s = _EmaState(self.p.slow)
+
+    def _update_ema(self):
+        if self.p.matype != 0:
+            x = self.data[0]
+            self._st_f.update(x)
+            self._st_s.update(x)
+
+    def prenext(self):
+        self._update_ema()
 
     def next(self):
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        _apo = talib.APO(_arr, self.p.fast, self.p.slow, self.p.matype)
-
-        # self.lines.apo[0] = _apo[-1]
-        self.line[0] = _apo[-1]
+        self._update_ema()
+        if self.p.matype == 0:
+            fast, slow = self.p.fast, self.p.slow
+            sf = math.fsum(self.data.get(size=fast)) / fast
+            ss = math.fsum(self.data.get(size=slow)) / slow
+            self.line[0] = sf - ss
+            return
+        vf, vs = self._st_f.value, self._st_s.value
+        self.line[0] = float('nan') if (vf is None or vs is None) else (vf - vs)

@@ -215,8 +215,8 @@ cdef class AsyncGateway:
 
 # ------------------------------------------------------------------- rpc api -------------------------------------------------------------------
     
-    async def rpc(self, object body, int32_t rpc_type, int32_t timeout=30):
-        df = await self.mdapi.rpc_async(body, rpc_type) # timeout
+    async def rpc(self, object body, int32_t rpc_type):
+        df = await self.mdapi.rpc_async(body, rpc_type)
         return df
 
     async def __call__(self, object objs, bint return_obj=False):

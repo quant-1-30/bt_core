@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import math
 from .basicops import PeriodN
 
 
@@ -42,17 +41,23 @@ class CommodityChannelIndex(PeriodN):
     alias = ('CCI',)
 
     lines = ('cci',)
-    params = (('period', 14),)   
+    params = (('period', 14),)
 
     def __init__(self):
-        super(CommodityChannelIndex, self).__init__() 
+        super(CommodityChannelIndex, self).__init__()
         # self.addminperiod(self.p.period)
 
     def next(self):
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-        c = np.asarray(self.data.close.array, dtype=np.float64)
-
-        _cci = talib.CCI(h, l, c, timeperiod=self.p.period)
-        # self.lines.cci[0] = _cci[-1]
-        self.line[0] = _cci[-1]
+        # logical windows via get(); talib constant 0.015
+        p = self.p.period
+        hw = self.data.high.get(size=p)
+        lw = self.data.low.get(size=p)
+        cw = self.data.close.get(size=p)
+        tps = [(h + l + c) / 3.0 for h, l, c in zip(hw, lw, cw)]
+        tp0 = tps[-1]
+        tmean = math.fsum(tps) / p
+        mdev = math.fsum(abs(tp - tmean) for tp in tps) / p
+        if mdev == 0.0:
+            self.line[0] = 0.0
+        else:
+            self.line[0] = (tp0 - tmean) / (0.015 * mdev)

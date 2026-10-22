@@ -102,19 +102,19 @@ class AsyncOps:
             c. bug --- every restart service result scan model to recreate (rollback)
         """
         # asyncpg / psycopg2 / pycopy2cffi
-        url = f'postgresql+{os.getenv("PGENGINE")}://{os.getenv("PGUSER")}:{os.getenv("PGPWD")}@{os.getenv("PGHOST")}:{os.getenv("PGPORT")}/{os.getenv("PGDB")}'
+        url = (
+            f'postgresql+{os.getenv("PGENGINE", "asyncpg")}://'
+            f'{os.getenv("PGUSER", "postgres")}:{os.getenv("PGPWD", "")}@'
+            f'{os.getenv("PGHOST", "localhost")}:{os.getenv("PGPORT", "5432")}/'
+            f'{os.getenv("PGDB", "bt_trade")}'
+        )
         engine = create_async_engine(url, 
-                               pool_size=int(os.getenv("PGPOOLSIZE")),
-                               pool_timeout=int(os.getenv("PGTIMEOUT")),
-                               max_overflow=int(os.getenv("PGMAXOVERFLOW")),
-                               pool_recycle=int(os.getenv("PGPOOLRECYCLE")), 
-                               pool_pre_ping=bool(int(os.getenv("PGPREPING"))),
-                               # isolation_level="AUTOCOMMIT"
-                               # stream_results = True/ False
-                               # autocommit = True/ False
-                               # compiled_cache = True/ False
-                               # async_creator=lambda: on_connect(url),
-                               echo=bool(int(os.getenv("PGECHO")))).execution_options(compiled_cache={}) 
+                               pool_size=int(os.getenv("PGPOOLSIZE", "20")),
+                               pool_timeout=int(os.getenv("PGTIMEOUT", "30")),
+                               max_overflow=int(os.getenv("PGMAXOVERFLOW", "10")),
+                               pool_recycle=int(os.getenv("PGPOOLRECYCLE", "3600")), 
+                               pool_pre_ping=bool(int(os.getenv("PGPREPING", "1"))),
+                               echo=bool(int(os.getenv("PGECHO", "0")))).execution_options(compiled_cache={}) 
         
         # Create tables and reflect schema asynchronously
         async with engine.begin() as conn:
@@ -206,24 +206,22 @@ class AsyncOps:
 
         async with self.get_db() as session:
             stmt = pg_insert(table_obj).values(inserts)
-            
-            # stmt.excluded stand for new insert / exclude primary and restricted 
-            update_cols = {
-                col.name: stmt.excluded[col.name]
-                for col in table_obj.columns
-                if col.name not in conflict_keys["key"] and not col.primary_key
-            }
-            if update_cols: 
-                stmt = stmt.on_conflict_do_update( 
-                    # index_elements=conflict_keys["key"], # index_elements or constraint
-                    constraint=conflict_keys["constraint"],
-                    set_=update_cols
-                )
-            else:
-                stmt = stmt.on_conflict_do_nothing(
-                    constraint=conflict_keys["constraint"],
-                )
-            await session.execute(stmt) # # asyncpg executemany and automatic parameter binding
+            if conflict_keys is not None:
+                update_cols = {
+                    col.name: stmt.excluded[col.name]
+                    for col in table_obj.columns
+                    if col.name not in conflict_keys["key"] and not col.primary_key
+                }
+                if update_cols: 
+                    stmt = stmt.on_conflict_do_update( 
+                        constraint=conflict_keys["constraint"],
+                        set_=update_cols
+                    )
+                else:
+                    stmt = stmt.on_conflict_do_nothing(
+                        constraint=conflict_keys["constraint"],
+                    )
+            await session.execute(stmt) # asyncpg executemany and automatic parameter binding
             await session.commit()
 
     async def on_insert_obj(self, objs: Union[List[Base], Base], return_obj):
@@ -241,10 +239,9 @@ class AsyncOps:
             async with session.begin(): 
                 await session.execute(query)
 
-    async def __aexit__(self, exc_type, exc_value, traceback): # bool
+    async def __aexit__(self, exc_type, exc_value, traceback):
             if exc_type is not None:
                 print(f"AsyncOps Error: {exc_type}, {exc_value}, {traceback}")
-            # __aexit__  True mean suppress exception
             return False
     
     async def cleanup(self):

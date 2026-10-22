@@ -144,7 +144,8 @@ cdef class Timer:
         self.event_type = kwargs.get("event_type", 0) # default metrics
 
     cpdef void start(self, object data):
-        self._tzdata = data
+        if self._tzdata is None:
+            self._tzdata = data
 
         # write down the 'reset when' value
         if not isinstance(self.when, int):  # expect time/datetime

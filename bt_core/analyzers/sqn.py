@@ -18,12 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import logging
 import math
 import numpy as np
 from collections import defaultdict
 
 import bt_core as bt
 from bt_protocol._protocol import SnapshotBody
+
+logger = logging.getLogger(__name__)
 
 
 class SQN(bt.TimeFrameAnalyzerBase):
@@ -60,33 +63,21 @@ class SQN(bt.TimeFrameAnalyzerBase):
 
     def __init__(self):
         super().__init__()
-        self._initial_value = 0.0
-        
-        # --- Lifetime State ---
-        self.cum_closed = 0
-        self.cum_won = 0
-        
-        # --- Runtime Cache ---
-        self._today_trades = []         
-        self._order_to_sid = {}       
-        self._last_positions = {} # yesterday 
+        self._order_to_sid = {}
+        self._last_positions = {}
 
-        # --- SQN  Welford ---
+        # --- SQN Welford ---
         self._sqn_n = 0
         self._sqn_mean = 0.0
         self._sqn_M2 = 0.0
 
-    def start(self):
-        snap = self._owner.snapshot
-        if snap:
-            self._initial_value = snap.account.portfolio_value + snap.account.cash
-
     def _process_events(self):
+        trades_by_sid = defaultdict(list)
         events = self.get_shm_events()
-        if not events: return
-        
+        if not events:
+            return trades_by_sid
+
         unmapped_trades = []
-        
         for e in events:
             etype = e.get('type')
             body = e.get('data')
@@ -98,76 +89,36 @@ class SQN(bt.TimeFrameAnalyzerBase):
         for tb in unmapped_trades:
             sid = self._order_to_sid.get(tb["order_id"], None)
             if sid:
-                self._today_trades.append({'sid': sid, 'body': tb})
+                trades_by_sid[sid].append(tb)
             else:
-                # unmapped order (merger sid switch / pruned history): skip the
-                # trade rather than abort the whole backtest
-                print(f"warning: {p} unmapped order_id {tb['order_id']}")
+                logger.warning(
+                    "SQN: unmapped order_id %s (merger sid switch / pruned "
+                    "history) - trade skipped", tb['order_id'])
+        return trades_by_sid
 
     def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
-        self._process_events()
+        trades_by_sid = self._process_events()
 
         current_positions = {p.sid: p for p in snapshot.positions if p.size != 0}
         hold_sids = set(current_positions.keys())
         last_sids = set(self._last_positions.keys())
 
-        # group by sid
-        trades_by_sid = defaultdict(list)
-        for t in self._today_trades:
-            trades_by_sid[t['sid']].append(t['body'])
+        closed_sids = (last_sids | set(trades_by_sid.keys())) - hold_sids
 
-        # set ops O(1) 
-        traded_sids = set(trades_by_sid.keys())
-        closed_sids = (last_sids | traded_sids) - hold_sids
-
-        # reset
-        daily_closed = 0
-        daily_won = 0
-        total_hold_days = 0.0
-
-        # core calculation
         for sid in closed_sids:
-            daily_closed += 1
-            self.cum_closed += 1
-            
-            trades = trades_by_sid.get(sid, [])
             realized_pnl = 0.0
-            
-            # position cost
             pos_y = self._last_positions.get(sid)
             if pos_y:
                 realized_pnl -= (pos_y.size * pos_y.cost_basis)
 
-            if trades:
-                trades.sort(key=lambda x: x["executed_dt"])
-                
-                entry_dt = pos_y.created_dt if pos_y else trades[0]["executed_dt"]
-                exit_dt = trades[-1]["executed_dt"]
-                
-                for tb in trades:
-                    direction = -1.0 if tb["isbuy"] else 1.0
-                    cashflow = (direction * tb["executed_size"] * tb["executed_price"]) - tb["comm"]
-                    realized_pnl += cashflow
-            else:
-                # force exit due to margin
-                entry_dt = pos_y.created_dt
-                exit_dt = dt0
+            for tb in trades_by_sid.get(sid, ()):
+                direction = -1.0 if tb["isbuy"] else 1.0
+                realized_pnl += (direction * tb["executed_size"] * tb["executed_price"]) - tb["comm"]
 
-            # --- win_rate ---
-            if realized_pnl > 0:
-                daily_won += 1
-                self.cum_won += 1
-
-            # --- days_held ---
-            duration_days = max(0, exit_dt - entry_dt) / 86400.0
-            total_hold_days += duration_days
-
-            # C. SQN (O(1)
             self._sqn_n += 1
             delta = realized_pnl - self._sqn_mean
             self._sqn_mean += delta / self._sqn_n
-            delta2 = realized_pnl - self._sqn_mean
-            self._sqn_M2 += delta * delta2
+            self._sqn_M2 += delta * (realized_pnl - self._sqn_mean)
 
         sqn_score = float('nan')
         if self._sqn_n > 1:
@@ -180,7 +131,6 @@ class SQN(bt.TimeFrameAnalyzerBase):
 
         # reset on next day
         self._last_positions = current_positions
-        self._today_trades.clear()
         
         if closed_sids:
             self._order_to_sid = {

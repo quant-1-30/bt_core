@@ -552,6 +552,19 @@ bt_core/
 7. **Observer / Analyzer 生命周期绑定**
    - 两者都不由用户直接调用 `next`，而是由 `Strategy._next_observers()` 统一调度。
 
+8. **数据流与多周期门控（2026-10 架构更新）**
+   - **`rpcfeed` 与 `scorefeed` 职责分离**：单标的研究验证（`len(sid) == 1`）由 `RemoteData._start` 订阅目标 `sid` 的分钟行情并拉取除权因子 `get_adjfactor`，同时用 `benchmark`（默认 `[b"1A0001"]`）拉取 `get_dret` 基准日收益率与升级 `DataTradingCalendar`；多标的信号回测（`ParquetPatch`）将 `datas[0]` 绑定到 `benchmark` 作为统一主时钟。
+   - **跨周期 `resample` 指标门控**：`_BaseResampler._dataonedge` 仅对日内子周期（`self.subdays`）启用 `_eoscheck`，防止日线/周线在 `15:00` 被误拆成独立的 1 分钟伪日 bar；`LineIterator._next` 在 `clock_len == len(self)` 时短路返回，并在跨周期子指标或数据源未达到 `_minperiod` 时调用 `prenext` 等待。
+   - **`Cerebro._runnext` 事件因果时序**：
+     1. `_dt_over(dt0)`：按北京时间交易日切换触发昨日结算、除权分红与 T+1 解锁；
+     2. `strat.clk_update()`：将策略时钟对齐到当根 bar `dt0`（确保早盘 `09:30` 定时器的 `created_dt` 落在当日而非上一交易日）；
+     3. `_check_timers(runstrats, dt0)`：触发到期定时器（`RISK` / `TRADE` / `METRIC`）；
+     4. `strat._next()`：推进当根 bar 的指标与 `Strategy.next()`。
+   - **Pnc 风控机制 (`pnc.pyx`)**：
+     - **最大持仓数控制 (`max_positions`)**：超出时优先平仓不在 `topk` 中、持仓时间最长的标的；
+     - **个股止损 (`stop_loss`)**：当 `pos.pnl_ratio <= stop_loss`（默认 `-10%`）时在早盘 `on_risk` 触发止损卖出；
+     - **宏观最大回撤熔断 (`dd`)**：当 `stats["drawdown"].maxdd >= dd`（默认 `25%`）时在 `on_risk` 清空全部可卖持仓，并置 `_last_trade_day = -1` 锁存停止后续 `generate_plan` 新增买单，防止回撤熔断后陷入“早盘强平—尾盘重买”死循环。
+
 ---
 
 ## 8. 扩展点

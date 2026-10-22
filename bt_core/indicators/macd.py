@@ -18,9 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 import bt_core.indicator as btind
+from .dema import _EmaState
 
 
 class MACD(btind.Indicator):
@@ -46,13 +45,29 @@ class MACD(btind.Indicator):
 
     def __init__(self):
         super(MACD, self).__init__()
-        period = self.p.fast + self.p.slow + self.p.period 
-        self.addminperiod(period) 
-        
-    def next(self):
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        macd, signal, histo = talib.MACD(_arr, self.p.fast, self.p.slow, self.p.period)
+        period = self.p.fast + self.p.slow + self.p.period
+        self.addminperiod(period)
+        # incremental stages; each EMA seeds with the SMA of its first
+        # `period` values (talib convention), so the values are exact
+        self._st_f = _EmaState(self.p.fast)
+        self._st_s = _EmaState(self.p.slow)
+        self._st_sig = _EmaState(self.p.period)
 
-        self.lines.macd[0] = macd[-1]
-        self.lines.signal[0] = signal[-1]
-        self.lines.histo[0] = histo[-1]
+    def _acc(self):
+        x = self.data[0]
+        vf = self._st_f.update(x)
+        vs = self._st_s.update(x)
+        if vf is None or vs is None:
+            return None, None
+        m = vf - vs
+        vsg = self._st_sig.update(m)
+        return m, vsg
+
+    def prenext(self):
+        self._acc()
+
+    def next(self):
+        m, vsg = self._acc()
+        self.lines.macd[0] = m if m is not None else float('nan')
+        self.lines.signal[0] = vsg if vsg is not None else float('nan')
+        self.lines.histo[0] = (m - vsg) if (m is not None and vsg is not None) else float('nan')

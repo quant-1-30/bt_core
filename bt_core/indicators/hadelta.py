@@ -20,6 +20,7 @@
 ###############################################################################
 
 import bt_core as bt
+from .heikinashi import HeikinAshi
 from .sma import SMA
 
 
@@ -61,7 +62,7 @@ class haDelta(bt.Indicator):
     )
 
     def __init__(self):
-        d = bt.ind.HeikinAshi(self.data) if self.p.autoheikin else self.data
+        d = HeikinAshi(self.data) if self.p.autoheikin else self.data
 
         self.lines.haDelta = hd = d.close - d.open
         self.lines.smoothed = self.p.movav(hd, period=self.p.period) # if indicator no datas then inherit from strategy

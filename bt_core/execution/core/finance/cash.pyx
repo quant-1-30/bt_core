@@ -1,5 +1,5 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 
 import asyncio
@@ -66,12 +66,12 @@ cdef class SyncCashManager:
         acct = self.get_account(experiment_id)
         acct.update(trades)
 
-    cdef void sync(self, bytes experiment_id, int64_t sync_tick, dict pobjs, dict closes):
+    cdef void sync(self, bytes experiment_id, int64_t sync_tick, dict pobjs):
         """sync account on_dt_over"""
         cdef Account acct
 
         acct = self.get_account(experiment_id)
-        acct.sync(sync_tick, pobjs, closes)
+        acct.sync(sync_tick, pobjs)
 
     cdef remove_client(self, bytes experiment_id):
         self.acct.pop(experiment_id, None)

@@ -26,7 +26,7 @@ cdef struct PositionData:
     int32_t available
 
 cdef struct TradeData:
-    char order_id[32]
+    char order_id[33]
     int64_t executed_dt
     double executed_price
     double comm
@@ -35,7 +35,7 @@ cdef struct TradeData:
 
 cdef struct OrderData:
     char sid[16]
-    char order_id[16]
+    char order_id[33]
     char filler[16]
     double price
     double sizer_ratio
@@ -88,6 +88,7 @@ cdef class SharedRingBuffer:
     cdef object _shm  # Python SharedMemory avoid gc
 
     cpdef int32_t register_consumer(self)
+    cpdef void unregister_consumer(self, int32_t consumer_id)
     
     cdef void _advance(self) noexcept nogil
     
@@ -119,12 +120,15 @@ cdef class LogRingBuffer: # MPSC
     cdef MetricMsg* buffer
     cdef int32_t capacity
     cdef object _shm
+    cdef volatile bint _consumer_alive  # False -> producer overwrites instead of spinning
 
     cdef void _wait_if_full(self) noexcept nogil
 
     cpdef void publish_metric(self, bytes metrics, double value, int64_t dt)
 
     cpdef object drain_metrics(self, int32_t batch=*)
+
+    cpdef void release_consumer(self)
 
     cpdef void close(self)
 

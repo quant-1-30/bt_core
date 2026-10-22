@@ -16,7 +16,7 @@ cdef class CommInfoBase:
 
     cdef double calculate(self, Order order)
 
-    cdef double getcommission(self, Order order, int32_t size, double price)
+    cdef double getcommission(self, Order order, int32_t size, double price, bint min_comm=*)
 
     cdef double get_comm_rate(self, Order order)
 

@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import math
 from .basicops import PeriodN
 # from bt_core.indicator import Indicator
 
@@ -55,8 +54,9 @@ class StandardDeviation(PeriodN):
         # self.addminperiod(self.p.period)
 
     def next(self):
-        _arr = np.asarray(self.data.array, dtype=np.float64)
-        _std = talib.STDDEV(_arr, self.p.period, self.p.nbev)
-
-        # self.lines.stddev[0] = _std[-1]
-        self.line[0] = _std[-1]
+        # logical window via get(); population std (talib-compatible, 1/N)
+        w = self.data.get(size=self.p.period)
+        p = self.p.period
+        mean = math.fsum(w) / p
+        var = math.fsum((x - mean) ** 2 for x in w) / p
+        self.line[0] = self.p.nbev * math.sqrt(var)

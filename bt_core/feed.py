@@ -187,21 +187,31 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
             scale(bar@D) = prod(1/r, for ex_date in adj_factors if ex_date <= D)
 
             self.adj_factors (rpcfeed.get_adjfactor FactorResult.raw_factors)
-
         """
         if not self.adj_factors or getattr(self, "_clone", False):
             return
 
         current_dt = ts2intdt(self.lines.datetime[0])
-        scale = 1.0
-        for ex_date, r in self.adj_factors.items():
-            if ex_date <= current_dt:
-                scale /= r
+        # adj_factors is assigned once per feed instance; identity key is safe
+        fid = id(self.adj_factors)
+        cache = getattr(self, "_adj_cache", None)
+        if cache is not None and cache[0] == current_dt and cache[1] == fid:
+            scale = cache[2]
+        else:
+            scale = 1.0
+            for ex_date, r in self.adj_factors.items():
+                if ex_date <= current_dt:
+                    scale /= r
+            self._adj_cache = (current_dt, fid, scale)
 
-        for name in ("open", "high", "low", "close"):
-            line = getattr(self, name)
-            line[0] = line[0] * scale
-        self.volume[0] = self.volume[0] / scale
+        if scale == 1.0:
+            return
+
+        self.open[0] *= scale
+        self.high[0] *= scale
+        self.low[0] *= scale
+        self.close[0] *= scale
+        self.volume[0] /= scale
 
     def _load(self):
         return False
@@ -238,6 +248,9 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
 
                 if retff:  # any of filter satify or all false out of the inner loop
                     break 
+
+            if self._barstack: # avoid infinite loop if filter returns True but doesn't put anything onto the stack
+                self._fromstack(forward=True)
 
             return True
 
@@ -377,11 +390,17 @@ class AbstractDataBase(with_metaclass(MetaAbstractDataBase, OHLCDateTime)):
         This method is called when a timer event is triggered. 
         It can be used to log indicator metrics and notify analyzers that are interested in timer events.
         """
-        self.log_shm.publish_metric(b"open", self.open[-1], dts)
-        self.log_shm.publish_metric(b"high", self.high[-1], dts)
-        self.log_shm.publish_metric(b"low", self.low[-1], dts)
-        self.log_shm.publish_metric(b"close", self.close[-1], dts)
-        self.log_shm.publish_metric(b"volume", self.volume[-1], dts)
+        if not len(self) or getattr(self, "_clone", False):
+            return
+
+        for name, line in ((b"open", self.open), 
+                           (b"high", self.high),
+                           (b"low", self.low), 
+                           (b"close", self.close),
+                           (b"volume", self.volume)):
+            val = line[0]
+            if val == val:  # not NaN
+                self.log_shm.publish_metric(name, val, dts)
 
     def get_topk(self, current_day: int) -> dict:
         # used for scoreparquet

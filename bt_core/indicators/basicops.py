@@ -18,12 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import numpy as np
-import functools
-import math
-import operator
-
-import talib
 import bt_core.indicator as btind
 
 
@@ -94,13 +88,10 @@ class Highest(PeriodN):
 
     def __init__(self):
         super(Highest, self).__init__()
-        
+
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr = np.asarray(self.data.array, dtype=np.float64)
-        _h = talib.MAX(_arr, timeperiod=self.p.period)
-        # self.lines.highest[0] = _h[-1]
-        self.line[0] = _h[-1] # only one line simplify
+        # logical window via get() - ring-safe in both memory modes
+        self.line[0] = max(self.data.get(size=self.p.period))
 
 
 class Lowest(PeriodN):
@@ -114,18 +105,14 @@ class Lowest(PeriodN):
     '''
     alias = ('MinN',)
     lines = ('lowest',)
-    
+
     params = (('period', 14),)
 
     def __init__(self):
         super(Lowest, self).__init__()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr = np.asarray(self.data.array, dtype=np.float64)
-        _l = talib.MIN(_arr, timeperiod=self.p.period)
-        # self.lines.lowest[0] = _l[-1]
-        self.line[0] = _l[-1]
+        self.line[0] = min(self.data.get(size=self.p.period))
 
 
 class FindIndexHighest(PeriodN):
@@ -141,18 +128,17 @@ class FindIndexHighest(PeriodN):
     '''
     alias = ('MaxIndex',)
     lines = ('max',)
-    
+
     params = (('period', 14),)
 
     def __init__(self):
         super(FindIndexHighest, self).__init__()
-        
+
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr = np.asarray(self.data.array, dtype=np.float64)
-        _m = talib.MAXINDEX(_arr, timeperiod=self.p.period)
-        # self.lines.max[0] = _m[-1]
-        self.line[0] = _m[-1]
+        w = self.data.get(size=self.p.period)
+        # reversed index == bars-ago (0 = current bar); ties resolve to the
+        # most recent occurrence
+        self.line[0] = list(w)[::-1].index(max(w))
 
 
 class FindIndexLowest(PeriodN):
@@ -166,17 +152,14 @@ class FindIndexLowest(PeriodN):
     Formula:
       - index = index of last data which is the lowest
     '''
-    alias = ('MinN',)
+    alias = ('MinIndex',)
     lines = ('lowest',)
-    
+
     params = (('period', 14),)
 
     def __init__(self):
         super(FindIndexLowest, self).__init__()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr = np.asarray(self.data.array, dtype=np.float64)
-        _l = talib.MININDEX(_arr, timeperiod=self.p.period)
-        # self.lines.lowest[0] = _l[-1]
-        self.line[0] = _l[-1]
+        w = self.data.get(size=self.p.period)
+        self.line[0] = list(w)[::-1].index(min(w))

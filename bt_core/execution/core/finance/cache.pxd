@@ -5,6 +5,7 @@ from bt_core.execution.core.finance.asset cimport Asset
 cdef class AssetCache:
     # cdef unordered_map only support C/C++ `int`, `float`, `struct`
     cdef dict _c_cache 
+    cdef set _missing_sids
     cdef object _sharded_lock
 
     cdef void _add_to_cache(self, object table)

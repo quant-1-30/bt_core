@@ -18,10 +18,35 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
+
+
+class _EmaState(object):
+    """Minimal incremental EMA used to chain DEMA/TEMA stages.
+
+    Seeds with the SMA of the first `period` values (talib convention),
+    then recurses ema = a*x + (1-a)*ema."""
+    __slots__ = ('alpha', 'value', 'seed_sum', 'seed_cnt', 'period')
+
+    def __init__(self, period):
+        self.period = period
+        self.alpha = 2.0 / (1.0 + period)
+        self.value = None
+        self.seed_sum = 0.0
+        self.seed_cnt = 0
+
+    def update(self, x):
+        if x != x:
+            return self.value
+        if self.value is not None:
+            self.value = self.alpha * x + (1.0 - self.alpha) * self.value
+            return self.value
+        self.seed_sum += x
+        self.seed_cnt += 1
+        if self.seed_cnt >= self.period:
+            self.value = self.seed_sum / self.period
+        return self.value
 
 
 class DEMA(PeriodN):
@@ -45,14 +70,25 @@ class DEMA(PeriodN):
 
     def __init__(self):
         super(DEMA, self).__init__()
-        # self.addminperiod(self.p.period) 
+        # ema2 needs p ema1 values -> first valid output at 2p-1 bars
+        self.addminperiod(self.p.period)
+        self._e1 = _EmaState(self.p.period)
+        self._e2 = _EmaState(self.p.period)
+
+    def _acc(self):
+        v1 = self._e1.update(self.data[0])
+        if v1 is not None:
+            v2 = self._e2.update(v1)
+            if v2 is not None:
+                return 2.0 * v1 - v2
+        return None
+
+    def prenext(self):
+        self._acc()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-
-        _dema = talib.DEMA(_arr, timeperiod=self.p.period) # same size / nan fill
-        self.lines.dema[0] = _dema[-1]
+        v = self._acc()
+        self.line[0] = v if v is not None else float('nan')
 
 
 class TEMA(PeriodN):
@@ -79,12 +115,27 @@ class TEMA(PeriodN):
 
     def __init__(self):
         super(TEMA, self).__init__()
-        # self.addminperiod(self.p.period) 
+        # ema3 needs p ema2 values (each needing p ema1 values) -> 3p-2 bars
+        self.addminperiod(2 * self.p.period - 1)
+        self._e1 = _EmaState(self.p.period)
+        self._e2 = _EmaState(self.p.period)
+        self._e3 = _EmaState(self.p.period)
+
+    def _acc(self):
+        v1 = self._e1.update(self.data[0])
+        if v1 is None:
+            return None
+        v2 = self._e2.update(v1)
+        if v2 is None:
+            return None
+        v3 = self._e3.update(v2)
+        if v3 is None:
+            return None
+        return 3.0 * v1 - 3.0 * v2 + v3
+
+    def prenext(self):
+        self._acc()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-
-        _tema = talib.TEMA(_arr, timeperiod=self.p.period) # same size / nan fill
-        # self.lines.dema[0] = _tema[-1]
-        self.line[0] = _tema[-1]
+        v = self._acc()
+        self.line[0] = v if v is not None else float('nan')

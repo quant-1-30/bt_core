@@ -238,8 +238,10 @@ if __name__ == '__main__':
     patch_data = ConstTopkPatch(sids=[b"300308"])
     cerebro.adddata(patch_data)
 
+    run_tag = os.getenv("RUNTAG", datetime.datetime.now().strftime("%H%M%S"))
     try:
-        cerebro.run(cash=100000, sid=[b"300308"], fromdate=20040101, todate=20260531, benchmark=[b"1A0001"])
+        cerebro.run(cash=100000, sid=[b"300308"], fromdate=20040101, todate=20260531,
+                    run_tag=run_tag, benchmark=[b"1A0001"])
     except Exception as e:
         print(f"运行报错: {e}")
         if hasattr(cerebro, '_shutdown'):

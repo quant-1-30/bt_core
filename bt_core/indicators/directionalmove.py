@@ -18,11 +18,95 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import collections
 from .basicops import PeriodN
-from bt_core.indicator import Indicator
-from bt_core.logic import And, If
+
+
+class _WilderDMI(object):
+    """Shared incremental Wilder directional-movement state.
+
+    Consumes one (high, low, close) triple per bar from bar 0 on
+    (via prenext) so every stage seeds exactly where talib seeds it:
+      - TR/+DM/-DM sums seeded with the first `period` values
+      - DI  = 100 * S_x / S_TR
+      - DX  = 100 * |+DI - -DI| / (+DI + -DI)
+      - ADX seeded with the mean of the first `period` DX values,
+        then adx = (adx*(p-1) + dx) / p
+      - ADXR = (adx + adx(-period)) / 2
+    All state lives in instance attributes (never in line buffers), so the
+    computation is ring-mode agnostic and O(1) per bar."""
+    __slots__ = ('p', '_ph', '_pl', '_pc', '_str', '_spdm', '_smdm', '_n',
+                 '_smoothed', 'S_TR', 'S_PDM', 'S_MDM', '_dx_seed', '_adx',
+                 '_adx_hist')
+
+    def __init__(self, period):
+        self.p = period
+        self._ph = self._pl = self._pc = None
+        self._str = self._spdm = self._smdm = 0.0
+        self._n = 0
+        self._smoothed = False
+        self.S_TR = self.S_PDM = self.S_MDM = None
+        self._dx_seed = []
+        self._adx = None
+        self._adx_hist = collections.deque(maxlen=period)
+
+    def update(self, h, l, c):
+        if h != h or l != l or c != c:
+            return None, None, None, None, None
+        p = self.p
+        just_seeded = False
+        if self._ph is None:
+            tr = pdm = mdm = 0.0
+        else:
+            up = h - self._ph
+            dn = self._pl - l
+            pdm = up if (up > dn and up > 0.0) else 0.0
+            mdm = dn if (dn > up and dn > 0.0) else 0.0
+            pc = self._pc
+            tr = max(h - l, abs(h - pc), abs(l - pc))
+
+        if not self._smoothed:
+            self._str += tr
+            self._spdm += pdm
+            self._smdm += mdm
+            self._n += 1
+            if self._n >= p:
+                self.S_TR = self._str
+                self.S_PDM = self._spdm
+                self.S_MDM = self._smdm
+                self._smoothed = True
+                just_seeded = True
+        else:
+            self.S_TR = self.S_TR - self.S_TR / p + tr
+            self.S_PDM = self.S_PDM - self.S_PDM / p + pdm
+            self.S_MDM = self.S_MDM - self.S_MDM / p + mdm
+        self._ph, self._pl, self._pc = h, l, c
+
+        plusdi = minusdi = dx = adx = adxr = None
+        if self._smoothed and not just_seeded and self.S_TR > 0.0:
+            # `not just_seeded`: TA-Lib's ADX/DI outputs start one bar after
+            # the seed completes; the DX series feeding the ADX seed starts
+            # there too (verified numerically against talib.ADX)
+            plusdi = 100.0 * self.S_PDM / self.S_TR
+            minusdi = 100.0 * self.S_MDM / self.S_TR
+            s = plusdi + minusdi
+            dx = 100.0 * abs(plusdi - minusdi) / s if s != 0.0 else 0.0
+            p = self.p
+            if self._adx is None:
+                self._dx_seed.append(dx)
+                if len(self._dx_seed) >= p:
+                    self._adx = sum(self._dx_seed) / p
+                    self._dx_seed = []
+            else:
+                self._adx = (self._adx * (p - 1) + dx) / p
+            adx = self._adx
+            if adx is not None:
+                self._adx_hist.append(adx)
+                # talib adxr: (adx[i] + adx[i-(p-1)]) / 2 -> the p-th most
+                # recent history entry (verified numerically)
+                if len(self._adx_hist) >= p:
+                    adxr = (adx + self._adx_hist[-p]) / 2.0
+        return plusdi, minusdi, dx, adx, adxr
 
 
 class PlusDirectionalIndicator(PeriodN):
@@ -61,17 +145,18 @@ class PlusDirectionalIndicator(PeriodN):
 
     def __init__(self):
         super(PlusDirectionalIndicator, self).__init__()
-        # self.addminperiod(self.p.period)
-    
+        # talib.PLUS_DI lookback == period (needs period+1 bars)
+        self.addminperiod(2)
+        self._dmi = _WilderDMI(self.p.period)
+
+    def prenext(self):
+        self._dmi.update(self.data.high[0], self.data.low[0],
+                         self.data.close[0])
+
     def next(self):
-        # np.array slice ---> view and zero_copy
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-        c = np.asarray(self.data.close.array, dtype=np.float64)
-
-
-        _di = talib.PLUS_DI(h, l, c, self.p.period) 
-        self.line[0] = _di[-1]
+        r = self._dmi.update(self.data.high[0], self.data.low[0],
+                             self.data.close[0])
+        self.line[0] = r[0] if r[0] is not None else float('nan')
 
 
 class MinusDirectionalIndicator(PeriodN):
@@ -110,16 +195,18 @@ class MinusDirectionalIndicator(PeriodN):
 
     def __init__(self):
         super(MinusDirectionalIndicator, self).__init__()
-        # self.addminperiod(self.p.period)
-    
-    def next(self):
-        # np.array slice ---> view and zero_copy
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-        c = np.asarray(self.data.close.array, dtype=np.float64)
+        # talib.MINUS_DI lookback == period (needs period+1 bars)
+        self.addminperiod(2)
+        self._dmi = _WilderDMI(self.p.period)
 
-        _di = talib.MINUS_DI(h, l, c, self.p.period)
-        self.line[0] = _di[-1]
+    def prenext(self):
+        self._dmi.update(self.data.high[0], self.data.low[0],
+                         self.data.close[0])
+
+    def next(self):
+        r = self._dmi.update(self.data.high[0], self.data.low[0],
+                             self.data.close[0])
+        self.line[0] = r[1] if r[1] is not None else float('nan')
 
 
 class AverageDirectionalMovementIndex(PeriodN):
@@ -162,16 +249,19 @@ class AverageDirectionalMovementIndex(PeriodN):
 
     def __init__(self):
         super(AverageDirectionalMovementIndex, self).__init__()
-        # self.addminperiod(self.p.period)
-    
-    def next(self):
-        # np.array slice ---> view and zero_copy
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-        c = np.asarray(self.data.close.array, dtype=np.float64)
+        # first ADX = mean of the first `period` DX values; DX itself starts
+        # at period+1 bars -> keep a generous warmup, values stay exact
+        self.addminperiod(self.p.period + 2)
+        self._dmi = _WilderDMI(self.p.period)
 
-        _adx = talib.ADX(h, l, c, self.p.period)
-        self.line[0] = _adx[-1]
+    def prenext(self):
+        self._dmi.update(self.data.high[0], self.data.low[0],
+                         self.data.close[0])
+
+    def next(self):
+        r = self._dmi.update(self.data.high[0], self.data.low[0],
+                             self.data.close[0])
+        self.line[0] = r[3] if r[3] is not None else float('nan')
 
 
 class AverageDirectionalMovementIndexRating(PeriodN):
@@ -217,16 +307,18 @@ class AverageDirectionalMovementIndexRating(PeriodN):
 
     def __init__(self):
         super(AverageDirectionalMovementIndexRating, self).__init__()
-        # self.addminperiod(self.p.period)
-    
-    def next(self):
-        # np.array slice ---> view and zero_copy
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-        c = np.asarray(self.data.close.array, dtype=np.float64)
+        # adxr = (adx + adx(-period)) / 2: needs `period` extra ADX values
+        self.addminperiod(2 * self.p.period + 2)
+        self._dmi = _WilderDMI(self.p.period)
 
-        _adxr = talib.ADXR(h, l, c, self.p.period)
-        self.line[0] = _adxr[-1]
+    def prenext(self):
+        self._dmi.update(self.data.high[0], self.data.low[0],
+                         self.data.close[0])
+
+    def next(self):
+        r = self._dmi.update(self.data.high[0], self.data.low[0],
+                             self.data.close[0])
+        self.line[0] = r[4] if r[4] is not None else float('nan')
 
 
 # class DirectionalMovementIndex(AverageDirectionalMovementIndex,

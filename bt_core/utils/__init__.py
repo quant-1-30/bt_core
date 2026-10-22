@@ -26,3 +26,19 @@ from .util import *
 from .dateintern import *
 
 from bt_sdk.core.factor import *
+
+import os
+import glob
+
+
+def resolve_scan_source(path):
+    """Resolve a Parquet file or directory path for Polars scan_parquet."""
+    if not path:
+        return None
+    p_str = os.fspath(path)
+    if os.path.isdir(p_str):
+        files = sorted(glob.glob(os.path.join(p_str, "*.parquet")))
+        return files if files else None
+    if os.path.exists(p_str):
+        return p_str
+    return None

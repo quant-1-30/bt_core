@@ -1,5 +1,5 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 # cython: language_level=3
 
@@ -7,7 +7,10 @@ import uuid
 import json
 
 from libc.math cimport floor
-from bt_core.execution.core.finance.function cimport calc_ratio, cRatio
+from bt_core.tradingcal import trading_days_between
+from bt_core.utils.dateintern cimport ts2intdt
+from bt_core.execution.core.finance.common cimport TS_MAGNITUDE
+from bt_core.execution.core.finance.function cimport calc_ratio, cRatio, _dividend_tax_rate
 from bt_core.execution.core.finance.trade cimport OrderExbitData
 
 from bt_protocol._protocol import PositionBody, Resp
@@ -90,6 +93,8 @@ cdef class Position:
         elif not orig_size: # Update opened a position from 0 and available stay same
             opened, closed = size, 0
             self.core.cost_basis = price
+            if core.executed_dt > 0:
+                self.core.created_dt = core.executed_dt
         elif orig_size > 0:
             # existing "long" position
             if size > 0:
@@ -144,15 +149,16 @@ cdef class Position:
             total_bonus += delta
             cash += delta
 
+        self._update_pnl_ratio()
         return total_bonus
 
     cdef double _process_event(self, EventItem item):
         cdef cRatio cr
-        cdef double event_bonus = 0.0
+        cdef double event_bonus = 0.0, tax_rate = 0.0
         cdef double sizer_ratio , bonus_ratio
         cdef double cost_basis = self.core.cost_basis
         cdef int32_t origin_size = self.core.size, available = self.core.available
-        cdef int32_t rights_size
+        cdef int32_t rights_size, created_ymd, days_held = 0
 
         if item.event_type == 0:  # adjustment
             cr = calc_ratio(item.adj)
@@ -163,7 +169,21 @@ cdef class Position:
             self.core.size = <int32_t>floor(origin_size * sizer_ratio)
             self.core.available = <int32_t>floor(available * sizer_ratio)
             self.core.cost_basis = cost_basis / sizer_ratio
-            event_bonus = origin_size * bonus_ratio
+
+            # calculate tax ratio
+            if bonus_ratio > 0.0 and self.core.created_dt > 0 and item.ex_date > 0:
+                created_ymd = (
+                    ts2intdt(<double>self.core.created_dt)
+                    if self.core.created_dt >= TS_MAGNITUDE
+                    else <int32_t>self.core.created_dt
+                )
+                try:
+                    days_held = trading_days_between(created_ymd, item.ex_date)
+                except ValueError:
+                    days_held = 0
+                tax_rate = _dividend_tax_rate(days_held, item.ex_date)
+                
+            event_bonus = origin_size * bonus_ratio * (1.0 - tax_rate)
             return event_bonus
         else:
             # rights shares are integral: subscribe exactly the granted shares
@@ -295,11 +315,10 @@ cdef class Position:
        
     cdef object serialize(self):
         cdef object body, resp
-        cdef double total_pnl = self.core.realized_pnl + self.core.pnl
 
         body = PositionBody(experiment_id=self.core.experiment_id, sid=self.core.sid, size=self.core.size,
                             available=self.core.available, cost_basis=self.core.cost_basis, datetime=self.core.datetime,
-                            pnl=total_pnl, pnl_ratio=self.core.pnl_ratio, created_dt=self.core.created_dt,
+                            pnl=self.core.pnl, pnl_ratio=self.core.pnl_ratio, created_dt=self.core.created_dt,
                             realized_pnl=self.core.realized_pnl)
         resp = Resp(body=body)
         return resp

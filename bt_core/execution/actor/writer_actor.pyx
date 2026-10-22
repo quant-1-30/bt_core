@@ -37,11 +37,12 @@ cdef inline _sync_write(str path, list data):
 
 cdef class BatchWriterActor: 
 
-    def __init__(self, int32_t q_size, int32_t batch_size, int32_t retries=1):
+    def __init__(self, int32_t q_size, int32_t batch_size, int32_t retries=3):
         self._buffer = []
         self._running = True
         self.retries = retries
         self.batch_size = batch_size
+        self._qsize = q_size
         self._queue = asyncio.Queue(maxsize=q_size)
         self._finished_event = asyncio.Event()
 
@@ -112,7 +113,6 @@ cdef class BatchWriterActor:
 
         except Exception as e:
             logger.error(f"Critical error during flush: {e}", exc_info=True)
-            print("crush error: ", e)
             await self._dump_fallback("flush_crash", self._buffer)
         
         finally:
@@ -148,7 +148,7 @@ cdef class BatchWriterActor:
 
     async def _dump_fallback(self, str prefix, object data):
         try:
-            dump_dir = "./dump_fallback"
+            dump_dir = os.getenv("DUMP_FALLBACK_DIR", "./dump_fallback")
             if not os.path.exists(dump_dir):
                 os.makedirs(dump_dir, exist_ok=True)
             
@@ -163,6 +163,19 @@ cdef class BatchWriterActor:
 
     async def wait_until_finished(self): # wait to exit from run
         await self._finished_event.wait()
+
+    def reset(self):
+        """Re-arm the singleton actor for another run.
+
+        ``stop()``/sentinel leaves ``_running=False``; scheduling ``run()``
+        again on a finished actor would return immediately (nothing drains
+        the queue -> backpressure deadlock / silently lost snapshots).
+        Called by LocalStore.start() before every run."""
+        
+        self._buffer = []
+        self._running = True
+        self._queue = asyncio.Queue(maxsize=self._qsize)
+        self._finished_event = asyncio.Event()
 
     async def stop(self):
         """Stop the actor gracefully by sending sentinel and waiting for completion."""

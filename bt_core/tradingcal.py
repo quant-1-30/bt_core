@@ -213,18 +213,30 @@ class DataTradingCalendar(TradingCalendar):
 
     def __init__(self, trading_days):
         super().__init__()
-        # bisect
-        _ymds = sorted({int(d) for d in trading_days})
-        self._dates = [datetime(y // 10000, (y // 100) % 100, y % 100).date()
-                       for y in _ymds]
-        self._ordinal = {y: i + 1 for i, y in enumerate(_ymds)}  # 1-based
+        # bisect: keep only valid Mon..Fri trading days
+        self._ymds = []
+        self._dates = []
+        self._ordinal = {}
+
+        for y in sorted({int(d) for d in trading_days}):
+            dt = datetime(y // 10000, (y // 100) % 100, y % 100).date()
+            if dt.weekday() < 5:
+                self._dates.append(dt)
+                self._ymds.append(y)
+                self._ordinal[y] = len(self._dates)  # 1-based
 
     def day_index(self, ymd):
         return self._ordinal.get(int(ymd), -1)
 
+    def prev_day(self, ymd, n=1):
+        idx = self._ordinal.get(int(ymd), -1)
+        if idx < 1 or n < 1:
+            return -1
+        return self._ymds[max(0, idx - 1 - n)]
+
     def trading_days_between(self, ymd_a, ymd_b):
         i, j = self._ordinal.get(int(ymd_a), -1), self._ordinal.get(int(ymd_b), -1)
-        if i < 0 or j < 0:
+        if i < 0 or j < 0 or j < i:
             return -1
         return j - i + 1
 
@@ -238,7 +250,7 @@ class DataTradingCalendar(TradingCalendar):
 
 
 # ---------------------------------------------------------------------------
-# singleton calendar instance, None if no data (weekends degrade to approximate)
+# singleton calendar instance
 # ---------------------------------------------------------------------------
 
 _active_calendar = None
@@ -260,3 +272,12 @@ def trading_days_between(ymd_a, ymd_b):
         if n >= 0:
             return n
     raise ValueError(f"Trading calendar not set or ymd_a/ymd_b out of range: {ymd_a}, {ymd_b}")
+
+
+def prev_trading_day(ymd, n=1):
+    cal = _active_calendar
+    if cal is not None:
+        pre = cal.prev_day(ymd, n)
+        if pre > 0:
+            return pre
+    raise ValueError(f"Trading calendar not set or prev trading day not found for: {ymd} (n={n})")

@@ -13,6 +13,6 @@ cdef class SyncCashManager:
     
     cdef void update(self, bytes experiment_id, list trades)
     
-    cdef void sync(self, bytes experiment_id, int64_t sync_tick, dict pobjs, dict closes)
+    cdef void sync(self, bytes experiment_id, int64_t sync_tick, dict pobjs)
     
     cdef remove_client(self, bytes experiment_id)

@@ -26,14 +26,14 @@ cdef class Sizer:
     params = (('stake', 0.9),) # retain 1 - stake for stafety 
 
     cdef unordered_map[cpp_string, double] getsizing(
-        self, unordered_map[cpp_string, double] topk_info,  
+        self, object topk_info,  
         object snapshot, 
         bint isbuy) except *:
         return self._getsizing(topk_info, snapshot, isbuy)
 
     cpdef unordered_map[cpp_string, double] _getsizing(
         self, 
-        unordered_map[cpp_string, double] topk_info, 
+        object topk_info, 
         object snapshot, 
         bint isbuy) except *:
         '''This method has to be overriden by subclasses of Sizer to provide

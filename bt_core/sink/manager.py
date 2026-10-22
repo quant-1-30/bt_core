@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import time
+import logging
 import threading
-import traceback
 import pyarrow as pa
 
 from .sink import sinks
+
+logger = logging.getLogger(__name__)
 
 
 class LogConsumerThread(threading.Thread):
@@ -18,7 +20,7 @@ class LogConsumerThread(threading.Thread):
                  batch=10000, 
                  max_file_size_mb: int =512, 
                  flush_threshold: int =10000):
-        super().__init__(daemon=False)
+        super().__init__(daemon=True)
 
         self.log_shm = log_shm
         self.flush_threshold = flush_threshold
@@ -37,7 +39,8 @@ class LogConsumerThread(threading.Thread):
         ])
         
         self.sink = sinks.get(fmt.lower())(log_id, output_dir, self.schema)
-        
+        self.output_dir = output_dir
+
         # self._stop_event = threading.Event()
         self._running = True
 
@@ -47,7 +50,6 @@ class LogConsumerThread(threading.Thread):
             while self._running:
                 arr = self.log_shm.drain_metrics(batch=self.batch)
                 if len(arr) > 0:
-                    # print("LogConumserThread run arr: ", len(arr))
                     table = self._process_and_buffer(arr)
                 else:
                     time.sleep(0.001)
@@ -58,16 +60,24 @@ class LogConsumerThread(threading.Thread):
                 if not len(arr):
                     break
                 self._process_and_buffer(arr)
-            self._flush() 
 
-            self.sink.close()
-            print("sink close")
-        except Exception as e:
-            with open("FATAL_THREAD_CRASH.txt", "w") as f:
-                f.write(traceback.format_exc())
-            print(f"!!! LOG THREAD CRASHED: {e}")
+        except Exception:
+            logger.exception("log consumer thread crashed")
         finally:
-            print("LogConsumerThread fully exited.")
+            # release the log-ring backpressure FIRST: once this thread is
+            # gone nobody drains h.tail, and publish_metric would otherwise
+            # spin forever in nogil once the ring wraps
+            self.log_shm.release_consumer()
+            # best-effort flush + close on ANY exit path: without this a
+            # mid-run exception would silently drop every buffered row and
+            # leak the sink file handle
+            try:
+                self._flush()
+                self.sink.close()
+                logger.info("log consumer flushed and closed sink")
+            except Exception:
+                logger.exception("log consumer final flush/close failed")
+            logger.info("LogConsumerThread fully exited.")
 
     # @staticmethod
     def _process_and_buffer(self, arr):
@@ -105,4 +115,3 @@ class LogConsumerThread(threading.Thread):
     def stop(self):
         # self._stop_event.is_set()
         self._running = False
-        print("thread stop")

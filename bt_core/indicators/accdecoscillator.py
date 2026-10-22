@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import collections
+import math
 from bt_core.indicator import Indicator
 
 
@@ -53,14 +53,37 @@ class AccelerationDecelerationOscillator(Indicator):
     def __init__(self):
         super(AccelerationDecelerationOscillator, self).__init__()
         self.addminperiod(self.p.slow + self.p.period - 1)
+        # ring of the last `period` AO values for the SMA of AO; filled from
+        # the first bar where AO exists (slow) so the window is full exactly
+        # at minperiod
+        self._ao_hist = collections.deque(maxlen=self.p.period)
+        self._ao_sum = 0.0
+
+    def _ao(self):
+        fast, slow = self.p.fast, self.p.slow
+        hf = math.fsum(self.data.high.get(size=fast))
+        lf = math.fsum(self.data.low.get(size=fast))
+        hs = math.fsum(self.data.high.get(size=slow))
+        ls = math.fsum(self.data.low.get(size=slow))
+        return (hf + lf) / (2.0 * fast) - (hs + ls) / (2.0 * slow)
+
+    def _push_ao(self):
+        if len(self.data) >= self.p.slow:
+            ao = self._ao()
+            if ao == ao:
+                if len(self._ao_hist) == self.p.period:
+                    self._ao_sum -= self._ao_hist[0]
+                self._ao_hist.append(ao)
+                self._ao_sum += ao
+
+    def prenext(self):
+        self._push_ao()
 
     def next(self):
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-
-        # ao
-        median = (h + l) / 2.0
-        ao_array = talib.SMA(median, self.p.fast) - talib.SMA(median, self.p.slow)
-        ao_sma = talib.SMA(ao_array, timeperiod=self.p.period)
-
-        self.lines.accde[0] = ao_array[-1] - ao_sma[-1]
+        self._push_ao()
+        if not self._ao_hist:
+            self.lines.accde[0] = float('nan')
+            return
+        ao = self._ao_hist[-1]
+        ao_sma = self._ao_sum / len(self._ao_hist)
+        self.lines.accde[0] = ao - ao_sma

@@ -45,6 +45,7 @@ class MultiSignalPatch(DataBase):
         return {
             s: 0.0
             for i, s in enumerate(self.p.sids)
+            if (current_day + i * 3) % 10 >= 3
         }
 
     def notify_metrics(self, dts: int):
@@ -104,8 +105,10 @@ if __name__ == '__main__':
     sids = [b"300308", b"600000", b"000001"]
     fromdate = int(os.getenv("FROMDATE", 20040101))
     todate = int(os.getenv("TODATE", 20260531))
+    run_tag = os.getenv("RUNTAG", datetime.datetime.now().strftime("%H%M%S"))
     try:
-        cerebro.run(cash=100000, sid=sids, fromdate=fromdate, todate=todate, benchmark=[b"1A0001"])
+        cerebro.run(cash=100000, sid=sids, fromdate=fromdate, todate=todate,
+                    run_tag=run_tag, benchmark=[b"1A0001"])
     except Exception as e:
         print(f"运行报错: {e}")
         if hasattr(cerebro, '_shutdown'):

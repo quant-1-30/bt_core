@@ -18,11 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import logging
 import numpy as np
 from collections import defaultdict
 
 import bt_core as bt
 from bt_protocol._protocol import SnapshotBody
+
+logger = logging.getLogger(__name__)
 
 
 class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
@@ -69,7 +72,6 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
         self.cum_won = 0
         
         # --- Runtime Cache ---
-        self._today_trades = []         
         self._order_to_sid = {}       
         self._last_positions = {} # yesterday 
 
@@ -79,11 +81,14 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
             self._initial_value = snap.account.portfolio_value + snap.account.cash
 
     def _process_events(self):
+        n_trades = 0
+        trades_by_sid = defaultdict(list)
+
         events = self.get_shm_events()
-        if not events: return
-        
+        if not events:
+            return trades_by_sid, n_trades
+
         unmapped_trades = []
-        
         for e in events:
             etype = e.get('type')
             body = e.get('data')
@@ -95,30 +100,23 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
         for tb in unmapped_trades:
             sid = self._order_to_sid.get(tb["order_id"], None)
             if sid:
-                self._today_trades.append({'sid': sid, 'body': tb})
+                trades_by_sid[sid].append(tb)
+                n_trades += 1
             else:
-                # unmapped order (merger sid switch / pruned history): skip the
-                # trade rather than abort the whole backtest
-                print(f"warning: {p} unmapped order_id {tb['order_id']}")
+                logger.warning(
+                    "Positions: unmapped order_id %s (merger sid switch / "
+                    "pruned history) - trade skipped", tb['order_id'])
+        return trades_by_sid, n_trades
 
     def on_dt_over(self, dt0: int, snapshot: SnapshotBody):
-        self._process_events()
+        trades_by_sid, n_trades = self._process_events()
 
         curr_value = snapshot.account.portfolio_value + snapshot.account.cash
         current_positions = {p.sid: p for p in snapshot.positions if p.size != 0}
 
-
         hold_sids = set(current_positions.keys())
         last_sids = set(self._last_positions.keys())
-
-        # group by sid
-        trades_by_sid = defaultdict(list)
-        for t in self._today_trades:
-            trades_by_sid[t['sid']].append(t['body'])
-
-        # set ops O(1) 
-        traded_sids = set(trades_by_sid.keys())
-        closed_sids = (last_sids | traded_sids) - hold_sids
+        closed_sids = (last_sids | set(trades_by_sid.keys())) - hold_sids
 
         # reset
         daily_closed = 0
@@ -167,7 +165,6 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
         cum_win_rate = (self.cum_won / self.cum_closed) if self.cum_closed > 0 else float('nan')
         daily_avg_hold = (total_hold_days / daily_closed) if daily_closed > 0 else float('nan')
         net_pnl = curr_value - self._initial_value
-        n_trades = len(self._today_trades)
         
         self.log_shm.publish_metric(b"DailyWinRate", daily_win_rate, dt0)
         self.log_shm.publish_metric(b"TotalWinRate", cum_win_rate, dt0)
@@ -177,7 +174,6 @@ class PositionsAnalyzer(bt.TimeFrameAnalyzerBase):
 
         # reset on next day
         self._last_positions = current_positions
-        self._today_trades.clear()
 
         if closed_sids:
             self._order_to_sid = {

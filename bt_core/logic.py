@@ -21,7 +21,6 @@
 
 import functools
 import math
-import numpy as np 
 
 from .linebuffer import LineActions
 
@@ -51,8 +50,8 @@ class DivByZero(Logic):
     '''
     def __init__(self, a, b, zero=0.0):
         super(DivByZero, self).__init__(a, b)
-        self.a = a
-        self.b = b
+        self.a = self.args[0]
+        self.b = self.args[1]
         self.zero = zero
 
     def next(self):
@@ -74,8 +73,8 @@ class DivZeroByZero(Logic):
     '''
     def __init__(self, a, b, single=float('inf'), dual=0.0):
         super(DivZeroByZero, self).__init__(a, b)
-        self.a = a
-        self.b = b
+        self.a = self.args[0]
+        self.b = self.args[1]
         self.single = single
         self.dual = dual
 
@@ -167,21 +166,20 @@ class Or(MultiLogicReduce):
 
 
 class Max(MultiLogic):
-    flogic = np.max
+    flogic = staticmethod(max)
 
 
 class Min(MultiLogic):
-    flogic = np.min
+    flogic = staticmethod(min)
 
 
 class Sum(MultiLogic):
-    # flogic = math.fsum # high accuracy 
-    flogic = np.sum
+    flogic = staticmethod(math.fsum)
 
 
 class Any(MultiLogic):
-    flogic = np.any
+    flogic = staticmethod(any)
 
 
 class All(MultiLogic):
-    flogic = np.all
+    flogic = staticmethod(all)

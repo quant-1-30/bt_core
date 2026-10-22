@@ -78,6 +78,11 @@ class LocalStore(Store):
         self._feed._prepare(_loop)
         self.broker._prepare(_loop)
 
+        # the actor is a singleton reused across runs: re-arm it before
+        # scheduling run() (a finished actor would exit immediately and
+        # backpressure the queue -> deadlock on the second in-process run)
+        self.actor.reset()
+
         # backgroud running writer actor
         _loop.create_task(self.actor.run())
 

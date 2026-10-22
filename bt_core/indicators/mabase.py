@@ -18,27 +18,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
-import bt_core.indicator as btind
+import math
 from .basicops import PeriodN
 
 
 class MovingAverage(PeriodN):
 
-    alias = ('EMA', 'MovingAverage',)
+    alias = ('MovingAverage',)
 
     lines = ('ma',)
     params = (('period', 30),)
 
     def __init__(self):
-        super(ExponentialMovingAverage, self).__init__()
-        # self.addminperiod(self.p.period)
+        super(MovingAverage, self).__init__()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        _ma = talib.MA(_arr, timeperiod=self.p.period) # same size / nan fill
-
-        # self.lines.ma[0] = _ma[-1]
-        self.line[0] = _ma[-1]
+        self.line[0] = math.fsum(self.data.get(size=self.p.period)) / self.p.period

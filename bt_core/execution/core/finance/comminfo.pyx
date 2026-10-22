@@ -1,5 +1,5 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 
 import numpy as np
@@ -33,11 +33,9 @@ cdef class CommInfoBase:
     cdef double calculate(self, Order order):
         return self.commission
 
-    cdef double getcommission(self, Order order, int32_t size, double price):
+    cdef double getcommission(self, Order order, int32_t size, double price, bint min_comm=False):
         cdef double comm_rate = self.calculate(order)
-        cdef double comm 
-        
-        comm = abs(size) * comm_rate
+        cdef double comm = abs(size) * comm_rate
 
         if self.commtype == CommType.COMM_PERC:
             comm = abs(size) * comm_rate * price
@@ -45,7 +43,7 @@ cdef class CommInfoBase:
     
     def __call__(self, Order order, int32_t size, double price):
         '''Calculates the commission of an operation at a given price'''
-        return self.getcommission(order, size, price)
+        return self.getcommission(order, size, price, True)
     
     cdef double get_comm_rate(self, Order order):
         return self.calculate(order)
@@ -87,10 +85,10 @@ cdef class CommInfo_Stocks(CommInfoBase):
         stamp_rate, transfer_rate, commission_rate = self._fee_rates(order)
         return stamp_rate + transfer_rate + commission_rate
 
-    cdef double getcommission(self, Order order, int32_t size, double price):
+    cdef double getcommission(self, Order order, int32_t size, double price, bint min_comm=False):
         """
             A 股手续费 = 印花税 + 过户费 + 佣金
-            其中佣金有 5 元最低红线, 印花税/过户费无最低门槛;
+            其中整单佣金有 5 元最低红线 (min_comm=True), 分片线性计收 (min_comm=False);
             2015-08-01 前沪市过户费按面值 (每股 1 元) 0.06‰ 计, 深市免收
         """
         cdef OrderCoreData core = order.core
@@ -99,14 +97,13 @@ cdef class CommInfo_Stocks(CommInfoBase):
         cdef double trade_value = abs(size) * price
 
         cdef double commission = trade_value * commission_rate
-        if commission < 5.0:
+        if min_comm and commission < 5.0:
             commission = 5.0
 
         cdef double transfer_fee
         if core.created_dt >= TRANSFER_FEE_UNIFY_CKPT:
             transfer_fee = trade_value * transfer_rate
         else:
-            # size * 0.06‰ 
             transfer_fee = PAR_TRANSFER_RATE * abs(size) if order.exchange == Exchange.SSE else 0.0
 
         return trade_value * stamp_rate + transfer_fee + commission
@@ -117,6 +114,6 @@ cdef class CommInfo_Futures(CommInfoBase):
     cdef double calculate(self, Order order):
         return self.commission
 
-    cdef double getcommission(self, Order order, int32_t size, double price):
+    cdef double getcommission(self, Order order, int32_t size, double price, bint min_comm=False):
         cdef double comm = size * self.fixed 
         return comm

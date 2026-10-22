@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
+import math
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -36,7 +35,7 @@ class MovingAverageSimple(PeriodN):
     '''
     alias = ('SMA', 'SimpleMovingAverage',)
     lines = ('sma',)
-    
+
     params = (('period', 9),)
 
     def __init__(self):
@@ -44,8 +43,7 @@ class MovingAverageSimple(PeriodN):
         # self.addminperiod(self.p.period)
 
     def next(self):
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        sma = talib.SMA(_arr, self.p.period)
-
-        # self.lines.sma[0] = sma[-1]
-        self.line[0] = sma[-1]
+        # incremental: logical window via get() is ring-safe (works in both
+        # QBuffer and UnBounded modes) and exact - no talib full-array rescan
+        self.line[0] = math.fsum(self.data.get(size=self.p.period)) \
+            / self.p.period

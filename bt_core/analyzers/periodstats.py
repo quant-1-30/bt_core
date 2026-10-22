@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+import math
 import numpy as np
 import bt_core as bt
 
@@ -69,7 +70,14 @@ class PeriodStats(bt.Analyzer):
         super().__init__()
 
         self.last_value = 0.0
-        self.period_returns = []
+        self._n = 0
+        self._mean = 0.0
+        self._m2 = 0.0
+        self._best = float('-inf')
+        self._worst = float('inf')
+        self._pos_cnt = 0
+        self._neg_cnt = 0
+        self._nochange_cnt = 0
 
     def start(self):
         snap = self._owner.snapshot
@@ -84,38 +92,43 @@ class PeriodStats(bt.Analyzer):
             return
             
         ret = (current_value / self.last_value) - 1.0
-        self.period_returns.append(ret)
         self.last_value = current_value
 
-        n = len(self.period_returns)
-        avg_ret = np.mean(self.period_returns)
-        
-        std_ret = np.std(self.period_returns, ddof=1) if n > 1 else float('nan')
-        best_ret = max(self.period_returns)
-        worst_ret = min(self.period_returns)
-        
-        pos_cnt = sum(1 for r in self.period_returns if r > 0.0)
-        neg_cnt = sum(1 for r in self.period_returns if r < 0.0)
-        nochange_cnt = sum(1 for r in self.period_returns if r == 0.0)
-        if self.p.zeroispos:
-            pos_cnt += nochange_cnt
+        self._n += 1
+        delta = ret - self._mean
+        self._mean += delta / self._n
+        self._m2 += delta * (ret - self._mean)
 
-        self.log_shm.publish_metric(b"PeriodStatsAvgRet", avg_ret, dt0)
+        if ret > self._best:
+            self._best = ret
+        if ret < self._worst:
+            self._worst = ret
+
+        if ret > 0.0:
+            self._pos_cnt += 1
+        elif ret < 0.0:
+            self._neg_cnt += 1
+        else:
+            self._nochange_cnt += 1
+
+        std_ret = math.sqrt(self._m2 / (self._n - 1)) if self._n > 1 else float('nan')
+        pos_cnt = self._pos_cnt + (self._nochange_cnt if self.p.zeroispos else 0)
+
+        self.log_shm.publish_metric(b"PeriodStatsAvgRet", self._mean, dt0)
         self.log_shm.publish_metric(b"PeriodStatsStd", std_ret, dt0)
-        self.log_shm.publish_metric(b"PeriodStatsBest", best_ret, dt0)
-        self.log_shm.publish_metric(b"PeriodStatsWorst", worst_ret, dt0)
+        self.log_shm.publish_metric(b"PeriodStatsBest", self._best, dt0)
+        self.log_shm.publish_metric(b"PeriodStatsWorst", self._worst, dt0)
         self.log_shm.publish_metric(b"PeriodStatsPosCnt", pos_cnt, dt0)
-        self.log_shm.publish_metric(b"PeriodStatsNegCnt", neg_cnt, dt0)
-        self.log_shm.publish_metric(b"PeriodStatsNoChangeCnt", nochange_cnt, dt0)
+        self.log_shm.publish_metric(b"PeriodStatsNegCnt", self._neg_cnt, dt0)
+        self.log_shm.publish_metric(b"PeriodStatsNoChangeCnt", self._nochange_cnt, dt0)
 
     def _publish_nan(self, dt0: int):
-        """首日或数据不足时 publish NaN，保证每个 metric 每日都有行"""
         nan = float('nan')
         self.log_shm.publish_metric(b"PeriodStatsAvgRet", nan, dt0)
         self.log_shm.publish_metric(b"PeriodStatsStd", nan, dt0)
         self.log_shm.publish_metric(b"PeriodStatsBest", nan, dt0)
         self.log_shm.publish_metric(b"PeriodStatsWorst", nan, dt0)
-        # 计数类用 0 而非 NaN（无收益自然无正/负/平）
+        
         self.log_shm.publish_metric(b"PeriodStatsPosCnt", 0, dt0)
         self.log_shm.publish_metric(b"PeriodStatsNegCnt", 0, dt0)
         self.log_shm.publish_metric(b"PeriodStatsNoChangeCnt", 0, dt0)

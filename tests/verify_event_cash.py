@@ -146,8 +146,10 @@ async def main():
           f"max_err={worst:.6f} bad={bad}" if bad else f"max_err={worst:.6f}")
 
     # ------------------------------------------------ single replay pass
+    from bt_core.tradingcal import DataTradingCalendar
+    cal = DataTradingCalendar([r["datetime"] for r in accts])
     events = await fetch_events(sids)
-    st = {s: dict(size=0, avail=0, cost=0.0) for s in sids}
+    st = {s: dict(size=0, avail=0, cost=0.0, created_ymd=0) for s in sids}
     bits_by_day = defaultdict(list)
     for b in bits:
         bits_by_day[ts2intdt(b["executed_dt"])].append(b)
@@ -156,9 +158,11 @@ async def main():
         p["size"] -= sz
         p["avail"] -= sz
 
-    def apply_buy(p, sz, price):
+    def apply_buy(p, sz, price, dt_ymd=0):
         if p["size"] == 0:
             p["cost"] = price
+            if dt_ymd > 0:
+                p["created_ymd"] = dt_ymd
         else:
             p["cost"] = (p["cost"] * p["size"] + price * sz) / (p["size"] + sz)
         p["size"] += sz
@@ -171,8 +175,18 @@ async def main():
                     continue
                 if typ == 0:
                     if c:
-                        div_total += p["size"] * c / 10.0
-                        div_events.append((record_day, s.decode(), p["size"] * c / 10.0))
+                        days_held = cal.trading_days_between(p["created_ymd"], ex) if p["created_ymd"] > 0 else 0
+                        if days_held <= 0:
+                            tax_rate = 0.0
+                        elif days_held <= 20:
+                            tax_rate = 0.20
+                        elif days_held <= 240:
+                            tax_rate = 0.10
+                        else:
+                            tax_rate = 0.05 if ex < 20150908 else 0.0
+                        net_div = p["size"] * (c / 10.0) * (1.0 - tax_rate)
+                        div_total += net_div
+                        div_events.append((record_day, s.decode(), net_div))
                     r = (a + b_) / 10.0 + 1.0
                     p["size"] = math.floor(p["size"] * r)
                     p["avail"] = math.floor(p["avail"] * r)
@@ -222,7 +236,7 @@ async def main():
             p = st[bytes(orders[b["order_id"]]["sid"])]
             sz = b["executed_size"]
             if b["isbuy"]:
-                apply_buy(p, sz, b["executed_price"])
+                apply_buy(p, sz, b["executed_price"], day)
             elif sz > p["avail"]:
                 deferred.append((bytes(orders[b["order_id"]]["sid"]), sz))
             else:

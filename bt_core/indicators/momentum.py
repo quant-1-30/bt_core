@@ -18,8 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -41,10 +39,9 @@ class Momentum(PeriodN):
 
     def __init__(self):
         super(Momentum, self).__init__()
-        # self.addminperiod(self.p.period) 
-        
-    def next(self):
-        _mom = talib.MOM(self.data.array, timeperiod=self.p.period) # Momentum
+        # talib.MOM lookback == period (needs period+1 samples)
+        self.addminperiod(2)
 
-        # self.lines.momentum[0] = _mom[-1]
-        self.line[0] = _mom[-1]
+    def next(self):
+        # O(1) via logical back-index; ring-safe in both memory modes
+        self.line[0] = self.data[0] - self.data[-self.p.period]

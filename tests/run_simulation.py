@@ -85,8 +85,8 @@ if __name__ == '__main__':
     wdata = cerebro.resampledata(timeframe=bt.TimeFrame.Weeks, adjbartime=False)
 
     # add score parquet
-    from bt_core.feeds import ParquetScoreFeed
-    patch_data = ParquetScoreFeed(parquet_path=Path("~/startup/bt_studio/result/fsm/scores").expanduser())
+    from bt_core.feeds import ParquetPatch
+    patch_data = ParquetPatch(parquet_path=Path("~/startup/bt_studio/result/fsm/scores").expanduser())
     cerebro.adddata(patch_data)
 
     cerebro.addstrategy(FsmStrategy)

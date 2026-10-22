@@ -1,7 +1,8 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 
+import os
 import asyncio
 import numpy as np
 cimport numpy as cnp
@@ -9,6 +10,7 @@ import polars as pl
 
 from libc.stdint cimport int32_t
 
+from bt_core.execution.core.finance.function cimport _get_bt_timeout
 from bt_core.execution.gateway.interface cimport AsyncGateway # cdef class info 
 from bt_core.execution.gateway.interface import async_gt  # load.so used for cast cdef type    
 
@@ -20,6 +22,7 @@ cdef class AssetCache:
 
     def __cinit__(self): 
         self._c_cache = {} # initialize memory allocate
+        self._missing_sids = set()
         
     def __init__(self):
         self._sharded_lock = asyncio.Lock()
@@ -28,7 +31,7 @@ cdef class AssetCache:
         cdef object df
         cdef int32_t rpc_type = RpcTopic.Instrument
 
-        df = await async_gt.rpc({}, rpc_type) # complete
+        df = await async_gt.rpc(None, rpc_type) # complete
         # merger: null -> "0" int
         # ratio: NaN -> 0.0
         df = df.with_columns([
@@ -71,18 +74,20 @@ cdef class AssetCache:
 
     async def _async_fetch(self, bytes sid):
         async with self._sharded_lock:
-            if sid in self._c_cache:
+            if sid in self._c_cache or sid in self._missing_sids:
                 return
             data = await self._fetch_from_rpc()
             self._add_to_cache(data)
+            if sid not in self._c_cache:
+                self._missing_sids.add(sid)
 
     cdef Asset get_cache_info(self, bytes sid, object loop):
         """
             wrap async api
         """
-        if sid not in self._c_cache:
+        if sid not in self._c_cache and sid not in self._missing_sids:
             if loop is None:
                 raise RuntimeError("AssetCache initialization requires an active event loop.")
-            asyncio.run_coroutine_threadsafe(self._async_fetch(sid), loop).result()
+            asyncio.run_coroutine_threadsafe(self._async_fetch(sid), loop).result(timeout=_get_bt_timeout())
 
         return self._c_cache.get(sid, None)

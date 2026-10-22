@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.5.7"
-description = "revise merger logic and filler"
+version = "0.6.1"
+description = "bt_core is a high-performance backtesting framework for quantitative trading strategies, designed to provide fast and efficient simulations of trading algorithms. It supports various data formats and integrates with popular libraries for data analysis and visualization."
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
 build = "build_ext.py"
@@ -44,15 +44,14 @@ asyncpg = "^0.31.0"
 greenlet = "^3.3.2"
 fsspec = "^2026.2.0"
 ta-lib = "^0.6.8"
-polar = "^0.0.127"
 polars = "^1.39.0"
 sphinx = "<9.0"
 sphinx-rtd-theme = "^3.1.0"
-grpcio = "^1.78.0"
-protobuf = ">=7.35.1"
+grpcio = ">=1.84.0,<2.0"
+protobuf = ">=7.35.1,<8.0"
 build = "^1.5.0"
 poetry-core = "^2.4.0"
-bt-sdk = "0.15.5"
+bt-sdk = "0.16.1"
 
 [[tool.poetry.source]]
 name = "tuna"
@@ -77,12 +76,6 @@ priority = "supplemental"
 # [tool.setuptools.package-data]
 # "*" = ["*.pyx", "*.pxd", "*.so", "*.pyd", "*.h", "*.cpp", "*.proto", "*.pyi*"]
 
-# ---------------------------------------------------------------------------
-# pytest: 三层测试体系(见 tests/README.md)
-#   1. 行为测试 tests/behavior —— 默认收集
-#   2. e2e 回测入口(test_e2e_*) —— 默认被 "-m not e2e" 反选, `pytest -m e2e` 显式跑
-#   3. DB 反向验证/可视化脚本 —— 非 test_* 命名, 天然不收集
-# ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-m 'not e2e'"

@@ -20,6 +20,7 @@
 ###############################################################################
 
 import sys
+import itertools
 import collections
 
 # from .utils.py3 import map, range, zip, with_metaclass, string_types
@@ -31,6 +32,37 @@ from .lineseries import LineSeries, LineSeriesMaker, LineSeriesStub
 from .dataseries import DataSeries
 from .metabase import with_metaclass
 from bt_core.utils.autodict import DotDict
+
+
+def _resolve_clock_feed(clock, stop_ids=None):
+    """Resolve a clock chain to its underlying data feed (or first hit in stop_ids).
+
+    - Unwraps LineSeriesStub to its underlying line (clk.lines[0])
+    - When stop_ids is given, returns the first clock/line whose id is in stop_ids
+    - Guards against accidental clock cycles via `seen`
+    - Returns None when `clock` is None
+    """
+    clk = clock
+    seen = set()
+    while clk is not None and id(clk) not in seen:
+        seen.add(id(clk))
+        if isinstance(clk, LineSeriesStub):
+            clk = clk.lines[0]
+            continue
+        if stop_ids is not None and id(clk) in stop_ids:
+            return clk
+        nxt = getattr(clk, '_clock', None)
+        if nxt is None:
+            nxt = getattr(getattr(clk, '_owner', None), '_clock', None)
+        if nxt is None:
+            break
+        clk = nxt
+    if stop_ids is not None:
+        return clk if clk is not None and id(clk) in stop_ids else None
+    if clk is None:
+        return None
+    owner = getattr(clk, '_owner', None)
+    return owner if owner is not None else clk
 
 
 class MetaLineIterator(LineSeries.__class__):
@@ -68,8 +100,7 @@ class MetaLineIterator(LineSeries.__class__):
 
         # If no datas have been passed to an indicator ... use the
         # main datas of the owner, easing up adding "self.data" ...
-        # if not _obj.datas and isinstance(_obj, (IndicatorBase, ObserverBase)):
-        if not _obj.datas and isinstance(_obj, IndicatorBase): # if indicator no datas then inherit from strategy
+        if not _obj.datas and isinstance(_obj, IndicatorBase):
             _obj.datas = _obj._owner.datas[0:mindatas]
 
         # Create a dictionary to be able to check for presence
@@ -170,33 +201,19 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         # store in right queue
         self._lineiterators[indicator._ltype].append(indicator)
 
-        # use getattr because line buffers don't have this attribute
-        if getattr(indicator, '_nextforce', False):
-            # the indicator needs runonce=False
-            o = self
-            while o is not None:
-                if o._ltype == LineIterator.StratType:
-                    o.cerebro._disable_runonce()
-                    break
-
-                o = o._owner  # move up the hierarchy
-
-    # def _add_extra_info(self):
-    #     extra_info = f"{self.__class__.__name__}("
-    #     for data in self.datas:
-    #         extra_info += f"{data.extra_info}," if not isinstance(data, DataSeries) else f"{data._name},"
-    #     extra_info += f"{str(self.p)})"
-    #     return extra_info
 
     def _periodrecalc(self):
-        # last check in case not all lineiterators were assigned to
-        # lines (directly or indirectly after some operations)
-        # An example is Kaufman's Adaptive Moving Average
-        indicators = self._lineiterators[LineIterator.IndType]
-        indperiods = [ind._minperiod for ind in indicators]
-        indminperiod = max(indperiods or [self._minperiod])
-        # print("_periodrecalc ", indminperiod)
-        self.updateminperiod(indminperiod)
+        # Only propagate child indicator _minperiod when the child shares the
+        # same underlying data feed clock; cross-timeframe children are gated
+        # separately in _next() and Strategy._periodset().
+        my_feed = _resolve_clock_feed(getattr(self, '_clock', None))
+        indperiods = [
+            ind._minperiod
+            for ind in self._lineiterators[LineIterator.IndType]
+            if my_feed is not None
+            and _resolve_clock_feed(getattr(ind, '_clock', None)) is my_feed
+        ]
+        self.updateminperiod(max(indperiods or [self._minperiod]))
  
     def bindlines(self, owner=None, own=None):
         if not owner:
@@ -238,16 +255,21 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
     def _clk_update(self):
         clock_len = len(self._clock)
         if clock_len != len(self):
-            self.forward() # lines advance due to data0
+            self.forward()
         return clock_len
 
     def _next(self):
-        clock_len = self._clk_update()
+        clock_len = len(self._clock)
+        is_strat = (self._ltype == LineIterator.StratType)
+        if not is_strat:
+            if clock_len == len(self):
+                return
+            self.forward()
 
         for indicator in self._lineiterators[LineIterator.IndType]:
             indicator._next()
 
-        if self._ltype == LineIterator.StratType:
+        if is_strat:
             minperstatus = self._getminperstatus()
             if minperstatus < 0:
                 self.next()
@@ -256,8 +278,13 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
             else:
                 self.prenext()
         else:
-            # assume indicators and others operate on same length datas
-            # although the above operation can be generalized
+            # Wait if any cross-timeframe input data or child indicator has not
+            # yet reached its own _minperiod
+            for obj in itertools.chain(self.datas, self._lineiterators[LineIterator.IndType]):
+                if len(obj) < obj._minperiod:
+                    self.prenext()
+                    return
+
             if clock_len > self._minperiod:
                 self.next()
             elif clock_len == self._minperiod:
@@ -298,17 +325,21 @@ class LineIterator(with_metaclass(MetaLineIterator, LineSeries)):
         for data in self.datas:
             # print("lineiterator data", data)
             data.qbuffer(savemem=savemem)
+            data.minbuffer(self._minperiod)
 
         # Save in all object types depending on the strategy
         for itcls in self._lineiterators:
             for it in self._lineiterators[itcls]:
                 it.qbuffer(savemem=savemem)
-        
-    def minbuffer(self, _minperiod=1):
-        self.lines.minbuffer(_minperiod)
-        
+
+    def minbuffer(self, size=1):
+        self.lines.minbuffer(size)
         for data in self.datas:
-            data.minbuffer(_minperiod)
+            data.minbuffer(size)
+
+        for itcls in self._lineiterators:
+            for it in self._lineiterators[itcls]:
+                it.minbuffer(size)
 
     def getindicators(self):
         return self._lineiterators[LineIterator.IndType]

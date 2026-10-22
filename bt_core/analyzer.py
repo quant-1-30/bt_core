@@ -179,6 +179,10 @@ class Analyzer(with_metaclass(MetaAnalyzer, object)):
         for child in self._children:
             child._stop()
 
+        if getattr(self, 'shm_id', -1) >= 0 and getattr(self, 'shm', None) is not None:
+            self.shm.unregister_consumer(self.shm_id)
+            self.shm_id = -1
+
         self.stop()
 
     def stop(self):

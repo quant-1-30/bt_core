@@ -1,5 +1,5 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 
 import uuid
@@ -41,7 +41,7 @@ cdef class Order:
         self.filler = filler
         self.info = AssetCore()
 
-        self._exchange = Exchange.SSE if sid.startswith(b"60") else (
+        self._exchange = Exchange.SSE if (sid.startswith(b"60") or sid.startswith(b"68")) else (
             Exchange.SZSE if not (sid.startswith(b"4") or sid.startswith(b"8") or sid.startswith(b"92"))
             else Exchange.BSE)
         # self.core.order_id = fast_uuid4_bytes() # uuid.uuid4().bytes

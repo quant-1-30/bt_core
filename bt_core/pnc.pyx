@@ -65,6 +65,20 @@ cdef class Pnc:
 
         return <int32_t>(it_current - it_created)
 
+    cdef void _clean_pending_sells(self, list positions):
+        cdef unordered_map[cpp_string, int32_t] current_available
+        cdef vector[cpp_string] keys_to_remove
+        cdef cpp_string pos_sid
+        cdef int32_t i
+        for pos in positions:
+            current_available[<cpp_string>pos.sid] = pos.available
+        for it_sell in self.pending_sells:
+            pos_sid = it_sell.first
+            if current_available.find(pos_sid) == current_available.end() or current_available[pos_sid] == 0:
+                keys_to_remove.push_back(pos_sid)
+        for i in range(keys_to_remove.size()):
+            self.pending_sells.erase(keys_to_remove[i])
+
     # ==============================================================================================
     # risk control on tick
     # ==============================================================================================
@@ -81,33 +95,8 @@ cdef class Pnc:
         cdef vector[Pair] pos_with_days
         cdef Pair p_pair
 
-        # ===========================================================================================
-        # Clean up pending_sells at market open
-        # ===========================================================================================
-        # Remove pending_sells for positions that are no longer held or already sold
-        # This prevents accumulation of stale pending_sells
-        cdef unordered_map[cpp_string, int32_t] current_available
-        cdef vector[cpp_string] keys_to_remove
         cdef cpp_string pos_sid
-
-        # Build a map of current available positions for quick lookup
-        for pos in positions:
-            current_available[<cpp_string>pos.sid] = pos.available
-
-        # Collect keys to remove
-        for pos in positions:
-            pos_sid = <cpp_string>pos.sid
-
-        # Check each pending_sell
-        for it_sell in self.pending_sells:
-            pos_sid = it_sell.first
-            # Check if position still exists and has available shares
-            if current_available.find(pos_sid) == current_available.end() or current_available[pos_sid] == 0:
-                keys_to_remove.push_back(pos_sid)
-
-        # Remove collected keys
-        for i in range(keys_to_remove.size()):
-            self.pending_sells.erase(keys_to_remove[i])
+        self._clean_pending_sells(positions)
 
         # ===========================================================================================
         # 1. Max Positions Enforcement (called at market open)
@@ -188,7 +177,7 @@ cdef class Pnc:
         # 3. Macro Control --- Drawdown
         # ===========================================================================================
         if stats["drawdown"].maxdd >= self.dd:
-            # print("reach maxdd and execute sell all")
+            self._last_trade_day = -1
             for pos in positions:
                 c_sid = <cpp_string>pos.sid
 
@@ -217,6 +206,8 @@ cdef class Pnc:
         cdef int32_t days_held, slots, buy_rank=10
         cdef double wgt_ratio
         cdef TraderPlan tmp
+        cdef unordered_map[cpp_string, TraderPlan].iterator pit
+        cdef int32_t remain_intent, avail_now
 
         cdef vector[TraderPlan] sells
         cdef vector[TraderPlan] buys
@@ -240,7 +231,7 @@ cdef class Pnc:
         cdef int32_t excess_count, sold_count, i
         cdef int32_t max_slots_from_topk, slots_by_max_pos
 
-        if self._last_trade_day == current_day or c_topk_info.empty():
+        if self._last_trade_day < 0 or self._last_trade_day == current_day or c_topk_info.empty():
             plan[<cpp_string>b"sell"] = sells
             plan[<cpp_string>b"buy"] = buys
             return plan
@@ -248,24 +239,7 @@ cdef class Pnc:
         # ===================================================================================
         # PHASE 0: Clean up pending_sells at trade time
         # ===================================================================================
-        # Remove pending_sells for positions that are no longer held or already sold
-        cdef unordered_map[cpp_string, int32_t] current_available
-        cdef vector[cpp_string] keys_to_remove
-
-        # Build a map of current available positions for quick lookup
-        for pos in positions:
-            current_available[<cpp_string>pos.sid] = pos.available
-
-        # Check each pending_sell
-        for it_sell in self.pending_sells:
-            c_sid = it_sell.first
-            # Check if position still exists and has available shares
-            if current_available.find(c_sid) == current_available.end() or current_available[c_sid] == 0:
-                keys_to_remove.push_back(c_sid)
-
-        # Remove collected keys
-        for i in range(keys_to_remove.size()):
-            self.pending_sells.erase(keys_to_remove[i])
+        self._clean_pending_sells(positions)
 
         # ===================================================================================
         # PHASE 1: Calculate current active positions
@@ -354,18 +328,27 @@ cdef class Pnc:
             # If this stock is already in pending_sells, it means we tried to sell it before
             # but the order failed (e.g., limit-down with zero volume).
             # We MUST re-issue the sell order today to keep trying to exit the position.
-            if self.pending_sells.find(c_sid) != self.pending_sells.end():
-                # print(f"[generate_plan PHASE4] Day {current_day}: RE-ISSUING sell order for stuck position {c_sid.decode('utf-8', errors='ignore')} (available={pos.available})")
+            # Semantics: pending.size holds the REMAINING INTENT of the original
+            # order (on_execute decrements it by executed size). The re-issue
+            # sells exactly that remainder - a partial sell (weight < 1.0)
+            # must never escalate into a full liquidation.
+            pit = self.pending_sells.find(c_sid)
+            if pit != self.pending_sells.end():
+                remain_intent = deref(pit).second.size
+                avail_now = pos.available
+                if remain_intent <= 0 or avail_now <= 0:
+                    self.pending_sells.erase(pit)
+                    continue
 
                 tmp.sid = c_sid
-                tmp.weight = 1.0
-                tmp.size = pos.available  # Sell all available shares
+                tmp.weight = min(1.0, <double>remain_intent / <double>avail_now)
+                tmp.size = remain_intent if remain_intent < avail_now else avail_now
                 tmp.priority = 0          # HIGHEST priority - must sell stuck positions first
                 tmp.execType = execType
                 tmp.filler = filler
 
                 sells.push_back(tmp)
-                # Update pending_sells record with current available quantity
+                # Update pending_sells record with the remaining intent
                 self.pending_sells[c_sid] = tmp
                 continue  # Move to next position
 
@@ -387,10 +370,19 @@ cdef class Pnc:
 
             it_wgt = s_wgt.find(c_sid)
             wgt_ratio = deref(it_wgt).second if it_wgt != s_wgt.end() else 1.0
+            if wgt_ratio <= 0.0:
+                continue
+
+            remain_intent = <int32_t>(pos.available * wgt_ratio)
+            if remain_intent <= 0:
+                continue
 
             tmp.sid = c_sid
             tmp.weight = wgt_ratio
-            tmp.size = pos.available
+            # register the INTENDED quantity (ratio * available), not the full
+            # available: with intent bookkeeping a weight < 1.0 partial sell
+            # that (partially) fills will not be re-issued as a full sell
+            tmp.size = remain_intent
             tmp.priority = 1  # Lower priority than max_positions enforcement, higher than new buys
             tmp.execType = execType
             tmp.filler = filler
@@ -450,7 +442,7 @@ cdef class Pnc:
         # PHASE 8: Buy Control (strictly enforce slot limit)
         # ===================================================================================
         if self.sizer is not None:
-            b_wgt = self.sizer.getsizing(c_topk_info, snapshot, True)
+            b_wgt = self.sizer.getsizing(topk_info, snapshot, True)
 
         for py_sid in topk_info:
             c_sid = <cpp_string>py_sid
@@ -506,7 +498,7 @@ cdef class Pnc:
 
         for py_sid, trades in mtrades.items():
             c_sid = <cpp_string>py_sid
-            executed_size = sum([trade.executed_size for trade in trades])
+            executed_size = <int32_t>trades if isinstance(trades, int) else sum([trade.executed_size for trade in trades])
 
             it_sell = self.pending_sells.find(c_sid)
             if it_sell != self.pending_sells.end():

@@ -1,5 +1,5 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 
 from bt_core.tradingcal import trading_days_between
@@ -7,6 +7,7 @@ from bt_core.tradingcal import trading_days_between
 from bt_core.utils.dateintern cimport ts2intdt
 
 cdef const int64_t CYB_CKPT = 1598232600
+cdef const int64_t MAIN_ST_10PCT_CKPT = 1783296000  # 2026-07-06 主板 ST Pct 10%
 
 
 cdef class Asset:
@@ -48,7 +49,7 @@ cdef class Asset:
         self.core.merger = merger
         self.core.merge_ratio = merge_ratio
 
-        if sid.startswith(b"688"):
+        if sid.startswith(b"68"):
             self.core.board = 2
             self.core.tick_size = 200
             self.core.increment = False
@@ -56,7 +57,7 @@ cdef class Asset:
             self.core.board = 1
             self.core.tick_size = 100
             self.core.increment = True
-        elif sid.startswith(b"4") or sid.startswith(b"8"):
+        elif sid.startswith(b"4") or sid.startswith(b"8") or sid.startswith(b"92"):
             self.core.board = 3
             self.core.tick_size = 100
             self.core.increment = True
@@ -68,37 +69,40 @@ cdef class Asset:
     cdef double restricted(self, int64_t ts) noexcept:
         """
             涨跌幅限制:
-            - 科创板(688)/创业板(3): 上市前5个**交易日**无涨跌幅限制, 之后20%
-              (trading_days_between 按真实交易日计数; 无日历/窗口外 -> 非新股)
-            - 哨兵: inf = 无涨跌幅限制
-            - 主板(60/00): 10%
-            - 创业板2020-08-24前为10%
+            - 科创板(688)/创业板(3)/注册制主板(>=20230410): 上市前5个**交易日**无涨跌幅限制
+            - 北交所(4/8/92): 上市首日无涨跌幅限制, 次日起 30%
+            - 核准制主板新股(20140101..20230409): 上市首日 44%
+            - 主板及旧制创业板 ST/*ST: 5%
+            - 主板(60/00): 10%, 科创/创业(2020-08-24后): 20%
         """
-        cdef double thres
-        cdef bint is_new_stock = False
+        cdef int32_t ipo_days = -1
         cdef int32_t current_ymd
 
         if self.core.first_trading > 0:
             current_ymd = ts2intdt(<double>ts)
             if current_ymd >= self.core.first_trading:
-                # noexcept silent cause thres ---> illegal and fallback
                 try:
-                    is_new_stock = trading_days_between(
-                        self.core.first_trading, current_ymd) <= 5
+                    ipo_days = trading_days_between(
+                        self.core.first_trading, current_ymd)
                 except ValueError:
-                    is_new_stock = False
+                    ipo_days = -1
 
         if self.core.board == 2:
-            if is_new_stock:
-                return float('inf')
-            thres = 0.2
-        elif self.core.board == 1:
-            if is_new_stock and self.core.first_trading >= 20200824:
-                return float('inf')
-            thres = 0.2 if ts >= CYB_CKPT else 0.1
-        else:
-            thres = 0.1
-        return thres
+            return float('inf') if 1 <= ipo_days <= 5 else 0.2
+        elif self.core.board == 3:
+            return float('inf') if ipo_days == 1 else 0.3
+
+        cdef int32_t reg_ckpt = 20200824 if self.core.board == 1 else 20230410
+        if 1 <= ipo_days <= 5 and self.core.first_trading >= reg_ckpt:
+            return float('inf')
+        if ipo_days == 1 and self.core.first_trading > 0:
+            return 0.44 if self.core.first_trading >= 20140101 else float('inf')
+
+        cdef int64_t st_ckpt = CYB_CKPT if self.core.board == 1 else MAIN_ST_10PCT_CKPT
+        if ts < st_ckpt and b"ST" in <bytes>self.core.name:
+            return 0.05
+
+        return 0.2 if (self.core.board == 1 and ts >= CYB_CKPT) else 0.1
 
     cdef AssetCore serialize(self):
         return self.core

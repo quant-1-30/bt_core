@@ -18,10 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 from .basicops import PeriodN
-from bt_core.indicator import Indicator
+from .dema import _EmaState
 
 
 class ExponentialMovingAverage(PeriodN):
@@ -46,12 +44,11 @@ class ExponentialMovingAverage(PeriodN):
 
     def __init__(self):
         super(ExponentialMovingAverage, self).__init__()
-        # self.addminperiod(self.p.period)
+        self._ema = _EmaState(self.p.period)
+
+    def prenext(self):
+        self._ema.update(self.data[0])
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        _ema = talib.EMA(_arr, timeperiod=self.p.period) # same size / nan fill
-
-        # self.lines.ema[0] = _ema[-1]
-        self.line[0] = _ema[-1]
+        v = self._ema.update(self.data[0])
+        self.line[0] = v if v is not None else float('nan')

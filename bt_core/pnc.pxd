@@ -40,6 +40,7 @@ cdef class Pnc:
     cpdef void _start(self, list days_list)
 
     cdef int32_t _get_days_held(self, int32_t created_day, int32_t current_day) noexcept nogil
+    cdef void _clean_pending_sells(self, list positions)
     
     cpdef vector[TraderPlan] on_risk(self, object snapshot, dict stats, int32_t current_day, int32_t execType=?, bytes filler=?)
     

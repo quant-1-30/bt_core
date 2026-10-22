@@ -23,14 +23,12 @@ import math
 import warnings
 import collections
 import itertools
-import operator
 import json
 import hashlib
 from collections import defaultdict
 
 import bt_core as bt
-from .lineiterator import LineIterator, StrategyBase
-from .lineseries import LineSeriesStub
+from .lineiterator import LineIterator, StrategyBase, _resolve_clock_feed
 from .metabase import with_metaclass, findowner
 from .utils import AutoOrderedDict, fast_uuid4_bytes, ts2intdt
 from .utils.comparsion import check_gt_zero, check_lt_zero, check_nanzero
@@ -116,36 +114,25 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.lines.datetime._settz(tz)
 
     def _periodset(self):
-        dataids = [id(data) for data in self.datas]
+        target_ids = {id(d) for d in self.datas} | {id(l) for d in self.datas for l in d.lines}
 
+        # Traverse the full indicator tree (including nested cross-timeframe
+        # child indicators such as a weekly SMA inside WeekPriceSignal) so
+        # every resampled data feed in self.datas gets its true _minperiod.
         _dminperiods = collections.defaultdict(list)
-        for lineiter in self._lineiterators[LineIterator.IndType]:
+        stack = list(self._lineiterators[LineIterator.IndType])
+        while stack:
+            lineiter = stack.pop()
+            children = getattr(lineiter, '_lineiterators', None)
+            if children:
+                stack.extend(children.get(LineIterator.IndType, ()))
+
             clk = getattr(lineiter, '_clock', None)
             if clk is None:
                 clk = getattr(lineiter._owner, '_clock', None)
-                if clk is None:
-                    continue
-
-            while True:
-                if id(clk) in dataids:
-                    break  # already top-level clock (data feed)
-
-                clk2 = getattr(clk, '_clock', None)
-                if clk2 is None:
-                    clk2 = getattr(clk._owner, '_clock', None)
-
-                if clk2 is None:
-                    break 
-
-                clk = clk2
-
-            if clk is None:
-                continue  
-
-            if isinstance(clk, LineSeriesStub):
-                clk = clk.lines[0]
-
-            _dminperiods[clk].append(lineiter._minperiod)
+            clk = _resolve_clock_feed(clk, stop_ids=target_ids)
+            if clk is not None:
+                _dminperiods[clk].append(lineiter._minperiod)
 
         # calc data minperiods
         for data in self.datas:
@@ -154,18 +141,14 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
                 if l in _dminperiods:
                     dlminperiods += _dminperiods[l]  # found, add it
 
-            # keep the reference to the line if any was found
-            _dminperiods[data] = [max(dlminperiods)] if dlminperiods else []
-
-            dminperiod = max(_dminperiods[data] or [data._minperiod])
-            self._minperiods.append(dminperiod)
+            self._minperiods.append(max(dlminperiods, default=data._minperiod))
     
     def minbuffer(self):
         _minperiod = self._minperiod
         self.lines.minbuffer(_minperiod)
 
-        for data in self.datas:
-            data.minbuffer(_minperiod) # make sure data minperiod is at least strategy's  
+        for data, dmin in zip(self.datas, self._minperiods or [1] * len(self.datas)):
+            data.minbuffer(max(_minperiod, dmin))
         
         for itcls in self._lineiterators:
             for it in self._lineiterators[itcls]:
@@ -183,12 +166,11 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
     
     def _start(self, savemem, **kwargs):
         '''Called right before the bt_coreing is about to be started.'''
-        # linebuffer qbuffer update maxlen with _minperiod
-        self.qbuffer(savemem=savemem) 
         self._periodrecalc()
+        self.qbuffer(savemem=savemem)
 
-        # self._minperstatus = MAXINT  # start in prenext
-        self._dlens = np.array([len(data) for data in self.datas])
+        self._minperstatus = MAXINT
+        self._dlens = [len(data) for data in self.datas]
 
         # initialize snapshot and shm_chan
         self.set_cash(**kwargs)
@@ -212,13 +194,19 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.shm_chan.publish_snapshot(snapshot)
 
     def _setupMetrics(self):
+        seen_names = collections.Counter()
+
         for _line in self.getindicators_lines():
             line_name = _line.plotinfo.plotname or _line.__class__.__name__
 
             for i, line_alias in enumerate(_line.lines.getlinealiases()):
-                metric_name = f"ind_{line_name}_{line_alias}".encode("utf-8")
+                base_name = f"ind_{line_name}_{line_alias}"
+                cnt = seen_names[base_name]
+                seen_names[base_name] += 1
+                
+                metric_str = base_name if cnt == 0 else f"{base_name}_{cnt}"
                 self.metrics.append(
-                    (_line.lines[i], metric_name)
+                    (_line.lines[i], metric_str.encode("utf-8"))
                 )
 
     def _addindicator(self, indcls, *indargs, **indkwargs):
@@ -235,19 +223,22 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         return analyzer
 
     def _getminperstatus(self):
-        dlens = map(operator.sub, self._minperiods, map(len, self.datas))
-        # self._minperstatus = minperstatus = np.max(dlens)
-        minperstatus = max(dlens)
-        return minperstatus
+        if getattr(self, '_minperstatus', 1) < 0:
+            return -1
+
+        self._minperstatus = max(
+            (mp - len(d) for d, mp in zip(self.datas, self._minperiods) if len(d) > 0 or mp > 1),
+            default=1,
+        )
+        return self._minperstatus
 
     def clk_update(self):
-        newdlens = np.array([len(d) for d in self.datas])
+        newdlens = [len(d) for d in self.datas]
         if any(nl > l for l, nl in zip(self._dlens, newdlens)):
             self.forward()
-
-        self.lines.datetime[0] = np.max([d.datetime[0]
-                                     for d in self.datas if len(d)])      
-        self._dlens = newdlens
+            self.lines.datetime[0] = max(
+                (d.datetime[0] for d in self.datas if len(d)), default=0.0)
+            self._dlens = newdlens
 
     def on_dt_over(self, last_dts: int, dts: int):
         snapshot = self.store.on_dt_over(self.experiment_id, last_dts, dts)
@@ -277,6 +268,9 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.shm_chan.publish_sentinel(last_dts)
 
         for ind_line, metric in self.metrics:
+            if len(ind_line) == 0:
+                continue
+
             val = ind_line[0]
             if np.isnan(val):
                 continue
@@ -313,116 +307,44 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
         self.sell(_plan[b"sell"])
         self.buy(_plan[b"buy"])
 
-    def buy(self, buys):
-        '''Create a buy (long) order and send it to the broker 
-          
-          - ``exectype`` (default: ``int``)
-
-            Possible values:
-
-            - ``0 `` alias for Order.Open. An order will be executed
-              on created_dt 
-
-            - ``1 ``. alias for Order.Market. An order be executed at the given
-                price`` or better. e.g.  oco / occ / smooth / trend
-
-            - ``2 ``. alias for Order.Close is not supported by A stock 
-
-            - ``3``. alias for Order.Limit is not supported by A stock 
-
-            - ``4``. alias for Order.Stop is not supported by A stock
-
-            - ``5``. alias for Order.StopLimit is not supported by A stock  
-
-            - ``6``. alias for Order.StopTrail is not supported by A stock  
-
-            - ``7``. alias for Order.StopTrailLimit is not supported by A stock  
-
-          - ``filler``: logic for simulate executed price on created_dt
-            
-            Possible values:
-
-            - ``default``. An order which can only be executed on order created_dt 
-                where open price be cheated on
-
-            - ``vwap``. An order which can only be executed on order created_dt
-                where close price be cheated on
-
-            - ``twap``. An order which can only be executed on order created_dt
-                where mean of ohlc
-
-          - ``**kwargs``: additional broker implementations may support extra
-            parameters. ``backtrader`` will pass the *kwargs* down to the
-            created order objects
-
-        Returns:
-          - the submitted order
-        '''
-        if not buys: return
-        
-        created_dt = self.lines.datetime[0]
-        created_dt = 0.0 if np.isnan(created_dt) else created_dt
-
-        for bplan in buys:
-            order_id = fast_uuid4_bytes()
-            order = OrderBody(
-                        sid=bplan["sid"],
-                        order_id=order_id,
-                        sizer_ratio=bplan["weight"], 
-                        price=bplan.get("price", 0.0),
-                        order_type=0,
-                        exec_type=bplan["execType"], 
-                        created_dt=int(created_dt),
-                        filler=bplan["filler"])
-            
-            snapshot = self.store.submit(self.experiment_id, order)
-            trades = snapshot.trades
-            if trades:
-                # print("buy trades: ", len(trades))
-                self.shm_chan.publish_snapshot(snapshot) # publish trade to shared memory for writer to consume
-
-            self.shm_chan.publish_order(order)
-
-        self.snapshot = snapshot  
-        
-    def sell(self, sells):
-        '''
-        To create a selll (short) order and send it to the broker
-
-        See the documentation for ``buy`` for an explanation of the parameters
-
-        Returns: the submitted order
-        '''
-        if not sells: return
-
+    def _submit_orders(self, plans, order_type: int):
         filled = {}
-        created_dt = self.lines.datetime[0]
-        created_dt = 0.0 if np.isnan(created_dt) else created_dt
+        dt = self.lines.datetime[0]
+        created_dt = 0 if np.isnan(dt) else int(dt)
 
-        for splan in sells:
-            order_id = fast_uuid4_bytes()
-            sid = splan["sid"]
+        for plan in plans:
+            sid = plan["sid"]
             order = OrderBody(
-                        sid=sid,
-                        order_id=order_id,
-                        sizer_ratio=splan["weight"], 
-                        price=splan.get("price", 0.0),
-                        order_type=1,
-                        exec_type=splan["execType"], 
-                        created_dt=int(created_dt),
-                        filler=splan["filler"])
-        
+                sid=sid,
+                order_id=fast_uuid4_bytes(),
+                sizer_ratio=plan["weight"],
+                price=plan.get("price", 0.0),
+                order_type=order_type,
+                exec_type=plan["execType"],
+                created_dt=created_dt,
+                filler=plan["filler"],
+            )
             snapshot = self.store.submit(self.experiment_id, order)
-            trades = snapshot.trades
-            if trades:
-                # print("sell trades: ", len(trades)) 
+            if snapshot.trades:
                 self.shm_chan.publish_snapshot(snapshot)
-                filled[sid] = trades 
-            
+                filled[sid] = snapshot.trades
             self.shm_chan.publish_order(order)
 
+        self.snapshot = snapshot
+        return filled
+
+    def buy(self, buys):
+        '''Create a buy (long) order and send it to the broker'''
+        if not buys:
+            return
+        self._submit_orders(buys, 0)
+
+    def sell(self, sells):
+        '''To create a sell (short) order and send it to the broker'''
+        if not sells:
+            return
+        filled = self._submit_orders(sells, 1)
         self.pnc.on_execute(filled)
-        self.snapshot = snapshot  
 
     def get_snapshot(self)-> SnapshotBody: 
         return self.snapshot
@@ -436,8 +358,13 @@ class Strategy(with_metaclass(MetaStrategy, StrategyBase)):
 
     def stop(self):
         '''Called right before the bt_coreing is about to be stopped'''
-        last_dts = self.data.datetime[0]
-        self.on_dt_over(last_dts, 0)
+        last_dts = (self.lines.datetime[0]
+                    if len(self.lines.datetime) else self.data.datetime[0])
+        if not np.isnan(last_dts) and last_dts > 0:
+            self.on_dt_over(int(last_dts), 0)
+
+        for analyzer in self.analyzers:
+            analyzer._stop()
 
         self.store.stop()
 
@@ -606,6 +533,5 @@ class SignalStrategy(with_metaclass(MetaSigStrategy, Strategy)):
         if l_enter:
             if self._accumulate:
                 self.buy(_plan[b"buy"])
-        # elif l_exit or l_rev or l_leave:
         else:
             self.sell(_plan[b"sell"]) 

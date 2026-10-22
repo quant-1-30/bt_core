@@ -13,30 +13,26 @@
 #  limitations under the License.
 # -------------------------------------------------------------------------------------------------
 
-cdef enum SlipType:
-    Perc = 0
-    Fixed = 1
-    Smooth = 2
-    Likehood = 3
+from bt_core.execution.core.finance.line cimport Bar
 
 
 cdef class Slippage:
     
     cdef double slip_perc
 
-    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
+    cdef double get_slip_price(self, double order_price, Bar bar, bint is_buy) noexcept nogil
     
 
 cdef class FixedPercSlip(Slippage):
 
-    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
+    cdef double get_slip_price(self, double order_price, Bar bar, bint is_buy) noexcept nogil
     
 
 cdef class SmoothSlip(Slippage):
 
-    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
+    cdef double get_slip_price(self, double order_price, Bar bar, bint is_buy) noexcept nogil
 
 
-cdef class LikehoodSlip(Slippage):
+cdef class LikelihoodSlip(Slippage):
     
-    cdef double get_slip_price(self, double order_price, double open, double high, double low, double close, bint is_buy) noexcept nogil
+    cdef double get_slip_price(self, double order_price, Bar bar, bint is_buy) noexcept nogil

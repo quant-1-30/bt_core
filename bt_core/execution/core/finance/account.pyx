@@ -8,6 +8,7 @@ import uuid
 
 from bt_core.execution.core.finance.position cimport Position
 from bt_core.execution.core.finance.trade cimport OrderExbitData, OrderExecutionBit
+from bt_core.execution.core.finance.common cimport TS_MAGNITUDE
 from bt_core.utils.dateintern cimport ts2intdt
 
 from bt_protocol._protocol import AccountBody, Resp
@@ -82,7 +83,7 @@ cdef class Account:
         cdef double _val = 0.0
         cdef double _comm = 0.0
         cdef double _cash
-        cdef int64_t max_dt = 0
+        cdef int64_t max_dt = self.core.datetime
 
         for trade in trades:
             core = trade.core
@@ -101,7 +102,7 @@ cdef class Account:
         # sync() is the single point that normalizes to ymd for persistence
         self.core.datetime = max_dt
 
-    cdef void sync(self, int64_t tick, dict pobjs, dict closes):
+    cdef void sync(self, int64_t tick, dict pobjs):
         '''
         Updates the current position on Account
         '''
@@ -111,12 +112,9 @@ cdef class Account:
         cdef int64_t max_dt = max(self.core.datetime, tick)
         cdef Position p
 
-        cdef double close
-        cdef bytes sid
         for p in pobjs.values():
-            sid = p.core.sid
-            close = closes.get(sid, 0.0)
-            _v += p.core.size * close
+            if p.core.size > 0:
+                _v += p.core.size * p.core.cost_basis + p.core.pnl
             _pnl += p.core.pnl + p.core.realized_pnl
             max_dt = max(p.core.datetime, max_dt)
 
@@ -127,7 +125,7 @@ cdef class Account:
         # so a single conversion here covers the mixed inputs. Guard against
         # double conversion (ts2intdt(20240105) -> 19700823) when every input
         # is already ymd (restored-from-db account, ymd-only callers).
-        if max_dt >= 100000000:  # unix ts magnitude; ymd ints stay below 1e8
+        if max_dt >= TS_MAGNITUDE:  # unix ts magnitude; ymd ints stay below 1e8
             max_dt = ts2intdt(<double>max_dt)
         self.core.datetime = max_dt
 

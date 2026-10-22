@@ -104,9 +104,11 @@ class LineBuffer(LineSingle):
 
     def qbuffer(self, savemem=0):
         if savemem:
-            self.mode = QBuffer
-            _minperiod = self._minperiod
-            self.maxlen = _minperiod
+            if self.mode != QBuffer:
+                self.mode = QBuffer
+                self.maxlen = max(self._minperiod, 2)
+            else:
+                self.maxlen = max(self.maxlen, self._minperiod, 2)
 
         self.reset()
 
@@ -133,6 +135,9 @@ class LineBuffer(LineSingle):
     #     # print("__getitem__ ", self.idx, self.maxlen, idx, ago, len(self.array))
     #     return self.array[idx + ago]
     
+    def __getitem__(self, ago):
+        return self.array[self._cur_idx + ago]
+    
     # def __setitem__(self, ago, value):
     #     ''' Sets a value at position "ago" and executes any associated bindings
 
@@ -145,9 +150,6 @@ class LineBuffer(LineSingle):
     #     self.array[idx + ago] = value
     #     for binding in self.bindings:
     #         binding[ago] = value
-    
-    def __getitem__(self, ago):
-        return self.array[self._cur_idx + ago]
 
     def _set(self, ago, value):
         """ avoid __setitem__"""
@@ -312,6 +314,7 @@ class LineBuffer(LineSingle):
     def rewind(self, size=1):
         self.idx -= size
         self.lencount -= size
+        self._cur_idx = self.idx % self.maxlen
 
     def advance(self, size=1):
         ''' Advances the logical index without touching the underlying buffer
@@ -321,6 +324,7 @@ class LineBuffer(LineSingle):
         '''
         self.idx += size
         self.lencount += size
+        self._cur_idx = self.idx % self.maxlen
     
     def getindicators(self):
         return []
@@ -598,7 +602,9 @@ class MetaLineActions(LineBuffer.__class__):
             super(MetaLineActions, cls).dopostinit(_obj, *args, **kwargs)
 
         # register with _owner to be kicked later
-        _obj._owner.addindicator(_obj)
+        if _obj._owner is not None:
+            _obj._owner.addindicator(_obj)
+
         _obj._lineiterators = collections.defaultdict(list) # api with lineiterator
 
         return _obj, args, kwargs
@@ -645,18 +651,19 @@ class LineActions(with_metaclass(MetaLineActions, LineBuffer)):
         return obj
 
     def _next(self):
-        # print("LineActions _next foward")
+        # Only advance and evaluate when _clock actually produced a new bar:
+        # prevents LineActions on resampled feeds (datas[1:]) from re-running
+        # on every 1-minute bar of datas[0].
         clock_len = len(self._clock)
         if clock_len > len(self):
             self.forward()
-
-        if clock_len > self._minperiod:
-            self.next()
-        elif clock_len == self._minperiod:
-            # only called for the 1st value
-            self.nextstart()
-        else:
-            self.prenext()
+            if clock_len > self._minperiod:
+                self.next()
+            elif clock_len == self._minperiod:
+                # only called for the 1st value
+                self.nextstart()
+            else:
+                self.prenext()
     
     def _next_fast(self):
         # print("LineActions _next foward")
@@ -775,7 +782,12 @@ class LinesOperation(LineActions):
             else:
                 self[0] = self.operation(self.a.time(), self.b)
         else:
-            self[0] = self.operation(self.a, self.b[0])
+            b_val = self.b[0]
+            if (self.operation in (operator.__truediv__, operator.__floordiv__)
+                    and abs(b_val) < 1e-9):
+                self[0] = 0.0
+            else:
+                self[0] = self.operation(self.a, b_val)
 
 
 class LineOwnOperation(LineActions):

@@ -20,8 +20,7 @@
 ###############################################################################
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import talib
-import numpy as np
+import collections
 from .basicops import PeriodN
 from bt_core.indicator import Indicator
 
@@ -63,14 +62,59 @@ class AdaptiveMovingAverage(PeriodN):
     lines = ('kama',)
     params = (('period', 30),)
 
+    # talib KAMA internal fast/slow constants
+    _FAST_SC = 2.0 / 3.0        # 2 / (2 + 1)
+    _SLOW_SC = 2.0 / 31.0       # 2 / (30 + 1)
+
     def __init__(self):
         super(AdaptiveMovingAverage, self).__init__()
-        # self.addminperiod(self.p.period)
+        # talib.KAMA lookback == period+1 (seed SMA at period-1, first
+        # recursion output one bar later)
+        self.addminperiod(2)
+        self._kama = None
+        self._seed_cnt = 0
+        # incremental state: last p closes (for direction) and last p
+        # abs-deltas with their running sum (for volatility) - both O(1)/bar
+        self._closes = collections.deque(maxlen=self.p.period)
+        self._deltas = collections.deque(maxlen=self.p.period)
+        self._dsum = 0.0
+
+    def _acc(self):
+        x = self.data[0]
+        if x != x:
+            return
+        p = self.p.period
+
+        prev = self._closes[-1] if self._closes else None
+        if prev is not None:
+            d = abs(x - prev)
+            if len(self._deltas) == p:
+                self._dsum -= self._deltas[0]
+            self._deltas.append(d)
+            self._dsum += d
+
+        if self._kama is None:
+            self._seed_cnt += 1
+            self._closes.append(x)
+            if self._seed_cnt >= p:
+                # talib convention (verified numerically): seed with the
+                # price at index period-1 itself, NOT with an SMA; the
+                # recursion starts on the following bar
+                self._kama = x
+            return
+
+        # direction = |x[t] - x[t-p]|: _closes currently holds x[t-p..t-1]
+        if len(self._closes) == p:
+            direction = abs(x - self._closes[0])
+            er = direction / self._dsum if self._dsum > 0.0 else 0.0
+            sc = (er * (self._FAST_SC - self._SLOW_SC) + self._SLOW_SC) ** 2
+            self._kama += sc * (x - self._kama)
+
+        self._closes.append(x)
+
+    def prenext(self):
+        self._acc()
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        _arr  = np.asarray(self.data.array, dtype=np.float64)
-        _kama = talib.KAMA(_arr, timeperiod=self.p.period)
-
-        # self.lines.kama[0] = _kama[-1]
-        self.line[0] = _kama[-1]
+        self._acc()
+        self.line[0] = self._kama if self._kama is not None else float('nan')

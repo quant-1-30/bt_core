@@ -18,10 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-import talib
-import numpy as np
 from .basicops import PeriodN
-
 
 class AroonOscillator(PeriodN):
     '''
@@ -40,17 +37,22 @@ class AroonOscillator(PeriodN):
     lines = ('aroonup', 'aroondown', 'aroonosc')
 
     def __init__(self):
-        super(_AroonBase, self).__init__()
-        # self.addminperiod(self.p.period) # period + 1 
+        super(AroonOscillator, self).__init__()
+        # talib.AROON/AROONOSC lookback == period: first valid output needs
+        # period+1 samples (PeriodN already added `period`, net +1 here)
+        self.addminperiod(2)
 
     def next(self):
-        # np.array slice ---> view and zero_copy
-        h = np.asarray(self.data.high.array, dtype=np.float64)
-        l = np.asarray(self.data.low.array, dtype=np.float64)
-
-        (down, up)= talib.AROON(h, l, timeperiod=self.p.period) # same size / nan fill
-        self.lines.aroondown[0] = down[-1]
-        self.lines.aroonup[0] = up[-1]
-
-        osc = talib.AROONOSC(h, l, timeperiod=self.p.period)
-        self.lines.aroonosc[0] = osc[-1]
+        # logical windows via get(); talib AROON uses p+1 samples:
+        # aroon = 100 * (period - bars_since_extreme) / period
+        p = self.p.period
+        hw = self.data.high.get(size=p + 1)
+        lw = self.data.low.get(size=p + 1)
+        hl = list(hw)
+        ll = list(lw)
+        # reversed index == bars-ago (0 = current bar), ties -> most recent
+        up_bars_ago = hl[::-1].index(max(hl))
+        dn_bars_ago = ll[::-1].index(min(ll))
+        self.lines.aroonup[0] = 100.0 * (p - up_bars_ago) / p
+        self.lines.aroondown[0] = 100.0 * (p - dn_bars_ago) / p
+        self.lines.aroonosc[0] = self.lines.aroonup[0] - self.lines.aroondown[0]

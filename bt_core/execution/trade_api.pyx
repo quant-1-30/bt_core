@@ -1,36 +1,27 @@
-# cython.boundscheck(False) # 关闭边界检查
-# cython.wraparound(False)  # 关闭负指数索引检查
+# cython: boundscheck=False
+# cython: wraparound=False
 # distutils: language = c++
 # cython: language_level=3
 
+import os
 import asyncio
-import threading
-from typing import Tuple
-from concurrent.futures import ThreadPoolExecutor
+import logging
 from libc.stdint cimport int32_t
 
 from bt_protocol._protocol import Event
+from bt_core.execution.core.finance.function cimport _get_bt_timeout
 from bt_core.execution.core.engine.engine cimport BackEngine, EngineTopic
+
+logger = logging.getLogger(__name__)
 
 
 cdef class TdApi:
-    """
-    # How to implement a tradeApi:
-    ---
-    ## Basics
-    A tradeApi should satisfies:
-    * this class should be thread-safe:
-        * all methods should be thread-safe
-        * no mutable shared properties between objects.
-    * all methods should be non-blocked
-    * satisfies all requirements written in docstring for every method and callbacks.
-    * automatically reconnect if connection lost.
+    """Single-thread Cerebro execution gateway wrapping BackEngine.
 
-    All the XxxData passed to callback should be constant, which means that
-        the object should not be modified after passing to on_xxxx.
-    So if you use a cache to store reference of data, use copy.copy to create a new object
-    before passing that data into on_xxxx
-    """
+    Direct methods (set_cash, submit, get_snapshot) run synchronously on the
+    caller thread; async methods (register, subscribe, on_dt_over, stop)
+    dispatch coroutines to the background runner loop with a configurable
+    timeout (`BT_TIMEOUT`, default 60s)."""
 
     def __init__(self, bytes client_id, int32_t q_size, int32_t buffer_size, object actor):
         self.client_id = client_id
@@ -49,25 +40,23 @@ cdef class TdApi:
     # Async Methods
     # ------------------------------------------------------------------
 
-    cpdef object register(self, object body): # run_coroutine_threadsafe return concurrent.futures.Future
+    cpdef object register(self, object body):
         cdef object event = Event(topic=EngineTopic.Register, body=body, experiment_id=b'')
         cdef object coro = self.engine.register(event)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-
-        return future.result()
+        return future.result(timeout=_get_bt_timeout())
 
     cpdef object subscribe(self, int topic, bytes experiment_id, object body):
         cdef object event = Event(topic=EngineTopic.Subscribe, body=body, 
                                 experiment_id=experiment_id, sub_topic=topic)
-
         cdef object coro = self.engine.subscribe(event)
         cdef object future = asyncio.run_coroutine_threadsafe(coro, self._loop)
-        return future.result()
+        return future.result(timeout=_get_bt_timeout())
 
     cpdef stop(self):
         if self._loop and self._loop.is_running():
             future = asyncio.run_coroutine_threadsafe(self.engine.stop(), self._loop)
-            future.result()
+            future.result(timeout=_get_bt_timeout())
 
     # ------------------------------------------------------------------
     # Direct Methods
@@ -110,4 +99,4 @@ cdef class TdApi:
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
-            print(f"Error: {exc_type}, {exc_val}, {exc_tb}")
+            logger.error("TdApi error: %s: %s", exc_type, exc_val)
