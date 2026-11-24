@@ -377,13 +377,13 @@ class EqualWeightSizer(bt.Sizer):
 
 cerebro.addsizer(EqualWeightSizer)
 
-# 4. 配置 Pnc（风控参数）
+# 4. 配置 Pnc（风控参数；`stake` 属于 Sizer，不在 Pnc）
 cerebro.addpnc(bt.Pnc,
     days_held=5,        # 持仓周期
-    stake=0.9,          # 单只股票最大仓位比例
     dd=0.25,            # 最大回撤阈值
     stop_loss=-0.1,     # 个股止损线
-    max_positions=5)    # 最大持仓数
+    max_positions=5,    # 最大持仓数
+    exit_on_risk=True)  # 早盘分批到期平仓（T+1 出场，可选）
 
 # 5. 添加策略
 class MyStrategy(bt.Strategy):

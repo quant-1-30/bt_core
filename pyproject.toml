@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bt_core"
-version = "0.6.1"
+version = "0.6.2"
 description = "bt_core is a high-performance backtesting framework for quantitative trading strategies, designed to provide fast and efficient simulations of trading algorithms. It supports various data formats and integrates with popular libraries for data analysis and visualization."
 authors = ["hengxin.liu <13776668123@163.com>"]
 readme = "README.md"
