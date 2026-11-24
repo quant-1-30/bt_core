@@ -66,7 +66,7 @@
 |-----------|---------|
 | `dataseries.py` | 定义 `DataSeries`、`OHLC`、`OHLCDateTime`、`TimeFrame`、`_Bar`。`DataSeries` 继承 `LineSeries`，默认 Lines 为 `open/high/low/close/volume/amount/datetime`。 |
 | `feed.py` | 定义 `AbstractDataBase`（即 `DataBase`），是所有数据馈送的抽象基类。实现数据状态机（`CONNECTED` ~ `UNKNOWN`）、`_start()` / `_load()` / `next()` 生命周期、filter/resample 支持。 |
-| `feeds/` | 具体数据实现。当前主要使用 `pqtfeed.ParquetData`（读取 parquet 文件）和 `rpcfeed`。 |
+| `feeds/` | 具体数据实现。当前保留精简核心：`RemoteData`（`rpcfeed.py`）、`ParquetPatch`（`scorefeed.py`，恒定透传 `expected_return / preclose / entry_close` 富字典，列缺失时优雅降级）与 `PandasDirectData`（`pandafeed.py`）；外盘历史遗留驱动（IB/OANDA/VC/MT4/Quandl 等 14 个文件）已全部清除。 |
 
 ### 2.3 策略层 (`strategy.py`)
 
@@ -123,9 +123,8 @@
 
 | 文件 | 职责 |
 |------|------|
-| `sizer.py` | `Sizer` 基类。定义 `getsizing(topk_info, snapshot, isbuy)` 接口。 |
-| `sizers/generic.py` | 四种 Sizer：`FixedSize`、`WeightedSizer`、`TurtleSizer`（ATR 风控）、`KellySizer`。 |
-| `pnc.pyx` | **Cython 实现的仓位与现金控制器**。`Pnc` 类负责：1) 风控硬止损（`p_tolerance` / `act_tolerance`）；2) 先卖后买逻辑；3) 锁仓逻辑（`lock_days`）；4) 调用 Sizer 计算目标权重。 |
+| `sizer.pyx` | Cython `Sizer` 基类。定义 `getsizing(topk_info, snapshot, isbuy)` 接口，支持标量与富字典 `topk_info`。 |
+| `pnc.pyx` | **Cython 实现的仓位与现金控制器**。`Pnc` 类负责：1) `exit_on_risk=True` 早盘分批到期平仓与滞留跌停单重挂；2) `max_positions` 统一超限强平（`_enforce_max_positions`）与个股止损 / 组合最大回撤熔断；3) 当日正常全额卖单即时释放槽位（消除隔日空仓 Bug）；4) 买单严格按 `Sizer` 目标权重降序（`BuyCandidate`）分配 `slots`。 |
 
 ### 2.10 引擎层 (`cerebro.py`)
 
@@ -563,7 +562,7 @@ bt_core/
    - **Pnc 风控机制 (`pnc.pyx`)**：
      - **最大持仓数控制 (`max_positions`)**：超出时优先平仓不在 `topk` 中、持仓时间最长的标的；
      - **个股止损 (`stop_loss`)**：当 `pos.pnl_ratio <= stop_loss`（默认 `-10%`）时在早盘 `on_risk` 触发止损卖出；
-     - **宏观最大回撤熔断 (`dd`)**：当 `stats["drawdown"].maxdd >= dd`（默认 `25%`）时在 `on_risk` 清空全部可卖持仓，并置 `_last_trade_day = -1` 锁存停止后续 `generate_plan` 新增买单，防止回撤熔断后陷入“早盘强平—尾盘重买”死循环。
+     - **宏观最大回撤熔断 (`dd`)**：当 `stats["drawdown"].maxdd >= dd`（默认 `25%`）时在 `on_risk` 清空全部可卖持仓，并置 `_halted = True` 锁存停止后续 `generate_plan` 新增买单；但已挂出（含跌停滞销）的卖出单仍会在每个交易日的 `generate_plan` 中继续重发直至全部清仓，防止回撤熔断后陷入“早盘强平—尾盘重买”死循环。
 
 ---
 

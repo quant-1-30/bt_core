@@ -219,7 +219,7 @@ def test_pnc_partial_sell_intent_and_zero_share_guard():
     assert len(plan_tiny[b"sell"]) == 0
 
     # Macro drawdown risk control: once maxdd >= dd triggers in on_risk,
-    # sells all available shares and halts subsequent buy plans (_last_trade_day = -1)
+    # sells all available shares and halts subsequent buy plans (_halted latch)
     pnc_dd = Pnc(HalfSizer(), days_held=5, stake=0.9, dd=0.25, max_positions=5)
     pnc_dd._start([20240102 + i for i in range(20)])
     pos_obj = NS(sid=sid, size=1000, available=1000, created_dt=created, pnl_ratio=0.0)
@@ -229,6 +229,158 @@ def test_pnc_partial_sell_intent_and_zero_share_guard():
     assert len(s1) == 1 and s1[0]["sid"] == sid
     plan_halted = pnc_dd.generate_plan(20240104, topk, NS(positions=[pos_obj], account=NS(cash=1e5)), 0, b"default")
     assert len(plan_halted[b"buy"]) == 0
+
+    # Verify rich dict topk_info, morning exit_on_risk, empty-topk sell execution, and descending weight slot allocation
+    class DictSizer(Sizer):
+        def _getsizing(self, topk_info, snapshot, isbuy):
+            if not isbuy:
+                return {p.sid: 1.0 for p in snapshot.positions if p.size > 0}
+            return {k: float(v["fsm_score"]) / float(v["sid_scale"]) * 0.01 for k, v in topk_info.items()}
+
+    pnc_fsm = Pnc(DictSizer(), days_held=1, dd=0.25, max_positions=2, exit_on_risk=True)
+    pnc_fsm._start([20240102 + i for i in range(20)])
+    # 1) Morning on_risk exits matured T+1 position (days_held >= 1)
+    matured_sells = pnc_fsm.on_risk(NS(positions=[pos_obj]), {}, 20240103, filler=b"twap")
+    assert len(matured_sells) == 1 and matured_sells[0]["sid"] == sid and matured_sells[0]["filler"] == b"twap"
+    pnc_fsm.on_execute({sid: 1000})
+
+    # 2) Afternoon generate_plan accepts dict topk_info and picks Top-2 highest weights out of 3 candidates
+    rich_topk = {
+        b"000001": {"fsm_score": 1.0, "sid_scale": 0.05},  # w = 0.20 (3rd -> dropped by slots=2)
+        b"000002": {"fsm_score": 2.0, "sid_scale": 0.02},  # w = 1.00 (1st)
+        b"000003": {"fsm_score": 1.5, "sid_scale": 0.03},  # w = 0.50 (2nd)
+    }
+    plan_rich = pnc_fsm.generate_plan(20240103, rich_topk, NS(positions=[], account=NS(cash=1e6)), 0, b"twap")
+    assert [b["sid"] for b in plan_rich[b"buy"]] == [b"000002", b"000003"]
+
+    # 3) Empty topk_info still sells matured positions in generate_plan (even with a 1/len(topk) Sizer)
+    class DivByLenSizer(Sizer):
+        def _getsizing(self, topk_info, snapshot, isbuy):
+            ratio = 1.0 / len(topk_info)  # would raise ZeroDivisionError if topk_info were {}
+            return {k: ratio for k in topk_info} if isbuy else {p.sid: 1.0 for p in snapshot.positions}
+
+    pnc_empty = Pnc(DivByLenSizer(), days_held=1, dd=0.25, max_positions=2)
+    pnc_empty._start([20240102 + i for i in range(20)])
+    plan_empty_topk = pnc_empty.generate_plan(20240103, {}, NS(positions=[pos_obj], account=NS(cash=1e6)), 0, b"default")
+    assert len(plan_empty_topk[b"sell"]) == 1 and plan_empty_topk[b"sell"][0]["sid"] == sid
+
+    # 4) Partial sell (weight=0.5 < 1.0) MUST NOT free a slot on the same day!
+    pnc_slot = Pnc(HalfSizer(), days_held=1, dd=0.25, max_positions=1)
+    pnc_slot._start([20240102 + i for i in range(20)])
+    plan_partial = pnc_slot.generate_plan(
+        20240103, {b"000001": 1.0},
+        NS(positions=[pos_obj], account=NS(cash=1e6)), 0, b"default"
+    )
+    assert len(plan_partial[b"sell"]) == 1 and plan_partial[b"sell"][0]["weight"] == 0.5
+    assert len(plan_partial[b"buy"]) == 0, "Partial sell leaves 500 shares held; must still occupy the 1 slot!"
+
+    # 5) _enforce_max_positions strictly liquidates in descending urgency: out_of_topk=1 first, then oldest days_held
+    c_old = int(datetime(2024, 1, 2, 10, 0, tzinfo=BJ).timestamp())
+    c_new = int(datetime(2024, 1, 5, 10, 0, tzinfo=BJ).timestamp())
+    held_3 = [
+        NS(sid=b"IN_TOPK_OLD", size=100, available=100, created_dt=c_old, pnl_ratio=0.0),
+        NS(sid=b"OUT_NEW", size=100, available=100, created_dt=c_new, pnl_ratio=0.0),
+        NS(sid=b"OUT_OLD", size=100, available=100, created_dt=c_old, pnl_ratio=0.0),
+    ]
+    pnc_max = Pnc(HalfSizer(), days_held=20, dd=0.25, max_positions=2)
+    pnc_max._start([20240102 + i for i in range(20)])
+    # In on_risk: exceeds max_positions=2 by 1 -> liquidates ONLY the oldest position
+    s_risk = pnc_max.on_risk(NS(positions=held_3), {}, 20240108)
+    assert len(s_risk) == 1 and s_risk[0]["sid"] in (b"IN_TOPK_OLD", b"OUT_OLD")
+
+    # In generate_plan: OUT_OLD gets full forced exit (weight=1.0, priority=100) via _enforce_max_positions (NO duplicate sell!),
+    # OUT_NEW gets normal not-in-topk partial exit (weight=0.5, priority=50), IN_TOPK_OLD is spared!
+    pnc_max2 = Pnc(HalfSizer(), days_held=20, dd=0.25, max_positions=2)
+    pnc_max2._start([20240102 + i for i in range(20)])
+    plan_max = pnc_max2.generate_plan(20240108, {b"IN_TOPK_OLD": 1.0}, NS(positions=held_3, account=NS(cash=1e6)), 0, b"default")
+    assert [(s["sid"], s["weight"], s["priority"]) for s in plan_max[b"sell"]] == [
+        (b"OUT_OLD", 1.0, 100),
+        (b"OUT_NEW", 0.5, 50),
+    ]
+
+
+def test_pnc_risk_exits_override_and_reissue():
+    """Regression tests: risk exits override partial intents, drawdown halt keeps
+    re-issuing stuck sells, max-position enforcement escalates partial sells,
+    and a full-liquidation intent survives T+1/partial fills."""
+
+    class HalfSizer(Sizer):
+        def _getsizing(self, topk_info, snapshot, isbuy):
+            if isbuy:
+                return {sid: 0.2 for sid in topk_info}
+            return {p.sid: 0.5 for p in snapshot.positions if p.size > 0}
+
+    sid, other = b"600000", b"000001"
+    created = int(datetime(2024, 1, 2, 10, 0, tzinfo=BJ).timestamp())
+    topk_other = {other: 1.0}
+
+    def pos(size=1000, available=1000, pnl=0.0, created_dt=created):
+        return NS(sid=sid, size=size, available=available, created_dt=created_dt, pnl_ratio=pnl)
+
+    # 1) Stop loss overrides an existing partial ("matured / dropped") sell.
+    pnc = Pnc(HalfSizer(), days_held=99, dd=0.99, max_positions=5)
+    pnc._start([20240102 + i for i in range(30)])
+    p1 = pnc.generate_plan(20240110, topk_other, NS(positions=[pos()], account=NS(cash=1e6)), 0, b"default")
+    assert [(s["weight"], s["size"]) for s in p1[b"sell"]] == [(0.5, 500)]
+    risk = pnc.on_risk(NS(positions=[pos(pnl=-0.2)]), {}, 20240111)
+    assert [(s["weight"], s["size"], s["priority"]) for s in risk] == [(1.0, 1000, 100)]
+    p2 = pnc.generate_plan(20240111, topk_other, NS(positions=[pos(pnl=-0.2)], account=NS(cash=1e6)), 0, b"default")
+    assert [(s["sid"], s["weight"], s["size"]) for s in p2[b"sell"]] == [(sid, 1.0, 1000)]
+
+    # 2) Drawdown overrides the partial sell and latches the halt, but keeps
+    #    re-issuing exits (including a stuck limit-down order) with no new buys.
+    pnc_dd = Pnc(HalfSizer(), days_held=99, dd=0.25, max_positions=5)
+    pnc_dd._start([20240102 + i for i in range(30)])
+    pnc_dd.generate_plan(20240110, topk_other, NS(positions=[pos()], account=NS(cash=1e6)), 0, b"default")
+    dd_sells = pnc_dd.on_risk(NS(positions=[pos()]), {"drawdown": NS(maxdd=0.30)}, 20240111)
+    assert [(s["weight"], s["size"], s["priority"]) for s in dd_sells] == [(1.0, 1000, 100)]
+    pnc_dd.on_execute({sid: 0})  # limit-down: nothing fills
+    halted = pnc_dd.generate_plan(20240111, topk_other, NS(positions=[pos()], account=NS(cash=1e6)), 0, b"default")
+    assert [(s["sid"], s["weight"], s["size"]) for s in halted[b"sell"]] == [(sid, 1.0, 1000)]
+    assert halted[b"buy"] == []
+    halted2 = pnc_dd.generate_plan(20240112, topk_other, NS(positions=[pos()], account=NS(cash=1e6)), 0, b"default")
+    assert [(s["sid"], s["weight"], s["size"]) for s in halted2[b"sell"]] == [(sid, 1.0, 1000)]
+    assert halted2[b"buy"] == []
+
+    # 3) Max-position enforcement escalates a pending *partial* sell to a full
+    #    exit (instead of skipping it), and does not double-sell it.
+    a, b, c = b"00000A", b"00000B", b"00000C"
+    c_old = int(datetime(2024, 1, 2, 10, 0, tzinfo=BJ).timestamp())
+    c_new = int(datetime(2024, 1, 5, 10, 0, tzinfo=BJ).timestamp())
+    held2 = [
+        NS(sid=a, size=100, available=100, created_dt=c_old, pnl_ratio=0.0),
+        NS(sid=b, size=100, available=100, created_dt=c_old, pnl_ratio=0.0),
+    ]
+    pnc_max = Pnc(HalfSizer(), days_held=99, dd=0.99, max_positions=2)
+    pnc_max._start([20240102 + i for i in range(20)])
+    seed = pnc_max.generate_plan(20240110, {b: 1.0}, NS(positions=held2, account=NS(cash=1e6)), 0, b"default")
+    assert [(s["sid"], s["weight"], s["priority"]) for s in seed[b"sell"]] == [(a, 0.5, 50)]
+    held3 = held2 + [NS(sid=c, size=100, available=100, created_dt=c_new, pnl_ratio=0.0)]
+    plan = pnc_max.generate_plan(20240111, {b: 1.0}, NS(positions=held3, account=NS(cash=1e6)), 0, b"default")
+    assert [(s["sid"], s["weight"], s["priority"]) for s in plan[b"sell"]] == [
+        (a, 1.0, 100),
+        (c, 0.5, 50),
+    ]
+    # No new-position buys can be opened (0 free slots); only the already-held
+    # candidate B may receive an "add" order.
+    assert [x["sid"] for x in plan[b"buy"]] == [b]
+
+    # 4) A full-liquidation intent is not downgraded when T+1 unlocks more
+    #    shares or a partial fill occurs between planning and re-issue.
+    pnc_full = Pnc(HalfSizer(), days_held=99, dd=0.99, max_positions=5)
+    pnc_full._start([20240102 + i for i in range(30)])
+    first = pnc_full.on_risk(NS(positions=[pos(size=1000, available=500, pnl=-0.2)]), {}, 20240110)
+    assert [(s["weight"], s["size"]) for s in first] == [(1.0, 500)]
+    pnc_full.on_execute({sid: 200})  # partial fill, 300 intent left
+    pnc_full.on_execute({sid: 0})
+    reissue = pnc_full.generate_plan(
+        20240111, topk_other,
+        NS(positions=[pos(size=800, available=800, pnl=-0.2)], account=NS(cash=1e6)),
+        0, b"default",
+    )
+    assert [(s["sid"], s["weight"], s["size"], s["priority"]) for s in reissue[b"sell"]] == [
+        (sid, 1.0, 800, 100)
+    ]
 
 
 def test_shm_unregister_and_actor_reset():

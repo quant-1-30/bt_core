@@ -78,7 +78,7 @@ def test_parquet_score_feed_aliases_3d_schema_and_causal_lag():
         pf0 = ParquetPatch(parquet_path=Path(tmpd), lag=0)
         pf0._start()
         tk = pf0.get_topk(20240102)
-        assert tk[b"600000"] == 1.0 and tk[b"688001"] == 1.0
+        assert tk[b"600000"]["fsm_score"] == 1.0 and tk[b"688001"]["fsm_score"] == 1.0
 
         pf1 = ParquetPatch(parquet_path=Path(tmpd), lag=1)
         pf1._start()
@@ -86,7 +86,39 @@ def test_parquet_score_feed_aliases_3d_schema_and_causal_lag():
         assert pf1.get_topk(20240103) == tk
         # 20240103 全为负分 -> 20240104 查 T-1 必须返回空字典而非复用 20240102 陈旧信号
         assert pf1.get_topk(20240104) == {}
-        assert pf1.get_topk(20240105)[b"600000"] == 1.2
+        assert pf1.get_topk(20240105)[b"600000"]["fsm_score"] == 1.2
+
+        # Rich metadata (expected_return / preclose / entry_close) is always passed through
+        df_rich = pl.DataFrame({
+            "day": [date(2024, 1, 2)],
+            "sid": ["600000"],
+            "fsm_score": [1.5],
+            "expected_return": [0.004],
+            "preclose": [10.0],
+            "entry_close": [10.2],
+        })
+        df_rich.write_parquet(os.path.join(tmpd, "scores_202401.parquet"))
+        pf_rich = ParquetPatch(parquet_path=Path(tmpd), lag=0)
+        pf_rich._start()
+        meta = pf_rich.get_topk(20240102)[b"600000"]
+        assert meta["fsm_score"] == 1.5 and meta["expected_return"] == 0.004 and meta["preclose"] == 10.0
+
+
+def test_parquet_score_feed_day_id_covers_all_months():
+    """回归: ``dt.month()`` 是 Int8, ``* 100`` 曾静默溢出 (2024-11-20 → 20240096), 除 1 月外
+    所有交易日 ``get_topk`` 查不到信号 (回测静默空仓); 旧用例只覆盖 1 月故未暴露。"""
+    with tempfile.TemporaryDirectory() as tmpd:
+        days = [date(2024, m, 15) for m in range(1, 13)]
+        pl.DataFrame({"day": days, "sid": ["600000"] * 12, "fsm_score": [1.0] * 12}).write_parquet(
+            os.path.join(tmpd, "scores_202412.parquet")
+        )
+
+        pf = ParquetPatch(parquet_path=Path(tmpd), lag=0)
+        pf._start()
+
+        for d in days:
+            day_id = int(d.strftime("%Y%m%d"))
+            assert pf.get_topk(day_id)[b"600000"]["fsm_score"] == 1.0, day_id
 
 
 def test_remote_data_unified_benchmark_master_clock():

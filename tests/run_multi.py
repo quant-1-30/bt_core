@@ -28,9 +28,11 @@ class FixedSize(bt.Sizer):
         self.stake = kwargs.get("stake", 1.0)
 
     def _getsizing(self, topk_info, snapshot, isbuy: bool):
-        if isbuy:
+        if isbuy and topk_info:
             ratio = self.stake / len(topk_info)
             return {sid: ratio for sid in topk_info.keys()}
+        if isbuy:
+            return {}
         return {p.sid: 1.0 for p in snapshot.positions if p.size > 0}
 
 
@@ -75,7 +77,7 @@ if __name__ == '__main__':
 
     cerebro.addstore("local")
     cerebro.addsizer(FixedSize)
-    cerebro.addpnc(Pnc, days_held=5, stake=0.9, dd=0.25, max_positions=5)
+    cerebro.addpnc(Pnc, days_held=5, dd=0.25, max_positions=5)
 
     cerebro.add_timer(
         when=bt.timer.Session.SESSION_START,
